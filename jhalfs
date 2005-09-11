@@ -1,0 +1,255 @@
+#!/bin/sh 
+
+version="
+jhalfs 0.1
+Written by Jeremy Huntwork.
+
+This program is published under the \
+Gnu General Public License, Version 2."
+
+usage="\
+Usage: $0 [OPTION]
+
+Options:
+  -h, --help			print this help, then exit
+  -V, --version			print version number, then exit
+  -L, --LFS-version=VER		use VER version of the LFS book
+  -D, --download-client=CLIENT	use CLIENT as the program for retrieving
+				packages
+"
+
+help="\
+Try '$0 --help' for more information."
+
+exit_missing_arg="\
+echo \"Option '\$1' requires an argument\" >&2
+echo \"\$help\" >&2
+exit 1"
+
+no_dl_client="\
+echo \"Could not find a way to download the LFS sources.\" >&2
+echo \"Attempting to continue.\" >&2"
+
+while test $# -gt 0 ; do
+	case $1 in
+		--version | -V )
+			echo "$version"
+			exit 0
+			;;
+
+		--help | -h )
+			echo "$usage"
+			exit 0
+			;;
+
+		--LFS-version | -L )
+			test $# = 1 && eval "$exit_missing_arg"
+			shift
+			case $1 in
+				dev* | SVN | trunk )
+					LFSVRS=development
+					;;
+				* )
+					echo "$1 is an unsupported version at this time."
+					exit 1
+					;;
+			esac
+			shift
+			;;
+
+		--download-client | -D )
+			test $# = 1 && eval "$exit_missing_arg"
+			shift
+			DL=$1
+			shift
+			;;
+
+		--su-lfs )
+			echo "Build section with 'lfs' user"
+			;;
+
+		--chroot)
+			echo "Build chroot section"
+			;;
+
+		* )
+			echo "$usage"
+			exit 1
+			;;
+	esac
+done
+
+# Test to make sure we're running the build as root
+
+if [ "$UID" != "0" ] ; then
+	echo "You must be logged in as root to successfully build LFS."
+	exit 1
+fi
+
+# Find the download client to use, if not already specified.
+
+if [ -z $DL ] ; then
+  if [ `type -p wget` ] ; then
+	DL=wget
+  elif [ `type -p curl` ] ; then
+	DL=curl
+  else
+	eval "$no_dl_client"
+  fi
+fi
+
+SVN="svn://svn.linuxfromscratch.org"
+HTTP=http://ftp.lfs-matrix.net/pub/lfs/lfs-packages/conglomeration
+BUILDDIR=/mnt/lfs
+LOG=build.log
+
+get_book() {
+  # Check for Subversion instead of just letting the script hit 'svn' and fail.
+  test `type -p svn` || eval "echo \"This feature requires Subversion.\"
+	exit 1"
+  cd $BUILDDIR
+ 
+  # Test to make sure the LFS version is set
+  if [ -z $LFSVRS ] ; then LFSVRS=development ; fi
+  echo -n "Downloading the LFS Book, version $LFSVRS... "
+
+  # Grab the LFS book fresh if it's missing, otherwise, update it from the
+  # repo. If we've already extracted the commands, move on to getting the
+  # sources.
+  if [ -d lfs-$LFSVRS ] ; then
+  	cd lfs-$LFSVRS
+	if svn up | grep -q At && test -d $BUILDDIR/commands && \
+	test -f $BUILDDIR/packages && test -f $BUILDDIR/patches ; then
+  		echo -ne "done\n"
+		get_sources
+	else
+  		echo -ne "done\n"
+		extract_commands
+	fi
+  else
+	if [ $LFSVRS = development ] ; then 
+		svn co $SVN/LFS/trunk/BOOK lfs-$LFSVRS >>$BUILDDIR/$LOG 2>&1
+	else
+		svn co $SVN/LFS/branches/$LFSVRS/BOOK lfs-$LFSVRS >>$BUILDDIR/$LOG 2>&1
+	fi
+  	echo -ne "done\n"
+	extract_commands
+  fi
+}
+
+extract_commands() {
+  # Check for libxslt instead of just letting the script hit 'xsltproc' and fail.
+  test `type -p xsltproc` || eval "echo \"This feature requires libxslt.\"
+	exit 1"
+  cd $BUILDDIR
+
+  # Start clean
+  if [ -d commands ] ; then rm -rf commands ; fi && mkdir commands
+  echo -n "Extracting commands... "
+
+  # Use Maneul's stylesheet to dump the commands in text form from the LFS book.
+  xsltproc -v --nonet --xinclude -o ./commands/ \
+  lfs-$LFSVRS/stylesheets/dump-commands.xsl lfs-$LFSVRS/index.xml \
+  >>$BUILDDIR/$LOG 2>&1
+
+  # Move the text files out from the chapter directories, and dump them
+  # all into the 'commands' directory.
+  cd commands
+  find ./* -xtype f -exec mv '{}' . \;
+  find ./* -maxdepth 0 -xtype d -exec rm -rf '{}' \;
+
+  # Grab the patches and package names.
+  cd $BUILDDIR
+  for i in patches packages ; do rm -f $i ; done
+  grep "\-version" lfs-$LFSVRS/general.ent | sed -e 's@<!ENTITY @@' -e 's@">@"@' \
+	-e '/generic/d' >> packages
+  grep "ENTITY" lfs-$LFSVRS/patches.ent | sed -e 's/.* "//' -e 's/">//' >> patches
+
+  # Done. Moving on...
+  echo -ne "done\n"
+  get_sources
+}
+
+download() {
+  cd $BUILDDIR/sources
+
+  # Hackish fix for the bash-doc package that doesn't conform
+  # to norms in the URL scheme.
+  DIR=`echo $1 | sed 's@-doc@@'`
+
+  # Find the md5 sum for this package.
+  if [ $2 != MD5SUMS ] ; then MD5=`grep "  $2" MD5SUMS` ; fi
+
+  if [ ! -f $2 ] ; then
+     case $DL in
+	wget )
+     		wget $HTTP/$DIR/$2
+		;;
+	curl )
+		`curl -# $HTTP/$DIR/$2 -o $2`
+		;;
+	* )
+		echo "$DL not supported at this time."
+		;;
+     esac
+  elif ! echo "$MD5" | md5sum -c - >/dev/null 2>/dev/null ; then
+     case $DL in
+	wget )
+		wget -c $HTTP/$DIR/$2
+		;;
+	curl )
+		`curl -# -C - $HTTP/$DIR/$2 -o $2`
+		;;
+	* )
+		echo "$DL not supported at this time."
+		;;
+     esac
+  fi
+  if [ $2 != MD5SUMS ] && ! echo "$MD5" | md5sum -c - ; then
+    exit 1
+  fi
+}
+
+get_sources() {
+
+  # This variable is necessary to make sure the `cat $BUILDDIR/packages`
+  # separates each iteration by lines.  It is necessary to have the second
+  # ' on the next line.
+  IFS='
+'
+
+  if [ ! -d $BUILDDIR/sources ] ; then mkdir $BUILDDIR/sources ; fi
+  cd $BUILDDIR/sources
+  if [ -f MD5SUMS ] ; then rm MD5SUMS ; fi
+
+  download "" MD5SUMS
+
+  # Iterate through each package and grab it, along with any patches it needs.
+  for i in `cat $BUILDDIR/packages` ; do
+    PKG=`echo $i | sed 's/-version.*//'`
+    
+    # Someone used some silly entities right next to the valid package entities.
+    if [ "$PKG" = "expect-lib" -o "$PKG" = "linux-dl" ] ; then continue ; fi
+
+    VRS=`echo $i | sed -e 's/.* //' -e 's/"//g'`
+    if [ "$PKG" = "tcl" ] ; then
+	FILE="$PKG$VRS-src.tar.bz2"
+    else
+	FILE="$PKG-$VRS.tar.bz2"
+    fi
+    download $PKG $FILE
+    for patch in `grep "$PKG-&$PKG" $BUILDDIR/patches` ; do
+	PATCH=`echo $patch | sed 's@&'$PKG'-version;@'$VRS'@'`
+	download $PKG $PATCH
+    done	
+  done
+}
+
+
+if [ ! -d $BUILDDIR ] ; then
+	mkdir $BUILDDIR
+fi
+
+>$BUILDDIR/$LOG
+cp $0 $BUILDDIR/
+get_book
