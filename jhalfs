@@ -101,13 +101,14 @@ fi
 SVN="svn://svn.linuxfromscratch.org"
 HTTP=http://ftp.lfs-matrix.net/pub/lfs/lfs-packages/conglomeration
 BUILDDIR=/mnt/lfs
+JHALFSDIR=$BUILDDIR/jhalfs
 LOG=build.log
 
 get_book() {
   # Check for Subversion instead of just letting the script hit 'svn' and fail.
   test `type -p svn` || eval "echo \"This feature requires Subversion.\"
 	exit 1"
-  cd $BUILDDIR
+  cd $JHALFSDIR
  
   # Test to make sure the LFS version is set
   if [ -z $LFSVRS ] ; then LFSVRS=development ; fi
@@ -118,8 +119,8 @@ get_book() {
   # sources.
   if [ -d lfs-$LFSVRS ] ; then
   	cd lfs-$LFSVRS
-	if svn up | grep -q At && test -d $BUILDDIR/commands && \
-	test -f $BUILDDIR/packages && test -f $BUILDDIR/patches ; then
+	if svn up | grep -q At && test -d $JHALFSDIR/commands && \
+	test -f $JHALFSDIR/packages && test -f $JHALFSDIR/patches ; then
   		echo -ne "done\n"
 		get_sources
 	else
@@ -128,9 +129,9 @@ get_book() {
 	fi
   else
 	if [ $LFSVRS = development ] ; then 
-		svn co $SVN/LFS/trunk/BOOK lfs-$LFSVRS >>$BUILDDIR/$LOG 2>&1
+		svn co $SVN/LFS/trunk/BOOK lfs-$LFSVRS >>$JHALFSDIR/$LOG 2>&1
 	else
-		svn co $SVN/LFS/branches/$LFSVRS/BOOK lfs-$LFSVRS >>$BUILDDIR/$LOG 2>&1
+		svn co $SVN/LFS/branches/$LFSVRS/BOOK lfs-$LFSVRS >>$JHALFSDIR/$LOG 2>&1
 	fi
   	echo -ne "done\n"
 	extract_commands
@@ -141,7 +142,7 @@ extract_commands() {
   # Check for libxslt instead of just letting the script hit 'xsltproc' and fail.
   test `type -p xsltproc` || eval "echo \"This feature requires libxslt.\"
 	exit 1"
-  cd $BUILDDIR
+  cd $JHALFSDIR
 
   # Start clean
   if [ -d commands ] ; then rm -rf commands ; fi && mkdir commands
@@ -150,7 +151,7 @@ extract_commands() {
   # Use Maneul's stylesheet to dump the commands in text form from the LFS book.
   xsltproc -v --nonet --xinclude -o ./commands/ \
   lfs-$LFSVRS/stylesheets/dump-commands.xsl lfs-$LFSVRS/index.xml \
-  >>$BUILDDIR/$LOG 2>&1
+  >>$JHALFSDIR/$LOG 2>&1
 
   # Move the text files out from the chapter directories, and dump them
   # all into the 'commands' directory.
@@ -159,7 +160,7 @@ extract_commands() {
   find ./* -maxdepth 0 -xtype d -exec rm -rf '{}' \;
 
   # Grab the patches and package names.
-  cd $BUILDDIR
+  cd $JHALFSDIR
   for i in patches packages ; do rm -f $i ; done
   grep "\-version" lfs-$LFSVRS/general.ent | sed -e 's@<!ENTITY @@' -e 's@">@"@' \
 	-e '/generic/d' >> packages
@@ -225,7 +226,7 @@ get_sources() {
   download "" MD5SUMS
 
   # Iterate through each package and grab it, along with any patches it needs.
-  for i in `cat $BUILDDIR/packages` ; do
+  for i in `cat $JHALFSDIR/packages` ; do
     PKG=`echo $i | sed 's/-version.*//'`
     
     # Someone used some silly entities right next to the valid package entities.
@@ -238,7 +239,7 @@ get_sources() {
 	FILE="$PKG-$VRS.tar.bz2"
     fi
     download $PKG $FILE
-    for patch in `grep "$PKG-&$PKG" $BUILDDIR/patches` ; do
+    for patch in `grep "$PKG-&$PKG" $JHALFSDIR/patches` ; do
 	PATCH=`echo $patch | sed 's@&'$PKG'-version;@'$VRS'@'`
 	download $PKG $PATCH
     done	
@@ -246,10 +247,10 @@ get_sources() {
 }
 
 
-if [ ! -d $BUILDDIR ] ; then
-	mkdir $BUILDDIR
+if [ ! -d $JHALFSDIR ] ; then
+	mkdir -p $JHALFSDIR
 fi
 
->$BUILDDIR/$LOG
-cp $0 $BUILDDIR/
+>$JHALFSDIR/$LOG
+cp $0 $JHALFSDIR/
 get_book
