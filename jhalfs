@@ -14,6 +14,9 @@ Options:
   -h, --help			print this help, then exit
   -V, --version			print version number, then exit
   -L, --LFS-version=VER		use VER version of the LFS book
+  -d  --directory=DIR		use DIR directory for building LFS; all files
+				jhalfs produces will be in the directory
+				DIR/jhalfs
   -D, --download-client=CLIENT	use CLIENT as the program for retrieving
 				packages
 "
@@ -57,6 +60,13 @@ while test $# -gt 0 ; do
 			shift
 			;;
 
+		--directory | -d )
+			test $# = 1 && eval "$exit_missing_arg"
+			shift
+			BUILDDIR=$1
+			shift
+			;;
+
 		--download-client | -D )
 			test $# = 1 && eval "$exit_missing_arg"
 			shift
@@ -92,7 +102,7 @@ fi
 
 SVN="svn://svn.linuxfromscratch.org"
 HTTP=http://ftp.lfs-matrix.net/pub/lfs/lfs-packages/conglomeration
-BUILDDIR=/mnt/lfs
+if [ -z $BUILDDIR ] ; then BUILDDIR=/mnt/lfs ; fi
 JHALFSDIR=$BUILDDIR/jhalfs
 LOG=build.log
 MKFILE=$JHALFSDIR/Makefile
@@ -282,7 +292,7 @@ build_Makefile() {
 
 	# Drop in the actual commands that were parsed from the book
 	cat $i | sed -e 's:\$:&&:g' -e 's:^:\t:' -e 's:[^\\]$:& \&\& \\:' >> $MKFILE.tmp
-	sed -i '$s: \&\& \\::' $MKFILE.tmp
+	sed -i -e '$s: \&\& \\::' $MKFILE.tmp -e 's|\$\$LFS|\$(LFS)|' $MKFILE.tmp
 
 	# Include a touch of the target name so make can check if it's already been made.
 	echo -e "\ttouch \$@" >> $MKFILE.tmp
@@ -290,6 +300,7 @@ build_Makefile() {
 
 	# Stick a variable and some defines at the top of the real makefile	
 	echo "export SRC := /sources" > $MKFILE
+	echo "export LFS := $BUILDDIR" >> $MKFILE
 	echo "define unpack" >> $MKFILE
 	echo -e "\t@cd \$(SRC) ; tar -xvf \$(1) > /tmp/unpacked" >> $MKFILE
 	echo -e "endef\n" >> $MKFILE
