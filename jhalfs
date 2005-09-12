@@ -281,7 +281,8 @@ build_Makefile() {
 	fi
 
 	# Drop in the actual commands that were parsed from the book
-	cat $i | sed -e 's:\$:&&:g' -e 's:^:\t:' -e 's:$: \&\& \\:' >> $MKFILE.tmp
+	cat $i | sed -e 's:\$:&&:g' -e 's:^:\t:' -e 's:[^\\]$:& \&\& \\:' >> $MKFILE.tmp
+	sed -i '$s: \&\& \\::' $MKFILE.tmp
 
 	# Include a touch of the target name so make can check if it's already been made.
 	echo -e "\ttouch \$@" >> $MKFILE.tmp
