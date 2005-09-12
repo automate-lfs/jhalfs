@@ -64,14 +64,6 @@ while test $# -gt 0 ; do
 			shift
 			;;
 
-		--su-lfs )
-			echo "Build section with 'lfs' user"
-			;;
-
-		--chroot)
-			echo "Build chroot section"
-			;;
-
 		* )
 			echo "$usage"
 			exit 1
@@ -103,6 +95,7 @@ HTTP=http://ftp.lfs-matrix.net/pub/lfs/lfs-packages/conglomeration
 BUILDDIR=/mnt/lfs
 JHALFSDIR=$BUILDDIR/jhalfs
 LOG=build.log
+MKFILE=$JHALFSDIR/Makefile
 
 get_book() {
   # Check for Subversion instead of just letting the script hit 'svn' and fail.
@@ -159,6 +152,11 @@ extract_commands() {
   find ./* -xtype f -exec mv '{}' . \;
   find ./* -maxdepth 0 -xtype d -exec rm -rf '{}' \;
 
+  # Remove all the blank lines from the commands
+  for i in $JHALFSDIR/commands/* ; do
+	sed -i '/^$/d' $i
+  done
+
   # Grab the patches and package names.
   cd $JHALFSDIR
   for i in patches packages ; do rm -f $i ; done
@@ -213,7 +211,7 @@ download() {
 
 get_sources() {
 
-  # This variable is necessary to make sure the `cat $BUILDDIR/packages`
+  # This variable is necessary to make sure the `cat $JHALFSDIR/packages`
   # separates each iteration by lines.  It is necessary to have the second
   # ' on the next line.
   IFS='
@@ -246,6 +244,63 @@ get_sources() {
   done
 }
 
+build_Makefile() {
+  cd $JHALFSDIR/commands
+ 
+  # Start with a clean Makefile.tmp file
+  >$MKFILE.tmp
+
+  for i in * ; do
+	# First append each name of the command files to a list (this will become the names
+	# of the targets in the Makefile
+	list="$list $i"
+	
+	# Grab the name of the target (minus the -pass1 or -pass2 in the case of gcc
+	# and binutils in chapter 5)
+	name=`echo $i | sed -e 's@[0-9]\{3\}-@@' -e 's@-pass[0-9]\{1\}@@'`
+
+	# Drop in the name of the target on a new line.
+	echo -e "\n$i:" >> $MKFILE.tmp
+
+	# Find the version of the command files, if it corresponds with the building of
+	# a specific package
+	vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+
+	# If $vrs isn't empty, we've got a package...
+	if [ "$vrs" != "" ] ; then
+		if [ "$name" = "tcl" ] ; then
+			FILE="$name$vrs-src.tar.bz2"
+		else
+			FILE="$name-$vrs.tar.bz2"
+		fi
+
+		# Insert instructions for unpacking the package and changing directories
+		echo -e "\t\$(call unpack,$FILE)" >> $MKFILE.tmp
+		echo -e "\tROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\" >> $MKFILE.tmp
+		echo -e "\tcd \$(SRC)/\$\$ROOT && \\" >> $MKFILE.tmp
+	fi
+
+	# Drop in the actual commands that were parsed from the book
+	cat $i | sed -e 's:\$:&&:g' -e 's:^:\t:' -e 's:$: \&\& \\:' >> $MKFILE.tmp
+
+	# Include a touch of the target name so make can check if it's already been made.
+	echo -e "\ttouch \$@" >> $MKFILE.tmp
+  done
+
+	# Stick a variable and some defines at the top of the real makefile	
+	echo "export SRC := /sources" > $MKFILE
+	echo "define unpack" >> $MKFILE
+	echo -e "\t@cd \$(SRC) ; tar -xvf \$(1) > /tmp/unpacked" >> $MKFILE
+	echo -e "endef\n" >> $MKFILE
+
+	# Drop in the list as the main target 'all:' with each sub-target as a dependency.
+  	echo "all: $list" >> $MKFILE
+
+	# Bring over the items from the Makefile.tmp
+	cat $MKFILE.tmp >> $MKFILE
+	rm $MKFILE.tmp
+}
+
 
 if [ ! -d $JHALFSDIR ] ; then
 	mkdir -p $JHALFSDIR
@@ -254,3 +309,4 @@ fi
 >$JHALFSDIR/$LOG
 cp $0 $JHALFSDIR/
 get_book
+build_Makefile
