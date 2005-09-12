@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/sh
 
 version="
 jhalfs 0.1
@@ -112,7 +112,7 @@ get_book() {
   test `type -p svn` || eval "echo \"This feature requires Subversion.\"
 	exit 1"
   cd $JHALFSDIR
- 
+
   # Test to make sure the LFS version is set
   if [ -z $LFSVRS ] ; then LFSVRS=development ; fi
   echo -n "Downloading the LFS Book, version $LFSVRS... "
@@ -131,7 +131,7 @@ get_book() {
 		extract_commands
 	fi
   else
-	if [ $LFSVRS = development ] ; then 
+	if [ $LFSVRS = development ] ; then
 		svn co $SVN/LFS/trunk/BOOK lfs-$LFSVRS >>$JHALFSDIR/$LOG 2>&1
 	else
 		svn co $SVN/LFS/branches/$LFSVRS/BOOK lfs-$LFSVRS >>$JHALFSDIR/$LOG 2>&1
@@ -151,7 +151,7 @@ extract_commands() {
   if [ -d commands ] ; then rm -rf commands ; fi && mkdir commands
   echo -n "Extracting commands... "
 
-  # Use Maneul's stylesheet to dump the commands in text form from the LFS book.
+  # Use Manuel's stylesheet to dump the commands in text form from the LFS book.
   xsltproc -v --nonet --xinclude -o ./commands/ \
   lfs-$LFSVRS/stylesheets/dump-commands.xsl lfs-$LFSVRS/index.xml \
   >>$JHALFSDIR/$LOG 2>&1
@@ -236,7 +236,7 @@ get_sources() {
   # Iterate through each package and grab it, along with any patches it needs.
   for i in `cat $JHALFSDIR/packages` ; do
     PKG=`echo $i | sed 's/-version.*//'`
-    
+
     # Someone used some silly entities right next to the valid package entities.
     if [ "$PKG" = "expect-lib" -o "$PKG" = "linux-dl" ] ; then continue ; fi
 
@@ -250,14 +250,14 @@ get_sources() {
     for patch in `grep "$PKG-&$PKG" $JHALFSDIR/patches` ; do
 	PATCH=`echo $patch | sed 's@&'$PKG'-version;@'$VRS'@'`
 	download $PKG $PATCH
-    done	
+    done
   done
 }
 
 build_Makefile() {
   echo -n "Creating Makefile... "
   cd $JHALFSDIR/commands
- 
+
   # Start with a clean Makefile.tmp file
   >$MKFILE.tmp
 
@@ -265,7 +265,7 @@ build_Makefile() {
 	# First append each name of the command files to a list (this will become the names
 	# of the targets in the Makefile
 	list="$list $i"
-	
+
 	# Grab the name of the target (minus the -pass1 or -pass2 in the case of gcc
 	# and binutils in chapter 5)
 	name=`echo $i | sed -e 's@[0-9]\{3\}-@@' -e 's@-pass[0-9]\{1\}@@'`
@@ -306,7 +306,7 @@ build_Makefile() {
   # and remove the ' && \'s from the end of each line of a cat command.
   sed -i -e 's|\$\$LFS|\$(LFS)|' -e '/^\tcat/,/^\tEOF/s/ \&\& \\//' $MKFILE.tmp
 
-  # Stick a variable and some defines at the top of the real makefile	
+  # Stick a variable and some defines at the top of the real makefile
   echo "export SRC := /sources" > $MKFILE
   echo "export LFS := $BUILDDIR" >> $MKFILE
   echo "define unpack" >> $MKFILE
