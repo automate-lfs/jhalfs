@@ -255,6 +255,7 @@ get_sources() {
 }
 
 build_Makefile() {
+  echo -n "Creating Makefile... "
   cd $JHALFSDIR/commands
  
   # Start with a clean Makefile.tmp file
@@ -291,26 +292,34 @@ build_Makefile() {
 	fi
 
 	# Drop in the actual commands that were parsed from the book
+	# These seds add an extra $ to each variable so make doesn't break,
+	# add tabs to the beginning of each line, and add ' && \' to the end
+	# of each line except for those that end in '\'.
 	cat $i | sed -e 's:\$:&&:g' -e 's:^:\t:' -e 's:[^\\]$:& \&\& \\:' >> $MKFILE.tmp
-	sed -i -e '$s: \&\& \\::' $MKFILE.tmp -e 's|\$\$LFS|\$(LFS)|' $MKFILE.tmp
+	# This sed removes the ' && \' from the last command of each target
+	sed -i '$s: \&\& \\::' $MKFILE.tmp
 
 	# Include a touch of the target name so make can check if it's already been made.
 	echo -e "\ttouch \$@" >> $MKFILE.tmp
   done
+  # These seds turn the variables '$$LFS' into '$(LFS)' so make will understand,
+  # and remove the ' && \'s from the end of each line of a cat command.
+  sed -i -e 's|\$\$LFS|\$(LFS)|' -e '/^\tcat/,/^\tEOF/s/ \&\& \\//' $MKFILE.tmp
 
-	# Stick a variable and some defines at the top of the real makefile	
-	echo "export SRC := /sources" > $MKFILE
-	echo "export LFS := $BUILDDIR" >> $MKFILE
-	echo "define unpack" >> $MKFILE
-	echo -e "\t@cd \$(SRC) ; tar -xvf \$(1) > /tmp/unpacked" >> $MKFILE
-	echo -e "endef\n" >> $MKFILE
+  # Stick a variable and some defines at the top of the real makefile	
+  echo "export SRC := /sources" > $MKFILE
+  echo "export LFS := $BUILDDIR" >> $MKFILE
+  echo "define unpack" >> $MKFILE
+  echo -e "\t@cd \$(SRC) ; tar -xvf \$(1) > /tmp/unpacked" >> $MKFILE
+  echo -e "endef\n" >> $MKFILE
 
-	# Drop in the list as the main target 'all:' with each sub-target as a dependency.
-  	echo "all: $list" >> $MKFILE
+  # Drop in the list as the main target 'all:' with each sub-target as a dependency.
+  echo "all: $list" >> $MKFILE
 
-	# Bring over the items from the Makefile.tmp
-	cat $MKFILE.tmp >> $MKFILE
-	rm $MKFILE.tmp
+  # Bring over the items from the Makefile.tmp
+  cat $MKFILE.tmp >> $MKFILE
+  rm $MKFILE.tmp
+  echo -ne "done\n"
 }
 
 
