@@ -1,24 +1,26 @@
 #!/bin/sh
 
 version="
-jhalfs 0.1
+jhalfs 0.2
 Written by Jeremy Huntwork.
+Maintained by Manuel Canales Esparcia.
 
 This program is published under the \
-Gnu General Public License, Version 2."
+Gnu General Public License, Version 2.
+"
 
 usage="\
 Usage: $0 [OPTION]
 
 Options:
-  -h, --help			print this help, then exit
-  -V, --version			print version number, then exit
-  -L, --LFS-version=VER		use VER version of the LFS book
-  -d  --directory=DIR		use DIR directory for building LFS; all files
-				jhalfs produces will be in the directory
-				DIR/jhalfs
-  -D, --download-client=CLIENT	use CLIENT as the program for retrieving
-				packages
+  -h, --help                    print this help, then exit
+  -V, --version                 print version number, then exit
+  -L, --LFS-version=VER         use VER version of the LFS book
+  -d  --directory=DIR           use DIR directory for building LFS; all files
+                                jhalfs produces will be in the directory
+                                DIR/jhalfs
+  -D, --download-client=CLIENT  use CLIENT as the program for retrieving
+                                packages
 "
 
 help="\
@@ -34,69 +36,69 @@ echo \"Could not find a way to download the LFS sources.\" >&2
 echo \"Attempting to continue.\" >&2"
 
 while test $# -gt 0 ; do
-	case $1 in
-		--version | -V )
-			echo "$version"
-			exit 0
-			;;
+  case $1 in
+    --version | -V )
+      echo "$version"
+      exit 0
+      ;;
 
-		--help | -h )
-			echo "$usage"
-			exit 0
-			;;
+    --help | -h )
+      echo "$usage"
+      exit 0
+      ;;
 
-		--LFS-version | -L )
-			test $# = 1 && eval "$exit_missing_arg"
-			shift
-			case $1 in
-				dev* | SVN | trunk )
-					LFSVRS=development
-					;;
-				* )
-					echo "$1 is an unsupported version at this time."
-					exit 1
-					;;
-			esac
-			shift
-			;;
+    --LFS-version | -L )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      case $1 in
+        dev* | SVN | trunk )
+          LFSVRS=development
+          ;;
+        * )
+          echo "$1 is an unsupported version at this time."
+          exit 1
+          ;;
+      esac
+      shift
+      ;;
 
-		--directory | -d )
-			test $# = 1 && eval "$exit_missing_arg"
-			shift
-			BUILDDIR=$1
-			shift
-			;;
+    --directory | -d )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      BUILDDIR=$1
+      shift
+      ;;
 
-		--download-client | -D )
-			test $# = 1 && eval "$exit_missing_arg"
-			shift
-			DL=$1
-			shift
-			;;
+    --download-client | -D )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      DL=$1
+      shift
+      ;;
 
-		* )
-			echo "$usage"
-			exit 1
-			;;
-	esac
+    * )
+      echo "$usage"
+      exit 1
+      ;;
+  esac
 done
 
 # Test to make sure we're running the build as root
 
 if [ "$UID" != "0" ] ; then
-	echo "You must be logged in as root to successfully build LFS."
-	exit 1
+  echo "You must be logged in as root to successfully build LFS."
+  exit 1
 fi
 
 # Find the download client to use, if not already specified.
 
 if [ -z $DL ] ; then
   if [ `type -p wget` ] ; then
-	DL=wget
+    DL=wget
   elif [ `type -p curl` ] ; then
-	DL=curl
+    DL=curl
   else
-	eval "$no_dl_client"
+    eval "$no_dl_client"
   fi
 fi
 
@@ -106,11 +108,12 @@ if [ -z $BUILDDIR ] ; then BUILDDIR=/mnt/lfs ; fi
 JHALFSDIR=$BUILDDIR/jhalfs
 LOG=build.log
 MKFILE=$JHALFSDIR/Makefile
+XSL=dump-commands.xsl
 
 get_book() {
   # Check for Subversion instead of just letting the script hit 'svn' and fail.
   test `type -p svn` || eval "echo \"This feature requires Subversion.\"
-	exit 1"
+  exit 1"
   cd $JHALFSDIR
 
   # Test to make sure the LFS version is set
@@ -121,40 +124,39 @@ get_book() {
   # repo. If we've already extracted the commands, move on to getting the
   # sources.
   if [ -d lfs-$LFSVRS ] ; then
-  	cd lfs-$LFSVRS
-	if svn up | grep -q At && test -d $JHALFSDIR/commands && \
-	test -f $JHALFSDIR/packages && test -f $JHALFSDIR/patches ; then
-  		echo -ne "done\n"
-		get_sources
-	else
-  		echo -ne "done\n"
-		extract_commands
-	fi
+    cd lfs-$LFSVRS
+    if svn up | grep -q At && test -d $JHALFSDIR/commands && \
+    test -f $JHALFSDIR/packages && test -f $JHALFSDIR/patches ; then
+      echo -ne "done\n"
+      get_sources
+    else
+      echo -ne "done\n"
+      extract_commands
+    fi
   else
-	if [ $LFSVRS = development ] ; then
-		svn co $SVN/LFS/trunk/BOOK lfs-$LFSVRS >>$JHALFSDIR/$LOG 2>&1
-	else
-		svn co $SVN/LFS/branches/$LFSVRS/BOOK lfs-$LFSVRS >>$JHALFSDIR/$LOG 2>&1
-	fi
-  	echo -ne "done\n"
-	extract_commands
+    if [ $LFSVRS = development ] ; then
+      svn co $SVN/LFS/trunk/BOOK lfs-$LFSVRS >>$JHALFSDIR/$LOG 2>&1
+    else
+      svn co $SVN/LFS/branches/$LFSVRS/BOOK lfs-$LFSVRS >>$JHALFSDIR/$LOG 2>&1
+    fi
+    echo -ne "done\n"
+    extract_commands
   fi
 }
 
 extract_commands() {
   # Check for libxslt instead of just letting the script hit 'xsltproc' and fail.
   test `type -p xsltproc` || eval "echo \"This feature requires libxslt.\"
-	exit 1"
+  exit 1"
   cd $JHALFSDIR
 
   # Start clean
   if [ -d commands ] ; then rm -rf commands ; fi && mkdir commands
   echo -n "Extracting commands... "
 
-  # Use Manuel's stylesheet to dump the commands in text form from the LFS book.
-  xsltproc -v --nonet --xinclude -o ./commands/ \
-  lfs-$LFSVRS/stylesheets/dump-commands.xsl lfs-$LFSVRS/index.xml \
-  >>$JHALFSDIR/$LOG 2>&1
+  # Dump the commands in text form from the LFS book.
+  xsltproc --nonet --xinclude -o ./commands/ $XSL \
+  lfs-$LFSVRS/index.xml >>$JHALFSDIR/$LOG 2>&1
 
   # Move the text files out from the chapter directories, and dump them
   # all into the 'commands' directory.
@@ -164,14 +166,14 @@ extract_commands() {
 
   # Remove all the blank lines from the commands
   for i in $JHALFSDIR/commands/* ; do
-	sed -i '/^$/d' $i
+    sed -i '/^$/d' $i
   done
 
   # Grab the patches and package names.
   cd $JHALFSDIR
   for i in patches packages ; do rm -f $i ; done
   grep "\-version" lfs-$LFSVRS/general.ent | sed -e 's@<!ENTITY @@' -e 's@">@"@' \
-	-e '/generic/d' >> packages
+  -e '/generic/d' >> packages
   grep "ENTITY" lfs-$LFSVRS/patches.ent | sed -e 's/.* "//' -e 's/">//' >> patches
 
   # Done. Moving on...
@@ -190,29 +192,29 @@ download() {
   if [ $2 != MD5SUMS ] ; then MD5=`grep "  $2" MD5SUMS` ; fi
 
   if [ ! -f $2 ] ; then
-     case $DL in
-	wget )
-     		wget $HTTP/$DIR/$2
-		;;
-	curl )
-		`curl -# $HTTP/$DIR/$2 -o $2`
-		;;
-	* )
-		echo "$DL not supported at this time."
-		;;
-     esac
+    case $DL in
+      wget )
+        wget $HTTP/$DIR/$2
+        ;;
+      curl )
+        `curl -# $HTTP/$DIR/$2 -o $2`
+        ;;
+      * )
+        echo "$DL not supported at this time."
+        ;;
+    esac
   elif ! echo "$MD5" | md5sum -c - >/dev/null 2>/dev/null ; then
-     case $DL in
-	wget )
-		wget -c $HTTP/$DIR/$2
-		;;
-	curl )
-		`curl -# -C - $HTTP/$DIR/$2 -o $2`
-		;;
-	* )
-		echo "$DL not supported at this time."
-		;;
-     esac
+    case $DL in
+      wget )
+        wget -c $HTTP/$DIR/$2
+        ;;
+      curl )
+        `curl -# -C - $HTTP/$DIR/$2 -o $2`
+        ;;
+      * )
+        echo "$DL not supported at this time."
+        ;;
+    esac
   fi
   if [ $2 != MD5SUMS ] && ! echo "$MD5" | md5sum -c - ; then
     exit 1
@@ -242,14 +244,14 @@ get_sources() {
 
     VRS=`echo $i | sed -e 's/.* //' -e 's/"//g'`
     if [ "$PKG" = "tcl" ] ; then
-	FILE="$PKG$VRS-src.tar.bz2"
+      FILE="$PKG$VRS-src.tar.bz2"
     else
-	FILE="$PKG-$VRS.tar.bz2"
+      FILE="$PKG-$VRS.tar.bz2"
     fi
     download $PKG $FILE
     for patch in `grep "$PKG-&$PKG" $JHALFSDIR/patches` ; do
-	PATCH=`echo $patch | sed 's@&'$PKG'-version;@'$VRS'@'`
-	download $PKG $PATCH
+      PATCH=`echo $patch | sed 's@&'$PKG'-version;@'$VRS'@'`
+      download $PKG $PATCH
     done
   done
 }
@@ -262,45 +264,45 @@ build_Makefile() {
   >$MKFILE.tmp
 
   for i in * ; do
-	# First append each name of the command files to a list (this will become the names
-	# of the targets in the Makefile
-	list="$list $i"
+  # First append each name of the command files to a list (this will become
+  # the names of the targets in the Makefile
+  list="$list $i"
 
-	# Grab the name of the target (minus the -pass1 or -pass2 in the case of gcc
-	# and binutils in chapter 5)
-	name=`echo $i | sed -e 's@[0-9]\{3\}-@@' -e 's@-pass[0-9]\{1\}@@'`
+  # Grab the name of the target (minus the -pass1 or -pass2 in the case of gcc
+  # and binutils in chapter 5)
+  name=`echo $i | sed -e 's@[0-9]\{3\}-@@' -e 's@-pass[0-9]\{1\}@@'`
 
-	# Drop in the name of the target on a new line.
-	echo -e "\n$i:" >> $MKFILE.tmp
+  # Drop in the name of the target on a new line.
+  echo -e "\n$i:" >> $MKFILE.tmp
 
-	# Find the version of the command files, if it corresponds with the building of
-	# a specific package
-	vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+  # Find the version of the command files, if it corresponds with the building of
+  # a specific package
+  vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
 
-	# If $vrs isn't empty, we've got a package...
-	if [ "$vrs" != "" ] ; then
-		if [ "$name" = "tcl" ] ; then
-			FILE="$name$vrs-src.tar.bz2"
-		else
-			FILE="$name-$vrs.tar.bz2"
-		fi
+  # If $vrs isn't empty, we've got a package...
+  if [ "$vrs" != "" ] ; then
+    if [ "$name" = "tcl" ] ; then
+      FILE="$name$vrs-src.tar.bz2"
+    else
+      FILE="$name-$vrs.tar.bz2"
+    fi
 
-		# Insert instructions for unpacking the package and changing directories
-		echo -e "\t\$(call unpack,$FILE)" >> $MKFILE.tmp
-		echo -e "\tROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\" >> $MKFILE.tmp
-		echo -e "\tcd \$(SRC)/\$\$ROOT && \\" >> $MKFILE.tmp
-	fi
+    # Insert instructions for unpacking the package and changing directories
+    echo -e "\t\$(call unpack,$FILE)" >> $MKFILE.tmp
+    echo -e "\tROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\" >> $MKFILE.tmp
+    echo -e "\tcd \$(SRC)/\$\$ROOT && \\" >> $MKFILE.tmp
+  fi
 
-	# Drop in the actual commands that were parsed from the book
-	# These seds add an extra $ to each variable so make doesn't break,
-	# add tabs to the beginning of each line, and add ' && \' to the end
-	# of each line except for those that end in '\'.
-	cat $i | sed -e 's:\$:&&:g' -e 's:^:\t:' -e 's:[^\\]$:& \&\& \\:' >> $MKFILE.tmp
-	# This sed removes the ' && \' from the last command of each target
-	sed -i '$s: \&\& \\::' $MKFILE.tmp
+  # Drop in the actual commands that were parsed from the book
+  # These seds add an extra $ to each variable so make doesn't break,
+  # add tabs to the beginning of each line, and add ' && \' to the end
+  # of each line except for those that end in '\'.
+  cat $i | sed -e 's:\$:&&:g' -e 's:^:\t:' -e 's:[^\\]$:& \&\& \\:' >> $MKFILE.tmp
+  # This sed removes the ' && \' from the last command of each target
+  sed -i '$s: \&\& \\::' $MKFILE.tmp
 
-	# Include a touch of the target name so make can check if it's already been made.
-	echo -e "\ttouch \$@" >> $MKFILE.tmp
+  # Include a touch of the target name so make can check if it's already been made.
+  echo -e "\ttouch \$@" >> $MKFILE.tmp
   done
   # These seds turn the variables '$$LFS' into '$(LFS)' so make will understand,
   # and remove the ' && \'s from the end of each line of a cat command.
@@ -324,10 +326,10 @@ build_Makefile() {
 
 
 if [ ! -d $JHALFSDIR ] ; then
-	mkdir -p $JHALFSDIR
+  mkdir -p $JHALFSDIR
 fi
 
 >$JHALFSDIR/$LOG
-cp $0 $JHALFSDIR/
+cp $0 $XSL $JHALFSDIR/
 get_book
 build_Makefile
