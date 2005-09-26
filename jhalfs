@@ -1,7 +1,8 @@
 #!/bin/sh
 
 version="
-jhalfs 0.2
+jhalfs development
+
 Written by Jeremy Huntwork.
 Maintained by Manuel Canales Esparcia.
 
@@ -158,17 +159,6 @@ extract_commands() {
   xsltproc --nonet --xinclude -o ./commands/ $XSL \
   lfs-$LFSVRS/index.xml >>$JHALFSDIR/$LOG 2>&1
 
-  # Move the text files out from the chapter directories, and dump them
-  # all into the 'commands' directory.
-  cd commands
-  find ./* -xtype f -exec mv '{}' . \;
-  find ./* -maxdepth 0 -xtype d -exec rm -rf '{}' \;
-
-  # Remove all the blank lines from the commands
-  for i in $JHALFSDIR/commands/* ; do
-    sed -i '/^$/d' $i
-  done
-
   # Grab the patches and package names.
   cd $JHALFSDIR
   for i in patches packages ; do rm -f $i ; done
@@ -263,8 +253,11 @@ build_Makefile() {
   # Start with a clean Makefile.tmp file
   >$MKFILE.tmp
 
-  for i in * ; do
-  # First append each name of the command files to a list (this will become
+  for file in chapter0{4,5}/* ; do
+  # Keep the script file name
+  i=`basename $file`
+
+  # First append each name of the script files to a list (this will become
   # the names of the targets in the Makefile
   list="$list $i"
 
@@ -293,13 +286,16 @@ build_Makefile() {
     echo -e "\tcd \$(SRC)/\$\$ROOT && \\" >> $MKFILE.tmp
   fi
 
-  # Drop in the actual commands that were parsed from the book
-  # These seds add an extra $ to each variable so make doesn't break,
-  # add tabs to the beginning of each line, and add ' && \' to the end
-  # of each line except for those that end in '\'.
-  cat $i | sed -e 's:\$:&&:g' -e 's:^:\t:' -e 's:[^\\]$:& \&\& \\:' >> $MKFILE.tmp
-  # This sed removes the ' && \' from the last command of each target
-  sed -i '$s: \&\& \\::' $MKFILE.tmp
+#   # Drop in the actual commands that were parsed from the book
+#   # These seds add an extra $ to each variable so make doesn't break,
+#   # add tabs to the beginning of each line, and add ' && \' to the end
+#   # of each line except for those that end in '\'.
+#   cat $i | sed -e 's:\$:&&:g' -e 's:^:\t:' -e 's:[^\\]$:& \&\& \\:' >> $MKFILE.tmp
+#   # This sed removes the ' && \' from the last command of each target
+#   sed -i '$s: \&\& \\::' $MKFILE.tmp
+
+  # Run the script
+  echo -e "\tsu - lfs -c \"/bin/bash $file\"" >> $MKFILE.tmp
 
   # Include a touch of the target name so make can check if it's already been made.
   echo -e "\ttouch \$@" >> $MKFILE.tmp

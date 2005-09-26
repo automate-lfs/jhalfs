@@ -4,7 +4,7 @@
     extension-element-prefixes="exsl"
     version="1.0">
 
-<!-- XSLT stylesheet to extract commands from [B,H]LFS books. -->
+<!-- XSLT stylesheet to create shell scripts from LFS books. -->
 
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
@@ -39,6 +39,7 @@
     </xsl:variable>
       <!-- Creating dirs and files -->
     <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
+      <xsl:text>#!/bin/sh&#xA;&#xA;</xsl:text>
       <xsl:apply-templates select=".//screen"/>
     </exsl:document>
   </xsl:template>
@@ -47,13 +48,6 @@
     <xsl:if test="child::* = userinput">
       <xsl:choose>
         <xsl:when test="@role = 'nodump'"/>
-        <xsl:when test="@role = 'root'">
-          <xsl:text>&#xA;</xsl:text>
-          <xsl:text># Run this as root</xsl:text>
-          <xsl:apply-templates select="userinput"/>
-          <xsl:text># End root commands</xsl:text>
-          <xsl:text>&#xA;</xsl:text>
-        </xsl:when>
         <xsl:otherwise>
           <xsl:apply-templates select="userinput"/>
         </xsl:otherwise>
@@ -62,17 +56,8 @@
   </xsl:template>
 
   <xsl:template match="userinput">
-    <xsl:text>&#xA;</xsl:text>
-    <xsl:if test=".//replaceable">
-      <xsl:text># This block must be edited to suit your needs.</xsl:text>
-    </xsl:if>
-    <xsl:text>&#xA;</xsl:text>
     <xsl:apply-templates/>
-    <xsl:text>&#xA;</xsl:text>
-    <xsl:if test=".//replaceable">
-      <xsl:text># End of editable block.</xsl:text>
-    </xsl:if>
-    <xsl:text>&#xA;</xsl:text>
+    <xsl:text> &amp;&amp;&#xA;</xsl:text>
   </xsl:template>
 
   <xsl:template match="replaceable">
