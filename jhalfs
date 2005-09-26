@@ -330,6 +330,10 @@ if [ ! -d $JHALFSDIR ] ; then
 fi
 
 >$JHALFSDIR/$LOG
-cp $0 $XSL $JHALFSDIR/
+
+if [ "$PWD" != "$JHALFSDIR" ] ; then
+  cp $0 $XSL $JHALFSDIR/
+fi
+
 get_book
 build_Makefile
