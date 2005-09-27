@@ -155,7 +155,7 @@ extract_commands() {
   if [ -d commands ] ; then rm -rf commands ; fi && mkdir commands
   echo -n "Extracting commands... "
 
-  # Dump the commands in text form from the LFS book.
+  # Dump the commands in shell script form from the LFS book.
   xsltproc --nonet --xinclude -o ./commands/ $XSL \
   lfs-$LFSVRS/index.xml >>$JHALFSDIR/$LOG 2>&1
 
@@ -285,14 +285,6 @@ build_Makefile() {
     echo -e "\tROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\" >> $MKFILE.tmp
     echo -e "\tcd \$(SRC)/\$\$ROOT && \\" >> $MKFILE.tmp
   fi
-
-#   # Drop in the actual commands that were parsed from the book
-#   # These seds add an extra $ to each variable so make doesn't break,
-#   # add tabs to the beginning of each line, and add ' && \' to the end
-#   # of each line except for those that end in '\'.
-#   cat $i | sed -e 's:\$:&&:g' -e 's:^:\t:' -e 's:[^\\]$:& \&\& \\:' >> $MKFILE.tmp
-#   # This sed removes the ' && \' from the last command of each target
-#   sed -i '$s: \&\& \\::' $MKFILE.tmp
 
   # Run the script
   echo -e "\tsu - lfs -c \"/bin/bash $file\"" >> $MKFILE.tmp
