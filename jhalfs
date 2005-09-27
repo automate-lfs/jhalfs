@@ -253,13 +253,13 @@ build_Makefile() {
   # Start with a clean Makefile.tmp file
   >$MKFILE.tmp
 
-  for file in chapter0{4,5}/* ; do
+  for file in chapter05/* ; do
   # Keep the script file name
   i=`basename $file`
 
   # First append each name of the script files to a list (this will become
   # the names of the targets in the Makefile
-  list="$list $i"
+  chapter5="$chapter5 $i"
 
   # Grab the name of the target (minus the -pass1 or -pass2 in the case of gcc
   # and binutils in chapter 5)
@@ -281,30 +281,69 @@ build_Makefile() {
     fi
 
     # Insert instructions for unpacking the package and changing directories
-    echo -e "\t\$(call unpack,$FILE)" >> $MKFILE.tmp
+    echo -e "\t\$(call unpack-lfs,$FILE) && \\" >> $MKFILE.tmp
     echo -e "\tROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\" >> $MKFILE.tmp
-    echo -e "\tcd \$(SRC)/\$\$ROOT && \\" >> $MKFILE.tmp
+    echo -e "\tcd \$(LFS)\$(SRC)/\$\$ROOT && \\" >> $MKFILE.tmp
   fi
 
-  # Run the script
-  echo -e "\tsu - lfs -c \"/bin/bash $file\"" >> $MKFILE.tmp
+  # Insert the script run
+  echo -e "\tsu lfs -c \". /home/lfs/.bashrc && $JHALFSDIR/commands/$file\" && \\" >> $MKFILE.tmp
 
   # Include a touch of the target name so make can check if it's already been made.
   echo -e "\ttouch \$@" >> $MKFILE.tmp
   done
-  # These seds turn the variables '$$LFS' into '$(LFS)' so make will understand,
-  # and remove the ' && \'s from the end of each line of a cat command.
-  sed -i -e 's|\$\$LFS|\$(LFS)|' -e '/^\tcat/,/^\tEOF/s/ \&\& \\//' $MKFILE.tmp
 
   # Stick a variable and some defines at the top of the real makefile
   echo "export SRC := /sources" > $MKFILE
   echo "export LFS := $BUILDDIR" >> $MKFILE
+  echo "define unpack-lfs" >> $MKFILE
+  echo -e "\t@cd \$(LFS)\$(SRC) ; tar -xvjf \$(1) > /tmp/unpacked" >> $MKFILE
+  echo -e "endef\n" >> $MKFILE
   echo "define unpack" >> $MKFILE
   echo -e "\t@cd \$(SRC) ; tar -xvf \$(1) > /tmp/unpacked" >> $MKFILE
   echo -e "endef\n" >> $MKFILE
 
-  # Drop in the list as the main target 'all:' with each sub-target as a dependency.
-  echo "all: $list" >> $MKFILE
+  # Drop in the main target 'all:' and the chapter targets with each sub-target
+  # as a dependency.
+  echo -e "all:  chapter4 chapter5\n" >> $MKFILE
+  echo -e "chapter4:  020-creatingtoolsdir 021-addinguser 022-settingenvironment\n" >> $MKFILE
+  echo -e "chapter5: $chapter5\n" >> $MKFILE
+
+  # Clean targets
+  echo "clean-chapter4:" >> $MKFILE
+  echo -e "\tuserdel lfs && \\" >> $MKFILE
+  echo -e "\trm -r /home/lfs && \\" >> $MKFILE
+  echo -e "\trm -r \$(LFS)/tools && \\" >> $MKFILE
+  echo -e "\trm /tools" >> $MKFILE
+  echo -e "\trm $JHALFSDIR/02*\n" >> $MKFILE
+
+  # The chapter4 sub-targets are hard-coded to can create the lfs user and
+  # environment, and to make the scripts executables (as part of 021-addinguser).
+  echo "020-creatingtoolsdir:" >> $MKFILE
+  echo -e "\tmkdir \$(LFS)/tools && \\" >> $MKFILE
+  echo -e "\tln -s \$(LFS)/tools / && \\" >> $MKFILE
+  echo -e "\ttouch \$@\n" >> $MKFILE
+
+  echo "021-addinguser:" >> $MKFILE
+  echo -e "\tgroupadd lfs && \\" >> $MKFILE
+  echo -e "\tuseradd -s /bin/bash -g lfs -m -k /dev/null lfs && \\" >> $MKFILE
+  echo -e "\tchown lfs \$(LFS)/tools && \\" >> $MKFILE
+  echo -e "\tchown lfs \$(LFS)/sources && \\" >> $MKFILE
+  # Make the scripts executables
+  echo -e "\tchmod -R +x $JHALFSDIR/commands && \\" >> $MKFILE
+  echo -e "\ttouch \$@\n" >> $MKFILE
+
+  echo "022-settingenvironment:" >> $MKFILE
+  echo -e "\techo \"exec env -i HOME=\\\$\$HOME TERM=\\\$\$TERM PS1='\u:\w\$$ ' /bin/bash\" > /home/lfs/.bash_profile && \\" >> $MKFILE
+  echo -e "\techo \"set +h\" > /home/lfs/.bashrc && \\" >> $MKFILE
+  echo -e "\techo \"umask 022\" >> /home/lfs/.bashrc && \\" >> $MKFILE
+  echo -e "\techo \"LFS=/mnt/lfs\" >> /home/lfs/.bashrc && \\" >> $MKFILE
+  echo -e "\techo \"LC_ALL=POSIX\" >> /home/lfs/.bashrc && \\" >> $MKFILE
+  echo -e "\techo \"PATH=/tools/bin:/bin:/usr/bin\" >> /home/lfs/.bashrc && \\" >> $MKFILE
+  echo -e "\techo \"export LFS LC_ALL PATH\" >> /home/lfs/.bashrc && \\" >> $MKFILE
+  echo -e "\tchown lfs /home/lfs/.bash* && \\" >> $MKFILE
+  echo -e "\ttouch \$@\n" >> $MKFILE
+
 
   # Bring over the items from the Makefile.tmp
   cat $MKFILE.tmp >> $MKFILE
