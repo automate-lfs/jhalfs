@@ -66,7 +66,8 @@
   </xsl:template>
 
   <xsl:template match="para/userinput">
-    <xsl:if test="$testsuite = '0'">
+    <xsl:if test="$testsuite = '0' and (contains(string(),'test') or
+        contains(string(),'check'))">
       <xsl:apply-templates/>
       <xsl:text> &amp;&amp;&#xA;</xsl:text>
     </xsl:if>
