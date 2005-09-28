@@ -6,6 +6,8 @@
 
 <!-- XSLT stylesheet to create shell scripts from LFS books. -->
 
+  <xsl:param name="testsuite" select="0"/>
+
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
   </xsl:template>
@@ -42,7 +44,7 @@
         <!-- Creating dirs and files -->
       <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
         <xsl:text>#!/bin/sh&#xA;&#xA;</xsl:text>
-        <xsl:apply-templates select=".//screen"/>
+        <xsl:apply-templates select=".//para/userinput | .//screen"/>
       </exsl:document>
     </xsl:if>
   </xsl:template>
@@ -52,7 +54,7 @@
       <xsl:choose>
         <xsl:when test="@role = 'nodump'"/>
         <xsl:otherwise>
-          <xsl:apply-templates select="userinput"/>
+          <xsl:apply-templates select="userinput" mode="screen"/>
           <xsl:if test="position() != last() and
               not(contains(string(),'EOF'))">
             <xsl:text> &amp;&amp;</xsl:text>
@@ -63,7 +65,14 @@
     </xsl:if>
   </xsl:template>
 
-  <xsl:template match="userinput">
+  <xsl:template match="para/userinput">
+    <xsl:if test="$testsuite = '0'">
+      <xsl:apply-templates/>
+      <xsl:text> &amp;&amp;&#xA;</xsl:text>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="userinput" mode="screen">
     <xsl:apply-templates/>
   </xsl:template>
 

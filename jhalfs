@@ -3,7 +3,7 @@
 version="
 jhalfs development
 
-Written by Jeremy Huntwork.
+Originally written by Jeremy Huntwork.
 Maintained by Manuel Canales Esparcia.
 
 This program is published under the \
@@ -22,6 +22,7 @@ Options:
                                 DIR/jhalfs
   -D, --download-client=CLIENT  use CLIENT as the program for retrieving
                                 packages
+  -T, --no-testsuites           don't run the package's testsuites.
 "
 
 help="\
@@ -77,6 +78,12 @@ while test $# -gt 0 ; do
       shift
       ;;
 
+    --no-testsuites | -T )
+      shift
+      TEST=1
+      shift
+      ;;
+
     * )
       echo "$usage"
       exit 1
@@ -110,6 +117,7 @@ JHALFSDIR=$BUILDDIR/jhalfs
 LOG=build.log
 MKFILE=$JHALFSDIR/Makefile
 XSL=dump-commands.xsl
+if [ -z $TEST ] ; then TEST=0 ; fi
 
 get_book() {
   # Check for Subversion instead of just letting the script hit 'svn' and fail.
@@ -156,8 +164,8 @@ extract_commands() {
   echo -n "Extracting commands... "
 
   # Dump the commands in shell script form from the LFS book.
-  xsltproc --nonet --xinclude -o ./commands/ $XSL \
-  lfs-$LFSVRS/index.xml >>$JHALFSDIR/$LOG 2>&1
+  xsltproc --nonet --xinclude --stringparam testsuite $TEST -o ./commands/ \
+  $XSL lfs-$LFSVRS/index.xml >>$JHALFSDIR/$LOG 2>&1
 
   # Grab the patches and package names.
   cd $JHALFSDIR
