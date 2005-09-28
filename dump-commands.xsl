@@ -53,7 +53,8 @@
         <xsl:when test="@role = 'nodump'"/>
         <xsl:otherwise>
           <xsl:apply-templates select="userinput"/>
-          <xsl:if test="position() != last()">
+          <xsl:if test="position() != last() and
+              not(contains(string(),'EOF'))">
             <xsl:text> &amp;&amp;</xsl:text>
           </xsl:if>
           <xsl:text>&#xA;</xsl:text>
