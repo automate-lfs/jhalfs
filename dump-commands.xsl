@@ -44,6 +44,10 @@
         <!-- Creating dirs and files -->
       <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
         <xsl:text>#!/bin/sh&#xA;&#xA;</xsl:text>
+        <xsl:if test="sect2[@role='installation'] and
+            ancestor::chapter[@id='chapter-temporary-tools']">
+          <xsl:text>cd $PKGDIR &amp;&amp;&#xA;</xsl:text>
+        </xsl:if>
         <xsl:apply-templates select=".//para/userinput | .//screen"/>
       </exsl:document>
     </xsl:if>
