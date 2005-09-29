@@ -22,7 +22,8 @@ Options:
                                 DIR/jhalfs
   -D, --download-client=CLIENT  use CLIENT as the program for retrieving
                                 packages
-  -T, --no-testsuites           don't run the package's testsuites.
+  -T, --no-testsuites           don't run the package's testsuites
+  -P, --have-packages           don't download the packages
 "
 
 help="\
@@ -81,6 +82,12 @@ while test $# -gt 0 ; do
     --no-testsuites | -T )
       shift
       TEST=1
+      shift
+      ;;
+
+    --have-packages | -P )
+      shift
+      HPKG=1
       shift
       ;;
 
@@ -221,37 +228,41 @@ download() {
 
 get_sources() {
 
-  # This variable is necessary to make sure the `cat $JHALFSDIR/packages`
-  # separates each iteration by lines.  It is necessary to have the second
-  # ' on the next line.
-  IFS='
+  # Test if the packages must be downloaded
+  if [ -z $HPKG ] ; then
+
+    # This variable is necessary to make sure the `cat $JHALFSDIR/packages`
+    # separates each iteration by lines.  It is necessary to have the second
+    # ' on the next line.
+    IFS='
 '
 
-  if [ ! -d $BUILDDIR/sources ] ; then mkdir $BUILDDIR/sources ; fi
-  cd $BUILDDIR/sources
-  if [ -f MD5SUMS ] ; then rm MD5SUMS ; fi
+    if [ ! -d $BUILDDIR/sources ] ; then mkdir $BUILDDIR/sources ; fi
+    cd $BUILDDIR/sources
+    if [ -f MD5SUMS ] ; then rm MD5SUMS ; fi
 
-  download "" MD5SUMS
+    download "" MD5SUMS
 
-  # Iterate through each package and grab it, along with any patches it needs.
-  for i in `cat $JHALFSDIR/packages` ; do
-    PKG=`echo $i | sed 's/-version.*//'`
+    # Iterate through each package and grab it, along with any patches it needs.
+    for i in `cat $JHALFSDIR/packages` ; do
+      PKG=`echo $i | sed 's/-version.*//'`
 
-    # Someone used some silly entities right next to the valid package entities.
-    if [ "$PKG" = "expect-lib" -o "$PKG" = "linux-dl" ] ; then continue ; fi
+      # Someone used some silly entities right next to the valid package entities.
+      if [ "$PKG" = "expect-lib" -o "$PKG" = "linux-dl" ] ; then continue ; fi
 
-    VRS=`echo $i | sed -e 's/.* //' -e 's/"//g'`
-    if [ "$PKG" = "tcl" ] ; then
-      FILE="$PKG$VRS-src.tar.bz2"
-    else
-      FILE="$PKG-$VRS.tar.bz2"
-    fi
-    download $PKG $FILE
-    for patch in `grep "$PKG-&$PKG" $JHALFSDIR/patches` ; do
-      PATCH=`echo $patch | sed 's@&'$PKG'-version;@'$VRS'@'`
-      download $PKG $PATCH
+      VRS=`echo $i | sed -e 's/.* //' -e 's/"//g'`
+      if [ "$PKG" = "tcl" ] ; then
+        FILE="$PKG$VRS-src.tar.bz2"
+      else
+        FILE="$PKG-$VRS.tar.bz2"
+      fi
+      download $PKG $FILE
+      for patch in `grep "$PKG-&$PKG" $JHALFSDIR/patches` ; do
+        PATCH=`echo $patch | sed 's@&'$PKG'-version;@'$VRS'@'`
+        download $PKG $PATCH
+      done
     done
-  done
+  fi
 }
 
 build_Makefile() {
@@ -288,7 +299,8 @@ build_Makefile() {
       FILE="$name-$vrs.tar.bz2"
     fi
 
-    # Insert instructions for unpacking the package and changing directories
+    # Insert instructions for unpacking the package and to set
+    # the PKGDIR variable.
     echo -e "\t\$(call unpack-lfs,$FILE) && \\" >> $MKFILE.tmp
     echo -e "\tROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\" >> $MKFILE.tmp
     echo -e "\tchown -R lfs \$(LFS)\$(SRC)/\$\$ROOT && \\" >> $MKFILE.tmp
