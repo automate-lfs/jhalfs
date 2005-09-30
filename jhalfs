@@ -431,4 +431,6 @@ fi
 
 get_book
 build_Makefile
-#make
+if [ -e $MKFILE ] ; then
+  cd $JHALFSDIR && make
+fi
