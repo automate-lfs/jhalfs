@@ -285,8 +285,12 @@ build_Makefile() {
   # and binutils in chapter 5)
   name=`echo $i | sed -e 's@[0-9]\{3\}-@@' -e 's@-pass[0-9]\{1\}@@'`
 
-  # Drop in the name of the target on a new line.
-  echo -e "\n$i:" >> $MKFILE.tmp
+  # Set the dependency for the first target.
+  if [ -z $PREV ] ; then PREV=chapter4 ; fi
+
+  # Drop in the name of the target on a new line, and the
+  # pevious target as a dependency.
+  echo -e "\n$i: $PREV" >> $MKFILE.tmp
 
   # Find the version of the command files, if it corresponds with the building of
   # a specific package
@@ -303,27 +307,35 @@ build_Makefile() {
     # Insert instructions for unpacking the package and to set
     # the PKGDIR variable.
     echo -e "\t\$(call unpack-lfs,$FILE)" >> $MKFILE.tmp
-    echo -e "\tROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\" >> $MKFILE.tmp
+    echo -e "\t-ROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\" >> $MKFILE.tmp
     echo -e "\tchown -R lfs \$(LFS)\$(SRC)/\$\$ROOT && \\" >> $MKFILE.tmp
     echo -e "\techo \"PKGDIR=\$(LFS)\$(SRC)/\$\$ROOT\" > envars && \\" >> $MKFILE.tmp
     echo -e "\techo \"export PKGDIR\" >> envars && \\" >> $MKFILE.tmp
   fi
 
   # Insert the script run
-  echo -e "\tsu - lfs -c \". /home/lfs/.bashrc && $JHALFSDIR/commands/$file\" >\$(LOGDIR)/$i.log 2>&1 && \\" >> $MKFILE.tmp
-
-  # Remove the build directory(ies).
-  # (How could it be deleted even if the package build fails?)
-  if [ "$vrs" != "" ] ; then
-    echo -e "\trm -r \$(LFS)\$(SRC)/\$\$ROOT && \\" >> $MKFILE.tmp
-    echo -e "\tif [ -e \$(LFS)\$(SRC)/*-build ]; then \\" >> $MKFILE.tmp
-    echo -e "\t\t rm -r \$(LFS)\$(SRC)/*-build; \\" >> $MKFILE.tmp
-    echo -e "\tfi;" >> $MKFILE.tmp
-  fi
+  echo -e "\tsu - lfs -c \". /home/lfs/.bashrc && $JHALFSDIR/commands/$file\" >\$(LOGDIR)/$i 2>&1 && \\" >> $MKFILE.tmp
 
   # Include a touch of the target name so make can check
   # if it's already been made.
   echo -e "\ttouch \$@" >> $MKFILE.tmp
+
+  # Remove the build directory(ies) even if the package build fails.
+  if [ "$vrs" != "" ] ; then
+    echo -e "\tROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\" >> $MKFILE.tmp
+    echo -e "\trm -r \$(LFS)\$(SRC)/\$\$ROOT && \\" >> $MKFILE.tmp
+    echo -e "\tif [ -e \$(LFS)\$(SRC)/*-build ]; then \\" >> $MKFILE.tmp
+    echo -e "\t\trm -r \$(LFS)\$(SRC)/*-build; \\" >> $MKFILE.tmp
+    echo -e "\tfi;" >> $MKFILE.tmp
+  fi
+
+  # Check if the package has been sucessfully build.
+  echo -e "\tif [ ! -e \$@ ] ; then \\" >> $MKFILE.tmp
+  echo -e "\t\techo \"The build of \$@ has failed\" && exit 1; \\" >> $MKFILE.tmp
+  echo -e "\tfi;" >> $MKFILE.tmp
+
+  # Keep the script file name in a second variable for Makefile dependencies.
+  PREV=$i
 
   done
 
@@ -342,21 +354,27 @@ build_Makefile() {
   # as a dependency.
   echo -e "all:  chapter4 chapter5\n" >> $MKFILE
   echo -e "chapter4:  020-creatingtoolsdir 021-addinguser 022-settingenvironment\n" >> $MKFILE
-  echo -e "chapter5: $chapter5\n" >> $MKFILE
+  echo -e "chapter5:  chapter4 $chapter5\n" >> $MKFILE
 
   # Clean targets
-  echo "clean:  clean-chapter5 clean-chapter4" >> $MKFILE
+  echo "clean-all:  clean" >> $MKFILE
+  echo -e "\trm -rfv ./*\n" >> $MKFILE
+
+  echo -e "clean:  clean-chapter5 clean-chapter4\n" >> $MKFILE
 
   echo "clean-chapter4:" >> $MKFILE
-  echo -e "\tuserdel lfs && \\" >> $MKFILE
-  echo -e "\trm -r /home/lfs && \\" >> $MKFILE
-  echo -e "\trm -r \$(LFS)/tools && \\" >> $MKFILE
-  echo -e "\trm /tools" >> $MKFILE
-  echo -e "\trm 02*\n" >> $MKFILE
+  echo -e "\t-userdel lfs" >> $MKFILE
+  echo -e "\trm -rfv /home/lfs" >> $MKFILE
+  echo -e "\trm -rfv \$(LFS)/tools" >> $MKFILE
+  echo -e "\trm -fv /tools" >> $MKFILE
+  echo -e "\trm -fv envars" >> $MKFILE
+  echo -e "\trm -fv 02* logs/02*.log\n" >> $MKFILE
 
   echo "clean-chapter5:" >> $MKFILE
-  echo -e "\trm -r \$(LFS)/tools/* && \\" >> $MKFILE
-  echo -e "\trm -f $chapter5\n" >> $MKFILE
+  echo -e "\trm -rfv \$(LFS)/tools/*" >> $MKFILE
+  echo -e "\trm -fv envars" >> $MKFILE
+  echo -e "\trm -fv $chapter5" >> $MKFILE
+  echo -e "\tcd logs && rm -fv $chapter5 && cd ..\n" >> $MKFILE
 
   # The chapter4 sub-targets are hard-coded to can create the lfs user,
   # to make the scripts executables, and to create a clean environment
@@ -366,7 +384,7 @@ build_Makefile() {
   echo -e "\tln -sv \$(LFS)/tools / && \\" >> $MKFILE
   echo -e "\ttouch \$@\n" >> $MKFILE
 
-  echo "021-addinguser:" >> $MKFILE
+  echo "021-addinguser:  020-creatingtoolsdir" >> $MKFILE
   echo -e "\tgroupadd lfs && \\" >> $MKFILE
   echo -e "\tuseradd -s /bin/bash -g lfs -m -k /dev/null lfs && \\" >> $MKFILE
   echo -e "\tchown lfs \$(LFS)/tools && \\" >> $MKFILE
@@ -375,7 +393,7 @@ build_Makefile() {
   echo -e "\tchmod -R +x $JHALFSDIR/commands && \\" >> $MKFILE
   echo -e "\ttouch \$@\n" >> $MKFILE
 
-  echo "022-settingenvironment:" >> $MKFILE
+  echo "022-settingenvironment:  021-addinguser" >> $MKFILE
   echo -e "\techo \"exec env -i HOME=\\\$\$HOME TERM=\\\$\$TERM PS1='\u:\w\$$ ' /bin/bash\" > /home/lfs/.bash_profile && \\" >> $MKFILE
   echo -e "\techo \"set +h\" > /home/lfs/.bashrc && \\" >> $MKFILE
   echo -e "\techo \"umask 022\" >> /home/lfs/.bashrc && \\" >> $MKFILE
@@ -413,3 +431,4 @@ fi
 
 get_book
 build_Makefile
+#make
