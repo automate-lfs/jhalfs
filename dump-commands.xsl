@@ -44,7 +44,8 @@
         <!-- Creating dirs and files -->
       <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
         <xsl:text>#!/bin/sh&#xA;&#xA;</xsl:text>
-        <xsl:if test="sect2[@role='installation'] and
+        <xsl:if test="(sect2[@role='installation'] or
+            @id='ch-tools-adjusting') and
             ancestor::chapter[@id='chapter-temporary-tools']">
           <xsl:text>cd $PKGDIR &amp;&amp;&#xA;</xsl:text>
         </xsl:if>

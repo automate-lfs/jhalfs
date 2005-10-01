@@ -274,72 +274,114 @@ build_Makefile() {
   >$MKFILE.tmp
 
   for file in chapter05/* ; do
-  # Keep the script file name
-  i=`basename $file`
+    # Keep the script file name
+    i=`basename $file`
 
-  # First append each name of the script files to a list (this will become
-  # the names of the targets in the Makefile
-  chapter5="$chapter5 $i"
+    # First append each name of the script files to a list (this will become
+    # the names of the targets in the Makefile
+    chapter5="$chapter5 $i"
 
-  # Grab the name of the target (minus the -pass1 or -pass2 in the case of gcc
-  # and binutils in chapter 5)
-  name=`echo $i | sed -e 's@[0-9]\{3\}-@@' -e 's@-pass[0-9]\{1\}@@'`
+    # Grab the name of the target (minus the -pass1 or -pass2 in the case of gcc
+    # and binutils in chapter 5)
+    name=`echo $i | sed -e 's@[0-9]\{3\}-@@' -e 's@-pass[0-9]\{1\}@@'`
 
-  # Drop in the name of the target on a new line, and the
-  # pevious target as a dependency.
-  echo -e "\n$i:" >> $MKFILE.tmp
+    # Drop in the name of the target on a new line.
+    echo -e "\n$i:" >> $MKFILE.tmp
 
-  # Find the version of the command files, if it corresponds with the building of
-  # a specific package
-  vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+    # Find the version of the command files, if it corresponds with the building of
+    # a specific package
+    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
 
-  # If $vrs isn't empty, we've got a package...
-  if [ "$vrs" != "" ] ; then
-    if [ "$name" = "tcl" ] ; then
-      FILE="$name$vrs-src.tar.bz2"
-    else
-      FILE="$name-$vrs.tar.bz2"
+    # If $vrs isn't empty, we've got a package...
+    if [ "$vrs" != "" ] ; then
+      if [ "$name" = "tcl" ] ; then
+        FILE="$name$vrs-src.tar.bz2"
+      else
+        FILE="$name-$vrs.tar.bz2"
+      fi
+
+      # Insert instructions for unpacking the package and to set
+      # the PKGDIR variable.
+      echo -e "\t\$(call unpack-lfs,$FILE)" >> $MKFILE.tmp
+      echo -e "\t-ROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\" >> $MKFILE.tmp
+      echo -e "\tchown -R lfs \$(LFS)\$(SRC)/\$\$ROOT && \\" >> $MKFILE.tmp
+      echo -e "\techo \"PKGDIR=\$(LFS)\$(SRC)/\$\$ROOT\" > envars && \\" >> $MKFILE.tmp
+      echo -e "\techo \"export PKGDIR\" >> envars && \\" >> $MKFILE.tmp
     fi
 
-    # Insert instructions for unpacking the package and to set
-    # the PKGDIR variable.
-    echo -e "\t\$(call unpack-lfs,$FILE)" >> $MKFILE.tmp
-    echo -e "\t-ROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\" >> $MKFILE.tmp
-    echo -e "\tchown -R lfs \$(LFS)\$(SRC)/\$\$ROOT && \\" >> $MKFILE.tmp
-    echo -e "\techo \"PKGDIR=\$(LFS)\$(SRC)/\$\$ROOT\" > envars && \\" >> $MKFILE.tmp
-    echo -e "\techo \"export PKGDIR\" >> envars && \\" >> $MKFILE.tmp
-  fi
+    # Dump the path to the Binutils and TCL sources
+    if [ "$i" = "027-binutils-pass1" -o "$i" = "032-tcl" ] ; then
+      echo -e "\techo \"\$(LFS)\$(SRC)/\$\$ROOT\" > sources-dir && \\" >> $MKFILE.tmp
+    fi
 
-  # Inser date and disk usage at the top of the log file.
-  echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\\\n\" >\$(LOGDIR)/$i && \\" >> $MKFILE.tmp
+    # Inser date and disk usage at the top of the log file.
+    echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\\\n\" >\$(LOGDIR)/$i && \\" >> $MKFILE.tmp
 
-  # Insert the script run
-  echo -e "\tsu - lfs -c \". /home/lfs/.bashrc && $JHALFSDIR/commands/$file\" >>\$(LOGDIR)/$i 2>&1 && \\" >> $MKFILE.tmp
+    # For the Adjusting phase we must to cd to the binutils-build directory.
+    if [ "$i" = "031-adjusting" ] ; then
+      echo -e "\techo \"PKGDIR=\`cat sources-dir\`\" > envars && \\" >> $MKFILE.tmp
+      echo -e "\techo \"export PKGDIR\" >> envars && \\" >> $MKFILE.tmp
+    fi
 
-  # Inser date and disk usage at the bottom of the log file.
-  echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\\\n\" >>\$(LOGDIR)/$i && \\" >> $MKFILE.tmp
+    # For the Exp0ect build we need to set the TCLPATH envar.
+    if [ "$i" = "033-expect" ] ; then
+      echo -e "\techo \"TCLPATH=\`cat sources-dir\`\" >> envars && \\" >> $MKFILE.tmp
+      echo -e "\techo \"export TCLPATH\" >> envars && \\" >> $MKFILE.tmp
+    fi
 
-  # Include a touch of the target name so make can check
-  # if it's already been made.
-  echo -e "\ttouch \$@" >> $MKFILE.tmp
+    # Insert the script run
+    echo -e "\tsu - lfs -c \". /home/lfs/.bashrc && $JHALFSDIR/commands/$file\" >>\$(LOGDIR)/$i 2>&1 && \\" >> $MKFILE.tmp
 
-  # Remove the build directory(ies) even if the package build fails.
-  if [ "$vrs" != "" ] ; then
-    echo -e "\tROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\" >> $MKFILE.tmp
-    echo -e "\trm -r \$(LFS)\$(SRC)/\$\$ROOT && \\" >> $MKFILE.tmp
-    echo -e "\tif [ -e \$(LFS)\$(SRC)/*-build ]; then \\" >> $MKFILE.tmp
-    echo -e "\t\trm -r \$(LFS)\$(SRC)/*-build; \\" >> $MKFILE.tmp
+    # Inser date and disk usage at the bottom of the log file.
+    echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\\\n\" >>\$(LOGDIR)/$i && \\" >> $MKFILE.tmp
+
+    # Include a touch of the target name so make can check
+    # if it's already been made.
+    echo -e "\ttouch \$@" >> $MKFILE.tmp
+
+    # Remove the build directory(ies) even if the package build fails, except for
+    # Binutils pass1 and TCL. In that cases the sources directories are removed
+    # only if the build fails.
+    if [ "$vrs" != "" ] ; then
+      if [ "$i" != "027-binutils-pass1" ] && [ "$i" != "032-tcl" ] ; then
+        echo -e "\tROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\" >> $MKFILE.tmp
+        echo -e "\trm -r \$(LFS)\$(SRC)/\$\$ROOT && \\" >> $MKFILE.tmp
+        echo -e "\tif [ -e \$(LFS)\$(SRC)/*-build ]; then \\" >> $MKFILE.tmp
+        echo -e "\t\trm -r \$(LFS)\$(SRC)/*-build; \\" >> $MKFILE.tmp
+        echo -e "\tfi;" >> $MKFILE.tmp
+      fi
+    fi
+    if [ "$i" = "027-binutils-pass1" -o "$i" = "032-tcl" ] ; then
+      echo -e "\tif [ ! -e \$@ ] ; then \\" >> $MKFILE.tmp
+      echo -e "\t\tROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\" >> $MKFILE.tmp
+      echo -e "\t\trm -r \$(LFS)\$(SRC)/\$\$ROOT && \\" >> $MKFILE.tmp
+      echo -e "\t\tif [ -e \$(LFS)\$(SRC)/*-build ]; then \\" >> $MKFILE.tmp
+      echo -e "\t\t\trm -r \$(LFS)\$(SRC)/*-build; \\" >> $MKFILE.tmp
+      echo -e "\t\tfi;" >> $MKFILE.tmp
+      echo -e "\tfi;" >> $MKFILE.tmp
+    fi
+
+    # Remove the Binutils sources after a sucessfull adjusting phase.
+    if [ "$i" = "031-adjusting" ] ; then
+      echo -e "\tif [ -e \$@ ] ; then \\" >> $MKFILE.tmp
+      echo -e "\t\trm -r \`cat sources-dir\` && \\" >> $MKFILE.tmp
+      echo -e "\t\trm -r \$(LFS)\$(SRC)/binutils-build; && \\" >> $MKFILE.tmp
+      echo -e "\t\trm sources-dir && \\" >> $MKFILE.tmp
+      echo -e "\tfi;" >> $MKFILE.tmp
+    fi
+
+    # Remove the TCL sources after a sucessfull Expect build.
+    if [ "$i" = "033-expect" ] ; then
+      echo -e "\tif [ -e \$@ ] ; then \\" >> $MKFILE.tmp
+      echo -e "\t\trm -r \`cat sources-dir\` && \\" >> $MKFILE.tmp
+      echo -e "\t\trm sources-dir && \\" >> $MKFILE.tmp
+      echo -e "\tfi;" >> $MKFILE.tmp
+    fi
+
+    # Check if the package has been sucessfully build.
+    echo -e "\tif [ ! -e \$@ ] ; then \\" >> $MKFILE.tmp
+    echo -e "\t\techo \"The build of \$@ has failed\" && exit 1; \\" >> $MKFILE.tmp
     echo -e "\tfi;" >> $MKFILE.tmp
-  fi
-
-  # Check if the package has been sucessfully build.
-  echo -e "\tif [ ! -e \$@ ] ; then \\" >> $MKFILE.tmp
-  echo -e "\t\techo \"The build of \$@ has failed\" && exit 1; \\" >> $MKFILE.tmp
-  echo -e "\tfi;" >> $MKFILE.tmp
-
-  # Keep the script file name in a second variable for Makefile dependencies.
-  PREV=$i
-
   done
 
   # Stick variables and some defines at the top of the real makefile
@@ -410,7 +452,6 @@ build_Makefile() {
   echo -e "\ttouch envars && \\" >> $MKFILE
   echo -e "\ttouch \$@" >> $MKFILE
 
-
   # Bring over the items from the Makefile.tmp
   cat $MKFILE.tmp >> $MKFILE
   rm $MKFILE.tmp
@@ -442,4 +483,4 @@ fi
 
 get_book
 build_Makefile
-#run_make
+run_make
