@@ -72,13 +72,22 @@
   <xsl:template match="para/userinput">
     <xsl:if test="$testsuite = '0' and (contains(string(),'test') or
         contains(string(),'check'))">
-      <xsl:apply-templates/>
+      <xsl:value-of select="substring-before(string(),'make')"/>
+      <xsl:text>make -k</xsl:text>
+      <xsl:value-of select="substring-after(string(),'make')"/>
       <xsl:text> &amp;&amp;&#xA;</xsl:text>
     </xsl:if>
   </xsl:template>
 
   <xsl:template match="userinput" mode="screen">
-    <xsl:apply-templates/>
+    <xsl:choose>
+      <xsl:when test="string() = 'make check'">
+        <xsl:text>make -k check</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="replaceable">
