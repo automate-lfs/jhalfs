@@ -454,9 +454,7 @@ build_Makefile() {
     # if it's already been made.
     echo -e "\ttouch \$@" >> $MKFILE.tmp
 
-    # Remove the build directory(ies) even if the package build fails, except for
-    # Binutils and TCL. In that cases the sources directories are removed
-    # only if the build fails.
+    # Remove the build directory(ies) even if the package build fails.
     if [ "$vrs" != "" ] ; then
       echo -e "\tROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\" >> $MKFILE.tmp
       echo -e "\trm -r \$(SRC)/\$\$ROOT && \\" >> $MKFILE.tmp
@@ -466,7 +464,7 @@ build_Makefile() {
     fi
 
     # Remove the Binutils pass 2 sources after a sucessfull Re-Adjusting phase.
-    if [ "$i" = "031-adjusting" ] ; then
+    if [ "$i" = "067-readjusting" ] ; then
       echo -e "\tif [ -e \$@ ] ; then \\" >> $MKFILE.tmp
       echo -e "\t\trm -r \`cat sources-dir\` && \\" >> $MKFILE.tmp
       echo -e "\t\trm -r \$(SRC)/binutils-build && \\" >> $MKFILE.tmp
@@ -496,7 +494,8 @@ build_Makefile() {
 
   # Drop in the main target 'all:' and the chapter targets with each sub-target
   # as a dependency.
-  echo -e "all:  chapter4 chapter5\n" >> $MKFILE
+  echo "all:  chapter4 chapter5" >> $MKFILE
+  echo -e "\techo -e \"\\\n\\\tYour new LFS system has been sucessfully build\"\n" >> $MKFILE
   echo -e "chapter4:  020-creatingtoolsdir 021-addinguser 022-settingenvironment\n" >> $MKFILE
   echo -e "chapter5:  chapter4 $chapter5\n" >> $MKFILE >> $MKFILE
   echo -e "chapter6:  chapter5 $chapter6\n" >> $MKFILE
