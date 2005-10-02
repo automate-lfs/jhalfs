@@ -367,13 +367,13 @@ build_Makefile() {
     fi
 
     # Inser date and disk usage at the top of the log file.
-    echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\\\n\" >\$(LFS)\$(LOGDIR)/$i && \\" >> $MKFILE.tmp
+    echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\\\n\" >logs/$i && \\" >> $MKFILE.tmp
 
     # Insert the script run
-    echo -e "\tsu - lfs -c \". /home/lfs/.bashrc && $JHALFSDIR/commands/$file\" >>\$(LFS)\$(LOGDIR)/$i 2>&1 && \\" >> $MKFILE.tmp
+    echo -e "\tsu - lfs -c \". /home/lfs/.bashrc && $JHALFSDIR/commands/$file\" >>logs/$i 2>&1 && \\" >> $MKFILE.tmp
 
     # Inser date and disk usage at the bottom of the log file.
-    echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\\\n\" >>\$(LFS)\$(LOGDIR)/$i && \\" >> $MKFILE.tmp
+    echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\\\n\" >>logs/$i && \\" >> $MKFILE.tmp
 
     # Include a touch of the target name so make can check
     # if it's already been made.
@@ -464,26 +464,29 @@ build_Makefile() {
       echo -e "\techo \"export PKGDIR\" >> envars && \\" >> $MKFILE.tmp
     fi
 
-    # For the mount of kernel filesystems we need to set LFS.
-    if [ "$i" = "057-kernfs" ] ; then
-      echo -e "\techo \"LFS=\$(LFS)\" > envars && \\" >> $MKFILE.tmp
-      echo -e "\techo \"export LFS\" >> envars && \\" >> $MKFILE.tmp
-    fi
-
     # For the Re-Adjusting phase we must to cd to the binutils-build directory.
     if [ "$i" = "067-readjusting" ] ; then
       echo -e "\techo \"PKGDIR=\$(SRC)/binutils-build\" > envars && \\" >> $MKFILE.tmp
       echo -e "\techo \"export PKGDIR\" >> envars && \\" >> $MKFILE.tmp
     fi
 
-    # Inser date and disk usage at the top of the log file.
-    echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -sk --exclude=0??-* /\`\\\n\" >\$(LOGDIR)/$i && \\" >> $MKFILE.tmp
-
     # Insert the script run
-    echo -e "\t. envars && commands/$file >>\$(LOGDIR)/$i 2>&1 && \\" >> $MKFILE.tmp
-
-    # Inser date and disk usage at the bottom of the log file.
-    echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\\\n\" >>\$(LOGDIR)/$i && \\" >> $MKFILE.tmp
+    # For the mount of kernel filesystems we need to set LFS.
+    if [ "$i" = "057-kernfs" ] ; then
+      echo -e "\techo \"LFS=\$(LFS)\" > envars && \\" >> $MKFILE.tmp
+      echo -e "\techo \"export LFS\" >> envars && \\" >> $MKFILE.tmp
+      # Inser date and disk usage at the top of the log file.
+      echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\\\n\" >logs/$i && \\" >> $MKFILE.tmp
+      echo -e "\t. envars && commands/$file >>logs/$i 2>&1 && \\" >> $MKFILE.tmp
+      # Inser date and disk usage at the bottom of the log file.
+      echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\\\n\" >>logs/$i && \\" >> $MKFILE.tmp
+    else
+      # Inser date and disk usage at the top of the log file.
+      echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -sk --exclude=0??-* /\`\\\n\" >logs/$i && \\" >> $MKFILE.tmp
+      echo -e "\t. envars && commands/$file >>logs/$i 2>&1 && \\" >> $MKFILE.tmp
+      # Inser date and disk usage at the bottom of the log file.
+      echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -sk --exclude=0??-* /\`\\\n\" >>logs/$i && \\" >> $MKFILE.tmp
+    fi
 
     # Include a touch of the target name so make can check
     # if it's already been made.
@@ -508,7 +511,7 @@ build_Makefile() {
     fi
 
     # Check if the package has been sucessfully build.
-    echo -e "\tif [ ! -e \$@ ] ; then \\" >> $MKFILE.tmp
+    echo -e "\t@if [ ! -e \$@ ] ; then \\" >> $MKFILE.tmp
     echo -e "\t\techo \"The build of \$@ has failed\" && exit 1; \\" >> $MKFILE.tmp
     echo -e "\tfi;" >> $MKFILE.tmp
 
