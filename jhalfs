@@ -128,7 +128,7 @@ JHALFSDIR=$BUILDDIR/jhalfs
 LOGDIR=$JHALFSDIR/logs
 LOG=000-jhalfs.log
 MKFILE=$JHALFSDIR/Makefile
-XSL=dump-commands.xsl
+XSL=dump-lfs-scripts.xsl
 if [ -z $TEST ] ; then TEST=0 ; fi
 
 get_book() {
