@@ -61,7 +61,9 @@
         <xsl:otherwise>
           <xsl:apply-templates select="userinput" mode="screen"/>
           <xsl:if test="position() != last() and
-              not(contains(string(),'EOF'))">
+              not(contains(string(),'EOF')) and
+              not(contains(string(),'check')) and
+              not(ancestor::sect1[@id='ch-tools-stripping'])">
             <xsl:text> &amp;&amp;</xsl:text>
           </xsl:if>
           <xsl:text>&#xA;</xsl:text>
@@ -71,12 +73,12 @@
   </xsl:template>
 
   <xsl:template match="para/userinput">
-    <xsl:if test="$testsuite = '0' and (contains(string(),'test') or
+    <xsl:if test="$testsuite != '0' and (contains(string(),'test') or
         contains(string(),'check'))">
       <xsl:value-of select="substring-before(string(),'make')"/>
       <xsl:text>make -k</xsl:text>
       <xsl:value-of select="substring-after(string(),'make')"/>
-      <xsl:text> &amp;&amp;&#xA;</xsl:text>
+      <xsl:text> &#xA;</xsl:text>
     </xsl:if>
   </xsl:template>
 
