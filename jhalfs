@@ -158,7 +158,7 @@ get_book() {
   # Test to make sure the LFS version is set
   if [ -z $LFSVRS ] ; then LFSVRS=development ; fi
 
-  # Set the book's soures directory
+  # Set the book's sources directory
   if [ -z $BOOK ] ; then BOOK=lfs-$LFSVRS ; fi
 
   if [ -z $WC ] ; then
@@ -460,7 +460,8 @@ build_Makefile() {
       # Insert instructions for unpacking the package and changing directories
       echo -e "\t\$(call unpack,$FILE)" >> $MKFILE.tmp
       echo -e "\t-ROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\" >> $MKFILE.tmp
-      echo -e "\tcd \$(SRC)/\$\$ROOT && \\" >> $MKFILE.tmp
+      echo -e "\techo \"PKGDIR=\$(SRC)/\$\$ROOT\" > envars && \\" >> $MKFILE.tmp
+      echo -e "\techo \"export PKGDIR\" >> envars && \\" >> $MKFILE.tmp
     fi
 
     # Inser date and disk usage at the top of the log file.
@@ -468,7 +469,8 @@ build_Makefile() {
 
     # For the Re-Adjusting phase we must to cd to the binutils-build directory.
     if [ "$i" = "067-readjusting" ] ; then
-      echo -e "\tcd \$(SRC)/binutils-build && \\" >> $MKFILE.tmp
+      echo -e "\techo \"PKGDIR=\$(SRC)/binutils-build\" > envars && \\" >> $MKFILE.tmp
+      echo -e "\techo \"export PKGDIR\" >> envars && \\" >> $MKFILE.tmp
     fi
 
     # Insert the script run

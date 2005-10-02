@@ -44,9 +44,9 @@
         <!-- Creating dirs and files -->
       <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
         <xsl:text>#!/bin/sh&#xA;&#xA;</xsl:text>
-        <xsl:if test="(sect2[@role='installation'] or
-            @id='ch-tools-adjusting') and
-            ancestor::chapter[@id='chapter-temporary-tools']">
+        <xsl:if test="sect2[@role='installation'] or
+                @id='ch-tools-adjusting' or
+                @id='ch-system-readjusting'">
           <xsl:text>cd $PKGDIR &amp;&amp;&#xA;</xsl:text>
         </xsl:if>
         <xsl:apply-templates select=".//para/userinput | .//screen"/>
@@ -61,9 +61,9 @@
         <xsl:otherwise>
           <xsl:apply-templates select="userinput" mode="screen"/>
           <xsl:if test="position() != last() and
-              not(contains(string(),'EOF')) and
-              not(contains(string(),'check')) and
-              not(ancestor::sect1[@id='ch-tools-stripping'])">
+                  not(contains(string(),'EOF')) and
+                  not(contains(string(),'check')) and
+                  not(ancestor::sect1[@id='ch-tools-stripping'])">
             <xsl:text> &amp;&amp;</xsl:text>
           </xsl:if>
           <xsl:text>&#xA;</xsl:text>
@@ -73,8 +73,9 @@
   </xsl:template>
 
   <xsl:template match="para/userinput">
-    <xsl:if test="$testsuite != '0' and (contains(string(),'test') or
-        contains(string(),'check'))">
+    <xsl:if test="$testsuite != '0' and
+            (contains(string(),'test') or
+            contains(string(),'check'))">
       <xsl:value-of select="substring-before(string(),'make')"/>
       <xsl:text>make -k</xsl:text>
       <xsl:value-of select="substring-after(string(),'make')"/>
