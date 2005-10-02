@@ -15,15 +15,25 @@ Usage: $0 [OPTION]
 
 Options:
   -h, --help                    print this help, then exit
+
   -V, --version                 print version number, then exit
-  -L, --LFS-version=VER         use VER version of the LFS book
+
   -d  --directory=DIR           use DIR directory for building LFS; all files
                                 jhalfs produces will be in the directory
                                 DIR/jhalfs
+
+  -P, --get-packages            download the packages and patches
+
   -D, --download-client=CLIENT  use CLIENT as the program for retrieving
-                                packages
-  -T, --testsuites              run the optional testsuites
-  -P, --get-packages            download the packages
+                                packages (for use in conjunction with -P)
+
+  -W, --working-copy=DIR        use the local working copy placed in DIR
+                                as the LFS book
+
+  -L, --LFS-version=VER         ckeckout VER version of the LFS book
+
+  -T, --testsuites              add support to run the optional testsuites
+
   -M, --run-make                run make on the generated Makefile
 "
 
@@ -77,6 +87,14 @@ while test $# -gt 0 ; do
       test $# = 1 && eval "$exit_missing_arg"
       shift
       DL=$1
+      shift
+      ;;
+
+    --working-copy | -W )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      WC=1
+      BOOK=$1
       shift
       ;;
 
@@ -139,28 +157,37 @@ get_book() {
 
   # Test to make sure the LFS version is set
   if [ -z $LFSVRS ] ; then LFSVRS=development ; fi
-  echo -n "Downloading the LFS Book, version $LFSVRS... "
 
-  # Grab the LFS book fresh if it's missing, otherwise, update it from the
-  # repo. If we've already extracted the commands, move on to getting the
-  # sources.
-  if [ -d lfs-$LFSVRS ] ; then
-    cd lfs-$LFSVRS
-    if svn up | grep -q At && test -d $JHALFSDIR/commands && \
-    test -f $JHALFSDIR/packages && test -f $JHALFSDIR/patches ; then
-      echo -ne "done\n"
-      get_sources
+  # Set the book's soures directory
+  if [ -z $BOOK ] ; then BOOK=lfs-$LFSVRS ; fi
+
+  if [ -z $WC ] ; then
+    echo -n "Downloading the LFS Book, version $LFSVRS... "
+
+    # Grab the LFS book fresh if it's missing, otherwise, update it from the
+    # repo. If we've already extracted the commands, move on to getting the
+    # sources.
+    if [ -d lfs-$LFSVRS ] ; then
+      cd lfs-$LFSVRS
+      if svn up | grep -q At && test -d $JHALFSDIR/commands && \
+      test -f $JHALFSDIR/packages && test -f $JHALFSDIR/patches ; then
+        echo -ne "done\n"
+        get_sources
+      else
+        echo -ne "done\n"
+        extract_commands
+      fi
     else
+      if [ $LFSVRS = development ] ; then
+        svn co $SVN/LFS/trunk/BOOK lfs-$LFSVRS >>$BUILDDIR$LOGDIR/$LOG 2>&1
+      else
+        svn co $SVN/LFS/branches/$LFSVRS/BOOK lfs-$LFSVRS >>$BUILDDIR$LOGDIR/$LOG 2>&1
+      fi
       echo -ne "done\n"
       extract_commands
     fi
   else
-    if [ $LFSVRS = development ] ; then
-      svn co $SVN/LFS/trunk/BOOK lfs-$LFSVRS >>$BUILDDIR$LOGDIR/$LOG 2>&1
-    else
-      svn co $SVN/LFS/branches/$LFSVRS/BOOK lfs-$LFSVRS >>$BUILDDIR$LOGDIR/$LOG 2>&1
-    fi
-    echo -ne "done\n"
+    echo -ne "Using $BOOK as book's sources ...\n"
     extract_commands
   fi
 }
@@ -177,14 +204,14 @@ extract_commands() {
 
   # Dump the commands in shell script form from the LFS book.
   xsltproc --nonet --xinclude --stringparam testsuite $TEST -o ./commands/ \
-  $XSL lfs-$LFSVRS/index.xml >>$BUILDDIR$LOGDIR/$LOG 2>&1
+  $XSL $BOOK/index.xml >>$BUILDDIR$LOGDIR/$LOG 2>&1
 
   # Grab the patches and package names.
   cd $JHALFSDIR
   for i in patches packages ; do rm -f $i ; done
-  grep "\-version" lfs-$LFSVRS/general.ent | sed -e 's@<!ENTITY @@' -e 's@">@"@' \
+  grep "\-version" $BOOK/general.ent | sed -e 's@<!ENTITY @@' -e 's@">@"@' \
   -e '/generic/d' >> packages
-  grep "ENTITY" lfs-$LFSVRS/patches.ent | sed -e 's/.* "//' -e 's/">//' >> patches
+  grep "ENTITY" $BOOK/patches.ent | sed -e 's/.* "//' -e 's/">//' >> patches
 
   # Done. Moving on...
   echo -ne "done\n"
