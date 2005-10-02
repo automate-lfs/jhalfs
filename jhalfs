@@ -289,8 +289,12 @@ build_Makefile() {
     # and binutils in chapter 5)
     name=`echo $i | sed -e 's@[0-9]\{3\}-@@' -e 's@-pass[0-9]\{1\}@@'`
 
-    # Drop in the name of the target on a new line.
-    echo -e "\n$i:" >> $MKFILE.tmp
+    # Set the dependency for the first target.
+    if [ -z $PREV ] ; then PREV=022-settingenvironment ; fi
+
+    # Drop in the name of the target on a new line, and the previous target
+    # as a dependency.
+    echo -e "\n$i:  $PREV" >> $MKFILE.tmp
 
     # Find the version of the command files, if it corresponds with the building of
     # a specific package
@@ -390,6 +394,9 @@ build_Makefile() {
     echo -e "\tif [ ! -e \$@ ] ; then \\" >> $MKFILE.tmp
     echo -e "\t\techo \"The build of \$@ has failed\" && exit 1; \\" >> $MKFILE.tmp
     echo -e "\tfi;" >> $MKFILE.tmp
+
+    # Keep the script file name for Makefile dependencies.
+    PREV=$i
   done
 
   # Stick variables and some defines at the top of the real makefile
@@ -437,7 +444,7 @@ build_Makefile() {
   echo -e "\tln -sv \$(LFS)/tools / && \\" >> $MKFILE
   echo -e "\ttouch \$@\n" >> $MKFILE
 
-  echo "021-addinguser:" >> $MKFILE
+  echo "021-addinguser:  020-creatingtoolsdir" >> $MKFILE
   echo -e "\tgroupadd lfs && \\" >> $MKFILE
   echo -e "\tuseradd -s /bin/bash -g lfs -m -k /dev/null lfs && \\" >> $MKFILE
   echo -e "\tchown lfs \$(LFS)/tools && \\" >> $MKFILE
@@ -446,7 +453,7 @@ build_Makefile() {
   echo -e "\tchmod -R +x $JHALFSDIR/commands && \\" >> $MKFILE
   echo -e "\ttouch \$@\n" >> $MKFILE
 
-  echo "022-settingenvironment:" >> $MKFILE
+  echo "022-settingenvironment:  021-addinguser" >> $MKFILE
   echo -e "\techo \"exec env -i HOME=\\\$\$HOME TERM=\\\$\$TERM PS1='\u:\w\$$ ' /bin/bash\" > /home/lfs/.bash_profile && \\" >> $MKFILE
   echo -e "\techo \"set +h\" > /home/lfs/.bashrc && \\" >> $MKFILE
   echo -e "\techo \"umask 022\" >> /home/lfs/.bashrc && \\" >> $MKFILE
