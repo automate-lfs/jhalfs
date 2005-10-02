@@ -423,7 +423,7 @@ build_Makefile() {
     fi
 
     # Check if the package has been sucessfully build.
-    echo -e "\tif [ ! -e \$@ ] ; then \\" >> $MKFILE.tmp
+    echo -e "\t@if [ ! -e \$@ ] ; then \\" >> $MKFILE.tmp
     echo -e "\t\techo \"The build of \$@ has failed\" && exit 1; \\" >> $MKFILE.tmp
     echo -e "\tfi;" >> $MKFILE.tmp
 
@@ -530,30 +530,30 @@ build_Makefile() {
   # Drop in the main target 'all:' and the chapter targets with each sub-target
   # as a dependency.
   echo "all:  chapter4 chapter5" >> $MKFILE
-  echo -e "\techo -e \"\\\n\\\tYour new LFS system has been sucessfully build\"\n" >> $MKFILE
+  echo -e "\t@echo -e \"\\\n\\\tYour new LFS system has been sucessfully build\"\n" >> $MKFILE
   echo -e "chapter4:  020-creatingtoolsdir 021-addinguser 022-settingenvironment\n" >> $MKFILE
   echo -e "chapter5:  chapter4 $chapter5\n" >> $MKFILE >> $MKFILE
   echo -e "chapter6:  chapter5 $chapter6\n" >> $MKFILE
 
   # Clean targets
   echo "clean-all:  clean" >> $MKFILE
-  echo -e "\trm -rfv ./*\n" >> $MKFILE
+  echo -e "\trm -rf ./*\n" >> $MKFILE
 
   echo -e "clean:  clean-chapter5 clean-chapter4\n" >> $MKFILE
 
   echo "clean-chapter4:" >> $MKFILE
   echo -e "\t-userdel lfs" >> $MKFILE
-  echo -e "\trm -rfv /home/lfs" >> $MKFILE
-  echo -e "\trm -rfv \$(LFS)/tools" >> $MKFILE
-  echo -e "\trm -fv /tools" >> $MKFILE
-  echo -e "\trm -fv envars" >> $MKFILE
-  echo -e "\trm -fv 02* logs/02*.log\n" >> $MKFILE
+  echo -e "\trm -rf /home/lfs" >> $MKFILE
+  echo -e "\trm -rf \$(LFS)/tools" >> $MKFILE
+  echo -e "\trm -f /tools" >> $MKFILE
+  echo -e "\trm -f envars" >> $MKFILE
+  echo -e "\trm -f 02* logs/02*.log\n" >> $MKFILE
 
   echo "clean-chapter5:" >> $MKFILE
-  echo -e "\trm -rfv \$(LFS)/tools/*" >> $MKFILE
-  echo -e "\trm -fv envars" >> $MKFILE
-  echo -e "\trm -fv $chapter5" >> $MKFILE
-  echo -e "\tcd logs && rm -fv $chapter5 && cd ..\n" >> $MKFILE
+  echo -e "\trm -rf \$(LFS)/tools/*" >> $MKFILE
+  echo -e "\trm -f envars" >> $MKFILE
+  echo -e "\trm -f $chapter5" >> $MKFILE
+  echo -e "\tcd logs && rm -f $chapter5 && cd ..\n" >> $MKFILE
 
   # The chapter4 sub-targets are hard-coded to can create the lfs user,
   # to make the scripts executables, and to create a clean environment
@@ -597,7 +597,7 @@ run_make() {
   if [ "$RUNMAKE" = "1" ] ; then
     # Build the system
     if [ -e $MKFILE ] ; then
-      echo -ne "Building the LFS system\n"
+      echo -ne "Building the LFS system...\n"
       cd $JHALFSDIR && make
       echo -ne "done\n"
     fi
