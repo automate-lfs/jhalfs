@@ -375,10 +375,6 @@ build_Makefile() {
     # Insert date and disk usage at the bottom of the log file.
     echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\\\n\" >>logs/$i && \\" >> $MKFILE.tmp
 
-    # Include a touch of the target name so make can check
-    # if it's already been made.
-    echo -e "\ttouch \$@" >> $MKFILE.tmp
-
     # Remove the build directory(ies) even if the package build fails, except for
     # Binutils and TCL. In that cases the sources directories are removed
     # only if the build fails.
@@ -426,6 +422,10 @@ build_Makefile() {
     echo -e "\t@if [ ! -e \$@ ] ; then \\" >> $MKFILE.tmp
     echo -e "\t\techo \"The build of \$@ has failed\" && exit 1; \\" >> $MKFILE.tmp
     echo -e "\tfi;" >> $MKFILE.tmp
+    
+    # Include a touch of the target name so make can check
+    # if it's already been made.
+    echo -e "\ttouch \$@" >> $MKFILE.tmp
 
     # Keep the script file name for Makefile dependencies.
     PREV=$i
