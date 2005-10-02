@@ -488,10 +488,6 @@ build_Makefile() {
       echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -sk --exclude=0??-* /\`\\\n\" >>logs/$i && \\" >> $MKFILE.tmp
     fi
 
-    # Include a touch of the target name so make can check
-    # if it's already been made.
-    echo -e "\ttouch \$@" >> $MKFILE.tmp
-
     # Remove the build directory(ies) even if the package build fails.
     if [ "$vrs" != "" ] ; then
       echo -e "\tROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\" >> $MKFILE.tmp
@@ -514,6 +510,10 @@ build_Makefile() {
     echo -e "\t@if [ ! -e \$@ ] ; then \\" >> $MKFILE.tmp
     echo -e "\t\techo \"The build of \$@ has failed\" && exit 1; \\" >> $MKFILE.tmp
     echo -e "\tfi;" >> $MKFILE.tmp
+
+    # Include a touch of the target name so make can check
+    # if it's already been made.
+    echo -e "\ttouch \$@" >> $MKFILE.tmp
 
     # Keep the script file name for Makefile dependencies.
     PREV=$i
@@ -558,8 +558,8 @@ build_Makefile() {
   echo -e "\trm -f $chapter5" >> $MKFILE
   echo -e "\tcd logs && rm -f $chapter5 && cd ..\n" >> $MKFILE
 
-  # The chapter4 sub-targets are hard-coded to can create the lfs user,
-  # to make the scripts executables, and to create a clean environment
+  # The chapter4 sub-targets are hard-coded to create the lfs user,
+  # to make the scripts executable, and to create a clean environment
   # for the lfs user.
   echo "020-creatingtoolsdir:" >> $MKFILE
   echo -e "\tmkdir -v \$(LFS)/tools && \\" >> $MKFILE
@@ -571,7 +571,7 @@ build_Makefile() {
   echo -e "\tuseradd -s /bin/bash -g lfs -m -k /dev/null lfs && \\" >> $MKFILE
   echo -e "\tchown lfs \$(LFS)/tools && \\" >> $MKFILE
   echo -e "\tchown lfs \$(LFS)/sources && \\" >> $MKFILE
-  # Make the scripts executables
+  # Make the scripts executable
   echo -e "\tchmod -R +x $JHALFSDIR/commands && \\" >> $MKFILE
   echo -e "\ttouch \$@\n" >> $MKFILE
 
