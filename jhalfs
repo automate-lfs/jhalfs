@@ -400,13 +400,13 @@ build_Makefile() {
     if [ "$i" = "031-adjusting" ] ; then
       echo -e "\t@rm -r \`cat sources-dir\` && \\" >> $MKFILE.tmp
       echo -e "\trm -r \$(LFS)\$(SRC)/binutils-build && \\" >> $MKFILE.tmp
-      echo -e "\trm sources-dir; \\" >> $MKFILE.tmp
+      echo -e "\trm sources-dir" >> $MKFILE.tmp
     fi
 
     # Remove the TCL sources after a successful Expect build.
     if [ "$i" = "033-expect" ] ; then
       echo -e "\t@rm -r \`cat sources-dir\` && \\" >> $MKFILE.tmp
-      echo -e "\trm sources-dir; \\" >> $MKFILE.tmp
+      echo -e "\trm sources-dir" >> $MKFILE.tmp
     fi
 
     # Include a touch of the target name so make can check
@@ -506,7 +506,7 @@ build_Makefile() {
     if [ "$i" = "067-readjusting" ] ; then
       echo -e "\t@rm -r \`cat sources-dir\` && \\" >> $MKFILE.tmp
       echo -e "\trm -r \$(SRC)/binutils-build && \\" >> $MKFILE.tmp
-      echo -e "\trm sources-dir; \\" >> $MKFILE.tmp
+      echo -e "\trm sources-dir" >> $MKFILE.tmp
     fi
 
     # Include a touch of the target name so make can check
