@@ -1,0 +1,21 @@
+export BRW= "[0;1m"
+export RED= "[0;31m"
+export GREEN= "[0;32m"
+export ORANGE= "[0;33m"
+export BLUE= "[0;34m"
+export WHITE= "[00m"
+
+define echo_message
+	@echo $(BRW)
+	@echo ================================================================================
+	@echo $(BRW)$(1) target $(BLUE)$@$(BRW)
+	@echo ================================================================================$(WHITE)
+endef
+
+define unpack-lfs
+        @cd $(LFS)$(SRC) ; tar -xvjf $(1) > /tmp/unpacked
+endef
+
+define unpack
+        @cd $(SRC) ; tar -xvf $(1) > /tmp/unpacked
+endef
