@@ -530,7 +530,7 @@ build_Makefile() {
   i=1
   for file in chapter06/*chroot* ; do
     chroot=`cat $file | sed -e '/#!\/bin\/sh/d' -e 's@ \\\@ @g' | tr -d '\n' | sed \
-      -e 's/  */ /g' -e 's|\\$|&&|g' -e 's|$| -c|'`
+      -e 's/  */ /g' -e 's|\\$|&&|g' -e 's|&&exit||g' -e 's|$| -c|'`
     echo -e "CHROOT$i= $chroot\n" >> $MKFILE
     i=`expr $i + 1`
   done
