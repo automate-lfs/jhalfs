@@ -50,6 +50,7 @@
           <xsl:text>cd $PKGDIR &amp;&amp;&#xA;</xsl:text>
         </xsl:if>
         <xsl:apply-templates select=".//para/userinput | .//screen"/>
+        <xsl:text>exit</xsl:text>
       </exsl:document>
     </xsl:if>
   </xsl:template>
@@ -60,13 +61,6 @@
         <xsl:when test="@role = 'nodump'"/>
         <xsl:otherwise>
           <xsl:apply-templates select="userinput" mode="screen"/>
-          <xsl:if test="position() != last() and
-                  not(contains(string(),'EOF')) and
-                  not(contains(string(),'check')) and
-                  not(ancestor::sect1[@id='ch-tools-stripping'])">
-            <xsl:text> &amp;&amp;</xsl:text>
-          </xsl:if>
-          <xsl:text>&#xA;</xsl:text>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:if>
@@ -92,6 +86,11 @@
         <xsl:apply-templates/>
       </xsl:otherwise>
     </xsl:choose>
+    <xsl:if test="not(contains(string(),'EOF')) and
+            not(contains(string(),'check'))">
+      <xsl:text> &amp;&amp;</xsl:text>
+    </xsl:if>
+    <xsl:text>&#xA;</xsl:text>
   </xsl:template>
 
   <xsl:template match="replaceable">
