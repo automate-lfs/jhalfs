@@ -371,7 +371,7 @@ build_Makefile() {
 
     # Everything else, add a true statment so we don't confuse make
     else
-	echo -e "\ttrue" >> $MKFILE.tmp
+      echo -e "\ttrue" >> $MKFILE.tmp
     fi
 
     # Insert date and disk usage at the top of the log file.
@@ -395,6 +395,26 @@ build_Makefile() {
         echo -e "\tfi;" >> $MKFILE.tmp
       fi
     fi
+
+    # Remove the Binutils pass 1 sources after a successful Adjusting phase.
+    if [ "$i" = "031-adjusting" ] ; then
+      echo -e "\t@rm -r \`cat sources-dir\` && \\" >> $MKFILE.tmp
+      echo -e "\trm -r \$(LFS)\$(SRC)/binutils-build && \\" >> $MKFILE.tmp
+      echo -e "\trm sources-dir; \\" >> $MKFILE.tmp
+    fi
+
+    # Remove the TCL sources after a successful Expect build.
+    if [ "$i" = "033-expect" ] ; then
+      echo -e "\t@rm -r \`cat sources-dir\` && \\" >> $MKFILE.tmp
+      echo -e "\trm sources-dir; \\" >> $MKFILE.tmp
+    fi
+
+    # Include a touch of the target name so make can check
+    # if it's already been made.
+    echo -e "\t@touch \$@" >> $MKFILE.tmp
+
+    # The next two "if" must be after the touch to can check if the sources
+    # directories should be retained or deleted.
     if [ "$i" = "027-binutils-pass1" -o "$i" = "036-binutils-pass2" ] ; then
       echo -e "\t@if [ ! -e \$@ ] ; then \\" >> $MKFILE.tmp
       echo -e "\t\tROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\" >> $MKFILE.tmp
@@ -408,27 +428,6 @@ build_Makefile() {
       echo -e "\t\trm -r \$(LFS)\$(SRC)/\$\$ROOT; \\" >> $MKFILE.tmp
       echo -e "\tfi;" >> $MKFILE.tmp
     fi
-
-    # Remove the Binutils pass 1 sources after a successful Adjusting phase.
-    if [ "$i" = "031-adjusting" ] ; then
-      echo -e "\t@if [ -e \$@ ] ; then \\" >> $MKFILE.tmp
-      echo -e "\t\trm -r \`cat sources-dir\` && \\" >> $MKFILE.tmp
-      echo -e "\t\trm -r \$(LFS)\$(SRC)/binutils-build && \\" >> $MKFILE.tmp
-      echo -e "\t\trm sources-dir; \\" >> $MKFILE.tmp
-      echo -e "\tfi;" >> $MKFILE.tmp
-    fi
-
-    # Remove the TCL sources after a successful Expect build.
-    if [ "$i" = "033-expect" ] ; then
-      echo -e "\t@if [ -e \$@ ] ; then \\" >> $MKFILE.tmp
-      echo -e "\t\trm -r \`cat sources-dir\` && \\" >> $MKFILE.tmp
-      echo -e "\t\trm sources-dir; \\" >> $MKFILE.tmp
-      echo -e "\tfi;" >> $MKFILE.tmp
-    fi
-
-    # Include a touch of the target name so make can check
-    # if it's already been made.
-    echo -e "\t@touch \$@" >> $MKFILE.tmp
 
     # Keep the script file name for Makefile dependencies.
     PREV=$i
@@ -505,11 +504,9 @@ build_Makefile() {
 
     # Remove the Binutils pass 2 sources after a successful Re-Adjusting phase.
     if [ "$i" = "067-readjusting" ] ; then
-      echo -e "\t@if [ -e \$@ ] ; then \\" >> $MKFILE.tmp
-      echo -e "\t\trm -r \`cat sources-dir\` && \\" >> $MKFILE.tmp
-      echo -e "\t\trm -r \$(SRC)/binutils-build && \\" >> $MKFILE.tmp
-      echo -e "\t\trm sources-dir; \\" >> $MKFILE.tmp
-      echo -e "\tfi;" >> $MKFILE.tmp
+      echo -e "\t@rm -r \`cat sources-dir\` && \\" >> $MKFILE.tmp
+      echo -e "\trm -r \$(SRC)/binutils-build && \\" >> $MKFILE.tmp
+      echo -e "\trm sources-dir; \\" >> $MKFILE.tmp
     fi
 
     # Include a touch of the target name so make can check
@@ -533,7 +530,7 @@ build_Makefile() {
   i=1
   for file in chapter06/*chroot* ; do
     chroot=`cat $file | sed -e '/#!\/bin\/sh/d' -e 's@ \\\@ @g' | tr -d '\n' | sed \
-	-e 's/  */ /g' -e 's|\\$|&&|g' -e 's|$| -c|'`
+      -e 's/  */ /g' -e 's|\\$|&&|g' -e 's|$| -c|'`
     echo -e "CHROOT$i= $chroot\n" >> $MKFILE
     i=`expr $i + 1`
   done
