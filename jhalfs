@@ -445,7 +445,9 @@ build_Makefile() {
 
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency.
-    echo -e "\n$i:  $PREV" >> $MKFILE.tmp
+    if ! echo $i | grep -q "chroot" ; then
+       echo -e "\n$i:  $PREV" >> $MKFILE.tmp
+    fi
 
     # Find the version of the command files, if it corresponds with the building of
     # a specific package
@@ -480,7 +482,7 @@ build_Makefile() {
     else
       # Insert date and disk usage at the top of the log file.
       echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -sk --exclude=0??-* /\`\\\n\" >logs/$i && \\" >> $MKFILE.tmp
-      echo -e "\t. envars && commands/$file >>logs/$i 2>&1 && \\" >> $MKFILE.tmp
+      echo -e "\t. envars && \$(CHROOT1) 'cd /jhalfs && commands/$file >>logs/$i 2>&1' && \\" >> $MKFILE.tmp
       # Insert date and disk usage at the bottom of the log file.
       echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -sk --exclude=0??-* /\`\\\n\" >>logs/$i" >> $MKFILE.tmp
     fi
@@ -515,7 +517,16 @@ build_Makefile() {
   echo "export SRC := /sources" > $MKFILE
   echo "export LFS := $BUILDDIR" >> $MKFILE
   echo -e "export LOGDIR := $LOGDIR\n" >> $MKFILE
-  echo "include functions" >> $MKFILE
+  echo -e "include functions\n" >> $MKFILE
+
+  # Add chroot commands
+  i=1
+  for file in chapter06/*chroot* ; do
+    chroot=`cat $file | sed -e '/#!\/bin\/sh/d' -e 's@ \\\@ @g' | tr -d '\n' | sed \
+	-e 's/  */ /g' -e 's|\\$|&&|g' -e 's|$| -c|'`
+    echo -e "export CHROOT$i := $chroot\n" >> $MKFILE
+    i=`expr $i + 1`
+  done
 
   # Drop in the main target 'all:' and the chapter targets with each sub-target
   # as a dependency.
