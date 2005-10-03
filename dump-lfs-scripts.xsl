@@ -87,7 +87,8 @@
       </xsl:otherwise>
     </xsl:choose>
     <xsl:if test="not(contains(string(),'EOF')) and
-            not(contains(string(),'check'))">
+            not(contains(string(),'check')) and
+            not(contains(string(),'strip '))">
       <xsl:text> &amp;&amp;</xsl:text>
     </xsl:if>
     <xsl:text>&#xA;</xsl:text>
