@@ -445,7 +445,9 @@ build_Makefile() {
 
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency.
-    if ! echo $i | grep -q "chroot" ; then
+    if echo $i | grep -q "chroot" ; then
+       continue
+    else
        echo -e "\n$i:  $PREV" >> $MKFILE.tmp
     fi
 
