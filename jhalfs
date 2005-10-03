@@ -143,7 +143,7 @@ SVN="svn://svn.linuxfromscratch.org"
 HTTP=http://ftp.lfs-matrix.net/pub/lfs/lfs-packages/conglomeration
 if [ -z $BUILDDIR ] ; then BUILDDIR=/mnt/lfs ; fi
 JHALFSDIR=$BUILDDIR/jhalfs
-LOGDIR=/jhalfs/logs
+LOGDIR=$JHALFSDIR/logs
 LOG=000-jhalfs.log
 MKFILE=$JHALFSDIR/Makefile
 XSL=dump-lfs-scripts.xsl
@@ -185,9 +185,9 @@ get_book() {
       fi
     else
       if [ $LFSVRS = development ] ; then
-        svn co $SVN/LFS/trunk/BOOK lfs-$LFSVRS >>$BUILDDIR$LOGDIR/$LOG 2>&1
+        svn co $SVN/LFS/trunk/BOOK lfs-$LFSVRS >>$LOGDIR/$LOG 2>&1
       else
-        svn co $SVN/LFS/branches/$LFSVRS/BOOK lfs-$LFSVRS >>$BUILDDIR$LOGDIR/$LOG 2>&1
+        svn co $SVN/LFS/branches/$LFSVRS/BOOK lfs-$LFSVRS >>$LOGDIR/$LOG 2>&1
       fi
       echo -ne "done\n"
       extract_commands
@@ -210,7 +210,7 @@ extract_commands() {
 
   # Dump the commands in shell script form from the LFS book.
   xsltproc --nonet --xinclude --stringparam testsuite $TEST -o ./commands/ \
-  $XSL $BOOK/index.xml >>$BUILDDIR$LOGDIR/$LOG 2>&1
+  $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
 
   # Grab the patches and package names.
   cd $JHALFSDIR
@@ -344,24 +344,20 @@ build_Makefile() {
 
       # Insert instructions for unpacking the package and to set
       # the PKGDIR variable.
-      echo -e "\t@\$(call unpack-lfs,$FILE)" >> $MKFILE.tmp
+      echo -e "\t@\$(call unpack,$FILE)" >> $MKFILE.tmp
       echo -e "\t@ROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\" >> $MKFILE.tmp
       echo -e "\tchown -R lfs \$(LFS)\$(SRC)/\$\$ROOT && \\" >> $MKFILE.tmp
       echo -e "\techo \"PKGDIR=\$(LFS)\$(SRC)/\$\$ROOT\" > envars && \\" >> $MKFILE.tmp
       echo -e "\techo \"export PKGDIR\" >> envars && \\" >> $MKFILE.tmp
     fi
 
-    # Dump the path to the Binutils pass1 or TCL sources directory.
-    if [ "$i" = "027-binutils-pass1" -o "$i" = "032-tcl" ] ; then
+    # Dump the path to the Binutils or TCL sources directory.
+    if [ "$i" = "027-binutils-pass1" -o "$i" = "032-tcl" -o "$i" = "036-binutils-pass2" ] ; then
       echo -e "\techo \"\$(LFS)\$(SRC)/\$\$ROOT\" > sources-dir" >> $MKFILE.tmp
-
-    # Dump the path to the Binutils pass2 sources directory.
-    elif [ "$i" = "036-binutils-pass2" ] ; then
-      echo -e "\techo \"\$(SRC)/\$\$ROOT\" > sources-dir" >> $MKFILE.tmp
 
     # For the Adjusting phase we must to cd to the binutils-build directory.
     elif [ "$i" = "031-adjusting" ] ; then
-      echo -e "\techo \"PKGDIR=\$(LFS)\$(SRC)/binutils-build\" > envars && \\" >> $MKFILE.tmp
+      echo -e "\t@echo \"PKGDIR=\$(LFS)\$(SRC)/binutils-build\" > envars && \\" >> $MKFILE.tmp
       echo -e "\techo \"export PKGDIR\" >> envars" >> $MKFILE.tmp
 
     # For the Expect build we need to set the TCLPATH envar.
@@ -448,11 +444,12 @@ build_Makefile() {
     if [ -z $PREV ] ; then PREV=055-stripping ; fi
 
     # Drop in the name of the target on a new line, and the previous target
-    # as a dependency.
+    # as a dependency. Also call the echo_message function.
     if echo $i | grep -q "chroot" ; then
        continue
     else
-       echo -e "\n$i:  $PREV" >> $MKFILE.tmp
+      echo -e "\n$i:  $PREV" >> $MKFILE.tmp
+      echo -e "\t@\$(call echo_message, Building)" >> $MKFILE.tmp
     fi
 
     # Find the version of the command files, if it corresponds with the building of
@@ -467,45 +464,49 @@ build_Makefile() {
       echo -e "\t@\$(call unpack,$FILE)" >> $MKFILE.tmp
       echo -e "\t@ROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\" >> $MKFILE.tmp
       echo -e "\techo \"PKGDIR=\$(SRC)/\$\$ROOT\" > envars && \\" >> $MKFILE.tmp
-      echo -e "\techo \"export PKGDIR\" >> envars && \\" >> $MKFILE.tmp
+      echo -e "\techo \"export PKGDIR\" >> envars\\" >> $MKFILE.tmp
     fi
 
     # For the Re-Adjusting phase we must to cd to the binutils-build directory.
     if [ "$i" = "067-readjusting" ] ; then
-      echo -e "\techo \"PKGDIR=\$(SRC)/binutils-build\" > envars && \\" >> $MKFILE.tmp
+      echo -e "\t@echo \"PKGDIR=\$(SRC)/binutils-build\" > envars && \\" >> $MKFILE.tmp
       echo -e "\techo \"export PKGDIR\" >> envars" >> $MKFILE.tmp
+    fi
 
-    # Insert the script run
-    # For the mount of kernel filesystems we need to set LFS.
-    elif [ "$i" = "057-kernfs" ] ; then
-      echo -e "\techo \"LFS=\$(LFS)\" > envars && \\" >> $MKFILE.tmp
+    # For the mount of kernel filesystems we need to set LFS and not to use
+    # chroot.
+    if [ "$i" = "057-kernfs" ] ; then
+      echo -e "\t@echo \"LFS=\$(LFS)\" > envars && \\" >> $MKFILE.tmp
       echo -e "\techo \"export LFS\" >> envars && \\" >> $MKFILE.tmp
       # Insert date and disk usage at the top of the log file.
       echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\\\n\" >logs/$i && \\" >> $MKFILE.tmp
+      # Insert the script run
       echo -e "\t. envars && commands/$file >>logs/$i 2>&1 && \\" >> $MKFILE.tmp
       # Insert date and disk usage at the bottom of the log file.
       echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\\\n\" >>logs/$i" >> $MKFILE.tmp
+    # The rest of Chapter06 use CHROOT1 function
     else
       # Insert date and disk usage at the top of the log file.
-      echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -sk --exclude=0??-* /\`\\\n\" >logs/$i && \\" >> $MKFILE.tmp
-      echo -e "\t. envars && \$(CHROOT1) 'cd /jhalfs && commands/$file >>logs/$i 2>&1' && \\" >> $MKFILE.tmp
+      echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\\\n\" >logs/$i && \\" >> $MKFILE.tmp
+      # Insert the script run
+      echo -e "\t\$(CHROOT1) 'cd /jhalfs && . envars && commands/$file >>logs/$i 2>&1' && \\" >> $MKFILE.tmp
       # Insert date and disk usage at the bottom of the log file.
-      echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -sk --exclude=0??-* /\`\\\n\" >>logs/$i" >> $MKFILE.tmp
+      echo -e "\techo -e \"\\\n\`date\`\\\n\\\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\\\n\" >>logs/$i" >> $MKFILE.tmp
     fi
 
     # Remove the build directory(ies) even if the package build fails.
     if [ "$vrs" != "" ] ; then
       echo -e "\t@ROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\" >> $MKFILE.tmp
-      echo -e "\trm -r \$(SRC)/\$\$ROOT && \\" >> $MKFILE.tmp
-      echo -e "\tif [ -e \$(SRC)/$name-build ]; then \\" >> $MKFILE.tmp
-      echo -e "\t\trm -r \$(SRC)/$name-build; \\" >> $MKFILE.tmp
+      echo -e "\trm -r \$(LFS)\$(SRC)/\$\$ROOT && \\" >> $MKFILE.tmp
+      echo -e "\tif [ -e \$(LFS)\$(SRC)/$name-build ]; then \\" >> $MKFILE.tmp
+      echo -e "\t\trm -r \$(LFS)\$(SRC)/$name-build; \\" >> $MKFILE.tmp
       echo -e "\tfi;" >> $MKFILE.tmp
     fi
 
     # Remove the Binutils pass 2 sources after a successful Re-Adjusting phase.
     if [ "$i" = "067-readjusting" ] ; then
       echo -e "\t@rm -r \`cat sources-dir\` && \\" >> $MKFILE.tmp
-      echo -e "\trm -r \$(SRC)/binutils-build && \\" >> $MKFILE.tmp
+      echo -e "\trm -r \$(LFS)\$(SRC)/binutils-build && \\" >> $MKFILE.tmp
       echo -e "\trm sources-dir" >> $MKFILE.tmp
     fi
 
@@ -522,8 +523,7 @@ build_Makefile() {
 
   # Add some variables and include the functions file
   echo "SRC= /sources" >> $MKFILE
-  echo "LFS= $BUILDDIR" >> $MKFILE
-  echo -e "LOGDIR= $LOGDIR\n" >> $MKFILE
+  echo -e "LFS= $BUILDDIR\n" >> $MKFILE
   echo -e "include functions\n" >> $MKFILE
 
   # Add chroot commands
@@ -540,7 +540,7 @@ build_Makefile() {
   echo "all:  chapter4 chapter5" >> $MKFILE
   echo -e "\t@echo -e \"\\\n\\\tYour new LFS system has been successfully built\"\n" >> $MKFILE
   echo -e "chapter4:  020-creatingtoolsdir 021-addinguser 022-settingenvironment\n" >> $MKFILE
-  echo -e "chapter5:  chapter4 $chapter5\n" >> $MKFILE >> $MKFILE
+  echo -e "chapter5:  chapter4 $chapter5\n" >> $MKFILE
   echo -e "chapter6:  chapter5 $chapter6\n" >> $MKFILE
 
   # Clean targets
@@ -619,11 +619,11 @@ if [ ! -d $JHALFSDIR ] ; then
   mkdir -p $JHALFSDIR
 fi
 
-if [ ! -d $BUILDDIR$LOGDIR ] ; then
-  mkdir $BUILDDIR$LOGDIR
+if [ ! -d $LOGDIR ] ; then
+  mkdir $LOGDIR
 fi
 
->$BUILDDIR$LOGDIR/$LOG
+>$LOGDIR/$LOG
 
 if [ "$PWD" != "$JHALFSDIR" ] ; then
   cp $0 $XSL $FNC $JHALFSDIR/
