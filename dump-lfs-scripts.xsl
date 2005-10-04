@@ -43,7 +43,16 @@
       </xsl:variable>
         <!-- Creating dirs and files -->
       <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
-        <xsl:text>#!/bin/sh&#xA;&#xA;</xsl:text>
+        <xsl:choose>
+          <xsl:when test="@id='ch-system-changingowner' or
+                    @id='ch-system-creatingdirs' or
+                    @id='ch-system-createfiles'">
+            <xsl:text>#!/tools/bin/bash&#xA;&#xA;</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>#!/bin/sh&#xA;&#xA;</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
         <xsl:if test="sect2[@role='installation'] or
                 @id='ch-tools-adjusting' or
                 @id='ch-system-readjusting'">
