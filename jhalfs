@@ -537,15 +537,15 @@ EOF
 ) >> $MKFILE.tmp
     fi
 
-    # For the mount of kernel filesystems we need to set LFS and not to use
-    # chroot.
+    # In the mount of kernel filesystems we need to set LFS for CHROOT1
+    # and not to use chroot.
     if [ "$i" = "057-kernfs" ] ; then
 (
     cat << EOF
-	@echo "LFS=\$(LFS)" > envars && \\
-	echo "export LFS" >> envars && \\
+	@echo "LFS=\$(LFS)" > lfsdir && \\
+	echo "export LFS" >> lfsdir && \\
 	echo -e "\n\`date\`\n\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\n" >logs/$i && \\
-	. envars && commands/$file >>logs/$i 2>&1 && \\
+	source lfsdir && commands/$file >>logs/$i 2>&1 && \\
 	echo -e "\n\`date\`\n\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\n" >>logs/$i
 EOF
 ) >> $MKFILE.tmp
@@ -554,8 +554,8 @@ EOF
     else
 (
     cat << EOF
-	echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >logs/$i && \\
-	\$(CHROOT1) 'cd /jhalfs && source envars && commands/$file >>logs/$i 2>&1' && \\
+	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >logs/$i && \\
+	source lfsdir && \$(CHROOT1) 'cd /jhalfs && source envars && commands/$file >>logs/$i 2>&1' && \\
 	echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >>logs/$i
 EOF
 ) >> $MKFILE.tmp
