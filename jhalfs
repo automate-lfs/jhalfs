@@ -212,6 +212,9 @@ extract_commands() {
   xsltproc --nonet --xinclude --stringparam testsuite $TEST -o ./commands/ \
   $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
 
+  # Make the scripts executables.
+  chmod -R +x $JHALFSDIR/commands
+
   # Grab the patches and package names.
   cd $JHALFSDIR
   for i in patches packages ; do rm -f $i ; done
@@ -666,7 +669,6 @@ clean-chapter5:
 	useradd -s /bin/bash -g lfs -m -k /dev/null lfs && \\
 	chown lfs \$(LFS)/tools && \\
 	chown lfs \$(LFS)/sources && \\
-	chmod -R +x $JHALFSDIR/commands && \\
 	touch \$@
 
 022-settingenvironment:  021-addinguser
