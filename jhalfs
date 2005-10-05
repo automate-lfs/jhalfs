@@ -547,7 +547,7 @@ EOF
     if [ "$i" = "057-kernfs" ] ; then
 (
     cat << EOF
-	echo -e "\n\`date\`\n\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\n" >logs/$i && \\
+	@echo -e "\n\`date\`\n\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\n" >logs/$i && \\
 	commands/$file >>logs/$i 2>&1 && \\
 	echo -e "\n\`date\`\n\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\n" >>logs/$i
 EOF
