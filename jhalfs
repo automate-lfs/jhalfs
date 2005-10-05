@@ -555,7 +555,7 @@ EOF
 (
     cat << EOF
 	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >logs/$i && \\
-	\$(CHROOT1) 'cd /jhalfs && source envars && cd \$\$PKGDIR && commands/$file >>logs/$i 2>&1' && \\
+	\$(CHROOT1) 'cd /jhalfs && source envars && cd \$\$PKGDIR && /jhalfs/commands/$file >>logs/$i 2>&1' && \\
 	echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >>logs/$i
 EOF
 ) >> $MKFILE.tmp
@@ -565,7 +565,7 @@ EOF
 (
     cat << EOF
 	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >logs/$i && \\
-	\$(CHROOT1) 'cd /jhalfs && source envars && commands/$file >>logs/$i 2>&1' && \\
+	\$(CHROOT1) 'cd /jhalfs && source envars && /jhalfs/commands/$file >>logs/$i 2>&1' && \\
 	echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >>logs/$i
 EOF
 ) >> $MKFILE.tmp
