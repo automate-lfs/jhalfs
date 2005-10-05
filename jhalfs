@@ -524,7 +524,7 @@ EOF
 	@\$(call unpack,$FILE)
 	@ROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\
 	echo "PKGDIR=\$(SRC)/\$\$ROOT" > envars && \\
-	echo "export PKGDIR" >> envars\\
+	echo "export PKGDIR" >> envars
 EOF
 ) >> $MKFILE.tmp
     fi
@@ -550,22 +550,12 @@ EOF
 EOF
 ) >> $MKFILE.tmp
 
-    # If we have a package we need to cd into the directory
-    elif [ "$vrs" != "" ] ; then
-(
-    cat << EOF
-	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >logs/$i && \\
-	\$(CHROOT1) 'cd /jhalfs && source envars && cd \$\$PKGDIR && /jhalfs/commands/$file >>logs/$i 2>&1' && \\
-	echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >>logs/$i
-EOF
-) >> $MKFILE.tmp
-
     # The rest of Chapter06
     else
 (
     cat << EOF
 	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >logs/$i && \\
-	\$(CHROOT1) 'cd /jhalfs && source envars && /jhalfs/commands/$file >>logs/$i 2>&1' && \\
+	\$(CHROOT1) 'cd /jhalfs && source envars && /jhalfs/commands/$file >>/jhalfs/logs/$i 2>&1' && \\
 	echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >>logs/$i
 EOF
 ) >> $MKFILE.tmp
