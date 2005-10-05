@@ -550,7 +550,17 @@ EOF
 EOF
 ) >> $MKFILE.tmp
 
-    # The rest of Chapter06 use CHROOT1 function
+    # If we have a package we need to cd into the directory
+    elif [ "$vrs" != "" ] ; then
+(
+    cat << EOF
+	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >logs/$i && \\
+	\$(CHROOT1) 'cd /jhalfs && source envars && cd \$\$PKGDIR && commands/$file >>logs/$i 2>&1' && \\
+	echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >>logs/$i
+EOF
+) >> $MKFILE.tmp
+
+    # The rest of Chapter06
     else
 (
     cat << EOF
