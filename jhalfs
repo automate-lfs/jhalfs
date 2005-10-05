@@ -485,6 +485,12 @@ EOF
     # Keep the script file name
     i=`basename $file`
 
+    # We'll run the chroot commands differently than the others, so skip them in the
+    # dependencies and target creation.
+    if echo $i | grep -q "chroot" ; then
+       continue
+    fi
+
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
     chapter6="$chapter6 $i"
@@ -497,9 +503,6 @@ EOF
 
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    if echo $i | grep -q "chroot" ; then
-       continue
-    else
 (
     cat << EOF
 
@@ -507,7 +510,6 @@ $i:  $PREV
 	@\$(call echo_message, Building)
 EOF
 ) >> $MKFILE.tmp
-    fi
 
     # Find the version of the command files, if it corresponds with the building of
     # a specific package
@@ -626,7 +628,7 @@ EOF
   # as a dependency.
 (
     cat << EOF
-all:  chapter4 chapter5
+all:  chapter4 chapter5 chapter6
 	@echo -e "\n\tYour new LFS system has been successfully built"
 
 chapter4:  020-creatingtoolsdir 021-addinguser 022-settingenvironment
