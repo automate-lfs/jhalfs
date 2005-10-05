@@ -91,12 +91,21 @@
       <xsl:when test="string() = 'make check'">
         <xsl:text>make -k check</xsl:text>
       </xsl:when>
+      <xsl:when test="contains(string(),'EOF')">
+        <xsl:variable name="content">
+          <xsl:apply-templates/>
+        </xsl:variable>
+        <xsl:value-of select="substring-before(string($content), 'cat &gt;')"/>
+        <xsl:text>&#xA;(&#xA;cat &lt;&lt; EOF</xsl:text>
+        <xsl:value-of select="substring-after(string($content), '&quot;EOF&quot;')"/>
+        <xsl:text>&#xA;) &gt;</xsl:text>
+        <xsl:value-of select="substring-after((substring-before(string($content), '&lt;&lt;')), 'cat &gt;')"/>
+      </xsl:when>
       <xsl:otherwise>
         <xsl:apply-templates/>
       </xsl:otherwise>
     </xsl:choose>
-    <xsl:if test="not(contains(string(),'EOF')) and
-            not(contains(string(),'check')) and
+    <xsl:if test="not(contains(string(),'check')) and
             not(contains(string(),'strip '))">
       <xsl:text> &amp;&amp;</xsl:text>
     </xsl:if>
