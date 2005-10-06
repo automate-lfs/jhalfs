@@ -113,9 +113,16 @@
   </xsl:template>
 
   <xsl:template match="replaceable">
-    <xsl:text>**EDITME</xsl:text>
-    <xsl:apply-templates/>
-    <xsl:text>EDITME**</xsl:text>
+    <xsl:choose>
+      <xsl:when test="ancestor::sect1[@id='ch-system-groff']">
+        <xsl:text>$PAGE</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>**EDITME</xsl:text>
+        <xsl:apply-templates/>
+        <xsl:text>EDITME**</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
 </xsl:stylesheet>
