@@ -220,6 +220,7 @@ extract_commands() {
   for i in patches packages ; do rm -f $i ; done
   grep "\-version" $BOOK/general.ent | sed -e 's@<!ENTITY @@' -e 's@">@"@' \
   -e '/generic/d' >> packages
+  echo `grep "glibc" packages | sed 's@glibc@glibc-linuxthreads@'` >> packages
   grep "ENTITY" $BOOK/patches.ent | sed -e 's/.* "//' -e 's/">//' >> patches
 
   # Done. Moving on...
@@ -230,9 +231,9 @@ extract_commands() {
 download() {
   cd $BUILDDIR/sources
 
-  # Hackish fix for the bash-doc package that doesn't conform
-  # to norms in the URL scheme.
-  DIR=`echo $1 | sed 's@-doc@@'`
+  # Hackish fix for the bash-doc and glibc-linuxthreads packages that
+  # doesn't conform to norms in the URL scheme.
+  DIR=`echo $1 | sed -e 's@-doc@@' -e 's@-linuxthreads@@'`
 
   # Find the md5 sum for this package.
   if [ $2 != MD5SUMS ] ; then MD5=`grep "  $2" MD5SUMS` ; fi
@@ -303,6 +304,8 @@ get_sources() {
         download $PKG $PATCH
       done
     done
+    # Hardcoded Udev configuration file until find a better way
+    download udev udev-config-3.rules
   fi
 }
 
