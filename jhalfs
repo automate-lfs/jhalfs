@@ -20,7 +20,7 @@ Options:
 
   -d  --directory DIR           use DIR directory for building LFS; all files
                                 jhalfs produces will be in the directory
-                                DIR/jhalfs
+                                DIR/jhalfs. Default is \"/mnt/lfs\".
 
   -P, --get-packages            download the packages and patches
 
@@ -42,8 +42,8 @@ Options:
 
   --page_size PAGE              set PAGE as the default page size (letter,
                                 A4, or others). This setting is required to
-                                build Groff. If no speciffied, \"letter\"
-                                will be used
+                                build Groff. If not specified, \"letter\"
+                                will be used.
 "
 
 help="\
@@ -236,7 +236,7 @@ extract_commands() {
     --stringparam toolchaintest $TOOLCHAINTEST -o ./commands/ \
     $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
 
-  # Make the scripts executables.
+  # Make the scripts executable.
   chmod -R +x $JHALFSDIR/commands
 
   # Grab the patches and package names.
