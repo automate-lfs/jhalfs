@@ -6,7 +6,11 @@
 
 <!-- XSLT stylesheet to create shell scripts from LFS books. -->
 
+  <!-- Run optional test suites? -->
   <xsl:param name="testsuite" select="0"/>
+
+  <!-- Run toolchain test suites? -->
+  <xsl:param name="toolchaintest" select="1"/>
 
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
@@ -92,8 +96,25 @@
                 ancestor::sect1[@id='ch-system-coreutils'] and
                 (contains(string(),'check') or
                 contains(string(),'dummy'))"/>
-      <xsl:when test="string() = 'make check'">
-        <xsl:text>make -k check</xsl:text>
+      <xsl:when test="string() = 'make check' or
+                string() = 'make -k check'">
+        <xsl:choose>
+          <xsl:when test="$toolchaintest = '0'"/>
+          <xsl:otherwise>
+            <xsl:text>make -k check</xsl:text>
+            <xsl:text>&#xA;</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:when test="contains(string(),'glibc-check-log') or
+                contains(string(),'test_summary')">
+        <xsl:choose>
+          <xsl:when test="$toolchaintest = '0'"/>
+          <xsl:otherwise>
+            <xsl:apply-templates/>
+            <xsl:text> &amp;&amp;&#xA;</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
       <xsl:when test="contains(string(),'EOF')">
         <xsl:variable name="content">
@@ -104,17 +125,17 @@
         <xsl:value-of select="substring-after(string($content), '&quot;EOF&quot;')"/>
         <xsl:text>&#xA;) &gt;</xsl:text>
         <xsl:value-of select="substring-after((substring-before(string($content), '&lt;&lt;')), 'cat &gt;')"/>
+        <xsl:text> &amp;&amp;&#xA;</xsl:text>
       </xsl:when>
       <xsl:otherwise>
         <xsl:apply-templates/>
+        <xsl:if test="not(contains(string(),'check')) and
+                not(contains(string(),'strip '))">
+          <xsl:text> &amp;&amp;</xsl:text>
+        </xsl:if>
+        <xsl:text>&#xA;</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
-    <xsl:if test="not(contains(string(),'check')) and
-            not(contains(string(),'strip ')) and
-            not(contains(string(),'dummy'))">
-      <xsl:text> &amp;&amp;</xsl:text>
-    </xsl:if>
-    <xsl:text>&#xA;</xsl:text>
   </xsl:template>
 
   <xsl:template match="replaceable">
