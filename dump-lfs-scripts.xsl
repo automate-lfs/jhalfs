@@ -88,6 +88,10 @@
 
   <xsl:template match="userinput" mode="screen">
     <xsl:choose>
+      <xsl:when test="$testsuite = '0' and
+                ancestor::sect1[@id='ch-system-coreutils'] and
+                (contains(string(),'check') or
+                contains(string(),'dummy'))"/>
       <xsl:when test="string() = 'make check'">
         <xsl:text>make -k check</xsl:text>
       </xsl:when>
@@ -106,7 +110,8 @@
       </xsl:otherwise>
     </xsl:choose>
     <xsl:if test="not(contains(string(),'check')) and
-            not(contains(string(),'strip '))">
+            not(contains(string(),'strip ')) and
+            not(contains(string(),'dummy'))">
       <xsl:text> &amp;&amp;</xsl:text>
     </xsl:if>
     <xsl:text>&#xA;</xsl:text>
