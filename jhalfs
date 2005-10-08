@@ -393,7 +393,7 @@ EOF
 (
     cat << EOF
 	@\$(call unpack,$FILE)
-	@ROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\
+	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
 	chown -R lfs \$(LFS)\$(SRC)/\$\$ROOT && \\
 	echo "PKGDIR=\$(LFS)\$(SRC)/\$\$ROOT" > envars && \\
 	echo "export PKGDIR" >> envars && \\
@@ -454,7 +454,7 @@ EOF
       if [ "$i" != "027-binutils-pass1" ] && [ "$i" != "032-tcl" ] && [ "$i" != "036-binutils-pass2" ] ; then
 (
     cat << EOF
-	@ROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\
+	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
 	rm -r \$(LFS)\$(SRC)/\$\$ROOT && \\
 	if [ -e \$(LFS)\$(SRC)/$name-build ]; then \\
 		rm -r \$(LFS)\$(SRC)/$name-build; \\
@@ -499,7 +499,7 @@ EOF
 (
     cat << EOF
 	@if [ ! -e \$@ ] ; then \\
-		ROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\
+		ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
 		rm -r \$(LFS)\$(SRC)/\$\$ROOT && \\
 		rm -r \$(LFS)\$(SRC)/binutils-build; \\
 	fi;
@@ -511,7 +511,7 @@ EOF
 (
     cat << EOF
 	@if [ ! -e \$@ ] ; then \\
-		ROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\
+		ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
 		rm -r \$(LFS)\$(SRC)/\$\$ROOT; \\
 	fi;
 EOF
@@ -563,7 +563,7 @@ EOF
 (
     cat  << EOF
 	@\$(call unpack,$FILE)
-	@ROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\
+	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
 	echo "PKGDIR=\$(SRC)/\$\$ROOT" > envars && \\
 	echo "export PKGDIR" >> envars
 EOF
@@ -617,7 +617,7 @@ EOF
     if [ "$vrs" != "" ] ; then
 (
     cat << EOF
-	@ROOT=\`head -n1 /tmp/unpacked | sed 's@/.*@@'\` && \\
+	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
 	rm -r \$(LFS)\$(SRC)/\$\$ROOT && \\
 	if [ -e \$(LFS)\$(SRC)/$name-build ]; then \\
 		rm -r \$(LFS)\$(SRC)/$name-build; \\
