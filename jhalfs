@@ -590,13 +590,13 @@ EOF
 ) >> $MKFILE.tmp
     fi
 
-    # In the mount of kernel filesystems we need to set LFS for CHROOT1
+    # In the mount of kernel filesystems we need to set LFS 
     # and not to use chroot.
     if [ "$i" = "057-kernfs" ] ; then
 (
     cat << EOF
 	@echo -e "\n\`date\`\n\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\n" >logs/$i && \\
-	commands/$file >>logs/$i 2>&1 && \\
+	export LFS=\$(LFS) && commands/$file >>logs/$i 2>&1 && \\
 	echo -e "\n\`date\`\n\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\n" >>logs/$i
 EOF
 ) >> $MKFILE.tmp
