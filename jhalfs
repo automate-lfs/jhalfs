@@ -693,7 +693,7 @@ EOF
     fi
     
     # Put in place the kernel .config file
-    elif [ "$i" = "132-kernel" ] ; then
+    if [ "$i" = "132-kernel" ] ; then
 (
     cat << EOF
 	@source envars && cp $CONFIG \$(LFS)\$(PKGDIR)
