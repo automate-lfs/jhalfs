@@ -702,7 +702,6 @@ clean-chapter4:
 
 clean-chapter5:
 	rm -rf \$(LFS)/tools/*
-	rm -f envars
 	rm -f $chapter5
 	cd logs && rm -f $chapter5 && cd ..
 
