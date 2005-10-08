@@ -38,12 +38,17 @@ Options:
                                 disables also the build of TCL, Expect
                                 and DejaGNU
 
-  -M, --run-make                run make on the generated Makefile
-
   --page_size PAGE              set PAGE as the default page size (letter,
                                 A4, or others). This setting is required to
                                 build Groff. If not specified, \"letter\"
                                 will be used.
+
+  -C, --kernel-config FILE      use the kernel configuration file specified
+                                in FILE to build the kernel. If not found,
+                                the kernel build is skipped.
+
+  -M, --run-make                run make on the generated Makefile
+  
 "
 
 help="\
@@ -131,6 +136,17 @@ while test $# -gt 0 ; do
 
     --no-toolchain-test )
       TOOLCHAINTEST=0
+      shift
+      ;;
+
+    --kernel-config | -C )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      if [ -f $1 ] ; then
+        CONFIG=$1
+      else
+        echo -e "\nFile $1 not found, Skipping kernel build.\n"
+      fi
       shift
       ;;
 
@@ -447,9 +463,9 @@ EOF
 EOF
 ) >> $MKFILE.tmp
 
-    # Remove the build directory(ies) even if the package build fails, except for
-    # Binutils and TCL. In that cases the sources directories are removed
-    # only if the build fails.
+    # Remove the build directory(ies) except if the package build fails
+    # (to can review config.cache, config.log, and like.)
+    # For Binutils and TCL the sources must be retained some time.
     if [ "$vrs" != "" ] ; then
       if [ "$i" != "027-binutils-pass1" ] && [ "$i" != "032-tcl" ] && [ "$i" != "036-binutils-pass2" ] ; then
 (
@@ -492,31 +508,6 @@ EOF
 	@touch \$@
 EOF
 ) >> $MKFILE.tmp
-
-    # The next two "if" must be after the touch to can check if the sources
-    # directories should be retained or deleted.
-    if [ "$i" = "027-binutils-pass1" -o "$i" = "036-binutils-pass2" ] ; then
-(
-    cat << EOF
-	@if [ ! -e \$@ ] ; then \\
-		ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
-		rm -r \$(LFS)\$(SRC)/\$\$ROOT && \\
-		rm -r \$(LFS)\$(SRC)/binutils-build; \\
-	fi;
-EOF
-) >> $MKFILE.tmp
-    fi
-
-    if [ "$i" = "032-tcl" ] ; then
-(
-    cat << EOF
-	@if [ ! -e \$@ ] ; then \\
-		ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
-		rm -r \$(LFS)\$(SRC)/\$\$ROOT; \\
-	fi;
-EOF
-) >> $MKFILE.tmp
-    fi
 
     # Keep the script file name for Makefile dependencies.
     PREV=$i
@@ -613,7 +604,7 @@ EOF
 
     fi
 
-    # Remove the build directory(ies) even if the package build fails.
+    # Remove the build directory(ies) except if the package build fails.
     if [ "$vrs" != "" ] ; then
 (
     cat << EOF
@@ -633,6 +624,98 @@ EOF
 	@rm -r \`cat sources-dir\` && \\
 	rm -r \$(LFS)\$(SRC)/binutils-build && \\
 	rm sources-dir
+EOF
+) >> $MKFILE.tmp
+    fi
+
+    # Include a touch of the target name so make can check
+    # if it's already been made.
+(
+    cat << EOF
+	@touch \$@
+EOF
+) >> $MKFILE.tmp
+
+    # Keep the script file name for Makefile dependencies.
+    PREV=$i
+  done
+
+  for file in chapter0{7,8,9}/* ; do
+    # Keep the script file name
+    i=`basename $file`
+
+    # Grub must be configured manually
+    if echo $i | grep -q "grub" ; then
+       continue
+    fi
+
+    # If no .config file is supplied, the kernel build is skipped
+    if [ -z $CONFIG ] ; then
+      if echo $i | grep -q "kernel" ; then
+        continue
+      fi
+    fi
+
+    # First append each name of the script files to a list (this will become
+    # the names of the targets in the Makefile
+    chapter789="$chapter789 $i"
+
+    # Set the dependency for the first target.
+    if [ -z $PREV ] ; then PREV=116-strippingagain ; fi
+
+    # Drop in the name of the target on a new line, and the previous target
+    # as a dependency. Also call the echo_message function.
+(
+    cat << EOF
+
+$i:  $PREV
+	@\$(call echo_message, Building)
+EOF
+) >> $MKFILE.tmp
+
+    # Find the the bootscripts and kernel package names
+    if [ "$i" = "119-bootscripts" -o "$i" = "132-kernel" ] ; then
+      if [ "$i" = "119-bootscripts" ] ; then
+        vrs=`grep "^lfs-bootscripts-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+        FILE="lfs-bootscripts-$vrs.tar.bz2"
+      elif [ "$i" = "132-kernel" ] ; then
+        vrs=`grep "^linux-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+        FILE="linux-$vrs.tar.bz2"
+      fi
+(
+    cat  << EOF
+	@\$(call unpack,$FILE)
+	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
+	echo "PKGDIR=\$(SRC)/\$\$ROOT" > envars && \\
+	echo "export PKGDIR" >> envars
+EOF
+) >> $MKFILE.tmp
+    fi
+    
+    # Put in place the kernel .config file
+    elif [ "$i" = "132-kernel" ] ; then
+(
+    cat << EOF
+	@source envars && cp $CONFIG \$(LFS)\$(PKGDIR)
+EOF
+) >> $MKFILE.tmp
+    fi
+
+    # Initialize the log an run the script
+(
+    cat << EOF
+	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >logs/$i && \\
+	\$(CHROOT2) 'cd /jhalfs && source envars && /jhalfs/commands/$file >>/jhalfs/logs/$i 2>&1' && \\
+	echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >>logs/$i
+EOF
+) >> $MKFILE.tmp
+
+    # Remove the build directory except if the package build fails.
+    if [ "$i" = "119-bootscripts" -o "$i" = "132-kernel" ] ; then
+(
+    cat << EOF
+	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
+	rm -r \$(LFS)\$(SRC)/\$\$ROOT 
 EOF
 ) >> $MKFILE.tmp
     fi
@@ -678,7 +761,7 @@ EOF
   # as a dependency.
 (
     cat << EOF
-all:  chapter4 chapter5 chapter6
+all:  chapter4 chapter5 chapter6 chapter789
 	@echo -e "\n\tYour new LFS system has been successfully built"
 
 chapter4:  020-creatingtoolsdir 021-addinguser 022-settingenvironment
@@ -686,6 +769,8 @@ chapter4:  020-creatingtoolsdir 021-addinguser 022-settingenvironment
 chapter5:  chapter4 $chapter5
 
 chapter6:  chapter5 $chapter6
+
+chapter789:  chapter6 $chapter789
 
 clean-all:  clean
 	rm -rf ./*
