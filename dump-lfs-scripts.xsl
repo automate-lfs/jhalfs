@@ -124,15 +124,16 @@
         </xsl:choose>
       </xsl:when>
       <xsl:when test="contains(string(),'EOF')">
-        <xsl:variable name="content">
-          <xsl:apply-templates/>
-        </xsl:variable>
-        <xsl:value-of select="substring-before(string($content), 'cat &gt;')"/>
-        <xsl:text>&#xA;(&#xA;cat &lt;&lt; EOF</xsl:text>
-        <xsl:value-of select="substring-after(string($content), '&quot;EOF&quot;')"/>
-        <xsl:text>&#xA;) &gt;</xsl:text>
-        <xsl:value-of select="substring-after((substring-before(string($content), '&lt;&lt;')), 'cat &gt;')"/>
+        <xsl:value-of select="substring-before(string(),'cat &gt;')"/>
+        <xsl:text>&#xA;(&#xA;cat &lt;&lt; EOF&#xA;</xsl:text>
+        <xsl:apply-templates select="literal"/>
+        <xsl:text>&#xA;EOF&#xA;) &gt;</xsl:text>
+        <xsl:value-of select="substring-after((substring-before(string(),'&lt;&lt;')),'cat &gt;')"/>
         <xsl:text> &amp;&amp;&#xA;</xsl:text>
+        <xsl:if test="string-length(substring-after(string(),'EOF&#xA;')) &gt; 0">
+          <xsl:value-of select="substring-after(string(),'EOF&#xA;')"/>
+          <xsl:text> &amp;&amp;&#xA;</xsl:text>
+        </xsl:if>
       </xsl:when>
       <xsl:otherwise>
         <xsl:apply-templates/>
@@ -141,6 +142,22 @@
           <xsl:text> &amp;&amp;</xsl:text>
         </xsl:if>
         <xsl:text>&#xA;</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="literal">
+    <xsl:choose>
+      <xsl:when test="contains(string(),'$@')">
+        <xsl:variable name="content">
+          <xsl:apply-templates/>
+        </xsl:variable>
+        <xsl:value-of select="substring-before(string($content),'$@')"/>
+        <xsl:text>\$@</xsl:text>
+        <xsl:value-of select="substring-after(string($content),'$@')"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
