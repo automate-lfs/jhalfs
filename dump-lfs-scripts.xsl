@@ -92,6 +92,12 @@
 
   <xsl:template match="userinput" mode="screen">
     <xsl:choose>
+      <xsl:when test="contains(string(),'tar.gz')">
+        <xsl:value-of select="substring-before(string(),'tar.gz')"/>
+        <xsl:text>tar.bz2</xsl:text>
+        <xsl:value-of select="substring-after(string(),'tar.gz')"/>
+        <xsl:text> &amp;&amp;&#xA;</xsl:text>
+      </xsl:when>
       <xsl:when test="$testsuite = '0' and
                 ancestor::sect1[@id='ch-system-coreutils'] and
                 (contains(string(),'check') or
@@ -107,7 +113,8 @@
         </xsl:choose>
       </xsl:when>
       <xsl:when test="contains(string(),'glibc-check-log') or
-                contains(string(),'test_summary')">
+                contains(string(),'test_summary') or
+                contains(string(),'expect -c')">
         <xsl:choose>
           <xsl:when test="$toolchaintest = '0'"/>
           <xsl:otherwise>
