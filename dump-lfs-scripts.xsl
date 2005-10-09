@@ -139,7 +139,7 @@
         <xsl:value-of select="substring-before(string(),'patch')"/>
         <xsl:text>patch -Z</xsl:text>
         <xsl:value-of select="substring-after(string(),'patch')"/>
-        <xsl:text> &#xA;</xsl:text>
+        <xsl:text> &amp;&amp;&#xA;</xsl:text>
       </xsl:when>
       <xsl:otherwise>
         <xsl:apply-templates/>
