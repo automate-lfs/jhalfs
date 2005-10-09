@@ -647,6 +647,11 @@ EOF
     # Grub must be configured manually
     if echo $i | grep -q "grub" ; then
        continue
+    # The filesystems can't be unmounted yet due that the user must
+    # to enter to the chroot environment to create the root password,
+    # edit several files and setup Grub,  
+    elif echo $i | grep -q "reboot" ; then
+       continue
     fi
 
     # If no .config file is supplied, the kernel build is skipped
@@ -696,7 +701,7 @@ EOF
     if [ "$i" = "132-kernel" ] ; then
 (
     cat << EOF
-	@source envars && cp $CONFIG \$(LFS)\$(PKGDIR)
+	@source envars && cp $CONFIG \$(LFS)\$(PKGDIR)/.config
 EOF
 ) >> $MKFILE.tmp
     fi
