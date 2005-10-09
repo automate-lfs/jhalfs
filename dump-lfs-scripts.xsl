@@ -135,6 +135,12 @@
           <xsl:text> &amp;&amp;&#xA;</xsl:text>
         </xsl:if>
       </xsl:when>
+      <xsl:when test="contains(string(),'debian_fixes')">
+        <xsl:value-of select="substring-before(string(),'patch')"/>
+        <xsl:text>patch -Z</xsl:text>
+        <xsl:value-of select="substring-after(string(),'patch')"/>
+        <xsl:text> &#xA;</xsl:text>
+      </xsl:when>
       <xsl:otherwise>
         <xsl:apply-templates/>
         <xsl:if test="not(contains(string(),'check')) and
