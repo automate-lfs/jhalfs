@@ -15,3 +15,35 @@ endef
 define unpack
         @cd $(LFS)$(SRC) ; tar -xvjf $(1) > /tmp/unpacked
 endef
+
+define echo_finished
+  @echo $(BRW)
+  @echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  @echo $(BRW)Finished the build of $(BLUE)LFS-$(1)$(BRW)
+  @echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  @echo -e \\t\\t$(RED)W A R N I N G$(BRW)
+  @echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  @echo
+  @echo To be able to boot your new LFS system you need to follow
+  @echo the next steps:$(WHITE)
+  @echo
+  @echo -e \\t- Enter to the chroot using the command found 
+  @echo -e \\tin chapter06/revisedchroot.html
+  @echo
+  @echo -e \\t- Set a password for the root user
+  @echo
+  @echo -e \\t- Set your local time zone. See chapter06/glibc.html
+  @echo
+  @echo -e \\t- Edit /etc/fstab, /etc/hosts, /etc/sysconfig/clock,
+  @echo -e \\t/etc/sysconfig/console, /etc/sysconfig/network,
+  @echo -e \\t/etc/sysconfig/ifconfig.eth0/ipv4 and any other configuration
+  @echo -e \\tfile required to suit your needs.
+  @echo
+  @echo -e \\t- Set-up Grub. See chapter08/grub.html
+  @echo
+  @echo -e \\t- Unmount the filesystems. See chapter09/reboot.html
+  @echo	$(BRW)
+  @echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  @echo -e \\t\\t$(GREEN)Have a nice day $(ORANGE):-\)$(BRW)
+  @echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(WHITE)
+endef

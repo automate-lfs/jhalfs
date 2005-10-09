@@ -235,6 +235,9 @@ get_book() {
     echo -ne "Using $BOOK as book's sources ...\n"
     extract_commands
   fi
+  # Set the canonical book version
+  cd $JHALFSDIR
+  VERSION=`grep "ENTITY version" $BOOK/general.ent | sed -e 's@<!ENTITY version "@@' -e 's@">@@'`
 }
 
 extract_commands() {
@@ -767,7 +770,7 @@ EOF
 (
     cat << EOF
 all:  chapter4 chapter5 chapter6 chapter789
-	@echo -e "\n\tYour new LFS system has been successfully built"
+	@\$(call echo_finished,$VERSION)
 
 chapter4:  020-creatingtoolsdir 021-addinguser 022-settingenvironment
 
