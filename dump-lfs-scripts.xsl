@@ -92,6 +92,10 @@
 
   <xsl:template match="userinput" mode="screen">
     <xsl:choose>
+      <xsl:when test="string() = 'make mrproper'">
+        <xsl:text>make mrproper &amp;&amp;&#xA;</xsl:text>
+        <xsl:text>cp -v ../kernel-config .config &amp;&amp;&#xA;</xsl:text>
+      </xsl:when>
       <xsl:when test="contains(string(),'tar.gz')">
         <xsl:value-of select="substring-before(string(),'tar.gz')"/>
         <xsl:text>tar.bz2</xsl:text>

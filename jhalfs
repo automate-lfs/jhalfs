@@ -704,7 +704,7 @@ EOF
     if [ "$i" = "132-kernel" ] ; then
 (
     cat << EOF
-	@source envars && cp $CONFIG \$(LFS)\$(PKGDIR)/.config
+	@cp $CONFIG \$(LFS)/sources/kernel-config
 EOF
 ) >> $MKFILE.tmp
     fi
