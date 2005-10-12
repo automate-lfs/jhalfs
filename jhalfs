@@ -1,7 +1,7 @@
 #!/bin/sh
 
 version="
-jhalfs development
+jhalfs development \$Date$
 
 Originally written by Jeremy Huntwork.
 Maintained by Manuel Canales Esparcia.
