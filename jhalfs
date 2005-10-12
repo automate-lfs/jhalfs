@@ -606,6 +606,16 @@ EOF
 ) >> $MKFILE.tmp
     fi
 
+    # For Glibc we need to set TIMEZONE envar.
+    if [ "$i" = "066-glibc" ] ; then
+(
+    cat << EOF
+	@echo "TIMEZONE=\$(TIMEZONE)" >> envars && \\
+	echo "export TIMEZONE" >> envars
+EOF
+) >> $MKFILE.tmp
+    fi
+
     # For Groff we need to set PAGE envar.
     if [ "$i" = "082-groff" ] ; then
 (
@@ -781,6 +791,7 @@ $HEADER
 SRC= /sources
 LFS= $BUILDDIR
 PAGE= $PAGE
+TIMEZONE= $TIMEZONE
 
 include functions
 

@@ -174,6 +174,9 @@
 
   <xsl:template match="replaceable">
     <xsl:choose>
+      <xsl:when test="ancestor::sect1[@id='ch-system-glibc']">
+        <xsl:text>$TIMEZONE</xsl:text>
+      </xsl:when>
       <xsl:when test="ancestor::sect1[@id='ch-system-groff']">
         <xsl:text>$PAGE</xsl:text>
       </xsl:when>

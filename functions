@@ -32,8 +32,6 @@ define echo_finished
   @echo
   @echo -e \\t- Set a password for the root user
   @echo
-  @echo -e \\t- Set your local time zone. See chapter06/glibc.html
-  @echo
   @echo -e \\t- Edit /etc/fstab, /etc/hosts, /etc/sysconfig/clock,
   @echo -e \\t/etc/sysconfig/console, /etc/sysconfig/network,
   @echo -e \\t/etc/sysconfig/ifconfig.eth0/ipv4 and any other configuration
