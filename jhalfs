@@ -509,9 +509,9 @@ EOF
     # and date and disk usage again at the bottom of the log file.
 (
     cat << EOF
-	@echo -e "\n\`date\`\n\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\n" >logs/$i && \\
+	@echo -e "\n\`date\`\n\nKB: \`du -sk --exclude={0,1}??-* \$(LFS)\`\n" >logs/$i && \\
 	su - lfs -c "source /home/lfs/.bashrc && $JHALFSDIR/commands/$file" >>logs/$i 2>&1 && \\
-	echo -e "\n\`date\`\n\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\n" >>logs/$i
+	echo -e "\n\`date\`\n\nKB: \`du -sk --exclude={0,1}??-* \$(LFS)\`\n" >>logs/$i
 EOF
 ) >> $MKFILE.tmp
 
@@ -645,9 +645,9 @@ EOF
     if [ ${i:4:6} = "kernfs" ] ; then
 (
     cat << EOF
-	@echo -e "\n\`date\`\n\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\n" >logs/$i && \\
+	@echo -e "\n\`date\`\n\nKB: \`du -sk --exclude={0,1}??-* \$(LFS)\`\n" >logs/$i && \\
 	export LFS=\$(LFS) && commands/$file >>logs/$i 2>&1 && \\
-	echo -e "\n\`date\`\n\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\n" >>logs/$i
+	echo -e "\n\`date\`\n\nKB: \`du -sk --exclude={0,1}??-* \$(LFS)\`\n" >>logs/$i
 EOF
 ) >> $MKFILE.tmp
 
@@ -655,9 +655,9 @@ EOF
     else
 (
     cat << EOF
-	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >logs/$i && \\
+	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude={0,1}??-* \$(LFS)\`\n" >logs/$i && \\
 	\$(CHROOT1) 'cd /jhalfs && source envars && /jhalfs/commands/$file >>/jhalfs/logs/$i 2>&1' && \\
-	echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >>logs/$i
+	echo -e "\n\`date\`\n\nKB: \`du -skx --exclude={0,1}??-* \$(LFS)\`\n" >>logs/$i
 EOF
 ) >> $MKFILE.tmp
 
@@ -766,18 +766,18 @@ EOF
     if [ ${i:4:5} = "fstab" ] && [ -n "$FSTAB" ] ; then
 (
     cat << EOF
-	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >logs/$i && \\
+	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude={0,1}??-* \$(LFS)\`\n" >logs/$i && \\
 	cp -v $FSTAB \$(LFS)/etc/fstab >>logs/$i 2>&1 && \\
-	echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >>logs/$i
+	echo -e "\n\`date\`\n\nKB: \`du -skx --exclude={0,1}??-* \$(LFS)\`\n" >>logs/$i
 EOF
 ) >> $MKFILE.tmp
     else
     # Initialize the log an run the script
 (
     cat << EOF
-	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >logs/$i && \\
+	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude={0,1}??-* \$(LFS)\`\n" >logs/$i && \\
 	\$(CHROOT2) 'cd /jhalfs && source envars && /jhalfs/commands/$file >>/jhalfs/logs/$i 2>&1' && \\
-	echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >>logs/$i
+	echo -e "\n\`date\`\n\nKB: \`du -skx --exclude={0,1}??-* \$(LFS)\`\n" >>logs/$i
 EOF
 ) >> $MKFILE.tmp
     fi
