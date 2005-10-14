@@ -454,7 +454,7 @@ EOF
     fi
 
     # Dump the path to the Binutils or TCL sources directory.
-    if [ "$i" = "027-binutils-pass1" -o "$i" = "032-tcl" -o "$i" = "036-binutils-pass2" ] ; then
+    if [ ${i:4:8} = "binutils" -o ${i:4:3} = "tcl" ] ; then
 (
     cat << EOF
 	echo "\$(LFS)\$(SRC)/\$\$ROOT" > sources-dir
@@ -462,7 +462,7 @@ EOF
 ) >> $MKFILE.tmp
 
     # For the Adjusting phase we must to cd to the binutils-build directory.
-    elif [ "$i" = "031-adjusting" ] ; then
+    elif [ ${i:4:9} = "adjusting" ] ; then
 (
     cat << EOF
 	@echo "PKGDIR=\$(LFS)\$(SRC)/binutils-build" > envars && \\
@@ -471,7 +471,7 @@ EOF
 ) >> $MKFILE.tmp
 
     # For the Expect build we need to set the TCLPATH envar.
-    elif [ "$i" = "033-expect" ] ; then
+    elif [ ${i:4:6} = "expect" ] ; then
 (
     cat << EOF
 	echo "TCLPATH=\`cat sources-dir\`" >> envars && \\
@@ -502,7 +502,7 @@ EOF
     # (to can review config.cache, config.log, and like.)
     # For Binutils and TCL the sources must be retained some time.
     if [ "$vrs" != "" ] ; then
-      if [ "$i" != "027-binutils-pass1" ] && [ "$i" != "032-tcl" ] && [ "$i" != "036-binutils-pass2" ] ; then
+      if [ ${i:4:8} != "binutils" ] && [ ${i:4:3} != "tcl" ] ; then
 (
     cat << EOF
 	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
@@ -516,7 +516,7 @@ EOF
     fi
 
     # Remove the Binutils pass 1 sources after a successful Adjusting phase.
-    if [ "$i" = "031-adjusting" ] ; then
+    if [ ${i:4:9} = "adjusting" ] ; then
 (
     cat << EOF
 	@rm -r \`cat sources-dir\` && \\
@@ -527,7 +527,7 @@ EOF
     fi
 
     # Remove the TCL sources after a successful Expect build.
-    if [ "$i" = "033-expect" ] ; then
+    if [ ${i:4:6} = "expect" ] ; then
 (
     cat << EOF
 	@rm -r \`cat sources-dir\` && \\
@@ -565,9 +565,6 @@ EOF
     # Grab the name of the target
     name=`echo $i | sed -e 's@[0-9]\{3\}-@@'`
 
-    # Set the dependency for the first target.
-    if [ -z $PREV ] ; then PREV=055-stripping ; fi
-
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
 (
@@ -597,7 +594,7 @@ EOF
     fi
 
     # For the Re-Adjusting phase we must to cd to the binutils-build directory.
-    if [ "$i" = "067-readjusting" ] ; then
+    if [ ${i:4:11} = "readjusting" ] ; then
 (
     cat << EOF
 	@echo "PKGDIR=\$(SRC)/binutils-build" > envars && \\
@@ -607,7 +604,7 @@ EOF
     fi
 
     # For Glibc we need to set TIMEZONE envar.
-    if [ "$i" = "066-glibc" ] ; then
+    if [ ${i:4:5} = "glibc" ] ; then
 (
     cat << EOF
 	@echo "TIMEZONE=\$(TIMEZONE)" >> envars && \\
@@ -617,7 +614,7 @@ EOF
     fi
 
     # For Groff we need to set PAGE envar.
-    if [ "$i" = "082-groff" ] ; then
+    if [ ${i:4:5} = "groff" ] ; then
 (
     cat << EOF
 	@echo "PAGE=\$(PAGE)" >> envars && \\
@@ -628,7 +625,7 @@ EOF
 
     # In the mount of kernel filesystems we need to set LFS 
     # and not to use chroot.
-    if [ "$i" = "057-kernfs" ] ; then
+    if [ ${i:4:6} = "kernfs" ] ; then
 (
     cat << EOF
 	@echo -e "\n\`date\`\n\nKB: \`du -sk --exclude=0??-* \$(LFS)\`\n" >logs/$i && \\
@@ -663,7 +660,7 @@ EOF
     fi
 
     # Remove the Binutils pass 2 sources after a successful Re-Adjusting phase.
-    if [ "$i" = "067-readjusting" ] ; then
+    if [ ${i:4:11} = "readjusting" ] ; then
 (
     cat << EOF
 	@rm -r \`cat sources-dir\` && \\
@@ -710,9 +707,6 @@ EOF
     # the names of the targets in the Makefile
     chapter789="$chapter789 $i"
 
-    # Set the dependency for the first target.
-    if [ -z $PREV ] ; then PREV=116-strippingagain ; fi
-
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
 (
@@ -724,11 +718,11 @@ EOF
 ) >> $MKFILE.tmp
 
     # Find the the bootscripts and kernel package names
-    if [ "$i" = "119-bootscripts" -o "$i" = "132-kernel" ] ; then
-      if [ "$i" = "119-bootscripts" ] ; then
+    if [ ${i:4:11} = "bootscripts" -o ${i:4:6} = "kernel" ] ; then
+      if [ ${i:4:11} = "bootscripts" ] ; then
         vrs=`grep "^lfs-bootscripts-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
         FILE="lfs-bootscripts-$vrs.tar.bz2"
-      elif [ "$i" = "132-kernel" ] ; then
+      elif [ ${i:4:6} = "kernel" ] ; then
         vrs=`grep "^linux-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
         FILE="linux-$vrs.tar.bz2"
       fi
@@ -743,7 +737,7 @@ EOF
     fi
     
     # Put in place the kernel .config file
-    if [ "$i" = "132-kernel" ] ; then
+    if [ ${i:4:6} = "kernel" ] ; then
 (
     cat << EOF
 	@cp $CONFIG \$(LFS)/sources/kernel-config
@@ -761,7 +755,7 @@ EOF
 ) >> $MKFILE.tmp
 
     # Remove the build directory except if the package build fails.
-    if [ "$i" = "119-bootscripts" -o "$i" = "132-kernel" ] ; then
+    if [ ${i:4:11} = "bootscripts" -o ${i:4:6} = "kernel" ] ; then
 (
     cat << EOF
 	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
