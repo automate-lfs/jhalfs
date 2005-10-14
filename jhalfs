@@ -156,7 +156,7 @@ while test $# -gt 0 ; do
       shift
       ;;
 
-    --timezone | -C )
+    --timezone )
       test $# = 1 && eval "$exit_missing_arg"
       shift
       if [ -f /usr/share/zoneinfo/$1 ] ; then
