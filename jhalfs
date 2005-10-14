@@ -37,8 +37,8 @@ Options:
   --no-toolchain-test           don't run the toolchain testsuites. This
                                 disables also the build of TCL, Expect
                                 and DejaGNU
-                                
-  --timezone TIMEZONE           set TIMEZONE as the local timezone. If not 
+
+  --timezone TIMEZONE           set TIMEZONE as the local timezone. If not
                                 specified, Europe/London will be used.
 
   --page_size PAGE              set PAGE as the default page size (letter
@@ -46,12 +46,17 @@ Options:
                                 build Groff. If not specified, \"letter\"
                                 will be used.
 
+  --fstab FILE                  use FILE as the /etc/fstab file for the
+                                LFS system. If not specified, a default
+                                /etc/fstab file with dummy values is
+                                created.
+
   -C, --kernel-config FILE      use the kernel configuration file specified
                                 in FILE to build the kernel. If not found,
                                 the kernel build is skipped.
 
   -M, --run-make                run make on the generated Makefile
-  
+
 "
 
 help="\
@@ -164,6 +169,18 @@ while test $# -gt 0 ; do
       else
         echo -e "\nLook like $1 isn't a valid timezone description."
         echo -e "Verify your selection and the command line.\n"
+        exit 1
+      fi
+      shift
+      ;;
+
+    --fstab )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      if [ -f $1 ] ; then
+        FSTAB=$1
+      else
+        echo -e "\nFile $1 not found. Verify your command line.\n"
         exit 1
       fi
       shift
@@ -623,7 +640,7 @@ EOF
 ) >> $MKFILE.tmp
     fi
 
-    # In the mount of kernel filesystems we need to set LFS 
+    # In the mount of kernel filesystems we need to set LFS
     # and not to use chroot.
     if [ ${i:4:6} = "kernfs" ] ; then
 (
@@ -691,7 +708,7 @@ EOF
        continue
     # The filesystems can't be unmounted yet due that the user must
     # to enter to the chroot environment to create the root password,
-    # edit several files and setup Grub,  
+    # edit several files and setup Grub,
     elif echo $i | grep -q "reboot" ; then
        continue
     fi
@@ -735,7 +752,7 @@ EOF
 EOF
 ) >> $MKFILE.tmp
     fi
-    
+
     # Put in place the kernel .config file
     if [ ${i:4:6} = "kernel" ] ; then
 (
@@ -745,6 +762,16 @@ EOF
 ) >> $MKFILE.tmp
     fi
 
+    # Check if we have a real /etc/fstab file
+    if [ ${i:4:5} = "fstab" ] && [ -n "$FSTAB" ] ; then
+(
+    cat << EOF
+	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >logs/$i && \\
+	cp -v $FSTAB \$(LFS)/etc/fstab >>logs/$i 2>&1 && \\
+	echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >>logs/$i
+EOF
+) >> $MKFILE.tmp
+    else
     # Initialize the log an run the script
 (
     cat << EOF
@@ -753,13 +780,14 @@ EOF
 	echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=0??-* \$(LFS)\`\n" >>logs/$i
 EOF
 ) >> $MKFILE.tmp
+    fi
 
     # Remove the build directory except if the package build fails.
     if [ ${i:4:11} = "bootscripts" -o ${i:4:6} = "kernel" ] ; then
 (
     cat << EOF
 	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
-	rm -r \$(LFS)\$(SRC)/\$\$ROOT 
+	rm -r \$(LFS)\$(SRC)/\$\$ROOT
 EOF
 ) >> $MKFILE.tmp
     fi
