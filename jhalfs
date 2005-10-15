@@ -313,6 +313,10 @@ extract_commands() {
   grep "\-version" $BOOK/general.ent | sed -e 's@<!ENTITY @@' -e 's@">@"@' \
   -e '/generic/d' >> packages
   echo `grep "glibc" packages | sed 's@glibc@glibc-linuxthreads@'` >> packages
+  # If we are buildind the UTF-8 branch, the glibc-libidn package is required
+  if grep -q "man-db-version" $BOOK/general.ent ; then
+    echo `grep "glibc" packages | sed 's@glibc@glibc-libidn@'` >> packages
+  fi
   grep "ENTITY" $BOOK/patches.ent | sed -e 's/.* "//' -e 's/">//' >> patches
 
   # Done. Moving on...
@@ -323,9 +327,9 @@ extract_commands() {
 download() {
   cd $BUILDDIR/sources
 
-  # Hackish fix for the bash-doc and glibc-linuxthreads packages that
+  # Hackish fix for the bash-doc and glibc-{linuxthreads,libidn} packages that
   # doesn't conform to norms in the URL scheme.
-  DIR=`echo $1 | sed -e 's@-doc@@' -e 's@-linuxthreads@@'`
+  DIR=`echo $1 | sed -e 's@-doc@@' -e 's@-linuxthreads@@' -e 's@-libidn@@'`
 
   # Find the md5 sum for this package.
   if [ $2 != MD5SUMS ] ; then MD5=`grep "  $2" MD5SUMS` ; fi
@@ -380,9 +384,11 @@ get_sources() {
     # Iterate through each package and grab it, along with any patches it needs.
     for i in `cat $JHALFSDIR/packages` ; do
       PKG=`echo $i | sed 's/-version.*//'`
+      # Needed for Groff patchlevel patch on UTF-8 branch
+      GROFFLEVEL=`echo $i | sed -e 's/groff-patchlevel //' -e 's/"//g'`
 
       # Someone used some silly entities right next to the valid package entities.
-      if [ "$PKG" = "expect-lib" -o "$PKG" = "linux-dl" ] ; then continue ; fi
+      if [ "$PKG" = "expect-lib" -o "$PKG" = "linux-dl" -o "$PKG" = "groff-patchlevel" ] ; then continue ; fi
 
       VRS=`echo $i | sed -e 's/.* //' -e 's/"//g'`
       if [ "$PKG" = "tcl" ] ; then
@@ -393,6 +399,11 @@ get_sources() {
       download $PKG $FILE
       for patch in `grep "$PKG-&$PKG" $JHALFSDIR/patches` ; do
         PATCH=`echo $patch | sed 's@&'$PKG'-version;@'$VRS'@'`
+        download $PKG $PATCH
+      done
+      # Needed for Groff patchlevel patch on UTF-8 branch
+      for patch in `grep "$PKG_&$PKG" $JHALFSDIR/patches` ; do
+        PATCH=`echo $patch | sed 's@&'$PKG'-version;-&'$PKG'-patchlevel;@'$VRS'-'$GROFFLEVEL'@'`
         download $PKG $PATCH
       done
     done
