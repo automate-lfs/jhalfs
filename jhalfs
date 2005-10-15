@@ -418,7 +418,7 @@ get_sources() {
       done
     done
     # Hardcoded Udev configuration file until find a better way
-    download udev udev-config-3.rules
+    download udev udev-config-4.rules
   fi
 }
 
