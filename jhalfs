@@ -879,15 +879,14 @@ clean-chapter5:
 
 022-settingenvironment:  021-addinguser
 	@\$(call echo_message, Building)
-	@echo "exec env -i HOME=\\\$\$HOME TERM=\\\$\$TERM PS1='\u:\w\$$ ' /bin/bash" > /home/lfs/.bash_profile && \\
-	echo "set +h" > /home/lfs/.bashrc && \\
+	@echo "set +h" > /home/lfs/.bashrc && \\
 	echo "umask 022" >> /home/lfs/.bashrc && \\
 	echo "LFS=/mnt/lfs" >> /home/lfs/.bashrc && \\
 	echo "LC_ALL=POSIX" >> /home/lfs/.bashrc && \\
 	echo "PATH=/tools/bin:/bin:/usr/bin" >> /home/lfs/.bashrc && \\
 	echo "export LFS LC_ALL PATH" >> /home/lfs/.bashrc && \\
 	echo "source $JHALFSDIR/envars" >> /home/lfs/.bashrc && \\
-	chown lfs:lfs /home/lfs/.bash* && \\
+	chown lfs:lfs /home/lfs/.bashrc && \\
 	touch envars && \\
 	touch \$@
 EOF
