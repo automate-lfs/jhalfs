@@ -51,16 +51,20 @@
           <xsl:when test="@id='ch-system-changingowner' or
                     @id='ch-system-creatingdirs' or
                     @id='ch-system-createfiles'">
-            <xsl:text>#!/tools/bin/bash&#xA;&#xA;</xsl:text>
+            <xsl:text>#!/tools/bin/bash&#xA;set -e&#xA;&#xA;</xsl:text>
+          </xsl:when>
+          <xsl:when test="@id='ch-tools-stripping' or
+                    @id='ch-system-strippingagain'">
+            <xsl:text>#!/bin/sh&#xA;</xsl:text>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:text>#!/bin/sh&#xA;&#xA;</xsl:text>
+            <xsl:text>#!/bin/sh&#xA;set -e&#xA;&#xA;</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:if test="sect2[@role='installation'] or
                 @id='ch-tools-adjusting' or
                 @id='ch-system-readjusting'">
-          <xsl:text>cd $PKGDIR &amp;&amp;&#xA;</xsl:text>
+          <xsl:text>cd $PKGDIR&#xA;</xsl:text>
         </xsl:if>
         <xsl:apply-templates select=".//para/userinput | .//screen"/>
         <xsl:text>exit</xsl:text>
@@ -86,88 +90,77 @@
       <xsl:value-of select="substring-before(string(),'make')"/>
       <xsl:text>make -k</xsl:text>
       <xsl:value-of select="substring-after(string(),'make')"/>
-      <xsl:text> &#xA;</xsl:text>
+      <xsl:text> || true&#xA;</xsl:text>
     </xsl:if>
   </xsl:template>
 
   <xsl:template match="userinput" mode="screen">
     <xsl:choose>
-      <xsl:when test="string() = 'make mrproper'">
-        <xsl:text>make mrproper &amp;&amp;&#xA;</xsl:text>
-        <xsl:text>cp -v ../kernel-config .config &amp;&amp;&#xA;</xsl:text>
-      </xsl:when>
+      <!-- Estandarized package formats -->
       <xsl:when test="contains(string(),'tar.gz')">
         <xsl:value-of select="substring-before(string(),'tar.gz')"/>
         <xsl:text>tar.bz2</xsl:text>
         <xsl:value-of select="substring-after(string(),'tar.gz')"/>
-        <xsl:text> &amp;&amp;&#xA;</xsl:text>
+        <xsl:text>&#xA;</xsl:text>
       </xsl:when>
+      <!-- Avoiding a race condition in a patch -->
+      <xsl:when test="contains(string(),'debian_fixes')">
+        <xsl:value-of select="substring-before(string(),'patch')"/>
+        <xsl:text>patch -Z</xsl:text>
+        <xsl:value-of select="substring-after(string(),'patch')"/>
+        <xsl:text>&#xA;</xsl:text>
+      </xsl:when>
+      <!-- Copying the kernel config file -->
+      <xsl:when test="string() = 'make mrproper'">
+        <xsl:text>make mrproper&#xA;</xsl:text>
+        <xsl:text>cp -v ../kernel-config .config&#xA;</xsl:text>
+      </xsl:when>
+      <!-- The Coreutils test suite is optional -->
       <xsl:when test="$testsuite = '0' and
                 ancestor::sect1[@id='ch-system-coreutils'] and
                 (contains(string(),'check') or
                 contains(string(),'dummy'))"/>
+      <!-- Fixing toolchain test suites run -->
       <xsl:when test="string() = 'make check' or
                 string() = 'make -k check'">
         <xsl:choose>
           <xsl:when test="$toolchaintest = '0'"/>
           <xsl:otherwise>
-            <xsl:text>make -k check</xsl:text>
+            <xsl:text>make -k check || true</xsl:text>
             <xsl:text>&#xA;</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
-      <xsl:when test="contains(string(),'glibc-check-log') or
-                contains(string(),'test_summary') or
+      <xsl:when test="contains(string(),'glibc-check-log')">
+        <xsl:choose>
+          <xsl:when test="$toolchaintest = '0'"/>
+          <xsl:otherwise>
+            <xsl:value-of select="substring-before(string(),'&#xA;')"/>
+            <xsl:text> || true&#xA;</xsl:text>
+            <xsl:value-of select="substring-after(string(),'&#xA;')"/>
+            <xsl:text>&#xA;</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:when test="contains(string(),'test_summary') or
                 contains(string(),'expect -c')">
         <xsl:choose>
           <xsl:when test="$toolchaintest = '0'"/>
           <xsl:otherwise>
             <xsl:apply-templates/>
-            <xsl:text> &amp;&amp;&#xA;</xsl:text>
+            <xsl:text>&#xA;</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
-      <xsl:when test="contains(string(),'EOF')">
-        <xsl:value-of select="substring-before(string(),'cat &gt;')"/>
-        <xsl:text>&#xA;(&#xA;cat &lt;&lt; EOF&#xA;</xsl:text>
-        <xsl:apply-templates select="literal"/>
-        <xsl:text>&#xA;EOF&#xA;) &gt;</xsl:text>
-        <xsl:value-of select="substring-after((substring-before(string(),'&lt;&lt;')),'cat &gt;')"/>
-        <xsl:text> &amp;&amp;&#xA;</xsl:text>
-        <xsl:if test="string-length(substring-after(string(),'EOF&#xA;')) &gt; 0">
-          <xsl:value-of select="substring-after(string(),'EOF&#xA;')"/>
-          <xsl:text> &amp;&amp;&#xA;</xsl:text>
-        </xsl:if>
+      <!-- Don't stop on strip run -->
+      <xsl:when test="contains(string(),'strip ')">
+        <xsl:apply-templates/>
+        <xsl:text> || true&#xA;</xsl:text>
       </xsl:when>
-      <xsl:when test="contains(string(),'debian_fixes')">
-        <xsl:value-of select="substring-before(string(),'patch')"/>
-        <xsl:text>patch -Z</xsl:text>
-        <xsl:value-of select="substring-after(string(),'patch')"/>
-        <xsl:text> &amp;&amp;&#xA;</xsl:text>
-      </xsl:when>
+      <!-- The rest of commands -->
       <xsl:otherwise>
         <xsl:apply-templates/>
-        <xsl:if test="not(contains(string(),'check')) and
-                not(contains(string(),'strip '))">
-          <xsl:text> &amp;&amp;</xsl:text>
-        </xsl:if>
         <xsl:text>&#xA;</xsl:text>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-  <xsl:template match="literal">
-    <xsl:choose>
-      <xsl:when test="contains(string(),'$@')">
-        <xsl:variable name="content">
-          <xsl:apply-templates/>
-        </xsl:variable>
-        <xsl:value-of select="substring-before(string($content),'$@')"/>
-        <xsl:text>\$@</xsl:text>
-        <xsl:value-of select="substring-after(string($content),'$@')"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:apply-templates/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
