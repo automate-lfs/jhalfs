@@ -30,7 +30,11 @@ Options:
   -W, --working-copy DIR        use the local working copy placed in DIR
                                 as the LFS book
 
-  -L, --LFS-version VER         ckeckout VER version of the LFS book
+  -L, --LFS-version VER         ckeckout VER version of the LFS book.
+                                Supported versions at this time are:
+                                
+         dev* | trunk | SVN     alias for Development LFS
+         testing | 6.1.1        alias for the testing 6.1.1 branch 
 
   -T, --testsuites              add support to run the optional testsuites
 
