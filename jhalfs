@@ -293,7 +293,7 @@ get_book() {
   fi
   # Set the canonical book version
   cd $JHALFSDIR
-  VERSION=`grep "ENTITY version" $BOOK/general.ent | sed -e 's@<!ENTITY version "@@' -e 's@">@@'`
+  VERSION=`grep "ENTITY version " $BOOK/general.ent | sed -e 's@<!ENTITY version "@@' -e 's@">@@'`
 }
 
 extract_commands() {
