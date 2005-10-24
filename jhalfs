@@ -3,7 +3,7 @@
 #
 # Load the configuration file
 #
- . jhalfs.conf
+source jhalfs.conf
 
 
 version="
@@ -277,6 +277,18 @@ get_sources() {
   fi
 }
 
+#-----------------------------------------------#
+_IS_()  # Function to test build scripts names
+#-----------------------------------------------#
+{
+  # Returns substr $2 or null str
+  # Must use string testing
+  case $1 in
+    *$2*) echo "$2" ;;
+       *) echo ""   ;;
+  esac
+}
+
 #----------------------------#
 chapter4_Makefiles() {
 #----------------------------#
@@ -321,11 +333,7 @@ chapter5_Makefiles() {
 
     # If no testsuites will be run, then TCL, Expect and DejaGNU isn't needed
     if [ "$TOOLCHAINTEST" = "0" ]; then
-      if echo $i | grep -q "tcl" ; then
-        continue
-      elif echo $i | grep -q "expect" ; then
-        continue
-      elif echo $i | grep -q "dejagnu" ; then
+      if [[ `_IS_ $i tcl` ]] || [[ `_IS_ $i expect` ]] || [[ `_IS_ $i dejagnu` ]] ; then
         continue
       fi
     fi
@@ -378,7 +386,7 @@ EOF
     fi
 
     # Dump the path to the Binutils or TCL sources directory.
-    if [ ${i:4:8} = "binutils" -o ${i:4:3} = "tcl" ] ; then
+    if [[ `_IS_ $i binutils` ]] || [[ `_IS_ $i tcl` ]] ; then
 (
     cat << EOF
 	echo "\$(LFS)\$(SRC)/\$\$ROOT" > sources-dir
@@ -386,7 +394,7 @@ EOF
 ) >> $MKFILE.tmp
 
     # For the Adjusting phase we must to cd to the binutils-build directory.
-    elif [ ${i:4:9} = "adjusting" ] ; then
+    elif [[ `_IS_ $i adjusting` ]] ; then
 (
     cat << EOF
 	@echo "PKGDIR=\$(LFS)\$(SRC)/binutils-build" > envars && \\
@@ -395,7 +403,7 @@ EOF
 ) >> $MKFILE.tmp
 
     # For the Expect build we need to set the TCLPATH envar.
-    elif [ ${i:4:6} = "expect" ] ; then
+    elif [[ `_IS_ $i expect` ]] ; then
 (
     cat << EOF
 	echo "TCLPATH=\`cat sources-dir\`" >> envars && \\
@@ -426,7 +434,7 @@ EOF
     # (to can review config.cache, config.log, and like.)
     # For Binutils and TCL the sources must be retained some time.
     if [ "$vrs" != "" ] ; then
-      if [ ${i:4:8} != "binutils" ] && [ ${i:4:3} != "tcl" ] ; then
+      if [[ ! `_IS_ $i binutils` ]] && [[ ! `_IS_ $i tcl` ]] ; then
 (
     cat << EOF
 	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
@@ -440,7 +448,7 @@ EOF
     fi
 
     # Remove the Binutils pass 1 sources after a successful Adjusting phase.
-    if [ ${i:4:9} = "adjusting" ] ; then
+    if [[ `_IS_ $i adjusting` ]] ; then
 (
     cat << EOF
 	@rm -r \`cat sources-dir\` && \\
@@ -451,7 +459,7 @@ EOF
     fi
 
     # Remove the TCL sources after a successful Expect build.
-    if [ ${i:4:6} = "expect" ] ; then
+    if [[ `_IS_ $i expect` ]] ; then
 (
     cat << EOF
 	@rm -r \`cat sources-dir\` && \\
@@ -482,7 +490,7 @@ chapter6_Makefiles() {
 
     # We'll run the chroot commands differently than the others, so skip them in the
     # dependencies and target creation.
-    if echo $i | grep -q "chroot" ; then
+    if [[ `_IS_ $i chroot` ]] ; then
        continue
     fi
 
@@ -522,27 +530,25 @@ EOF
     fi
 
     # For the Re-Adjusting phase we must to cd to the binutils-build directory.
-    if [ ${i:4:11} = "readjusting" ] ; then
+    if [[ `_IS_ $i readjusting` ]] ; then
 (
     cat << EOF
 	@echo "PKGDIR=\$(SRC)/binutils-build" > envars && \\
 	echo "export PKGDIR" >> envars
 EOF
 ) >> $MKFILE.tmp
-    fi
 
     # For Glibc we need to set TIMEZONE envar.
-    if [ ${i:4:5} = "glibc" ] ; then
+    elif [[ `_IS_ $i glibc` ]] ; then
 (
     cat << EOF
 	@echo "TIMEZONE=\$(TIMEZONE)" >> envars && \\
 	echo "export TIMEZONE" >> envars
 EOF
 ) >> $MKFILE.tmp
-    fi
 
     # For Groff we need to set PAGE envar.
-    if [ ${i:4:5} = "groff" ] ; then
+    elif [[ `_IS_ $i groff` ]] ; then
 (
     cat << EOF
 	@echo "PAGE=\$(PAGE)" >> envars && \\
@@ -553,7 +559,7 @@ EOF
 
     # In the mount of kernel filesystems we need to set LFS
     # and not to use chroot.
-    if [ ${i:4:6} = "kernfs" ] ; then
+    if [[ `_IS_ $i kernfs` ]] ; then
 (
     cat << EOF
 	@echo -e "\n\`date\`\n\nKB: \`du -sk --exclude={0,1}??-* \$(LFS)\`\n" >logs/$i && \\
@@ -571,7 +577,6 @@ EOF
 	echo -e "\n\`date\`\n\nKB: \`du -skx --exclude={0,1}??-* \$(LFS)\`\n" >>logs/$i
 EOF
 ) >> $MKFILE.tmp
-
     fi
 
     # Remove the build directory(ies) except if the package build fails.
@@ -588,7 +593,7 @@ EOF
     fi
 
     # Remove the Binutils pass 2 sources after a successful Re-Adjusting phase.
-    if [ ${i:4:11} = "readjusting" ] ; then
+    if [[ `_IS_ $i readjusting` ]] ; then
 (
     cat << EOF
 	@rm -r \`cat sources-dir\` && \\
@@ -618,21 +623,17 @@ chapter789_Makefiles() {
     # Keep the script file name
     i=`basename $file`
 
-    # Grub must be configured manually
-    if echo $i | grep -q "grub" ; then
-       continue
-    # The filesystems can't be unmounted yet due that the user must
-    # to enter to the chroot environment to create the root password,
-    # edit several files and setup Grub,
-    elif echo $i | grep -q "reboot" ; then
+    # Grub must be configured manually.
+    # The filesystems can't be unmounted via Makefile and the user
+    # should to enter to the chroot environment to create the root
+    # password, edit several files and setup Grub,
+    if [[ `_IS_ $i grub` ]] || [[ `_IS_ $i reboot` ]] ; then
        continue
     fi
 
     # If no .config file is supplied, the kernel build is skipped
-    if [ -z $CONFIG ] ; then
-      if echo $i | grep -q "kernel" ; then
-        continue
-      fi
+    if [ -z $CONFIG ] && [[ `_IS_ $i kernel` ]] ; then
+      continue
     fi
 
     # First append each name of the script files to a list (this will become
@@ -650,11 +651,11 @@ EOF
 ) >> $MKFILE.tmp
 
     # Find the the bootscripts and kernel package names
-    if [ ${i:4:11} = "bootscripts" -o ${i:4:6} = "kernel" ] ; then
-      if [ ${i:4:11} = "bootscripts" ] ; then
+    if [[ `_IS_ $i bootscripts` ]] || [[ `_IS_ $i kernel` ]] ; then
+      if [[ `_IS_ $i bootscripts` ]] ; then
         vrs=`grep "^lfs-bootscripts-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
         FILE="lfs-bootscripts-$vrs.tar.bz2"
-      elif [ ${i:4:6} = "kernel" ] ; then
+      elif [[ `_IS_ $i kernel` ]] ; then
         vrs=`grep "^linux-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
         FILE="linux-$vrs.tar.bz2"
       fi
@@ -669,7 +670,7 @@ EOF
     fi
 
     # Put in place the kernel .config file
-    if [ ${i:4:6} = "kernel" ] ; then
+    if [[ `_IS_ $i kernel` ]] ; then
 (
     cat << EOF
 	@cp $CONFIG \$(LFS)/sources/kernel-config
@@ -678,7 +679,7 @@ EOF
     fi
 
     # Check if we have a real /etc/fstab file
-    if [ ${i:4:5} = "fstab" ] && [ -n "$FSTAB" ] ; then
+    if [[ `_IS_ $i fstab` ]] && [[ -n "$FSTAB" ]] ; then
 (
     cat << EOF
 	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude={0,1}??-* \$(LFS)\`\n" >logs/$i && \\
@@ -698,7 +699,7 @@ EOF
     fi
 
     # Remove the build directory except if the package build fails.
-    if [ ${i:4:11} = "bootscripts" -o ${i:4:6} = "kernel" ] ; then
+    if [[ `_IS_ $i bootscripts` ]] || [[ `_IS_ $i kernel` ]] ; then
 (
     cat << EOF
 	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
@@ -832,18 +833,6 @@ if [ "$UID" != "0" ] ; then
   exit 1
 fi
 
-# Find the download client to use, if not already specified.
-
-if [ -z $DL ] ; then
-  if [ `type -p wget` ] ; then
-    DL=wget
-  elif [ `type -p curl` ] ; then
-    DL=curl
-  else
-    eval "$no_dl_client"
-  fi
-fi
-
 # Evaluate any command line switches
 
 while test $# -gt 0 ; do
@@ -964,6 +953,18 @@ while test $# -gt 0 ; do
   esac
   shift
 done
+
+# Find the download client to use, if not already specified.
+
+if [ -z $DL ] ; then
+  if [ `type -p wget` ] ; then
+    DL=wget
+  elif [ `type -p curl` ] ; then
+    DL=curl
+  else
+    eval "$no_dl_client"
+  fi
+fi
 
 [[ ! -d $JHALFSDIR ]]        && mkdir -pv $JHALFSDIR
 [[ "$PWD" != "$JHALFSDIR" ]] && cp -v $0 $XSL $FILES $JHALFSDIR/
