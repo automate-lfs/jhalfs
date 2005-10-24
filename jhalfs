@@ -244,11 +244,9 @@ get_sources() {
       PKG=`echo $i | sed 's/-version.*//'`
       # Needed for Groff patchlevel patch on UTF-8 branch
       GROFFLEVEL=`grep "groff-patchlevel" $JHALFSDIR/packages | sed -e 's/groff-patchlevel //' -e 's/"//g'`
-      # Needed for IPRoute2 patch on 6.1.1 book
-      IPROUTE2PATCH=`grep "iproute2-patch" $JHALFSDIR/packages | sed -e 's/iproute2-patch-version //' -e 's/"//g'`
 
       # There is some entities that aren't valid package entities.
-      if [ "$PKG" = "expect-lib" -o "$PKG" = "linux-dl" -o "$PKG" = "groff-patchlevel" -o "$PKG" = "iproute2-patch" ] ; then continue ; fi
+      if [ "$PKG" = "expect-lib" -o "$PKG" = "linux-dl" -o "$PKG" = "groff-patchlevel" ] ; then continue ; fi
 
       VRS=`echo $i | sed -e 's/.* //' -e 's/"//g'`
       if [ "$PKG" = "tcl" ] ; then
@@ -258,13 +256,8 @@ get_sources() {
       fi
       download $PKG $FILE
       for patch in `grep "$PKG-&$PKG" $JHALFSDIR/patches` ; do
-        if [ "$patch" = "iproute2-&iproute2-patch-version;-remove_db-1.patch" ] ; then
-          PATCH=`echo $patch | sed 's@&iproute2-patch-version;@'$IPROUTE2PATCH'@'`
-          download $PKG $PATCH
-        else
-          PATCH=`echo $patch | sed 's@&'$PKG'-version;@'$VRS'@'`
-          download $PKG $PATCH
-        fi
+        PATCH=`echo $patch | sed 's@&'$PKG'-version;@'$VRS'@'`
+        download $PKG $PATCH
       done
       # Needed for Groff patchlevel patch on UTF-8 branch
       for patch in `grep "patchlevel" $JHALFSDIR/patches` ; do
