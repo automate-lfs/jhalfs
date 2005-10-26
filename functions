@@ -41,7 +41,7 @@ define echo_finished
   @echo
   @echo -e \\t- Unmount the filesystems. See chapter09/reboot.html
   @echo
-  @echo If you are an experienced LFS user, several of that steps can be
+  @echo If you are an experienced LFS user, several of those steps can be
   @echo skipped or done in a different way. But then, that is something
   @echo that you already know and there is no need to discuss it here.
   @echo	$(BRW)
