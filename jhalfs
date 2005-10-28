@@ -28,7 +28,11 @@ Options:
                                 jhalfs produces will be in the directory
                                 DIR/jhalfs. Default is \"/mnt/lfs\".
 
-  -P, --get-packages            download the packages and patches
+  -P, --get-packages            download the packages and patches. That
+                                depend on the server declared in the 
+                                jhalfs.conf file having the proper packages
+                                and patches versions for the book version
+                                being processed.
 
   -D, --download-client CLIENT  use CLIENT as the program for retrieving
                                 packages (for use in conjunction with -P)
