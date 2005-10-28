@@ -359,9 +359,9 @@ EOF
     # If $vrs isn't empty, we've got a package...
     if [ "$vrs" != "" ] ; then
       if [ "$name" = "tcl" ] ; then
-        FILE="$name$vrs-src.tar.bz2"
+        FILE="$name$vrs-src.tar"
       else
-        FILE="$name-$vrs.tar.bz2"
+        FILE="$name-$vrs.tar"
       fi
 
       # Insert instructions for unpacking the package and to set
@@ -511,10 +511,10 @@ EOF
     # If $vrs isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     if [ "$vrs" != "" ] ; then
-      FILE="$name-$vrs.tar.bz2"
+      FILE="$name-$vrs.tar.*"
 (
     cat  << EOF
-	@\$(call unpack,$FILE)
+	@\$(call unpack2,$FILE)
 	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
 	echo "PKGDIR=\$(SRC)/\$\$ROOT" > envars && \\
 	echo "export PKGDIR" >> envars
@@ -647,14 +647,14 @@ EOF
     if [[ `_IS_ $i bootscripts` ]] || [[ `_IS_ $i kernel` ]] ; then
       if [[ `_IS_ $i bootscripts` ]] ; then
         vrs=`grep "^lfs-bootscripts-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
-        FILE="lfs-bootscripts-$vrs.tar.bz2"
+        FILE="lfs-bootscripts-$vrs.tar.*"
       elif [[ `_IS_ $i kernel` ]] ; then
         vrs=`grep "^linux-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
-        FILE="linux-$vrs.tar.bz2"
+        FILE="linux-$vrs.tar.*"
       fi
 (
     cat  << EOF
-	@\$(call unpack,$FILE)
+	@\$(call unpack2,$FILE)
 	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
 	echo "PKGDIR=\$(SRC)/\$\$ROOT" > envars && \\
 	echo "export PKGDIR" >> envars

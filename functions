@@ -13,7 +13,15 @@ define echo_message
 endef
 
 define unpack
-        @cd $(LFS)$(SRC) ; tar -xvjf $(1) > /tmp/unpacked
+  @if [ -f $(LFS)$(SRC)/$(1).bz2 ] ; then \
+    cd $(LFS)$(SRC) ; tar -xvjf $(1).bz2 > /tmp/unpacked ; \
+  else \
+    cd $(LFS)$(SRC) ; tar -xvzf $(1).gz > /tmp/unpacked ; \
+  fi ;
+endef
+
+define unpack2
+  @cd $(LFS)$(SRC) ; /tools/bin/tar -xvf $(1) > /tmp/unpacked
 endef
 
 define echo_finished

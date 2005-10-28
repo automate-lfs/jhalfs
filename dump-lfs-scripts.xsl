@@ -99,7 +99,7 @@
       <!-- Estandarized package formats -->
       <xsl:when test="contains(string(),'tar.gz')">
         <xsl:value-of select="substring-before(string(),'tar.gz')"/>
-        <xsl:text>tar.bz2</xsl:text>
+        <xsl:text>tar.*</xsl:text>
         <xsl:value-of select="substring-after(string(),'tar.gz')"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
