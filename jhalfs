@@ -795,11 +795,11 @@ clean-chapter5:
 	cd logs && rm -f $chapter5 && cd ..
   
 clean-chapter6:
-	umount \$(LFS)/sys
-	umount \$(LFS)/proc
-	umount \$(LFS)/dev/shm
-	umount \$(LFS)/dev/pts
-	umount \$(LFS)/dev
+	-umount \$(LFS)/sys
+	-umount \$(LFS)/proc
+	-umount \$(LFS)/dev/shm
+	-umount \$(LFS)/dev/pts
+	-umount \$(LFS)/dev
 	rm -rf \$(LFS)/{bin,boot,dev,etc,home,lib,media,mnt,opt,proc,root,sbin,srv,sys,tmp,usr,var}
 	rm -f $chapter6
 	cd logs && rm -f $chapter6 && cd ..
