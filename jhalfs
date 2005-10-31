@@ -171,6 +171,7 @@ extract_commands() {
   grep "\-version" $BOOK/general.ent | sed -e 's@<!ENTITY @@' -e 's@">@"@' \
   -e '/generic/d' >> packages
   echo `grep "glibc" packages | sed 's@glibc@glibc-linuxthreads@'` >> packages
+  echo `grep "udev-config-file" $BOOK/general.ent | sed -e 's@<!ENTITY @@' -e 's@">@"@'` >> packages
   # If we are buildind the UTF-8 branch, the glibc-libidn package is required
   if grep -q "man-db-version" $BOOK/general.ent ; then
     echo `grep "glibc" packages | sed 's@glibc@glibc-libidn@'` >> packages
@@ -245,7 +246,7 @@ get_sources() {
 
     # Iterate through each package and grab it, along with any patches it needs.
     for i in `cat $JHALFSDIR/packages` ; do
-      PKG=`echo $i | sed 's/-version.*//'`
+      PKG=`echo $i | sed -e 's/-version.*//' -e 's/-file.*//'`
       # Needed for Groff patchlevel patch on UTF-8 branch
       GROFFLEVEL=`grep "groff-patchlevel" $JHALFSDIR/packages | sed -e 's/groff-patchlevel //' -e 's/"//g'`
 
@@ -255,6 +256,9 @@ get_sources() {
       VRS=`echo $i | sed -e 's/.* //' -e 's/"//g'`
       if [ "$PKG" = "tcl" ] ; then
         FILE="$PKG$VRS-src.tar.bz2"
+      elif [ "$PKG" = "udev-config" ] ; then
+        PKG="udev"
+        FILE="$VRS"
       else
         FILE="$PKG-$VRS.tar.bz2"
       fi
@@ -269,8 +273,6 @@ get_sources() {
         download $PKG $PATCH
       done
     done
-    # Hardcoded Udev configuration file until find a better way
-    download udev udev-config-4.rules
   fi
 }
 
