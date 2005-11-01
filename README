@@ -7,7 +7,7 @@ acts as the automation control of the commands to be run. Finally, if you have
 specified it to do so, and have the necessary packages available (jhalfs can
 download them if you need it to), it can begin and log the build process.
 
-There are several options that jhalfs can employ, and that may be useful to
+There are several options that jhalfs can employ and that may be useful to
 your particular needs. For a full list run:
 
 jhalfs --help

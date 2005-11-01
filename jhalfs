@@ -27,11 +27,11 @@ Options:
                                 jhalfs produces will be in the directory
                                 DIR/jhalfs. Default is \"/mnt/lfs\".
 
-  -P, --get-packages            download the packages and patches. That
-                                depend on the server declared in the 
-                                jhalfs.conf file having the proper packages
-                                and patches versions for the book version
-                                being processed.
+  -P, --get-packages            download the packages and patches. This
+                                assumes that the server declared in the 
+                                jhalfs.conf file has the proper packages
+                                and patches for the book version being
+                                processed.
 
   -D, --download-client CLIENT  use CLIENT as the program for retrieving
                                 packages (for use in conjunction with -P)
@@ -42,17 +42,17 @@ Options:
   -L, --LFS-version VER         ckeckout VER version of the LFS book.
                                 Supported versions at this time are:
                                 
-         dev* | trunk | SVN     alias for Development LFS
-         testing | 6.1.1        alias for the testing 6.1.1 branch 
+         dev* | trunk | SVN     aliases for Development LFS
+         testing | 6.1.1        aliases for the testing 6.1.1 branch 
 
   -T, --testsuites              add support to run the optional testsuites
 
   --no-toolchain-test           don't run the toolchain testsuites. This
-                                disables also the build of TCL, Expect
+                                also disables the build of TCL, Expect
                                 and DejaGNU
 
   --timezone TIMEZONE           set TIMEZONE as the local timezone. If not
-                                specified, Europe/London will be used.
+                                specified, \"Europe/London\" will be used.
 
   --page_size PAGE              set PAGE as the default page size (letter
                                 or A4). This setting is required to
@@ -65,8 +65,9 @@ Options:
                                 created.
 
   -C, --kernel-config FILE      use the kernel configuration file specified
-                                in FILE to build the kernel. If not found,
-                                the kernel build is skipped.
+                                in FILE to build the kernel. If the file is
+				not found, or if not specified, the kernel
+				build is skipped.
 
   -M, --run-make                run make on the generated Makefile
 
