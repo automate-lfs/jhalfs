@@ -1,0 +1,31 @@
+Installation Instructions
+*************************
+
+If you plan to use the packages dowload feature of jhalfs and
+your host system use a md5sum program that don't accept - as
+filename, like the one shipped with Debian 3.1 stable, apply
+the included patch issuing:
+
+patch -Np0 < jhalfs-0.2-debian_31_as_host-1.patch
+
+To install jhalfs issue as root:
+
+make
+
+That will install the jhalfs script under /usr/bin, the
+configuration file under /etc/jhalfs, and the stylesheet,
+functions and README files under /usr/share/jhalfs.
+
+To cunstomize the installation locations, the next environment
+variables can be used:
+
+BIN=/some/path      Define where the jhalfs script will be
+                    installed
+CONFIG=/some/path   Define where the configuration file will be
+                    installed
+DATA=/some/path     Define where the additional files will be
+                    installed
+
+For example, to install the program and files in the root's home:
+
+make BIN=/root/bin CONFIG=/root/jhalfs DATA=/root/jhalfs
