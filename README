@@ -1,1 +1,22 @@
-placeholder
+jhalfs 0.2
+
+The purpose of jhalfs is to provide a pure automated build of Linux From
+Scratch. It does this by extracting the necessary commands and information
+straight from the LFS book's XML source. It then creates a Makefile that
+acts as the automation control of the commands to be run. Finally, if you have
+specified it to do so, and have the necessary packages available (jhalfs can
+download them if you need it to), it can begin and log the build process.
+
+There are several options that jhalfs can employ, and that may be useful to
+your particular needs. For a full list run:
+
+jhalfs --help
+
+Some variables of the build can be adjusted to fit your particular needs and
+system. The file 'jhalfs.conf' can be used to specify certain variables of the
+jhalfs build system. For more information, read the 'jhalfs.conf' file as it
+should be self-explanatory.
+
+For help, questions, or to report a bug, please email the alfs-discuss mailing
+list:
+alfs-discuss AT linuxfromscratch DOT org
