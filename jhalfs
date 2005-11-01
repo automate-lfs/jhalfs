@@ -824,6 +824,11 @@ run_make() {
 #----------------------------#
   # Test if make must be run.
   if [ "$RUNMAKE" = "1" ] ; then
+    # Test to make sure we're running the build as root
+    if [ "$UID" != "0" ] ; then
+      echo "You must be logged in as root to successfully build LFS."
+      exit 1
+    fi
     # Build the system
     if [ -e $MKFILE ] ; then
       echo -ne "Building the LFS system...\n"
@@ -838,13 +843,6 @@ run_make() {
 ###################################
 ###		MAIN		###
 ###################################
-
-# Test to make sure we're running the build as root
-
-if [ "$UID" != "0" ] ; then
-  echo "You must be logged in as root to successfully build LFS."
-  exit 1
-fi
 
 # Evaluate any command line switches
 
