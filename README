@@ -1,4 +1,4 @@
-jhalfs 0.2
+jhalfs 0.2-pre1
 
 The purpose of jhalfs is to provide a pure automated build of Linux From
 Scratch. It does this by extracting the necessary commands and information
