@@ -981,7 +981,7 @@ if [ -z $DL ] ; then
 fi
 
 [[ ! -d $JHALFSDIR ]]        && mkdir -pv $JHALFSDIR
-[[ "$PWD" != "$JHALFSDIR" ]] && cp -v $0 $XSL $FILES $JHALFSDIR/
+[[ "$PWD" != "$JHALFSDIR" ]] && cp -v $FILES $JHALFSDIR/
 [[ ! -d $LOGDIR ]]           && mkdir -v $LOGDIR
 >$LOGDIR/$LOG
 
