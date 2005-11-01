@@ -1,9 +1,10 @@
 # Makefile to install jhalfs system-wide
 
 # Where the files will be installed
-BIN=/usr/bin
+PREFIX=/usr
+BIN=$(PREFIX)/bin
 CONFIG=/etc/jhalfs
-DATA=/usr/share/jhalfs
+DATA=$(PREFIX)/share/jhalfs
 
 # List of additional files
 DATAFILES=functions dump-lfs-scripts.xsl README
