@@ -9,8 +9,7 @@ source jhalfs.conf
 version="
 jhalfs development \$Date$
 
-Originally written by Jeremy Huntwork.
-Maintained by Manuel Canales Esparcia.
+Written by Jeremy Huntwork and Manuel Canales Esparcia.
 
 This program is published under the \
 Gnu General Public License, Version 2.
