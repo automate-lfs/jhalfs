@@ -6,7 +6,7 @@ CONFIG=/etc/jhalfs
 DATA=/usr/share/jhalfs
 
 # List of additional files
-DATAFILES=functions dump-lfs-scripts.xsl
+DATAFILES=functions dump-lfs-scripts.xsl README
 
 install:
 	install -v -d $(CONFIG)
