@@ -9,6 +9,7 @@ DATA=/usr/share/jhalfs
 DATAFILES=functions dump-lfs-scripts.xsl README
 
 install:
+	install -v -d $(BIN)
 	install -v -d $(CONFIG)
 	install -v -d $(DATA)
 	sed 's|source jhalfs.conf|source $(CONFIG)/jhalfs.conf|' jhalfs > $(BIN)/jhalfs
