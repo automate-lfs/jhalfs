@@ -39,7 +39,7 @@ Options:
   -W, --working-copy DIR        use the local working copy placed in DIR
                                 as the LFS book
 
-  -L, --LFS-version VER         ckeckout VER version of the LFS book.
+  -L, --LFS-version VER         checkout VER version of the LFS book.
                                 Supported versions at this time are:
                                 
          dev* | trunk | SVN     aliases for Development LFS

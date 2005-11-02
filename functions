@@ -27,7 +27,7 @@ endef
 define echo_finished
   @echo $(BRW)
   @echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  @echo $(BRW)Finished the build of $(BLUE)LFS-$(1)$(BRW)
+  @echo $(BRW) Finished the build of $(BLUE)LFS-$(1)$(BRW)
   @echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   @echo -e \\t\\t$(RED)W A R N I N G$(BRW)
   @echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
