@@ -7,7 +7,7 @@ CONFIG=/etc/jhalfs
 DATA=$(PREFIX)/share/jhalfs
 
 # List of additional files
-DATAFILES=functions dump-lfs-scripts.xsl README
+DATAFILES=functions dump-lfs-scripts.xsl README LICENSE
 
 install:
 	install -v -d $(BIN)
