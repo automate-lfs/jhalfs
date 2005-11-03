@@ -17,7 +17,7 @@ make install
 
 That will install the jhalfs script under /usr/bin, the
 configuration file under /etc/jhalfs, and the style sheet,
-functions, README, and LICENSE files under /usr/share/jhalfs.
+functions and README files under /usr/share/jhalfs.
 
 To customize the installation locations, the following environment
 variables can be used:
