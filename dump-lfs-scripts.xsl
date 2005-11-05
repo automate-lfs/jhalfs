@@ -115,9 +115,10 @@
         <xsl:text>make mrproper&#xA;</xsl:text>
         <xsl:text>cp -v ../kernel-config .config&#xA;</xsl:text>
       </xsl:when>
-      <!-- The Coreutils test suite is optional -->
+      <!-- The Coreutils and Module-Init-Tools test suites are optional -->
       <xsl:when test="$testsuite = '0' and
-                ancestor::sect1[@id='ch-system-coreutils'] and
+                (ancestor::sect1[@id='ch-system-coreutils'] or
+                ancestor::sect1[@id='ch-system-module-init-tools']) and
                 (contains(string(),'check') or
                 contains(string(),'dummy'))"/>
       <!-- Fixing toolchain test suites run -->
