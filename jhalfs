@@ -196,7 +196,7 @@ download() {
   # Hackish fix for the bash-doc, glibc-{linuxthreads,libidn} and
   # module-init-tools-testsuite packages that doesn't conform to 
   # norms in the URL scheme.
-  DIR=`echo $1 | sed 's@-doc@@';'s@-linuxthreads@@';'s@-libidn@@';'s@-testsuite@@'`
+  DIR=`echo $1 | sed 's@-doc@@' -e 's@-linuxthreads@@' -e 's@-libidn@@' -e 's@-testsuite@@'`
 
   # Find the md5 sum for this package.
   if [ $2 != MD5SUMS ] ; then MD5=`grep "  $2" MD5SUMS` ; fi
