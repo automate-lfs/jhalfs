@@ -42,8 +42,8 @@ define echo_finished
   @echo
   @echo -e \\t- Edit /etc/fstab, /etc/hosts, /etc/sysconfig/clock,
   @echo -e \\t/etc/sysconfig/console, /etc/sysconfig/network,
-  @echo -e \\t/etc/sysconfig/ifconfig.eth0/ipv4 and any other configuration
-  @echo -e \\tfile required to suit your needs.
+  @echo -e \\t/etc/sysconfig//network-devices/ifconfig.eth0/ipv4 and
+  @echo -e \\tany other configuration file required to suit your needs.
   @echo
   @echo -e \\t- Set-up Grub. See chapter08/grub.html
   @echo
@@ -52,7 +52,7 @@ define echo_finished
   @echo If you are an experienced LFS user, several of those steps can be
   @echo skipped or done in a different way. But then, that is something
   @echo that you already know and there is no need to discuss it here.
-  @echo	$(BRW)
+  @echo $(BRW)
   @echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   @echo -e \\t\\t$(GREEN)Have a nice day $(ORANGE):-\)$(BRW)
   @echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(WHITE)
