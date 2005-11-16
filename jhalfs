@@ -51,6 +51,9 @@ Options:
                                 also disables the build of TCL, Expect
                                 and DejaGNU
 
+  --no-strip                    don't run the strip command on both the
+                                temporary system and the final system
+
   --timezone TIMEZONE           set TIMEZONE as the local timezone. If not
                                 specified, \"Europe/London\" will be used.
 
@@ -359,6 +362,11 @@ chapter5_Makefiles() {
       fi
     fi
 
+    # Test if the stripping phase must be skipped
+    if [ "$STRIP" = "0" ] && [[ `_IS_ $i stripping` ]] ; then
+      continue
+    fi
+
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
     chapter5="$chapter5 $i"
@@ -513,6 +521,11 @@ chapter6_Makefiles() {
     # dependencies and target creation.
     if [[ `_IS_ $i chroot` ]] ; then
        continue
+    fi
+
+    # Test if the stripping phase must be skipped
+    if [ "$STRIP" = "0" ] && [[ `_IS_ $i stripping` ]] ; then
+      continue
     fi
 
     # First append each name of the script files to a list (this will become
@@ -934,6 +947,8 @@ while test $# -gt 0 ; do
     --run-make | -M )		RUNMAKE=1 ;;
 
     --no-toolchain-test )	TOOLCHAINTEST=0 ;;
+
+    --no-strip )	STRIP=0 ;;
 
     --no-vim-lang )	VIMLANG=0 ;;
     
