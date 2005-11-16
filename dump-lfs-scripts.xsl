@@ -1,4 +1,9 @@
 <?xml version="1.0"?>
+<!DOCTYPE xsl:stylesheet [
+ <!ENTITY % general-entities SYSTEM "FAKEDIR/general.ent">
+  %general-entities;
+]>
+
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:exsl="http://exslt.org/common"
     extension-element-prefixes="exsl"
@@ -11,6 +16,9 @@
 
   <!-- Run toolchain test suites? -->
   <xsl:param name="toolchaintest" select="1"/>
+
+  <!-- Install vim-lang package? -->
+  <xsl:param name="vim-lang" select="1"/>
 
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
@@ -65,6 +73,9 @@
                 @id='ch-tools-adjusting' or
                 @id='ch-system-readjusting'">
           <xsl:text>cd $PKGDIR&#xA;</xsl:text>
+          <xsl:if test="@id='ch-system-vim' and $vim-lang = '1'">
+            <xsl:text>tar -xvf ../vim-&vim-version;-lang.*&#xA;</xsl:text>
+          </xsl:if>
         </xsl:if>
         <xsl:apply-templates select=".//para/userinput | .//screen"/>
         <xsl:text>exit</xsl:text>
