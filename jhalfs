@@ -63,6 +63,8 @@ Options:
                                 LFS system. If not specified, a default
                                 /etc/fstab file with dummy values is
                                 created.
+  
+  --no-vim-lang                 don't install the optional vim-lang package
 
   -C, --kernel-config FILE      use the kernel configuration file specified
                                 in FILE to build the kernel. If the file is
@@ -104,12 +106,6 @@ get_book() {
   test `type -p svn` || eval "echo \"This feature requires Subversion.\"
   exit 1"
   cd $JHALFSDIR
-
-  # Test to make sure the LFS version is set
-  if [ -z $LFSVRS ] ; then LFSVRS=development ; fi
-
-  # Set the book's sources directory
-  if [ -z $BOOK ] ; then BOOK=lfs-$LFSVRS ; fi
 
   if [ -z $WC ] ; then
     echo -n "Downloading the LFS Book, version $LFSVRS... "
@@ -159,8 +155,8 @@ extract_commands() {
 
   # Dump the commands in shell script form from the LFS book.
   xsltproc --nonet --xinclude --stringparam testsuite $TEST \
-    --stringparam toolchaintest $TOOLCHAINTEST -o ./commands/ \
-    $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
+    --stringparam toolchaintest $TOOLCHAINTEST --stringparam vim-lang $VIMLANG \
+    -o ./commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
 
   # Make the scripts executable.
   chmod -R +x $JHALFSDIR/commands
@@ -171,6 +167,10 @@ extract_commands() {
   grep "\-version" $BOOK/general.ent | sed -e 's@<!ENTITY @@' -e 's@">@"@' \
   -e '/generic/d' >> packages
   echo `grep "glibc" packages | sed 's@glibc@&-linuxthreads@'` >> packages
+  # Download the vim-lang package if it must be installed
+  if [ "$VIMLANG" = "1" ] ; then
+    echo `grep "vim" packages | sed 's@vim@&-lang@'` >> packages
+  fi
   echo `grep "udev-config-file" $BOOK/general.ent | sed -e 's@<!ENTITY @@' -e 's@">@"@'` >> packages
   # Download the module-init-tools-testsuite package only 
   # if the test suite will be run.
@@ -262,6 +262,9 @@ get_sources() {
       VRS=`echo $i | sed -e 's/.* //' -e 's/"//g'`
       if [ "$PKG" = "tcl" ] ; then
         FILE="$PKG$VRS-src.tar.bz2"
+      elif [ "$PKG" = "vim-lang" ] ; then
+        PKG="vim"
+        FILE="vim-$VRS-lang.tar.bz2"
       elif [ "$PKG" = "udev-config" ] ; then
         PKG="udev"
         FILE="$VRS"
@@ -918,6 +921,8 @@ while test $# -gt 0 ; do
     --run-make | -M )		RUNMAKE=1 ;;
 
     --no-toolchain-test )	TOOLCHAINTEST=0 ;;
+
+    --no-vim-lang )	VIMLANG=0 ;;
     
     --page_size )
       test $# = 1 && eval "$exit_missing_arg"
@@ -989,7 +994,9 @@ if [ -z $DL ] ; then
 fi
 
 [[ ! -d $JHALFSDIR ]]        && mkdir -pv $JHALFSDIR
-[[ "$PWD" != "$JHALFSDIR" ]] && cp -v $FILES $JHALFSDIR/
+[[ "$PWD" != "$JHALFSDIR" ]] && cp -v $FILES $JHALFSDIR/ && \
+  sed -e 's/FAKEDIR/'$BOOK'/' $XSL > $JHALFSDIR/dump-lfs-scripts.xsl && \
+  export XSL=$JHALFSDIR/dump-lfs-scripts.xsl
 [[ ! -d $LOGDIR ]]           && mkdir -v $LOGDIR
 >$LOGDIR/$LOG
 
