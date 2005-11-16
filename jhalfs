@@ -118,9 +118,15 @@ get_book() {
       if svn up | grep -q At && test -d $JHALFSDIR/commands && \
       test -f $JHALFSDIR/packages && test -f $JHALFSDIR/patches ; then
         echo -ne "done\n"
+        # Set the canonical book version
+        cd $JHALFSDIR
+        VERSION=`grep "ENTITY version " $BOOK/general.ent | sed 's@<!ENTITY version "@@;s@">@@'`
         get_sources
       else
         echo -ne "done\n"
+        # Set the canonical book version
+        cd $JHALFSDIR
+        VERSION=`grep "ENTITY version " $BOOK/general.ent | sed 's@<!ENTITY version "@@;s@">@@'`
         extract_commands
       fi
     else
@@ -130,15 +136,18 @@ get_book() {
         svn co $SVN/LFS/branches/$LFSVRS/BOOK lfs-$LFSVRS >>$LOGDIR/$LOG 2>&1
       fi
       echo -ne "done\n"
+      # Set the canonical book version
+      cd $JHALFSDIR
+      VERSION=`grep "ENTITY version " $BOOK/general.ent | sed 's@<!ENTITY version "@@;s@">@@'`
       extract_commands
     fi
   else
     echo -ne "Using $BOOK as book's sources ...\n"
+    # Set the canonical book version
+    cd $JHALFSDIR
+    VERSION=`grep "ENTITY version " $BOOK/general.ent | sed 's@<!ENTITY version "@@;s@">@@'`
     extract_commands
   fi
-  # Set the canonical book version
-  cd $JHALFSDIR
-  VERSION=`grep "ENTITY version " $BOOK/general.ent | sed -e 's@<!ENTITY version "@@' -e 's@">@@'`
 }
 
 #----------------------------#
@@ -229,6 +238,9 @@ download() {
   if [ $2 != MD5SUMS ] && ! echo "$MD5" | md5sum -c - ; then
     exit 1
   fi
+  if [ $2 != MD5SUMS ] ; then
+    echo `grep "$MD5" MD5SUMS` >> MD5SUMS-$VERSION
+  fi
 }
 
 #----------------------------#
@@ -247,6 +259,7 @@ get_sources() {
     if [ ! -d $BUILDDIR/sources ] ; then mkdir $BUILDDIR/sources ; fi
     cd $BUILDDIR/sources
     if [ -f MD5SUMS ] ; then rm MD5SUMS ; fi
+    if [ -f MD5SUMS-$VERSION ] ; then rm MD5SUMS-$VERSION ; fi
 
     download "" MD5SUMS
 
