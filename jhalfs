@@ -878,7 +878,7 @@ restore-lfs-env:
 		mv -v /home/lfs/.bash_profile.XXX /home/lfs/.bash_profile; \\
 	fi;
 	@chown lfs:lfs /home/lfs/.bash* && \\
-	@touch \$@
+	touch \$@
 
 EOF
 ) >> $MKFILE
