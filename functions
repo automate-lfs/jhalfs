@@ -1,14 +1,14 @@
-BRW= "[0;1m"
-RED= "[0;31m"
+BOLD= "[0;1m"
+RED= "[1;31m"
 GREEN= "[0;32m"
 ORANGE= "[0;33m"
 BLUE= "[1;34m"
 WHITE= "[00m"
 
 define echo_message
-  @echo $(BRW)
+  @echo $(BOLD)
   @echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  @echo $(BRW)$(1) target $(BLUE)$@$(BRW)
+  @echo $(BOLD)$(1) target $(BLUE)$@$(BOLD)
   @echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(WHITE)
 endef
 
@@ -25,11 +25,11 @@ define unpack2
 endef
 
 define echo_finished
-  @echo $(BRW)
+  @echo $(BOLD)
   @echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  @echo $(BRW) Finished the build of $(BLUE)LFS-$(1)$(BRW)
+  @echo $(BOLD) Finished the build of $(BLUE)LFS-$(1)$(BOLD)
   @echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  @echo -e \\t\\t$(RED)W A R N I N G$(BRW)
+  @echo -e \\t\\t$(RED)W A R N I N G$(BOLD)
   @echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   @echo
   @echo To be able to boot your new LFS system you need to follow
@@ -52,8 +52,8 @@ define echo_finished
   @echo If you are an experienced LFS user, several of those steps can be
   @echo skipped or done in a different way. But then, that is something
   @echo that you already know and there is no need to discuss it here.
-  @echo $(BRW)
+  @echo $(BOLD)
   @echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  @echo -e \\t\\t$(GREEN)Have a nice day $(ORANGE):-\)$(BRW)
+  @echo -e \\t\\t$(GREEN)Have a nice day $(ORANGE):-\)$(BOLD)
   @echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(WHITE)
 endef
