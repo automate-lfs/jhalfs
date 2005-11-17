@@ -85,10 +85,10 @@ no_empty_builddir="\
 echo \"\" >&2
 echo \"        W A R N I N G\" >&2
 echo \"\" >&2
-echo \"Look like the \$BUILDDIR directory contains subdirectories\" >&2
+echo \"Looks like the \$BUILDDIR directory contains subdirectories\" >&2
 echo \"from a previous LFS build.\" >&2
 echo \"\" >&2
-echo \"Please, format the partition mounted on \$BUILDDIR or set\" >&2
+echo \"Please format the partition mounted on \$BUILDDIR or set\" >&2
 echo \"a diferent build directory before to run jhalfs.\" >&2
 echo \"\" >&2
 exit 1"
@@ -1022,7 +1022,7 @@ while test $# -gt 0 ; do
 done
 
 # If $BUILDDIR have subdirectories like tools/ or bin/, stop the run
-# and notify the user about that. This also prevent to set "-d /"
+# and notify the user about that. This also prevents setting "-d /"
 # by mistake.
 
 if [ -d $BUILDDIR/tools -o -d $BUILDDIR/bin ] ; then
