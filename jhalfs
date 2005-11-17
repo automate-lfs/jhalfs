@@ -332,6 +332,7 @@ chapter4_Makefiles() {
 020-creatingtoolsdir:
 	@\$(call echo_message, Building)
 	@mkdir -v \$(LFS)/tools && \\
+	rm -fv /tools && \\
 	ln -sv \$(LFS)/tools / && \\
 	touch \$@
 
