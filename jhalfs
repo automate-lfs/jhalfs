@@ -953,6 +953,9 @@ while test $# -gt 0 ; do
       test $# = 1 && eval "$exit_missing_arg"
       shift
       BUILDDIR=$1
+      JHALFSDIR=$BUILDDIR/jhalfs
+      LOGDIR=$JHALFSDIR/logs
+      MKFILE=$JHALFSDIR/Makefile
       ;;
 
     --download-client | -D )
@@ -1065,7 +1068,7 @@ fi
 
 [[ ! -d $JHALFSDIR ]]        && mkdir -pv $JHALFSDIR
 [[ "$PWD" != "$JHALFSDIR" ]] && cp -v $FILES $JHALFSDIR/ && \
-  sed -e 's/FAKEDIR/'$BOOK'/' $XSL > $JHALFSDIR/dump-lfs-scripts.xsl && \
+  sed -e 's,FAKEDIR,'$BOOK',' $XSL > $JHALFSDIR/dump-lfs-scripts.xsl && \
   export XSL=$JHALFSDIR/dump-lfs-scripts.xsl
 [[ ! -d $LOGDIR ]]           && mkdir -v $LOGDIR
 >$LOGDIR/$LOG
