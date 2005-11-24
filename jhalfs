@@ -1120,6 +1120,10 @@ fi
 [[ ! -d $LOGDIR ]]           && mkdir -v $LOGDIR
 >$LOGDIR/$LOG
 
+if [ -z $BOOK ] ; then
+  BOOK=lfs-$LFSVRS
+fi
+
 get_book
 build_Makefile
 run_make
