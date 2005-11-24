@@ -138,6 +138,8 @@ clean_builddir() {
       rm -rf $BUILDDIR/{bin,boot,dev,etc,home,lib,media,mnt,opt,proc,root,sbin,srv,sys,tmp,tools,usr,var}
       echo -ne "Cleaning $JHALFSDIR...\n"
       rm -rf $JHALFSDIR/{0*,1*,envars,sources-dir,commands,logs,Makefile,dump-lfs-scripts.xsl,functions,packages,patches}
+      echo -ne "Cleaning remainig extracted sources in $BUILDDIR/sources...\n"
+      rm -rf `find $BUILDDIR/sources/* -maxdepth 0 -type d`
       echo -ne "done\n"
     fi
   fi
