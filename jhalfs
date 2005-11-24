@@ -1113,16 +1113,16 @@ if [ -z $DL ] ; then
   fi
 fi
 
-[[ ! -d $JHALFSDIR ]]        && mkdir -pv $JHALFSDIR
-[[ "$PWD" != "$JHALFSDIR" ]] && cp -v $FILES $JHALFSDIR/ && \
-  sed -e 's,FAKEDIR,'$BOOK',' $XSL > $JHALFSDIR/dump-lfs-scripts.xsl && \
-  export XSL=$JHALFSDIR/dump-lfs-scripts.xsl
-[[ ! -d $LOGDIR ]]           && mkdir -v $LOGDIR
->$LOGDIR/$LOG
-
 if [ -z $BOOK ] ; then
   BOOK=lfs-$LFSVRS
 fi
+
+[[ ! -d $JHALFSDIR ]]        && mkdir -pv $JHALFSDIR
+[[ "$PWD" != "$JHALFSDIR" ]] && cp -v $FILES $JHALFSDIR/ && \
+  sed 's,FAKEDIR,'$BOOK',' $XSL > $JHALFSDIR/dump-lfs-scripts.xsl && \
+  export XSL=$JHALFSDIR/dump-lfs-scripts.xsl
+[[ ! -d $LOGDIR ]]           && mkdir -v $LOGDIR
+>$LOGDIR/$LOG
 
 get_book
 build_Makefile
