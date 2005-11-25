@@ -74,7 +74,7 @@
                 @id='ch-system-readjusting'">
           <xsl:text>cd $PKGDIR&#xA;</xsl:text>
           <xsl:if test="@id='ch-system-vim' and $vim-lang = '1'">
-            <xsl:text>tar -xvf ../vim-&vim-version;-lang.* --strip-path=1&#xA;</xsl:text>
+            <xsl:text>tar -xvf ../vim-&vim-version;-lang.* --strip-components=1&#xA;</xsl:text>
           </xsl:if>
         </xsl:if>
         <xsl:apply-templates select=".//para/userinput | .//screen"/>
