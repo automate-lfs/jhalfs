@@ -29,21 +29,17 @@
         <!-- Package variables -->
       <xsl:param name="package" select="sect1info/keywordset/keyword[@role='package']"/>
       <xsl:param name="ftpdir" select="sect1info/keywordset/keyword[@role='ftpdir']"/>
-      <xsl:param name="unpackdir" select="sect1info/keywordset/keyword[@role='unpackdir']"/>
         <!-- Creating dirs and files -->
       <exsl:document href="{$dirname}/{$filename}" method="text">
         <xsl:text>#!/bin/sh&#xA;set -e&#xA;&#xA;</xsl:text>
         <xsl:apply-templates select="sect2 | screen">
           <xsl:with-param name="package" select="$package"/>
           <xsl:with-param name="ftpdir" select="$ftpdir"/>
-          <xsl:with-param name="unpackdir" select="$unpackdir"/>
         </xsl:apply-templates>
         <xsl:if test="sect2[@role='package']">
           <xsl:text>cd ~/sources/</xsl:text>
           <xsl:value-of select="$ftpdir"/>
-          <xsl:text>&#xA;rm -rf </xsl:text>
-          <xsl:value-of select="$unpackdir"/>
-          <xsl:text>&#xA;&#xA;</xsl:text>
+          <xsl:text>&#xA;rm -rf $UNPACKDIR&#xA;&#xA;</xsl:text>
         </xsl:if>
         <xsl:text>exit</xsl:text>
       </exsl:document>
@@ -53,7 +49,6 @@
   <xsl:template match="sect2">
     <xsl:param name="package" select="foo"/>
     <xsl:param name="ftpdir" select="foo"/>
-    <xsl:param name="unpackdir" select="foo"/>
     <xsl:choose>
       <xsl:when test="@role = 'package'">
         <xsl:apply-templates select="para"/>
@@ -66,16 +61,15 @@
         <xsl:apply-templates select="itemizedlist/listitem/para">
           <xsl:with-param name="package" select="$package"/>
           <xsl:with-param name="ftpdir" select="$ftpdir"/>
-          <xsl:with-param name="unpackdir" select="$unpackdir"/>
         </xsl:apply-templates>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
       <xsl:when test="@role = 'installation'">
         <xsl:text>tar -xf </xsl:text>
         <xsl:value-of select="$package"/>
-        <xsl:text>.*&#xA;cd </xsl:text>
-        <xsl:value-of select="$unpackdir"/>
-        <xsl:text>&#xA;</xsl:text>
+        <xsl:text>.* > /tmp/unpacked&#xA;</xsl:text>
+        <xsl:text>UNPACKDIR=`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'`&#xA;</xsl:text>
+        <xsl:text>cd $UNPACKDIR&#xA;</xsl:text>
         <xsl:apply-templates select=".//screen | .//para/command"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
@@ -116,7 +110,6 @@
   <xsl:template match="itemizedlist/listitem/para">
     <xsl:param name="package" select="foo"/>
     <xsl:param name="ftpdir" select="foo"/>
-    <xsl:param name="unpackdir" select="foo"/>
     <xsl:choose>
       <xsl:when test="contains(string(),'HTTP')">
         <xsl:text>wget </xsl:text>
