@@ -7,10 +7,10 @@ Description: Allow jhalfs to work with a md5sum program
 that doesn't accept '-' as a filename, like the one shipped with
 Debian 3.1 stable.
 
---- jhalfs.orig	2005-11-01 07:10:00.104763416 -0500
-+++ jhalfs	2005-11-01 07:10:02.472416413 -0500
-@@ -192,9 +192,12 @@
-   DIR=`echo $1 | sed -e 's@-doc@@' -e 's@-linuxthreads@@' -e 's@-libidn@@'`
+--- jhalfs.orig	2005-12-01 00:57:13.000000000 +0000
++++ jhalfs	2005-12-01 00:57:26.000000000 +0000
+@@ -260,9 +260,12 @@
+   DIR=`echo $1 | sed 's@-doc@@;s@-linuxthreads@@;s@-libidn@@;s@-testsuite@@'`
  
    # Find the md5 sum for this package.
 -  if [ $2 != MD5SUMS ] ; then MD5=`grep "  $2" MD5SUMS` ; fi
@@ -24,7 +24,7 @@ Debian 3.1 stable.
      case $DL in
        wget )
          wget $HTTP/$DIR/$2
-@@ -206,7 +209,7 @@
+@@ -274,7 +277,7 @@
          echo "$DL not supported at this time."
          ;;
      esac
@@ -33,7 +33,7 @@ Debian 3.1 stable.
      case $DL in
        wget )
          wget -c $HTTP/$DIR/$2
-@@ -219,8 +222,11 @@
+@@ -287,8 +290,11 @@
          ;;
      esac
    fi
@@ -45,5 +45,5 @@ Debian 3.1 stable.
 +       exit 1
 +     fi
    fi
- }
- 
+   if [ $2 != MD5SUMS ] ; then
+     echo `grep "$MD5" MD5SUMS` >> MD5SUMS-$VERSION

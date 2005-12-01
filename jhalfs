@@ -176,11 +176,14 @@ get_book() {
         extract_commands
       fi
     else
-      if [ $LFSVRS = development ] ; then
-        svn co $SVN/LFS/trunk/BOOK lfs-$LFSVRS >>$LOGDIR/$LOG 2>&1
-      else
-        svn co $SVN/LFS/branches/$LFSVRS/BOOK lfs-$LFSVRS >>$LOGDIR/$LOG 2>&1
-      fi
+      case $LFSVRS in
+	development)
+           svn co $SVN/LFS/trunk/BOOK lfs-$LFSVRS >>$LOGDIR/$LOG 2>&1 ;;
+	alphabetical)
+           svn co $SVN/LFS/branches/$LFSVRS/BOOK lfs-$LFSVRS >>$LOGDIR/$LOG 2>&1 ;;
+	6.1.1)
+           svn co $SVN/LFS/tags/$LFSVRS/BOOK lfs-$LFSVRS >>$LOGDIR/$LOG 2>&1 ;;
+      esac
       echo -ne "done\n"
       # Set the canonical book version
       cd $JHALFSDIR
@@ -974,7 +977,7 @@ while test $# -gt 0 ; do
         dev* | SVN | trunk )
           LFSVRS=development
           ;;
-        testing | 6.1.1 )
+        6.1.1 )
           LFSVRS=6.1.1
           ;;
 	
