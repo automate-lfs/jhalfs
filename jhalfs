@@ -48,7 +48,8 @@ Options:
                                 Supported versions at this time are:
                                 
          dev* | trunk | SVN     aliases for Development LFS
-         testing | 6.1.1        aliases for the testing 6.1.1 branch 
+         6.1.1                  stable 6.1.1 book
+         alpha*                 aliases for the alphabetical branch
 
   -T, --testsuites              add support to run the optional testsuites
 
