@@ -317,8 +317,6 @@ while test $# -gt 0 ; do
           ;;
       esac
       ;;
-
-    --all-dependencies | -D )	DEPEND=1 ;;
   esac
   shift
 done
