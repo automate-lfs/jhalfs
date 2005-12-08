@@ -10,6 +10,11 @@
   <!-- Run optional test suites? -->
   <xsl:param name="testsuite" select="0"/>
 
+  <!-- FTP/HTTP server -->
+  <xsl:param name="server">
+    ftp://anduin.linuxfromscratch.org/BLFS/conglomeration
+  </xsl:param>
+
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
   </xsl:template>
@@ -122,7 +127,9 @@
         <xsl:text> || \&#xA;</xsl:text>
       </xsl:when>
       <xsl:when test="contains(string(),'MD5')">
-        <xsl:text>wget ftp://anduin.linuxfromscratch.org/BLFS/conglomeration/</xsl:text>
+        <xsl:text>wget </xsl:text>
+        <xsl:value-of select="$server"/>
+        <xsl:text>/</xsl:text>
         <xsl:value-of select="$ftpdir"/>
         <xsl:text>/</xsl:text>
         <xsl:value-of select="$package"/>
