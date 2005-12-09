@@ -33,7 +33,7 @@ Options:
                                 jhalfs run.
 
   -P, --get-packages            download the packages and patches. This
-                                assumes that the server declared in the 
+                                assumes that the server declared in the
                                 jhalfs.conf file has the proper packages
                                 and patches for the book version being
                                 processed.
@@ -46,7 +46,7 @@ Options:
 
   -L, --LFS-version VER         checkout VER version of the LFS book.
                                 Supported versions at this time are:
-                                
+
          dev* | trunk | SVN     aliases for Development LFS
          6.1.1                  stable 6.1.1 book
          alpha*                 aliases for the alphabetical branch
@@ -72,7 +72,7 @@ Options:
                                 LFS system. If not specified, a default
                                 /etc/fstab file with dummy values is
                                 created.
-  
+
   --no-vim-lang                 don't install the optional vim-lang package
 
   -C, --kernel-config FILE      use the kernel configuration file specified
@@ -233,7 +233,7 @@ extract_commands() {
   # This two packages are needed only for 6.1.1
   if [ "$LFSVRS" = "6.1.1" ] ; then
     echo `grep "glibc" packages | sed 's@glibc@&-linuxthreads@'` >> packages
-    # Download the module-init-tools-testsuite package only 
+    # Download the module-init-tools-testsuite package only
     # if the test suite will be run.
     if [ "$TEST" = "1" ] ; then
       echo `grep "module" packages | sed 's@tools@&-testsuite@'` >> packages
@@ -256,7 +256,7 @@ download() {
   cd $BUILDDIR/sources
 
   # Hackish fix for the bash-doc, glibc-{linuxthreads,libidn} and
-  # module-init-tools-testsuite packages that doesn't conform to 
+  # module-init-tools-testsuite packages that doesn't conform to
   # norms in the URL scheme.
   DIR=`echo $1 | sed 's@-doc@@;s@-linuxthreads@@;s@-libidn@@;s@-testsuite@@'`
 
@@ -818,7 +818,7 @@ EOF
     # Keep the script file name for Makefile dependencies.
     PREV=$i
   done  # for file in chapter0{7,8,9}/*
-} 
+}
 
 
 #----------------------------#
@@ -832,8 +832,8 @@ build_Makefile() {
 
   chapter4_Makefiles
   chapter5_Makefiles
-  chapter6_Makefiles  
-  chapter789_Makefiles  
+  chapter6_Makefiles
+  chapter789_Makefiles
 
 
   # Add a header, some variables and include the function file
@@ -897,7 +897,7 @@ clean-chapter5:
 	rm -rf \$(LFS)/tools/*
 	rm -f $chapter5 restore-lfs-env sources-dir
 	cd logs && rm -f $chapter5 && cd ..
-  
+
 clean-chapter6:
 	-umount \$(LFS)/sys
 	-umount \$(LFS)/proc
@@ -908,7 +908,7 @@ clean-chapter6:
 	rm -f $chapter6
 	cd logs && rm -f $chapter6 && cd ..
 
-clean-chapter789: 
+clean-chapter789:
 	rm -f $chapter789
 	cd logs && rm -f $chapter789 && cd ..
 
@@ -981,7 +981,7 @@ while test $# -gt 0 ; do
         6.1.1 )
           LFSVRS=6.1.1
           ;;
-	
+
 	alpha*)
 	  LFSVRS=alphabetical
 	  ;;
@@ -1033,7 +1033,7 @@ while test $# -gt 0 ; do
     --no-strip )	STRIP=0 ;;
 
     --no-vim-lang )	VIMLANG=0 ;;
-    
+
     --page_size )
       test $# = 1 && eval "$exit_missing_arg"
       shift
@@ -1091,7 +1091,7 @@ while test $# -gt 0 ; do
   shift
 done
 
-# Prevents setting "-d /" by mistake. 
+# Prevents setting "-d /" by mistake.
 
 if [ $BUILDDIR = / ] ; then
   echo -ne "\nThe root directory can't be used to build LFS.\n\n"
@@ -1099,7 +1099,7 @@ if [ $BUILDDIR = / ] ; then
 fi
 
 # If $BUILDDIR have subdirectories like tools/ or bin/, stop the run
-# and notify the user about that. 
+# and notify the user about that.
 
 if [ -d $BUILDDIR/tools -o -d $BUILDDIR/bin ] && [ -z $CLEAN ] ; then
   eval "$no_empty_builddir"
