@@ -162,7 +162,7 @@ get_book() {
     # sources.
     if [ -d lfs-$LFSVRS ] ; then
       cd lfs-$LFSVRS
-      if svn up | grep -q At && test -d $JHALFSDIR/commands && \
+      if LC_ALL=C svn up | grep -q At && test -d $JHALFSDIR/commands && \
       test -f $JHALFSDIR/packages && test -f $JHALFSDIR/patches ; then
         echo -ne "done\n"
         # Set the canonical book version
