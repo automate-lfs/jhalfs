@@ -322,7 +322,7 @@ get_sources() {
       # Needed for Groff patchlevel patch on UTF-8 branch
       GROFFLEVEL=`grep "groff-patchlevel" $JHALFSDIR/packages | sed -e 's/groff-patchlevel //' -e 's/"//g'`
 
-      # There is some entities that aren't valid package entities.
+      # There are some entities that aren't valid packages.
       if [ "$PKG" = "expect-lib" -o "$PKG" = "linux-dl" -o "$PKG" = "groff-patchlevel" ] ; then continue ; fi
 
       VRS=`echo $i | sed -e 's/.* //' -e 's/"//g'`
@@ -420,7 +420,7 @@ chapter5_Makefiles() {
     # Keep the script file name
     i=`basename $file`
 
-    # If no testsuites will be run, then TCL, Expect and DejaGNU isn't needed
+    # If no testsuites will be run, then TCL, Expect and DejaGNU aren't needed
     if [ "$TOOLCHAINTEST" = "0" ]; then
       if [[ `_IS_ $i tcl` ]] || [[ `_IS_ $i expect` ]] || [[ `_IS_ $i dejagnu` ]] ; then
         continue
@@ -479,8 +479,8 @@ EOF
 
     fi
 
-    # Dump the path to the Binutils or TCL sources directory.
-    if [[ `_IS_ $i binutils` ]] || [[ `_IS_ $i tcl` ]] ; then
+    # Dump the path to the Binutils sources directory.
+    if [[ `_IS_ $i binutils` ]] ; then
 (
     cat << EOF
 	echo "\$(LFS)\$(SRC)/\$\$ROOT" > sources-dir
@@ -493,15 +493,6 @@ EOF
     cat << EOF
 	@echo "PKGDIR=\$(LFS)\$(SRC)/binutils-build" > envars && \\
 	echo "export PKGDIR" >> envars
-EOF
-) >> $MKFILE.tmp
-
-    # For the Expect build we need to set the TCLPATH envar.
-    elif [[ `_IS_ $i expect` ]] ; then
-(
-    cat << EOF
-	echo "TCLPATH=\`cat sources-dir\`" >> envars && \\
-	echo "export TCLPATH" >> envars
 EOF
 ) >> $MKFILE.tmp
 
@@ -525,10 +516,10 @@ EOF
 ) >> $MKFILE.tmp
 
     # Remove the build directory(ies) except if the package build fails
-    # (to can review config.cache, config.log, and like.)
-    # For Binutils and TCL the sources must be retained some time.
+    # (so we can review config.cache, config.log, etc.)
+    # For Binutils the sources must be retained for some time.
     if [ "$vrs" != "" ] ; then
-      if [[ ! `_IS_ $i binutils` ]] && [[ ! `_IS_ $i tcl` ]] ; then
+      if [[ ! `_IS_ $i binutils` ]] ; then
 (
     cat << EOF
 	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
@@ -547,16 +538,6 @@ EOF
     cat << EOF
 	@rm -r \`cat sources-dir\` && \\
 	rm -r \$(LFS)\$(SRC)/binutils-build && \\
-	rm sources-dir
-EOF
-) >> $MKFILE.tmp
-    fi
-
-    # Remove the TCL sources after a successful Expect build.
-    if [[ `_IS_ $i expect` ]] ; then
-(
-    cat << EOF
-	@rm -r \`cat sources-dir\` && \\
 	rm sources-dir
 EOF
 ) >> $MKFILE.tmp
