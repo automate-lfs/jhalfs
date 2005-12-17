@@ -48,8 +48,9 @@ Options:
                                 Supported versions at this time are:
 
          dev* | trunk | SVN     aliases for Development LFS
-         6.1.1                  stable 6.1.1 book
          alpha*                 aliases for the alphabetical branch
+
+                                For stable 6.1.1 book, please use jhalfs-0.2.
 
   -T, --testsuites              add support to run the optional testsuites
 
@@ -960,7 +961,8 @@ while test $# -gt 0 ; do
           LFSVRS=development
           ;;
         6.1.1 )
-          LFSVRS=6.1.1
+          echo "For stable 6.1.1 book, please use jhalfs-0.2."
+          exit 0
           ;;
 
 	alpha*)
