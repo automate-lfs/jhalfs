@@ -96,7 +96,7 @@ echo \"Looks like the \$BUILDDIR directory contains subdirectories\" >&2
 echo \"from a previous LFS build.\" >&2
 echo \"\" >&2
 echo \"Please format the partition mounted on \$BUILDDIR or set\" >&2
-echo \"a diferent build directory before running jhalfs.\" >&2
+echo \"a different build directory before running jhalfs.\" >&2
 echo \"\" >&2
 exit 1"
 
