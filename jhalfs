@@ -132,7 +132,7 @@ clean_builddir() {
     fi
     # Test to make sure that the build directory was populated by jhalfs
     if [ ! -d $JHALFSDIR ] || [ ! -d $BUILDDIR/sources ] ; then
-      echo "Look like $BUILDDIR was not populated by a previous jhalfs run."
+      echo "Looks like $BUILDDIR was not populated by a previous jhalfs run."
       exit 1
     else
       # Clean the build directory
@@ -158,7 +158,7 @@ get_book() {
   if [ -z $WC ] ; then
     echo -n "Downloading the LFS Book, version $LFSVRS... "
 
-    # Grab the LFS book fresh if it's missing, otherwise, update it from the
+    # Grab a fresh LFS book if it's missing, otherwise, update it from the
     # repo. If we've already extracted the commands, move on to getting the
     # sources.
     if [ -d lfs-$LFSVRS ] ; then
@@ -231,11 +231,11 @@ extract_commands() {
     echo `grep "vim" packages | sed 's@vim@&-lang@'` >> packages
   fi
   echo `grep "udev-config-file" $BOOK/general.ent | sed -e 's@<!ENTITY @@' -e 's@">@"@'` >> packages
-  # This two packages are needed only for 6.1.1
+  # These two packages are needed only for 6.1.1
   if [ "$LFSVRS" = "6.1.1" ] ; then
     echo `grep "glibc" packages | sed 's@glibc@&-linuxthreads@'` >> packages
     # Download the module-init-tools-testsuite package only
-    # if the test suite will be run.
+    # if the test suite is to be run.
     if [ "$TEST" = "1" ] ; then
       echo `grep "module" packages | sed 's@tools@&-testsuite@'` >> packages
     fi
@@ -257,7 +257,7 @@ download() {
   cd $BUILDDIR/sources
 
   # Hackish fix for the bash-doc, glibc-{linuxthreads,libidn} and
-  # module-init-tools-testsuite packages that doesn't conform to
+  # module-init-tools-testsuite packages that don't conform to
   # norms in the URL scheme.
   DIR=`echo $1 | sed 's@-doc@@;s@-linuxthreads@@;s@-libidn@@;s@-testsuite@@'`
 
@@ -706,8 +706,8 @@ chapter789_Makefiles() {
 
     # Grub must be configured manually.
     # The filesystems can't be unmounted via Makefile and the user
-    # should to enter to the chroot environment to create the root
-    # password, edit several files and setup Grub,
+    # should enter the chroot environment to create the root
+    # password, edit several files and setup Grub.
     if [[ `_IS_ $i grub` ]] || [[ `_IS_ $i reboot` ]] ; then
        continue
     fi
@@ -731,7 +731,7 @@ $i:  $PREV
 EOF
 ) >> $MKFILE.tmp
 
-    # Find the the bootscripts and kernel package names
+    # Find the bootscripts and kernel package names
     if [[ `_IS_ $i bootscripts` ]] || [[ `_IS_ $i kernel` ]] ; then
       if [[ `_IS_ $i bootscripts` ]] ; then
         vrs=`grep "^lfs-bootscripts-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
@@ -769,7 +769,7 @@ EOF
 EOF
 ) >> $MKFILE.tmp
     else
-    # Initialize the log an run the script
+    # Initialize the log and run the script
 (
     cat << EOF
 	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude={0,1}??-* \$(LFS)\`\n" >logs/$i && \\
@@ -1038,7 +1038,7 @@ while test $# -gt 0 ; do
       if [ -f /usr/share/zoneinfo/$1 ] ; then
         TIMEZONE=$1
       else
-        echo -e "\nLook like $1 isn't a valid timezone description."
+        echo -e "\nLooks like $1 isn't a valid timezone description."
         echo -e "Verify your selection and the command line.\n"
         exit 1
       fi
@@ -1081,7 +1081,7 @@ if [ $BUILDDIR = / ] ; then
   exit 1
 fi
 
-# If $BUILDDIR have subdirectories like tools/ or bin/, stop the run
+# If $BUILDDIR has subdirectories like tools/ or bin/, stop the run
 # and notify the user about that.
 
 if [ -d $BUILDDIR/tools -o -d $BUILDDIR/bin ] && [ -z $CLEAN ] ; then
