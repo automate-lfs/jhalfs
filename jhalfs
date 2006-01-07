@@ -183,8 +183,6 @@ get_book() {
            svn co $SVN/LFS/trunk/BOOK lfs-$LFSVRS >>$LOGDIR/$LOG 2>&1 ;;
 	alphabetical)
            svn co $SVN/LFS/branches/$LFSVRS/BOOK lfs-$LFSVRS >>$LOGDIR/$LOG 2>&1 ;;
-	6.1.1)
-           svn co $SVN/LFS/tags/$LFSVRS/BOOK lfs-$LFSVRS >>$LOGDIR/$LOG 2>&1 ;;
       esac
       echo -ne "done\n"
       # Set the canonical book version
@@ -231,19 +229,7 @@ extract_commands() {
     echo `grep "vim" packages | sed 's@vim@&-lang@'` >> packages
   fi
   echo `grep "udev-config-file" $BOOK/general.ent | sed -e 's@<!ENTITY @@' -e 's@">@"@'` >> packages
-  # These two packages are needed only for 6.1.1
-  if [ "$LFSVRS" = "6.1.1" ] ; then
-    echo `grep "glibc" packages | sed 's@glibc@&-linuxthreads@'` >> packages
-    # Download the module-init-tools-testsuite package only
-    # if the test suite is to be run.
-    if [ "$TEST" = "1" ] ; then
-      echo `grep "module" packages | sed 's@tools@&-testsuite@'` >> packages
-    fi
-  fi
-  # If we are buildind the UTF-8 branch, the glibc-libidn package is required
-  if grep -q "man-db-version" $BOOK/general.ent ; then
-    echo `grep "glibc" packages | sed 's@glibc@glibc-libidn@'` >> packages
-  fi
+  echo `grep "glibc" packages | sed 's@glibc@glibc-libidn@'` >> packages
   grep "ENTITY" $BOOK/patches.ent | sed -e 's/.* "//' -e 's/">//' >> patches
 
   # Done. Moving on...
@@ -259,7 +245,7 @@ download() {
   # Hackish fix for the bash-doc, glibc-{linuxthreads,libidn} and
   # module-init-tools-testsuite packages that don't conform to
   # norms in the URL scheme.
-  DIR=`echo $1 | sed 's@-doc@@;s@-linuxthreads@@;s@-libidn@@;s@-testsuite@@'`
+  DIR=`echo $1 | sed 's@-doc@@;s@-libidn@@'`
 
   # Find the md5 sum for this package.
   if [ $2 != MD5SUMS ] ; then MD5=`grep "  $2" MD5SUMS` ; fi
@@ -320,7 +306,7 @@ get_sources() {
     # Iterate through each package and grab it, along with any patches it needs.
     for i in `cat $JHALFSDIR/packages` ; do
       PKG=`echo $i | sed -e 's/-version.*//' -e 's/-file.*//'`
-      # Needed for Groff patchlevel patch on UTF-8 branch
+      # Needed for Groff patchlevel patch
       GROFFLEVEL=`grep "groff-patchlevel" $JHALFSDIR/packages | sed -e 's/groff-patchlevel //' -e 's/"//g'`
 
       # There are some entities that aren't valid packages.
@@ -343,7 +329,7 @@ get_sources() {
         PATCH=`echo $patch | sed 's@&'$PKG'-version;@'$VRS'@'`
         download $PKG $PATCH
       done
-      # Needed for Groff patchlevel patch on UTF-8 branch
+      # Needed for Groff patchlevel patch
       for patch in `grep "patchlevel" $JHALFSDIR/patches` ; do
         PATCH=`echo $patch | sed 's@&'$PKG'-version;-&'$PKG'-patchlevel;@'$VRS'-'$GROFFLEVEL'@'`
         download $PKG $PATCH
