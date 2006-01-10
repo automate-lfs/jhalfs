@@ -230,11 +230,11 @@ extract_commands() {
   fi
   echo `grep "udev-config-file" $BOOK/general.ent | sed -e 's@<!ENTITY @@' -e 's@">@"@'` >> packages
   echo `grep "glibc" packages | sed 's@glibc@glibc-libidn@'` >> packages
-  grep "ENTITY" $BOOK/patches.ent | sed -e 's/.* "//' -e 's/">//' >> patches
+  grep "^<\!ENTITY" $BOOK/patches.ent | sed -e 's/.* "//' -e 's/">//' >> patches
 
   # Needed for Groff patchlevel patch
   GROFFLEVEL=`grep "groff-patchlevel" $BOOK/general.ent | sed -e 's/groff-patchlevel //' -e 's/"//g' \
-    -e 's@<!ENTITY @@' -e 's|>||' `
+    -e 's@<!ENTITY @@' -e 's|>||'`
   sed -i 's|&groff-patchlevel;|'$GROFFLEVEL'|' patches
 
   # Done. Moving on...
