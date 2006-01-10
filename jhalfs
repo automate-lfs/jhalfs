@@ -232,6 +232,11 @@ extract_commands() {
   echo `grep "glibc" packages | sed 's@glibc@glibc-libidn@'` >> packages
   grep "ENTITY" $BOOK/patches.ent | sed -e 's/.* "//' -e 's/">//' >> patches
 
+  # Needed for Groff patchlevel patch
+  GROFFLEVEL=`grep "groff-patchlevel" $BOOK/general.ent | sed -e 's/groff-patchlevel //' -e 's/"//g' \
+    -e 's@<!ENTITY @@' -e 's|>||' `
+  sed -i 's|&groff-patchlevel;|'$GROFFLEVEL'|' patches
+
   # Done. Moving on...
   echo -ne "done\n"
   get_sources
@@ -248,7 +253,7 @@ download() {
   DIR=`echo $1 | sed 's@-doc@@;s@-libidn@@'`
 
   # Find the md5 sum for this package.
-  if [ $2 != MD5SUMS ] ; then MD5=`grep "  $2" MD5SUMS` ; fi
+  if [ $2 != MD5SUMS ] ; then MD5=`grep "  $2$" MD5SUMS` ; fi
 
   if [ ! -f $2 ] ; then
     case $DL in
@@ -306,32 +311,32 @@ get_sources() {
     # Iterate through each package and grab it, along with any patches it needs.
     for i in `cat $JHALFSDIR/packages` ; do
       PKG=`echo $i | sed -e 's/-version.*//' -e 's/-file.*//'`
-      # Needed for Groff patchlevel patch
-      GROFFLEVEL=`grep "groff-patchlevel" $JHALFSDIR/packages | sed -e 's/groff-patchlevel //' -e 's/"//g'`
 
       # There are some entities that aren't valid packages.
       if [ "$PKG" = "expect-lib" -o "$PKG" = "linux-dl" -o "$PKG" = "groff-patchlevel" ] ; then continue ; fi
 
       VRS=`echo $i | sed -e 's/.* //' -e 's/"//g'`
-      if [ "$PKG" = "tcl" ] ; then
-        FILE="$PKG$VRS-src.tar.bz2"
-      elif [ "$PKG" = "vim-lang" ] ; then
-        PKG="vim"
-        FILE="vim-$VRS-lang.tar.bz2"
-      elif [ "$PKG" = "udev-config" ] ; then
-        PKG="udev"
-        FILE="$VRS"
-      else
-        FILE="$PKG-$VRS.tar.bz2"
-      fi
+      case $PKG in 
+	tcl)
+	       FILE="$PKG$VRS-src.tar.bz2"
+	       ;;
+        vim-lang)
+	       PKG="vim"
+	       FILE="vim-$VRS-lang.tar.bz2"
+	       ;;
+      	udev-config)
+	       PKG="udev"
+	       FILE="$VRS"
+	       ;;
+      	*)
+	       FILE="$PKG-$VRS.tar.bz2"
+	       ;;
+      esac
       download $PKG $FILE
-      for patch in `grep "$PKG-&$PKG" $JHALFSDIR/patches` ; do
+
+      # Download any associated patches
+      for patch in `grep "&$PKG-version" $JHALFSDIR/patches` ; do
         PATCH=`echo $patch | sed 's@&'$PKG'-version;@'$VRS'@'`
-        download $PKG $PATCH
-      done
-      # Needed for Groff patchlevel patch
-      for patch in `grep "patchlevel" $JHALFSDIR/patches` ; do
-        PATCH=`echo $patch | sed 's@&'$PKG'-version;-&'$PKG'-patchlevel;@'$VRS'-'$GROFFLEVEL'@'`
         download $PKG $PATCH
       done
     done
