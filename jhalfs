@@ -150,12 +150,12 @@ clean_builddir() {
 #----------------------------#
 get_book() {
 #----------------------------#
-  # Check for Subversion instead of just letting the script hit 'svn' and fail.
-  test `type -p svn` || eval "echo \"This feature requires Subversion.\"
-  exit 1"
   cd $JHALFSDIR
 
   if [ -z $WC ] ; then
+    # Check for Subversion instead of just letting the script hit 'svn' and fail.
+    test `type -p svn` || eval "echo \"This feature requires Subversion.\"
+    exit 1"
     echo -n "Downloading the LFS Book, version $LFSVRS... "
 
     # Grab a fresh LFS book if it's missing, otherwise, update it from the
