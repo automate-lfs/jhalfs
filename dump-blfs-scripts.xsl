@@ -70,7 +70,7 @@
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
       <xsl:when test="@role = 'installation'">
-        <xsl:text>tar -xf </xsl:text>
+        <xsl:text>tar -xvf </xsl:text>
         <xsl:value-of select="$package"/>
         <xsl:text>.* > /tmp/unpacked&#xA;</xsl:text>
         <xsl:text>UNPACKDIR=`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'`&#xA;</xsl:text>
