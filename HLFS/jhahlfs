@@ -691,7 +691,7 @@ cat << EOF
 	fi;
 	@echo "set +h" > /home/hlfs/.bashrc && \\
 	echo "umask 022" >> /home/hlfs/.bashrc && \\
-	echo "HLFS=/mnt/hlfs" >> /home/hlfs/.bashrc && \\
+	echo "HLFS=$(HLFS)" >> /home/hlfs/.bashrc && \\
 	echo "LC_ALL=POSIX" >> /home/hlfs/.bashrc && \\
 	echo "PATH=/tools/bin:/bin:/usr/bin" >> /home/hlfs/.bashrc && \\
 	echo "export HLFS LC_ALL PATH" >> /home/hlfs/.bashrc && \\
