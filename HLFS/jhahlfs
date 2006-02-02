@@ -53,7 +53,6 @@ chapter7=
 # END predefined vars section
 
 _inline_doc="
-${GREEN}
      This script, jhahlfs, strives to create an accurate makefile
    directly from the xml files used to generate the Hardened Linux From
    Scratch document.
@@ -76,7 +75,7 @@ ${GREEN}
    *.  Chapter07 contains numerous command files which require customizing
    before you start 129-console, 131-profile, 133-hosts, 134-network,
    135-fstab, 136-kernel.
-${OFF}"
+"
 
 version="
 jhahlfs development \$Date$
@@ -93,38 +92,38 @@ usage() {
 cat <<- -EOF-
 ${DD_BORDER}
 ${BOLD}
-${WHITE} Usage: $0 ${YELLOW}[OPTION]
-${CYAN}
+ Usage: $0 ${BOLD}[OPTION]
+
 Options:
-${YELLOW}  -h, --help
-${CYAN}        print this help, then exit
-${YELLOW}  --readme
-${CYAN}        print a small readme file, then exit
-${YELLOW}  -V, --version
-${CYAN}        print version number, then exit
-${YELLOW}  -d  --directory DIR
-${CYAN}        use DIR directory for building HLFS; all files jhahlfs produces will be
+${BOLD}  -h, --help
+${OFF}        print this help, then exit
+${BOLD}  --readme
+${OFF}        print a small readme file, then exit
+${BOLD}  -V, --version
+${OFF}        print version number, then exit
+${BOLD}  -d  --directory DIR
+${OFF}        use DIR directory for building HLFS; all files jhahlfs produces will be
         in the directory DIR/jhahlfs. Default is \"/mnt/lfs\".
-${YELLOW}  --rebuild
-${CYAN}        clean the build directory before to perfom any other task. The directory
+${BOLD}  --rebuild
+${OFF}        clean the build directory before to perfom any other task. The directory
          is cleaned only if it was populated by a previous jhahlfs run.
-${YELLOW}  -P, --get-packages
-${CYAN}        download the packages and patches. This assumes that the server declared in the
+${BOLD}  -P, --get-packages
+${OFF}        download the packages and patches. This assumes that the server declared in the
         jhahlfs.conf file has the proper packages and patches for the book version being
         processed.
-${YELLOW}  -W, --working-copy DIR
-${CYAN}        use the local working copy placed in DIR as the HLFS book
-${YELLOW}  -L, --HLFS-version VER
-${CYAN}        checkout VER version of the HLFS book. Supported versions at this time are:
+${BOLD}  -W, --working-copy DIR
+${OFF}        use the local working copy placed in DIR as the HLFS book
+${BOLD}  -L, --HLFS-version VER
+${OFF}        checkout VER version of the HLFS book. Supported versions at this time are:
         dev* | trunk | SVN     aliases for Development HLFS
-${YELLOW}  --fstab FILE
-${CYAN}        use FILE as the /etc/fstab file for the HLFS system. If not specified,
+${BOLD}  --fstab FILE
+${OFF}        use FILE as the /etc/fstab file for the HLFS system. If not specified,
         a default /etc/fstab file with dummy values is created.
-${YELLOW}  -C, --kernel-config FILE
-${CYAN}        use the kernel configuration file specified in FILE to build the kernel.
+${BOLD}  -C, --kernel-config FILE
+${OFF}        use the kernel configuration file specified in FILE to build the kernel.
         if the file is not found, or if not specified, the kernel build is skipped.
-${YELLOW}  -M, --run-make
-${CYAN}        run make on the generated Makefile
+${BOLD}  -M, --run-make
+${OFF}        run make on the generated Makefile
 ${DD_BORDER}
 -EOF-
   exit
@@ -177,7 +176,7 @@ simple_error() {        # Basic error trap.... JUST DIE
 }
 
 see_ya() {
-    echo -e "\n\t${BOLD}${WHITE}Goodbye and thank you for choosing ${YELLOW}JHAHLFS\n${OFF}"
+    echo -e "\n\t${BOLD}Goodbye and thank you for choosing ${YELLOW}JHAHLFS\n${OFF}"
 }
 ##### Simple error TRAPS
 # ctrl-c   SIGINT
@@ -209,7 +208,7 @@ check_requirements() {       # Simple routine to validate gcc and kernel version
   #    gcc  3.0>
   # kernel  2.6.2>
 
-  [[ $1 = "1" ]] && echo "${nl_}BASH: ${L_arrow}${GREEN}${BASH_VERSION}${R_arrow}"
+  [[ $1 = "1" ]] && echo "${nl_}BASH: ${L_arrow}${BOLD}${BASH_VERSION}${R_arrow}"
   case $BASH_VERSION in
     [3-9].*) ;;
     *) 'clear'
@@ -222,7 +221,7 @@ $DD_BORDER"
       ;;
   esac
 
-  [[ $1 = "1" ]] && echo "GCC: ${L_arrow}${GREEN}`gcc -dumpversion`${R_arrow}"
+  [[ $1 = "1" ]] && echo "GCC: ${L_arrow}${BOLD}`gcc -dumpversion`${R_arrow}"
     case `gcc -dumpversion` in
       [3-9].[0-9].* ) ;;
       *)  'clear'
@@ -238,7 +237,7 @@ $DD_BORDER"
   #
   # >>>> Check kernel version against the minimum acceptable level <<<<
   #
-  [[ $1 = "1" ]] && echo "LINUX: ${L_arrow}${GREEN}`uname -r`${R_arrow}"
+  [[ $1 = "1" ]] && echo "LINUX: ${L_arrow}${BOLD}`uname -r`${R_arrow}"
 
   local IFS
   declare -i major minor revision change
@@ -269,7 +268,7 @@ validate_config()    {       # Are the config values sane (within reason)
 #----------------------------#
   local -r PARAM_LIST="BUILDDIR HPKG MODEL TEST TOOLCHAINTEST STRIP VIMLANG PAGE GRSECURITY_HOST RUNMAKE"
   local -r ERROR_MSG='${OFF}${RED}The variable \"${GREEN}${config_param}${RED}\" value ${BOLD}${YELLOW}--\>${WHITE}${!config_param}${YELLOW}\<--${OFF}${RED} is invalid, check the config file ${GREEN}\<jhahlfs.conf\>${OFF}'
-  local -r PARAM_VALS='${WHITE}${config_param}: ${L_arrow}${GREEN}${!config_param}${R_arrow}'
+  local -r PARAM_VALS='${config_param}: ${L_arrow}${BOLD}${!config_param}${OFF}${R_arrow}'
   local config_param
   local validation_str
 
@@ -431,7 +430,7 @@ get_book() {                 #
         VERSION=`grep "ENTITY version " $BOOK/general.ent | sed 's@<!ENTITY version "@@;s@">@@'`
         get_sources
       else
-        echo -ne "done\n"
+        echo -ne "${BOLD}done\n"
         extract_commands
       fi
     else
@@ -442,7 +441,7 @@ get_book() {                 #
         *) echo -e "${RED}Invalid document version selected${OFF}"
           ;;
       esac
-      echo -ne "done\n"
+      echo -ne "${BOLD}done\n"
       extract_commands
     fi
   else
@@ -496,7 +495,7 @@ extract_commands() {         #
   build_patches_file
 
   # Done. Moving on...
-  echo -ne "done\n"
+  echo -ne "${BOLD}done\n"
   get_sources
 }
 
@@ -644,7 +643,7 @@ chapter4_Makefiles() {       # Initialization of the system
 #----------------------------#
   local TARGET LOADER
 
-  echo  "${YELLOW}  Processing Chapter-4 scripts ${OFF}"
+  echo  "  Processing Chapter-4 scripts "
 
   # Define a few model dependant variables
   if [[ ${MODEL} = "uclibc" ]]; then
@@ -713,7 +712,7 @@ EOF
 chapter5_Makefiles() {       # Bootstrap or temptools phase
 #----------------------------#
 
-  echo "${YELLOW} Processing Chapter-5 scripts${OFF}"
+  echo " Processing Chapter-5 scripts"
 
   for file in chapter05/* ; do
     # Keep the script file name
@@ -867,7 +866,7 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     TARGET="pc-linux-gnu";    LOADER="ld-linux.so.2"
   fi
 
-  echo -e "${YELLOW}  Processing Chapter-6 scripts ${OFF}"
+  echo -e "  Processing Chapter-6 scripts "
   for file in chapter06/* ; do
     # Keep the script file name
     this_script=`basename $file`
@@ -1029,7 +1028,7 @@ EOF
 chapter7_Makefiles() {       # Create a bootable system.. kernel, bootscripts..etc
 #----------------------------#
 
-  echo  "${YELLOW}  Processing Chapter-7 scripts ${OFF}"
+  echo  "  Processing Chapter-7 scripts "
   for file in chapter07/*; do
     # Keep the script file name
     this_script=`basename $file`
@@ -1154,7 +1153,7 @@ EOF
 #----------------------------#
 build_Makefile() {           # Construct a Makefile from the book scripts
 #----------------------------#
-  echo -e "${GREEN}Creating Makefile... ${OFF}"
+  echo -e "Creating Makefile... "
 
   cd $JHAHLFSDIR/commands
   # Start with a clean Makefile.tmp file
@@ -1264,7 +1263,7 @@ EOF
   # Bring over the items from the Makefile.tmp
   cat $MKFILE.tmp >> $MKFILE
   rm $MKFILE.tmp
-  echo -ne "${GREEN}done\n${OFF}"
+  echo -ne "${BOLD}done\n${OFF}"
 }
 
 #----------------------------#
