@@ -127,6 +127,9 @@ BLFS MODULE
 OTHERS
 ------
 
+  - Add a Cunstomization file discussing how to hack the generated scripts
+    and Makefiles, using the Cracklib support foe Shadow in LFS as an example.
+
   - To add support for ICA/farce? Can be done as a separate module?
 
   - To add support for package management???
