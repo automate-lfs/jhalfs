@@ -50,6 +50,7 @@ LFS MODULE (some of this is applicable also to CLFS and HLFS modules)
     testsuites only.
 
   - Look that there is no need now to keep the Binutils source.
+    Fixed in part in r2292. The XSL need be fixed yet.
 
   - Fix the unpack code to don't hang when both the bz2 and gz formats
     of the same package are founds in the sources dir.
@@ -128,7 +129,7 @@ OTHERS
 ------
 
   - Add a Cunstomization file discussing how to hack the generated scripts
-    and Makefiles, using the Cracklib support foe Shadow in LFS as an example.
+    and Makefiles, using the Cracklib support for Shadow in LFS as an example.
 
   - To add support for ICA/farce? Can be done as a separate module?
 
