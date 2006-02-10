@@ -424,6 +424,11 @@ chapter5_Makefiles() {
       continue
     fi
 
+    # Should be handled inside xsl script
+    if [[ `_IS_ $i adjusting` ]]; then
+      sed '/cd $PKGDIR/d' -i chapter05/$i
+    fi
+
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
     chapter5="$chapter5 $i"
@@ -465,36 +470,10 @@ EOF
 	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
 	chown -R lfs \$(LFS)\$(SRC)/\$\$ROOT && \\
 	echo "PKGDIR=\$(LFS)\$(SRC)/\$\$ROOT" > envars && \\
-	echo "export PKGDIR" >> envars && \\
-EOF
-) >> $MKFILE.tmp
-
-    fi
-
-    # Dump the path to the Binutils sources directory.
-    if [[ `_IS_ $i binutils` ]] ; then
-(
-    cat << EOF
-	echo "\$(LFS)\$(SRC)/\$\$ROOT" > sources-dir
-EOF
-) >> $MKFILE.tmp
-
-    # For the Adjusting phase we must to cd to the binutils-build directory.
-    elif [[ `_IS_ $i adjusting` ]] ; then
-(
-    cat << EOF
-	@echo "PKGDIR=\$(LFS)\$(SRC)/binutils-build" > envars && \\
 	echo "export PKGDIR" >> envars
 EOF
 ) >> $MKFILE.tmp
 
-    # Everything else, add a true statment so we don't confuse make
-    else
-(
-    cat << EOF
-	true
-EOF
-) >> $MKFILE.tmp
     fi
 
     # Insert date and disk usage at the top of the log file, the script run
@@ -511,7 +490,6 @@ EOF
     # (so we can review config.cache, config.log, etc.)
     # For Binutils the sources must be retained for some time.
     if [ "$vrs" != "" ] ; then
-      if [[ ! `_IS_ $i binutils` ]] ; then
 (
     cat << EOF
 	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
@@ -519,18 +497,6 @@ EOF
 	if [ -e \$(LFS)\$(SRC)/$name-build ]; then \\
 		rm -r \$(LFS)\$(SRC)/$name-build; \\
 	fi;
-EOF
-) >> $MKFILE.tmp
-      fi
-    fi
-
-    # Remove the Binutils pass 1 sources after a successful Adjusting phase.
-    if [[ `_IS_ $i adjusting` ]] ; then
-(
-    cat << EOF
-	@rm -r \`cat sources-dir\` && \\
-	rm -r \$(LFS)\$(SRC)/binutils-build && \\
-	rm sources-dir
 EOF
 ) >> $MKFILE.tmp
     fi
@@ -564,6 +530,11 @@ chapter6_Makefiles() {
     # Test if the stripping phase must be skipped
     if [ "$STRIP" = "0" ] && [[ `_IS_ $i stripping` ]] ; then
       continue
+    fi
+
+    # Should be handled by xsl script
+    if [[ `_IS_ $i adjusting` ]]; then
+      sed '/cd $PKGDIR/d' -i chapter06/$i
     fi
 
     # First append each name of the script files to a list (this will become
@@ -601,17 +572,8 @@ EOF
 ) >> $MKFILE.tmp
     fi
 
-    # For the Re-Adjusting phase we must to cd to the binutils-build directory.
-    if [[ `_IS_ $i readjusting` ]] ; then
-(
-    cat << EOF
-	@echo "PKGDIR=\$(SRC)/binutils-build" > envars && \\
-	echo "export PKGDIR" >> envars
-EOF
-) >> $MKFILE.tmp
-
     # For Glibc we need to set TIMEZONE envar.
-    elif [[ `_IS_ $i glibc` ]] ; then
+    if [[ `_IS_ $i glibc` ]] ; then
 (
     cat << EOF
 	@echo "TIMEZONE=\$(TIMEZONE)" >> envars && \\
@@ -660,17 +622,6 @@ EOF
 	if [ -e \$(LFS)\$(SRC)/$name-build ]; then \\
 		rm -r \$(LFS)\$(SRC)/$name-build; \\
 	fi;
-EOF
-) >> $MKFILE.tmp
-    fi
-
-    # Remove the Binutils pass 2 sources after a successful Re-Adjusting phase.
-    if [[ `_IS_ $i readjusting` ]] ; then
-(
-    cat << EOF
-	@rm -r \`cat sources-dir\` && \\
-	rm -r \$(LFS)\$(SRC)/binutils-build && \\
-	rm sources-dir
 EOF
 ) >> $MKFILE.tmp
     fi
