@@ -23,7 +23,7 @@ Debian 3.1 stable.
 +  if [ ! -f $2 -o $2 == MD5SUMS ] ; then
      case $DL in
        wget )
-         wget $HTTP/$DIR/$2
+         wget $FTP/$DIR/$2
 @@ -274,7 +277,7 @@
          echo "$DL not supported at this time."
          ;;
@@ -32,7 +32,7 @@ Debian 3.1 stable.
 +  elif [ "$md5_chksum" != "$(md5sum $md5_file | sed -r -e 's/^[[:blank:]]+//;s/[[:blank:]]+$//;s/[[:blank:]]+/\t/g' | cut -f 1)" ] ; then
      case $DL in
        wget )
-         wget -c $HTTP/$DIR/$2
+         wget -c $FTP/$DIR/$2
 @@ -287,8 +290,11 @@
          ;;
      esac

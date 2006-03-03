@@ -258,10 +258,10 @@ download() {
   if [ ! -f $2 ] ; then
     case $DL in
       wget )
-        wget $HTTP/$DIR/$2
+        wget --passive $FTP/$DIR/$2
         ;;
       curl )
-        `curl -# $HTTP/$DIR/$2 -o $2`
+        `curl -# $FTP/$DIR/$2 -o $2`
         ;;
       * )
         echo "$DL not supported at this time."
@@ -270,10 +270,10 @@ download() {
   elif ! echo "$MD5" | md5sum -c - >/dev/null 2>/dev/null ; then
     case $DL in
       wget )
-        wget -c $HTTP/$DIR/$2
+        wget --passive -c $FTP/$DIR/$2
         ;;
       curl )
-        `curl -# -C - $HTTP/$DIR/$2 -o $2`
+        `curl -# -C - $FTP/$DIR/$2 -o $2`
         ;;
       * )
         echo "$DL not supported at this time."
