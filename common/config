@@ -1,0 +1,49 @@
+#####
+#
+# Masterscript configuration file 
+#
+#####
+
+declare -r SVN="svn://svn.linuxfromscratch.org"
+declare -r LOG=000-masterscript.log
+
+#--- Mount point for the build
+BUILDDIR=/mnt/SourceFiles
+
+#--- Download the source packages 0(no)/1(yes)
+HPKG=0
+
+#--- Run the makefile at the end  0(no)/1(yes)
+RUNMAKE=0
+
+#--- Run test suites  0(no)/1(yes)
+TEST=1
+
+#--- Run the toolchain tests  0(no)/1(yes)
+TOOLCHAINTEST=1
+
+#--- Run the stripping phases  0(no)/1(yes)
+STRIP=1
+
+#--- page definition for groff letter/A4
+PAGE=letter
+
+#--- set default timezone.
+TIMEZONE=America/Toronto
+
+#--- install the optional vim-lang package  0(no)/1(yes)
+VIMLANG=0
+
+#--- Language information, /etc/profile  see <locale -a> for values
+LC_ALL=en_CA
+LANG=en_CA
+
+#--- Include the keymap in the kernel if defined
+KEYMAP=/usr/share/kbd/keymaps/i386/qwerty/us.map.gz
+
+#==== INTERNAL VARIABLES ====
+# Don't edit it unless you know what you are doing
+
+#--- Working directories
+JHALFSDIR=$BUILDDIR/jhalfs
+   LOGDIR=$JHALFSDIR/logs

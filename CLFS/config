@@ -1,0 +1,66 @@
+#####
+#
+# Configuration file for the CLFS module
+#
+#####
+
+declare -r HTTP=http://ftp.lfs-matrix.net/pub/clfs/conglomeration
+
+#--- Which target architecture, 
+#    used to select proper book and set TARGETS
+#--------------------------------
+TARGET32=""
+TARGET=
+# >>>> 32-32 BUILD <<<<
+# ARCH=x86 ;     TARGET="i486-pc-linux-gnu"
+# ARCH=x86 ;     TARGET="i586-pc-linux-gnu"
+# ARCH=x86 ;     TARGET="i686-pc-linux-gnu"
+# ARCH=ppc ;     TARGET="powerpc-unknown-linux-gnu"  
+# ARCH=mips ;    TARGET="mipsel-unknown-linux-gnu"
+# ARCH=mips ;    TARGET="mis-unknown-linux-gnu"
+# ARCH=sparc ;   TARGET="sparcv9-unknown-linux-gnu"  
+# ARCH=sparcv8 ; TARGET="sparc-unknown-linux-gnu"    
+#--------------------------------
+# >>>> 64-64 BUILD <<<<
+ ARCH=x86_64-64  ; TARGET="x86_64-unknown-linux-gnu"   
+# ARCH=mips64-64  ; TARGET="mipsel-unknown-linux-gnu"
+# ARCH=mips64-64  ; TARGET="mis-unknown-linux-gnu"
+# ARCH=sparc64-64 ; TARGET="sparc64-unknown-linux-gnu"  
+# ARCH=alpha	  ; TARGET="alpha-unknown-linux-gnu"    
+#--------------------------------
+# >>>> MULTILIB 32/64 <<<<
+# ARCH=x86_64  ; TARGET="x86_64-unknown-linux-gnu"  ; TARGET32="i686-pc-linux-gnu"
+# ARCH=mips64  ; TARGET="mipsel-unknown-linux-gnu"  ; TARGET32="mipsel-unknown-linux-gnu"
+# ARCH=mips64  ; TARGET="mis-unknown-linux-gnu"     ; TARGET32="mis-unknown-linux-gnu"
+# ARCH=sparc64 ; TARGET="sparc64-unknown-linux-gnu" ; TARGET32="sparcv9-unknown-linux-gnu"
+
+#--- Create a minimal boot system 0(chroot)/1(bootmin) 
+#    NOTE: not all combinations are 'bootable' yet.
+BOOTMINIMAL=1
+
+#--- Location of fstab file (if empty, a template is created)
+FSTAB=$BUILDDIR/sources/fstab
+
+#--- Location of kernel config file (if the kernel is to be compiled)
+#--- This file MUST reside in the sources directory
+CONFIG=$BUILDDIR/sources/linux-2.6.15.1-x86_64.config
+
+#--- Book's sources directory
+# If you have previously checked out the book from the repository
+BOOK=
+
+#==== INTERNAL VARIABLES ====
+# Don't edit it unless you know what you are doing
+
+#--- Files that will be copied to $JHALFSDIR
+FILES=""
+
+#--- Default stylesheet
+XSL=dump-clfs-scripts.xsl
+
+#--- Book version
+LFSVRS=development
+MKFILE=$JHALFSDIR/clfs-Makefile
+
+#--- FTP/HTTP mirror used as fallback (full path)
+SERVER=ftp://anduin.linuxfromscratch.org/LFS/conglomeration

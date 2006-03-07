@@ -1,0 +1,34 @@
+#####
+#
+# Configuration file for the LFS module
+#
+#####
+declare -r HTTP=http://ftp.lfs-matrix.net/pub/lfs/conglomeration
+
+#--- Location of fstab file (if empty, a template is created)
+FSTAB=$BUILDDIR/sources/fstab
+
+#--- Location of kernel config file (if the kernel is to be compiled)
+CONFIG=$PWD/config_files/linux-2.6.15.1-LFS.config
+
+#--- Book's sources directory
+# If you have previously checked out the book from the repository
+BOOK=
+
+#==== INTERNAL VARIABLES ====
+# Don't edit it unless you know what you are doing
+
+#--- Files that will be copied to $JHALFSDIR
+FILES=""
+
+#--- Default stylesheet
+XSL=dump-lfs-scripts.xsl
+
+#--- Book version
+LFSVRS=development
+
+#--- Name of the makefile
+MKFILE=$JHALFSDIR/lfs-Makefile
+
+#--- FTP/HTTP mirror used as fallback (full path)
+SERVER=ftp://anduin.linuxfromscratch.org/LFS/conglomeration
