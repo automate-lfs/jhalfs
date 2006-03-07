@@ -231,12 +231,6 @@ extract_commands() {
   echo `grep "udev-config-file" $BOOK/general.ent | sed -e 's@<!ENTITY @@' -e 's@">@"@'` >> packages
   echo `grep "glibc" packages | sed 's@glibc@glibc-libidn@'` >> packages
   grep "^<\!ENTITY" $BOOK/patches.ent | sed -e 's/.* "//' -e 's/">//' >> patches
-
-  # Needed for Groff patchlevel patch
-  GROFFLEVEL=`grep "groff-patchlevel" $BOOK/general.ent | sed -e 's/groff-patchlevel //' -e 's/"//g' \
-    -e 's@<!ENTITY @@' -e 's|>||'`
-  sed -i 's|&groff-patchlevel;|'$GROFFLEVEL'|' patches
-
   # Done. Moving on...
   echo -ne "done\n"
   get_sources
@@ -247,9 +241,8 @@ download() {
 #----------------------------#
   cd $BUILDDIR/sources
 
-  # Hackish fix for the bash-doc, glibc-{linuxthreads,libidn} and
-  # module-init-tools-testsuite packages that don't conform to
-  # norms in the URL scheme.
+  # Hackish fix for the bash-doc, glibc-{linuxthreads,libidn} that don't
+  # conform to norms in the URL scheme.
   DIR=`echo $1 | sed 's@-doc@@;s@-libidn@@'`
 
   # Find the md5 sum for this package.
@@ -313,10 +306,10 @@ get_sources() {
       PKG=`echo $i | sed -e 's/-version.*//' -e 's/-file.*//'`
 
       # There are some entities that aren't valid packages.
-      if [ "$PKG" = "expect-lib" -o "$PKG" = "linux-dl" -o "$PKG" = "groff-patchlevel" ] ; then continue ; fi
+      if [ "$PKG" = "expect-lib" -o "$PKG" = "linux-dl" ] ; then continue ; fi
 
       VRS=`echo $i | sed -e 's/.* //' -e 's/"//g'`
-      case $PKG in 
+      case $PKG in
 	tcl)
 	       FILE="$PKG$VRS-src.tar.bz2"
 	       ;;
