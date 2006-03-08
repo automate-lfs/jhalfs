@@ -1,6 +1,8 @@
             jhalfs TODO
           ---------------
 
+(Work for almost all this issues is in progress on the experimental branch)
+
 CODE STYLE
 ----------
 
@@ -16,7 +18,7 @@ CODE STYLE
     "Date" key when needed (like in the -v output of jhalfs)
 
 
-MASTER SCRIPT
+MASTER SCRIPT (work in progress on the experimental branch)
 -------------
 
   - Make jhalfs a "master script" that will control and run each
@@ -48,9 +50,6 @@ LFS MODULE (some of this is applicable also to CLFS and HLFS modules)
 
   - Chapter05 testsuites should be optionals. Run by default Chapter06
     testsuites only.
-
-  - Look that there is no need now to keep the Binutils source.
-    Fixed in part in r2292. The XSL need be fixed yet.
 
   - Fix the unpack code to don't hang when both the bz2 and gz formats
     of the same package are founds in the sources dir.
@@ -133,6 +132,7 @@ OTHERS
 
   - To add support for ICA/farce? Can be done as a separate module?
 
-  - To add support for package management???
+  - To add support for package management??? NO for this tool. Maybe in the
+    under development new alfs tool.
 
 

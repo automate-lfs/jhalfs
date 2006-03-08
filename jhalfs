@@ -420,11 +420,6 @@ chapter5_Makefiles() {
       continue
     fi
 
-    # Should be handled inside xsl script
-    if [[ `_IS_ $i adjusting` ]]; then
-      sed '/cd $PKGDIR/d' -i chapter05/$i
-    fi
-
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
     chapter5="$chapter5 $i"
@@ -526,11 +521,6 @@ chapter6_Makefiles() {
     # Test if the stripping phase must be skipped
     if [ "$STRIP" = "0" ] && [[ `_IS_ $i stripping` ]] ; then
       continue
-    fi
-
-    # Should be handled by xsl script
-    if [[ `_IS_ $i adjusting` ]]; then
-      sed '/cd $PKGDIR/d' -i chapter06/$i
     fi
 
     # First append each name of the script files to a list (this will become
