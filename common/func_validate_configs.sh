@@ -1,12 +1,13 @@
+
 # $Id$
-# $Author$$Rev$$Date$
+
 #----------------------------#
 validate_config()    {       # Are the config values sane (within reason)
 #----------------------------#
 : <<inline_doc
-      Validates the configuration parameters. The global var PROGNAME selects the 
+      Validates the configuration parameters. The global var PROGNAME selects the
     parameter list.
-    
+
     input vars: none
     externals:  color constants
                 PROGNAME (lfs,clfs,hlfs,blfs)
@@ -30,7 +31,7 @@ inline_doc
 
   local config_param
   local validation_str
-  
+
   write_error_and_die() {
     echo -e "\n${DD_BORDER}"
     echo -e "`eval echo ${ERROR_MSG}`" >&2
@@ -82,13 +83,13 @@ inline_doc
       echo "   ${BOLD}${GREEN}${PARAM_GROUP%%_*T} parameters are valid${OFF}"
       continue
     fi
-    
+
     for config_param in LC_ALL LANG; do
       [[ $1 = "1" ]] && echo "`eval echo $PARAM_VALS`"
       [[ -z "${!config_param}" ]] && continue
       # See it the locale values exist on this machine
       [[ "`locale -a | grep -c ${!config_param}`" > 0 ]] && continue
-  
+
       # If you make it this far then there is a problem
       write_error_and_die
     done
@@ -100,7 +101,7 @@ inline_doc
       fi
       [[ -z "${!config_param}" ]] && continue
       [[ -e "${!config_param}" ]] && [[ -s "${!config_param}" ]] && continue
-  
+
       # If you make it this far then there is a problem
       write_error_and_die
     done
