@@ -1,4 +1,5 @@
-
+# $Id$
+# $Author$$Rev$$Date$
 #----------------------------#
 validate_config()    {       # Are the config values sane (within reason)
 #----------------------------#
