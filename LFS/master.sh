@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# $Id$
 
 ###################################
 ###	    FUNCTIONS		###
@@ -194,7 +195,7 @@ chapter6_Makefiles() {
 
     # Remove the build directory(ies) except if the package build fails.
     if [ "$vrs" != "" ] ; then
-      wrt_remove_build_dirs "$name"    
+      wrt_remove_build_dirs "$name"
     fi
 
     # Include a touch of the target name so make can check

@@ -5,6 +5,8 @@
     extension-element-prefixes="exsl"
     version="1.0">
 
+<!-- $Id$ -->
+
 <!-- XSLT stylesheet to create shell scripts from BLFS books. -->
 
   <!-- Run optional test suites? -->

@@ -2,6 +2,8 @@
 #
 # Configuration file for the LFS module
 #
+# $Id$
+#
 #####
 declare -r HTTP=http://ftp.lfs-matrix.net/pub/lfs/conglomeration
 
