@@ -4,6 +4,8 @@
   %general-entities;
 ]>
 
+<!-- $Id$ -->
+
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:exsl="http://exslt.org/common"
     extension-element-prefixes="exsl"
@@ -69,9 +71,7 @@
             <xsl:text>#!/bin/sh&#xA;set -e&#xA;&#xA;</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
-        <xsl:if test="sect2[@role='installation'] or
-                @id='ch-tools-adjusting' or
-                @id='ch-system-readjusting'">
+        <xsl:if test="sect2[@role='installation']">
           <xsl:text>cd $PKGDIR&#xA;</xsl:text>
           <xsl:if test="@id='ch-system-vim' and $vim-lang = '1'">
             <xsl:text>tar -xvf ../vim-&vim-version;-lang.* --strip-components=1&#xA;</xsl:text>
