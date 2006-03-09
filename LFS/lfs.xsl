@@ -13,11 +13,12 @@
 
 <!-- XSLT stylesheet to create shell scripts from LFS books. -->
 
-  <!-- Run optional test suites? -->
-  <xsl:param name="testsuite" select="0"/>
-
-  <!-- Run toolchain test suites? -->
-  <xsl:param name="toolchaintest" select="1"/>
+  <!-- Run test suites?
+       0 = none
+       1 = only chapter06 Glibc, GCC and Binutils testsuites
+       2 = all chapter06 testsuites
+       3 = all chapter05 and chapter06 testsuites-->
+  <xsl:param name="testsuite" select="1"/>
 
   <!-- Install vim-lang package? -->
   <xsl:param name="vim-lang" select="1"/>
@@ -78,26 +79,27 @@
           </xsl:if>
         </xsl:if>
         <xsl:apply-templates select=".//para/userinput | .//screen"/>
+        <xsl:if test="$testsuite='3' and @id='ch-tools-glibc'">
+          <xsl:copy-of select="//sect1[@id='ch-system-glibc']/sect2[2]/screen[@role='nodump']"/>
+          <xsl:text>&#xA;</xsl:text>
+        </xsl:if>
         <xsl:text>exit</xsl:text>
       </exsl:document>
     </xsl:if>
   </xsl:template>
 
   <xsl:template match="screen">
-    <xsl:if test="child::* = userinput">
-      <xsl:choose>
-        <xsl:when test="@role = 'nodump'"/>
-        <xsl:otherwise>
-          <xsl:apply-templates select="userinput" mode="screen"/>
-        </xsl:otherwise>
-      </xsl:choose>
+    <xsl:if test="child::* = userinput and not(@role = 'nodump')">
+      <xsl:apply-templates select="userinput" mode="screen"/>
     </xsl:if>
   </xsl:template>
 
   <xsl:template match="para/userinput">
-    <xsl:if test="$testsuite != '0' and
-            (contains(string(),'test') or
-            contains(string(),'check'))">
+    <xsl:if test="(contains(string(),'test') or
+            contains(string(),'check')) and
+            (($testsuite = '2' and
+            ancestor::chapter[@id='chapter-building-system']) or
+            $testsuite = '3')">
       <xsl:value-of select="substring-before(string(),'make')"/>
       <xsl:text>make -k</xsl:text>
       <xsl:value-of select="substring-after(string(),'make')"/>
@@ -127,7 +129,7 @@
         <xsl:text>cp -v ../kernel-config .config&#xA;</xsl:text>
       </xsl:when>
       <!-- The Coreutils and Module-Init-Tools test suites are optional -->
-      <xsl:when test="$testsuite = '0' and
+      <xsl:when test="($testsuite = '0' or $testsuite = '1') and
                 (ancestor::sect1[@id='ch-system-coreutils'] or
                 ancestor::sect1[@id='ch-system-module-init-tools']) and
                 (contains(string(),'check') or
@@ -136,32 +138,33 @@
       <xsl:when test="string() = 'make check' or
                 string() = 'make -k check'">
         <xsl:choose>
-          <xsl:when test="$toolchaintest = '0'"/>
-          <xsl:otherwise>
+          <xsl:when test="(($testsuite = '1' or $testsuite = '2') and
+                    ancestor::chapter[@id='chapter-building-system']) or
+                    $testsuite = '3'">
             <xsl:text>make -k check || true</xsl:text>
             <xsl:text>&#xA;</xsl:text>
-          </xsl:otherwise>
+          </xsl:when>
         </xsl:choose>
       </xsl:when>
       <xsl:when test="contains(string(),'glibc-check-log')">
         <xsl:choose>
-          <xsl:when test="$toolchaintest = '0'"/>
-          <xsl:otherwise>
+          <xsl:when test="$testsuite != '0'">
             <xsl:value-of select="substring-before(string(),'&#xA;')"/>
             <xsl:text> || true&#xA;</xsl:text>
             <xsl:value-of select="substring-after(string(),'&#xA;')"/>
             <xsl:text>&#xA;</xsl:text>
-          </xsl:otherwise>
+          </xsl:when>
         </xsl:choose>
       </xsl:when>
       <xsl:when test="contains(string(),'test_summary') or
                 contains(string(),'expect -c')">
         <xsl:choose>
-          <xsl:when test="$toolchaintest = '0'"/>
-          <xsl:otherwise>
+          <xsl:when test="(($testsuite = '1' or $testsuite = '2') and
+                    ancestor::chapter[@id='chapter-building-system']) or
+                    $testsuite = '3'">
             <xsl:apply-templates/>
             <xsl:text>&#xA;</xsl:text>
-          </xsl:otherwise>
+          </xsl:when>
         </xsl:choose>
       </xsl:when>
       <!-- Don't stop on strip run -->
