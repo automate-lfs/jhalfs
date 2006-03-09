@@ -8,7 +8,7 @@ validate_config()    {       # Are the config values sane (within reason)
       Validates the configuration parameters. The global var PROGNAME selects the
     parameter list.
 
-    input vars: none
+    input vars: $1 0/1 0=quiet, 1=verbose output
     externals:  color constants
                 PROGNAME (lfs,clfs,hlfs,blfs)
     modifies:   none
