@@ -27,7 +27,7 @@ BOOK=
 # Don't edit it unless you know what you are doing
 
 #--- Files that will be copied to $JHAHLFSDIR
-FILES="hlfs-patcheslist_.xsl"
+FILES="patcheslist.xsl"
 
 #--- Default stylesheet
 XSL=hlfs.xsl

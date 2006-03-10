@@ -217,7 +217,6 @@ cat << EOF
 	@\$(call unpack,$FILE)
 	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
 	echo "export PKGDIR=\$(MOUNT_PT)\$(SRC)/\$\$ROOT" > envars && \\
-
 	chown -R lfs \$(MOUNT_PT)\$(SRC)/\$\$ROOT
 EOF
 ) >> $MKFILE.tmp
@@ -568,7 +567,8 @@ get_book() {
 #----------------------------#
 build_patches_file() {       # Supply a suitably formated list of patches.
 #----------------------------#
-  local saveIFS=$IFS
+  local IFS
+  echo -ne "Creating the patch file list "
 
   LOC_add_patches_entry() {
     for f in `grep "/$1-" patcheslist_.wget`; do
@@ -579,14 +579,14 @@ build_patches_file() {       # Supply a suitably formated list of patches.
   xsltproc --nonet \
            --xinclude \
            -o patcheslist_.wget \
-           hlfs-patcheslist_.xsl \
-           $BOOK/index.xml > /dev/null 2>&1
+           patcheslist.xsl \
+           $BOOK/index.xml  
+	   #> /dev/null 2>&1
 
   rm -f patches
 
   IFS=$'\x0A'  # Modify the 'internal field separator' to break on 'LF' only
   for f in `cat packages`; do
-    IFS=$saveIFS
     LOC_add_patches_entry \
     `echo $f | sed -e 's/-version//' \
                    -e 's/-file.*//' \
@@ -599,8 +599,8 @@ build_patches_file() {       # Supply a suitably formated list of patches.
       basename $f >> patches
   done
 
-  IFS=$saveIFS
   rm -f patcheslist_.wget
+  echo "...OK"
 }
 
 
@@ -620,28 +620,29 @@ extract_commands() {         #
     rm -rf commands
     mkdir -v commands
   fi
-  echo -n "Extracting commands..."
+  echo -n "Extracting commands for"
 
   # Dump the commands in shell script form from the HLFS book.
   case ${PROGNAME} in
     clfs)
-        echo "${tab_}Extracting commands for ${L_arrow}${BOLD}$ARCH${R_arrow} target architecture"
+        echo -n "${tab_} ${L_arrow}${BOLD}$ARCH${R_arrow} target architecture"
         xsltproc --xinclude \
                  --nonet \
                  --output ./${PROGNAME}-commands/ \
                 $BOOK/stylesheets/dump-commands.xsl $BOOK/$ARCH-index.xml
       ;;
     hlfs)
-        echo "${tab_}Extracting commands for ${L_arrow}${BOLD}$MODEL${R_arrow} HLFS architecture"
+        echo -n "${tab_} ${L_arrow}${BOLD}$MODEL${R_arrow} HLFS architecture"
         xsltproc  --nonet \
                   --xinclude \
                   --stringparam model $MODEL \
                   --stringparam testsuite $TEST \
+                  --stringparam testchaintest 0 \
                   --stringparam vim-lang $VIMLANG \
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
       ;;
     lfs)
-        echo "${tab_}Extracting commands for ${L_arrow}${BOLD}LFS${R_arrow} build"
+        echo -n "${tab_} ${L_arrow}${BOLD}LFS${R_arrow} build"
         xsltproc --nonet \
                  --xinclude \
                  --stringparam testsuite $TEST \
@@ -649,7 +650,7 @@ extract_commands() {         #
                  -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
       ;;
     blfs)
-        echo "${tab_}Extracting commands for ${L_arrow}${BOLD}BLFS${R_arrow} build"
+        echo -n "${tab_} ${L_arrow}${BOLD}BLFS${R_arrow} build"
         xsltproc --nonet \
                  --xinclude \
   	         --stringparam testsuite $TEST \
@@ -659,7 +660,7 @@ extract_commands() {         #
     *) exit 1
   esac
     
-
+  echo " ...OK"
 
   # Make the scripts executable.
   chmod -R +x $JHALFSDIR/${PROGNAME}-commands
@@ -686,9 +687,7 @@ extract_commands() {         #
     *) exit 1
   esac
   
-
   # Done. Moving on...
-  echo -ne "    ... done\n"
   get_sources
 }
 
