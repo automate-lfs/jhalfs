@@ -371,19 +371,18 @@ boot_Makefiles() {            #
       *grub*)     continue     ;;
       *whatnext*) continue     ;;
       *settingenvironment*) sed 's@PS1=@set +h\nPS1=@' -i $file  ;;
-      *kernel)
-              sed "s|make mrproper|make mrproper\ncp $CONFIG .config|" -i $file
-              # You cannot run menuconfig from within the makefile
-              sed 's|menuconfig|oldconfig|'     -i $file
-              #If defined include the keymap in the kernel
-              if [[ -n "$KEYMAP" ]]; then
-                sed "s|^loadkeys -m.*>|loadkeys -m $KEYMAP >|" -i $file
-              else
-                sed '/loadkeys -m/d'    -i $file
-                sed '/drivers\/char/d'  -i $file
-              fi
-              # if there is no kernel config file do not build the kernel
-              [[ -z $CONFIG ]] && continue
+      *kernel)   # if there is no kernel config file do not build the kernel
+                [[ -z $CONFIG ]] && continue
+                sed "s|make mrproper|make mrproper\ncp $CONFIG .config|" -i $file
+                # You cannot run menuconfig from within the makefile
+                sed 's|menuconfig|oldconfig|'     -i $file
+                #If defined include the keymap in the kernel
+                if [[ -n "$KEYMAP" ]]; then
+                  sed "s|^loadkeys -m.*>|loadkeys -m $KEYMAP >|" -i $file
+                else
+                  sed '/loadkeys -m/d'    -i $file
+                  sed '/drivers\/char/d'  -i $file
+                fi
           ;;
     esac
     #
@@ -1017,6 +1016,8 @@ bootable_Makefiles() {        #
     case $this_script in
       *grub*)     continue ;;
       *kernel)
+               # if there is no kernel config file do not build the kernel
+               [[ -z $CONFIG ]] && continue
                sed "s|make mrproper|make mrproper\ncp $CONFIG .config|" -i $file
                # You cannot run menuconfig from within the makefile
                sed 's|menuconfig|oldconfig|'     -i $file
@@ -1027,8 +1028,6 @@ bootable_Makefiles() {        #
                  sed '/loadkeys -m/d'    -i $file
                  sed '/drivers\/char/d'  -i $file
                fi
-               # if there is no kernel config file do not build the kernel
-               [[ -z $CONFIG ]] && continue
          ;;
     esac
     #
@@ -1097,7 +1096,10 @@ bm_bootable_Makefiles() {     #
     # A little housekeeping on the scripts
     case $this_script in
       *grub*)     continue  ;;
-      *kernel) cfg_file="/sources/`basename $CONFIG`"
+      *kernel) 
+               # if there is no kernel config file do not build the kernel
+               [[ -z $CONFIG ]] && continue
+               cfg_file="/sources/`basename $CONFIG`"
                sed "s|make mrproper|make mrproper\ncp $cfg_file .config|" -i $file
                # You cannot run menuconfig from within the makefile
                sed 's|menuconfig|oldconfig|'     -i $file
@@ -1108,8 +1110,6 @@ bm_bootable_Makefiles() {     #
                  sed '/loadkeys -m/d'    -i $file
                  sed '/drivers\/char/d'  -i $file
                fi
-               # if there is no kernel config file do not build the kernel
-               [[ -z $CONFIG ]] && continue
          ;;
     esac
     #
