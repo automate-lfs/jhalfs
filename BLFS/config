@@ -5,6 +5,7 @@
 # $Id$
 #
 #####
+declare -r FTP=ftp://ftp.linuxfromscratch.org/pub/blfs/conglomeration
 
 #--- Book's sources directory
 # If you have previously checked out the book from the repository
@@ -27,6 +28,6 @@ TEST=0
 # Don't edit it unless you know what you are doing
 
 #--- Default stylesheet
-   XSL=dump-blfs-scripts.xsl
+   XSL=blfs.xsl
 MKFILE=$JHALFSDIR/blfs-Makefile
 

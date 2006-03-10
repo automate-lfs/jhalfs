@@ -1,7 +1,8 @@
 #####
 #
-# Masterscript configuration file 
+# common configuration file 
 #
+# $Id$
 #####
 
 declare -r SVN="svn://svn.linuxfromscratch.org"
@@ -16,11 +17,12 @@ HPKG=0
 #--- Run the makefile at the end  0(no)/1(yes)
 RUNMAKE=0
 
-#--- Run test suites  0(no)/1(yes)
+#--- Run test suites  [0-3]
+#  0 = none
+#  1 = only chapter06 Glibc, GCC and Binutils testsuites
+#  2 = all chapter06 testsuites
+#  3 = all chapter05 and chapter06 testsuites
 TEST=1
-
-#--- Run the toolchain tests  0(no)/1(yes)
-TOOLCHAINTEST=1
 
 #--- Run the stripping phases  0(no)/1(yes)
 STRIP=1
@@ -40,6 +42,16 @@ LANG=en_CA
 
 #--- Include the keymap in the kernel if defined
 KEYMAP=/usr/share/kbd/keymaps/i386/qwerty/us.map.gz
+
+#=== Variables needed by ICA ===
+#--- Run ICA testing 0/1  0(no)/1(yes)
+RUN_ICA=0
+
+#--- The number of final stage builds to create and compare
+ITERATIONS=
+
+#--- ICA report log directory
+ICALOGDIR=$JHALFSDIR/logs/ICA
 
 #==== INTERNAL VARIABLES ====
 # Don't edit it unless you know what you are doing

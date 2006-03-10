@@ -2,9 +2,10 @@
 #
 # Configuration file for the CLFS module
 #
+# $Id$
+#
 #####
-
-declare -r HTTP=http://ftp.lfs-matrix.net/pub/clfs/conglomeration
+declare -r FTP=ftp://ftp.linuxfromscratch.org/pub/lfs/conglomeration
 
 #--- Which target architecture, 
 #    used to select proper book and set TARGETS
@@ -12,7 +13,7 @@ declare -r HTTP=http://ftp.lfs-matrix.net/pub/clfs/conglomeration
 TARGET32=""
 TARGET=
 # >>>> 32-32 BUILD <<<<
-# ARCH=x86 ;     TARGET="i486-pc-linux-gnu"
+ ARCH=x86 ;     TARGET="i486-pc-linux-gnu"
 # ARCH=x86 ;     TARGET="i586-pc-linux-gnu"
 # ARCH=x86 ;     TARGET="i686-pc-linux-gnu"
 # ARCH=ppc ;     TARGET="powerpc-unknown-linux-gnu"  
@@ -22,7 +23,7 @@ TARGET=
 # ARCH=sparcv8 ; TARGET="sparc-unknown-linux-gnu"    
 #--------------------------------
 # >>>> 64-64 BUILD <<<<
- ARCH=x86_64-64  ; TARGET="x86_64-unknown-linux-gnu"   
+# ARCH=x86_64-64  ; TARGET="x86_64-unknown-linux-gnu"   
 # ARCH=mips64-64  ; TARGET="mipsel-unknown-linux-gnu"
 # ARCH=mips64-64  ; TARGET="mis-unknown-linux-gnu"
 # ARCH=sparc64-64 ; TARGET="sparc64-unknown-linux-gnu"  
@@ -39,11 +40,11 @@ TARGET=
 BOOTMINIMAL=1
 
 #--- Location of fstab file (if empty, a template is created)
-FSTAB=$BUILDDIR/sources/fstab
+FSTAB=
 
 #--- Location of kernel config file (if the kernel is to be compiled)
 #--- This file MUST reside in the sources directory
-CONFIG=$BUILDDIR/sources/linux-2.6.15.1-x86_64.config
+CONFIG=
 
 #--- Book's sources directory
 # If you have previously checked out the book from the repository
@@ -56,7 +57,7 @@ BOOK=
 FILES=""
 
 #--- Default stylesheet
-XSL=dump-clfs-scripts.xsl
+XSL=clfs.xsl
 
 #--- Book version
 LFSVRS=development

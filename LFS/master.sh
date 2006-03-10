@@ -11,6 +11,7 @@
 #----------------------------#
 chapter4_Makefiles() {
 #----------------------------#
+  echo -e "\n${tab_}${GREEN}Processing... ${L_arrow}Chapter4${R_arrow}"
 
 # If /home/lfs is already present in the host, we asume that the
 # lfs user and group are also presents in the host, and a backup
@@ -61,12 +62,14 @@ EOF
 #----------------------------#
 chapter5_Makefiles() {
 #----------------------------#
+  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter5${R_arrow}"
+
   for file in chapter05/* ; do
     # Keep the script file name
     this_script=`basename $file`
 
     # If no testsuites will be run, then TCL, Expect and DejaGNU aren't needed
-    if [ "$TOOLCHAINTEST" = "0" ]; then
+    if [ "$TEST" = "0" ]; then
       if [[ `_IS_ ${this_script} tcl` ]] || [[ `_IS_ ${this_script} expect` ]] || [[ `_IS_ ${this_script} dejagnu` ]] ; then
         continue
       fi
@@ -75,11 +78,6 @@ chapter5_Makefiles() {
     # Test if the stripping phase must be skipped
     if [ "$STRIP" = "0" ] && [[ `_IS_ ${this_script} stripping` ]] ; then
       continue
-    fi
-
-# NOTE Replace with xsl work...
-    if [[ `_IS_ $this_script adjusting` ]]; then
-      sed '/cd $PKGDIR/d' -i chapter05/$this_script
     fi
 
     # First append each name of the script files to a list (this will become
@@ -137,6 +135,7 @@ chapter5_Makefiles() {
 #----------------------------#
 chapter6_Makefiles() {
 #----------------------------#
+  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6${R_arrow}"
   for file in chapter06/* ; do
     # Keep the script file name
     this_script=`basename $file`
@@ -150,11 +149,6 @@ chapter6_Makefiles() {
     # Test if the stripping phase must be skipped
     if [ "$STRIP" = "0" ] && [[ `_IS_ ${this_script} stripping` ]] ; then
       continue
-    fi
-
-# NOTE Replace with xsl work...
-    if [[ `_IS_ $this_script adjusting` ]]; then
-      sed '/cd $PKGDIR/d' -i chapter06/$this_script
     fi
 
     # First append each name of the script files to a list (this will become
@@ -210,6 +204,7 @@ chapter6_Makefiles() {
 #----------------------------#
 chapter789_Makefiles() {
 #----------------------------#
+  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6/7/8${R_arrow}"
   for file in chapter0{7,8,9}/* ; do
     # Keep the script file name
     this_script=`basename $file`

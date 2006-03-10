@@ -17,12 +17,11 @@ validate_config()    {       # Are the config values sane (within reason)
     on success: write text to console and returns
 inline_doc
 
-  local svn_tracking='$Id$'
-  local -r  lfs_PARAM_LIST="BUILDDIR HPKG TEST TOOLCHAINTEST STRIP VIMLANG PAGE RUNMAKE"
+  local -r  lfs_PARAM_LIST="BUILDDIR HPKG TEST STRIP VIMLANG PAGE RUNMAKE"
   local -r blfs_PARAM_LIST="BUILDDIR TEST DEPEND"
-  local -r hlfs_PARAM_LIST="BUILDDIR HPKG MODEL TEST TOOLCHAINTEST STRIP VIMLANG PAGE GRSECURITY_HOST RUNMAKE TIMEZONE"
+  local -r hlfs_PARAM_LIST="BUILDDIR HPKG MODEL TEST STRIP VIMLANG PAGE GRSECURITY_HOST RUNMAKE TIMEZONE"
   local -r clfs_PARAM_LIST="ARCH BOOTMINIMAL RUNMAKE MKFILE"
-  local -r global_PARAM_LIST="BUILDDIR HPKG RUNMAKE TEST TOOLCHAINTEST STRIP PAGE TIMEZONE VIMLANG"
+  local -r global_PARAM_LIST="BUILDDIR HPKG RUNMAKE TEST STRIP PAGE TIMEZONE VIMLANG"
 
   local -r ERROR_MSG='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid, ${nl_}check the config file ${BOLD}${GREEN}\<$PROGNAME.conf\>${OFF}'
   local -r PARAM_VALS='${config_param}: ${L_arrow}${BOLD}${!config_param}${OFF}${R_arrow}'
@@ -54,14 +53,13 @@ inline_doc
 	MKFILE)    continue;;
         HPKG)      validation_str="x0x x1x"  ;;
         RUNMAKE)   validation_str="x0x x1x"  ;;
-        TEST)      validation_str="x0x x1x"  ;;
+        TEST)      validation_str="x0x x1x x2x x3x"  ;;
         STRIP)     validation_str="x0x x1x"  ;;
         VIMLANG)   validation_str="x0x x1x"  ;;
         DEPEND)    validation_str="x0x x1x x2x" ;;
         MODEL)     validation_str="xglibcx xuclibcx" ;;
         PAGE)      validation_str="xletterx xA4x"  ;;
         ARCH)      validation_str="xx86x xx86_64x xx86_64-64x xsparcx xsparcv8x xsparc64x xsparc64-64x xmipsx xmips64x xmips64-64x xppcx xalphax" ;;
-        TOOLCHAINTEST)    validation_str="x0x x1x"  ;;
         GRSECURITY_HOST)  validation_str="x0x x1x"  ;;
         BOOTMINIMAL)      validation_str="x0x x1x";;
         *)

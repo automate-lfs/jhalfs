@@ -27,11 +27,14 @@ inline_doc
   tst_version=$2
   TXT=$3
 
-  if  echo $ref_version | grep [[:alpha:]] 2>&1 >/dev/null || 
-      echo $tst_version | grep [[:alpha:]] 2>&1 >/dev/null ;then
-    echo "Cannot test for text, 0.0.0a, version types, assuming 'success' " 
-    return    
-  fi
+  # This saves us the save/restore hassle of the system IFS value
+  local IFS
+
+#  if  echo $ref_version | grep [[:alpha:]] 2>&1 >/dev/null || 
+#      echo $tst_version | grep [[:alpha:]] 2>&1 >/dev/null ;then
+#    echo "Cannot test for text, 0.0.0a, version types, assuming 'success' " 
+#    return    
+#  fi
     
   write_error_and_die() {
      echo -e "\n\t\t$TXT version -->${tst_version}<-- is too old.

@@ -637,7 +637,6 @@ extract_commands() {         #
                   --xinclude \
                   --stringparam model $MODEL \
                   --stringparam testsuite $TEST \
-                  --stringparam toolchaintest $TOOLCHAINTEST \
                   --stringparam vim-lang $VIMLANG \
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
       ;;
@@ -646,7 +645,6 @@ extract_commands() {         #
         xsltproc --nonet \
                  --xinclude \
                  --stringparam testsuite $TEST \
-                 --stringparam toolchaintest $TOOLCHAINTEST \
                  --stringparam vim-lang $VIMLANG \
                  -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
       ;;
@@ -700,9 +698,8 @@ download() {                 # Download file, write name to MISSING_FILES.DMP if
 #----------------------------#
   cd $BUILDDIR/sources
 
-  # Hackish fix for the bash-doc, glibc-{linuxthreads,libidn} and
-  # module-init-tools-testsuite packages that don't conform to
-  # norms in the URL scheme.
+  # Hackish fix for the bash-doc, glibc-{linuxthreads,libidn} 
+  # that don't conform to norms in the URL scheme.
   DIR=`echo $1 | sed 's@-doc@@;s@-linuxthreads@@;s@-libidn@@;s@-testsuite@@'`
 
   # Find the md5 sum for this package.
@@ -720,14 +717,14 @@ download() {                 # Download file, write name to MISSING_FILES.DMP if
 
   if [ ! -f $2 ] ; then
     case $DL in
-      wget )  wget $HTTP/$DIR/$2            ;;
-      curl )  `curl -# $HTTP/$DIR/$2 -o $2`     ;;
+      wget )  wget --passive $FTP/$DIR/$2            ;;
+      curl )  `curl -# $FTP/$DIR/$2 -o $2`     ;;
       * )     echo "$DL not supported at this time."  ;;
     esac
   elif ! echo "$MD5" | md5sum -c - >/dev/null 2>/dev/null ; then
     case $DL in
-      wget )  wget -c $HTTP/$DIR/$2         ;;
-      curl )  `curl -# -C - $HTTP/$DIR/$2 -o $2`    ;;
+      wget )  wget --passive -c $FTP/$DIR/$2         ;;
+      curl )  `curl -# -C - $FTP/$DIR/$2 -o $2`    ;;
       * )     echo "$DL not supported at this time."  ;;
     esac
   fi
@@ -766,7 +763,7 @@ get_sources() {
       PKG=`echo $i | sed -e 's/-version.*//' -e 's/-file.*//'`
 
       # There are some entities that aren't valid packages.
-      if [ "$PKG" = "expect-lib" -o "$PKG" = "linux-dl" -o "$PKG" = "groff-patchlevel" ] ; then continue ; fi
+      if [ "$PKG" = "expect-lib" -o "$PKG" = "linux-dl" ] ; then continue ; fi
 
       VRS=`echo $i | sed -e 's/.* //' -e 's/"//g'`
       case $PKG in 

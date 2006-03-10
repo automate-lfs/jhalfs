@@ -5,13 +5,13 @@
 # $Id$
 #
 #####
-declare -r HTTP=http://ftp.lfs-matrix.net/pub/lfs/conglomeration
+declare -r FTP=ftp://ftp.linuxfromscratch.org/pub/lfs/conglomeration
 
 #--- Location of fstab file (if empty, a template is created)
-FSTAB=$BUILDDIR/sources/fstab
+FSTAB=
 
 #--- Location of kernel config file (if the kernel is to be compiled)
-CONFIG=$PWD/config_files/linux-2.6.15.1-LFS.config
+CONFIG=
 
 #--- Book's sources directory
 # If you have previously checked out the book from the repository
@@ -24,7 +24,7 @@ BOOK=
 FILES=""
 
 #--- Default stylesheet
-XSL=dump-lfs-scripts.xsl
+XSL=lfs.xsl
 
 #--- Book version
 LFSVRS=development
