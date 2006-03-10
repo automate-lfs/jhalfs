@@ -62,6 +62,8 @@ ${BOLD}  -W, --working-copy DIR${OFF}
 ${BOLD}  -L, --HLFS-version VER${OFF}
         checkout VER version of the HLFS book. Supported versions at this time are:
         dev* | trunk | SVN     aliases for Development HLFS
+        alpha*                 aliases for the alphabetical branch
+        udev*                  aliases for the udev_update branch
 ${BOLD}  --fstab FILE${OFF}
         use FILE as the /etc/fstab file for the HLFS system. If not specified,
         a default /etc/fstab file with dummy values is created.
@@ -547,6 +549,8 @@ get_book() {
            svn co $SVN/${svn_root}/trunk/BOOK ${PROGNAME}-$LFSVRS >>$LOGDIR/$LOG 2>&1 ;;
 	alphabetical)
            svn co $SVN/${svn_root}/branches/$LFSVRS/BOOK ${PROGNAME}-$LFSVRS >>$LOGDIR/$LOG 2>&1 ;;
+	udev_update)
+           svn co $SVN/LFS/branches/$LFSVRS/BOOK lfs-$LFSVRS >>$LOGDIR/$LOG 2>&1 ;;
       esac
       echo -ne "done\n"
       # Set the canonical book version
