@@ -123,7 +123,7 @@
         <xsl:value-of select="substring-after(string(),'patch')"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
-      <!-- Setting $LANG for /et/profile -->
+      <!-- Setting $LANG for /etc/profile -->
       <xsl:when test="ancestor::sect1[@id='ch-scripts-profile'] and
                 contains(string(),'export LANG=')">
         <xsl:value-of select="substring-before(string(),'export LANG=')"/>
