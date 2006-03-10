@@ -260,15 +260,6 @@ chapter789_Makefiles() {
       wrt_unpack2 "$FILE"
     fi
 
-    # Put in place the kernel .config file
-    if [[ `_IS_ ${this_script} kernel` ]] ; then
-(
-    cat << EOF
-	@cp $CONFIG \$(MOUNT_PT)/sources/kernel-config
-EOF
-) >> $MKFILE.tmp
-    fi
-
       # Check if we have a real /etc/fstab file
     if [[ `_IS_ ${this_script} fstab` ]] && [[ -n "$FSTAB" ]] ; then
       wrt_copy_fstab "${this_script}"
