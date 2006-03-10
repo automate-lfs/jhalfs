@@ -17,10 +17,10 @@ validate_config()    {       # Are the config values sane (within reason)
     on success: write text to console and returns
 inline_doc
 
-  local -r  lfs_PARAM_LIST="BUILDDIR HPKG TEST STRIP VIMLANG PAGE RUNMAKE"
+  local -r  lfs_PARAM_LIST=""
   local -r blfs_PARAM_LIST="BUILDDIR TEST DEPEND"
-  local -r hlfs_PARAM_LIST="BUILDDIR HPKG MODEL TEST STRIP VIMLANG PAGE GRSECURITY_HOST RUNMAKE TIMEZONE"
-  local -r clfs_PARAM_LIST="ARCH BOOTMINIMAL RUNMAKE MKFILE"
+  local -r hlfs_PARAM_LIST="MODEL GRSECURITY_HOST"
+  local -r clfs_PARAM_LIST="ARCH BOOTMINIMAL"
   local -r global_PARAM_LIST="BUILDDIR HPKG RUNMAKE TEST STRIP PAGE TIMEZONE VIMLANG"
 
   local -r ERROR_MSG='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid, ${nl_}check the config file ${BOLD}${GREEN}\<$PROGNAME.conf\>${OFF}'

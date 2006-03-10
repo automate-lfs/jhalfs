@@ -91,6 +91,10 @@ chapter5_Makefiles() {
     # Set the dependency for the first target.
     if [ -z $PREV ] ; then PREV=022-settingenvironment ; fi
 
+    #--------------------------------------------------------------------#
+    #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
+    #--------------------------------------------------------------------#
+    #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
     wrt_target "${this_script}" "$PREV"
@@ -107,8 +111,7 @@ chapter5_Makefiles() {
         FILE="$name-$vrs.tar"
       fi
 
-      # Insert instructions for unpacking the package and to set
-      # the PKGDIR variable.
+      # Insert instructions for unpacking the package and to set the PKGDIR variable.
       wrt_unpack "$FILE"
       echo -e '\ttrue' >> $MKFILE.tmp
     fi
@@ -126,6 +129,10 @@ chapter5_Makefiles() {
     # Include a touch of the target name so make can check
     # if it's already been made.
     echo -e '\t@touch $@' >> $MKFILE.tmp
+    #
+    #--------------------------------------------------------------------#
+    #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
+    #--------------------------------------------------------------------#
 
     # Keep the script file name for Makefile dependencies.
     PREV=${this_script}
@@ -158,6 +165,10 @@ chapter6_Makefiles() {
     # Grab the name of the target
     name=`echo ${this_script} | sed -e 's@[0-9]\{3\}-@@'`
 
+    #--------------------------------------------------------------------#
+    #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
+    #--------------------------------------------------------------------#
+    #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
     wrt_target "${this_script}" "$PREV"
@@ -173,11 +184,10 @@ chapter6_Makefiles() {
       wrt_unpack2 "$FILE"
     fi
 
-    if [[ `_IS_ ${this_script} glibc` ]] ; then  # For Glibc we need to set TIMEZONE envar.
-      wrt_export_timezone
-    elif [[ `_IS_ ${this_script} groff` ]] ; then  # For Groff we need to set PAGE envar.
-      wrt_export_pagesize
-    fi
+    case "${this_script}" in
+      *glibc*  ) wrt_export_timezone ;; # For Glibc we need to set TIMEZONE envar.
+      *groff*  ) wrt_export_pagesize ;; # For Groff we need to set PAGE envar.
+    esac
 
     # In the mount of kernel filesystems we need to set LFS
     # and not to use chroot.
@@ -195,6 +205,10 @@ chapter6_Makefiles() {
     # Include a touch of the target name so make can check
     # if it's already been made.
     echo -e '\t@touch $@' >> $MKFILE.tmp
+    #
+    #--------------------------------------------------------------------#
+    #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
+    #--------------------------------------------------------------------#
 
     # Keep the script file name for Makefile dependencies.
     PREV=${this_script}
@@ -226,6 +240,10 @@ chapter789_Makefiles() {
     # the names of the targets in the Makefile
     chapter789="$chapter789 ${this_script}"
 
+    #--------------------------------------------------------------------#
+    #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
+    #--------------------------------------------------------------------#
+    #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
     wrt_target "${this_script}" "$PREV"
@@ -267,6 +285,10 @@ EOF
     # Include a touch of the target name so make can check
     # if it's already been made.
     echo -e '\t@touch $@' >> $MKFILE.tmp
+    #
+    #--------------------------------------------------------------------#
+    #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
+    #--------------------------------------------------------------------#
 
     # Keep the script file name for Makefile dependencies.
     PREV=${this_script}
