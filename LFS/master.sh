@@ -260,6 +260,10 @@ chapter789_Makefiles() {
       wrt_unpack2 "$FILE"
     fi
 
+    case "${this_script}" in
+      *profile*  ) wrt_export_lang ;; # For /etc/profile we need to set LANG envar.
+    esac
+
       # Check if we have a real /etc/fstab file
     if [[ `_IS_ ${this_script} fstab` ]] && [[ -n "$FSTAB" ]] ; then
       wrt_copy_fstab "${this_script}"
@@ -312,6 +316,7 @@ SRC= /sources
 MOUNT_PT= $BUILDDIR
 PAGE= $PAGE
 TIMEZONE= $TIMEZONE
+LANG= $LANG
 
 include makefile-functions
 

@@ -123,6 +123,14 @@
         <xsl:value-of select="substring-after(string(),'patch')"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
+      <!-- Setting $LANG for /et/profile -->
+      <xsl:when test="ancestor::sect1[@id='ch-scripts-profile'] and
+                contains(string(),'export LANG=')">
+        <xsl:value-of select="substring-before(string(),'export LANG=')"/>
+        <xsl:text>export LANG=$LANG</xsl:text>
+        <xsl:value-of select="substring-after(string(),'modifiers]')"/>
+        <xsl:text>&#xA;</xsl:text>
+      </xsl:when>
       <!-- Copying the kernel config file -->
       <xsl:when test="string() = 'make mrproper'">
         <xsl:text>make mrproper&#xA;</xsl:text>

@@ -1,5 +1,8 @@
 #!/bin/bash
-set +e 
+
+# $Id$
+
+set +e
 
 # VT100 colors
 declare -r  BLACK=$'\e[1;30m'
@@ -235,7 +238,7 @@ cat  << EOF
 	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
 	echo "export PKGDIR=\$(MOUNT_PT)\$(SRC)/\$\$ROOT" > envars && \\
 
-	chown -R lfs \$(MOUNT_PT)\$(SRC)/\$\$ROOT 
+	chown -R lfs \$(MOUNT_PT)\$(SRC)/\$\$ROOT
 EOF
 ) >> $MKFILE.tmp
 }
@@ -448,6 +451,13 @@ wrt_export_pagesize() {            #
 
 
 #----------------------------------#
+wrt_export_lang() {            #
+#----------------------------------#
+  echo -e '\t@echo "export LANG=$(LANG)" >> envars' >> $MKFILE.tmp
+}
+
+
+#----------------------------------#
 wrt_export_pkgdir() {              #
 #----------------------------------#
 (
@@ -584,7 +594,7 @@ build_patches_file() {       # Supply a suitably formated list of patches.
            --xinclude \
            -o patcheslist_.wget \
            patcheslist.xsl \
-           $BOOK/index.xml  
+           $BOOK/index.xml
 	   #> /dev/null 2>&1
 
   rm -f patches
@@ -652,6 +662,9 @@ extract_commands() {         #
                  --stringparam testsuite $TEST \
                  --stringparam vim-lang $VIMLANG \
                  -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
+        for i in $(find ./${PROGNAME}-commands/chapter07/*) ; do
+          sed -i 's/"EOF"/EOF/g' $i ;
+        done
       ;;
     blfs)
         echo -n "${tab_} ${L_arrow}${BOLD}BLFS${R_arrow} build"
@@ -663,7 +676,7 @@ extract_commands() {         #
       ;;
     *) exit 1
   esac
-    
+
   echo " ...OK"
 
   # Make the scripts executable.
@@ -682,7 +695,7 @@ extract_commands() {         #
   echo `grep "udev-config-file" $BOOK/general.ent | sed -e 's@<!ENTITY @@' -e 's@">@"@'` >> packages
 
   # There is no HLFS patches.ent file so we will create one.
-  
+
   case "${PROGNAME}" in
     hlfs)  build_patches_file ;;
     clfs) ;;
@@ -690,7 +703,7 @@ extract_commands() {         #
     blfs) ;;
     *) exit 1
   esac
-  
+
   # Done. Moving on...
   get_sources
 }
@@ -701,7 +714,7 @@ download() {                 # Download file, write name to MISSING_FILES.DMP if
 #----------------------------#
   cd $BUILDDIR/sources
 
-  # Hackish fix for the bash-doc, glibc-{linuxthreads,libidn} 
+  # Hackish fix for the bash-doc, glibc-{linuxthreads,libidn}
   # that don't conform to norms in the URL scheme.
   DIR=`echo $1 | sed 's@-doc@@;s@-linuxthreads@@;s@-libidn@@;s@-testsuite@@'`
 
@@ -769,7 +782,7 @@ get_sources() {
       if [ "$PKG" = "expect-lib" -o "$PKG" = "linux-dl" ] ; then continue ; fi
 
       VRS=`echo $i | sed -e 's/.* //' -e 's/"//g'`
-      case $PKG in 
+      case $PKG in
 	tcl)         FILE="$PKG$VRS-src.tar.bz2"  ;;
         vim-lang)    PKG="vim"
                      FILE="vim-$VRS-lang.tar.bz2" ;;
