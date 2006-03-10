@@ -53,11 +53,16 @@ Options:
 
                                 For stable 6.1.1 book, please use jhalfs-0.2.
 
-  -T, --testsuites              add support to run the optional testsuites
+  -T, --testsuites LEVEL        add support to run the optional testsuites.
+                                Available LEVEL values are:
 
-  --no-toolchain-test           don't run the toolchain testsuites. This
-                                also disables the build of TCL, Expect
-                                and DejaGNU
+                     0          No testsuites run. This also disables the
+                                build of TCL, Expect and DejaGNU
+                     1          Run only final system Glic, GCC, and Binutils
+                                testsuites. Used as default
+                     2          Run all final system testsuites
+                     3          Run all testsuites for both temporal and final
+                                systems
 
   --no-strip                    don't run the strip command on both the
                                 temporary system and the final system
@@ -79,8 +84,8 @@ Options:
 
   -C, --kernel-config FILE      use the kernel configuration file specified
                                 in FILE to build the kernel. If the file is
-				not found, or if not specified, the kernel
-				build is skipped.
+                                not found, or if not specified, the kernel
+                                build is skipped.
 
   -M, --run-make                run make on the generated Makefile
 
@@ -216,7 +221,7 @@ extract_commands() {
 
   # Dump the commands in shell script form from the LFS book.
   xsltproc --nonet --xinclude --stringparam testsuite $TEST \
-    --stringparam toolchaintest $TOOLCHAINTEST --stringparam vim-lang $VIMLANG \
+    --stringparam vim-lang $VIMLANG \
     -o ./commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
 
   # Make the scripts executable.
@@ -409,7 +414,7 @@ chapter5_Makefiles() {
     i=`basename $file`
 
     # If no testsuites will be run, then TCL, Expect and DejaGNU aren't needed
-    if [ "$TOOLCHAINTEST" = "0" ]; then
+    if [ "$TEST" = "0" ]; then
       if [[ `_IS_ $i tcl` ]] || [[ `_IS_ $i expect` ]] || [[ `_IS_ $i dejagnu` ]] ; then
         continue
       fi
@@ -890,20 +895,20 @@ while test $# -gt 0 ; do
           ;;
 
         6.1.1 )
-          echo "For stable 6.1.1 book, please use jhalfs-0.2."
+          echo -e "\nFor stable 6.1.1 book, please use jhalfs-0.2."
           exit 0
           ;;
 
-	alpha*)
-	  LFSVRS=alphabetical
-	  ;;
+        alpha*)
+          LFSVRS=alphabetical
+          ;;
 
-	udev*)
-	  LFSVRS=udev_update
-	  ;;
+        udev*)
+          LFSVRS=udev_update
+          ;;
 
         * )
-          echo "$1 is an unsupported version at this time."
+          echo -e "\n$1 is an unsupported version at this time."
           exit 1
           ;;
       esac
@@ -939,13 +944,24 @@ while test $# -gt 0 ; do
       fi
       ;;
 
-    --testsuites | -T )		TEST=1 ;;
+    --testsuites | -T )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      case $1 in
+        0 | 1 | 2 | 3 )
+          TEST=$1
+          ;;
+        * )
+          echo -e "\n$1 isn't a valid testsuites level value."
+          echo -e "You must to use 0, 1, 2, or 3.\n"
+          exit 1
+          ;;
+      esac
+      ;;
 
     --get-packages | -P )	HPKG=1 ;;
 
     --run-make | -M )		RUNMAKE=1 ;;
-
-    --no-toolchain-test )	TOOLCHAINTEST=0 ;;
 
     --no-strip )	STRIP=0 ;;
 
@@ -959,12 +975,11 @@ while test $# -gt 0 ; do
           PAGE=$1
           ;;
         * )
-          echo "$1 isn't a supported page size."
+          echo -e "\n$1 isn't a supported page size."
           exit 1
           ;;
       esac
       ;;
-
 
     --timezone )
       test $# = 1 && eval "$exit_missing_arg"

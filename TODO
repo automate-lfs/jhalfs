@@ -18,7 +18,7 @@ CODE STYLE
     "Date" key when needed (like in the -v output of jhalfs)
 
 
-MASTER SCRIPT (work in progress on the experimental branch)
+MASTER SCRIPT
 -------------
 
   - Make jhalfs a "master script" that will control and run each
@@ -44,12 +44,6 @@ LFS MODULE (some of this is applicable also to CLFS and HLFS modules)
 ----------
 
   - To move the LFS module to their own subdir.
-
-  - To fix the now missing locales installation needed by testsuites
-    in Chapter05 Glibc.
-
-  - Chapter05 testsuites should be optionals. Run by default Chapter06
-    testsuites only.
 
   - Fix the unpack code to don't hang when both the bz2 and gz formats
     of the same package are founds in the sources dir.
