@@ -1,6 +1,6 @@
 #####
 #
-# common configuration file 
+# common configuration file
 #
 # $Id$
 #####
@@ -37,8 +37,8 @@ TIMEZONE=America/Toronto
 VIMLANG=0
 
 #--- Language information, /etc/profile  see <locale -a> for values
-LC_ALL=en_CA
-LANG=en_CA
+LC_ALL=$LC_ALL
+LANG=$LANG
 
 #--- Include the keymap in the kernel if defined
 KEYMAP=/usr/share/kbd/keymaps/i386/qwerty/us.map.gz
