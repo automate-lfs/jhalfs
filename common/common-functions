@@ -699,7 +699,9 @@ extract_commands() {         #
   case "${PROGNAME}" in
     hlfs)  build_patches_file ;;
     clfs) ;;
-    lfs) ;;
+    lfs)
+      grep "^<\!ENTITY" $BOOK/patches.ent | sed -e 's/.* "//' -e 's/">//' >> patches
+      ;;
     blfs) ;;
     *) exit 1
   esac
