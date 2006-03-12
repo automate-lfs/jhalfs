@@ -54,7 +54,7 @@ echo "OK"
 
 echo -n "Loading masterscript conf..."
 source $COMMON_DIR/config
-[[ $? > 0 ]] && echo "$COMMON_DIR/conf did not load.." && exit 
+[[ $? > 0 ]] && echo "$COMMON_DIR/conf did not load.." && exit
 echo "OK"
 #
 echo -n "Loading config module <$MODULE_CONFIG>..."
@@ -232,6 +232,47 @@ while test $# -gt 0 ; do
   shift
 done
 
+# Find the download client to use, if not already specified.
+
+if [ -z $DL ] ; then
+  if [ `type -p wget` ] ; then
+    DL=wget
+  elif [ `type -p curl` ] ; then
+    DL=curl
+  else
+    eval "$no_dl_client"
+  fi
+fi
+
+#===================================================
+# Set the document location...
+# BOOK is either defined in
+#   xxx.config
+#   comand line
+#   default
+# If set by conf file leave or cmd line leave it
+# alone otherwise load the default version
+#===================================================
+BOOK=${BOOK:=$PROGNAME-$LFSVRS}
+#===================================================
+
+
+# Check for minumum gcc and kernel versions
+#check_requirements  1 # 0/1  0-do not display values.
+check_version "2.6.2" "`uname -r`"         "KERNEL"
+check_version "3.0"   "$BASH_VERSION"      "BASH"
+check_version "3.0"   "`gcc -dumpversion`" "GCC"
+echo "---------------${nl_}"
+
+validate_config     1 # 0/1  0-do not display values
+echo "---------------${nl_}"
+
+echo -n "Are yoy happy with that settings (yes/no) (no): "
+read ANSWER
+if [ x$ANSWER != "xyes" ] ; then
+  echo "${nl_}Fix the configuration options and rerun the script.${nl_}"
+  exit 1
+fi
 
 # Prevents setting "-d /" by mistake.
 
@@ -250,38 +291,14 @@ fi
 # If requested, clean the build directory
 clean_builddir
 
-# Find the download client to use, if not already specified.
-
-if [ -z $DL ] ; then
-  if [ `type -p wget` ] ; then
-    DL=wget
-  elif [ `type -p curl` ] ; then
-    DL=curl
-  else
-    eval "$no_dl_client"
-  fi
-fi
-
-#===================================================
-# Set the document location...
-# BOOK is either defined in 
-#   xxx.config
-#   comand line
-#   default 
-# If set by conf file leave or cmd line leave it
-# alone otherwise load the default version
-#===================================================
-BOOK=${BOOK:=$PROGNAME-$LFSVRS}
-#===================================================
-
 if [[ ! -d $JHALFSDIR ]]; then
   mkdir -pv $JHALFSDIR
 fi
 
-if [[ "$PWD" != "$JHALFSDIR" ]]; then 
+if [[ "$PWD" != "$JHALFSDIR" ]]; then
   cp -v $COMMON_DIR/makefile-functions $JHALFSDIR/
   if [[ -n "$FILES" ]]; then
-    cp -v $PACKAGE_DIR/$FILES $JHALFSDIR/ 
+    cp -v $PACKAGE_DIR/$FILES $JHALFSDIR/
   fi
   sed 's,FAKEDIR,'$BOOK',' $PACKAGE_DIR/$XSL > $JHALFSDIR/${XSL}
   export XSL=$JHALFSDIR/${XSL}
@@ -291,17 +308,6 @@ if [[ ! -d $LOGDIR ]]; then
   mkdir -v $LOGDIR
 fi
 >$LOGDIR/$LOG
-echo "---------------${nl_}"
-
-
-# Check for minumum gcc and kernel versions
-#check_requirements  1 # 0/1  0-do not display values.
-check_version "2.6.2" "`uname -r`"         "KERNEL"
-check_version "3.0"   "$BASH_VERSION"      "BASH"
-check_version "3.0"   "`gcc -dumpversion`" "GCC"
-echo "---------------${nl_}"
-
-validate_config     1 # 0/1  0-do not display values
 echo "---------------${nl_}"
 
 get_book
