@@ -773,6 +773,7 @@ get_sources() {
     cd $BUILDDIR/sources
     if [ -f MD5SUMS ] ; then rm MD5SUMS ; fi
     if [ -f MD5SUMS-$VERSION ] ; then rm MD5SUMS-$VERSION ; fi
+    if [ -f MISSING_FILES.DMP ] ; then rm MISSING_FILES.DMP ; fi
 
     download "" MD5SUMS
 
