@@ -41,8 +41,8 @@ inline_doc
 		    This script requires ${ref_version} or greater\n"
      exit 1
   }
-  
-  echo -ne "$TXT:\t<${tst_version}>"
+
+  echo -ne "$TXT:\t${L_arrow}${BOLD}${tst_version}${OFF}${R_arrow}"
   IFS=".-("   # Split up w.x.y.z as well as w.x.y-rc  (catch release candidates)
   set -- $ref_version # set postional parameters to minimum ver values
   ref_major=$1; ref_minor=$2; ref_revision=$3

@@ -720,6 +720,16 @@ download() {                 # Download file, write name to MISSING_FILES.DMP if
   # that don't conform to norms in the URL scheme.
   DIR=`echo $1 | sed 's@-doc@@;s@-linuxthreads@@;s@-libidn@@;s@-testsuite@@'`
 
+  # If the file exists in the archive copy it to the $BUILDDIR/sources dir
+  # MD5SUM is assumed to be correct from previous download 
+  if [ ! -z ${SRC_ARCHIVE} ] &&
+     [   -d ${SRC_ARCHIVE} ] &&
+     [   -f ${SRC_ARCHIVE}/$2 ]; then
+    cp ${SRC_ARCHIVE}/$2 .
+    echo "$2: -- ok"
+    return
+  fi
+
   # Find the md5 sum for this package.
   if [ $2 != MD5SUMS ] ; then
     set +e
@@ -753,6 +763,17 @@ download() {                 # Download file, write name to MISSING_FILES.DMP if
   if [ $2 != MD5SUMS ] ; then
     echo `grep "$MD5" MD5SUMS` >> MD5SUMS-$VERSION
   fi
+
+  # If we make it this far we should copy the freshly downloaded file
+  # to the source archive. 
+  if [ ! -z ${SRC_ARCHIVE} ] &&
+     [   -d ${SRC_ARCHIVE} ] &&
+     [   -w ${SRC_ARCHIVE} ] &&
+     [ $2 != MD5SUMS ]; then
+       echo "Store file:<$2> in package archive"
+       cp -v $2 ${SRC_ARCHIVE}
+  fi
+
 }
 
 

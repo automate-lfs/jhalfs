@@ -262,6 +262,8 @@ BOOK=${BOOK:=$PROGNAME-$LFSVRS}
 check_version "2.6.2" "`uname -r`"         "KERNEL"
 check_version "3.0"   "$BASH_VERSION"      "BASH"
 check_version "3.0"   "`gcc -dumpversion`" "GCC"
+tarVer=`tar --version`
+check_version "1.15.0" "${tarVer##* }"      "TAR"
 echo "---------------${nl_}"
 
 validate_config     1 # 0/1  0-do not display values
