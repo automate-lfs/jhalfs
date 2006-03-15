@@ -764,10 +764,9 @@ get_sources() {
   if [ "$HPKG" = "1" ] ; then
 
     # This variable is necessary to make sure the `cat $JHALFSDIR/packages`
-    # separates each iteration by lines.  It is necessary to have the second
-    # ' on the next line.
-    IFS='
-'
+    # separates each iteration by lines.
+    # Modify the 'internal field separator' to break on 'LF' only
+    IFS=$'\x0A'
 
     if [ ! -d $BUILDDIR/sources ] ; then mkdir $BUILDDIR/sources ; fi
     cd $BUILDDIR/sources

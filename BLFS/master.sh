@@ -65,6 +65,10 @@ EOF
       OPTIONAL=`grep "OPTIONAL" $file | sed 's/# OPTIONAL://' | tr -d '\n'`
     fi
 
+    #--------------------------------------------------------------------#
+    #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
+    #--------------------------------------------------------------------#
+    #
     # Drop in the name of the target on a new line plus its dependencies
     # and call the echo_message function.
 (
@@ -87,11 +91,11 @@ EOF
 
     # Include a touch of the target name so make can check
     # if it's already been made.
-(
-    cat << EOF
-	@touch \$@
-EOF
-) >> $MKFILE
+    echo -e '\t@touch $@' >> $MKFILE.tmp
+    #
+    #--------------------------------------------------------------------#
+    #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
+    #--------------------------------------------------------------------#
 
   done
   echo -ne "done\n"
