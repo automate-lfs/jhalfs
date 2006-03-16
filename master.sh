@@ -124,9 +124,9 @@ while test $# -gt 0 ; do
           echo "For stable 6.1.1 book, please use jhalfs-0.2."
           exit 0
           ;;
-	alpha*)
-	  LFSVRS=alphabetical
-	  ;;
+        alpha*)
+          LFSVRS=alphabetical
+          ;;
         * )
           echo "$1 is an unsupported version at this time."
           exit 1
@@ -166,10 +166,23 @@ while test $# -gt 0 ; do
       fi
       ;;
 
-    --testsuites | -T )		TEST=1    ;;
+    --testsuites | -T )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      case $1 in
+        0 | 1 | 2 | 3 )
+          TEST=$1
+          ;;
+        * )
+          echo -e "\n$1 isn't a valid testsuites level value."
+          echo -e "You must to use 0, 1, 2, or 3.\n"
+          exit 1
+          ;;
+      esac
+      ;;
+
     --get-packages | -P )	HPKG=1    ;;
     --run-make | -M )		RUNMAKE=1 ;;
-    --no-toolchain-test )	TOOLCHAINTEST=0 ;;
     --no-strip )	STRIP=0   ;;
     --no-vim-lang )	VIMLANG=0 ;;
 
