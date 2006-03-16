@@ -453,6 +453,14 @@ wrt_export_pagesize() {            #
 #----------------------------------#
 wrt_export_lang() {            #
 #----------------------------------#
+  echo -e '\t@echo "export LANG=$(LANG)" > envars' >> $MKFILE.tmp
+}
+
+
+#----------------------------------#
+wrt_export_lang2() {            #
+#----------------------------------#
+  echo -e '\t@echo "export LC_ALL=$(LC_ALL)" > envars' >> $MKFILE.tmp
   echo -e '\t@echo "export LANG=$(LANG)" >> envars' >> $MKFILE.tmp
 }
 
