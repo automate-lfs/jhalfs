@@ -4,18 +4,24 @@
   %general-entities;
 ]>
 
+<!-- $Id$ -->
+
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:exsl="http://exslt.org/common"
     extension-element-prefixes="exsl"
     version="1.0">
 
-<!-- XSLT stylesheet to create shell scripts from LFS books. -->
+<!-- XSLT stylesheet to create shell scripts from HLFS books. -->
 
-  <!-- Run optional test suites? -->
-  <xsl:param name="testsuite" select="0"/>
+  <!-- What libc implentation must be used? -->
+  <xsl:param name="model" select="glibc"/>
 
-  <!-- Run toolchain test suites? -->
-  <xsl:param name="toolchaintest" select="1"/>
+  <!-- Run test suites?
+       0 = none
+       1 = only chapter06 Glibc, GCC and Binutils testsuites
+       2 = all chapter06 testsuites
+       3 = all chapter05 and chapter06 testsuites-->
+  <xsl:param name="testsuite" select="1"/>
 
   <!-- Install vim-lang package? -->
   <xsl:param name="vim-lang" select="1"/>
@@ -25,8 +31,13 @@
   </xsl:template>
 
   <xsl:template match="sect1">
-    <xsl:if test="count(descendant::screen/userinput) &gt; 0 and
-      count(descendant::screen/userinput) &gt; count(descendant::screen[@role='nodump'])">
+    <xsl:if test="(../@id='chapter-temporary-tools' or
+                  ../@id='chapter-building-system' or
+                  ../@id='chapter-bootable') and
+                  ((@condition=$model or not(@condition)) and
+                  count(descendant::screen/userinput) &gt; 0 and
+                  count(descendant::screen/userinput) &gt;
+                  count(descendant::screen[@role='nodump']))">
         <!-- The dirs names -->
       <xsl:variable name="pi-dir" select="../processing-instruction('dbhtml')"/>
       <xsl:variable name="pi-dir-value" select="substring-after($pi-dir,'dir=')"/>
@@ -53,27 +64,22 @@
           </xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
-	  
         <!-- Creating dirs and files -->
       <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
-		<!-- Add a header to each script -->
         <xsl:choose>
           <xsl:when test="@id='ch-system-changingowner' or
-                          @id='ch-system-creatingdirs' or
-                          @id='ch-system-createfiles'">
+                    @id='ch-system-creatingdirs' or
+                    @id='ch-system-createfiles'">
             <xsl:text>#!/tools/bin/bash&#xA;set -e&#xA;&#xA;</xsl:text>
           </xsl:when>
-
           <xsl:when test="@id='ch-tools-stripping' or
-                          @id='ch-system-strippingagain'">
+                    @id='ch-system-strippingagain'">
             <xsl:text>#!/bin/sh&#xA;</xsl:text>
           </xsl:when>
-
           <xsl:otherwise>
             <xsl:text>#!/bin/sh&#xA;set -e&#xA;&#xA;</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
- 
         <xsl:if test="sect2[@role='installation'] or
                      @id='ch-tools-adjusting' or
                      @id='ch-system-readjusting'">
@@ -81,23 +87,20 @@
           <xsl:if test="@id='ch-system-vim' and $vim-lang = '1'">
             <xsl:text>tar -xvf ../vim-&vim-version;-lang.* --strip-components=1&#xA;</xsl:text>
           </xsl:if>
-          <xsl:if test="@id='ch-tools-uclibc'">
+          <xsl:if test="@id='ch-tools-uclibc' or @id='ch-system-uclibc'">
              <xsl:text>pushd ../; tar -xvf gettext-&gettext-version;.*; popd; &#xA;</xsl:text>
           </xsl:if>
-          <xsl:if test="@id='ch-system-uclibc'">
-             <xsl:text>pushd ../; tar -xvf gettext-&gettext-version;.*; popd; &#xA;</xsl:text>
-          </xsl:if>
-          <xsl:if test="@id='ch-system-glibc'">
+          <xsl:if test="@id='ch-tools-glibc' or @id='ch-system-glibc'">
              <xsl:text>tar -xvf ../glibc-libidn-&glibc-version;.*&#xA;</xsl:text>
           </xsl:if>
-          <xsl:if test="@id='ch-tools-glibc'">
-             <xsl:text>tar -xvf ../glibc-libidn-&glibc-version;.*&#xA;</xsl:text>
-          </xsl:if>
-          <xsl:if test="@id='ch-system-gcc'">
+          <xsl:if test="@id='ch-tools-gcc' or @id='ch-system-gcc'">
              <xsl:text>pushd ../; tar -xvf gcc-g++-&gcc-version;.*; popd; &#xA;</xsl:text>
           </xsl:if>
-          <xsl:if test="@id='ch-tools-gcc'">
-             <xsl:text>pushd ../; tar -xvf gcc-g++-&gcc-version;.*; popd; &#xA;</xsl:text>
+          <xsl:if test="@id='ch-tools-gcc' and $testsuite = '3'">
+            <xsl:text>pushd ../; tar -xvf gcc-testsuite-&gcc-version;.*; popd; &#xA;</xsl:text>
+          </xsl:if>
+          <xsl:if test="@id='ch-system-gcc' and $testsuite != '0'">
+            <xsl:text>pushd ../; tar -xvf gcc-testsuite-&gcc-version;.*; popd; &#xA;</xsl:text>
           </xsl:if>
           <xsl:if test="@id='bootable-bootscripts'">
              <xsl:text>pushd ../; tar -xvf blfs-bootscripts-&blfs-bootscripts-version;.* ; popd; &#xA;</xsl:text>
@@ -110,20 +113,21 @@
   </xsl:template>
 
   <xsl:template match="screen">
-    <xsl:if test="child::* = userinput">
-      <xsl:choose>
-        <xsl:when test="@role = 'nodump'"/>
-        <xsl:when test="@condition != $model"/>
-        <xsl:otherwise>
-          <xsl:apply-templates select="userinput" mode="screen"/>
-        </xsl:otherwise>
-      </xsl:choose>
+    <xsl:if test="(@condition=$model or not(@condition)) and
+                  child::* = userinput and not(@role = 'nodump')">
+      <xsl:apply-templates select="userinput" mode="screen"/>
     </xsl:if>
   </xsl:template>
 
   <xsl:template match="para/userinput">
-    <xsl:if test="$testsuite != '0' and
-            (contains(string(),'test') or contains(string(),'check'))">
+    <xsl:if test="(contains(string(),'test') or
+            contains(string(),'check')) and
+            (($testsuite = '1' and
+            (ancestor::sect1[@id='ch-system-gcc'] or
+            ancestor::sect1[@id='ch-system-glibc'])) or
+            ($testsuite = '2' and
+            ancestor::chapter[@id='chapter-building-system']) or
+            $testsuite = '3')">
       <xsl:value-of select="substring-before(string(),'make')"/>
       <xsl:text>make -k</xsl:text>
       <xsl:value-of select="substring-after(string(),'make')"/>
@@ -147,50 +151,46 @@
         <xsl:value-of select="substring-after(string(),'patch')"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
-
+      <!-- Setting $LC_ALL and $LANG for /etc/profile -->
+      <xsl:when test="ancestor::sect1[@id='bootable-profile'] and
+                contains(string(),'export LANG=')">
+        <xsl:value-of select="substring-before(string(),'export LC_ALL=')"/>
+        <xsl:text>export LC_ALL=$LC_ALL&#xA;export LANG=$LANG&#xA;</xsl:text>
+        <xsl:text>export INPUTRC</xsl:text>
+        <xsl:value-of select="substring-after(string(),'INPUTRC')"/>
+        <xsl:text>&#xA;</xsl:text>
+      </xsl:when>
       <!-- Copying the kernel config file -->
       <xsl:when test="string() = 'make mrproper'">
         <xsl:text>make mrproper&#xA;</xsl:text>
         <xsl:text>cp -v /sources/kernel-config .config&#xA;</xsl:text>
       </xsl:when>
-
       <!-- The Coreutils and Module-Init-Tools test suites are optional -->
-      <xsl:when test="$testsuite = '0' and
+      <xsl:when test="($testsuite = '0' or $testsuite = '1') and
                 (ancestor::sect1[@id='ch-system-coreutils'] or
-                 ancestor::sect1[@id='ch-system-module-init-tools']) and
+                ancestor::sect1[@id='ch-system-module-init-tools']) and
                 (contains(string(),'check') or
-                 contains(string(),'dummy'))"/>
-
+                contains(string(),'distclean') or
+                contains(string(),'dummy'))"/>
       <!-- Fixing toolchain test suites run -->
       <xsl:when test="string() = 'make check' or
-                      string() = 'make -k check'">
+                string() = 'make -k check'">
         <xsl:choose>
-          <xsl:when test="$toolchaintest = '0'"/>
-          <xsl:otherwise>
+          <xsl:when test="(($testsuite = '1' or $testsuite = '2') and
+                    ancestor::chapter[@id='chapter-building-system']) or
+                    $testsuite = '3'">
             <xsl:text>make -k check || true</xsl:text>
             <xsl:text>&#xA;</xsl:text>
-          </xsl:otherwise>
+          </xsl:when>
         </xsl:choose>
       </xsl:when>
-      <xsl:when test="contains(string(),'glibc-check-log')">
+      <xsl:when test="contains(string(),'make check') and
+                ancestor::sect1[@id='ch-system-binutils']">
         <xsl:choose>
-          <xsl:when test="$toolchaintest = '0'"/>
-          <xsl:otherwise>
-            <xsl:value-of select="substring-before(string(),'&#xA;')"/>
-            <xsl:text> || true&#xA;</xsl:text>
-            <xsl:value-of select="substring-after(string(),'&#xA;')"/>
-            <xsl:text>&#xA;</xsl:text>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:when>
-      <xsl:when test="contains(string(),'test_summary') or
-                      contains(string(),'expect -c')">
-        <xsl:choose>
-          <xsl:when test="$toolchaintest = '0'"/>
-          <xsl:otherwise>
-            <xsl:apply-templates/>
-            <xsl:text>&#xA;</xsl:text>
-          </xsl:otherwise>
+          <xsl:when test="$testsuite != '0'">
+            <xsl:value-of select="substring-before(string(),'make check')"/>
+            <xsl:text>make -k check || true&#xA;</xsl:text>
+          </xsl:when>
         </xsl:choose>
       </xsl:when>
       <!-- Don't stop on strip run -->
@@ -206,13 +206,10 @@
     </xsl:choose>
   </xsl:template>
 
-<!-- Deal with definable values defined inside <replaceable> -->
   <xsl:template match="replaceable">
     <xsl:choose>
-      <xsl:when test="ancestor::sect1[@id='ch-system-glibc']">
-        <xsl:text>$TIMEZONE</xsl:text>
-      </xsl:when>
-      <xsl:when test="ancestor::sect1[@id='ch-system-uclibc']">
+      <xsl:when test="ancestor::sect1[@id='ch-system-glibc'] or
+                      ancestor::sect1[@id='ch-system-uclibc']">
         <xsl:text>$TIMEZONE</xsl:text>
       </xsl:when>
       <xsl:when test="ancestor::sect1[@id='ch-system-groff']">
@@ -227,4 +224,3 @@
   </xsl:template>
 
 </xsl:stylesheet>
-
