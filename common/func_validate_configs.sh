@@ -18,7 +18,7 @@ validate_config()    {       # Are the config values sane (within reason)
 inline_doc
 
   local -r  lfs_PARAM_LIST=""
-  local -r blfs_PARAM_LIST="BUILDDIR TEST DEPEND"
+  local -r blfs_PARAM_LIST="TEST DEPEND"
   local -r hlfs_PARAM_LIST="MODEL GRSECURITY_HOST"
   local -r clfs_PARAM_LIST="ARCH BOOTMINIMAL"
   local -r global_PARAM_LIST="BUILDDIR HPKG RUNMAKE TEST STRIP PAGE TIMEZONE VIMLANG"
@@ -76,23 +76,47 @@ inline_doc
       fi
     done # for loop
 
-      # Not further tests needed on globals
+    
+      # No further tests needed on globals
     if [[ "$PARAM_GROUP" = "global_PARAM_LIST" ]]; then
-      echo "   ${BOLD}${GREEN}${PARAM_GROUP%%_*T} parameters are valid${OFF}"
+
+      for config_param in LC_ALL LANG; do
+        [[ $1 = "1" ]] && echo "`eval echo $PARAM_VALS`"
+        [[ -z "${!config_param}" ]] && continue
+          # See it the locale values exist on this machine
+        [[ "`locale -a | grep -c ${!config_param}`" > 0 ]] && continue
+
+          # If you make it this far then there is a problem
+        write_error_and_die
+      done
+      
+      for config_param in KEYMAP; do
+        [[ $1 = "1" ]] && echo "`eval echo $PARAM_VALS`"
+        [[ -z "${!config_param}" ]] && continue
+        [[ -e "${!config_param}" ]] && [[ -s "${!config_param}" ]] && continue
+
+          # If you make it this far then there is a problem
+        write_error_and_die
+      done
+      
+      # Check out the global param SRC_ARCHIVE      
+      config_param=SRC_ARCHIVE
+      [[ $1 = "1" ]] && echo -n "`eval echo $PARAM_VALS`"
+      if [ ! -z ${SRC_ARCHIVE} ]; then
+        if [ ! -d ${SRC_ARCHIVE} ]; then
+          echo "   -- is NOT a directory"
+	  write_error_and_die
+        fi
+        if [ ! -w ${SRC_ARCHIVE} ]; then
+          echo -n "${nl_} [${BOLD}${YELLOW}WARN$OFF] You do not have <write> access to this directory, ${nl_}${tab_}downloaded files can not be saved in this archive"
+        fi
+      fi
+      echo  "${nl_}   ${BOLD}${GREEN}global parameters are valid${OFF}${nl_}"
       continue
     fi
 
-    for config_param in LC_ALL LANG; do
-      [[ $1 = "1" ]] && echo "`eval echo $PARAM_VALS`"
-      [[ -z "${!config_param}" ]] && continue
-      # See it the locale values exist on this machine
-      [[ "`locale -a | grep -c ${!config_param}`" > 0 ]] && continue
 
-      # If you make it this far then there is a problem
-      write_error_and_die
-    done
-
-    for config_param in FSTAB CONFIG KEYMAP BOOK; do
+    for config_param in FSTAB CONFIG BOOK; do
       [[ $1 = "1" ]] && echo "`eval echo $PARAM_VALS`"
       if [[ $config_param = BOOK ]]; then
          [[ ! "${WC}" = 1 ]] && continue
@@ -103,7 +127,7 @@ inline_doc
       # If you make it this far then there is a problem
       write_error_and_die
     done
-      echo "   ${BOLD}${GREEN}${PARAM_GROUP%%_*T} parameters are valid${OFF}"
+      echo "   ${BOLD}${GREEN}${PARAM_GROUP%%_*T} specific parameters are valid${OFF}"
   done
   set -e
   echo "$tab_***${BOLD}${GREEN}Config parameters look good${OFF}***"
