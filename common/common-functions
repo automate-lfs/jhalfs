@@ -594,7 +594,7 @@ build_patches_file() {       # Supply a suitably formated list of patches.
            --xinclude \
            -o patcheslist_.wget \
            patcheslist.xsl \
-           $BOOK/index.xml
+           $BOOK/chapter04/patches.xml
 	   #> /dev/null 2>&1
 
   rm -f patches
@@ -651,9 +651,11 @@ extract_commands() {         #
                   --xinclude \
                   --stringparam model $MODEL \
                   --stringparam testsuite $TEST \
-                  --stringparam testchaintest 0 \
                   --stringparam vim-lang $VIMLANG \
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
+        for i in $(find ./${PROGNAME}-commands/chapter07/*) ; do
+          sed -i 's/"EOF"/EOF/g' $i ;
+        done
       ;;
     lfs)
         echo -n "${tab_} ${L_arrow}${BOLD}LFS${R_arrow} build"
@@ -670,8 +672,8 @@ extract_commands() {         #
         echo -n "${tab_} ${L_arrow}${BOLD}BLFS${R_arrow} build"
         xsltproc --nonet \
                  --xinclude \
-  	         --stringparam testsuite $TEST \
- 	         --stringparam server $SERVER \
+                 --stringparam testsuite $TEST \
+                 --stringparam server $SERVER \
                  -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
       ;;
     *) exit 1
@@ -721,7 +723,7 @@ download() {                 # Download file, write name to MISSING_FILES.DMP if
   DIR=`echo $1 | sed 's@-doc@@;s@-linuxthreads@@;s@-libidn@@;s@-testsuite@@'`
 
   # If the file exists in the archive copy it to the $BUILDDIR/sources dir
-  # MD5SUM is assumed to be correct from previous download 
+  # MD5SUM is assumed to be correct from previous download
   if [ ! -z ${SRC_ARCHIVE} ] &&
      [   -d ${SRC_ARCHIVE} ] &&
      [   -f ${SRC_ARCHIVE}/$2 ]; then
@@ -765,7 +767,7 @@ download() {                 # Download file, write name to MISSING_FILES.DMP if
   fi
 
   # If we make it this far we should copy the freshly downloaded file
-  # to the source archive. 
+  # to the source archive.
   if [ ! -z ${SRC_ARCHIVE} ] &&
      [   -d ${SRC_ARCHIVE} ] &&
      [   -w ${SRC_ARCHIVE} ] &&
