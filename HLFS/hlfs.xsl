@@ -122,10 +122,17 @@
             ($testsuite = '2' and
             ancestor::chapter[@id='chapter-building-system']) or
             $testsuite = '3')">
-      <xsl:value-of select="substring-before(string(),'make')"/>
-      <xsl:text>make -k</xsl:text>
-      <xsl:value-of select="substring-after(string(),'make')"/>
-      <xsl:text> || true&#xA;</xsl:text>
+      <xsl:choose>
+        <xsl:when test="ancestor::sect1[@id='ch-system-gcc']">
+          <xsl:text>make -k check || true&#xA;</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="substring-before(string(),'make')"/>
+          <xsl:text>make -k</xsl:text>
+          <xsl:value-of select="substring-after(string(),'make')"/>
+          <xsl:text> || true&#xA;</xsl:text>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:if>
   </xsl:template>
 
@@ -187,6 +194,9 @@
           </xsl:when>
         </xsl:choose>
       </xsl:when>
+      <xsl:when test="contains(string(),'hardened-specs') and
+                ancestor::sect1[@id='ch-system-binutils']
+                and $testsuite = '0'"/>
       <!-- Don't stop on strip run -->
       <xsl:when test="contains(string(),'strip ')">
         <xsl:apply-templates/>
