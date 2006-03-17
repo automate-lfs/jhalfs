@@ -589,6 +589,7 @@ get_book() {
 #----------------------------#
 build_patches_file() {       # Supply a suitably formated list of patches.
 #----------------------------#
+  local saveIFS=$IFS
   local IFS
   echo -ne "Creating the patch file list "
 
@@ -609,6 +610,7 @@ build_patches_file() {       # Supply a suitably formated list of patches.
 
   IFS=$'\x0A'  # Modify the 'internal field separator' to break on 'LF' only
   for f in `cat packages`; do
+    IFS=$saveIFS  # Restore the system defaults
     LOC_add_patches_entry \
     `echo $f | sed -e 's/-version//' \
                    -e 's/-file.*//' \
