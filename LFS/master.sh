@@ -11,7 +11,7 @@
 #----------------------------#
 chapter4_Makefiles() {
 #----------------------------#
-  echo -e "\n${tab_}${GREEN}Processing... ${L_arrow}Chapter4${R_arrow}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter4${R_arrow}"
 
 # If /home/lfs is already present in the host, we asume that the
 # lfs user and group are also presents in the host, and a backup
@@ -294,7 +294,7 @@ chapter789_Makefiles() {
 #----------------------------#
 build_Makefile() {
 #----------------------------#
-  echo -n "Creating Makefile... "
+  echo "Creating Makefile... "
   cd $JHALFSDIR/${PROGNAME}-commands
 
   # Start with a clean Makefile.tmp file
@@ -400,7 +400,7 @@ EOF
   # Bring over the items from the Makefile.tmp
   cat $MKFILE.tmp >> $MKFILE
   rm $MKFILE.tmp
-  echo -ne "done\n"
+  echo "done"
 }
 
 

@@ -98,7 +98,7 @@ chapter4_Makefiles() {       # Initialization of the system
 #----------------------------#
   local TARGET LOADER
 
-  echo  "${YELLOW}  Processing Chapter-3 scripts ${OFF}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter3${R_arrow}"
 
   # Define a few model dependant variables
   if [[ ${MODEL} = "uclibc" ]]; then
@@ -169,7 +169,7 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
   local file
   local this_script
 
-  echo "${YELLOW}  Processing Chapter-5 scripts${OFF}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter5${R_arrow}"
 
   for file in chapter05/* ; do
     # Keep the script file name
@@ -294,6 +294,7 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
   local file
   local this_script
 
+  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6${R_arrow}"
   #
   # Set these definitions early and only once
   #
@@ -303,7 +304,6 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     TARGET="pc-linux-gnu";    LOADER="ld-linux.so.2"
   fi
 
-  echo -e "${YELLOW}  Processing Chapter-6 scripts ${OFF}"
   for file in chapter06/* ; do
     # Keep the script file name
     this_script=`basename $file`
@@ -441,7 +441,7 @@ chapter7_Makefiles() {       # Create a bootable system.. kernel, bootscripts..e
   local file
   local this_script
 
-  echo  "${YELLOW}  Processing Chapter-7 scripts ${OFF}"
+  echo  "${tab_}${GREEN}Processing... ${L_arrow}Chapter7${R_arrow}"
   for file in chapter07/*; do
     # Keep the script file name
     this_script=`basename $file`
@@ -555,7 +555,7 @@ EOF
 #----------------------------#
 build_Makefile() {           # Construct a Makefile from the book scripts
 #----------------------------#
-  echo -e "${GREEN}Creating Makefile... ${OFF}"
+  echo "Creating Makefile... "
 
   cd $JHALFSDIR/${PROGNAME}-commands
   # Start with a clean Makefile.tmp file
@@ -667,7 +667,7 @@ EOF
   # Bring over the items from the Makefile.tmp
   cat $MKFILE.tmp >> $MKFILE
   rm $MKFILE.tmp
-  echo -ne "${GREEN}done\n${OFF}"
+  echo "done"
 }
 
 
