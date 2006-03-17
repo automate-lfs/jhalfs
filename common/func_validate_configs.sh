@@ -17,11 +17,11 @@ validate_config()    {       # Are the config values sane (within reason)
     on success: write text to console and returns
 inline_doc
 
-  local -r  lfs_PARAM_LIST=""
+  local -r  lfs_PARAM_LIST="VIMLANG"
   local -r blfs_PARAM_LIST="TEST DEPEND"
   local -r hlfs_PARAM_LIST="MODEL GRSECURITY_HOST"
-  local -r clfs_PARAM_LIST="ARCH BOOTMINIMAL"
-  local -r global_PARAM_LIST="BUILDDIR HPKG RUNMAKE TEST STRIP PAGE TIMEZONE VIMLANG"
+  local -r clfs_PARAM_LIST="ARCH BOOTMINIMAL VIMLANG"
+  local -r global_PARAM_LIST="BUILDDIR HPKG RUNMAKE TEST STRIP PAGE TIMEZONE"
 
   local -r ERROR_MSG='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid, ${nl_}check the config file ${BOLD}${GREEN}\<$PROGNAME.conf\>${OFF}'
   local -r PARAM_VALS='${config_param}: ${L_arrow}${BOLD}${!config_param}${OFF}${R_arrow}'
@@ -76,7 +76,7 @@ inline_doc
       fi
     done # for loop
 
-    
+
       # No further tests needed on globals
     if [[ "$PARAM_GROUP" = "global_PARAM_LIST" ]]; then
 
@@ -89,7 +89,7 @@ inline_doc
           # If you make it this far then there is a problem
         write_error_and_die
       done
-      
+
       for config_param in KEYMAP; do
         [[ $1 = "1" ]] && echo "`eval echo $PARAM_VALS`"
         [[ -z "${!config_param}" ]] && continue
@@ -98,8 +98,8 @@ inline_doc
           # If you make it this far then there is a problem
         write_error_and_die
       done
-      
-      # Check out the global param SRC_ARCHIVE      
+
+      # Check out the global param SRC_ARCHIVE
       config_param=SRC_ARCHIVE
       [[ $1 = "1" ]] && echo -n "`eval echo $PARAM_VALS`"
       if [ ! -z ${SRC_ARCHIVE} ]; then
