@@ -700,7 +700,7 @@ extract_commands() {         #
   -e '/generic/d' >> packages
 
   # Download the vim-lang package if it must be installed
-  if [ "$VIMLANG" = "1" ] ; then
+  if [ "$VIMLANG" = "1" ] && [ ! "$PROGNAME" = "hlfs" ] ; then
     echo `grep "vim" packages | sed 's@vim@&-lang@'` >> packages
   fi
   echo `grep "udev-config-file" $BOOK/general.ent | sed -e 's@<!ENTITY @@' -e 's@">@"@'` >> packages
