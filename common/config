@@ -38,7 +38,7 @@ PAGE=letter
 TIMEZONE=America/Toronto
 
 #--- install the optional vim-lang package  0(no)/1(yes)
-VIMLANG=0
+VIMLANG=1
 
 #--- Language information, /etc/profile  see <locale -a> for values
 LC_ALL=$LC_ALL

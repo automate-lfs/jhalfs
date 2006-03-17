@@ -46,14 +46,9 @@ get_sources() {              #
     #
     VRS=`echo $i | sed -e 's/.* //' -e 's/"//g'`
     case "$PKG" in
-      "expect-lib" )        continue ;; # not valid packages
-      "linux-dl" )          continue ;;
-      "groff-patchlevel" )  continue ;;
       "uClibc-patch" )      continue ;;
 
-      "tcl" )           FILE="$PKG$VRS-src.tar.bz2"             ; download $PKG $FILE ;;
-      "vim-lang" )      FILE="vim-$VRS-lang.tar.bz2"; PKG="vim" ; download $PKG $FILE ;;
-      "udev-config" )   FILE="$VRS" ; PKG="udev"                ; download $PKG $FILE ;;
+      "tcl" )   FILE="$PKG$VRS-src.tar.bz2" ; download $PKG $FILE ;;
 
       "uClibc-locale" ) FILE="$PKG-$VRS.tar.bz2" ; PKG="uClibc"
                 download $PKG $FILE

@@ -23,9 +23,6 @@
        3 = all chapter05 and chapter06 testsuites-->
   <xsl:param name="testsuite" select="1"/>
 
-  <!-- Install vim-lang package? -->
-  <xsl:param name="vim-lang" select="1"/>
-
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
   </xsl:template>
@@ -84,9 +81,6 @@
                      @id='ch-tools-adjusting' or
                      @id='ch-system-readjusting'">
           <xsl:text>cd $PKGDIR&#xA;</xsl:text>
-          <xsl:if test="@id='ch-system-vim' and $vim-lang = '1'">
-            <xsl:text>tar -xvf ../vim-&vim-version;-lang.* --strip-components=1&#xA;</xsl:text>
-          </xsl:if>
           <xsl:if test="@id='ch-tools-uclibc' or @id='ch-system-uclibc'">
              <xsl:text>pushd ../; tar -xvf gettext-&gettext-version;.*; popd; &#xA;</xsl:text>
           </xsl:if>
