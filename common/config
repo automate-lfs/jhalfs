@@ -13,7 +13,7 @@ BUILDDIR=/mnt/SourceFiles
 
 #--- The local repository for packages/file
 #    Any downloaded files will be archived here
-SRC_ARCHIVE=/mnt/SourceFiles/Source_Warehouse
+SRC_ARCHIVE=
 
 #--- Download the source packages 0(no)/1(yes)
 HPKG=0
