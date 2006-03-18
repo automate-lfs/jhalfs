@@ -222,7 +222,7 @@ cat << EOF
 	@\$(call unpack,$FILE)
 	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
 	echo "export PKGDIR=\$(MOUNT_PT)\$(SRC)/\$\$ROOT" > envars && \\
-	chown -R lfs \$(MOUNT_PT)\$(SRC)/\$\$ROOT  && \\
+	chown -R lfs \$(MOUNT_PT)\$(SRC)/\$\$ROOT && \\
 EOF
 ) >> $MKFILE.tmp
 }
@@ -237,7 +237,6 @@ cat  << EOF
 	@\$(call unpack3,$FILE)
 	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
 	echo "export PKGDIR=\$(MOUNT_PT)\$(SRC)/\$\$ROOT" > envars && \\
-
 	chown -R lfs \$(MOUNT_PT)\$(SRC)/\$\$ROOT
 EOF
 ) >> $MKFILE.tmp
@@ -278,7 +277,7 @@ wrt_target_vars() {                # Target vars for hlfs (cross-build method)
 #----------------------------------#
 (
 cat  << EOF
-	echo "export target=$(uname -m)-${TARGET}" >> envars && \\
+	@echo "export target=$(uname -m)-${TARGET}" >> envars && \\
 	echo "export ldso=/lib/${LOADER}" >> envars
 EOF
 ) >> $MKFILE.tmp

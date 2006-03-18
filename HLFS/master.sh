@@ -176,6 +176,8 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
       *tcl* )     [[ "$TEST" = "0" ]] && continue; ;;
       *expect* )  [[ "$TEST" = "0" ]] && continue; ;;
       *dejagnu* ) [[ "$TEST" = "0" ]] && continue; ;;
+        # Nothing interestin in this script
+      *introduction* ) continue ;;
         # Test if the stripping phase must be skipped
       *stripping* ) [[ "$STRIP" = "0" ]] && continue ;;
         # Select the appropriate library
@@ -500,7 +502,7 @@ chapter7_Makefiles() {       # Create a bootable system.. kernel, bootscripts..e
       wrt_unpack2 "$FILE"
 (
 cat  << EOF
-	echo "\$(MOUNT_PT)\$(SRC)/blfs-bootscripts-$vrs" > sources-dir
+	@echo "\$(MOUNT_PT)\$(SRC)/blfs-bootscripts-$vrs" > sources-dir
 EOF
 ) >> $MKFILE.tmp
     fi
@@ -648,10 +650,10 @@ clean-chapter7:
 restore-hlfs-env:
 	@\$(call echo_message, Building)
 	@if [ -f /home/lfs/.bashrc.XXX ]; then \\
-		mv -fv /home/lfs/.bashrc.XXX /home/hlfs/.bashrc; \\
+		mv -fv /home/lfs/.bashrc.XXX /home/lfs/.bashrc; \\
 	fi;
-	@if [ -f /home/hlfs/.bash_profile.XXX ]; then \\
-		mv -v /home/lfs/.bash_profile.XXX /home/hlfs/.bash_profile; \\
+	@if [ -f /home/lfs/.bash_profile.XXX ]; then \\
+		mv -v /home/lfs/.bash_profile.XXX /home/lfs/.bash_profile; \\
 	fi;
 	@chown lfs:lfs /home/lfs/.bash* && \\
 	touch \$@
