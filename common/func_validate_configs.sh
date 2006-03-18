@@ -92,8 +92,8 @@ inline_doc
 
       for config_param in KEYMAP; do
         [[ $1 = "1" ]] && echo "`eval echo $PARAM_VALS`"
-        [[ -z "${!config_param}" ]] && continue
-        [[ -e "${!config_param}" ]] && [[ -s "${!config_param}" ]] && continue
+        [[ "${!config_param}" = "none" ]] && continue
+        [[ -e "/usr/share/kbd/keymaps/${!config_param}" ]] && [[ -s "/usr/share/kbd/keymaps/${!config_param}" ]] && continue
 
           # If you make it this far then there is a problem
         write_error_and_die

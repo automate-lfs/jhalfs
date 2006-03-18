@@ -660,6 +660,8 @@ extract_commands() {         #
                   --xinclude \
                   --stringparam model $MODEL \
                   --stringparam testsuite $TEST \
+                  --stringparam keymap $KEYMAP \
+                  --stringparam grsecurity_host $GRSECURITY_HOST \
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
         for i in $(find ./${PROGNAME}-commands/chapter07/*) ; do
           sed -i 's/"EOF"/EOF/g' $i ;

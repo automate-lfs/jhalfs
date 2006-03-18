@@ -26,10 +26,10 @@ RUNMAKE=0
 #  1 = only chapter06 Glibc, GCC and Binutils testsuites
 #  2 = all chapter06 testsuites
 #  3 = all chapter05 and chapter06 testsuites
-TEST=0
+TEST=1
 
 #--- Run the stripping phases  0(no)/1(yes)
-STRIP=0
+STRIP=1
 
 #--- page definition for groff letter/A4
 PAGE=letter
@@ -44,8 +44,10 @@ VIMLANG=1
 LC_ALL=$LC_ALL
 LANG=$LANG
 
-#--- Include the keymap in the kernel if defined
-KEYMAP=/usr/share/kbd/keymaps/i386/qwerty/us.map.gz
+#--- Include the keymap in the kernel if defined. Path to the
+#    keymap file relative to /usr/share/kbd/keymaps/
+#    (e.g., i386/qwerty/us.map.gz) or "none"
+KEYMAP=none
 
 #=== Variables needed by ICA ===
 #--- Run ICA testing 0/1  0(no)/1(yes)

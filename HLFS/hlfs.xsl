@@ -16,6 +16,12 @@
   <!-- What libc implentation must be used? -->
   <xsl:param name="model" select="glibc"/>
 
+  <!-- Is the host kernel using grsecurity? -->
+  <xsl:param name="grsecurity_host" select="0"/>
+
+  <!-- Compile the keymap into the kernel? -->
+  <xsl:param name="keymap" select="none"/>
+
   <!-- Run test suites?
        0 = none
        1 = only chapter06 Glibc, GCC and Binutils testsuites
@@ -77,7 +83,8 @@
             <xsl:text>#!/bin/sh&#xA;set -e&#xA;&#xA;</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
-        <xsl:if test="sect2[@role='installation'] or
+        <xsl:if test="(sect2[@role='installation'] and
+                     not(@id='bootable-kernel')) or
                      @id='ch-tools-adjusting' or
                      @id='ch-system-readjusting'">
           <xsl:text>cd $PKGDIR&#xA;</xsl:text>
@@ -152,6 +159,10 @@
         <xsl:value-of select="substring-after(string(),'patch')"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
+      <!-- grsecurity kernel in the host? -->
+      <xsl:when test="ancestor::sect1[@id='ch-system-kernfs'] and
+                contains(string(),'sysctl')
+                and $grsecurity_host ='0'"/>
       <!-- Setting $LC_ALL and $LANG for /etc/profile -->
       <xsl:when test="ancestor::sect1[@id='bootable-profile'] and
                 contains(string(),'export LANG=')">
@@ -161,6 +172,15 @@
         <xsl:value-of select="substring-after(string(),'INPUTRC')"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
+      <!-- Fixing bootscripts installation -->
+      <xsl:when test="ancestor::sect1[@id='bootable-bootscripts'] and
+                string() = 'make install'">
+        <xsl:text>make install&#xA;</xsl:text>
+        <xsl:text>cd ../blfs-bootscripts-&blfs-bootscripts-version;&#xA;</xsl:text>
+      </xsl:when>
+      <!-- Compile the keymap into the kernel? -->
+      <xsl:when test="contains(string(),'defkeymap') and
+                $keymap = 'none'"/>
       <!-- Copying the kernel config file -->
       <xsl:when test="string() = 'make mrproper'">
         <xsl:text>make mrproper&#xA;</xsl:text>
@@ -197,8 +217,9 @@
       <xsl:when test="contains(string(),'hardened-specs') and
                 ancestor::sect1[@id='ch-system-binutils']
                 and $testsuite = '0'"/>
-      <!-- Don't stop on strip run -->
-      <xsl:when test="contains(string(),'strip ')">
+      <!-- Don't stop on strip run and chapter05 GCC installation test-->
+      <xsl:when test="contains(string(),'strip ') or
+                ancestor::sect2[@id='testing-gcc']">
         <xsl:apply-templates/>
         <xsl:text> || true&#xA;</xsl:text>
       </xsl:when>
@@ -218,6 +239,9 @@
       </xsl:when>
       <xsl:when test="ancestor::sect1[@id='ch-system-groff']">
         <xsl:text>$PAGE</xsl:text>
+      </xsl:when>
+      <xsl:when test="ancestor::sect1[@id='bootable-kernel']">
+        <xsl:value-of select="$keymap"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:text>**EDITME</xsl:text>
