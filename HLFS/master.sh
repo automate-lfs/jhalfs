@@ -89,7 +89,7 @@ get_sources() {              #
 
 
 #----------------------------#
-chapter4_Makefiles() {       # Initialization of the system
+chapter3_Makefiles() {       # Initialization of the system
 #----------------------------#
   local TARGET LOADER
 
@@ -558,7 +558,7 @@ build_Makefile() {           # Construct a Makefile from the book scripts
   # Start with a clean Makefile.tmp file
   >$MKFILE.tmp
 
-  chapter4_Makefiles
+  chapter3_Makefiles
   chapter5_Makefiles
   chapter6_Makefiles
   chapter7_Makefiles
