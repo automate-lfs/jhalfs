@@ -301,9 +301,6 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
       *chroot* )  continue ;;
         # Test if the stripping phase must be skipped
       *-stripping* )  [[ "$STRIP" = "0" ]] && continue ;;
-        # Select the appropriate library
-      *glibc*)    [[ ${MODEL} = "uclibc" ]] && continue ;;
-      *uclibc*)   [[ ${MODEL} = "glibc" ]]  && continue ;;
       *) ;;
     esac
 
@@ -315,32 +312,14 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'`
 
     #
-    # Sed replacement for 'nodump' tag in xml scripts until Manuel has a chance to fix them
+    # Sed replacement to fix some rm command that could fail.
+    # That should be fixed in the book sources.
     #
     case $name in
-      kernfs)
-            # We are using LFS instead of HLFS..
-          sed 's/HLFS/LFS/' -i chapter06/$this_script
-            # Remove sysctl code if host does not have grsecurity enabled
-          if [[ "$GRSECURITY_HOST" = "0" ]]; then
-            sed '/sysctl/d' -i chapter06/$this_script
-          fi
+      glibc)
+          sed 's/rm /rm -f /' -i chapter06/$this_script
         ;;
-      module-init-tools)
-          if [[ "$TEST" = "0" ]]; then  # This needs rework....
-            sed '/make distclean/d' -i chapter06/$this_script
-          fi
-        ;;
-      glibc)  # PATCH.. Turn off error trapping for the remainder of the script.
-          sed 's|^make install|make install; set +e|'  -i chapter06/$this_script
-        ;;
-      uclibc) # PATCH..
-          sed 's/EST5EDT/${TIMEZONE}/' -i chapter06/$this_script
-            # PATCH.. Cannot use interactive programs/scripts.
-          sed 's/make menuconfig/make oldconfig/' -i chapter06/$this_script
-          sed 's@^cd gettext-runtime@cd ../gettext-*/gettext-runtime@' -i chapter06/$this_script
-        ;;
-      gcc)  # PATCH..
+      gcc)
           sed 's/rm /rm -f /' -i chapter06/$this_script
         ;;
     esac
@@ -383,7 +362,7 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
         ;;
     esac
 
-    # In the mount of kernel filesystems we need to set HLFS and not to use chroot.
+    # In the mount of kernel filesystems we need to set LFS and not to use chroot.
     if [[ `_IS_ $this_script kernfs` ]] ; then
       wrt_run_as_root "${this_script}" "${file}"
     #

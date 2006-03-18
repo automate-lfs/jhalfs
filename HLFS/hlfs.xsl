@@ -107,6 +107,9 @@
              <xsl:text>pushd ../; tar -xvf blfs-bootscripts-&blfs-bootscripts-version;.* ; popd; &#xA;</xsl:text>
           </xsl:if>
         </xsl:if>
+        <xsl:if test="@id='ch-system-kernfs'">
+          <xsl:text>export HLFS=$LFS&#xA;</xsl:text>
+        </xsl:if>
         <xsl:apply-templates select=".//para/userinput | .//screen"/>
         <xsl:text>exit</xsl:text>
       </exsl:document>
@@ -186,6 +189,23 @@
         <xsl:text>make mrproper&#xA;</xsl:text>
         <xsl:text>cp -v /sources/kernel-config .config&#xA;</xsl:text>
       </xsl:when>
+      <!-- No interactive commands are allowed -->
+      <xsl:when test="string() = 'make menuconfig'">
+        <xsl:text>make oldconfig&#xA;</xsl:text>
+      </xsl:when>
+      <!-- For uClibc we need to cd to the Gettext package -->
+      <xsl:when test="contains(string(),'cd gettext-runtime/')">
+        <xsl:text>cd ../gettext-*/gettext-runtime</xsl:text>
+        <xsl:value-of select="substring-after(string(),'gettext-runtime')"/>
+        <xsl:text>&#xA;</xsl:text>
+      </xsl:when>
+      <!-- For uClibc we need to set TIMEZONE envar -->
+      <xsl:when test="contains(string(),'EST5EDT')">
+        <xsl:value-of select="substring-before(string(),'EST5EDT')"/>
+        <xsl:text>${TIMEZONE}</xsl:text>
+        <xsl:value-of select="substring-after(string(),'EST5EDT')"/>
+        <xsl:text>&#xA;</xsl:text>
+      </xsl:when>
       <!-- The Coreutils and Module-Init-Tools test suites are optional -->
       <xsl:when test="($testsuite = '0' or $testsuite = '1') and
                 (ancestor::sect1[@id='ch-system-coreutils'] or
@@ -193,12 +213,6 @@
                 (contains(string(),'check') or
                 contains(string(),'distclean') or
                 contains(string(),'dummy'))"/>
-      <!-- For uClibc we need to cd to the Gettext package -->
-      <xsl:when test="contains(string(),'cd gettext-runtime/')">
-        <xsl:text>cd ../gettext-*/gettext-runtime</xsl:text>
-        <xsl:value-of select="substring-after(string(),'gettext-runtime')"/>
-        <xsl:text>&#xA;</xsl:text>
-      </xsl:when>
       <!-- Fixing toolchain test suites run -->
       <xsl:when test="string() = 'make check' or
                 string() = 'make -k check'">
