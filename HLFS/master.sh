@@ -100,11 +100,11 @@ chapter3_Makefiles() {       # Initialization of the system
     TARGET="tools-linux-uclibc"; LOADER="ld-uClibc.so.0"
   else
     TARGET="tools-linux-gnu";    LOADER="ld-linux.so.2"
-    fi
+  fi
 
-  # 022-
-  # If /home/hlfs is already present in the host, we asume that the
-  # hlfs user and group are also presents in the host, and a backup
+  # NOTE: We use the lfs username and groupname also in HLFS
+  # If /home/lfs is already present in the host, we asume that the
+  # lfs user and group are also presents in the host, and a backup
   # of their bash init files is made.
 (
 cat << EOF
@@ -180,9 +180,6 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
       *introduction* ) continue ;;
         # Test if the stripping phase must be skipped
       *stripping* ) [[ "$STRIP" = "0" ]] && continue ;;
-        # Select the appropriate library
-      *glibc*)    [[ ${MODEL} = "uclibc" ]] && continue ;;
-      *uclibc*)   [[ ${MODEL} = "glibc" ]]  && continue ;;
       *) ;;
     esac
 
@@ -194,17 +191,9 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
     # and binutils in chapter 5)
     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' -e 's@-cross@@' -e 's@-headers@@'`
 
-    # >>>>>>>>>> U G L Y <<<<<<<<<
-    # Adjust 'name' and patch a few scripts on the fly..
+    # Adjust 'name'
     case $name in
-      linux-libc) name=linux-libc-headers
-      ;;
-      uclibc) # this sucks as method to deal with gettext/libint inside uClibc
-        sed 's@^cd gettext-runtime@cd ../gettext-*/gettext-runtime@' -i chapter05/$this_script
-      ;;
-     gcc) # to compensate for the compiler test inside gcc (which fails), disable error trap
-        sed 's@^gcc -o test test.c@set +e; gcc -o test test.c@' -i chapter05/$this_script
-      ;;
+      linux-libc) name=linux-libc-headers ;;
     esac
 
     # Set the dependency for the first target.

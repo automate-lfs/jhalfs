@@ -193,6 +193,12 @@
                 (contains(string(),'check') or
                 contains(string(),'distclean') or
                 contains(string(),'dummy'))"/>
+      <!-- For uClibc we need to cd to the Gettext package -->
+      <xsl:when test="contains(string(),'cd gettext-runtime/')">
+        <xsl:text>cd ../gettext-*/gettext-runtime</xsl:text>
+        <xsl:value-of select="substring-after(string(),'gettext-runtime')"/>
+        <xsl:text>&#xA;</xsl:text>
+      </xsl:when>
       <!-- Fixing toolchain test suites run -->
       <xsl:when test="string() = 'make check' or
                 string() = 'make -k check'">
