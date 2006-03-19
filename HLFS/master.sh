@@ -354,12 +354,6 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
       *readjusting*) # For the Re-Adjusting phase we must to cd to the binutils-build directory.
         echo -e '\t@echo "export PKGDIR=$(SRC)/binutils-build" > envars' >> $MKFILE.tmp
         ;;
-      *glibc* | *uclibc* ) # For glibc and uClibc we need to set TIMEZONE envar.
-        wrt_export_timezone
-        ;;
-      *groff* ) # For Groff we need to set PAGE envar.
-        wrt_export_pagesize
-        ;;
     esac
 
     # In the mount of kernel filesystems we need to set LFS and not to use chroot.

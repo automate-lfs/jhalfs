@@ -29,6 +29,12 @@
        3 = all chapter05 and chapter06 testsuites-->
   <xsl:param name="testsuite" select="1"/>
 
+  <!-- Time zone -->
+  <xsl:param name="timezone" select="America/Toronto"/>
+
+  <!-- Page size -->
+  <xsl:param name="page" select="letter"/>
+
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
   </xsl:template>
@@ -199,13 +205,6 @@
         <xsl:value-of select="substring-after(string(),'gettext-runtime')"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
-      <!-- For uClibc we need to set TIMEZONE envar -->
-      <xsl:when test="contains(string(),'EST5EDT')">
-        <xsl:value-of select="substring-before(string(),'EST5EDT')"/>
-        <xsl:text>${TIMEZONE}</xsl:text>
-        <xsl:value-of select="substring-after(string(),'EST5EDT')"/>
-        <xsl:text>&#xA;</xsl:text>
-      </xsl:when>
       <!-- The Coreutils and Module-Init-Tools test suites are optional -->
       <xsl:when test="($testsuite = '0' or $testsuite = '1') and
                 (ancestor::sect1[@id='ch-system-coreutils'] or
@@ -239,7 +238,8 @@
                 and $testsuite = '0'"/>
       <!-- Don't stop on strip run and chapter05 GCC installation test-->
       <xsl:when test="contains(string(),'strip ') or
-                ancestor::sect2[@id='testing-gcc']">
+                ancestor::sect2[@id='testing-gcc'] and
+                not(contains(string(),'EOF'))">
         <xsl:apply-templates/>
         <xsl:text> || true&#xA;</xsl:text>
       </xsl:when>
@@ -255,10 +255,10 @@
     <xsl:choose>
       <xsl:when test="ancestor::sect1[@id='ch-system-glibc'] or
                       ancestor::sect1[@id='ch-system-uclibc']">
-        <xsl:text>$TIMEZONE</xsl:text>
+        <xsl:value-of select="$timezone"/>
       </xsl:when>
       <xsl:when test="ancestor::sect1[@id='ch-system-groff']">
-        <xsl:text>$PAGE</xsl:text>
+        <xsl:value-of select="$page"/>
       </xsl:when>
       <xsl:when test="ancestor::sect1[@id='bootable-kernel']">
         <xsl:value-of select="$keymap"/>

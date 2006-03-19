@@ -184,11 +184,6 @@ chapter6_Makefiles() {
       wrt_unpack2 "$FILE"
     fi
 
-    case "${this_script}" in
-      *glibc*  ) wrt_export_timezone ;; # For Glibc we need to set TIMEZONE envar.
-      *groff*  ) wrt_export_pagesize ;; # For Groff we need to set PAGE envar.
-    esac
-
     # In the mount of kernel filesystems we need to set LFS
     # and not to use chroot.
     if [[ `_IS_ ${this_script} kernfs` ]] ; then

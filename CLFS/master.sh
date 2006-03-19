@@ -707,14 +707,6 @@ final_system_Makefiles() {    #
         temp-perl) wrt_unpack2 "perl-$vrs.tar.*"    ;;
         *)         wrt_unpack2 "$name-$vrs.tar.*"   ;;
       esac
-      #
-      # Export a few 'config' vars..
-      case $this_script in
-        *glibc*) # For glibc we can set then TIMEZONE envar.
-	   wrt_export_timezone           ;;
-        *groff*) # For Groff we need to set PAGE envar.
-	   wrt_export_pagesize           ;;
-      esac
     fi
     #
     wrt_run_as_chroot1 "${this_script}" "${file}"

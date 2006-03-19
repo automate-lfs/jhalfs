@@ -23,6 +23,12 @@
   <!-- Install vim-lang package? -->
   <xsl:param name="vim-lang" select="1"/>
 
+  <!-- Time zone -->
+  <xsl:param name="timezone" select="America/Toronto"/>
+
+  <!-- Page size -->
+  <xsl:param name="page" select="letter"/>
+
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
   </xsl:template>
@@ -191,10 +197,10 @@
   <xsl:template match="replaceable">
     <xsl:choose>
       <xsl:when test="ancestor::sect1[@id='ch-system-glibc']">
-        <xsl:text>$TIMEZONE</xsl:text>
+        <xsl:value-of select="$timezone"/>
       </xsl:when>
       <xsl:when test="ancestor::sect1[@id='ch-system-groff']">
-        <xsl:text>$PAGE</xsl:text>
+        <xsl:value-of select="$page"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:text>**EDITME</xsl:text>
