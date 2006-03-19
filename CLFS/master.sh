@@ -287,7 +287,7 @@ cross_tools_Makefiles() {     #
     #
     # If $vrs isn't empty, we've got a package...
     #
-    [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar" &&  echo -e '\ttrue' >> $MKFILE.tmp
+    [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*" &&  echo -e '\ttrue' >> $MKFILE.tmp
     #
     wrt_run_as_lfs "${this_script}" "${file}"
     #
@@ -339,7 +339,7 @@ temptools_Makefiles() {       #
     # If $vrs isn't empty, we've got a package...
     # Insert instructions for unpacking the package and to set the PKGDIR variable.
     #
-    [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar" && echo -e '\ttrue' >> $MKFILE.tmp
+    [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*" && echo -e '\ttrue' >> $MKFILE.tmp
     #
     wrt_run_as_lfs "${this_script}" "${file}"
     #
@@ -411,7 +411,7 @@ boot_Makefiles() {            #
     # If $vrs isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     #
-    [[ "$vrs" != "" ]] && wrt_unpack3 "$name-$vrs.tar.*"
+    [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*"
     #
     # Select a script execution method
     case $this_script in
@@ -488,7 +488,7 @@ chroot_Makefiles() {          #
     #
     if [ "$vrs" != "" ] ; then
       case $this_script in
-        *util-linux)    wrt_unpack  "$name-$vrs.tar"
+        *util-linux)    wrt_unpack  "$name-$vrs.tar.*"
                         echo -e '\ttrue' >> $MKFILE.tmp
             ;;
         *)              wrt_unpack2 "$name-$vrs.tar.*"
@@ -551,8 +551,8 @@ testsuite_tools_Makefiles() { #
     echo -e "\n$this_script:  $PREV\n\t@\$(call echo_message, Building)" >> $MKFILE.tmp
     #
     case $name in
-      tcl)    wrt_unpack2 "$name$vrs-src.tar" ;;
-      *)      wrt_unpack2 "$name-$vrs.tar"    ;;
+      tcl)    wrt_unpack2 "$name$vrs-src.tar.*" ;;
+      *)      wrt_unpack2 "$name-$vrs.tar.*"    ;;
     esac
     #
     wrt_run_as_chroot1 "${this_script}" "${file}"
@@ -604,8 +604,8 @@ bm_testsuite_tools_Makefiles() { #
     echo -e "\n$this_script:  $PREV\n\t@\$(call echo_message, Building)" >> $MKFILE.tmp
     #
     case $name in
-      tcl)    wrt_unpack4 "$name$vrs-src.tar.*" ;;
-      *)      wrt_unpack4 "$name-$vrs.tar.*"    ;;
+      tcl)    wrt_unpack3 "$name$vrs-src.tar.*" ;;
+      *)      wrt_unpack3 "$name-$vrs.tar.*"    ;;
     esac
     #
     wrt_run_as_root2 "${this_script}" "${file}"
@@ -818,8 +818,8 @@ bm_final_system_Makefiles() { #
     # If $vrs isn't empty, we've got a package...
     if [ "$vrs" != "" ] ; then
       case $name in
-        temp-perl) wrt_unpack4 "perl-$vrs.tar.*"    ;;
-        *)         wrt_unpack4 "$name-$vrs.tar.*"   ;;
+        temp-perl) wrt_unpack3 "perl-$vrs.tar.*"    ;;
+        *)         wrt_unpack3 "$name-$vrs.tar.*"   ;;
       esac
       #
       # Export a few 'config' vars..
@@ -985,7 +985,7 @@ EOF
     #
     # If $vrs isn't empty, we've got a package...
     #
-    [[ "$vrs" != "" ]] && wrt_unpack4 "$name-$vrs.tar.*"
+    [[ "$vrs" != "" ]] && wrt_unpack3 "$name-$vrs.tar.*"
     #
     wrt_run_as_root2 "${this_script}" "${file}"
     #
@@ -1056,7 +1056,7 @@ bootable_Makefiles() {        #
     # If $vrs isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     #
-    [[ "$vrs" != "" ]] && wrt_unpack3 "$name-$vrs.tar.*"
+    [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*"
     #
     # Select a script execution method
     case $this_script in
@@ -1100,7 +1100,7 @@ bm_bootable_Makefiles() {     #
     # A little housekeeping on the scripts
     case $this_script in
       *grub*)     continue  ;;
-      *kernel) 
+      *kernel)
                # if there is no kernel config file do not build the kernel
                [[ -z $CONFIG ]] && continue
                cfg_file="/sources/`basename $CONFIG`"
@@ -1141,7 +1141,7 @@ bm_bootable_Makefiles() {     #
     # If $vrs isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     #
-    [[ "$vrs" != "" ]] && wrt_unpack4 "$name-$vrs.tar.*"
+    [[ "$vrs" != "" ]] && wrt_unpack3 "$name-$vrs.tar.*"
     #
     # Select a script execution method
     case $this_script in

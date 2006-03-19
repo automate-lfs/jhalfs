@@ -228,21 +228,6 @@ EOF
 }
 
 
-#=============================#
-wrt_unpack3() {               # Unpack and set 'ROOT' var
-#=============================#
-  local FILE=$1
-(
-cat  << EOF
-	@\$(call unpack3,$FILE)
-	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
-	echo "export PKGDIR=\$(MOUNT_PT)\$(SRC)/\$\$ROOT" > envars && \\
-	chown -R lfs \$(MOUNT_PT)\$(SRC)/\$\$ROOT
-EOF
-) >> $MKFILE.tmp
-}
-
-
 #----------------------------------#
 wrt_unpack2() {                    #
 #----------------------------------#
@@ -258,12 +243,12 @@ EOF
 
 
 #=============================#
-wrt_unpack4() {               # Unpack and set 'ROOT' var
+wrt_unpack3() {               # Unpack and set 'ROOT' var
 #=============================#
   local FILE=$1
 (
 cat  << EOF
-	@\$(call unpack4,$FILE)
+	@\$(call unpack3,$FILE)
 	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
 	echo "export PKGDIR=\$(SRC)/\$\$ROOT" > envars
 EOF

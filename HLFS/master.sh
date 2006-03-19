@@ -215,10 +215,10 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
     if [ "$vrs" != "" ] ; then
       # Deal with non-standard names
       case $name in
-        tcl)    FILE="$name$vrs-src.tar"  ;;
-        uclibc) FILE="uClibc-$vrs.tar"    ;;
-        gcc)    FILE="gcc-core-$vrs.tar"  ;;
-        *)      FILE="$name-$vrs.tar"     ;;
+        tcl)    FILE="$name$vrs-src.tar.*"  ;;
+        uclibc) FILE="uClibc-$vrs.tar.*"    ;;
+        gcc)    FILE="gcc-core-$vrs.tar.*"  ;;
+        *)      FILE="$name-$vrs.tar.*"     ;;
       esac
      # Insert instructions for unpacking the package and to set the PKGDIR variable.
      wrt_unpack "$FILE"

@@ -106,9 +106,9 @@ chapter5_Makefiles() {
     # If $vrs isn't empty, we've got a package...
     if [ "$vrs" != "" ] ; then
       if [ "$name" = "tcl" ] ; then
-        FILE="$name$vrs-src.tar"
+        FILE="$name$vrs-src.tar.*"
       else
-        FILE="$name-$vrs.tar"
+        FILE="$name-$vrs.tar.*"
       fi
 
       # Insert instructions for unpacking the package and to set the PKGDIR variable.
