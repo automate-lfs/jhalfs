@@ -453,10 +453,6 @@ EOF
       echo -e "\t@cp -f $CONFIG \$(MOUNT_PT)/sources/kernel-config" >> $MKFILE.tmp
     fi
 
-    case "${this_script}" in
-      *profile*  ) wrt_export_lang2 ;; # For /etc/profile we need to set LANG envar.
-    esac
-
     # Check if we have a real /etc/fstab file
     if [[ `_IS_ $this_script fstab` ]] && [[ -n "$FSTAB" ]] ; then
       wrt_copy_fstab "$this_script"
@@ -512,10 +508,6 @@ $HEADER
 
 SRC= /sources
 MOUNT_PT= $BUILDDIR
-PAGE= $PAGE
-TIMEZONE= $TIMEZONE
-LC_ALL= $LC_ALL
-LANG= $LANG
 
 include makefile-functions
 

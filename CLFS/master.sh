@@ -1212,8 +1212,6 @@ $HEADER
 
 SRC= /sources
 MOUNT_PT= $BUILDDIR
-PAGE= $PAGE
-TIMEZONE= $TIMEZONE
 
 include makefile-functions
 

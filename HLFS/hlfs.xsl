@@ -35,6 +35,10 @@
   <!-- Page size -->
   <xsl:param name="page" select="letter"/>
 
+  <!-- Locale settings -->
+  <xsl:param name="lang" select="en_ca"/>
+  <xsl:param name="lc_all" select="en_ca"/>
+
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
   </xsl:template>
@@ -176,8 +180,11 @@
       <xsl:when test="ancestor::sect1[@id='bootable-profile'] and
                 contains(string(),'export LANG=')">
         <xsl:value-of select="substring-before(string(),'export LC_ALL=')"/>
-        <xsl:text>export LC_ALL=$LC_ALL&#xA;export LANG=$LANG&#xA;</xsl:text>
-        <xsl:text>export INPUTRC</xsl:text>
+        <xsl:text>export LC_ALL=</xsl:text>
+        <xsl:value-of select="$lc_all"/>
+        <xsl:text>&#xA;export LANG=</xsl:text>
+        <xsl:value-of select="$lang"/>
+        <xsl:text>&#xA;export INPUTRC</xsl:text>
         <xsl:value-of select="substring-after(string(),'INPUTRC')"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>

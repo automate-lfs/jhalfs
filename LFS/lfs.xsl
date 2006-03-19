@@ -29,6 +29,9 @@
   <!-- Page size -->
   <xsl:param name="page" select="letter"/>
 
+  <!-- Locale settings -->
+  <xsl:param name="lang" select="en_ca"/>
+
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
   </xsl:template>
@@ -133,7 +136,8 @@
       <xsl:when test="ancestor::sect1[@id='ch-scripts-profile'] and
                 contains(string(),'export LANG=')">
         <xsl:value-of select="substring-before(string(),'export LANG=')"/>
-        <xsl:text>export LANG=$LANG</xsl:text>
+        <xsl:text>export LANG=</xsl:text>
+        <xsl:value-of select="$lang"/>
         <xsl:value-of select="substring-after(string(),'modifiers]')"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
