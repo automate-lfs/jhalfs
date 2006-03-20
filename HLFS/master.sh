@@ -38,9 +38,6 @@ get_sources() {              #
                        -e 's/-file.*//' \
                        -e 's/uclibc/uClibc/' `
 
-    # Needed for Groff patchlevel patch on UTF-8 branch
-    GROFFLEVEL=`grep "groff-patchlevel" $JHALFSDIR/packages | sed -e 's/groff-patchlevel //' -e 's/"//g'`
-
     #
     # How to deal with orphan packages..??
     #
