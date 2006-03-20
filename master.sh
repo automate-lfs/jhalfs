@@ -313,7 +313,10 @@ fi
 if [[ "$PWD" != "$JHALFSDIR" ]]; then
   cp -v $COMMON_DIR/makefile-functions $JHALFSDIR/
   if [[ -n "$FILES" ]]; then
-    cp -v $PACKAGE_DIR/$FILES $JHALFSDIR/
+    # pushd/popd necessary to deal with mulitiple files
+    pushd $PACKAGE_DIR
+      cp -v $FILES $JHALFSDIR/
+    popd
   fi
   sed 's,FAKEDIR,'$BOOK',' $PACKAGE_DIR/$XSL > $JHALFSDIR/${XSL}
   export XSL=$JHALFSDIR/${XSL}

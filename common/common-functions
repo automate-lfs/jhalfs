@@ -546,7 +546,8 @@ build_patches_file() {       # Supply a suitably formated list of patches.
 #----------------------------#
   local saveIFS=$IFS
   local IFS
-  echo -ne "Creating the patch file list "
+
+  rm -f patches
 
   LOC_add_patches_entry() {
     for f in `grep "/$1-" patcheslist_.wget`; do
@@ -554,14 +555,33 @@ build_patches_file() {       # Supply a suitably formated list of patches.
     done
   }
 
-  xsltproc --nonet \
-           --xinclude \
-           --stringparam model $MODEL \
-           -o patcheslist_.wget \
-           patcheslist.xsl \
-           $BOOK/chapter04/patches.xml
+  case ${PROGNAME} in
+    hlfs)
+         echo -n "Creating the ${L_arrow}${BOLD}HLFS${R_arrow} specific patcheslist_.wget file"
+         xsltproc --nonet \
+                  --xinclude \
+                  --stringparam model $MODEL \
+                  -o patcheslist_.wget \
+                  patcheslist.xsl \
+                  $BOOK/chapter04/patches.xml
+                  #> /dev/null 2>&1
 
-  rm -f patches
+         # .... U G L Y .... what to do with the grsecurity patch to the kernel..
+         for f in `grep "/grsecurity-" patcheslist_.wget`; do
+           basename $f >> patches
+         done
+      ;;
+
+    clfs)  # Pull out a list of arch specific patches
+         echo -n "Creating ${L_arrow}${BOLD}$ARCH${R_arrow} specific patcheslist_.wget file"
+         xsltproc -xinclude  \
+                  -o patcheslist_.wget \
+                  patcheslist.xsl \
+                  $BOOK/${ARCH}-index.xml   
+      ;;
+    *)  return
+  esac
+
 
   IFS=$'\x0A'  # Modify the 'internal field separator' to break on 'LF' only
   for f in `cat packages`; do
@@ -573,20 +593,15 @@ build_patches_file() {       # Supply a suitably formated list of patches.
                    -e 's/uclibc/uClibc/'`
   done
 
-  # .... U G L Y .... what to do with the grsecurity patch to the kernel..
-  for f in `grep "/grsecurity-" patcheslist_.wget`; do
-      basename $f >> patches
-  done
-
-  rm -f patcheslist_.wget
-  echo "...OK"
+  echo " ...OK"
 }
-
 
 
 #----------------------------#
 extract_commands() {         #
 #----------------------------#
+  local saveIFS=$IFS
+  
   # Check for libxslt instead of just letting the script hit 'xsltproc' and fail.
   test `type -p xsltproc` || eval "echo \"This feature requires libxslt.\"
   exit 1"
@@ -604,14 +619,14 @@ extract_commands() {         #
   # Dump the commands in shell script form from the HLFS book.
   case ${PROGNAME} in
     clfs)
-        echo -n "${tab_} ${L_arrow}${BOLD}$ARCH${R_arrow} target architecture"
+        echo -n " ${L_arrow}${BOLD}$ARCH${R_arrow} target architecture"
         xsltproc --xinclude \
                  --nonet \
                  --output ./${PROGNAME}-commands/ \
                 $BOOK/stylesheets/dump-commands.xsl $BOOK/$ARCH-index.xml
       ;;
     hlfs)
-        echo -n "${tab_} ${L_arrow}${BOLD}$MODEL${R_arrow} HLFS architecture"
+        echo -n " ${L_arrow}${BOLD}$MODEL${R_arrow} HLFS architecture"
         xsltproc --nonet \
                  --xinclude \
                  --stringparam model $MODEL \
@@ -625,7 +640,7 @@ extract_commands() {         #
                  -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
       ;;
     lfs)
-        echo -n "${tab_} ${L_arrow}${BOLD}LFS${R_arrow} build"
+        echo -n " ${L_arrow}${BOLD}LFS${R_arrow} build"
         xsltproc --nonet \
                  --xinclude \
                  --stringparam testsuite $TEST \
@@ -636,7 +651,7 @@ extract_commands() {         #
                  -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
       ;;
     blfs)
-        echo -n "${tab_} ${L_arrow}${BOLD}BLFS${R_arrow} build"
+        echo -n " ${L_arrow}${BOLD}BLFS${R_arrow} build"
         xsltproc --nonet \
                  --xinclude \
                  --stringparam testsuite $TEST \
@@ -652,10 +667,61 @@ extract_commands() {         #
   chmod -R +x $JHALFSDIR/${PROGNAME}-commands
 
   # Grab the patches and package names.
-  cd $JHALFSDIR
-  for i in patches packages ; do rm -f $i ; done
-  grep "\-version" $BOOK/general.ent | sed -e 's@<!ENTITY @@' -e 's@">@"@' \
-  -e '/generic/d' >> packages
+  for i in patches packages ; do 
+    rm -f $i
+  done
+  #
+  case "${PROGNAME}" in
+    clfs)
+      ################################
+      # A LOCAL function
+      # xx_.wget contains arch specific files but in URL format
+      # Build a file with only arch specific files.. small ugly..
+      LOC_add_packages_entry() {
+        local fileMATCH aFILE
+    
+        fileMATCH="/$1"
+        # format.. Filename-Version  or FilenameVersion
+        for aFILE in `grep ${fileMATCH}-*[[:digit:]] packageslist_.wget`; do
+         # The aFILE%\?* is necessary to strip the "?download" appended to sourceforge files
+         echo "$1-version \"$2\"" >> packages
+        done
+      }
+      #################################
+ 
+      # We only want a list arch specific files..
+      # Unfortunately this script produces URL's which must be converted to a std format
+      echo -n "Creating CLFS ${L_arrow}${BOLD}${ARCH}${R_arrow} specific packageslist_.wget file"
+      xsltproc -xinclude  \
+               -o packageslist_.wget \
+               packageslist.xsl \
+               $BOOK/${ARCH}-index.xml   
+
+      # This has the correct format but contains packages from every book  
+      grep "\-version " $BOOK/packages.ent | sed -e 's@<!ENTITY @@' \
+                                                 -e 's@">@"@' \
+                                                 -e '/generic/d' > packages.tmp
+      # This variable is necessary to make sure the `cat $JHALFSDIR/packages`
+      # separates each iteration by lines.
+      # Modify the 'internal field separator' to break on 'LF' only
+      IFS=$'\x0A'
+      for f in `cat packages.tmp`; do
+        IFS=$saveIFS  # Restore the system defaults	
+        LOC_add_packages_entry \
+        `echo $f | sed -e 's/-version//' \
+                       -e 's/-file.*//' \
+                       -e 's/"//g'`
+     done
+     echo " ...OK"
+     ;;
+           
+    *)
+      echo -n "Creating <${PROGNAME}> specific packageslist_.wget file"
+      grep "\-version" $BOOK/general.ent | sed -e 's@<!ENTITY @@' \
+                                               -e 's@">@"@' \
+                                               -e '/generic/d' >> packages
+      ;; 
+  esac
 
   # Download the vim-lang package if it must be installed
   if [ "$VIMLANG" = "1" ] && [ ! "$PROGNAME" = "hlfs" ] ; then
@@ -663,11 +729,12 @@ extract_commands() {         #
   fi
   echo `grep "udev-config-file" $BOOK/general.ent | sed -e 's@<!ENTITY @@' -e 's@">@"@'` >> packages
 
-  # There is no HLFS patches.ent file so we will create one.
-
+  # There is no useful patches.ent file so we will create one.
   case "${PROGNAME}" in
-    hlfs)  build_patches_file ;;
-    clfs) ;;
+    hlfs)
+      build_patches_file ;;
+    clfs )
+      build_patches_file ;;
     lfs)
       grep "^<\!ENTITY" $BOOK/patches.ent | sed -e 's/.* "//' -e 's/">//' >> patches
       ;;

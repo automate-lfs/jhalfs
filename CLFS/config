@@ -54,7 +54,7 @@ BOOK=
 # Don't edit it unless you know what you are doing
 
 #--- Files that will be copied to $JHALFSDIR
-FILES=""
+FILES="patcheslist.xsl  packageslist.xsl"
 
 #--- Default stylesheet
 XSL=clfs.xsl
