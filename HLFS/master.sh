@@ -35,7 +35,6 @@ get_sources() {              #
   # Iterate through each package and grab it, along with any patches it needs.
   for i in `cat $JHALFSDIR/packages` ; do
     PKG=`echo $i | sed -e 's/-version.*//' \
-                       -e 's/-file.*//' \
                        -e 's/uclibc/uClibc/' `
 
     #
@@ -43,27 +42,43 @@ get_sources() {              #
     #
     VRS=`echo $i | sed -e 's/.* //' -e 's/"//g'`
     case "$PKG" in
+      "gcc" )
+        download $PKG "gcc-core-$VRS.tar.bz2"
+        download $PKG "gcc-g++-$VRS.tar.bz2"
+        if [ ! "$TEST" = "0" ] ; then
+          download $PKG "gcc-testsuite-$VRS.tar.bz2" ;
+        fi
+        ;;
+
+      "glibc")
+        if [ "$MODEL" = "glibc" ] ; then
+          download $PKG "$PKG-$VRS.tar.bz2"
+          download $PKG "$PKG-libidn-$VRS.tar.bz2"
+        fi
+        ;;
+
+      "tcl" )
+        FILE="$PKG$VRS-src.tar.bz2" ; download $PKG $FILE ;;
+
+      "uclibc" )
+        if [ "$MODEL" = "uclibc" ] ; then
+          download $PKG "$PKG-$VRS.tar.bz2"
+        fi
+        ;;
+
+      "uClibc-locale" )
+        if [ "$MODEL" = "uclibc" ] ; then
+          FILE="$PKG-$VRS.tgz" ; PKG="uClibc"
+          download $PKG $FILE
+          # There can be no patches for this file
+          continue
+        fi
+        ;;
+
       "uClibc-patch" )      continue ;;
 
-      "tcl" )   FILE="$PKG$VRS-src.tar.bz2" ; download $PKG $FILE ;;
-
-      "uClibc-locale" ) FILE="$PKG-$VRS.tgz" ; PKG="uClibc"
-                download $PKG $FILE
-                # There can be no patches for this file
-                continue ;;
-
-      "gcc" )   download $PKG "gcc-core-$VRS.tar.bz2"
-                download $PKG "gcc-g++-$VRS.tar.bz2"
-                if [ ! "$TEST" = "0" ] ; then
-                  download $PKG "gcc-testsuite-$VRS.tar.bz2" ;
-                fi
-        ;;
-      "glibc")  download $PKG "$PKG-$VRS.tar.bz2"
-                download $PKG "$PKG-libidn-$VRS.tar.bz2"
-        ;;
-      * )     FILE="$PKG-$VRS.tar.bz2"
-              download $PKG $FILE
-        ;;
+      * )
+        FILE="$PKG-$VRS.tar.bz2" ;  download $PKG $FILE ;;
     esac
 
     for patch in `grep "$PKG-&$PKG" $JHALFSDIR/patches` ; do

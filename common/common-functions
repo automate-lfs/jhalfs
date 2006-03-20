@@ -556,10 +556,10 @@ build_patches_file() {       # Supply a suitably formated list of patches.
 
   xsltproc --nonet \
            --xinclude \
+           --stringparam model $MODEL \
            -o patcheslist_.wget \
            patcheslist.xsl \
            $BOOK/chapter04/patches.xml
-	   #> /dev/null 2>&1
 
   rm -f patches
 
