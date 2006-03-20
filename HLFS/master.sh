@@ -50,7 +50,7 @@ get_sources() {              #
 
       "tcl" )   FILE="$PKG$VRS-src.tar.bz2" ; download $PKG $FILE ;;
 
-      "uClibc-locale" ) FILE="$PKG-$VRS.tar.bz2" ; PKG="uClibc"
+      "uClibc-locale" ) FILE="$PKG-$VRS.tgz" ; PKG="uClibc"
                 download $PKG $FILE
                 # There can be no patches for this file
                 continue ;;
@@ -78,9 +78,6 @@ get_sources() {              #
 
   # .... U G L Y .... what to do with the grsecurity patch to the kernel..
   download grsecurity `grep grsecurity $JHALFSDIR/patches`
-
-  # .... U G L Y .... deal with uClibc-locale-xxxxx.tar.bz2 format issue.
-  bzcat uClibc-locale-030818.tar.bz2 | gzip > uClibc-locale-030818.tgz
 
   if [[ -s $BUILDDIR/sources/MISSING_FILES.DMP ]]; then
     echo  -e "\n\n${tab_}${RED} One or more files were not retrieved.\n${tab_} Check <MISSING_FILES.DMP> for names ${OFF}\n\n"
@@ -418,10 +415,6 @@ chapter7_Makefiles() {       # Create a bootable system.. kernel, bootscripts..e
       *kernel)
           # If no .config file is supplied, the kernel build is skipped
         [[ -z $CONFIG ]] && continue
-          # The files in the conglomeration dir are xxx.bz2
-          # What if the user download the original file?
-        sed 's|.patch.gz|.patch.bz2|'   -i chapter07/$this_script
-        sed 's|gunzip|bunzip2|'         -i chapter07/$this_script
          ;;
     esac
 
