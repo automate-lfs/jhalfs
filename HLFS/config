@@ -16,7 +16,8 @@ GRSECURITY_HOST=0
 #--- Location of fstab file (if empty, a template is created)
 FSTAB=
 
-#--- Location of kernel config file (if the kernel is to be compiled)
+#--- Fully qualified path to a kernel config file 
+# If no config file is  specified the kernel is NOT compiled
 CONFIG=
 
 #--- Book's sources directory

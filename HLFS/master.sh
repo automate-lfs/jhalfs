@@ -427,6 +427,7 @@ chapter7_Makefiles() {       # Create a bootable system.. kernel, bootscripts..e
       *kernel)
           # If no .config file is supplied, the kernel build is skipped
         [[ -z $CONFIG ]] && continue
+	cp $CONFIG $BUILDDIR/sources/kernel-config
          ;;
     esac
 
