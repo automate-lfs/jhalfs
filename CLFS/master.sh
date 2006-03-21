@@ -219,7 +219,7 @@ boot_Makefiles() {            #
       *kernel)    # if there is no kernel config file do not build the kernel
                 [[ -z $CONFIG ]] && continue
                   # Copy the config file to /sources with a standardized name
-                cp -v $CONFIG $BUILDDIR/sources/kernel-config
+                cp $CONFIG $BUILDDIR/sources/kernel-config
                 sed "s|make mrproper|make mrproper\ncp /sources/kernel-config .config|" -i $file
                   # You cannot run menuconfig from within the makefile
                 sed 's|menuconfig|oldconfig|'     -i $file
@@ -861,7 +861,7 @@ bootable_Makefiles() {        #
                  # if there is no kernel config file do not build the kernel
                [[ -z $CONFIG ]] && continue
                  # Copy the config file to /sources with a standardized name
-               cp -v $CONFIG $BUILDDIR/sources/kernel-config
+               cp $CONFIG $BUILDDIR/sources/kernel-config
                sed "s|make mrproper|make mrproper\ncp /sources/kernel-config .config|" -i $file
                  # You cannot run menuconfig from within the makefile
                sed 's|menuconfig|oldconfig|'     -i $file
@@ -944,7 +944,7 @@ bm_bootable_Makefiles() {     #
                  # if there is no kernel config file do not build the kernel
                [[ -z $CONFIG ]] && continue
                  # Copy the named config file to /sources with a standardized name
-	       cp -v $CONFIG $BUILDDIR/sources/kernel-config
+	       cp $CONFIG $BUILDDIR/sources/kernel-config
                sed "s|make mrproper|make mrproper\ncp ../kernel-config .config|" -i $file
                  # You cannot run menuconfig from within the makefile
                sed 's|menuconfig|oldconfig|'     -i $file
