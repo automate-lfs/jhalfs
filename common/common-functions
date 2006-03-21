@@ -573,7 +573,7 @@ build_patches_file() {       # Supply a suitably formated list of patches.
       ;;
 
     clfs)  # Pull out a list of arch specific patches
-         echo -n "Creating ${L_arrow}${BOLD}$ARCH${R_arrow} specific patcheslist_.wget file"
+         echo -n "Creating CLFS ${L_arrow}${BOLD}$ARCH${R_arrow} specific patcheslist_.wget file"
          xsltproc -xinclude  \
                   -o patcheslist_.wget \
                   patcheslist.xsl \

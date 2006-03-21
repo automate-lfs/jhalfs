@@ -43,8 +43,10 @@ METHOD=chroot
 FSTAB=
 
 #--- Location of kernel config file (if the kernel is to be compiled)
-#--- This file MUST reside in the sources directory
 CONFIG=
+
+#--- Location of boot-kernel config file (if METHOD=boot)
+BOOT_CONFIG=
 
 #--- Book's sources directory
 # If you have previously checked out the book from the repository
