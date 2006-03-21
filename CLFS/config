@@ -37,7 +37,7 @@ TARGET=
 
 #--- Create a minimal boot system 0(chroot)/1(bootmin) 
 #    NOTE: not all combinations are 'bootable' yet.
-BOOTMINIMAL=1
+BOOTMINIMAL=0
 
 #--- Location of fstab file (if empty, a template is created)
 FSTAB=

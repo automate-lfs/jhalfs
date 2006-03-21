@@ -334,5 +334,5 @@ echo "---------------${nl_}"
 build_Makefile
 echo "---------------${nl_}"
 
-#run_make
+run_make
 

@@ -679,12 +679,14 @@ extract_commands() {         #
       # Build a file with only arch specific files.. small ugly..
       LOC_add_packages_entry() {
         local fileMATCH aFILE
-    
+
         fileMATCH="/$1"
         # format.. Filename-Version  or FilenameVersion
         for aFILE in `grep ${fileMATCH}-*[[:digit:]] packageslist_.wget`; do
-         # The aFILE%\?* is necessary to strip the "?download" appended to sourceforge files
-         echo "$1-version \"$2\"" >> packages
+         # Block vim-x.x-lang file, will add it later based on config flag
+	 if [[ ! "${aFILE}" =~ "vim-$2-lang" ]]; then
+           echo "$1-version \"$2\"" >> packages
+	 fi
         done
       }
       #################################
