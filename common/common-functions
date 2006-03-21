@@ -577,7 +577,7 @@ build_patches_file() {       # Supply a suitably formated list of patches.
          xsltproc -xinclude  \
                   -o patcheslist_.wget \
                   patcheslist.xsl \
-                  $BOOK/${ARCH}-index.xml   
+                  $BOOK/materials/${ARCH}-chapter.xml
       ;;
     *)  return
   esac
@@ -601,7 +601,7 @@ build_patches_file() {       # Supply a suitably formated list of patches.
 extract_commands() {         #
 #----------------------------#
   local saveIFS=$IFS
-  
+
   # Check for libxslt instead of just letting the script hit 'xsltproc' and fail.
   test `type -p xsltproc` || eval "echo \"This feature requires libxslt.\"
   exit 1"
@@ -666,7 +666,7 @@ extract_commands() {         #
   chmod -R +x $JHALFSDIR/${PROGNAME}-commands
 
   # Grab the patches and package names.
-  for i in patches packages ; do 
+  for i in patches packages ; do
     rm -f $i
   done
   #
@@ -689,16 +689,16 @@ extract_commands() {         #
         done
       }
       #################################
- 
+
       # We only want a list arch specific files..
       # Unfortunately this script produces URL's which must be converted to a std format
       echo -n "Creating CLFS ${L_arrow}${BOLD}${ARCH}${R_arrow} specific packageslist_.wget file"
       xsltproc -xinclude  \
                -o packageslist_.wget \
                packageslist.xsl \
-               $BOOK/${ARCH}-index.xml   
+               $BOOK/materials/${ARCH}-chapter.xml
 
-      # This has the correct format but contains packages from every book  
+      # This has the correct format but contains packages from every book
       grep "\-version " $BOOK/packages.ent | sed -e 's@<!ENTITY @@' \
                                                  -e 's@">@"@' \
                                                  -e '/generic/d' > packages.tmp
@@ -707,7 +707,7 @@ extract_commands() {         #
       # Modify the 'internal field separator' to break on 'LF' only
       IFS=$'\x0A'
       for f in `cat packages.tmp`; do
-        IFS=$saveIFS  # Restore the system defaults	
+        IFS=$saveIFS  # Restore the system defaults
         LOC_add_packages_entry \
         `echo $f | sed -e 's/-version//' \
                        -e 's/-file.*//' \
@@ -715,14 +715,14 @@ extract_commands() {         #
      done
      echo " ...OK"
      ;;
-           
+
     *)
       echo -n "Creating <${PROGNAME}> specific packageslist_.wget file"
       grep "\-version" $BOOK/general.ent | sed -e 's@<!ENTITY @@' \
                                                -e 's@">@"@' \
                                                -e '/generic/d' >> packages
       echo " ...OK"
-      ;; 
+      ;;
   esac
 
   # Download the vim-lang package if it must be installed
