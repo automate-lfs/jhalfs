@@ -447,6 +447,7 @@ chapter7_Makefiles() {       # Create a bootable system.. kernel, bootscripts..e
       vrs=`grep "^lfs-bootscripts-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
       FILE="lfs-bootscripts-$vrs.tar.*"
       wrt_unpack2 "$FILE"
+      vrs=`grep "^blfs-bootscripts-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
 (
 cat  << EOF
 	@echo "\$(MOUNT_PT)\$(SRC)/blfs-bootscripts-$vrs" > sources-dir
