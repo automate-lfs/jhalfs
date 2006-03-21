@@ -413,7 +413,7 @@ wrt_copy_fstab2() {                 #
 (
     cat << EOF
 	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude={0,1}??-* \`\n" >logs/$i && \\
-	cp -v $FSTAB /etc/fstab >>logs/$i 2>&1 && \\
+	cp -v /sources/fstab /etc/fstab >>logs/$i 2>&1 && \\
 	echo -e "\n\`date\`\n\nKB: \`du -skx --exclude={0,1}??-* \`\n" >>logs/$i
 EOF
 ) >> $MKFILE.tmp
@@ -622,8 +622,7 @@ extract_commands() {         #
         echo -n " ${L_arrow}${BOLD}$ARCH${R_arrow} target architecture"
         xsltproc --xinclude \
                  --nonet \
-                 --output ./${PROGNAME}-commands/ \
-                $BOOK/stylesheets/dump-commands.xsl $BOOK/$ARCH-index.xml
+                 -o ./${PROGNAME}-commands/ $XSL $BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
       ;;
     hlfs)
         echo -n " ${L_arrow}${BOLD}$MODEL${R_arrow} HLFS architecture"

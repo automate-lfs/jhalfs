@@ -987,6 +987,8 @@ bm_bootable_Makefiles() {     #
     # Select a script execution method
     case $this_script in
       *fstab*)  if [[ -n "$FSTAB" ]]; then
+                  # Minimal boot mode has no access to original file, store in /sources
+                  cp $FSTAB $BUILDDIR/sources/fstab
                   wrt_copy_fstab2 "${this_script}"
                 else
                   wrt_run_as_root2  "${this_script}" "${file}"
