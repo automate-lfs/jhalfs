@@ -722,6 +722,7 @@ extract_commands() {         #
       grep "\-version" $BOOK/general.ent | sed -e 's@<!ENTITY @@' \
                                                -e 's@">@"@' \
                                                -e '/generic/d' >> packages
+      echo " ...OK"
       ;; 
   esac
 

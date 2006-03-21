@@ -455,11 +455,6 @@ EOF
 ) >> $MKFILE.tmp
     fi
 
-    if [[ `_IS_ $this_script kernel` ]] ; then
-      # not much really, script does everything..
-      echo -e "\t@cp -f $CONFIG \$(MOUNT_PT)/sources/kernel-config" >> $MKFILE.tmp
-    fi
-
     # Check if we have a real /etc/fstab file
     if [[ `_IS_ $this_script fstab` ]] && [[ -n "$FSTAB" ]] ; then
       wrt_copy_fstab "$this_script"

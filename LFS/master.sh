@@ -222,14 +222,15 @@ chapter789_Makefiles() {
     # The filesystems can't be unmounted via Makefile and the user
     # should enter the chroot environment to create the root
     # password, edit several files and setup Grub.
-    if [[ `_IS_ ${this_script} grub` ]] || [[ `_IS_ ${this_script} reboot` ]] ; then
-       continue
-    fi
-
+    #
     # If no .config file is supplied, the kernel build is skipped
-    if [ -z $CONFIG ] && [[ `_IS_ ${this_script} kernel` ]] ; then
-      continue
-    fi
+    #
+    case ${this_script} in
+      *grub)    continue ;;
+      *reboot)  continue ;;
+      *kernel)  [[ -z ${CONFIG} ]] && continue
+                cp ${CONFIG} $BUILDDIR/sources/kernel-config  ;;
+    esac
 
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile

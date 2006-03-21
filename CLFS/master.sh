@@ -216,12 +216,14 @@ boot_Makefiles() {            #
       *grub*)     continue     ;;
       *whatnext*) continue     ;;
       *settingenvironment*) sed 's@PS1=@set +h\nPS1=@' -i $file  ;;
-      *kernel)   # if there is no kernel config file do not build the kernel
+      *kernel)    # if there is no kernel config file do not build the kernel
                 [[ -z $CONFIG ]] && continue
-                sed "s|make mrproper|make mrproper\ncp $CONFIG .config|" -i $file
-                # You cannot run menuconfig from within the makefile
+                  # Copy the config file to /sources with a standardized name
+                cp -v $CONFIG $BUILDDIR/sources/kernel-config
+                sed "s|make mrproper|make mrproper\ncp /sources/kernel-config .config|" -i $file
+                  # You cannot run menuconfig from within the makefile
                 sed 's|menuconfig|oldconfig|'     -i $file
-                #If defined include the keymap in the kernel
+                  #If defined include the keymap in the kernel
                 if [[ -n "$KEYMAP" ]]; then
                   sed "s|^loadkeys -m.*>|loadkeys -m $KEYMAP >|" -i $file
                 else
@@ -856,12 +858,14 @@ bootable_Makefiles() {        #
     case $this_script in
       *grub*)     continue ;;
       *kernel)
-               # if there is no kernel config file do not build the kernel
+                 # if there is no kernel config file do not build the kernel
                [[ -z $CONFIG ]] && continue
-               sed "s|make mrproper|make mrproper\ncp $CONFIG .config|" -i $file
-               # You cannot run menuconfig from within the makefile
+                 # Copy the config file to /sources with a standardized name
+               cp -v $CONFIG $BUILDDIR/sources/kernel-config
+               sed "s|make mrproper|make mrproper\ncp /sources/kernel-config .config|" -i $file
+                 # You cannot run menuconfig from within the makefile
                sed 's|menuconfig|oldconfig|'     -i $file
-               # If defined include the keymap in the kernel
+                 # If defined include the keymap in the kernel
                if [[ -n "$KEYMAP" ]]; then
                  sed "s|^loadkeys -m.*>|loadkeys -m $KEYMAP >|" -i $file
                else
@@ -937,13 +941,14 @@ bm_bootable_Makefiles() {     #
     case $this_script in
       *grub*)     continue  ;;
       *kernel)
-               # if there is no kernel config file do not build the kernel
+                 # if there is no kernel config file do not build the kernel
                [[ -z $CONFIG ]] && continue
-               cfg_file="/sources/`basename $CONFIG`"
-               sed "s|make mrproper|make mrproper\ncp $cfg_file .config|" -i $file
-               # You cannot run menuconfig from within the makefile
+                 # Copy the named config file to /sources with a standardized name
+	       cp -v $CONFIG $BUILDDIR/sources/kernel-config
+               sed "s|make mrproper|make mrproper\ncp ../kernel-config .config|" -i $file
+                 # You cannot run menuconfig from within the makefile
                sed 's|menuconfig|oldconfig|'     -i $file
-               # If defined include the keymap in the kernel
+                 # If defined include the keymap in the kernel
                if [[ -n "$KEYMAP" ]]; then
                  sed "s|^loadkeys -m.*>|loadkeys -m $KEYMAP >|" -i $file
                else
