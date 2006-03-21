@@ -116,7 +116,7 @@ inline_doc
     fi
 
 
-    for config_param in FSTAB CONFIG BOOK; do
+    for config_param in FSTAB BOOK CONFIG; do
       [[ $1 = "1" ]] && echo "`eval echo $PARAM_VALS`"
       if [[ $config_param = BOOK ]]; then
          [[ ! "${WC}" = 1 ]] && continue
@@ -127,8 +127,20 @@ inline_doc
       # If you make it this far then there is a problem
       write_error_and_die
     done
-      echo "   ${BOLD}${GREEN}${PARAM_GROUP%%_*T} specific parameters are valid${OFF}"
+
+    [[ "$PROGNAME" = "clfs" ]] &&
+    for config_param in BOOT_CONFIG; do
+      if [[ "${METHOD}" = "boot" ]]; then
+        [[ $1 = "1" ]] && echo "`eval echo $PARAM_VALS`"
+          # There must be a config file when the build method is 'boot'
+        [[ -e "${!config_param}" ]] && [[ -s "${!config_param}" ]] && continue
+          # If you make it this far then there is a problem
+        write_error_and_die
+      fi
+    done
+    echo "   ${BOLD}${GREEN}${PARAM_GROUP%%_*T} specific parameters are valid${OFF}"
   done
+
   set -e
   echo "$tab_***${BOLD}${GREEN}Config parameters look good${OFF}***"
 }
