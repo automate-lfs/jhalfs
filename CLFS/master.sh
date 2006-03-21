@@ -369,7 +369,7 @@ chroot_Makefiles() {          #
 #-----------------------------#
 testsuite_tools_Makefiles() { #
 #-----------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}testsuite tools${R_arrow}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}(chroot) testsuite tools${R_arrow}"
 
   for file in testsuite-tools/* ; do
     # Keep the script file name
@@ -422,7 +422,7 @@ testsuite_tools_Makefiles() { #
 #--------------------------------#
 bm_testsuite_tools_Makefiles() { #
 #--------------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}(minimal boot) testsuite tools${R_arrow}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}(boot) testsuite tools${R_arrow}"
 
   for file in testsuite-tools/* ; do
     # Keep the script file name
@@ -475,7 +475,7 @@ bm_testsuite_tools_Makefiles() { #
 #-----------------------------#
 final_system_Makefiles() {    #
 #-----------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}final system${R_arrow}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}(chroot) final system${R_arrow}"
 
   for file in final-system/* ; do
     # Keep the script file name
@@ -576,7 +576,7 @@ final_system_Makefiles() {    #
 #-----------------------------#
 bm_final_system_Makefiles() { #
 #-----------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}(minimal boot) final system${R_arrow}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}(boot) final system${R_arrow}"
 
   for file in final-system/* ; do
     # Keep the script file name
@@ -690,7 +690,7 @@ bm_final_system_Makefiles() { #
 #-----------------------------#
 bootscripts_Makefiles() {     #
 #-----------------------------#
-    echo "${tab_}${GREEN}Processing... ${L_arrow}bootscripts${R_arrow}"
+    echo "${tab_}${GREEN}Processing... ${L_arrow}(chroot) bootscripts${R_arrow}"
 
   for file in bootscripts/* ; do
     # Keep the script file name
@@ -768,7 +768,7 @@ EOF
 #-----------------------------#
 bm_bootscripts_Makefiles() {  #
 #-----------------------------#
-    echo "${tab_}${GREEN}Processing... ${L_arrow}(minimal boot) bootscripts${R_arrow}"
+    echo "${tab_}${GREEN}Processing... ${L_arrow}(boot) bootscripts${R_arrow}"
 
   for file in bootscripts/* ; do
     # Keep the script file name
@@ -848,7 +848,7 @@ EOF
 #-----------------------------#
 bootable_Makefiles() {        #
 #-----------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}make bootable${R_arrow}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}(chroot) make bootable${R_arrow}"
 
   for file in bootable/* ; do
     # Keep the script file name
@@ -931,7 +931,7 @@ bootable_Makefiles() {        #
 #-----------------------------#
 bm_bootable_Makefiles() {     #
 #-----------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}(minimal boot) make bootable${R_arrow}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}(boot) make bootable${R_arrow}"
 
   for file in bootable/* ; do
     # Keep the script file name
@@ -1035,7 +1035,7 @@ build_Makefile() {            # Construct a Makefile from the book scripts
   host_prep_Makefiles
   cross_tools_Makefiles
   temptools_Makefiles
-  if [[ $BOOTMINIMAL = "0" ]]; then
+  if [[ $METHOD = "chroot" ]]; then
     chroot_Makefiles
     if [[ $TOOLCHAINTEST = "1" ]]; then
       testsuite_tools_Makefiles

@@ -7,7 +7,7 @@
 #####
 declare -r FTP=ftp://ftp.linuxfromscratch.org/pub/lfs/conglomeration
 
-#--- Which target architecture, 
+#--- Which target architecture,
 #    used to select proper book and set TARGETS
 #--------------------------------
 TARGET32=""
@@ -16,18 +16,18 @@ TARGET=
  ARCH=x86 ;     TARGET="i486-pc-linux-gnu"
 # ARCH=x86 ;     TARGET="i586-pc-linux-gnu"
 # ARCH=x86 ;     TARGET="i686-pc-linux-gnu"
-# ARCH=ppc ;     TARGET="powerpc-unknown-linux-gnu"  
+# ARCH=ppc ;     TARGET="powerpc-unknown-linux-gnu"
 # ARCH=mips ;    TARGET="mipsel-unknown-linux-gnu"
 # ARCH=mips ;    TARGET="mis-unknown-linux-gnu"
-# ARCH=sparc ;   TARGET="sparcv9-unknown-linux-gnu"  
-# ARCH=sparcv8 ; TARGET="sparc-unknown-linux-gnu"    
+# ARCH=sparc ;   TARGET="sparcv9-unknown-linux-gnu"
+# ARCH=sparcv8 ; TARGET="sparc-unknown-linux-gnu"
 #--------------------------------
 # >>>> 64-64 BUILD <<<<
-# ARCH=x86_64-64  ; TARGET="x86_64-unknown-linux-gnu"   
+# ARCH=x86_64-64  ; TARGET="x86_64-unknown-linux-gnu"
 # ARCH=mips64-64  ; TARGET="mipsel-unknown-linux-gnu"
 # ARCH=mips64-64  ; TARGET="mis-unknown-linux-gnu"
-# ARCH=sparc64-64 ; TARGET="sparc64-unknown-linux-gnu"  
-# ARCH=alpha	  ; TARGET="alpha-unknown-linux-gnu"    
+# ARCH=sparc64-64 ; TARGET="sparc64-unknown-linux-gnu"
+# ARCH=alpha	  ; TARGET="alpha-unknown-linux-gnu"
 #--------------------------------
 # >>>> MULTILIB 32/64 <<<<
 # ARCH=x86_64  ; TARGET="x86_64-unknown-linux-gnu"  ; TARGET32="i686-pc-linux-gnu"
@@ -35,9 +35,9 @@ TARGET=
 # ARCH=mips64  ; TARGET="mis-unknown-linux-gnu"     ; TARGET32="mis-unknown-linux-gnu"
 # ARCH=sparc64 ; TARGET="sparc64-unknown-linux-gnu" ; TARGET32="sparcv9-unknown-linux-gnu"
 
-#--- Create a minimal boot system 0(chroot)/1(bootmin) 
+#--- Create a minimal boot system chroot/boot
 #    NOTE: not all combinations are 'bootable' yet.
-BOOTMINIMAL=0
+METHOD=chroot
 
 #--- Location of fstab file (if empty, a template is created)
 FSTAB=

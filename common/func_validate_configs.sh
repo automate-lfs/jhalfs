@@ -20,7 +20,7 @@ inline_doc
   local -r  lfs_PARAM_LIST="VIMLANG"
   local -r blfs_PARAM_LIST="TEST DEPEND"
   local -r hlfs_PARAM_LIST="MODEL GRSECURITY_HOST"
-  local -r clfs_PARAM_LIST="ARCH BOOTMINIMAL VIMLANG"
+  local -r clfs_PARAM_LIST="ARCH METHOD VIMLANG"
   local -r global_PARAM_LIST="BUILDDIR HPKG RUNMAKE TEST STRIP PAGE TIMEZONE"
 
   local -r ERROR_MSG='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid, ${nl_}check the config file ${BOLD}${GREEN}\<$PROGNAME.conf\>${OFF}'
@@ -61,7 +61,7 @@ inline_doc
         PAGE)      validation_str="xletterx xA4x"  ;;
         ARCH)      validation_str="xx86x xx86_64x xx86_64-64x xsparcx xsparcv8x xsparc64x xsparc64-64x xmipsx xmips64x xmips64-64x xppcx xalphax" ;;
         GRSECURITY_HOST)  validation_str="x0x x1x"  ;;
-        BOOTMINIMAL)      validation_str="x0x x1x";;
+        METHOD)      validation_str="xchrootx xbootx";;
         *)
           echo "WHAT PARAMETER IS THIS.. <<${config_param}>>"
           exit
