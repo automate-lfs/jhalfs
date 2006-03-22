@@ -783,13 +783,15 @@ download() {                 # Download file, write name to MISSING_FILES.DMP if
 
   if [ ! -f $2 ] ; then
     case $DL in
-      wget )  wget --passive $FTP/$DIR/$2            ;;
+      wgetFTP )  wget --passive $FTP/$DIR/$2            ;;
+      wget )  wget $HTTP/$DIR/$2            ;;
       curl )  `curl -# $FTP/$DIR/$2 -o $2`     ;;
       * )     echo "$DL not supported at this time."  ;;
     esac
   elif ! echo "$MD5" | md5sum -c - >/dev/null 2>/dev/null ; then
     case $DL in
-      wget )  wget --passive -c $FTP/$DIR/$2         ;;
+      wgetFTP )  wget --passive -c $FTP/$DIR/$2         ;;
+      wget )   wget -c $HTTP/$DIR/$2            ;;
       curl )  `curl -# -C - $FTP/$DIR/$2 -o $2`    ;;
       * )     echo "$DL not supported at this time."  ;;
     esac
