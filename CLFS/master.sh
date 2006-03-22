@@ -1070,9 +1070,8 @@ EOF
 ) > $MKFILE
 
   # Add chroot commands
-  i=1
-  for file in chroot/*chroot* ; do
-    chroot=`cat $file | sed -e '/#!\/bin\/sh/d' \
+  if [ "$METHOD" = "chroot" ] ; then
+    chroot=`cat chroot/*chroot* | sed -e '/#!\/tools\/bin\/bash/d' \
                             -e '/^export/d' \
                             -e '/^logout/d' \
                             -e 's@ \\\@ @g' | tr -d '\n' |  sed -e 's/  */ /g' \
@@ -1081,9 +1080,8 @@ EOF
                                                                 -e 's|$| -c|' \
                                                                 -e 's|"$$LFS"|$(MOUNT_PT)|'\
                                                                 -e 's|set -e||'`
-    echo -e "CHROOT$i= $chroot\n" >> $MKFILE
-    i=`expr $i + 1`
-  done
+    echo -e "CHROOT1= $chroot\n" >> $MKFILE
+  fi
 
   # Drop in the main target 'all:' and the chapter targets with each sub-target
   # as a dependency.
