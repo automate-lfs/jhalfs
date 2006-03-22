@@ -30,7 +30,7 @@
   <xsl:param name="page" select="letter"/>
 
   <!-- Locale settings -->
-  <xsl:param name="lang" select="en_ca"/>
+  <xsl:param name="lang" select="en_CA"/>
 
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
