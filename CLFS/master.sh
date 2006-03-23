@@ -481,53 +481,14 @@ final_system_Makefiles() {    #
     # Keep the script file name
     this_script=`basename $file`
 
-    # Skipping scripts is done now so they are not included in the Makefile.
-    case $this_script in
-      *stripping*) continue  ;;
-      *grub*)      continue  ;;
-    esac
-    #
+    # Test if the stripping phase must be skipped
+    if [ "$STRIP" = "0" ] && [[ `_IS_ ${this_script} stripping` ]] ; then
+      continue
+    fi
+
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
     basicsystem="$basicsystem $this_script"
-    #
-    # A little customizing via sed scripts first..
-    if [[ $TEST = "0" ]]; then
-      # Drop any package checks..
-      sed -e '/make check/d' -e '/make test/d' -i $file
-    fi
-    case $this_script_BLOCKED in
-      *coreutils*) sed 's@set -e@set -e; set +h@' -i $file        ;;
-      *groff*)     sed "s@\*\*EDITME.*EDITME\*\*@$PAGE@" -i $file  ;;
-      *vim*)      sed '/vim -c/d' -i $file  ;;
-      *bash*)     sed '/exec /d' -i $file   ;;
-      *shadow*)   sed -e '/grpconv/d' -e '/pwconv/d' -e '/passwd root/d' -i $file
-      		  sed '/sed -i libtool/d' -i $file
-		  sed '/search_path/d'    -i $file
-        ;;
-      *glibc*)    sed '/tzselect/d' -i $file
-                  sed "s@\*\*EDITME.*EDITME\*\*@$TIMEZONE@" -i $file
-                  # Manipulate glibc's test to work with Makefile
-                  sed -e 's/glibc-check-log.*//' \
-                      -e 's@make -k check >@make -k check >glibc-check-log 2>\&1 || true\ngrep Error glibc-check-log || true@' -i $file
-        ;;
-      *binutils*) sed '/expect /d' -i $file
-                  if [[ $TOOLCHAINTEST = "0" ]]; then
-                    sed '/make check/d' -i $file
-                  fi
-        ;;
-      *gcc*)      # Ignore all gcc testing for now..
-                  sed -e '/make -k check/d' -i $file
-                  sed -e '/test_summary/d' -i $file
-        ;;
-      *texinfo*)  # This sucks as a way to trim a script
-                  sed -e '/cd \/usr/d' \
-                      -e '/rm dir/d' \
-                      -e '/for f in/d' \
-                      -e '/do inst/d' \
-                      -e '/done/d' -i $file
-        ;;
-    esac
 
     # Grab the name of the target, strip id number, XXX-script
     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' \
@@ -582,58 +543,14 @@ bm_final_system_Makefiles() { #
     # Keep the script file name
     this_script=`basename $file`
 
-    # Skipping scripts is done now so they are not included in the Makefile.
-    case $this_script in
-      *stripping*) continue   ;;
-      *grub*)      continue   ;;
-    esac
+    # Test if the stripping phase must be skipped
+    if [ "$STRIP" = "0" ] && [[ `_IS_ ${this_script} stripping` ]] ; then
+      continue
+    fi
 
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
     basicsystem="$basicsystem $this_script"
-
-    #
-    # A little customizing via sed scripts first..
-    if [[ $TEST = "0" ]]; then
-      # Drop any package checks..
-      sed -e '/make check/d' -e '/make test/d' -i $file
-    fi
-    case $this_script_BLOCKED in
-      *coreutils*) sed 's@set -e@set -e; set +h@' -i $file        ;;
-      *groff*)    sed "s@\*\*EDITME.*EDITME\*\*@$PAGE@" -i $file  ;;
-      *vim*)      sed '/vim -c/d' -i $file      ;;
-      *bash*)     sed '/exec /d' -i $file       ;;
-      *shadow*)   sed -e '/grpconv/d' \
-                      -e '/pwconv/d' \
-		      -e '/passwd root/d' -i $file
-      		  sed  '/sed -i libtool/d' -i $file
-		  sed  '/search_path/d'    -i $file
-        ;;
-      *psmisc*)   # Build fails on creation of this link. <pidof> installed in sysvinit
-                  sed -e 's/^ln -s/#ln -s/' -i $file
-        ;;
-      *glibc*)    sed '/tzselect/d' -i $file
-                  sed "s@\*\*EDITME.*EDITME\*\*@$TIMEZONE@" -i $file
-                  # Manipulate glibc's test to work with Makefile
-                  sed -e 's/glibc-check-log.*//' -e 's@make -k check >@make -k check >glibc-check-log 2>\&1 || true\ngrep Error glibc-check-log || true@' -i $file
-        ;;
-      *binutils*) sed '/expect /d' -i $file
-                  if [[ $TOOLCHAINTEST = "0" ]]; then
-                    sed '/make check/d' -i $file
-                  fi
-        ;;
-      *gcc*)      # Ignore all gcc testing for now..
-                  sed -e '/make -k check/d' -i $file
-                  sed -e '/test_summary/d' -i $file
-        ;;
-      *texinfo*)  # This sucks as a way to trim a script
-                  sed -e '/cd \/usr/d' \
-                      -e '/rm dir/d' \
-                      -e '/for f in/d' \
-                      -e '/do inst/d' \
-                      -e '/done/d' -i $file
-        ;;
-    esac
 
     # Grab the name of the target, strip id number, XXX-script
     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' \
@@ -658,14 +575,6 @@ bm_final_system_Makefiles() { #
       case $name in
         temp-perl) wrt_unpack3 "perl-$vrs.tar.*"    ;;
         *)         wrt_unpack3 "$name-$vrs.tar.*"   ;;
-      esac
-      #
-      # Export a few 'config' vars..
-      case $this_script in
-        *glibc*) # For glibc we can set then TIMEZONE envar.
-                  echo -e '\t@echo "export TIMEZONE=$(TIMEZONE)" >> envars' >> $MKFILE.tmp   ;;
-        *groff*) # For Groff we need to set PAGE envar.
-                  echo -e '\t@echo "export PAGE=$(PAGE)" >> envars' >> $MKFILE.tmp           ;;
       esac
     fi
     #
