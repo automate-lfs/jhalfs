@@ -686,7 +686,12 @@ extract_commands() {         #
       LOC_add_packages_entry() {
         local fileMATCH aFILE
 
+	  # Deal with a non-standard format
+        if [[ "$1" = "clfs-bootscripts" ]]; then
+	  set -- "bootscripts-cross-lfs" $2
+	fi
         fileMATCH="/$1"
+
         # format.. Filename-Version  or FilenameVersion
         for aFILE in `grep ${fileMATCH}-*[[:digit:]] packageslist_.wget`; do
          # Block vim-x.x-lang file, will add it later based on config flag

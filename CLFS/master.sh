@@ -8,7 +8,7 @@
 
 
 #----------------------------#
-host_prep_Makefiles() {       # Initialization of the system
+host_prep_Makefiles() {      # Initialization of the system
 #----------------------------#
   local   LFS_HOST
 
@@ -240,7 +240,7 @@ boot_Makefiles() {            #
     # Grab the name of the target, strip id number and misc words.
     case $this_script in
       *kernel)        name=linux           ;;
-      *bootscripts)   name=lfs-bootscripts ;;
+      *bootscripts)   name="bootscripts-cross-lfs" ;;
       *)              name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' -e 's@-build@@' ` ;;
     esac
 
@@ -731,7 +731,7 @@ EOF
                                   -e 's@-64@@' \
                                   -e 's@64@@' \
                                   -e 's@n32@@'`
-    if [[ `_IS_ $name bootscripts` ]]; then name=lfs-bootscripts; fi
+    if [[ `_IS_ $name bootscripts` ]]; then name=bootscripts-cross-lfs; fi
 
     vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
 
@@ -903,10 +903,10 @@ bootable_Makefiles() {        #
       *fstab*)  if [[ -n "$FSTAB" ]]; then
                   wrt_copy_fstab "${this_script}"
                 else
-                  wrt_run_as_lfs  "${this_script}" "${file}"
+                  wrt_run_as_chroot1  "${this_script}" "${file}"
                 fi
           ;;
-      *)  wrt_run_as_lfs  "${this_script}" "${file}"   ;;
+      *)  wrt_run_as_chroot1  "${this_script}" "${file}"   ;;
     esac
     #
     # Housekeeping...remove any build directory(ies) except if the package build fails.
