@@ -220,16 +220,16 @@ boot_Makefiles() {            #
                 [[ -z $CONFIG ]] && continue
                   # Copy the config file to /sources with a standardized name
                 cp $BOOT_CONFIG $BUILDDIR/sources/bootkernel-config
-                sed "s|make mrproper|make mrproper\ncp /sources/bootkernel-config .config|" -i $file
+#                sed "s|make mrproper|make mrproper\ncp /sources/bootkernel-config .config|" -i $file
                   # You cannot run menuconfig from within the makefile
-                sed 's|menuconfig|oldconfig|'     -i $file
+#                sed 's|menuconfig|oldconfig|'     -i $file
                   #If defined include the keymap in the kernel
-                if [[ -n "$KEYMAP" ]]; then
-                  sed "s|^loadkeys -m.*>|loadkeys -m $KEYMAP >|" -i $file
-                else
-                  sed '/loadkeys -m/d'    -i $file
-                  sed '/drivers\/char/d'  -i $file
-                fi
+#                if [[ -n "$KEYMAP" ]]; then
+#                  sed "s|^loadkeys -m.*>|loadkeys -m $KEYMAP >|" -i $file
+#                else
+#                  sed '/loadkeys -m/d'    -i $file
+#                  sed '/drivers\/char/d'  -i $file
+#                fi
           ;;
     esac
     #
@@ -928,22 +928,21 @@ bm_bootable_Makefiles() {     #
 
     # A little housekeeping on the scripts
     case $this_script in
-      *grub*)     continue  ;;
-      *kernel)
-                 # if there is no kernel config file do not build the kernel
+      *grub*)  continue  ;;
+      *kernel) # if there is no kernel config file do not build the kernel
                [[ -z $CONFIG ]] && continue
                  # Copy the named config file to /sources with a standardized name
 	       cp $CONFIG $BUILDDIR/sources/kernel-config
-               sed "s|make mrproper|make mrproper\ncp ../kernel-config .config|" -i $file
+#               sed "s|make mrproper|make mrproper\ncp ../kernel-config .config|" -i $file
                  # You cannot run menuconfig from within the makefile
-               sed 's|menuconfig|oldconfig|'     -i $file
+#               sed 's|menuconfig|oldconfig|'     -i $file
                  # If defined include the keymap in the kernel
-               if [[ -n "$KEYMAP" ]]; then
-                 sed "s|^loadkeys -m.*>|loadkeys -m $KEYMAP >|" -i $file
-               else
-                 sed '/loadkeys -m/d'    -i $file
-                 sed '/drivers\/char/d'  -i $file
-               fi
+#               if [[ -n "$KEYMAP" ]]; then
+#                 sed "s|^loadkeys -m.*>|loadkeys -m $KEYMAP >|" -i $file
+#               else
+#                 sed '/loadkeys -m/d'    -i $file
+#                 sed '/drivers\/char/d'  -i $file
+#               fi
          ;;
     esac
     #
