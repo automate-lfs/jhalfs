@@ -706,25 +706,6 @@ bootscripts_Makefiles() {     #
     # the names of the targets in the Makefile
     bootscripttools="$bootscripttools $this_script"
 
-    # A little bit of script modification
-    case $this_script_BLOCKED in
-      *profile*)  # Over-ride the book cmds, write our own simple one.
-(
-cat <<- EOF
-	cat > /etc/profile << "_EOF_"
-	# Begin /etc/profile
-
-	export LC_ALL=${LC_ALL}
-	export LANG=${LANG}
-	export INPUTRC=/etc/inputrc
-
-	# End /etc/profile
-	_EOF_
-EOF
-) > $file
-           ;;
-    esac
-
     # Grab the name of the target, strip id number, XXX-script
     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'\
                                   -e 's@-64bit@@' \
@@ -783,25 +764,6 @@ bm_bootscripts_Makefiles() {  #
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
     bootscripttools="$bootscripttools $this_script"
-
-    # A little bit of script modification
-    case $this_script_BLOCKED in
-      *profile*)  # Over-ride the book cmds, write our own simple one.
-(
-cat <<- EOF
-	cat > /etc/profile << "_EOF_"
-	# Begin /etc/profile
-
-	export LC_ALL=${LC_ALL}
-	export LANG=${LANG}
-	export INPUTRC=/etc/inputrc
-
-	# End /etc/profile
-	_EOF_
-EOF
-) > $file
-           ;;
-    esac
 
     # Grab the name of the target, strip id number, XXX-script
     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'\
@@ -932,17 +894,7 @@ bm_bootable_Makefiles() {     #
       *kernel) # if there is no kernel config file do not build the kernel
                [[ -z $CONFIG ]] && continue
                  # Copy the named config file to /sources with a standardized name
-	       cp $CONFIG $BUILDDIR/sources/kernel-config
-#               sed "s|make mrproper|make mrproper\ncp ../kernel-config .config|" -i $file
-                 # You cannot run menuconfig from within the makefile
-#               sed 's|menuconfig|oldconfig|'     -i $file
-                 # If defined include the keymap in the kernel
-#               if [[ -n "$KEYMAP" ]]; then
-#                 sed "s|^loadkeys -m.*>|loadkeys -m $KEYMAP >|" -i $file
-#               else
-#                 sed '/loadkeys -m/d'    -i $file
-#                 sed '/drivers\/char/d'  -i $file
-#               fi
+               cp $CONFIG $BUILDDIR/sources/kernel-config
          ;;
     esac
     #

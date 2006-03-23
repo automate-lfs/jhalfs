@@ -146,7 +146,7 @@
         <xsl:value-of select="substring-before(string(),'export LANG=')"/>
         <xsl:text>export LANG=</xsl:text>
         <xsl:value-of select="$lang"/>
-        <xsl:value-of select="substring-after(string(),'modifiers]')"/>
+        <xsl:value-of select="substring-after(string(),'charmap]')"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
       <!-- Compile the keymap into the kernel? -->
