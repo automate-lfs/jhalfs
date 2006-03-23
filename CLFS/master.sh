@@ -496,7 +496,7 @@ final_system_Makefiles() {    #
       # Drop any package checks..
       sed -e '/make check/d' -e '/make test/d' -i $file
     fi
-    case $this_script in
+    case $this_script_BLOCKED in
       *coreutils*) sed 's@set -e@set -e; set +h@' -i $file        ;;
       *groff*)     sed "s@\*\*EDITME.*EDITME\*\*@$PAGE@" -i $file  ;;
       *vim*)      sed '/vim -c/d' -i $file  ;;
@@ -598,7 +598,7 @@ bm_final_system_Makefiles() { #
       # Drop any package checks..
       sed -e '/make check/d' -e '/make test/d' -i $file
     fi
-    case $this_script in
+    case $this_script_BLOCKED in
       *coreutils*) sed 's@set -e@set -e; set +h@' -i $file        ;;
       *groff*)    sed "s@\*\*EDITME.*EDITME\*\*@$PAGE@" -i $file  ;;
       *vim*)      sed '/vim -c/d' -i $file      ;;
@@ -707,7 +707,7 @@ bootscripts_Makefiles() {     #
     bootscripttools="$bootscripttools $this_script"
 
     # A little bit of script modification
-    case $this_script in
+    case $this_script_BLOCKED in
       *profile*)  # Over-ride the book cmds, write our own simple one.
 (
 cat <<- EOF
@@ -785,7 +785,7 @@ bm_bootscripts_Makefiles() {  #
     bootscripttools="$bootscripttools $this_script"
 
     # A little bit of script modification
-    case $this_script in
+    case $this_script_BLOCKED in
       *profile*)  # Over-ride the book cmds, write our own simple one.
 (
 cat <<- EOF
