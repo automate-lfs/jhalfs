@@ -299,7 +299,9 @@ chroot_Makefiles() {          #
     this_script=`basename $file`
     #
     # Skipping scripts is done now and not included in the build tree.
-    [[ `_IS_ $this_script chroot` ]]   && continue
+    case $this_script in
+      *chroot*) continue ;;
+    esac
 
     #
     # First append each name of the script files to a list (this will become
@@ -471,9 +473,10 @@ final_system_Makefiles() {    #
     this_script=`basename $file`
 
     # Test if the stripping phase must be skipped
-    if [ "$STRIP" = "0" ] && [[ `_IS_ ${this_script} stripping` ]] ; then
-      continue
-    fi
+    case $this_script in
+      *stripping*) [[ "$STRIP" = "0" ]] && continue
+       ;;
+    esac
 
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
@@ -533,9 +536,10 @@ bm_final_system_Makefiles() { #
     this_script=`basename $file`
 
     # Test if the stripping phase must be skipped
-    if [ "$STRIP" = "0" ] && [[ `_IS_ ${this_script} stripping` ]] ; then
-      continue
-    fi
+    case $this_script in 
+      *stripping*) [[ "$STRIP" = "0" ]] && continue
+       ;;
+    esac
 
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
@@ -610,8 +614,10 @@ bootscripts_Makefiles() {     #
                                   -e 's@-64@@' \
                                   -e 's@64@@' \
                                   -e 's@n32@@'`
-    if [[ `_IS_ $name bootscripts` ]]; then name=bootscripts-cross-lfs; fi
-
+    case $name in
+      *bootscripts*) name=bootscripts-cross-lfs
+       ;;
+    esac
     vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
 
     #--------------------------------------------------------------------#
@@ -669,8 +675,10 @@ bm_bootscripts_Makefiles() {  #
                                   -e 's@-64@@' \
                                   -e 's@64@@' \
                                   -e 's@n32@@'`
-    if [[ `_IS_ $name bootscripts` ]]; then name=lfs-bootscripts; fi
-
+    case $name in
+      *bootscripts*) name=bootscripts-cross-lfs
+       ;;
+    esac
     vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
 
     #--------------------------------------------------------------------#
@@ -730,8 +738,10 @@ bootable_Makefiles() {        #
     #
     # Grab the name of the target, strip id number and misc words.
     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' -e 's@-build@@' `
-    [[ `_IS_ $this_script "kernel"` ]] && name=linux
-
+    case $this_script in
+      *kernel*) name=linux
+       ;;
+    esac
     vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
 
     #--------------------------------------------------------------------#
