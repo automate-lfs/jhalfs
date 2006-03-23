@@ -213,23 +213,12 @@ boot_Makefiles() {            #
 
     # A little housekeeping on the scripts
     case $this_script in
-      *grub*)     continue     ;;
+      *grub | *aboot | *colo | *silo | *arcload | *lilo )     continue     ;;
       *whatnext*) continue     ;;
-      *settingenvironment*) sed 's@PS1=@set +h\nPS1=@' -i $file  ;;
       *kernel)    # if there is no kernel config file do not build the kernel
                 [[ -z $CONFIG ]] && continue
                   # Copy the config file to /sources with a standardized name
                 cp $BOOT_CONFIG $BUILDDIR/sources/bootkernel-config
-#                sed "s|make mrproper|make mrproper\ncp /sources/bootkernel-config .config|" -i $file
-                  # You cannot run menuconfig from within the makefile
-#                sed 's|menuconfig|oldconfig|'     -i $file
-                  #If defined include the keymap in the kernel
-#                if [[ -n "$KEYMAP" ]]; then
-#                  sed "s|^loadkeys -m.*>|loadkeys -m $KEYMAP >|" -i $file
-#                else
-#                  sed '/loadkeys -m/d'    -i $file
-#                  sed '/drivers\/char/d'  -i $file
-#                fi
           ;;
     esac
     #
@@ -239,8 +228,15 @@ boot_Makefiles() {            #
     #
     # Grab the name of the target, strip id number and misc words.
     case $this_script in
-      *kernel)        name=linux           ;;
+      *kernel)        name=linux                   ;;
       *bootscripts)   name="bootscripts-cross-lfs" ;;
+      *grub-build)    name=grub                    ;;
+      *-aboot-build)  name=aboot                   ;;
+      *yaboot-build)  name=yaboot                  ;;
+      *colo-build)    name=colo                    ;;
+      *silo-build)    name=silo                    ;;
+      *arcload-build) name=arcload                 ;;
+      *lilo-build)    name=lilo                    ;;
       *)              name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' -e 's@-build@@' ` ;;
     esac
 
@@ -310,13 +306,6 @@ chroot_Makefiles() {          #
     # the names of the targets in the Makefile
     chroottools="$chroottools $this_script"
 
-    #
-    # A little housekeeping on the script contents
-    case $this_script in
-      *kernfs*)     sed '/exit/d' -i $file   ;;
-      *pwdgroup*)   sed '/exec/d' -i $file   ;;
-    esac
-    #
     # Grab the name of the target, strip id number, XXX-script
     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'`
     vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
@@ -727,7 +716,7 @@ bootable_Makefiles() {        #
 
     # A little housekeeping on the scripts
     case $this_script in
-      *grub*)  continue ;;
+      *grub | *aboot | *colo | *silo | *arcload | *lilo )  continue ;;
       *kernel) # if there is no kernel config file do not build the kernel
                [[ -z $CONFIG ]] && continue
                  # Copy the config file to /sources with a standardized name
@@ -799,7 +788,7 @@ bm_bootable_Makefiles() {     #
 
     # A little housekeeping on the scripts
     case $this_script in
-      *grub*)  continue  ;;
+      *grub | *aboot | *colo | *silo | *arcload | *lilo )  continue  ;;
       *kernel) # if there is no kernel config file do not build the kernel
                [[ -z $CONFIG ]] && continue
                  # Copy the named config file to /sources with a standardized name
