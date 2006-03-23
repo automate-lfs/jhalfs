@@ -162,6 +162,8 @@
           <xsl:text>cp -v ../kernel-config .config&#xA;</xsl:text>
         </xsl:if>
       </xsl:when>
+      <!-- No interactive commands are needed if the .config file is the proper one -->
+      <xsl:when test="contains(string(),'menuconfig')"/>
       <!-- The Coreutils and Module-Init-Tools test suites are optional -->
       <xsl:when test="($testsuite = '0' or $testsuite = '1') and
                 (ancestor::sect1[@id='ch-system-coreutils'] or

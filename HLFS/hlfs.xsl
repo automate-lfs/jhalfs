@@ -202,10 +202,8 @@
         <xsl:text>make mrproper&#xA;</xsl:text>
         <xsl:text>cp -v /sources/kernel-config .config&#xA;</xsl:text>
       </xsl:when>
-      <!-- No interactive commands are allowed -->
-      <xsl:when test="string() = 'make menuconfig'">
-        <xsl:text>make oldconfig&#xA;</xsl:text>
-      </xsl:when>
+      <!-- No interactive commands are needed if the .config file is the proper one -->
+      <xsl:when test="string() = 'make menuconfig'"/>
       <!-- For uClibc we need to cd to the Gettext package -->
       <xsl:when test="contains(string(),'cd gettext-runtime/')">
         <xsl:text>cd ../gettext-*/gettext-runtime</xsl:text>
