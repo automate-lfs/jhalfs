@@ -230,6 +230,7 @@ boot_Makefiles() {            #
     case $this_script in
       *kernel)        name=linux                   ;;
       *bootscripts)   name="bootscripts-cross-lfs" ;;
+      *udev-rules)    name="udev-cross-lfs"        ;;
       *grub-build)    name=grub                    ;;
       *-aboot-build)  name=aboot                   ;;
       *yaboot-build)  name=yaboot                  ;;
@@ -253,7 +254,7 @@ boot_Makefiles() {            #
     # If $vrs isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     #
-    [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*"
+    [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*" &&  echo -e '\ttrue' >> $MKFILE.tmp
     #
     # Select a script execution method
     case $this_script in
