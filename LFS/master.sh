@@ -34,7 +34,7 @@ chapter4_Makefiles() {
 		touch user-lfs-exist; \\
 	fi;
 	@chown lfs \$(MOUNT_PT)/tools && \\
-	chown lfs \$(MOUNT_PT)/sources && \\
+	chmod a+wt \$(MOUNT_PT)/sources && \\
 	touch \$@
 
 022-settingenvironment:  021-addinguser
