@@ -755,7 +755,7 @@ bootable_Makefiles() {        #
     # If $vrs isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     #
-    [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*"
+    [[ "$vrs" != "" ]] && wrt_unpack2 "$name-$vrs.tar.*"
     #
     # Select a script execution method
     case $this_script in
