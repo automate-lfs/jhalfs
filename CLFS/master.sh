@@ -599,7 +599,7 @@ bootscripts_Makefiles() {     #
     this_script=`basename $file`
 
     case $this_script in
-      *udev*) continue    ;;  # This is not a script but a commentary
+      *udev)     continue ;; # This is not a script but a commentary, we want udev-rules
       *console*) continue ;; # Use the files that came with the bootscripts
       *)  ;;
     esac
@@ -615,8 +615,8 @@ bootscripts_Makefiles() {     #
                                   -e 's@64@@' \
                                   -e 's@n32@@'`
     case $name in
-      *bootscripts*) name=bootscripts-cross-lfs
-       ;;
+      *bootscripts*) name=bootscripts-cross-lfs ;;
+      *udev-rules)   name=udev-cross-lfs ;;
     esac
     vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
 
