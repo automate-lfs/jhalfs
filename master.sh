@@ -127,6 +127,9 @@ while test $# -gt 0 ; do
         alpha*)
           LFSVRS=alphabetical
           ;;
+        udev*)
+          LFSVRS=udev_update
+          ;;
         * )
           echo "$1 is an unsupported version at this time."
           exit 1
