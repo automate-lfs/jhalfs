@@ -59,7 +59,7 @@ inline_doc
         DEPEND)    validation_str="x0x x1x x2x" ;;
         MODEL)     validation_str="xglibcx xuclibcx" ;;
         PAGE)      validation_str="xletterx xA4x"  ;;
-        ARCH)      validation_str="xx86x xx86_64x xx86_64-64x xsparcx xsparcv8x xsparc64x xsparc64-64x xmipsx xmips64x xmips64-64x xppcx xalphax" ;;
+        ARCH)      validation_str="xx86x xx86_64x xx86_64-64x xsparcx xsparcv8x xsparc64x xsparc64-64x xmipsx xmips64x xmips64-64x xppcx xppc64x xalphax" ;;
         GRSECURITY_HOST)  validation_str="x0x x1x"  ;;
         METHOD)      validation_str="xchrootx xbootx";;
         *)
