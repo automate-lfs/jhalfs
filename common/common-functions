@@ -698,11 +698,21 @@ extract_commands() {         #
      echo " ...OK"
      ;;
 
-    *)
+    hlfs)
       echo -n "Creating <${PROGNAME}> specific packageslist_.wget file"
       grep "\-version" $BOOK/general.ent | sed -e 's@<!ENTITY @@' \
                                                -e 's@">@"@' \
                                                -e '/generic/d' >> packages
+      echo " ...OK"
+      ;;
+
+    lfs)
+      echo -n "Creating <${PROGNAME}> specific packageslist_.wget file"
+      grep "\-version" $BOOK/general.ent | sed -e 's@<!ENTITY @@' \
+                                               -e 's@">@"@' \
+                                               -e '/generic/d' >> packages
+      echo `grep "glibc" packages | sed 's@glibc@glibc-libidn@'` >> packages
+      echo `grep "udev-config-file" $BOOK/general.ent | sed -e 's@<!ENTITY @@' -e 's@">@"@'` >> packages
       echo " ...OK"
       ;;
   esac
@@ -711,7 +721,6 @@ extract_commands() {         #
   if [ "$VIMLANG" = "1" ] && [ ! "$PROGNAME" = "hlfs" ] ; then
     echo `grep "vim" packages | sed 's@vim@&-lang@'` >> packages
   fi
-  echo `grep "udev-config-file" $BOOK/general.ent | sed -e 's@<!ENTITY @@' -e 's@">@"@'` >> packages
 
   # There is no useful patches.ent file so we will create one.
   case "${PROGNAME}" in
