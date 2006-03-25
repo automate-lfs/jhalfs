@@ -886,7 +886,7 @@ build_Makefile() {            # Construct a Makefile from the book scripts
   temptools_Makefiles
   if [[ $METHOD = "chroot" ]]; then
     chroot_Makefiles
-    if [[ $TOOLCHAINTEST = "1" ]]; then
+    if [[ ! $TEST = "0" ]]; then
       testsuite_tools_Makefiles
     fi
     final_system_Makefiles
@@ -894,7 +894,7 @@ build_Makefile() {            # Construct a Makefile from the book scripts
     bootable_Makefiles
   else
     boot_Makefiles	# This phase must die at the end of its run..
-    if [[ $TOOLCHAINTEST = "1" ]]; then
+    if [[ ! $TEST = "0" ]]; then
       bm_testsuite_tools_Makefiles
     fi
     bm_final_system_Makefiles
