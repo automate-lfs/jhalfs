@@ -14,7 +14,7 @@ simple_error() {        # Basic error trap.... JUST DIE
 }
 
 see_ya() {
-    echo -e "\n\t${BOLD}Goodbye and thank you for choosing ${L_arrow}JHALFS${R_arrow}\n"
+    echo -e "\n\t${BOLD}Goodbye and thank you for choosing ${L_arrow}JHALFS-X${R_arrow}\n"
 }
 ##### Simple error TRAPS
 # ctrl-c   SIGINT
@@ -120,19 +120,20 @@ while test $# -gt 0 ; do
         dev* | SVN | trunk )
           LFSVRS=development
           ;;
-        6.1.1 )
-          echo "For stable 6.1.1 book, please use jhalfs-0.2."
-          exit 0
-          ;;
-        alpha*)
-          LFSVRS=alphabetical
-          ;;
-        udev*)
-          LFSVRS=udev_update
-          ;;
-        * )
-          echo "$1 is an unsupported version at this time."
-          exit 1
+	*) if [[ "$PROGNAME" = "lfs" ]]; then
+	     case $1 in
+               6.1.1 )
+                 echo "For stable 6.1.1 book, please use jhalfs-0.2."
+                 exit 0
+                ;;
+               alpha*) LFSVRS=alphabetical  ;;
+               udev*)  LFSVRS=udev_update   ;;
+               * )     echo "$1 is an unsupported version at this time." ;;
+	     esac
+	   else
+	     echo "This requested version, ${L_arrow} ${BOLD}$1${OFF} ${R_arrow}, is an unsupported in the ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF} series."
+             exit 0
+           fi
           ;;
       esac
       ;;
@@ -146,8 +147,7 @@ while test $# -gt 0 ; do
       MKFILE=$JHALFSDIR/${PROGNAME}-Makefile
       ;;
 
-    --rebuild )	  CLEAN=1 ;;
-
+   
     --download-client | -D )
       echo "The download feature is temporarily disable.."
       exit
@@ -160,8 +160,8 @@ while test $# -gt 0 ; do
       test $# = 1 && eval "$exit_missing_arg"
       shift
       if [ -f $1/patches.ent ] ; then
-      WC=1
-      BOOK=$1
+        WC=1
+        BOOK=$1
       else
         echo -e "\nLook like $1 isn't a supported working copy."
         echo -e "Verify your selection and the command line.\n"
@@ -184,10 +184,11 @@ while test $# -gt 0 ; do
       esac
       ;;
 
-    --get-packages | -P )	HPKG=1    ;;
-    --run-make | -M )		RUNMAKE=1 ;;
-    --no-strip )	STRIP=0   ;;
-    --no-vim-lang )	VIMLANG=0 ;;
+    --get-packages | -P )  HPKG=1    ;;
+    --run-make | -M )      RUNMAKE=1 ;;
+    --no-strip )           STRIP=0   ;;
+    --no-vim-lang )        VIMLANG=0 ;;
+    --rebuild )            CLEAN=1 ;;
 
     --page_size )
       test $# = 1 && eval "$exit_missing_arg"
@@ -266,7 +267,7 @@ fi
 #   xxx.config
 #   comand line
 #   default
-# If set by conf file leave or cmd line leave it
+# If set by conf file or cmd line leave it
 # alone otherwise load the default version
 #===================================================
 BOOK=${BOOK:=$PROGNAME-$LFSVRS}
