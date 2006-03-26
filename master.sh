@@ -131,7 +131,7 @@ while test $# -gt 0 ; do
                * )     echo "$1 is an unsupported version at this time." ;;
 	     esac
 	   else
-	     echo "This requested version, ${L_arrow} ${BOLD}$1${OFF} ${R_arrow}, is an unsupported in the ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF} series."
+	     echo "The requested version, ${L_arrow} ${BOLD}$1${OFF} ${R_arrow}, is undefined in the ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF} series."
              exit 0
            fi
           ;;
