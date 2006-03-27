@@ -851,6 +851,9 @@ get_sources() {
         download $PKG $PATCH
       done
     done
+    if [[ -s $BUILDDIR/sources/MISSING_FILES.DMP ]]; then
+      echo  -e "\n\n${tab_}${RED} One or more files were not retrieved.\n${tab_} Check ${L_arrow}$BUILDDIR/sources/MISSING_FILES.DMP${R_arrow} for names ${OFF}\n\n"
+    fi
   fi
 }
 
