@@ -213,6 +213,8 @@ while test $# -gt 0 ; do
             exit 1
           fi
           ;;
+      esac
+      ;;
 
     # Common options for LFS, CLFS and HLFS
     --fstab | -F )
