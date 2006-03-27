@@ -47,11 +47,11 @@ ${BOLD}  -h, --help${OFF}
 ${BOLD}  -V, --version${OFF}
         print version number, then exit
 ${BOLD}  -d  --directory DIR${OFF}
-        use DIR directory for building ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF}; all files jhahlfs produces will be
-        in the directory DIR/jhahlfs.
+        use DIR directory for building ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF}; all files jhalfs produces will be
+        in the directory DIR/jhalfs.
 ${BOLD}  --rebuild${OFF}
         clean the build directory before to perfom any other task. The directory
-        is cleaned only if it was populated by a previous jhahlfs run.
+        is cleaned only if it was populated by a previous jhalfs run.
 ${BOLD}  -P, --get-packages${OFF}
         download the packages and patches. This assumes that the server declared in the
         jhahlfs.conf file has the proper packages and patches for the book version being
@@ -59,14 +59,14 @@ ${BOLD}  -P, --get-packages${OFF}
 ${BOLD}  -D, --download-client CLIENT
         use CLIENT as the program for retrieving packages (use in conjunction with -P)
 ${BOLD}  -W, --working-copy DIR${OFF}
-        use the local working copy placed in DIR as the HLFS book
+        use the local working copy placed in DIR as the $(echo $PROGNAME | tr [a-z] [A-Z]) book
 ${BOLD}  -L, --LFS-version VER${OFF}
         checkout VER version of the HLFS book. Supported versions at this time are:
         dev* | trunk | SVN     aliases for Development {C,H,B}LFS
         alpha*                 aliases for the LFS alphabetical branch
         udev*                  aliases for the LFS udev_update branch
 ${BOLD}  --fstab FILE${OFF}
-        use FILE as the /etc/fstab file for the ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF}system. If not specified,
+        use FILE as the /etc/fstab file for the ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF} system. If not specified,
         a default /etc/fstab file with dummy values is created.
 ${BOLD}  -C, --kernel-config FILE${OFF}
         use the kernel configuration file specified in FILE to build the kernel.
