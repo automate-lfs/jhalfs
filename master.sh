@@ -129,7 +129,7 @@ while test $# -gt 0 ; do
       shift
       case $1 in
         -* )
-          echo -e "\n$1 isn't a valid build directory\n."
+          echo -e "\n$1 isn't a valid build directory."
           echo -e "Directory names can't start with - .\n"
           exit 1
           ;;
