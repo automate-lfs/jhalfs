@@ -228,10 +228,125 @@ while test $# -gt 0 ; do
       fi
       ;;
 
-    --make | -M )      RUNMAKE=1 ;;
+    --make | -M )          RUNMAKE=1 ;;
 
     --rebuild | -R )       CLEAN=1   ;;
 
+    # CLFS options
+    --arch | -A )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      case $1 in
+        x86 )
+          ARCH=x86
+          TARGET="i686-pc-linux-gnu"
+          ;;
+        i486 )
+          ARCH=x86
+          TARGET="i486-pc-linux-gnu"
+          ;;
+        i586 )
+          ARCH=x86
+          TARGET="i586-pc-linux-gnu"
+          ;;
+        ppc )
+          ARCH=ppc
+          TARGET="powerpc-unknown-linux-gnu"
+          ;;
+        mips )
+          ARCH=mips
+          TARGET="mips-unknown-linux-gnu"
+          ;;
+        mipsel )
+          ARCH=mips
+          TARGET="mipsel-unknown-linux-gnu"
+          ;;
+        sparc )
+          ARCH=sparc
+          TARGET="sparcv9-unknown-linux-gnu"
+          ;;
+        sparcv8 )
+          ARCH=sparcv8
+          TARGET="sparc-unknown-linux-gnu"
+          ;;
+        x86_64-64 )
+          ARCH=x86_64-64
+          TARGET="x86_64-unknown-linux-gnu"
+          ;;
+        mips64-64 )
+          ARCH=mips64-64
+          TARGET="mips-unknown-linux-gnu"
+          ;;
+        mipsel64-64 )
+          ARCH=mips64-64
+          TARGET="mipsel-unknown-linux-gnu"
+          ;;
+        sparc64-64 )
+          ARCH=sparc64-64
+          TARGET="sparc64-unknown-linux-gnu"
+          ;;
+        alpha )
+          ARCH=alpha
+          TARGET="alpha-unknown-linux-gnu"
+          ;;
+        x86_64 )
+          ARCH=x86_64
+          TARGET="x86_64-unknown-linux-gnu"
+          TARGET32="i686-pc-linux-gnu"
+          ;;
+        mips64 )
+          ARCH=mips64
+          TARGET="mips-unknown-linux-gnu"
+          TARGET32="mips-unknown-linux-gnu"
+          ;;
+        mipsel64 )
+          ARCH=mips64
+          TARGET="mipsel-unknown-linux-gnu"
+          TARGET32="mipsel-unknown-linux-gnu"
+          ;;
+        sparc64 )
+          ARCH=sparc64
+          TARGET="sparc64-unknown-linux-gnu"
+          TARGET32="sparcv9-unknown-linux-gnu"
+          ;;
+        ppc64 )
+          ARCH=ppc64
+          TARGET="powerpc64-unknown-linux-gnu"
+          TARGET32="powerpc-unknown-linux-gnu"
+          ;;
+        * )
+          echo -e "\n$1 is an unknown or unsopported arch."
+          exit 1
+          ;;
+      esac
+      ;;
+
+    --method )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      case $1 in
+        chroot | boot )
+          METHOD=$1
+          ;;
+        * )
+          echo -e "\n$1 isn't a valid build method."
+          exit 1
+          ;;
+      esac
+      ;;
+
+    --boot-config )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      if [ -f $1 ] ; then
+        BOOT_CONFIG=$1
+      else
+        echo -e "\nFile $1 not found. Verify your command line.\n"
+        exit 1
+      fi
+      ;;
+
+    # Unknown options
     * )
       if [[ "$PROGNAME" = "blfs" ]]; then
         blfs_usage
