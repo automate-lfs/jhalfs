@@ -346,6 +346,36 @@ while test $# -gt 0 ; do
       fi
       ;;
 
+    # HLFS options
+    --model )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      case $1 in
+        glibc | uclibc )
+          MODEL=$1
+          ;;
+        * )
+          echo -e "\n$1 isn't a valid libc model."
+          exit 1
+          ;;
+      esac
+      ;;
+
+    # BLFS options
+    --dependencies )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      case $1 in
+        0 | 1 | 2 )
+          DEPEND=$1
+          ;;
+        * )
+          echo -e "\n$1 isn't a valid dependencies level."
+          exit 1
+          ;;
+      esac
+      ;;
+
     # Unknown options
     * )
       if [[ "$PROGNAME" = "blfs" ]]; then
