@@ -127,10 +127,19 @@ while test $# -gt 0 ; do
     --directory | -D )
       test $# = 1 && eval "$exit_missing_arg"
       shift
-      BUILDDIR=$1
-      JHALFSDIR=$BUILDDIR/jhalfs
-      LOGDIR=$JHALFSDIR/logs
-      MKFILE=$JHALFSDIR/Makefile
+      case $1 in
+        -* )
+          echo -e "\n$1 isn't a valid build directory\n."
+          echo -e "Directory names can't start with - .\n"
+          exit 1
+          ;;
+        * )
+          BUILDDIR=$1
+          JHALFSDIR=$BUILDDIR/jhalfs
+          LOGDIR=$JHALFSDIR/logs
+          MKFILE=$JHALFSDIR/Makefile
+          ;;
+      esac
       ;;
 
     --get-packages | -G )  HPKG=1    ;;
