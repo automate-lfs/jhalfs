@@ -886,24 +886,24 @@ build_Makefile() {            # Construct a Makefile from the book scripts
   >$MKFILE.tmp
 
   host_prep_Makefiles
-  cross_tools_Makefiles
-  temptools_Makefiles
+  cross_tools_Makefiles            # $cross_tools
+  temptools_Makefiles              # $temptools
   if [[ $METHOD = "chroot" ]]; then
-    chroot_Makefiles
+    chroot_Makefiles               # $chroottools
     if [[ ! $TEST = "0" ]]; then
-      testsuite_tools_Makefiles
+      testsuite_tools_Makefiles    # $testsuitetools
     fi
-    final_system_Makefiles
-    bootscripts_Makefiles
-    bootable_Makefiles
+    final_system_Makefiles         # $basicsystem
+    bootscripts_Makefiles          # $bootscripttools
+    bootable_Makefiles             # $bootabletools
   else
-    boot_Makefiles	# This phase must die at the end of its run..
+    boot_Makefiles                 # $boottools
     if [[ ! $TEST = "0" ]]; then
-      bm_testsuite_tools_Makefiles
+      bm_testsuite_tools_Makefiles # $testsuitetools
     fi
-    bm_final_system_Makefiles
-    bm_bootscripts_Makefiles
-    bm_bootable_Makefiles
+    bm_final_system_Makefiles      # $basicsystem
+    bm_bootscripts_Makefiles       # $bootscipttools
+    bm_bootable_Makefiles          # $bootabletoosl
   fi
 #  the_end_Makefiles
 
@@ -950,7 +950,7 @@ chapter3:  chapter2 $cross_tools
 
 chapter4:  chapter3 $temptools
 
-chapter5:  chapter4 $chroottools $boottools
+chapter5:  chapter4 $chroottools $testsuitetools
 
 chapter6:  chapter5 $basicsystem
 
@@ -1025,7 +1025,7 @@ makeboot: 023-creatingtoolsdir 024-creatingcrossdir 025-addinguser 026-settingen
 	$boottools
 	@\$(call echo_boot_finished,$VERSION)
 
-makesys:  $basicsystem 	$bootscripttools $bootabletools
+makesys:  $testsuitetools $basicsystem $bootscripttools $bootabletools
 	@\$(call echo_finished,$VERSION)
 
 
