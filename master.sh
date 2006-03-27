@@ -98,6 +98,7 @@ echo "---------------${nl_}"
 
 while test $# -gt 0 ; do
   case $1 in
+  # Common options for all books
     --book | -B )
       test $# = 1 && eval "$exit_missing_arg"
       shift
@@ -132,17 +133,6 @@ while test $# -gt 0 ; do
       MKFILE=$JHALFSDIR/Makefile
       ;;
 
-    --fstab | -F )
-      test $# = 1 && eval "$exit_missing_arg"
-      shift
-      if [ -f $1 ] ; then
-        FSTAB=$1
-      else
-        echo -e "\nFile $1 not found. Verify your command line.\n"
-        exit 1
-      fi
-      ;;
-
     --get-packages | -G )  HPKG=1    ;;
 
     --help | -h )
@@ -152,21 +142,6 @@ while test $# -gt 0 ; do
           usage
         fi
       ;;
-
-    --kernel-config | -K )
-      test $# = 1 && eval "$exit_missing_arg"
-      shift
-      if [ -f $1 ] ; then
-        CONFIG=$1
-      else
-        echo -e "\nFile $1 not found. Verify your command line.\n"
-        exit 1
-      fi
-      ;;
-
-    --make | -M )      RUNMAKE=1 ;;
-
-    --rebuild | -R )       CLEAN=1   ;;
 
     --testsuites | -T )
       test $# = 1 && eval "$exit_missing_arg"
@@ -229,6 +204,33 @@ while test $# -gt 0 ; do
             exit 1
           fi
           ;;
+
+    # Common options for LFS, CLFS and HLFS
+    --fstab | -F )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      if [ -f $1 ] ; then
+        FSTAB=$1
+      else
+        echo -e "\nFile $1 not found. Verify your command line.\n"
+        exit 1
+      fi
+      ;;
+
+    --kernel-config | -K )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      if [ -f $1 ] ; then
+        CONFIG=$1
+      else
+        echo -e "\nFile $1 not found. Verify your command line.\n"
+        exit 1
+      fi
+      ;;
+
+    --make | -M )      RUNMAKE=1 ;;
+
+    --rebuild | -R )       CLEAN=1   ;;
 
     * )
       if [[ "$PROGNAME" = "blfs" ]]; then
