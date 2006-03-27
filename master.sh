@@ -144,13 +144,7 @@ while test $# -gt 0 ; do
 
     --get-packages | -G )  HPKG=1    ;;
 
-    --help | -h )
-        if [[ "$PROGNAME" = "blfs" ]]; then
-          blfs_usage
-        else
-          usage
-        fi
-      ;;
+    --help | -h )          usage     ;;
 
     --testsuites | -T )
       test $# = 1 && eval "$exit_missing_arg"
@@ -388,13 +382,7 @@ while test $# -gt 0 ; do
       ;;
 
     # Unknown options
-    * )
-      if [[ "$PROGNAME" = "blfs" ]]; then
-        blfs_usage
-      else
-        usage
-      fi
-      ;;
+    * )   usage   ;;
   esac
   shift
 done

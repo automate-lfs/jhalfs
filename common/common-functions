@@ -79,6 +79,7 @@ ${BOLD}  -M, --run-make${OFF}
 
 [[ ${PROGNAME} = "clfs" ]] &&
 cat <<- -EOF-
+
 ${BOLD}  -A, --arch ARCH ${OFF}
         Select the TARGET architecture, valid selections are:
            32bit builds
@@ -95,94 +96,26 @@ ${BOLD}  --boot_config FILE ${OFF}
 
 [[ ${PROGNAME} = "hlfs" ]] &&
 cat <<- -EOF-
+
 ${BOLD}  --model STYLE ${OFF}
         Select the library model for the HLFS system
         Valid choices are: glibc or uclibc 
 -EOF-
+
+[[ ${PROGNAME} = "blfs" ]] &&
 cat <<- -EOF-
-${DD_BORDER}
--EOF-
-  exit
-}
 
-usage2() {
-    'clear'
-cat <<- -EOF-
-${DD_BORDER}
-${BOLD}
- Usage: $0 ${BOLD}[OPTION]
-
-Options:
-${BOLD}  -h, --help${OFF}
-        print this help, then exit
-${BOLD}  -V, --version${OFF}
-        print version number, then exit
-${BOLD}  -d  --directory DIR${OFF}
-        use DIR directory for building ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF}; all files jhalfs produces will be
-        in the directory DIR/jhalfs.
-${BOLD}  --rebuild${OFF}
-        clean the build directory before to perfom any other task. The directory
-        is cleaned only if it was populated by a previous jhalfs run.
-${BOLD}  -P, --get-packages${OFF}
-        download the packages and patches. This assumes that the server declared in the
-        jhahlfs.conf file has the proper packages and patches for the book version being
-        processed.
-${BOLD}  -D, --download-client CLIENT
-        use CLIENT as the program for retrieving packages (use in conjunction with -P)
-${BOLD}  -W, --working-copy DIR${OFF}
-        use the local working copy placed in DIR as the $(echo $PROGNAME | tr [a-z] [A-Z]) book
-${BOLD}  -L, --LFS-version VER${OFF}
-        checkout VER version of the HLFS book. Supported versions at this time are:
-        dev* | trunk | SVN     aliases for Development {C,H,B}LFS
-        alpha*                 aliases for the LFS alphabetical branch
-        udev*                  aliases for the LFS udev_update branch
-${BOLD}  --fstab FILE${OFF}
-        use FILE as the /etc/fstab file for the ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF} system. If not specified,
-        a default /etc/fstab file with dummy values is created.
-${BOLD}  -C, --kernel-config FILE${OFF}
-        use the kernel configuration file specified in FILE to build the kernel.
-        if the file is not found, or if not specified, the kernel build is skipped.
-${BOLD}  -M, --run-make${OFF}
-        run make on the generated Makefile
-${DD_BORDER}
--EOF-
-  exit
-}
-
-
-blfs_usage() {
-  'clear'
-cat <<- -EOF-
-${DD_BORDER}
-${BOLD}
- Usage: $0 ${BOLD}[OPTION]
-
-Options:
-${BOLD}  -h, --help${OFF}
-        print this help, then exit
-${BOLD}  -V, --version${OFF}
-        print version number, then exit
-${BOLD}  -B, --BLFS-version VER${OFF}
-        checkout VER version of the BLFS book.
-        If not set, the development version is used.
-
-           Supported versions at this time are:
-         dev* | trunk | SVN     aliases for Development BLFS
-${BOLD}  -W, --working-copy DIR${OFF}
-        use the local working copy placed in DIR as the BLFS book
-${BOLD}  -D, --dependencies  TYPE${OFF}
+${BOLD}  --dependencies  0/1/2${OFF}
         add dependencies of type TYPE to the build tree.
         If not set, both required a recommended are used.
 
                   Possible values are:
-        required               only required dependecies are used
-        recommended            both required a recommended dependencies are used
-        optional               all dependencies are used
-${BOLD}  -S, --server SERVER${OFF}
-        set the FTP/HTTP server used as fallback to download the packages.
-        If not specified, the one set in jhablfs.conf is used.
-${BOLD}  -T, --testsuites${OFF}
-        add support to run the optional testsuites
+        0 - required        only required dependecies are used
+        1 - recommended     both required a recommended dependencies are used
+        2 - optional        all dependencies are used
+-EOF-
+
+cat <<- -EOF-
 ${DD_BORDER}
 -EOF-
   exit
