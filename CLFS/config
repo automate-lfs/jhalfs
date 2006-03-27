@@ -18,7 +18,7 @@ TARGET=
 # ARCH=x86 ;     TARGET="i686-pc-linux-gnu"
 # ARCH=ppc ;     TARGET="powerpc-unknown-linux-gnu"
 # ARCH=mips ;    TARGET="mipsel-unknown-linux-gnu"
-# ARCH=mips ;    TARGET="mis-unknown-linux-gnu"
+# ARCH=mips ;    TARGET="mips-unknown-linux-gnu"
 # ARCH=sparc ;   TARGET="sparcv9-unknown-linux-gnu"
 # ARCH=sparcv8 ; TARGET="sparc-unknown-linux-gnu"
 #--------------------------------
