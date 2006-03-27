@@ -78,7 +78,7 @@ define echo_boot_finished
   @echo -e \\tin 8.4 Entering the Chroot Environment
   @echo
   @echo -e \\t- Edit /etc/fstab, 
-  @echo -e \\tany other configuration file required to suit your needs.
+  @echo -e \\t and any other configuration file required to suit your needs.
   @echo
   @echo -e \\t- Set-up Grub.
   @echo
@@ -93,7 +93,7 @@ define echo_boot_finished
   @echo  2.Boot the new partition. 
   @echo  3.Once you are logged in issue the following cmds
   @echo -e \\t $(BOLD})cd /jhahlfs
-  @echo -e \\t $(BOLD)make -f clfs-Makefile makesys
+  @echo -e \\t $(BOLD)make makesys
   @echo  The build process should resume. Follow any instructions that appear.
   @echo --------------------------------------------------------------------------------
   @echo -e \\t\\t$(GREEN)Have a nice day $(ORANGE):-\)$(BOLD)
