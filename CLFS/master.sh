@@ -283,10 +283,7 @@ boot_Makefiles() {            #
     PREV=$this_script
 
   done
-  # This will force the Makefile to exit and not allow it to be restarted with
-  # the command <make>, The user will have to issue the cmd  <make chapterXX>
-  echo -e "\t@\$(call echo_boot_finished,$VERSION) && \\" >> $MKFILE.tmp
-  echo -e "\tfalse" >> $MKFILE.tmp
+  echo -e "\t@\$(call echo_boot_finished,$VERSION)" >> $MKFILE.tmp
 }
 
 
@@ -422,6 +419,7 @@ bm_testsuite_tools_Makefiles() { #
 
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
+    PREV=
     testsuitetools="$testsuitetools $this_script"
 
     # Grab the name of the target, strip id number, XXX-script
@@ -532,6 +530,9 @@ bm_final_system_Makefiles() { #
 #-----------------------------#
   echo "${tab_}${GREEN}Processing... ${L_arrow}(boot) final system${R_arrow}"
 
+  # The makesys phase was initiated in bm_testsuite_tools_makefile
+  [[ "$TEST" = 0 ]] && PREV=""
+
   for file in final-system/* ; do
     # Keep the script file name
     this_script=`basename $file`
@@ -539,6 +540,9 @@ bm_final_system_Makefiles() { #
     # Test if the stripping phase must be skipped
     case $this_script in 
       *stripping*) [[ "$STRIP" = "0" ]] && continue
+       ;;
+      *psmisc*)   # Build fails on creation of this link. <pidof> installed in sysvinit
+                  sed -e 's/^ln -s/#ln -s/' -i $file
        ;;
     esac
 
@@ -901,7 +905,7 @@ build_Makefile() {            # Construct a Makefile from the book scripts
     bm_bootscripts_Makefiles
     bm_bootable_Makefiles
   fi
-#   the_end_Makefiles
+#  the_end_Makefiles
 
 
   # Add a header, some variables and include the function file
@@ -934,6 +938,7 @@ EOF
 
   # Drop in the main target 'all:' and the chapter targets with each sub-target
   # as a dependency.
+if [[ "${METHOD}" = "chroot" ]]; then
 (
 	cat << EOF
 all:  chapter2 chapter3 chapter4 chapter5 chapter6 chapter7 chapter8
@@ -954,7 +959,7 @@ chapter7:  chapter6 $bootscripttools
 chapter8:  chapter7 $bootabletools
 
 clean-all:  clean
-	rm -rf ./{${PROGNAME}-commands,logs,Makefile,dump-clfs-scripts.xsl,functions,packages,patches}
+	rm -rf ./{${PROGNAME}-commands,logs,${PROGNAME}-Makefile,clfs.xsl,makefile-functions,packages,patches}
 
 clean:  clean-chapter4 clean-chapter3 clean-chapter2
 
@@ -999,7 +1004,81 @@ restore-lfs-env:
 
 EOF
 ) >> $MKFILE
+fi
 
+
+if [[ "${METHOD}" = "boot" ]]; then
+(
+	cat << EOF
+	
+all:	023-creatingtoolsdir 024-creatingcrossdir 025-addinguser 026-settingenvironment \
+	$cross_tools \
+	$temptools \
+	$chroottools \
+	$boottools
+	@\$(call echo_boot_finished,$VERSION)
+
+makeboot: 023-creatingtoolsdir 024-creatingcrossdir 025-addinguser 026-settingenvironment \
+	$cross_tools\
+	$temptools \
+	$chroottools \
+	$boottools
+	@\$(call echo_boot_finished,$VERSION)
+
+makesys:  $basicsystem 	$bootscripttools $bootabletools
+	@\$(call echo_finished,$VERSION)
+
+
+clean-all:  clean
+	rm -rf ./{${PROGNAME}-commands,logs,${PROGNAME}-Makefile,clfs.xsl,makefile-functions,packages,patches}
+
+clean:  clean-makesys clean-makeboot clean-jhalfs
+
+clean-jhalfs:
+	-if [ ! -f user-lfs-exist ]; then \\
+		userdel lfs; \\
+		rm -rf /home/lfs; \\
+	fi;
+	rm -rf \$(MOUNT_PT)/tools
+	rm -f /tools
+	rm -rf \$(MOUNT_PT)/cross-tools
+	rm -f /cross-tools
+	rm -f envars user-lfs-exist
+	rm -f 02* logs/02*.log
+
+clean-makeboot:
+	rm -rf /tools/*
+	rm -f $cross_tools && rm -f $temptools && rm -f $chroottools && rm -f $boottools 
+	rm -f restore-lfs-env sources-dir
+	cd logs && rm -f $cross_tools && rm -f $temptools && rm -f $chroottools && rm -f $boottools && cd ..
+
+clean-makesys:
+	-umount \$(MOUNT_PT)/sys
+	-umount \$(MOUNT_PT)/proc
+	-umount \$(MOUNT_PT)/dev/shm
+	-umount \$(MOUNT_PT)/dev/pts
+	-umount \$(MOUNT_PT)/dev
+	rm -rf \$(MOUNT_PT)/{bin,boot,dev,etc,home,lib,lib64,media,mnt,opt,proc,root,sbin,srv,sys,tmp,usr,var}
+	rm -f $basicsystem
+	rm -f $bootscripttools
+	rm -f $bootabletools
+	cd logs && rm -f $basicsystem && rm -f $bootscripttools && rm -f $bootabletools && cd ..
+
+
+restore-lfs-env:
+	@\$(call echo_message, Building)
+	@if [ -f /home/lfs/.bashrc.XXX ]; then \\
+		mv -fv /home/lfs/.bashrc.XXX /home/lfs/.bashrc; \\
+	fi;
+	@if [ -f /home/lfs/.bash_profile.XXX ]; then \\
+		mv -v /home/lfs/.bash_profile.XXX /home/lfs/.bash_profile; \\
+	fi;
+	@chown lfs:lfs /home/lfs/.bash* && \\
+	touch \$@
+
+EOF
+) >> $MKFILE
+fi
 
   # Bring over the items from the Makefile.tmp
   cat $MKFILE.tmp >> $MKFILE

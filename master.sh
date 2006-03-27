@@ -40,7 +40,6 @@ if [ ! -L $0 ] ; then
 fi
 
      PROGNAME=$(basename $0)
-      VERSION="0.0.1"
    COMMON_DIR="common"
    PACKAGE_DIR=$(echo $PROGNAME | tr [a-z] [A-Z])
        MODULE=$PACKAGE_DIR/master.sh

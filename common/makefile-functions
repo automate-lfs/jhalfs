@@ -77,25 +77,23 @@ define echo_boot_finished
   @echo -e \\t- Enter to the chroot using the command found
   @echo -e \\tin 8.4 Entering the Chroot Environment
   @echo
-  @echo -e \\t- Set a password for the root user
-  @echo
-  @echo -e \\t- Edit /etc/fstab, /etc/hosts, /etc/sysconfig/clock,
-  @echo -e \\t/etc/sysconfig/console, /etc/sysconfig/network,
-  @echo -e \\t/etc/sysconfig//network-devices/ifconfig.eth0/ipv4 and
+  @echo -e \\t- Edit /etc/fstab, 
   @echo -e \\tany other configuration file required to suit your needs.
   @echo
   @echo -e \\t- Set-up Grub.
   @echo
-  @echo -e \\t- Unmount the filesystems.
+  @echo -e \\t- Exit chroot environment.
   @echo
   @echo If you are an experienced LFS user, several of those steps can be
   @echo skipped or done in a different way. But then, that is something
   @echo that you already know and there is no need to discuss it here.
   @echo $(BOLD)
   @echo $(BOLD)$(YELLOW)
-  @echo  Boot the new partition. Once you are logged in issue the following cmds
-  @echo -e \\t cd /jhahlfs
-  @echo -e \\t make XXXXXXXX
+  @echo  1.If necessary transfer the newly created partition to the target machine
+  @echo  2.Boot the new partition. 
+  @echo  3.Once you are logged in issue the following cmds
+  @echo -e \\t $(BOLD})cd /jhahlfs
+  @echo -e \\t $(BOLD)make -f clfs-Makefile makesys
   @echo  The build process should resume. Follow any instructions that appear.
   @echo --------------------------------------------------------------------------------
   @echo -e \\t\\t$(GREEN)Have a nice day $(ORANGE):-\)$(BOLD)
