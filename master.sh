@@ -332,6 +332,17 @@ while test $# -gt 0 ; do
       esac
       ;;
 
+    --boot-config )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      if [ -f $1 ] ; then
+        BOOT_CONFIG=$1
+      else
+        echo -e "\nFile $1 not found. Verify your command line.\n"
+        exit 1
+      fi
+      ;;
+
     --method )
       test $# = 1 && eval "$exit_missing_arg"
       shift
@@ -344,17 +355,6 @@ while test $# -gt 0 ; do
           exit 1
           ;;
       esac
-      ;;
-
-    --boot-config )
-      test $# = 1 && eval "$exit_missing_arg"
-      shift
-      if [ -f $1 ] ; then
-        BOOT_CONFIG=$1
-      else
-        echo -e "\nFile $1 not found. Verify your command line.\n"
-        exit 1
-      fi
       ;;
 
     # HLFS options
