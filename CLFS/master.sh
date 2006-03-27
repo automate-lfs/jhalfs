@@ -541,9 +541,6 @@ bm_final_system_Makefiles() { #
     case $this_script in 
       *stripping*) [[ "$STRIP" = "0" ]] && continue
        ;;
-      *psmisc*)   # Build fails on creation of this link. <pidof> installed in sysvinit
-                  sed -e 's/^ln -s/#ln -s/' -i $file
-       ;;
     esac
 
     # First append each name of the script files to a list (this will become

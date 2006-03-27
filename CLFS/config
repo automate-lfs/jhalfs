@@ -64,7 +64,7 @@ XSL=clfs.xsl
 
 #--- Book version
 LFSVRS=development
-MKFILE=$JHALFSDIR/clfs-Makefile
+MKFILE=$JHALFSDIR/Makefile
 
 #--- FTP/HTTP mirror used as fallback (full path)
 SERVER=ftp://anduin.linuxfromscratch.org/LFS/conglomeration

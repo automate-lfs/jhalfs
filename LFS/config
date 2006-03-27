@@ -30,7 +30,7 @@ XSL=lfs.xsl
 LFSVRS=development
 
 #--- Name of the makefile
-MKFILE=$JHALFSDIR/lfs-Makefile
+MKFILE=$JHALFSDIR/Makefile
 
 #--- FTP/HTTP mirror used as fallback (full path)
 SERVER=ftp://anduin.linuxfromscratch.org/LFS/conglomeration

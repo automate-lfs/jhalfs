@@ -29,5 +29,5 @@ TEST=0
 
 #--- Default stylesheet
    XSL=blfs.xsl
-MKFILE=$JHALFSDIR/blfs-Makefile
+MKFILE=$JHALFSDIR/Makefile
 

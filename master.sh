@@ -143,7 +143,7 @@ while test $# -gt 0 ; do
       BUILDDIR=$1
       JHALFSDIR=$BUILDDIR/jhalfs
       LOGDIR=$JHALFSDIR/logs
-      MKFILE=$JHALFSDIR/${PROGNAME}-Makefile
+      MKFILE=$JHALFSDIR/Makefile
       ;;
 
    
@@ -187,7 +187,7 @@ while test $# -gt 0 ; do
     --run-make | -M )      RUNMAKE=1 ;;
     --no-strip )           STRIP=0   ;;
     --no-vim-lang )        VIMLANG=0 ;;
-    --rebuild )            CLEAN=1 ;;
+    --rebuild )            CLEAN=1   ;;
 
     --page_size )
       test $# = 1 && eval "$exit_missing_arg"
