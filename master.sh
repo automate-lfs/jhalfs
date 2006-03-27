@@ -98,20 +98,6 @@ echo "---------------${nl_}"
 
 while test $# -gt 0 ; do
   case $1 in
-    --version | -V )
-        clear
-        echo "$version"
-        exit 0
-      ;;
-
-    --help | -h )
-        if [[ "$PROGNAME" = "blfs" ]]; then
-          blfs_usage
-        else
-          usage
-        fi
-      ;;
-
     --book | -B )
       test $# = 1 && eval "$exit_missing_arg"
       shift
@@ -137,13 +123,70 @@ while test $# -gt 0 ; do
       esac
       ;;
 
-    --directory | -d )
+    --directory | -D )
       test $# = 1 && eval "$exit_missing_arg"
       shift
       BUILDDIR=$1
       JHALFSDIR=$BUILDDIR/jhalfs
       LOGDIR=$JHALFSDIR/logs
       MKFILE=$JHALFSDIR/Makefile
+      ;;
+
+    --fstab | -F )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      if [ -f $1 ] ; then
+        FSTAB=$1
+      else
+        echo -e "\nFile $1 not found. Verify your command line.\n"
+        exit 1
+      fi
+      ;;
+
+    --get-packages | -G )  HPKG=1    ;;
+
+    --help | -h )
+        if [[ "$PROGNAME" = "blfs" ]]; then
+          blfs_usage
+        else
+          usage
+        fi
+      ;;
+
+    --kernel-config | -K )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      if [ -f $1 ] ; then
+        CONFIG=$1
+      else
+        echo -e "\nFile $1 not found. Verify your command line.\n"
+        exit 1
+      fi
+      ;;
+
+    --make | -M )      RUNMAKE=1 ;;
+
+    --rebuild | -R )       CLEAN=1   ;;
+
+    --testsuites | -T )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      case $1 in
+        0 | 1 | 2 | 3 )
+          TEST=$1
+          ;;
+        * )
+          echo -e "\n$1 isn't a valid testsuites level value."
+          echo -e "You must to use 0, 1, 2, or 3.\n"
+          exit 1
+          ;;
+      esac
+      ;;
+
+    --version | -V )
+        clear
+        echo "$version"
+        exit 0
       ;;
 
     --working-copy | -W )
@@ -186,47 +229,6 @@ while test $# -gt 0 ; do
             exit 1
           fi
           ;;
-
-    --testsuites | -T )
-      test $# = 1 && eval "$exit_missing_arg"
-      shift
-      case $1 in
-        0 | 1 | 2 | 3 )
-          TEST=$1
-          ;;
-        * )
-          echo -e "\n$1 isn't a valid testsuites level value."
-          echo -e "You must to use 0, 1, 2, or 3.\n"
-          exit 1
-          ;;
-      esac
-      ;;
-
-    --get-packages | -P )  HPKG=1    ;;
-    --run-make | -M )      RUNMAKE=1 ;;
-    --rebuild )            CLEAN=1   ;;
-
-    --fstab )
-      test $# = 1 && eval "$exit_missing_arg"
-      shift
-      if [ -f $1 ] ; then
-        FSTAB=$1
-      else
-        echo -e "\nFile $1 not found. Verify your command line.\n"
-        exit 1
-      fi
-      ;;
-
-    --kernel-config | -C )
-      test $# = 1 && eval "$exit_missing_arg"
-      shift
-      if [ -f $1 ] ; then
-        CONFIG=$1
-      else
-        echo -e "\nFile $1 not found. Verify your command line.\n"
-        exit 1
-      fi
-      ;;
 
     * )
       if [[ "$PROGNAME" = "blfs" ]]; then
