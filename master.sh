@@ -112,15 +112,15 @@ while test $# -gt 0 ; do
         fi
       ;;
 
-    --LFS-version | -L )
+    --book | -B )
       test $# = 1 && eval "$exit_missing_arg"
       shift
       case $1 in
         dev* | SVN | trunk )
           LFSVRS=development
           ;;
-	*) if [[ "$PROGNAME" = "lfs" ]]; then
-	     case $1 in
+        *) if [[ "$PROGNAME" = "lfs" ]]; then
+             case $1 in
                6.1.1 )
                  echo "For stable 6.1.1 book, please use jhalfs-0.2."
                  exit 0
@@ -128,9 +128,9 @@ while test $# -gt 0 ; do
                alpha*) LFSVRS=alphabetical  ;;
                udev*)  LFSVRS=udev_update   ;;
                * )     echo "$1 is an unsupported version at this time." ;;
-	     esac
-	   else
-	     echo "The requested version, ${L_arrow} ${BOLD}$1${OFF} ${R_arrow}, is undefined in the ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF} series."
+             esac
+           else
+             echo "The requested version, ${L_arrow} ${BOLD}$1${OFF} ${R_arrow}, is undefined in the ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF} series."
              exit 0
            fi
           ;;
@@ -146,27 +146,46 @@ while test $# -gt 0 ; do
       MKFILE=$JHALFSDIR/Makefile
       ;;
 
-   
-    --download-client | -D )
-      echo "The download feature is temporarily disable.."
-      exit
-      test $# = 1 && eval "$exit_missing_arg"
-      shift
-      DL=$1
-      ;;
-
     --working-copy | -W )
       test $# = 1 && eval "$exit_missing_arg"
       shift
-      if [ -f $1/patches.ent ] ; then
-        WC=1
-        BOOK=$1
-      else
-        echo -e "\nLook like $1 isn't a supported working copy."
-        echo -e "Verify your selection and the command line.\n"
-        exit 1
-      fi
-      ;;
+      case $PROGNAME in # Poor checks. We should find better ones.
+        lfs)
+          if [ -f $1/patches.ent ] ; then
+            WC=1
+            BOOK=$1
+          else
+            echo -e "\nLook like $1 isn't a LFS working copy."
+            exit 1
+          fi
+          ;;
+        clfs)
+          if [ -f $1/patches.ent ] && [ -f $1/packages.ent ]; then
+            WC=1
+            BOOK=$1
+          else
+            echo -e "\nLook like $1 isn't a CLFS working copy."
+            exit 1
+          fi
+          ;;
+        hlfs)
+          if [ -f $1/template.xml ] ; then
+            WC=1
+            BOOK=$1
+          else
+            echo -e "\nLook like $1 isn't a HLFS working copy."
+            exit 1
+          fi
+          ;;
+        blfs)
+          if [ -f $1/use-unzip.xml ] ; then
+            WC=1
+            BOOK=$1
+          else
+            echo -e "\nLook like $1 isn't a BLFS working copy."
+            exit 1
+          fi
+          ;;
 
     --testsuites | -T )
       test $# = 1 && eval "$exit_missing_arg"
@@ -185,35 +204,7 @@ while test $# -gt 0 ; do
 
     --get-packages | -P )  HPKG=1    ;;
     --run-make | -M )      RUNMAKE=1 ;;
-    --no-strip )           STRIP=0   ;;
-    --no-vim-lang )        VIMLANG=0 ;;
     --rebuild )            CLEAN=1   ;;
-
-    --page_size )
-      test $# = 1 && eval "$exit_missing_arg"
-      shift
-      case $1 in
-        letter | A4 )
-          PAGE=$1
-          ;;
-        * )
-          echo "$1 isn't a supported page size."
-          exit 1
-          ;;
-      esac
-      ;;
-
-    --timezone )
-      test $# = 1 && eval "$exit_missing_arg"
-      shift
-      if [ -f /usr/share/zoneinfo/$1 ] ; then
-        TIMEZONE=$1
-      else
-        echo -e "\nLooks like $1 isn't a valid timezone description."
-        echo -e "Verify your selection and the command line.\n"
-        exit 1
-      fi
-      ;;
 
     --fstab )
       test $# = 1 && eval "$exit_missing_arg"
