@@ -143,9 +143,9 @@ while test $# -gt 0 ; do
       esac
       ;;
 
-    --get-packages | -G )  HPKG=1    ;;
+    --get-packages | -G )      HPKG=1    ;;
 
-    --help | -h )          usage     ;;
+    --help | -h )  usage | more && exit  ;;
 
     --testsuites | -T )
       test $# = 1 && eval "$exit_missing_arg"
