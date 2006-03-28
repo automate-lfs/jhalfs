@@ -2,9 +2,9 @@ $Id$
 
 1. INTRODUCTION::
 
-     This collection of scripts collectively know as jhalfs-X, strives 
-  to create an accurate makefile directly from the xml files used to 
-  generate a specific Linux From Scratch document.
+     This collection of scripts, known as jhalfs-X, strives to create 
+  an accurate makefile directly from the xml files used to generate a 
+  specific Linux From Scratch document.
 
      The usage of this script assumes you have read and are familiar with
   the book and therefore the configuration variables found in conf files
@@ -24,12 +24,36 @@ $Id$
      
 
 3. CONFIGURATION FILES::
-
+     Each book in the LFS series has it's own set of configurable parameters as
+  well as the common parameters file.
 
 4. RUNNING::
 
 
 5. LAYOUT::
 
+        blfs --+  /BLFS config ---+             /common/config
+               |       master.sh -+                    /common_functions
+               |       xxxx.xsl  -+                    /makefile_functions
+               |                                       /func_check_versions.sh
+        clfs --+  /CLFS config ---+                    /func_validate_configs.sh
+               |       master.sh -+                    
+               |       xxxx.xsl  -+
+               |                              
+               +--------------------- master.sh --------------->>> 
+               +--README
+               |                                     
+        hlfs --+  /HLFS config ---+
+               |       master.sh -+
+               |       xxxx.xsl  -+
+               |
+        lfs  --+  /LFS  config ---+
+                       master.sh -+
+                       xxxx.xsl  -+
+	       	       
      
 6. FAQ::
+    Q. "It doesn't work"
+    A. Yes it does..
+
+    
