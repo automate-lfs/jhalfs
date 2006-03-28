@@ -38,7 +38,7 @@ TARGET=
 
 #--- Create a minimal boot system chroot/boot
 #    NOTE: not all combinations are 'bootable' yet.
-METHOD=boot
+METHOD=chroot
 
 #--- Location of fstab file (if empty, a template is created)
 FSTAB=
