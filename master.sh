@@ -41,32 +41,33 @@ fi
 
      PROGNAME=$(basename $0)
    COMMON_DIR="common"
-   PACKAGE_DIR=$(echo $PROGNAME | tr [a-z] [A-Z])
+  PACKAGE_DIR=$(echo $PROGNAME | tr [a-z] [A-Z])
        MODULE=$PACKAGE_DIR/master.sh
 MODULE_CONFIG=$PACKAGE_DIR/config
+    VERBOSITY=0
 
-echo -n "Loading common-functions module..."
+[[ $VERBOSITY > 0 ]] && echo -n "Loading common-functions module..."
 source $COMMON_DIR/common-functions
 [[ $? > 0 ]] && echo " $COMMON_DIR/common-functions did not load.." && exit
-echo "OK"
+[[ $VERBOSITY > 0 ]] && echo "OK"
 #
 
-echo -n "Loading masterscript conf..."
+[[ $VERBOSITY > 0 ]] && echo -n "Loading masterscript conf..."
 source $COMMON_DIR/config
 [[ $? > 0 ]] && echo "$COMMON_DIR/conf did not load.." && exit
-echo "OK"
+[[ $VERBOSITY > 0 ]] && echo "OK"
 #
-echo -n "Loading config module <$MODULE_CONFIG>..."
+[[ $VERBOSITY > 0 ]] && echo -n "Loading config module <$MODULE_CONFIG>..."
 source $MODULE_CONFIG
 [[ $? > 0 ]] && echo "$MODULE_CONFIG did not load.." && exit 1
-echo "OK"
+[[ $VERBOSITY > 0 ]] && echo "OK"
 #
-echo -n "Loading code module <$MODULE>..."
+[[ $VERBOSITY > 0 ]] && echo -n "Loading code module <$MODULE>..."
 source $MODULE
 [[ $? > 0 ]] && echo "$MODULE did not load.." && exit 2
-echo "OK"
+[[ $VERBOSITY > 0 ]] && echo "OK"
 #
-echo "---------------${nl_}"
+[[ $VERBOSITY > 0 ]] && echo "---------------${nl_}"
 
 
 #===========================================================
@@ -78,16 +79,16 @@ WC=${BOOK:+1}
 
 
 #*******************************************************************#
-echo -n "Loading function <func_check_version.sh>..."
+[[ $VERBOSITY > 0 ]] && echo -n "Loading function <func_check_version.sh>..."
 source $COMMON_DIR/func_check_version.sh
 [[ $? > 0 ]] && echo " function module did not load.." && exit 2
-echo "OK"
+[[ $VERBOSITY > 0 ]] && echo "OK"
 
-echo -n "Loading function <func_validate_configs.sh>..."
+[[ $VERBOSITY > 0 ]] && echo -n "Loading function <func_validate_configs.sh>..."
 source $COMMON_DIR/func_validate_configs.sh
 [[ $? > 0 ]] && echo " function module did not load.." && exit 2
-echo "OK"
-echo "---------------${nl_}"
+[[ $VERBOSITY > 0 ]] && echo "OK"
+[[ $VERBOSITY > 0 ]] && echo "---------------${nl_}"
 
 
 ###################################
