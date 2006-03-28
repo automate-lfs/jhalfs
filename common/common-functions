@@ -42,38 +42,55 @@ ${BOLD}
 Options:
 ${BOLD}  -h, --help${OFF}
         print this help, then exit
+
 ${BOLD}  -V, --version${OFF}
-        print version information, then exit
+        print version information, then exit [A-Z]
+
+${BOLD}  -B, --book VER${OFF}
+        checkout VER version of the book. Supported versions at this time are:
+        dev* | trunk | SVN     aliases for Development {C,H,B}LFS
+        alpha*                 aliases for the LFS alphabetical branch
+        udev*                  aliases for the LFS udev_update branch
+
 ${BOLD}  -D  --directory DIR${OFF}
-        use DIR directory for building ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF}; all files jhalfs produces will be
-        in the directory DIR/jhalfs.
-${BOLD}  -R --rebuild${OFF}
-        clean the build directory before to perfom any other task. The directory
-        is cleaned only if it was populated by a previous jhalfs run.
+        use DIR directory for building ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF}; all files jhalfs-X produces
+        will be in the directory DIR/jhalfs.
+
 ${BOLD}  -G, --get-packages${OFF}
-        download the packages and patches. This assumes that the server declared in the
-        conf file has the proper packages and patches for the book version being processed.
+        download the packages and patches. This assumes that the server declared
+        in the configuration file has the proper packages and patches for the
+        book version being processed.
+
 ${BOLD}  -T, --testsuites N ${OFF}
         Run test suites  [0-3]
           0 = none
           1 = only chapter06 Glibc, GCC and Binutils testsuites
-          2 = all chapter06 testsuites
+          2 = all chapter06 testsuites (in BLFS, alias to 1)
           3 = all chapter05 and chapter06 testsuites
+        In BLFS, 2 and 3 are aliases to 1
+        In CLFS, 3 is an alias to 2
+
 ${BOLD}  -W, --working-copy DIR${OFF}
-        use the local working copy placed in DIR as the $(echo $PROGNAME | tr [a-z] [A-Z]) book
-${BOLD}  -B, --book VER${OFF}
-        checkout VER version of the LFS book. Supported versions at this time are:
-        dev* | trunk | SVN     aliases for Development {C,H,B}LFS
-        alpha*                 aliases for the LFS alphabetical branch
-        udev*                  aliases for the LFS udev_update branch
+        use the local working copy placed in DIR as the $(echo $PROGNAME | tr [a-z]) book
+-EOF-
+
+[[ ${PROGNAME} != "blfs" ]] &&
+cat <<- -EOF-
+
 ${BOLD}  -F, --fstab FILE${OFF}
         use FILE as the /etc/fstab file for the ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF} system. If not specified,
         a default /etc/fstab file with dummy values is created.
+
 ${BOLD}  -K, --kernel-config FILE${OFF}
         use the kernel configuration file specified in FILE to build the kernel.
         if the file is not found, or if not specified, the kernel build is skipped.
+
 ${BOLD}  -M, --run-make${OFF}
         run make on the generated Makefile
+
+${BOLD}  -R --rebuild${OFF}
+        clean the build directory before to perfom any other task. The directory
+        is cleaned only if it was populated by a previous jhalfs-X run.
 -EOF-
 
 [[ ${PROGNAME} = "clfs" ]] &&
@@ -87,10 +104,12 @@ ${BOLD}  -A, --arch ARCH ${OFF}
         x86_64-64, mips64-64, mipsel64-64, sparc64-64, alpha
            64bit multi-lib
         x86_64, mips64, mipsel64, sparc64, ppc64
-${BOLD}  --method BUILDMETHOD ${OFF}
-        Select the build method, chroot or boot
+
 ${BOLD}  --boot_config FILE ${OFF}
         The configuration file for the bootstrap kernel if method=boot
+
+${BOLD}  --method BUILDMETHOD ${OFF}
+        Select the build method, chroot or boot
 -EOF-
 
 [[ ${PROGNAME} = "hlfs" ]] &&
