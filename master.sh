@@ -162,7 +162,6 @@ while test $# -gt 0 ; do
       ;;
 
     --version | -V )
-        clear
         echo "$version"
         exit 0
       ;;

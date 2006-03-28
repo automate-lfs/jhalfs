@@ -59,7 +59,7 @@ ${BOLD}  -T, --testsuites N ${OFF}
           0 = none
           1 = only chapter06 Glibc, GCC and Binutils testsuites
           2 = all chapter06 testsuites
-          3 = all chapter05 and chapter06 testsuites        
+          3 = all chapter05 and chapter06 testsuites
 ${BOLD}  -W, --working-copy DIR${OFF}
         use the local working copy placed in DIR as the $(echo $PROGNAME | tr [a-z] [A-Z]) book
 ${BOLD}  -B, --book VER${OFF}
@@ -83,13 +83,13 @@ cat <<- -EOF-
 ${BOLD}  -A, --arch ARCH ${OFF}
         Select the TARGET architecture, valid selections are:
            32bit builds
-        x86, i486, i586, ppc, mips, mipsel, sparc, sparcv8 
+        x86, i486, i586, ppc, mips, mipsel, sparc, sparcv8
            64bit builds
         x86_64-64, mips64-64, mipsel64-64, sparc64-64, alpha
            64bit multi-lib
         x86_64, mips64, mipsel64, sparc64, ppc64
 ${BOLD}  --method BUILDMETHOD ${OFF}
-        Select the build method, chroot or boot 
+        Select the build method, chroot or boot
 ${BOLD}  --boot_config FILE ${OFF}
         The configuration file for the bootstrap kernel if method=boot
 -EOF-
@@ -99,7 +99,7 @@ cat <<- -EOF-
 
 ${BOLD}  --model STYLE ${OFF}
         Select the library model for the HLFS system
-        Valid choices are: glibc or uclibc 
+        Valid choices are: glibc or uclibc
 -EOF-
 
 [[ ${PROGNAME} = "blfs" ]] &&
@@ -122,10 +122,14 @@ ${DD_BORDER}
 }
 
 version="
-${BOLD}\"${PROGNAME}\"${OFF} script module (development) \$Date$
+
+${BOLD}  \"jhalfs-X\"${OFF} builder tool (development) \$Rev$
+\$Date$
+
+${BOLD}              \"${PROGNAME}\"${OFF} script module
 
 Written by Jeremy Huntwork,
-           Manuel Caneles Esparcia,
+           Manuel Canales Esparcia,
            George Boudreau
 
 This program is published under the ${BOLD}Gnu General Public License, Version 2.${OFF}
