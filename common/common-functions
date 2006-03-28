@@ -44,7 +44,7 @@ ${BOLD}  -h, --help${OFF}
         print this help, then exit
 
 ${BOLD}  -V, --version${OFF}
-        print version information, then exit [A-Z]
+        print version information, then exit
 
 ${BOLD}  -B, --book VER${OFF}
         checkout VER version of the book. Supported versions at this time are:
@@ -71,7 +71,7 @@ ${BOLD}  -T, --testsuites N ${OFF}
         In CLFS, 3 is an alias to 2
 
 ${BOLD}  -W, --working-copy DIR${OFF}
-        use the local working copy placed in DIR as the $(echo $PROGNAME | tr [a-z]) book
+        use the local working copy placed in DIR as the $(echo $PROGNAME | tr [a-z] [A-Z]) book
 -EOF-
 
 [[ ${PROGNAME} != "blfs" ]] &&
