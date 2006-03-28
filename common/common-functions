@@ -441,9 +441,9 @@ clean_builddir() {
     else
       # Clean the build directory
       echo -ne "Cleaning $BUILDDIR...\n"
-      rm -rf $BUILDDIR/{bin,boot,dev,etc,home,lib,media,mnt,opt,proc,root,sbin,srv,sys,tmp,tools,usr,var}
+      rm -rf $BUILDDIR/{bin,boot,dev,etc,home,lib,media,mnt,opt,proc,root,sbin,srv,sys,tmp,tools,cross-tools,usr,var}
       echo -ne "Cleaning $JHALFSDIR...\n"
-      rm -rf $JHALFSDIR/{0*,1*,envars,sources-dir,commands,logs,Makefile,dump-lfs-scripts.xsl,functions,packages,patches}
+      rm -rf $JHALFSDIR/{0*,1*,envars,sources-dir,*commands,logs,Makefile,*.xsl,makefile-functions,packages,patches}
       echo -ne "Cleaning remainig extracted sources in $BUILDDIR/sources...\n"
       rm -rf `find $BUILDDIR/sources/* -maxdepth 0 -type d`
       echo -ne "done\n"
