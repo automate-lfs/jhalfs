@@ -38,7 +38,7 @@ define echo_finished
   @echo -e \\t\\t$(RED)W A R N I N G$(BOLD)
   @echo --------------------------------------------------------------------------------
   @echo
-  @echo To be able to boot your new LFS system you need to follow
+  @echo To be able to boot your new system you need to follow
   @echo the next steps:$(WHITE)
   @echo
   @echo -e \\t- Enter to the chroot using the command found
@@ -74,25 +74,14 @@ define echo_boot_finished
   @echo
   @echo The build is not complete. Follow the next steps:$(WHITE)
   @echo
-  @echo -e \\t- Enter to the chroot using the command found
-  @echo -e \\tin 8.4 Entering the Chroot Environment
-  @echo
-  @echo -e \\t- Edit /etc/fstab, 
+  @echo -e \\t- Edit $(BUILDDIR)/etc/fstab
   @echo -e \\t and any other configuration file required to suit your needs.
-  @echo
-  @echo -e \\t- Set-up Grub.
-  @echo
-  @echo -e \\t- Exit chroot environment.
-  @echo
-  @echo If you are an experienced LFS user, several of those steps can be
-  @echo skipped or done in a different way. But then, that is something
-  @echo that you already know and there is no need to discuss it here.
   @echo $(BOLD)
   @echo $(BOLD)$(YELLOW)
   @echo  1.If it is necessary, transfer the newly created partition to the target machine
-  @echo  2.Boot the new partition. 
-  @echo  3.Once you are logged in issue the following cmds
-  @echo -e \\t $(BOLD})cd /jhahlfs
+  @echo  2.Boot the new partition.
+  @echo  3.Once you are logged in issue the following commands
+  @echo -e \\t $(BOLD})cd /jhalfs
   @echo -e \\t $(BOLD)make makesys
   @echo  The build process should resume. Follow any instructions that appear.
   @echo --------------------------------------------------------------------------------
