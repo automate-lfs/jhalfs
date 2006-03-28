@@ -107,7 +107,7 @@ cat <<- -EOF-
 
 ${BOLD}  --dependencies  0/1/2${OFF}
         add dependencies of type TYPE to the build tree.
-        If not set, both required a recommended are used.
+        If not set, both required and recommended are used.
 
                   Possible values are:
         0 - required        only required dependecies are used

@@ -89,7 +89,7 @@ define echo_boot_finished
   @echo that you already know and there is no need to discuss it here.
   @echo $(BOLD)
   @echo $(BOLD)$(YELLOW)
-  @echo  1.If necessary transfer the newly created partition to the target machine
+  @echo  1.If it is necessary, transfer the newly created partition to the target machine
   @echo  2.Boot the new partition. 
   @echo  3.Once you are logged in issue the following cmds
   @echo -e \\t $(BOLD})cd /jhahlfs

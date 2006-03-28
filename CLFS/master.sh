@@ -283,7 +283,6 @@ boot_Makefiles() {            #
     PREV=$this_script
 
   done
-  echo -e "\t@\$(call echo_boot_finished,$VERSION)" >> $MKFILE.tmp
 }
 
 
