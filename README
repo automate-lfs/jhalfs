@@ -2,13 +2,14 @@ $Id$
 
 1. INTRODUCTION::
 
-     This collection of scripts, known as jhalfs-X, strives to create 
-  an accurate makefile directly from the xml files used to generate a 
-  specific Linux From Scratch document.
+     This collection of scripts, known as jhalfs-X, strives to create
+  an accurate makefile directly from the XML files used to generate a
+  specific book from the diferent Linux From Scratch documentation
+  projects.
 
      The usage of this script assumes you have read and are familiar with
   the book and therefore the configuration variables found in conf files
-  will have meaning to you. There are a number of command line switches 
+  will have meaning to you. There are a number of command line switches
   which, if used, will override the config file settings.
 
   NOTES::
@@ -17,11 +18,13 @@ $Id$
 
   *.  It is recommended that you temporarily unpack your linux kernel and
   run <make menuconfig> and configure the kernal as per the book and save
-  the resulting .config file. This configuration rule also applies to uClibc
-  when building a HLFS system using uClibc rather than glibc.
+  the resulting .config file. This configuration rule also applies to the
+  configuration of the uClibc package when building a HLFS system using
+  uClibc rather than glibc.
 
 2. INSTALLATION::
-     
+     No installation is required. No system-wide installation is allowed
+  for now.
 
 3. CONFIGURATION FILES::
      Each book in the LFS series has it's own set of configurable parameters as
@@ -37,12 +40,12 @@ $Id$
                |       xxxx.xsl  -+                    /makefile_functions
                |                                       /func_check_versions.sh
         clfs --+  /CLFS config ---+                    /func_validate_configs.sh
-               |       master.sh -+                    
+               |       master.sh -+
                |       xxxx.xsl  -+
-               |                              
-               +--------------------- master.sh --------------->>> 
+               |
+               +--------------------- master.sh --------------->>>
                +--README
-               |                                     
+               |
         hlfs --+  /HLFS config ---+
                |       master.sh -+
                |       xxxx.xsl  -+
@@ -50,10 +53,9 @@ $Id$
         lfs  --+  /LFS  config ---+
                        master.sh -+
                        xxxx.xsl  -+
-	       	       
-     
+
+
 6. FAQ::
     Q. "It doesn't work"
     A. Yes it does..
 
-    
