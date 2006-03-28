@@ -279,21 +279,6 @@ EOF
 }
 
 
-#==================================#
-wrt_run_as_lfs() {                 #
-#==================================#
-  local this_script=$1
-  local file=$2
-(
-cat << EOF
-	@echo -e "\n\`date\`\n\nKB: \`du -sk --exclude={0,1}??-* \$(MOUNT_PT)\`\n" >logs/$this_script && \\
-	su - lfs -c "source /home/lfs/.bashrc && $JHALFSDIR/${PROGNAME}-commands/$file" >>logs/$this_script 2>&1 && \\
-	echo -e "\n\`date\`\n\nKB: \`du -sk --exclude={0,1}??-* \$(MOUNT_PT)\`\n" >>logs/$this_script
-EOF
-) >> $MKFILE.tmp
-}
-
-
 #----------------------------------#
 wrt_run_as_root() {                #
 #----------------------------------#

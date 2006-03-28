@@ -133,7 +133,7 @@ cross_tools_Makefiles() {     #
     #
     [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*" &&  echo -e '\ttrue' >> $MKFILE.tmp
     #
-    wrt_run_as_lfs "${this_script}" "${file}"
+    wrt_run_as_su "${this_script}" "${file}"
     #
     [[ "$vrs" != "" ]] && wrt_remove_build_dirs "${name}"
     #
@@ -185,7 +185,7 @@ temptools_Makefiles() {       #
     #
     [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*" && echo -e '\ttrue' >> $MKFILE.tmp
     #
-    wrt_run_as_lfs "${this_script}" "${file}"
+    wrt_run_as_su "${this_script}" "${file}"
     #
     [[ "$vrs" != "" ]] && wrt_remove_build_dirs "${name}"
     #
@@ -263,10 +263,10 @@ boot_Makefiles() {            #
       *fstab*)   if [[ -n "$FSTAB" ]]; then
                    wrt_copy_fstab "${this_script}"
                  else
-                   wrt_run_as_lfs  "${this_script}" "${file}"
+                   wrt_run_as_su  "${this_script}" "${file}"
                  fi
          ;;
-      *)         wrt_run_as_lfs  "${this_script}" "${file}"       ;;
+      *)         wrt_run_as_su  "${this_script}" "${file}"       ;;
     esac
     #
     # Housekeeping...remove any build directory(ies) except if the package build fails.
@@ -333,7 +333,7 @@ chroot_Makefiles() {          #
     # Select a script execution method
     case $this_script in
       *kernfs)        wrt_run_as_root    "${this_script}" "${file}"  ;;
-      *util-linux)    wrt_run_as_lfs     "${this_script}" "${file}"  ;;
+      *util-linux)    wrt_run_as_su     "${this_script}" "${file}"  ;;
       *)              wrt_run_as_chroot1 "${this_script}" "${file}"  ;;
     esac
     #
@@ -537,7 +537,7 @@ bm_final_system_Makefiles() { #
     this_script=`basename $file`
 
     # Test if the stripping phase must be skipped
-    case $this_script in 
+    case $this_script in
       *stripping*) [[ "$STRIP" = "0" ]] && continue
        ;;
     esac
@@ -1006,7 +1006,7 @@ fi
 if [[ "${METHOD}" = "boot" ]]; then
 (
 	cat << EOF
-	
+
 all:	023-creatingtoolsdir 024-creatingcrossdir 025-addinguser 026-settingenvironment \
 	$cross_tools \
 	$temptools \
@@ -1044,7 +1044,7 @@ clean-jhalfs:
 
 clean-makeboot:
 	rm -rf /tools/*
-	rm -f $cross_tools && rm -f $temptools && rm -f $chroottools && rm -f $boottools 
+	rm -f $cross_tools && rm -f $temptools && rm -f $chroottools && rm -f $boottools
 	rm -f restore-lfs-env sources-dir
 	cd logs && rm -f $cross_tools && rm -f $temptools && rm -f $chroottools && rm -f $boottools && cd ..
 
