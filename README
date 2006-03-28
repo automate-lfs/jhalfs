@@ -23,7 +23,7 @@ $Id$
   uClibc rather than glibc.
 
 2. INSTALLATION::
-     No installation is required. No system-wide installation is allowed
+     No installation is required. No system-wide installation isn't allowed
   for now.
 
 3. CONFIGURATION FILES::
