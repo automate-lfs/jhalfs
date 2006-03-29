@@ -253,13 +253,17 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
     # (so we can review config.cache, config.log, etc.)
     # For Binutils the sources must be retained for some time.
     if [ "$vrs" != "" ] ; then
-      if [[ ! `_IS_ $this_script binutils` ]]; then
-      wrt_remove_build_dirs "$name"
-      fi
+      case "${this_script}" in
+        *binutils*) : # do NOTHING
+          ;;
+        *) wrt_remove_build_dirs "$name"
+          ;;
+      esac
     fi
 
     # Remove the Binutils pass 1 sources after a successful Adjusting phase.
-    if [[ `_IS_ $this_script adjusting` ]] ; then
+    case "${this_script}" in
+     *adjusting*)
 (
 cat << EOF
 	@rm -r \`cat sources-dir\` && \\
@@ -267,7 +271,8 @@ cat << EOF
 	rm sources-dir
 EOF
 ) >> $MKFILE.tmp
-    fi
+      ;;
+    esac
 
     # Include a touch of the target name so make can check if it's already been made.
     echo -e '\t@touch $@' >> $MKFILE.tmp
@@ -366,13 +371,14 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     esac
 
     # In the mount of kernel filesystems we need to set LFS and not to use chroot.
-    if [[ `_IS_ $this_script kernfs` ]] ; then
-      wrt_run_as_root "${this_script}" "${file}"
-    #
-    # The rest of Chapter06
-    else
-      wrt_run_as_chroot1 "${this_script}" "${file}"
-    fi
+    case "${this_script}" in
+      *kernfs*)
+        wrt_run_as_root "${this_script}" "${file}"
+        ;;
+      *)   # The rest of Chapter06
+        wrt_run_as_chroot1 "${this_script}" "${file}"
+       ;;
+    esac
     #
     # Remove the build directory(ies) except if the package build fails.
     if [ "$vrs" != "" ] ; then
@@ -380,7 +386,8 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     fi
     #
     # Remove the Binutils pass 2 sources after a successful Re-Adjusting phase.
-    if [[ `_IS_ $this_script readjusting` ]] ; then
+    case "${this_script}" in
+      *readjusting*)
 (
 cat << EOF
 	@rm -r \`cat sources-dir\` && \\
@@ -388,7 +395,8 @@ cat << EOF
 	rm sources-dir
 EOF
 ) >> $MKFILE.tmp
-    fi
+      ;;
+    esac
 
     # Include a touch of the target name so make can check if it's already been made.
     echo -e '\t@touch $@' >> $MKFILE.tmp
@@ -443,24 +451,32 @@ chapter7_Makefiles() {       # Create a bootable system.. kernel, bootscripts..e
     # as a dependency. Also call the echo_message function.
     wrt_target "$this_script" "$PREV"
 
-    if [[ `_IS_ $this_script bootscripts` ]] ; then
-      vrs=`grep "^lfs-bootscripts-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
-      FILE="lfs-bootscripts-$vrs.tar.*"
-      wrt_unpack2 "$FILE"
-      vrs=`grep "^blfs-bootscripts-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
-      echo -e "\t@echo \"\$(MOUNT_PT)\$(SRC)/blfs-bootscripts-$vrs\" >> sources-dir" >> $MKFILE.tmp
-    fi
+    case "${this_script}" in
+      *bootscripts*) 
+        vrs=`grep "^lfs-bootscripts-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+        FILE="lfs-bootscripts-$vrs.tar.*"
+        wrt_unpack2 "$FILE"
+        vrs=`grep "^blfs-bootscripts-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+        echo -e "\t@echo \"\$(MOUNT_PT)\$(SRC)/blfs-bootscripts-$vrs\" >> sources-dir" >> $MKFILE.tmp
+        ;;
+    esac
 
-    # Check if we have a real /etc/fstab file
-    if [[ `_IS_ $this_script fstab` ]] && [[ -n "$FSTAB" ]] ; then
-      wrt_copy_fstab "$this_script"
-    else
-      # Initialize the log and run the script
-      wrt_run_as_chroot2 "${this_script}" "${file}"
-    fi
+    case "${this_script}" in 
+      *fstab*) # Check if we have a real /etc/fstab file
+        if [[ -n "$FSTAB" ]] ; then
+          wrt_copy_fstab "$this_script"
+        else  # Initialize the log and run the script
+          wrt_run_as_chroot2 "${this_script}" "${file}"
+        fi
+        ;;
+      *)  # All other scripts
+        wrt_run_as_chroot2 "${this_script}" "${file}"
+        ;;
+    esac
 
     # Remove the build directory except if the package build fails.
-    if [[ `_IS_ $this_script bootscripts` ]]; then
+    case "${this_script}" in
+      *bootscripts*)
 (
 cat << EOF
 	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
@@ -469,7 +485,8 @@ cat << EOF
 	rm sources-dir
 EOF
 ) >> $MKFILE.tmp
-    fi
+       ;;
+    esac
 
     # Include a touch of the target name so make can check if it's already been made.
     echo -e '\t@touch $@' >> $MKFILE.tmp
