@@ -414,6 +414,7 @@ BOOK=${BOOK:=$PROGNAME-$LFSVRS}
 
 # Check for minumum gcc and kernel versions
 #check_requirements  1 # 0/1  0-do not display values.
+echo
 check_version "2.6.2" "`uname -r`"         "KERNEL"
 check_version "3.0"   "$BASH_VERSION"      "BASH"
 check_version "3.0"   "`gcc -dumpversion`" "GCC"
