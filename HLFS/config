@@ -10,13 +10,13 @@ declare -r FTP=ftp://ftp.linuxfromscratch.org/pub/lfs/conglomeration
 #--- Which library model to use uclibc/glibc
 MODEL=glibc
 
-#--- The host system has grsecurity options enabled 0(no)/1(yes)
+#--- The host system has grsecurity options enabled? 0(no)/1(yes)
 GRSECURITY_HOST=0
 
 #--- Location of fstab file (if empty, a template is created)
 FSTAB=
 
-#--- Fully qualified path to a kernel config file 
+#--- Fully qualified path to a kernel config file
 # If no config file is  specified the kernel is NOT compiled
 CONFIG=
 
@@ -27,7 +27,7 @@ BOOK=
 #==== INTERNAL VARIABLES ====
 # Don't edit it unless you know what you are doing
 
-#--- Files that will be copied to $JHAHLFSDIR
+#--- Extra files that need be copied to $JHALFSDIR
 FILES="patcheslist.xsl"
 
 #--- Default stylesheet
@@ -35,6 +35,8 @@ XSL=hlfs.xsl
 
 #--- Book version
 LFSVRS=development
+
+#--- Name of the makefile
 MKFILE=$JHALFSDIR/Makefile
 
 #--- FTP/HTTP mirror used as fallback (full path)

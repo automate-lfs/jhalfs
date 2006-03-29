@@ -7,7 +7,7 @@
 #####
 declare -r FTP=ftp://ftp.linuxfromscratch.org/pub/lfs/conglomeration
 
-#--- Which target architecture,
+#--- Which target architecture you want to build for,
 #    used to select proper book and set TARGETS
 #--------------------------------
 TARGET32=""
@@ -36,17 +36,19 @@ TARGET=
 # ARCH=sparc64 ; TARGET="sparc64-unknown-linux-gnu"   ; TARGET32="sparcv9-unknown-linux-gnu"
 # ARCH=ppc64   ; TARGET="powerpc64-unknown-linux-gnu" ; TARGET32="powerpc-unknown-linux-gnu"
 
-#--- Create a minimal boot system chroot/boot
+#--- What build method should be used chroot/boot
 #    NOTE: not all combinations are 'bootable' yet.
 METHOD=chroot
 
 #--- Location of fstab file (if empty, a template is created)
 FSTAB=
 
-#--- Location of kernel config file (if the kernel is to be compiled)
+#--- Fully qualified path to a kernel config file
+# If no config file is  specified the kernel is NOT compiled
 CONFIG=
 
-#--- Location of boot-kernel config file (if METHOD=boot)
+#--- If METHOD=boot, location of boot-kernel config file
+#    NOTE: this setting is required
 BOOT_CONFIG=
 
 #--- Book's sources directory
@@ -56,7 +58,7 @@ BOOK=
 #==== INTERNAL VARIABLES ====
 # Don't edit it unless you know what you are doing
 
-#--- Files that will be copied to $JHALFSDIR
+#--- Extra files that need be copied to $JHALFSDIR
 FILES="patcheslist.xsl  packageslist.xsl"
 
 #--- Default stylesheet
@@ -64,6 +66,8 @@ XSL=clfs.xsl
 
 #--- Book version
 LFSVRS=development
+
+#--- Name of the makefile
 MKFILE=$JHALFSDIR/Makefile
 
 #--- FTP/HTTP mirror used as fallback (full path)
