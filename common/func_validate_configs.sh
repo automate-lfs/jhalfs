@@ -17,9 +17,9 @@ validate_target() {
   }
 
  if [[ ! "${TARGET32}" = "" ]]; then
-    [[ $verbose = "1" ]] && echo -e "`eval echo $PARAM_VALS2`"
+    echo -e "`eval echo $PARAM_VALS2`"
  fi
- [[ $verbose = "1" ]] && echo -e "`eval echo $PARAM_VALS`"
+ echo -e "`eval echo $PARAM_VALS`"
 
  case "${ARCH}" in
    "x86")      [[ "${TARGET}" = "i486-pc-linux-gnu" ]] && return
@@ -85,7 +85,7 @@ validate_config()    {       # Are the config values sane (within reason)
       Validates the configuration parameters. The global var PROGNAME selects the
     parameter list.
 
-    input vars: $1 0/1 0=quiet, 1=verbose output
+    input vars: none
     externals:  color constants
                 PROGNAME (lfs,clfs,hlfs,blfs)
     modifies:   none
@@ -108,7 +108,6 @@ inline_doc
 
   local config_param
   local validation_str
-  local verbose=$1
 
   write_error_and_die() {
     echo -e "\n${DD_BORDER}"
@@ -121,7 +120,7 @@ inline_doc
   validate_str() {
      # This is the 'regexp' test available in bash-3.0..
      # using it as a poor man's test for substring
-     [[ $verbose = "1" ]] && echo -e "`eval echo $PARAM_VALS`"
+     echo -e "`eval echo $PARAM_VALS`"
      if [[ ! "${validation_str}" =~ "x${!config_param}x" ]] ; then
        # parameter value entered is no good
        write_error_and_die
@@ -134,7 +133,7 @@ inline_doc
       # This is a tricky little piece of code.. executes a cmd string.
       case $config_param in
         BUILDDIR) # We cannot have an <empty> or </> root mount point
-            [[ $verbose = "1" ]] && echo -e "`eval echo $PARAM_VALS`"
+            echo -e "`eval echo $PARAM_VALS`"
             if [[ "xx x/x" =~ "x${!config_param}x" ]]; then
               write_error_and_die
             fi
@@ -157,7 +156,7 @@ inline_doc
 
 
       if [[ "${config_param}" = "LC_ALL" ]]; then
-         [[ $1 = "1" ]] && echo "`eval echo $PARAM_VALS`"
+         echo "`eval echo $PARAM_VALS`"
          [[ -z "${!config_param}" ]] && continue
           # See it the locale values exist on this machine
          if [[ "`locale -a | grep -c ${!config_param}`" > 0 ]]; then
@@ -168,7 +167,7 @@ inline_doc
       fi
 
       if [[ "${config_param}" = "LANG" ]]; then
-         [[ $verbose = "1" ]] && echo "`eval echo $PARAM_VALS`"
+         echo "`eval echo $PARAM_VALS`"
          [[ -z "${!config_param}" ]] && continue
           # See it the locale values exist on this machine
          if [[ "`locale -a | grep -c ${!config_param}`" > 0 ]]; then
@@ -180,7 +179,7 @@ inline_doc
 
 
       if [[ "${config_param}"  = "KEYMAP" ]]; then
-         [[ $verbose = "1" ]] && echo "`eval echo $PARAM_VALS`"
+         echo "`eval echo $PARAM_VALS`"
          [[ "${!config_param}" = "none" ]] && continue
          if [[ -e "/usr/share/kbd/keymaps/${!config_param}" ]] &&
             [[ -s "/usr/share/kbd/keymaps/${!config_param}" ]]; then
@@ -191,7 +190,7 @@ inline_doc
       fi
 
       if [[ "${config_param}" = "SRC_ARCHIVE" ]]; then
-         [[ $verbose = "1" ]] && echo -n "`eval echo $PARAM_VALS`"
+         echo -n "`eval echo $PARAM_VALS`"
          if [ ! -z ${SRC_ARCHIVE} ]; then
            if [ ! -d ${SRC_ARCHIVE} ]; then
              echo "   -- is NOT a directory"
@@ -206,7 +205,7 @@ inline_doc
       fi
 
       if [[ "${config_param}" = "FSTAB" ]]; then
-         [[ $verbose = "1" ]] && echo "`eval echo $PARAM_VALS`"
+         echo "`eval echo $PARAM_VALS`"
          [[ -z "${!config_param}" ]] && continue
          if [[ -e "${!config_param}" ]] &&
             [[ -s "${!config_param}" ]]; then
@@ -217,7 +216,7 @@ inline_doc
       fi
 
       if [[ "${config_param}" = "BOOK" ]]; then
-         [[ $verbose = "1" ]] && echo "`eval echo $PARAM_VALS`"
+         echo "`eval echo $PARAM_VALS`"
          [[ ! "${WC}" = 1 ]] && continue
          [[ -z "${!config_param}" ]] && continue
          if [[ -e "${!config_param}" ]] &&
@@ -229,7 +228,7 @@ inline_doc
       fi
 
       if [[ "${config_param}" = "CONFIG" ]]; then
-         [[ $verbose = "1" ]] && echo "`eval echo $PARAM_VALS`"
+         echo "`eval echo $PARAM_VALS`"
          [[ -z "${!config_param}" ]] && continue
          if [[ -e "${!config_param}" ]] &&
             [[ -s "${!config_param}" ]]; then
@@ -241,7 +240,7 @@ inline_doc
 
       if [[ "${config_param}" = "BOOT_CONFIG" ]]; then
         if [[ "${METHOD}" = "boot" ]]; then
-           [[ $verbose = "1" ]] && echo "`eval echo $PARAM_VALS`"
+            echo "`eval echo $PARAM_VALS`"
            # There must be a config file when the build method is 'boot'
            [[ -e "${!config_param}" ]] && [[ -s "${!config_param}" ]] && continue
            # If you make it this far then there is a problem

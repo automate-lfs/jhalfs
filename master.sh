@@ -422,7 +422,7 @@ tarVer=`tar --version`
 check_version "1.15.0" "${tarVer##* }"      "TAR"
 echo "---------------${nl_}"
 
-validate_config     1 # 0/1  0-do not display values
+validate_config
 echo "---------------${nl_}"
 
 echo -n "Are you happy with that settings? yes/no (no): "
