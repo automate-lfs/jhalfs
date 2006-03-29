@@ -719,13 +719,13 @@ bootable_Makefiles() {        #
 #-----------------------------#
   echo "${tab_}${GREEN}Processing... ${L_arrow}(chroot) make bootable${R_arrow}"
 
-  for file in bootable/* ; do
+  for file in {bootable,the-end}/* ; do
     # Keep the script file name
     this_script=`basename $file`
 
     # A little housekeeping on the scripts
     case $this_script in
-      *grub | *aboot | *colo | *silo | *arcload | *lilo )  continue ;;
+      *grub | *aboot | *colo | *silo | *arcload | *lilo | *reboot* )  continue ;;
       *kernel) # if there is no kernel config file do not build the kernel
                [[ -z $CONFIG ]] && continue
                  # Copy the config file to /sources with a standardized name
@@ -793,13 +793,13 @@ bm_bootable_Makefiles() {     #
 #-----------------------------#
   echo "${tab_}${GREEN}Processing... ${L_arrow}(boot) make bootable${R_arrow}"
 
-  for file in bootable/* ; do
+  for file in {bootable,the-end}/* ; do
     # Keep the script file name
     this_script=`basename $file`
 
     # A little housekeeping on the scripts
     case $this_script in
-      *grub | *aboot | *colo | *silo | *arcload | *lilo )  continue  ;;
+      *grub | *aboot | *colo | *silo | *arcload | *lilo | *reboot* )  continue  ;;
       *kernel) # if there is no kernel config file do not build the kernel
                [[ -z $CONFIG ]] && continue
                  # Copy the named config file to /sources with a standardized name
@@ -861,14 +861,6 @@ bm_bootable_Makefiles() {     #
 
   done
 
-}
-
-
-
-#-----------------------------#
-the_end_Makefiles() {         #
-#-----------------------------#
-    echo "${tab_}${GREEN}Processing... ${L_arrow}THE END${R_arrow}"
 }
 
 
