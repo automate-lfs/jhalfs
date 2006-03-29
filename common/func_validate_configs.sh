@@ -59,20 +59,21 @@ validate_target() {
     ;;
    "mips64")     [[ "${TARGET}"   = "mipsel-unknown-linux-gnu" ]] &&
                  [[ "${TARGET32}" = "mipsel-unknown-linux-gnu" ]] && return
-               
+
                  [[ "${TARGET}"   = "mips-unknown-linux-gnu" ]] &&
                  [[ "${TARGET32}" = "mips-unknown-linux-gnu" ]] && return
         write_error_and_die
     ;;
-   "sparc64")   [[ "${TARGET}"   = "sparc64-unknown-linux-gnu" ]] && 
+   "sparc64")   [[ "${TARGET}"   = "sparc64-unknown-linux-gnu" ]] &&
                 [[ "${TARGET32}" = "sparcv9-unknown-linux-gnu" ]] && return
         write_error_and_die
     ;;
    "ppc64")    [[ "${TARGET}"   = "powerpc64-unknown-linux-gnu" ]] &&
-               [[ "${TARGET32}" = "powerpc-unknown-linux-gnu"   ]] && return               
+               [[ "${TARGET32}" = "powerpc-unknown-linux-gnu"   ]] && return
         write_error_and_die
     ;;
    *)  write_error_and_die
+   ;;
  esac
 }
 
@@ -107,7 +108,7 @@ inline_doc
   local config_param
   local validation_str
   local verbose=$1
-  
+
   write_error_and_die() {
     echo -e "\n${DD_BORDER}"
     echo -e "`eval echo ${ERROR_MSG_pt1}`" >&2
@@ -125,7 +126,7 @@ inline_doc
        write_error_and_die
      fi
   }
-  
+
   set +e
   for PARAM_GROUP in ${PROGNAME}_PARAM_LIST; do
     for config_param in ${!PARAM_GROUP}; do
@@ -174,13 +175,13 @@ inline_doc
          else  # If you make it this far then there is a problem
            write_error_and_die
          fi
-      fi     
+      fi
 
 
       if [[ "${config_param}"  = "KEYMAP" ]]; then
          [[ $verbose = "1" ]] && echo "`eval echo $PARAM_VALS`"
          [[ "${!config_param}" = "none" ]] && continue
-         if [[ -e "/usr/share/kbd/keymaps/${!config_param}" ]] && 
+         if [[ -e "/usr/share/kbd/keymaps/${!config_param}" ]] &&
             [[ -s "/usr/share/kbd/keymaps/${!config_param}" ]]; then
             continue
          else
@@ -218,8 +219,8 @@ inline_doc
          [[ $verbose = "1" ]] && echo "`eval echo $PARAM_VALS`"
          [[ ! "${WC}" = 1 ]] && continue
          [[ -z "${!config_param}" ]] && continue
-         if [[ -e "${!config_param}" ]] && 
-            [[ -s "${!config_param}" ]]; then 
+         if [[ -e "${!config_param}" ]] &&
+            [[ -s "${!config_param}" ]]; then
            continue
          else
            write_error_and_die
@@ -229,7 +230,7 @@ inline_doc
       if [[ "${config_param}" = "CONFIG" ]]; then
          [[ $verbose = "1" ]] && echo "`eval echo $PARAM_VALS`"
          [[ -z "${!config_param}" ]] && continue
-         if [[ -e "${!config_param}" ]] && 
+         if [[ -e "${!config_param}" ]] &&
             [[ -s "${!config_param}" ]]; then
            continue
          else
