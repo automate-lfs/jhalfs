@@ -123,6 +123,8 @@ OTHERS
 
   - Add a Cunstomization file discussing how to hack the generated scripts
     and Makefiles, using the Cracklib support for Shadow in LFS as an example.
+    NOTE: that could require an special command line switch to regenerate the
+    Makefile if additional scripts are manually added to the *-commands/*/ dirs.
 
   - To add support for ICA/farce? Can be done as a separate module?
 
