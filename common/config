@@ -49,7 +49,7 @@ VIMLANG=1
 
 #--- Language information in /etc/profile  See <locale -a> for values
 LANG=$LANG
-LC_ALL=$LC_ALL (not used in LFS)
+LC_ALL=$LC_ALL # (not used in LFS)
 
 #--- Include the keymap in the kernel if defined. Path to the
 #    keymap file relative to /usr/share/kbd/keymaps/
