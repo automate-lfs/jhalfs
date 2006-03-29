@@ -69,17 +69,13 @@ chapter5_Makefiles() {
     this_script=`basename $file`
 
     # If no testsuites will be run, then TCL, Expect and DejaGNU aren't needed
-    if [ "$TEST" = "0" ]; then
-      if [[ `_IS_ ${this_script} tcl` ]] || [[ `_IS_ ${this_script} expect` ]] || [[ `_IS_ ${this_script} dejagnu` ]] ; then
-        continue
-      fi
-    fi
-
-    # Test if the stripping phase must be skipped
-    if [ "$STRIP" = "0" ] && [[ `_IS_ ${this_script} stripping` ]] ; then
-      continue
-    fi
-
+    case "${this_script}" in
+      *tcl)       [[ "${TEST}" = "0" ]] && continue ;;
+      *expect)    [[ "${TEST}" = "0" ]] && continue ;;
+      *dejagnu)   [[ "${TEST}" = "0" ]] && continue ;;
+      *stripping) [[ "${STRIP}" = "0" ]] && continue ;;
+    esac
+  
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
     chapter5="$chapter5 ${this_script}"
@@ -143,20 +139,17 @@ chapter5_Makefiles() {
 chapter6_Makefiles() {
 #----------------------------#
   echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6${R_arrow}"
+
   for file in chapter06/* ; do
     # Keep the script file name
     this_script=`basename $file`
 
     # We'll run the chroot commands differently than the others, so skip them in the
     # dependencies and target creation.
-    if [[ `_IS_ ${this_script} chroot` ]] ; then
-       continue
-    fi
-
-    # Test if the stripping phase must be skipped
-    if [ "$STRIP" = "0" ] && [[ `_IS_ ${this_script} stripping` ]] ; then
-      continue
-    fi
+    case "${this_script}" in
+      *chroot)      continue ;;
+      *stripping*) [[ "${STRIP}" = "0" ]] && continue ;;
+    esac
 
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
@@ -186,11 +179,10 @@ chapter6_Makefiles() {
 
     # In the mount of kernel filesystems we need to set LFS
     # and not to use chroot.
-    if [[ `_IS_ ${this_script} kernfs` ]] ; then
-      wrt_run_as_root "${this_script}" "$file"
-    else   # The rest of Chapter06
-      wrt_run_as_chroot1 "${this_script}" "$file"
-    fi
+    case "${this_script}" in
+      *kernfs)  wrt_run_as_root    "${this_script}" "$file" ;;
+      *)        wrt_run_as_chroot1 "${this_script}" "$file" ;;
+    esac
 
     # Remove the build directory(ies) except if the package build fails.
     if [ "$vrs" != "" ] ; then
@@ -214,6 +206,7 @@ chapter6_Makefiles() {
 chapter789_Makefiles() {
 #----------------------------#
   echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter7/8/9${R_arrow}"
+
   for file in chapter0{7,8,9}/* ; do
     # Keep the script file name
     this_script=`basename $file`
@@ -245,30 +238,36 @@ chapter789_Makefiles() {
     wrt_target "${this_script}" "$PREV"
 
     # Find the bootscripts and kernel package names
-    if [[ `_IS_ ${this_script} bootscripts` ]] || [[ `_IS_ ${this_script} kernel` ]] ; then
-      if [[ `_IS_ ${this_script} bootscripts` ]] ; then
-        vrs=`grep "^lfs-bootscripts-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
-        FILE="lfs-bootscripts-$vrs.tar.*"
-      elif [[ `_IS_ ${this_script} kernel` ]] ; then
-        vrs=`grep "^linux-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
-        FILE="linux-$vrs.tar.*"
-      fi
-      wrt_unpack2 "$FILE"
-    fi
-
+    case "${this_script}" in
+      *bootscripts)
+          vrs=`grep "^lfs-bootscripts-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+          FILE="lfs-bootscripts-$vrs.tar.*"
+          wrt_unpack2 "$FILE"
+        ;;
+      *kernel)
+          vrs=`grep "^linux-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+          FILE="linux-$vrs.tar.*"
+          wrt_unpack2 "$FILE"
+       ;;
+    esac
+    
       # Check if we have a real /etc/fstab file
-    if [[ `_IS_ ${this_script} fstab` ]] && [[ -n "$FSTAB" ]] ; then
-      wrt_copy_fstab "${this_script}"
-    else
-      # Initialize the log and run the script
-      wrt_run_as_chroot2 "$this_script" "$file"
-    fi
+    case "${this_script}" in
+      *fstab) if [[ -n $FSTAB ]]; then
+                wrt_copy_fstab "${this_script}"
+              else
+                wrt_run_as_chroot2 "$this_script" "$file"
+              fi
+        ;;
+      *)        wrt_run_as_chroot2 "$this_script" "$file"
+        ;;
+    esac
 
-    # Remove the build directory except if the package build fails.
-    if [[ `_IS_ ${this_script} bootscripts` ]] || [[ `_IS_ ${this_script} kernel` ]] ; then
-        wrt_remove_build_dirs "dummy"
-    fi
-
+    case "${this_script}" in
+      *bootscripts)  wrt_remove_build_dirs "dummy" ;;
+      *kernel)       wrt_remove_build_dirs "dummy" ;;
+    esac
+    
     # Include a touch of the target name so make can check
     # if it's already been made.
     echo -e '\t@touch $@' >> $MKFILE.tmp
