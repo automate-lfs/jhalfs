@@ -94,10 +94,11 @@ validate_config()    {       # Are the config values sane (within reason)
     on success: write text to console and returns
 inline_doc
 
-  local -r blfs_PARAM_LIST="BUILDDIR SRC_ARCHIVE TEST LANG DEPEND"
-  local -r hlfs_PARAM_LIST="BUILDDIR SRC_ARCHIVE TEST HPKG RUNMAKE STRIP PAGE TIMEZONE LC_ALL LANG         KEYMAP             FSTAB CONFIG MODEL GRSECURITY_HOST"
-  local -r clfs_PARAM_LIST="BUILDDIR SRC_ARCHIVE TEST HPKG RUNMAKE STRIP PAGE TIMEZONE        LANG VIMLANG KEYMAP ARCH TARGET FSTAB CONFIG BOOT_CONFIG METHOD"
-  local -r  lfs_PARAM_LIST="BUILDDIR SRC_ARCHIVE TEST HPKG RUNMAKE STRIP PAGE TIMEZONE        LANG VIMLANG                    FSTAB CONFIG"
+  # First internal variables, then the ones that change the book's flavour, and lastly system configuration variables
+  local -r blfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG          DEPEND               TEST"
+  local -r hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE MODEL GRSECURITY_HOST TEST STRIP FSTAB             CONFIG                PAGE TIMEZONE LANG LC_ALL"
+  local -r clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE METHOD  ARCH  TARGET  TEST STRIP FSTAB BOOT_CONFIG CONFIG KEYMAP VIMLANG PAGE TIMEZONE LANG"
+  local -r  lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE                       TEST STRIP FSTAB             CONFIG KEYMAP VIMLANG PAGE TIMEZONE LANG"
 
   local -r ERROR_MSG_pt1='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid,'
   local -r ERROR_MSG_pt2=' check the config file ${BOLD}${GREEN}\<$(echo $PROGNAME | tr [a-z] [A-Z])/config\> or \<common/config\>${OFF}'
@@ -247,7 +248,7 @@ inline_doc
           write_error_and_die
         fi
       fi
-  done
+    done
   done
 
   set -e
