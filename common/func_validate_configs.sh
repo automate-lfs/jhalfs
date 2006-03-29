@@ -1,5 +1,82 @@
 # $Id$
 
+validate_target() {
+
+  local -r ERROR_MSG_pt1='The variable \"${L_arrow}TARGET${R_arrow}\" value ${L_arrow}${BOLD}${TARGET}${R_arrow} is invalid for the ${L_arrow}${BOLD}${ARCH}${R_arrow} architecture'
+  local -r ERROR_MSG_pt2='  check the config file ${BOLD}${GREEN}\<$(echo $PROGNAME | tr [a-z] [A-Z])/config\> or \<common/config\>${OFF}'
+
+  local -r PARAM_VALS='TARGET: ${L_arrow}${BOLD}${TARGET}${OFF}${R_arrow}'
+  local -r PARAM_VALS2='TARGET32: ${L_arrow}${BOLD}${TARGET32}${OFF}${R_arrow}'
+
+  write_error_and_die() {
+    echo -e "\n${DD_BORDER}"
+    echo -e "`eval echo ${ERROR_MSG_pt1}`" >&2
+    echo -e "`eval echo ${ERROR_MSG_pt2}`" >&2
+    echo -e "${DD_BORDER}\n"
+    exit 1
+  }
+
+ if [[ ! "${TARGET32}" = "" ]]; then
+    [[ $verbose = "1" ]] && echo -e "`eval echo $PARAM_VALS2`"
+ fi
+ [[ $verbose = "1" ]] && echo -e "`eval echo $PARAM_VALS`"
+
+ case "${ARCH}" in
+   "x86")      [[ "${TARGET}" = "i486-pc-linux-gnu" ]] && return
+               [[ "${TARGET}" = "i586-pc-linux-gnu" ]] && return
+               [[ "${TARGET}" = "i686-pc-linux-gnu" ]] && return
+        write_error_and_die
+    ;;
+   "ppc")      [[ "${TARGET}" = "powerpc-unknown-linux-gnu" ]] && return
+        write_error_and_die
+    ;;
+   "mips")     [[ "${TARGET}" = "mipsel-unknown-linux-gnu" ]] && return
+               [[ "${TARGET}" = "mips-unknown-linux-gnu"   ]] && return
+        write_error_and_die
+    ;;
+   "sparc")    [[ "${TARGET}" = "sparcv9-unknown-linux-gnu" ]] && return
+        write_error_and_die
+    ;;
+   "sparcv8")  [[ "${TARGET}" = "sparc-unknown-linux-gnu" ]] && return
+        write_error_and_die
+    ;;
+   "x86_64-64") [[ "${TARGET}" = "x86_64-unknown-linux-gnu" ]] && return
+        write_error_and_die
+    ;;
+   "mips64-64")  [[ "${TARGET}" = "mipsel-unknown-linux-gnu" ]] && return
+                 [[ "${TARGET}" = "mips-unknown-linux-gnu"   ]] && return
+        write_error_and_die
+    ;;
+   "sparc64-64") [[ "${TARGET}" = "sparc64-unknown-linux-gnu" ]] && return
+        write_error_and_die
+    ;;
+   "alpha")      [[ "${TARGET}" = "alpha-unknown-linux-gnu" ]] && return
+        write_error_and_die
+    ;;
+   "x86_64")     [[ "${TARGET}"   = "x86_64-unknown-linux-gnu" ]] &&
+                 [[ "${TARGET32}" = "i686-pc-linux-gnu" ]] && return
+        write_error_and_die
+    ;;
+   "mips64")     [[ "${TARGET}"   = "mipsel-unknown-linux-gnu" ]] &&
+                 [[ "${TARGET32}" = "mipsel-unknown-linux-gnu" ]] && return
+               
+                 [[ "${TARGET}"   = "mips-unknown-linux-gnu" ]] &&
+                 [[ "${TARGET32}" = "mips-unknown-linux-gnu" ]] && return
+        write_error_and_die
+    ;;
+   "sparc64")   [[ "${TARGET}"   = "sparc64-unknown-linux-gnu" ]] && 
+                [[ "${TARGET32}" = "sparcv9-unknown-linux-gnu" ]] && return
+        write_error_and_die
+    ;;
+   "ppc64")    [[ "${TARGET}"   = "powerpc64-unknown-linux-gnu" ]] &&
+               [[ "${TARGET32}" = "powerpc-unknown-linux-gnu"   ]] && return               
+        write_error_and_die
+    ;;
+   *)  write_error_and_die
+ esac
+}
+
+
 #----------------------------#
 validate_config()    {       # Are the config values sane (within reason)
 #----------------------------#
@@ -19,9 +96,10 @@ inline_doc
   local -r  lfs_PARAM_LIST="BUILDDIR SRC_ARCHIVE HPKG RUNMAKE TEST STRIP PAGE TIMEZONE VIMLANG LC_ALL LANG KEYMAP FSTAB CONFIG"
   local -r blfs_PARAM_LIST="BUILDDIR SRC_ARCHIVE TEST LANG DEPEND"
   local -r hlfs_PARAM_LIST="BUILDDIR SRC_ARCHIVE HPKG RUNMAKE TEST STRIP PAGE TIMEZONE VIMLANG LC_ALL LANG KEYMAP FSTAB CONFIG MODEL GRSECURITY_HOST"
-  local -r clfs_PARAM_LIST="BUILDDIR SRC_ARCHIVE HPKG RUNMAKE TEST STRIP PAGE TIMEZONE VIMLANG LC_ALL LANG KEYMAP ARCH FSTAB CONFIG BOOT_CONFIG METHOD"
+  local -r clfs_PARAM_LIST="BUILDDIR SRC_ARCHIVE HPKG RUNMAKE TEST STRIP PAGE TIMEZONE VIMLANG LC_ALL LANG KEYMAP ARCH TARGET FSTAB CONFIG BOOT_CONFIG METHOD"
 
-  local -r ERROR_MSG='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid, ${nl_}check the config file ${BOLD}${GREEN}\<$(echo $PROGNAME | tr [a-z] [A-Z])/config\> or \<common/config\>${OFF}'
+  local -r ERROR_MSG_pt1='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid,'
+  local -r ERROR_MSG_pt2=' check the config file ${BOLD}${GREEN}\<$(echo $PROGNAME | tr [a-z] [A-Z])/config\> or \<common/config\>${OFF}'
   local -r PARAM_VALS='${config_param}: ${L_arrow}${BOLD}${!config_param}${OFF}${R_arrow}'
 
   local    PARAM_LIST=
@@ -32,7 +110,8 @@ inline_doc
   
   write_error_and_die() {
     echo -e "\n${DD_BORDER}"
-    echo -e "`eval echo ${ERROR_MSG}`" >&2
+    echo -e "`eval echo ${ERROR_MSG_pt1}`" >&2
+    echo -e "`eval echo ${ERROR_MSG_pt2}`" >&2
     echo -e "${DD_BORDER}\n"
     exit 1
   }
@@ -71,6 +150,7 @@ inline_doc
         GRSECURITY_HOST)  validation_str="x0x x1x";   validate_str; continue ;;
         METHOD)    validation_str="xchrootx xbootx";  validate_str; continue ;;
         ARCH)      validation_str="xx86x xx86_64x xx86_64-64x xsparcx xsparcv8x xsparc64x xsparc64-64x xmipsx xmips64x xmips64-64x xppcx xppc64x xalphax";  validate_str; continue ;;
+        TARGET)    validate_target; continue ;;
       esac
 
 
