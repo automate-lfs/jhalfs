@@ -872,14 +872,3 @@ get_sources() {
   fi
 }
 
-#-----------------------------------------------#
-_IS_()  # Function to test build scripts names
-#-----------------------------------------------#
-{
-  # Returns substr $2 or null str
-  # Must use string testing
-  case $1 in
-    *$2*) echo "$2" ;;
-       *) echo ""   ;;
-  esac
-}
