@@ -955,7 +955,7 @@ chapter7:  chapter6 $bootscripttools
 chapter8:  chapter7 $bootabletools
 
 clean-all:  clean
-	rm -rf ./{${PROGNAME}-commands,logs,${PROGNAME}-Makefile,clfs.xsl,makefile-functions,packages,patches}
+	rm -rf ./{clfs-commands,logs,Makefile,*.xsl,makefile-functions,packages,patches}
 
 clean:  clean-chapter4 clean-chapter3 clean-chapter2
 
@@ -1026,7 +1026,7 @@ makesys:  $testsuitetools $basicsystem $bootscripttools $bootabletools
 
 
 clean-all:  clean
-	rm -rf ./{${PROGNAME}-commands,logs,${PROGNAME}-Makefile,clfs.xsl,makefile-functions,packages,patches}
+	rm -rf ./{clfs-commands,logs,Makefile,*.xsl,makefile-functions,packages,patches}
 
 clean:  clean-makesys clean-makeboot clean-jhalfs
 

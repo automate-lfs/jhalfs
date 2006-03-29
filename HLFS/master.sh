@@ -452,7 +452,7 @@ chapter7_Makefiles() {       # Create a bootable system.. kernel, bootscripts..e
     wrt_target "$this_script" "$PREV"
 
     case "${this_script}" in
-      *bootscripts*) 
+      *bootscripts*)
         vrs=`grep "^lfs-bootscripts-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
         FILE="lfs-bootscripts-$vrs.tar.*"
         wrt_unpack2 "$FILE"
@@ -461,7 +461,7 @@ chapter7_Makefiles() {       # Create a bootable system.. kernel, bootscripts..e
         ;;
     esac
 
-    case "${this_script}" in 
+    case "${this_script}" in
       *fstab*) # Check if we have a real /etc/fstab file
         if [[ -n "$FSTAB" ]] ; then
           wrt_copy_fstab "$this_script"
@@ -562,7 +562,7 @@ chapter6:  chapter5 $chapter6
 chapter7:  chapter6 $chapter7
 
 clean-all:  clean
-	rm -rf ./{hlfs-commands,logs,Makefile,hlfs.xsl,patcheslist.xsl,functions,packages,patches}
+	rm -rf ./{hlfs-commands,logs,Makefile,*.xsl,patcheslist.xsl,makefile-functions,packages,patches}
 
 clean:  clean-chapter7 clean-chapter6 clean-chapter5 clean-chapter3
 

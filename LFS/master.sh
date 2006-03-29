@@ -339,7 +339,7 @@ chapter6:  chapter5 $chapter6
 chapter789:  chapter6 $chapter789
 
 clean-all:  clean
-	rm -rf ./{lfs-commands,logs,Makefile,dump-lfs-scripts.xsl,functions,packages,patches}
+	rm -rf ./{lfs-commands,logs,Makefile,*.xsl,makefile-functions,packages,patches}
 
 clean:  clean-chapter789 clean-chapter6 clean-chapter5 clean-chapter4
 
