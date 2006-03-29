@@ -1,19 +1,19 @@
             jhalfs TODO
           ---------------
 
-(Work for almost all this issues is in progress on the experimental branch)
+(The fixes for this issues are in the experimental branch)
 
 CODE STYLE
 ----------
 
-  - To use the same coding style in all modules. The current used
+DONE  - To use the same coding style in all modules. The current used
     for HLFS module (colors, error-handling, etc) look a good starting
     point for me, with two notes (to be discussed):
 
     - Bash code: to use two-spaces indentation (no tabs).
     - Makefile code: to use eight-characters tabs.
 
-  - To set the "Date" and "Id" svn:keywords properties on all files
+DONE  - To set the "Date" and "Id" svn:keywords properties on all files
     setting the "Id" key on the header of each file and using the
     "Date" key when needed (like in the -v output of jhalfs)
 
@@ -21,16 +21,16 @@ CODE STYLE
 MASTER SCRIPT
 -------------
 
-  - Make jhalfs a "master script" that will control and run each
+DONE  - Make jhalfs a "master script" that will control and run each
     book's module. When doing that reestructuration we coulud to change
     the tool's name, if wanted.
 
-  - Common code for all modules should be placed in this master script.
+DONE  - Common code for all modules should be placed in this master script.
 
-  - Common configuration options should be placed in a master configuration
+DONE  - Common configuration options should be placed in a master configuration
     file.
 
-  - The LFS, CLFS and HLFS modules should be exclusives. I.e., when
+DONE  - The LFS, CLFS and HLFS modules should be exclusives. I.e., when
     one is called the others must be ignored.
 
   - The BLFS moudule should can be called in conjunction with any of
@@ -43,9 +43,9 @@ MASTER SCRIPT
 LFS MODULE (some of this is applicable also to CLFS and HLFS modules)
 ----------
 
-  - To move the LFS module to their own subdir.
+DONE  - To move the LFS module to their own subdir.
 
-  - Fix the unpack code to don't hang when both the bz2 and gz formats
+DONE  - Fix the unpack code to don't hang when both the bz2 and gz formats
     of the same package are founds in the sources dir.
 
   - To add a switch to build the BLFS module dependencies at the end of
@@ -58,17 +58,17 @@ LFS MODULE (some of this is applicable also to CLFS and HLFS modules)
 CLFS MODULE
 -----------
 
-  - Start the module creation.
+DONE  - Start the module creation.
 
 
 HLFS MODULE
 -----------
 
-  - To review and fix, if needed, the bash and XSL code.
+DONE  - To review and fix, if needed, the bash and XSL code.
 
-  - Be sure that the book's XML code is in a sane state.
+DONE  - Be sure that the book's XML code is in a sane state.
 
-  - To do several build test for both Glibc and uClibc based systems.
+DONE  - To do several build test for both Glibc and uClibc based systems.
 
 
 BLFS MODULE
@@ -126,7 +126,7 @@ OTHERS
 
   - To add support for ICA/farce? Can be done as a separate module?
 
-  - To add support for package management??? NO for this tool. Maybe in the
-    under development new alfs tool.
+  - To add support for package management??? NO by default, but patches
+    are acepted and will be added to the sources as external contributions.
 
 
