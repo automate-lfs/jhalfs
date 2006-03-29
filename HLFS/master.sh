@@ -562,7 +562,7 @@ chapter6:  chapter5 $chapter6
 chapter7:  chapter6 $chapter7
 
 clean-all:  clean
-	rm -rf ./{hlfs-commands,logs,Makefile,*.xsl,patcheslist.xsl,makefile-functions,packages,patches}
+	rm -rf ./{hlfs-commands,logs,Makefile,*.xsl,makefile-functions,packages,patches}
 
 clean:  clean-chapter7 clean-chapter6 clean-chapter5 clean-chapter3
 
