@@ -431,6 +431,7 @@ if [ x$ANSWER != "xyes" ] ; then
   echo "${nl_}Fix the configuration options and rerun the script.${nl_}"
   exit 1
 fi
+echo "${nl_}---------------${nl_}"
 
 # Prevents setting "-d /" by mistake.
 
@@ -450,26 +451,25 @@ fi
 clean_builddir
 
 if [[ ! -d $JHALFSDIR ]]; then
-  mkdir -pv $JHALFSDIR
+  mkdir -p $JHALFSDIR
 fi
 
 if [[ "$PWD" != "$JHALFSDIR" ]]; then
-  cp -v $COMMON_DIR/makefile-functions $JHALFSDIR/
+  cp $COMMON_DIR/makefile-functions $JHALFSDIR/
   if [[ -n "$FILES" ]]; then
     # pushd/popd necessary to deal with mulitiple files
-    pushd $PACKAGE_DIR
-      cp -v $FILES $JHALFSDIR/
-    popd
+    pushd $PACKAGE_DIR 1> /dev/null
+      cp $FILES $JHALFSDIR/
+    popd 1> /dev/null
   fi
   sed 's,FAKEDIR,'$BOOK',' $PACKAGE_DIR/$XSL > $JHALFSDIR/${XSL}
   export XSL=$JHALFSDIR/${XSL}
 fi
 
 if [[ ! -d $LOGDIR ]]; then
-  mkdir -v $LOGDIR
+  mkdir $LOGDIR
 fi
 >$LOGDIR/$LOG
-echo "---------------${nl_}"
 
 get_book
 echo "---------------${nl_}"
