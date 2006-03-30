@@ -10,7 +10,7 @@ declare -r LOG=000-masterscript.log
 declare -r HTTP=http://ftp.lfs-matrix.net/pub/lfs/conglomeration
 
 #--- Mount point for the build
-BUILDDIR=/mnt/SourceFiles
+BUILDDIR=/mnt/build_dir
 
 #--- The local repository for packages/file
 #    Any missing file will be downloaded and archived here,

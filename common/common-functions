@@ -145,9 +145,9 @@ ${BOLD}  \"jhalfs-X\"${OFF} builder tool (development) \$Rev$
 
 ${BOLD}              \"${PROGNAME}\"${OFF} script module
 
-Written by Jeremy Huntwork,
+Written by George Boudreau,
            Manuel Canales Esparcia,
-           George Boudreau
+           Jeremy Huntwork
 
 This program is published under the ${BOLD}Gnu General Public License, Version 2.${OFF}
 "
