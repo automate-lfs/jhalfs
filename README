@@ -3,7 +3,8 @@ $Id$
 1. INTRODUCTION::
 
      This collection of scripts, known as jhalfs-X, strives to create
-  accurate makefiles from the Linux From Scratch book series XML files. 
+  accurate makefiles from the Linux From Scratch book series XML files.
+  This software was inspired by the "jhalfs" code written by Jeremy Huntwork.
 
      The usage of this script assumes you have read and are familiar with
   the book(s) and therefore the configuration variables found in config files
@@ -32,6 +33,19 @@ $Id$
      The script, master.sh, cannot be invoked directly but only via the 
    supplied symlinks. After editing the config file for the project you wish
    to build run the script.
+     <symlink> refers to the one of 4 package symlinks, lfs,hlfs,clfs,blfs. 
+     Replace <symlink> with your choice.. i.e.  ./lfs
+
+     ./<symlink>
+     Creates a makefile based on the configurations settings found in the 
+     config files. You must enter the build partition/jhalfs directory and
+     manually run make
+
+     ./<symlink> -G 
+     Download the packages and patches necessary to build <symlink>
+     
+     ./<symlink> -G -M
+     Download the packages, create and automatically run the Makefile
    
      ./<symlink> --help  will give you a context sensitive list of command
                          line switches.
@@ -62,3 +76,7 @@ $Id$
     Q. "It doesn't work"
     A. Yes it does..
 
+
+Authors:
+  Manuel Canales Esparcia
+  George Boudreau
