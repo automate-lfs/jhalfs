@@ -4,20 +4,20 @@ $Id$
 
      This collection of scripts, known as jhalfs-X, strives to create
   accurate makefiles from the Linux From Scratch book series XML files.
-  This software is a evolution of the original "jhalfs" code.
+  This software is an evolution of the original "jhalfs" code.
 
      The usage of this script assumes you have read and are familiar with
-  the book(s) and therefore the configuration variables found in config files
-  will have meaning to you. There are a number of command line switches
+  the book(s) and, therefore, the configuration variables found in config
+  files will have meaning to you. There are a number of command line switches
   which, if used, will override the config file settings.
 
   NOTES::
-  *.  The resulting Makefile takes considerable time to run to completion,
-  lay in a supply of caffeine beverages.
+  *.  The resulting Makefile takes considerable time to run to completion.
+  Lay in a supply of caffeine beverages.
 
   *.  It is recommended that you temporarily unpack your linux kernel,
   run <make menuconfig>, configure the kernal as per the book and save
-  the resulting .config file. This configuration rule also applies to the
+  the resulting .config file. This suggestion also applies to the
   configuration of the uClibc package when building a HLFS system using
   uClibc rather than glibc.
 
@@ -26,19 +26,20 @@ $Id$
   for now.
 
 3. CONFIGURATION FILES::
-     Each book in the LFS series has it's own set of configurable parameters
+     Each book in the LFS series has its own set of configurable parameters
   as well as the common parameters file.
 
 4. RUNNING::
-     The script, master.sh, cannot be invoked directly but only via the
+     The script master.sh cannot be invoked directly but only via the
   supplied symlinks. After editing the config file for the project you wish
-  to build run the script.
-     <symlink> refers to the one of 4 package symlinks, lfs,hlfs,clfs,blfs.
-     Replace <symlink> with your choice.. i.e.  ./lfs
+  to build, run the script.
+  
+     The term <symlink> refers to the 1 of 4 package symlinks, lfs,hlfs,clfs,blfs.
+     Replace <symlink> with your choice of packages; i.e.: ./lfs
 
      ./<symlink>
      Create a makefile based on the settings found in the config files.
-     You must enter the build partition/jhalfs directory and manually run make
+     You must enter the build partition/jhalfs directory and manually run <make>
 
      ./<symlink> -G
      Download the packages and patches necessary to build <symlink>
