@@ -42,7 +42,7 @@ define echo_finished
   @echo the next steps:$(WHITE)
   @echo
   @echo -e \\t- Enter to the chroot using the command found
-  @echo -e \\tin -- Entering the Chroot Environment --
+  @echo -e \\tin the chapter -Entering the Chroot Environment-
   @echo
   @echo -e \\t- Set a password for the root user
   @echo
