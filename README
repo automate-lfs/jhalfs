@@ -15,8 +15,8 @@ $Id$
   *.  The resulting Makefile takes considerable time to run to completion,
   lay in a supply of caffeine beverages.
 
-  *.  It is recommended that you temporarily unpack your linux kernel and
-  run <make menuconfig> and configure the kernal as per the book and save
+  *.  It is recommended that you temporarily unpack your linux kernel, 
+  run <make menuconfig>, configure the kernal as per the book and save
   the resulting .config file. This configuration rule also applies to the
   configuration of the uClibc package when building a HLFS system using
   uClibc rather than glibc.
@@ -31,15 +31,14 @@ $Id$
 
 4. RUNNING::
      The script, master.sh, cannot be invoked directly but only via the 
-   supplied symlinks. After editing the config file for the project you wish
-   to build run the script.
+  supplied symlinks. After editing the config file for the project you wish
+  to build run the script.
      <symlink> refers to the one of 4 package symlinks, lfs,hlfs,clfs,blfs. 
      Replace <symlink> with your choice.. i.e.  ./lfs
 
      ./<symlink>
-     Creates a makefile based on the configurations settings found in the 
-     config files. You must enter the build partition/jhalfs directory and
-     manually run make
+     Create a makefile based on the settings found in the config files. 
+     You must enter the build partition/jhalfs directory and manually run make
 
      ./<symlink> -G 
      Download the packages and patches necessary to build <symlink>
