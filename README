@@ -76,6 +76,16 @@ $Id$
     Q. "It doesn't work"
     A. Yes it does..
 
+    Q. "What is the function of the SRC_ARCHIVE variable
+    A. When the makefile runs it creates a local copy of the necessary packages in BUILDDIR/sources by
+       downloading the files. If the variable SRC_ARCHIVE is defined the software will first look in 
+       this location for the file and, if found, will copy it to BUILDDIR/sources. If the files are not
+       found in SRC_ARCHIVE _and_ you have write priv to the directory any downloaded files will be
+       mirrored there.
+
+    Q. "Why have 2 copies of the files."
+    A. The packages files must be visible during the chroot phase and this is a simple and reliable method.
+       This method also handles the CLFS build method where the final build may be done on a separate machine.
 
 Authors:
   George Boudreau
