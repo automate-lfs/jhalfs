@@ -425,7 +425,7 @@ echo "---------------${nl_}"
 validate_config
 echo "---------------${nl_}"
 
-echo -n "Are you happy with that settings? yes/no (no): "
+echo -n "Are you happy with these settings? yes/no (no): "
 read ANSWER
 if [ x$ANSWER != "xyes" ] ; then
   echo "${nl_}Fix the configuration options and rerun the script.${nl_}"
