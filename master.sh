@@ -176,7 +176,7 @@ while test $# -gt 0 ; do
             WC=1
             BOOK=$1
           else
-            echo -e "\nLook like $1 isn't a LFS working copy."
+            echo -e "\nLooks like $1 isn't a LFS working copy."
             exit 1
           fi
           ;;
@@ -185,7 +185,7 @@ while test $# -gt 0 ; do
             WC=1
             BOOK=$1
           else
-            echo -e "\nLook like $1 isn't a CLFS working copy."
+            echo -e "\nLooks like $1 isn't a CLFS working copy."
             exit 1
           fi
           ;;
@@ -194,7 +194,7 @@ while test $# -gt 0 ; do
             WC=1
             BOOK=$1
           else
-            echo -e "\nLook like $1 isn't a HLFS working copy."
+            echo -e "\nLooks like $1 isn't a HLFS working copy."
             exit 1
           fi
           ;;
@@ -203,7 +203,7 @@ while test $# -gt 0 ; do
             WC=1
             BOOK=$1
           else
-            echo -e "\nLook like $1 isn't a BLFS working copy."
+            echo -e "\nLooks like $1 isn't a BLFS working copy."
             exit 1
           fi
           ;;
