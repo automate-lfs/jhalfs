@@ -22,59 +22,49 @@ validate_target() {
  echo -e "`eval echo $PARAM_VALS`"
 
  case "${ARCH}" in
-   "x86")      [[ "${TARGET}" = "i486-pc-linux-gnu" ]] && return
-               [[ "${TARGET}" = "i586-pc-linux-gnu" ]] && return
-               [[ "${TARGET}" = "i686-pc-linux-gnu" ]] && return
-        write_error_and_die
+   "x86")        [[ "${TARGET}" = "i486-pc-linux-gnu" ]] && return
+                 [[ "${TARGET}" = "i586-pc-linux-gnu" ]] && return
+                 [[ "${TARGET}" = "i686-pc-linux-gnu" ]] && return
     ;;
-   "ppc")      [[ "${TARGET}" = "powerpc-unknown-linux-gnu" ]] && return
-        write_error_and_die
+   "ppc")        [[ "${TARGET}" = "powerpc-unknown-linux-gnu" ]] && return
     ;;
-   "mips")     [[ "${TARGET}" = "mipsel-unknown-linux-gnu" ]] && return
-               [[ "${TARGET}" = "mips-unknown-linux-gnu"   ]] && return
-        write_error_and_die
+   "mips")       [[ "${TARGET}" = "mipsel-unknown-linux-gnu" ]] && return
+                 [[ "${TARGET}" = "mips-unknown-linux-gnu"   ]] && return
     ;;
-   "sparc")    [[ "${TARGET}" = "sparcv9-unknown-linux-gnu" ]] && return
-        write_error_and_die
+   "sparc")      [[ "${TARGET}" = "sparcv9-unknown-linux-gnu" ]] && return
     ;;
-   "sparcv8")  [[ "${TARGET}" = "sparc-unknown-linux-gnu" ]] && return
-        write_error_and_die
+   "sparcv8")    [[ "${TARGET}" = "sparc-unknown-linux-gnu" ]] && return
     ;;
-   "x86_64-64") [[ "${TARGET}" = "x86_64-unknown-linux-gnu" ]] && return
-        write_error_and_die
+   "x86_64-64")  [[ "${TARGET}" = "x86_64-unknown-linux-gnu" ]] && return
     ;;
    "mips64-64")  [[ "${TARGET}" = "mipsel-unknown-linux-gnu" ]] && return
                  [[ "${TARGET}" = "mips-unknown-linux-gnu"   ]] && return
-        write_error_and_die
     ;;
    "sparc64-64") [[ "${TARGET}" = "sparc64-unknown-linux-gnu" ]] && return
-        write_error_and_die
     ;;
    "alpha")      [[ "${TARGET}" = "alpha-unknown-linux-gnu" ]] && return
-        write_error_and_die
     ;;
    "x86_64")     [[ "${TARGET}"   = "x86_64-unknown-linux-gnu" ]] &&
                  [[ "${TARGET32}" = "i686-pc-linux-gnu" ]] && return
-        write_error_and_die
     ;;
    "mips64")     [[ "${TARGET}"   = "mipsel-unknown-linux-gnu" ]] &&
                  [[ "${TARGET32}" = "mipsel-unknown-linux-gnu" ]] && return
 
                  [[ "${TARGET}"   = "mips-unknown-linux-gnu" ]] &&
                  [[ "${TARGET32}" = "mips-unknown-linux-gnu" ]] && return
-        write_error_and_die
     ;;
-   "sparc64")   [[ "${TARGET}"   = "sparc64-unknown-linux-gnu" ]] &&
-                [[ "${TARGET32}" = "sparcv9-unknown-linux-gnu" ]] && return
-        write_error_and_die
+   "sparc64")    [[ "${TARGET}"   = "sparc64-unknown-linux-gnu" ]] &&
+                 [[ "${TARGET32}" = "sparcv9-unknown-linux-gnu" ]] && return
     ;;
-   "ppc64")    [[ "${TARGET}"   = "powerpc64-unknown-linux-gnu" ]] &&
-               [[ "${TARGET32}" = "powerpc-unknown-linux-gnu"   ]] && return
-        write_error_and_die
+   "ppc64")      [[ "${TARGET}"   = "powerpc64-unknown-linux-gnu" ]] &&
+                 [[ "${TARGET32}" = "powerpc-unknown-linux-gnu"   ]] && return
     ;;
    *)  write_error_and_die
    ;;
  esac
+
+   # If you end up here then there was an error SO...
+   write_error_and_die
 }
 
 
