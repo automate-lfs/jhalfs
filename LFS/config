@@ -1,0 +1,37 @@
+#####
+#
+# Configuration file for the LFS module
+#
+# $Id$
+#
+#####
+declare -r FTP=ftp://ftp.linuxfromscratch.org/pub/lfs/conglomeration
+
+#--- Location of fstab file (if empty, a template is created)
+FSTAB=
+
+#--- Fully qualified path to a kernel config file
+# If no config file is  specified the kernel is NOT compiled
+CONFIG=
+
+#--- Book's sources directory
+# If you have previously checked out the book from the repository
+BOOK=
+
+#==== INTERNAL VARIABLES ====
+# Don't edit it unless you know what you are doing
+
+#--- Extra files that need be copied to $JHALFSDIR
+FILES=""
+
+#--- Default stylesheet
+XSL=lfs.xsl
+
+#--- Book version
+LFSVRS=development
+
+#--- Name of the makefile
+MKFILE=$JHALFSDIR/Makefile
+
+#--- FTP/HTTP mirror used as fallback (full path)
+SERVER=ftp://anduin.linuxfromscratch.org/LFS/conglomeration

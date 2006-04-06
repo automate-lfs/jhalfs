@@ -1,0 +1,74 @@
+#####
+#
+# Configuration file for the CLFS module
+#
+# $Id$
+#
+#####
+declare -r FTP=ftp://ftp.linuxfromscratch.org/pub/lfs/conglomeration
+
+#--- Which target architecture you want to build for,
+#    used to select proper book and set TARGETS
+#--------------------------------
+TARGET32=""
+TARGET=
+# >>>> 32-32 BUILD <<<<
+ ARCH=x86 ;     TARGET="i486-pc-linux-gnu"
+# ARCH=x86 ;     TARGET="i586-pc-linux-gnu"
+# ARCH=x86 ;     TARGET="i686-pc-linux-gnu"
+# ARCH=ppc ;     TARGET="powerpc-unknown-linux-gnu"
+# ARCH=mips ;    TARGET="mipsel-unknown-linux-gnu"
+# ARCH=mips ;    TARGET="mips-unknown-linux-gnu"
+# ARCH=sparc ;   TARGET="sparcv9-unknown-linux-gnu"
+# ARCH=sparcv8 ; TARGET="sparc-unknown-linux-gnu"
+#--------------------------------
+# >>>> 64-64 BUILD <<<<
+# ARCH=x86_64-64  ; TARGET="x86_64-unknown-linux-gnu"
+# ARCH=mips64-64  ; TARGET="mipsel-unknown-linux-gnu"
+# ARCH=mips64-64  ; TARGET="mips-unknown-linux-gnu"
+# ARCH=sparc64-64 ; TARGET="sparc64-unknown-linux-gnu"
+# ARCH=alpha	  ; TARGET="alpha-unknown-linux-gnu"
+#--------------------------------
+# >>>> MULTILIB 32/64 <<<<
+# ARCH=x86_64  ; TARGET="x86_64-unknown-linux-gnu"    ; TARGET32="i686-pc-linux-gnu"
+# ARCH=mips64  ; TARGET="mipsel-unknown-linux-gnu"    ; TARGET32="mipsel-unknown-linux-gnu"
+# ARCH=mips64  ; TARGET="mips-unknown-linux-gnu"      ; TARGET32="mips-unknown-linux-gnu"
+# ARCH=sparc64 ; TARGET="sparc64-unknown-linux-gnu"   ; TARGET32="sparcv9-unknown-linux-gnu"
+# ARCH=ppc64   ; TARGET="powerpc64-unknown-linux-gnu" ; TARGET32="powerpc-unknown-linux-gnu"
+
+#--- What build method should be used chroot/boot
+#    NOTE: not all combinations are 'bootable' yet.
+METHOD=chroot
+
+#--- Location of fstab file (if empty, a template is created)
+FSTAB=
+
+#--- Fully qualified path to a kernel config file
+# If no config file is  specified the kernel is NOT compiled
+CONFIG=
+
+#--- If METHOD=boot, location of boot-kernel config file
+#    NOTE: this setting is required
+BOOT_CONFIG=
+
+#--- Book's sources directory
+# If you have previously checked out the book from the repository
+BOOK=
+
+#==== INTERNAL VARIABLES ====
+# Don't edit it unless you know what you are doing
+
+#--- Extra files that need be copied to $JHALFSDIR
+FILES="patcheslist.xsl  packageslist.xsl"
+
+#--- Default stylesheet
+XSL=clfs.xsl
+
+#--- Book version
+LFSVRS=development
+
+#--- Name of the makefile
+MKFILE=$JHALFSDIR/Makefile
+
+#--- FTP/HTTP mirror used as fallback (full path)
+SERVER=ftp://anduin.linuxfromscratch.org/LFS/conglomeration

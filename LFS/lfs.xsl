@@ -4,6 +4,8 @@
   %general-entities;
 ]>
 
+<!-- $Id$ -->
+
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:exsl="http://exslt.org/common"
     extension-element-prefixes="exsl"
@@ -20,6 +22,15 @@
 
   <!-- Install vim-lang package? -->
   <xsl:param name="vim-lang" select="1"/>
+
+  <!-- Time zone -->
+  <xsl:param name="timezone" select="America/Toronto"/>
+
+  <!-- Page size -->
+  <xsl:param name="page" select="letter"/>
+
+  <!-- Locale settings -->
+  <xsl:param name="lang" select="en_CA"/>
 
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
@@ -121,6 +132,15 @@
         <xsl:value-of select="substring-after(string(),'patch')"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
+      <!-- Setting $LANG for /etc/profile -->
+      <xsl:when test="ancestor::sect1[@id='ch-scripts-profile'] and
+                contains(string(),'export LANG=')">
+        <xsl:value-of select="substring-before(string(),'export LANG=')"/>
+        <xsl:text>export LANG=</xsl:text>
+        <xsl:value-of select="$lang"/>
+        <xsl:value-of select="substring-after(string(),'modifiers]')"/>
+        <xsl:text>&#xA;</xsl:text>
+      </xsl:when>
       <!-- Copying the kernel config file -->
       <xsl:when test="string() = 'make mrproper'">
         <xsl:text>make mrproper&#xA;</xsl:text>
@@ -181,10 +201,10 @@
   <xsl:template match="replaceable">
     <xsl:choose>
       <xsl:when test="ancestor::sect1[@id='ch-system-glibc']">
-        <xsl:text>$TIMEZONE</xsl:text>
+        <xsl:value-of select="$timezone"/>
       </xsl:when>
       <xsl:when test="ancestor::sect1[@id='ch-system-groff']">
-        <xsl:text>$PAGE</xsl:text>
+        <xsl:value-of select="$page"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:text>**EDITME</xsl:text>

@@ -1,0 +1,616 @@
+#!/bin/sh
+set -e  # Enable error trapping
+
+# $Id$
+
+###################################
+###          FUNCTIONS          ###
+###################################
+
+
+#----------------------------#
+get_sources() {              #
+#----------------------------#
+  local IFS
+
+  # Test if the packages must be downloaded
+  if [ ! "$HPKG" = "1" ] ; then
+    return
+  fi
+
+  # Modify the 'internal field separator' to break on 'LF' only
+  IFS=$'\x0A'
+
+  if [ ! -d $BUILDDIR/sources ] ; then mkdir $BUILDDIR/sources ; fi
+  cd $BUILDDIR/sources
+
+  > MISSING_FILES.DMP  # Files not in md5sum end up here
+
+  if [ -f MD5SUMS ] ; then rm MD5SUMS ; fi
+  if [ -f MD5SUMS-$VERSION ] ; then rm MD5SUMS-$VERSION ; fi
+
+  # Retrieve the master md5sum file
+  download "" MD5SUMS
+
+  # Iterate through each package and grab it, along with any patches it needs.
+  for i in `cat $JHALFSDIR/packages` ; do
+    PKG=`echo $i | sed -e 's/-version.*//' \
+                       -e 's/uclibc/uClibc/' `
+
+    #
+    # How to deal with orphan packages..??
+    #
+    VRS=`echo $i | sed -e 's/.* //' -e 's/"//g'`
+    case "$PKG" in
+      "gcc" )
+        download $PKG "gcc-core-$VRS.tar.bz2"
+        download $PKG "gcc-g++-$VRS.tar.bz2"
+        if [ ! "$TEST" = "0" ] ; then
+          download $PKG "gcc-testsuite-$VRS.tar.bz2" ;
+        fi
+        ;;
+
+      "glibc")
+        if [ "$MODEL" = "glibc" ] ; then
+          download $PKG "$PKG-$VRS.tar.bz2"
+          download $PKG "$PKG-libidn-$VRS.tar.bz2"
+        fi
+        ;;
+
+      "tcl" )
+        FILE="$PKG$VRS-src.tar.bz2" ; download $PKG $FILE ;;
+
+      "uclibc" )
+        if [ "$MODEL" = "uclibc" ] ; then
+          download $PKG "$PKG-$VRS.tar.bz2"
+        fi
+        ;;
+
+      "uClibc-locale" )
+        if [ "$MODEL" = "uclibc" ] ; then
+          FILE="$PKG-$VRS.tgz" ; PKG="uClibc"
+          download $PKG $FILE
+          # There can be no patches for this file
+          continue
+        fi
+        ;;
+
+      "uClibc-patch" )      continue ;;
+
+      * )
+        FILE="$PKG-$VRS.tar.bz2" ;  download $PKG $FILE ;;
+    esac
+
+    for patch in `grep "$PKG-&$PKG" $JHALFSDIR/patches` ; do
+      PATCH=`echo $patch | sed 's@&'$PKG'-version;@'$VRS'@'`
+      download $PKG $PATCH
+    done
+
+  done
+
+  # .... U G L Y .... what to do with the grsecurity patch to the kernel..
+  download grsecurity `grep grsecurity $JHALFSDIR/patches`
+
+  if [[ -s $BUILDDIR/sources/MISSING_FILES.DMP ]]; then
+    echo  -e "\n\n${tab_}${RED} One or more files were not retrieved.\n${tab_} Check <MISSING_FILES.DMP> for names ${OFF}\n\n"
+  fi
+}
+
+
+#----------------------------#
+chapter3_Makefiles() {       # Initialization of the system
+#----------------------------#
+  local TARGET LOADER
+
+  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter3${R_arrow}"
+
+  # Define a few model dependant variables
+  if [[ ${MODEL} = "uclibc" ]]; then
+    TARGET="tools-linux-uclibc"; LOADER="ld-uClibc.so.0"
+  else
+    TARGET="tools-linux-gnu";    LOADER="ld-linux.so.2"
+  fi
+
+  # NOTE: We use the lfs username and groupname also in HLFS
+  # If /home/lfs is already present in the host, we asume that the
+  # lfs user and group are also presents in the host, and a backup
+  # of their bash init files is made.
+(
+cat << EOF
+020-creatingtoolsdir:
+	@\$(call echo_message, Building)
+	@mkdir -v \$(MOUNT_PT)/tools && \\
+	rm -fv /tools && \\
+	ln -sv \$(MOUNT_PT)/tools /
+	@if [ ! -d \$(MOUNT_PT)/sources ]; then \\
+		mkdir \$(MOUNT_PT)/sources; \\
+	fi;
+	@chmod a+wt \$(MOUNT_PT)/sources && \\
+	touch \$@
+
+021-addinguser:  020-creatingtoolsdir
+	@\$(call echo_message, Building)
+	@if [ ! -d /home/lfs ]; then \\
+		groupadd lfs; \\
+		useradd -s /bin/bash -g lfs -m -k /dev/null lfs; \\
+	else \\
+		touch user-lfs-exist; \\
+	fi;
+	@chown lfs \$(MOUNT_PT)/tools && \\
+	chown lfs \$(MOUNT_PT)/sources && \\
+	touch \$@
+
+022-settingenvironment:  021-addinguser
+	@\$(call echo_message, Building)
+	@if [ -f /home/lfs/.bashrc -a ! -f /home/lfs/.bashrc.XXX ]; then \\
+		mv -v /home/lfs/.bashrc /home/lfs/.bashrc.XXX; \\
+	fi;
+	@if [ -f /home/lfs/.bash_profile  -a ! -f /home/lfs/.bash_profile.XXX ]; then \\
+		mv -v /home/lfs/.bash_profile /home/lfs/.bash_profile.XXX; \\
+	fi;
+	@echo "set +h" > /home/lfs/.bashrc && \\
+	echo "umask 022" >> /home/lfs/.bashrc && \\
+	echo "HLFS=\$(MOUNT_PT)" >> /home/lfs/.bashrc && \\
+	echo "LC_ALL=POSIX" >> /home/lfs/.bashrc && \\
+	echo "PATH=/tools/bin:/bin:/usr/bin" >> /home/lfs/.bashrc && \\
+	echo "export HLFS LC_ALL PATH" >> /home/lfs/.bashrc && \\
+	echo "" >> /home/lfs/.bashrc && \\
+	echo "target=$(uname -m)-${TARGET}" >> /home/lfs/.bashrc && \\
+	echo "ldso=/tools/lib/${LOADER}" >> /home/lfs/.bashrc && \\
+	echo "export target ldso" >> /home/lfs/.bashrc && \\
+	echo "source $JHALFSDIR/envars" >> /home/lfs/.bashrc && \\
+	chown lfs:lfs /home/lfs/.bashrc && \\
+	touch envars && \\
+	touch \$@
+EOF
+) >> $MKFILE.tmp
+
+}
+
+#----------------------------#
+chapter5_Makefiles() {       # Bootstrap or temptools phase
+#----------------------------#
+  local file
+  local this_script
+
+  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter5${R_arrow}"
+
+  for file in chapter05/* ; do
+    # Keep the script file name
+    this_script=`basename $file`
+
+    # Skip this script depending on jhalfs.conf flags set.
+    case $this_script in
+      # If no testsuites will be run, then TCL, Expect and DejaGNU aren't needed
+      *tcl* )     [[ "$TEST" = "0" ]] && continue; ;;
+      *expect* )  [[ "$TEST" = "0" ]] && continue; ;;
+      *dejagnu* ) [[ "$TEST" = "0" ]] && continue; ;;
+        # Nothing interestin in this script
+      *introduction* ) continue ;;
+        # Test if the stripping phase must be skipped
+      *stripping* ) [[ "$STRIP" = "0" ]] && continue ;;
+      *) ;;
+    esac
+
+    # First append each name of the script files to a list (this will become
+    # the names of the targets in the Makefile
+    chapter5="$chapter5 $this_script"
+
+    # Grab the name of the target (minus the -headers or -cross in the case of gcc
+    # and binutils in chapter 5)
+    name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' -e 's@-cross@@' -e 's@-headers@@'`
+
+    # Adjust 'name'
+    case $name in
+      linux-libc) name=linux-libc-headers ;;
+    esac
+
+    # Set the dependency for the first target.
+    if [ -z $PREV ] ; then PREV=022-settingenvironment ; fi
+
+
+    #--------------------------------------------------------------------#
+    #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
+    #--------------------------------------------------------------------#
+    #
+    # Drop in the name of the target on a new line, and the previous target
+    # as a dependency. Also call the echo_message function.
+    wrt_target "$this_script" "$PREV"
+
+    # Find the version of the command files, if it corresponds with the building of
+    # a specific package
+    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+    # If $vrs isn't empty, we've got a package...
+    if [ "$vrs" != "" ] ; then
+      # Deal with non-standard names
+      case $name in
+        tcl)    FILE="$name$vrs-src.tar.*"  ;;
+        uclibc) FILE="uClibc-$vrs.tar.*"    ;;
+        gcc)    FILE="gcc-core-$vrs.tar.*"  ;;
+        *)      FILE="$name-$vrs.tar.*"     ;;
+      esac
+     # Insert instructions for unpacking the package and to set the PKGDIR variable.
+     wrt_unpack "$FILE"
+  fi
+
+    case $this_script in
+      *binutils* )  # Dump the path to sources directory for later removal
+        echo -e '\techo "$(MOUNT_PT)$(SRC)/$$ROOT" >> sources-dir' >> $MKFILE.tmp
+        ;;
+      *adjusting* )  # For the Adjusting phase we must to cd to the binutils-build directory.
+        echo -e '\t@echo "export PKGDIR=$(MOUNT_PT)$(SRC)/binutils-build" > envars' >> $MKFILE.tmp
+        ;;
+      * )  # Everything else, add a true statment so we don't confuse make
+        echo -e '\ttrue' >> $MKFILE.tmp
+        ;;
+    esac
+
+    # Insert date and disk usage at the top of the log file, the script run
+    # and date and disk usage again at the bottom of the log file.
+    wrt_run_as_su "${this_script}" "${file}"
+
+    # Remove the build directory(ies) except if the package build fails
+    # (so we can review config.cache, config.log, etc.)
+    # For Binutils the sources must be retained for some time.
+    if [ "$vrs" != "" ] ; then
+      case "${this_script}" in
+        *binutils*) : # do NOTHING
+          ;;
+        *) wrt_remove_build_dirs "$name"
+          ;;
+      esac
+    fi
+
+    # Remove the Binutils pass 1 sources after a successful Adjusting phase.
+    case "${this_script}" in
+     *adjusting*)
+(
+cat << EOF
+	@rm -r \`cat sources-dir\` && \\
+	rm -r \$(MOUNT_PT)\$(SRC)/binutils-build && \\
+	rm sources-dir
+EOF
+) >> $MKFILE.tmp
+      ;;
+    esac
+
+    # Include a touch of the target name so make can check if it's already been made.
+    echo -e '\t@touch $@' >> $MKFILE.tmp
+    #
+    #--------------------------------------------------------------------#
+    #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
+    #--------------------------------------------------------------------#
+
+    # Keep the script file name for Makefile dependencies.
+    PREV=$this_script
+  done  # end for file in chapter05/*
+}
+
+
+#----------------------------#
+chapter6_Makefiles() {       # sysroot or chroot build phase
+#----------------------------#
+  local TARGET LOADER
+  local file
+  local this_script
+
+  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6${R_arrow}"
+  #
+  # Set these definitions early and only once
+  #
+  if [[ ${MODEL} = "uclibc" ]]; then
+    TARGET="pc-linux-uclibc"; LOADER="ld-uClibc.so.0"
+  else
+    TARGET="pc-linux-gnu";    LOADER="ld-linux.so.2"
+  fi
+
+  for file in chapter06/* ; do
+    # Keep the script file name
+    this_script=`basename $file`
+
+    # Skip this script depending on jhalfs.conf flags set.
+    case $this_script in
+        # We'll run the chroot commands differently than the others, so skip them in the
+        # dependencies and target creation.
+      *chroot* )  continue ;;
+        # Test if the stripping phase must be skipped
+      *-stripping* )  [[ "$STRIP" = "0" ]] && continue ;;
+      *) ;;
+    esac
+
+    # First append each name of the script files to a list (this will become
+    # the names of the targets in the Makefile
+    chapter6="$chapter6 $this_script"
+
+    # Grab the name of the target
+    name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'`
+
+    #
+    # Sed replacement to fix some rm command that could fail.
+    # That should be fixed in the book sources.
+    #
+    case $name in
+      glibc)
+          sed 's/rm /rm -f /' -i chapter06/$this_script
+        ;;
+      gcc)
+          sed 's/rm /rm -f /' -i chapter06/$this_script
+        ;;
+    esac
+
+    #--------------------------------------------------------------------#
+    #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
+    #--------------------------------------------------------------------#
+    #
+    # Drop in the name of the target on a new line, and the previous target
+    # as a dependency. Also call the echo_message function.
+    wrt_target "$this_script" "$PREV"
+
+    # Find the version of the command files, if it corresponds with the building of
+    # a specific package
+    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+
+    # If $vrs isn't empty, we've got a package...
+    # Insert instructions for unpacking the package and changing directories
+    if [ "$vrs" != "" ] ; then
+      # Deal with non-standard names
+      case $name in
+        tcl)    FILE="$name$vrs-src.tar.*" ;;
+        uclibc) FILE="uClibc-$vrs.tar.*" ;;
+        gcc)    FILE="gcc-core-$vrs.tar.*" ;;
+        *)      FILE="$name-$vrs.tar.*" ;;
+      esac
+      wrt_unpack2 "$FILE"
+      wrt_target_vars
+    fi
+
+    case $this_script in
+      *readjusting*) # For the Re-Adjusting phase we must to cd to the binutils-build directory.
+        echo -e '\t@echo "export PKGDIR=$(SRC)/binutils-build" > envars' >> $MKFILE.tmp
+        ;;
+    esac
+
+    # In the mount of kernel filesystems we need to set LFS and not to use chroot.
+    case "${this_script}" in
+      *kernfs*)
+        wrt_run_as_root "${this_script}" "${file}"
+        ;;
+      *)   # The rest of Chapter06
+        wrt_run_as_chroot1 "${this_script}" "${file}"
+       ;;
+    esac
+    #
+    # Remove the build directory(ies) except if the package build fails.
+    if [ "$vrs" != "" ] ; then
+      wrt_remove_build_dirs "$name"
+    fi
+    #
+    # Remove the Binutils pass 2 sources after a successful Re-Adjusting phase.
+    case "${this_script}" in
+      *readjusting*)
+(
+cat << EOF
+	@rm -r \`cat sources-dir\` && \\
+	rm -r \$(MOUNT_PT)\$(SRC)/binutils-build && \\
+	rm sources-dir
+EOF
+) >> $MKFILE.tmp
+      ;;
+    esac
+
+    # Include a touch of the target name so make can check if it's already been made.
+    echo -e '\t@touch $@' >> $MKFILE.tmp
+    #
+    #--------------------------------------------------------------------#
+    #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
+    #--------------------------------------------------------------------#
+
+    # Keep the script file name for Makefile dependencies.
+    PREV=$this_script
+  done # end for file in chapter06/*
+
+}
+
+#----------------------------#
+chapter7_Makefiles() {       # Create a bootable system.. kernel, bootscripts..etc
+#----------------------------#
+  local file
+  local this_script
+
+  echo  "${tab_}${GREEN}Processing... ${L_arrow}Chapter7${R_arrow}"
+  for file in chapter07/*; do
+    # Keep the script file name
+    this_script=`basename $file`
+
+    # Grub must be configured manually.
+    # The filesystems can't be unmounted via Makefile and the user
+    # should enter the chroot environment to create the root
+    # password, edit several files and setup Grub.
+    case $this_script in
+      *usage)   continue  ;; # Contains example commands
+      *grub)    continue  ;;
+      *reboot)  continue  ;;
+      *console) continue  ;; # Use the file generated by lfs-bootscripts
+
+      *kernel)
+          # If no .config file is supplied, the kernel build is skipped
+        [[ -z $CONFIG ]] && continue
+	cp $CONFIG $BUILDDIR/sources/kernel-config
+         ;;
+    esac
+
+    # First append then name of the script file to a list (this will become
+    # the names of the targets in the Makefile
+    chapter7="$chapter7 $this_script"
+
+    #--------------------------------------------------------------------#
+    #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
+    #--------------------------------------------------------------------#
+    #
+    # Drop in the name of the target on a new line, and the previous target
+    # as a dependency. Also call the echo_message function.
+    wrt_target "$this_script" "$PREV"
+
+    case "${this_script}" in
+      *bootscripts*)
+        vrs=`grep "^lfs-bootscripts-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+        FILE="lfs-bootscripts-$vrs.tar.*"
+        wrt_unpack2 "$FILE"
+        vrs=`grep "^blfs-bootscripts-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+        echo -e "\t@echo \"\$(MOUNT_PT)\$(SRC)/blfs-bootscripts-$vrs\" >> sources-dir" >> $MKFILE.tmp
+        ;;
+    esac
+
+    case "${this_script}" in
+      *fstab*) # Check if we have a real /etc/fstab file
+        if [[ -n "$FSTAB" ]] ; then
+          wrt_copy_fstab "$this_script"
+        else  # Initialize the log and run the script
+          wrt_run_as_chroot2 "${this_script}" "${file}"
+        fi
+        ;;
+      *)  # All other scripts
+        wrt_run_as_chroot2 "${this_script}" "${file}"
+        ;;
+    esac
+
+    # Remove the build directory except if the package build fails.
+    case "${this_script}" in
+      *bootscripts*)
+(
+cat << EOF
+	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
+	rm -r \$(MOUNT_PT)\$(SRC)/\$\$ROOT
+	@rm -r \`cat sources-dir\` && \\
+	rm sources-dir
+EOF
+) >> $MKFILE.tmp
+       ;;
+    esac
+
+    # Include a touch of the target name so make can check if it's already been made.
+    echo -e '\t@touch $@' >> $MKFILE.tmp
+    #
+    #--------------------------------------------------------------------#
+    #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
+    #--------------------------------------------------------------------#
+
+    # Keep the script file name for Makefile dependencies.
+    PREV=$this_script
+  done  # for file in chapter07/*
+}
+
+
+#----------------------------#
+build_Makefile() {           # Construct a Makefile from the book scripts
+#----------------------------#
+  echo "Creating Makefile... "
+
+  cd $JHALFSDIR/${PROGNAME}-commands
+  # Start with a clean Makefile.tmp file
+  >$MKFILE.tmp
+
+  chapter3_Makefiles
+  chapter5_Makefiles
+  chapter6_Makefiles
+  chapter7_Makefiles
+
+  # Add a header, some variables and include the function file
+  # to the top of the real Makefile.
+(
+    cat << EOF
+$HEADER
+
+SRC= /sources
+MOUNT_PT= $BUILDDIR
+
+include makefile-functions
+
+EOF
+) > $MKFILE
+
+
+  # Add chroot commands
+  i=1
+  for file in chapter06/*chroot* ; do
+    chroot=`cat $file | sed -e '/#!\/bin\/sh/d' \
+          -e '/^export/d' \
+          -e '/^logout/d' \
+          -e 's@ \\\@ @g' | tr -d '\n' |  sed -e 's/  */ /g' \
+                                              -e 's|\\$|&&|g' \
+                                              -e 's|exit||g' \
+                                              -e 's|$| -c|' \
+                                              -e 's|"$$HLFS"|$(MOUNT_PT)|'\
+                                              -e 's|set -e||'`
+    echo -e "CHROOT$i= $chroot\n" >> $MKFILE
+    i=`expr $i + 1`
+  done
+
+  # Drop in the main target 'all:' and the chapter targets with each sub-target
+  # as a dependency.
+(
+  cat << EOF
+all:  chapter3 chapter5 chapter6 chapter7
+	@\$(call echo_finished,$VERSION)
+
+chapter3:  020-creatingtoolsdir 021-addinguser 022-settingenvironment
+
+chapter5:  chapter3 $chapter5 restore-lfs-env
+
+chapter6:  chapter5 $chapter6
+
+chapter7:  chapter6 $chapter7
+
+clean-all:  clean
+	rm -rf ./{hlfs-commands,logs,Makefile,*.xsl,makefile-functions,packages,patches}
+
+clean:  clean-chapter7 clean-chapter6 clean-chapter5 clean-chapter3
+
+clean-chapter3:
+	-if [ ! -f user-lfs-exist ]; then \\
+		userdel lfs; \\
+		rm -rf /home/lfs; \\
+	fi;
+	rm -rf \$(MOUNT_PT)/tools
+	rm -f /tools
+	rm -f envars user-lfs-exist
+	rm -f 02* logs/02*.log
+
+clean-chapter5:
+	rm -rf \$(MOUNT_PT)/tools/*
+	rm -f $chapter5 restore-lfs-env sources-dir
+	cd logs && rm -f $chapter5 && cd ..
+
+clean-chapter6:
+	-umount \$(MOUNT_PT)/sys
+	-umount \$(MOUNT_PT)/proc
+	-umount \$(MOUNT_PT)/dev/shm
+	-umount \$(MOUNT_PT)/dev/pts
+	-umount \$(MOUNT_PT)/dev
+	rm -rf \$(MOUNT_PT)/{bin,boot,dev,etc,home,lib,media,mnt,opt,proc,root,sbin,srv,sys,tmp,usr,var}
+	rm -f $chapter6
+	cd logs && rm -f $chapter6 && cd ..
+
+clean-chapter7:
+	rm -f $chapter7
+	cd logs && rm -f $chapter7 && cd ..
+
+restore-lfs-env:
+	@\$(call echo_message, Building)
+	@if [ -f /home/lfs/.bashrc.XXX ]; then \\
+		mv -fv /home/lfs/.bashrc.XXX /home/lfs/.bashrc; \\
+	fi;
+	@if [ -f /home/lfs/.bash_profile.XXX ]; then \\
+		mv -v /home/lfs/.bash_profile.XXX /home/lfs/.bash_profile; \\
+	fi;
+	@chown lfs:lfs /home/lfs/.bash* && \\
+	touch \$@
+
+EOF
+) >> $MKFILE
+
+  # Bring over the items from the Makefile.tmp
+  cat $MKFILE.tmp >> $MKFILE
+  rm $MKFILE.tmp
+  echo "done"
+}

@@ -1,74 +1,29 @@
             jhalfs TODO
           ---------------
 
-(The fixes for this issues are in the experimental branch)
-
-CODE STYLE
-----------
-
-DONE  - To use the same coding style in all modules. The current used
-    for HLFS module (colors, error-handling, etc) look a good starting
-    point for me, with two notes (to be discussed):
-
-    - Bash code: to use two-spaces indentation (no tabs).
-    - Makefile code: to use eight-characters tabs.
-
-DONE  - To set the "Date" and "Id" svn:keywords properties on all files
-    setting the "Id" key on the header of each file and using the
-    "Date" key when needed (like in the -v output of jhalfs)
-
 
 MASTER SCRIPT
 -------------
 
-DONE  - Make jhalfs a "master script" that will control and run each
-    book's module. When doing that reestructuration we coulud to change
-    the tool's name, if wanted.
-
-DONE  - Common code for all modules should be placed in this master script.
-
-DONE  - Common configuration options should be placed in a master configuration
-    file.
-
-DONE  - The LFS, CLFS and HLFS modules should be exclusives. I.e., when
-    one is called the others must be ignored.
-
   - The BLFS moudule should can be called in conjunction with any of
     LFS, CLFS or HLFS modules.
 
-  - Addapt the Makefile to install all modules system-wide.
+  - To create a Makefile to install jhalfs-X system-wide.
+    Note: is that actually wanted?
 
 
 
 LFS MODULE (some of this is applicable also to CLFS and HLFS modules)
 ----------
 
-DONE  - To move the LFS module to their own subdir.
-
-DONE  - Fix the unpack code to don't hang when both the bz2 and gz formats
-    of the same package are founds in the sources dir.
+  - To fix the dowload code when all packages will be placed on the
+    FTP mirrors in the upstream formats.
 
   - To add a switch to build the BLFS module dependencies at the end of
     the LFS build, that is, wget and sudo. SVN and libxslt aren't needed
     at this stage due that the BLFS book could be downloaded and parser
     at the same time that the LFS book. Plus links or lynx to read the
     (to be) generated BLFS HTML pages and, maybe, gpm.
-
-
-CLFS MODULE
------------
-
-DONE  - Start the module creation.
-
-
-HLFS MODULE
------------
-
-DONE  - To review and fix, if needed, the bash and XSL code.
-
-DONE  - Be sure that the book's XML code is in a sane state.
-
-DONE  - To do several build test for both Glibc and uClibc based systems.
 
 
 BLFS MODULE
@@ -126,7 +81,7 @@ OTHERS
     NOTE: that could require an special command line switch to regenerate the
     Makefile if additional scripts are manually added to the *-commands/*/ dirs.
 
-  - To add support for ICA/farce? Can be done as a separate module?
+  - To add support for ICA/farce. That is a required feature.
 
   - To add support for package management??? NO by default, but patches
     are acepted and will be added to the sources as external contributions.

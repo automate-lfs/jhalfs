@@ -1,0 +1,91 @@
+
+# $Id$
+
+BOLD= "[0;1m"
+RED= "[1;31m"
+GREEN= "[0;32m"
+ORANGE= "[0;33m"
+BLUE= "[1;34m"
+WHITE= "[00m"
+
+define echo_message
+  @echo $(BOLD)
+  @echo --------------------------------------------------------------------------------
+  @echo $(BOLD)$(1) target $(BLUE)$@$(BOLD)
+  @echo --------------------------------------------------------------------------------$(WHITE)
+endef
+
+define unpack
+  @cd $(MOUNT_PT)$(SRC) && \
+  tar -xvf `ls -t $(1) | head -n1` > /tmp/unpacked
+endef
+
+define unpack2
+  @cd $(MOUNT_PT)$(SRC) && \
+  /tools/bin/tar -xvf `ls -t $(1) | head -n1` > /tmp/unpacked
+endef
+
+define unpack3
+  @cd $(SRC) && \
+  tar -xvf `ls -t $(1) | head -n1` > /tmp/unpacked
+endef
+
+define echo_finished
+  @echo $(BOLD)
+  @echo --------------------------------------------------------------------------------
+  @echo $(BOLD) Finished the build of $(BLUE)$(1)$(BOLD)
+  @echo --------------------------------------------------------------------------------
+  @echo -e \\t\\t$(RED)W A R N I N G$(BOLD)
+  @echo --------------------------------------------------------------------------------
+  @echo
+  @echo To be able to boot your new system you need to follow
+  @echo the next steps:$(WHITE)
+  @echo
+  @echo -e \\t- Enter to the chroot using the command found
+  @echo -e \\tin the section -Entering the Chroot Environment-
+  @echo -e \\texcept if building CLFS with METHOO=boot.
+  @echo
+  @echo -e \\t- Set a password for the root user
+  @echo
+  @echo -e \\t- Edit /etc/fstab, /etc/hosts, /etc/sysconfig/clock,
+  @echo -e \\t/etc/sysconfig/console, /etc/sysconfig/network,
+  @echo -e \\t/etc/sysconfig//network-devices/ifconfig.eth0/ipv4 and
+  @echo -e \\tany other configuration file required to suit your needs.
+  @echo
+  @echo -e \\t- Set-up the boot loader. See the relevant book section.
+  @echo
+  @echo -e \\t- Unmount the filesystems.
+  @echo
+  @echo If you are an experienced LFS user, several of those steps can be
+  @echo skipped or done in a different way. But then, that is something
+  @echo that you already know and there is no need to discuss it here.
+  @echo $(BOLD)
+  @echo --------------------------------------------------------------------------------
+  @echo -e \\t\\t$(GREEN)Have a nice day $(ORANGE):-\)$(BOLD)
+  @echo --------------------------------------------------------------------------------$(WHITE)
+endef
+
+define echo_boot_finished
+  @echo $(BOLD)
+  @echo --------------------------------------------------------------------------------
+  @echo        $(BOLD) Finished building a minimal boot system for $(BLUE)$(1)$(BOLD)
+  @echo --------------------------------------------------------------------------------
+  @echo -e \\t\\t$(RED)W A R N I N G$(BOLD)
+  @echo --------------------------------------------------------------------------------
+  @echo
+  @echo The build is not complete. Follow the next steps:$(WHITE)
+  @echo
+  @echo -e \\t- Edit $(MOUNT_PT)/etc/fstab
+  @echo -e \\t and any other configuration file required to suit your needs.
+  @echo $(BOLD)
+  @echo $(BOLD)$(YELLOW)
+  @echo  1.If it is necessary, transfer the newly created partition to the target machine
+  @echo  2.Boot the new partition.
+  @echo  3.Once you are logged in issue the following commands
+  @echo -e \\t $(BOLD})cd /jhalfs
+  @echo -e \\t $(BOLD)make makesys
+  @echo  The build process should resume. Follow any instructions that appear.
+  @echo --------------------------------------------------------------------------------
+  @echo -e \\t\\t$(GREEN)Have a nice day $(ORANGE):-\)$(BOLD)
+  @echo --------------------------------------------------------------------------------$(WHITE)
+endef
