@@ -76,7 +76,7 @@ chapter5_Makefiles() {
       *dejagnu)   [[ "${TEST}" = "0" ]] && continue ;;
       *stripping) [[ "${STRIP}" = "0" ]] && continue ;;
       *glibc)     [[ "${TEST}" = "3" ]] && \
-                  sed -i 's@/usr/lib/locale@/tools&@' $file
+                  sed -i 's@/usr/lib/locale@/tools&@' $file ;;
     esac
 
     # First append each name of the script files to a list (this will become
