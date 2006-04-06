@@ -69,11 +69,14 @@ chapter5_Makefiles() {
     this_script=`basename $file`
 
     # If no testsuites will be run, then TCL, Expect and DejaGNU aren't needed
+    # Fix also locales creation when running chapter05 testsuites (ugly)
     case "${this_script}" in
       *tcl)       [[ "${TEST}" = "0" ]] && continue ;;
       *expect)    [[ "${TEST}" = "0" ]] && continue ;;
       *dejagnu)   [[ "${TEST}" = "0" ]] && continue ;;
       *stripping) [[ "${STRIP}" = "0" ]] && continue ;;
+      *glibc)     [[ "${TEST}" = "3" ]] && \
+                  sed -i 's@/usr/lib/locale@/tools&@' $file
     esac
 
     # First append each name of the script files to a list (this will become
@@ -114,7 +117,11 @@ chapter5_Makefiles() {
 
     # Insert date and disk usage at the top of the log file, the script run
     # and date and disk usage again at the bottom of the log file.
-    wrt_run_as_su "${this_script}" "$file"
+    # The changingowner script must be run as root.
+    case "${this_script}" in
+      *changingowner)  wrt_run_as_root    "${this_script}" "$file" ;;
+      *)               wrt_run_as_su      "${this_script}" "$file" ;;
+    esac
 
     # Remove the build directory(ies) except if the package build fails
     # (so we can review config.cache, config.log, etc.)
