@@ -113,7 +113,6 @@ while test $# -gt 0 ; do
                  echo "For stable 6.1.1 book, please use jhalfs-0.2."
                  exit 0
                 ;;
-               alpha*) LFSVRS=alphabetical  ;;
                udev*)  LFSVRS=udev_update   ;;
                * )     echo "$1 is an unsupported version at this time." ;;
              esac
