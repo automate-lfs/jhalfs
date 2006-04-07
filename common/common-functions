@@ -49,7 +49,6 @@ ${BOLD}  -V, --version${OFF}
 ${BOLD}  -B, --book VER${OFF}
         checkout VER version of the book. Supported versions at this time are:
         dev* | trunk | SVN     aliases for Development {C,H,B}LFS
-        alpha*                 aliases for the LFS alphabetical branch
         udev*                  aliases for the LFS udev_update branch
 
 ${BOLD}  -D  --directory DIR${OFF}
