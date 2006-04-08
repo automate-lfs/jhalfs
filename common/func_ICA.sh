@@ -1,9 +1,21 @@
 # $Id$
 
+#----------------------------------#
+wrt_ica_targets() {                #
+#----------------------------------#
+  local ICA_rebuild=$1
+(
+    cat << EOF
+ICA_rebuild:  $ICA_rebuild
+
+EOF
+) >> $MKFILE
+}
+
 # Acknowledgment:
 #  The following code is a modified version of an original work written by
-#  Greg Schafer for the "DIY Linux" project and is included here with his 
-#  permission. 
+#  Greg Schafer for the "DIY Linux" project and is included here with his
+#  permission.
 #  ref: http://www.diy-linux.org
 #
 #
@@ -32,15 +44,15 @@ do_ica_prep() {                    #
 #----------------------------------#
 : <<inline_doc
     desc:
-    
-    usage:	
 
-    input vars: 
+    usage:
+
+    input vars:
     externals:  --
     modifies:   --
     returns:    --
-    on error:	
-    on success: 
+    on error:
+    on success:
 inline_doc
 
   local CMP_DIR F L BN
@@ -138,7 +150,7 @@ do_ica_work() {                    #  Do the ICA grunt work.
 #----------------------------------#
 : <<inline_doc
     desc:
-    
+
     usage:	do_ica_work 1 2
     		do_ica_work 2 3
 
@@ -147,8 +159,8 @@ do_ica_work() {                    #  Do the ICA grunt work.
     externals:  --
     modifies:   --
     returns:    --
-    on error:	
-    on success: 
+    on error:
+    on success:
 inline_doc
 
   local ICA_DIR="${SCRATCH_DIR}/cmp"

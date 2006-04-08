@@ -399,13 +399,7 @@ EOF
 ) >> $MKFILE
 
   # Add the ICA targets
-  [[ "$RUN_ICA" != "0" ]] && \
-(
-    cat << EOF
-ICA_rebuild:  $ICA_rebuild
-
-EOF
-) >> $MKFILE
+  [[ "$RUN_ICA" != "0" ]] && wrt_ica_targets "$ICA_rebuild"
 
   # Bring over the items from the Makefile.tmp
   cat $MKFILE.tmp >> $MKFILE
