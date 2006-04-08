@@ -13,9 +13,10 @@ declare -r HTTP=http://ftp.lfs-matrix.net/pub/lfs/conglomeration
 BUILDDIR=/mnt/build_dir
 
 #--- The local repository for packages/file
+#    Used only if HPKG = 1
 #    Any missing file will be downloaded and archived here,
 #    if the user has the right priviledges.
-SRC_ARCHIVE=
+SRC_ARCHIVE=$SRC_ARCHIVE
 
 #--- Download the source packages 0(no)/1(yes)
 HPKG=0
