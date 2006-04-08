@@ -1,0 +1,7 @@
+#!/bin/bash
+# $Id$
+set -e
+
+echo "This is a placeholder for now"
+
+exit

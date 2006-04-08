@@ -461,6 +461,9 @@ fi
 
 if [[ "$PWD" != "$JHALFSDIR" ]]; then
   cp $COMMON_DIR/makefile-functions $JHALFSDIR/
+  if [[ "$RUN_ICA" != "0" ]]; then
+    cp $COMMON_DIR/do_ica_{prep,work} $JHALFSDIR/
+  fi
   if [[ -n "$FILES" ]]; then
     # pushd/popd necessary to deal with mulitiple files
     pushd $PACKAGE_DIR 1> /dev/null
