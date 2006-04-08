@@ -155,7 +155,10 @@ chapter6_Makefiles() {
     # dependencies and target creation.
     case "${this_script}" in
       *chroot)      continue ;;
-      *stripping*) [[ "${STRIP}" = "0" ]] && continue ;;
+      *stripping*) [[ "${STRIP}" = "0" ]] && continue
+                   [[ "${STRIP}" != "0" ]] && [[ "$RUN_ICA" != "0" ]] && \
+                   ICA_rebuild="$ICA_rebuild ${this_script}"
+      ;;
     esac
 
     # First append each name of the script files to a list (this will become
@@ -182,6 +185,8 @@ chapter6_Makefiles() {
     if [ "$vrs" != "" ] ; then
       FILE="$name-$vrs.tar.*"
       wrt_unpack2 "$FILE"
+      # Add it to the ICA_rebuild target
+      [[ "$RUN_ICA" != "0" ]] && ICA_rebuild="$ICA_rebuild ${this_script}"
     fi
 
     # In the mount of kernel filesystems we need to set LFS
@@ -389,6 +394,15 @@ restore-lfs-env:
 	fi;
 	@chown lfs:lfs /home/lfs/.bash* && \\
 	touch \$@
+
+EOF
+) >> $MKFILE
+
+  # Add the ICA targets
+  [[ "$RUN_ICA" != "0" ]] && \
+(
+    cat << EOF
+ICA_rebuild:  $ICA_rebuild
 
 EOF
 ) >> $MKFILE

@@ -76,6 +76,9 @@ ${BOLD}  -W, --working-copy DIR${OFF}
 [[ ${PROGNAME} != "blfs" ]] &&
 cat <<- -EOF-
 
+${BOLD}  --do-ICA${OFF}
+         do the Iterative Comparison Analysis. That will take several time.
+
 ${BOLD}  -F, --fstab FILE${OFF}
         use FILE as the /etc/fstab file for the ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF} system. If not specified,
         a default /etc/fstab file with dummy values is created.

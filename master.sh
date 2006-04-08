@@ -210,6 +210,8 @@ while test $# -gt 0 ; do
       ;;
 
     # Common options for LFS, CLFS and HLFS
+    --do-ICA )              RUN_ICA=1    ;;
+
     --fstab | -F )
       test $# = 1 && eval "$exit_missing_arg"
       shift
