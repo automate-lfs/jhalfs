@@ -219,6 +219,9 @@ chapter789_Makefiles() {
 #----------------------------#
   echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter7/8/9${R_arrow}"
 
+  # Reset $PREV for ICA runs
+  [[ "$RUN_ICA" != "0" ]] && PREV=iteration-last
+
   for file in chapter0{7,8,9}/* ; do
     # Keep the script file name
     this_script=`basename $file`
