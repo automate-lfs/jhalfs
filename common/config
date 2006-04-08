@@ -72,5 +72,5 @@ ICALOGDIR=$JHALFSDIR/logs/ICA
 # Don't edit it unless you know what you are doing
 
 #--- Working directories
-JHALFSDIR=$BUILDDIR/jhalfs-ica
+JHALFSDIR=$BUILDDIR/jhalfs
    LOGDIR=$JHALFSDIR/logs
