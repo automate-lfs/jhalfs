@@ -85,10 +85,10 @@ validate_config()    {       # Are the config values sane (within reason)
 inline_doc
 
   # First internal variables, then the ones that change the book's flavour, and lastly system configuration variables
-  local -r blfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG                 DEPEND                TEST"
-  local -r hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE RUN_ICA MODEL GRSECURITY_HOST TEST STRIP FSTAB             CONFIG KEYMAP         PAGE TIMEZONE LANG LC_ALL"
-  local -r clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE RUN_ICA METHOD  ARCH  TARGET  TEST STRIP FSTAB BOOT_CONFIG CONFIG KEYMAP VIMLANG PAGE TIMEZONE LANG"
-  local -r  lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE RUN_ICA                       TEST STRIP FSTAB             CONFIG        VIMLANG PAGE TIMEZONE LANG"
+  local -r blfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG         DEPEND                TEST"
+  local -r hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE MODEL GRSECURITY_HOST TEST RUN_ICA ITERATIONS STRIP FSTAB             CONFIG KEYMAP         PAGE TIMEZONE LANG LC_ALL"
+  local -r clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE METHOD  ARCH  TARGET  TEST RUN_ICA ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG KEYMAP VIMLANG PAGE TIMEZONE LANG"
+  local -r  lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE                       TEST RUN_ICA ITERATIONS STRIP FSTAB             CONFIG        VIMLANG PAGE TIMEZONE LANG"
 
   local -r ERROR_MSG_pt1='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid,'
   local -r ERROR_MSG_pt2=' check the config file ${BOLD}${GREEN}\<$(echo $PROGNAME | tr [a-z] [A-Z])/config\> or \<common/config\>${OFF}'
@@ -128,21 +128,22 @@ inline_doc
               write_error_and_die
             fi
             continue  ;;
-        TIMEZONE)  continue;;
-        MKFILE)    continue;;
-        HPKG)      validation_str="x0x x1x";          validate_str; continue ;;
-        RUNMAKE)   validation_str="x0x x1x";          validate_str; continue ;;
-        RUN_ICA)   validation_str="x0x x1x";          validate_str; continue ;;
-        TEST)      validation_str="x0x x1x x2x x3x";  validate_str; continue ;;
-        STRIP)     validation_str="x0x x1x";          validate_str; continue ;;
-        VIMLANG)   validation_str="x0x x1x";          validate_str; continue ;;
-        DEPEND)    validation_str="x0x x1x x2x";      validate_str; continue ;;
-        MODEL)     validation_str="xglibcx xuclibcx"; validate_str; continue ;;
-        PAGE)      validation_str="xletterx xA4x";    validate_str; continue ;;
-        GRSECURITY_HOST)  validation_str="x0x x1x";   validate_str; continue ;;
-        METHOD)    validation_str="xchrootx xbootx";  validate_str; continue ;;
-        ARCH)      validation_str="xx86x xx86_64x xx86_64-64x xsparcx xsparcv8x xsparc64x xsparc64-64x xmipsx xmips64x xmips64-64x xppcx xppc64x xalphax";  validate_str; continue ;;
-        TARGET)    validate_target; continue ;;
+        TIMEZONE)   continue;;
+        MKFILE)     continue;;
+        HPKG)       validation_str="x0x x1x";          validate_str; continue ;;
+        RUNMAKE)    validation_str="x0x x1x";          validate_str; continue ;;
+        RUN_ICA)    validation_str="x0x x1x";          validate_str; continue ;;
+        ITERATIONS) validation_str="x2x x3x x4x x5x";  validate_str; continue ;;
+        TEST)       validation_str="x0x x1x x2x x3x";  validate_str; continue ;;
+        STRIP)      validation_str="x0x x1x";          validate_str; continue ;;
+        VIMLANG)    validation_str="x0x x1x";          validate_str; continue ;;
+        DEPEND)     validation_str="x0x x1x x2x";      validate_str; continue ;;
+        MODEL)      validation_str="xglibcx xuclibcx"; validate_str; continue ;;
+        PAGE)       validation_str="xletterx xA4x";    validate_str; continue ;;
+        GRSECURITY_HOST)  validation_str="x0x x1x";    validate_str; continue ;;
+        METHOD)     validation_str="xchrootx xbootx";  validate_str; continue ;;
+        ARCH)       validation_str="xx86x xx86_64x xx86_64-64x xsparcx xsparcv8x xsparc64x xsparc64-64x xmipsx xmips64x xmips64-64x xppcx xppc64x xalphax"; validate_str; continue ;;
+        TARGET)     validate_target; continue ;;
       esac
 
 

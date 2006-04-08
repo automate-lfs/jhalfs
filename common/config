@@ -58,12 +58,12 @@ LC_ALL=$LC_ALL # (not used in LFS)
 #    Not used in LFS
 KEYMAP=none
 
-#=== Variables needed by ICA (Not implemented yet :-/)===
+#=== Variables needed by ICA ===
 #--- Run ICA testing 0/1  0(no)/1(yes)
 RUN_ICA=0
 
-#--- The number of final stage builds to create and compare
-ITERATIONS=
+#--- The number of final stage builds to create and compare, min. 2, max. 5
+ITERATIONS=3
 
 #--- ICA report log directory
 ICALOGDIR=$JHALFSDIR/logs/ICA
