@@ -116,9 +116,9 @@ set -e
     usage:      farce -directory $FARCELOGDIR/dir path1 list1 path2 list2
     input vars: $1 farce log dir for this comparation
                 $2 full path to previous iteration
-                $2 full path to filelist for previos iteration
-                $3 full path to current iteration
-                $4 full path to filelist for current iteration
+                $3 full path to filelist for previos iteration
+                $4 full path to current iteration
+                $5 full path to filelist for current iteration
     externals:  --
     modifies:   --
     returns:    --
