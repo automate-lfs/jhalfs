@@ -8,7 +8,7 @@ MASTER SCRIPT
   - The BLFS moudule should can be called in conjunction with any of
     LFS, CLFS or HLFS modules.
 
-  - To create a Makefile to install jhalfs-X system-wide.
+  - To create a Makefile to install jhalfs system-wide.
     Note: is that actually wanted?
 
 

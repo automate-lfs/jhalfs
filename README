@@ -2,9 +2,9 @@ $Id$
 
 1. INTRODUCTION::
 
-     This collection of scripts, known as jhalfs-X, strives to create
+     This collection of scripts, known as jhalfs, strives to create
   accurate makefiles from the Linux From Scratch book series XML files.
-  This software is an evolution of the original "jhalfs" code.
+  This software is an evolution of the original "jhalfs-0.2" code.
 
      The usage of this script assumes you have read and are familiar with
   the book(s) and, therefore, the configuration variables found in config
@@ -33,7 +33,7 @@ $Id$
      The script master.sh cannot be invoked directly but only via the
   supplied symlinks. After editing the config file for the project you wish
   to build, run the script.
-  
+
      The term <symlink> refers to the 1 of 4 package symlinks, lfs,hlfs,clfs,blfs.
      Replace <symlink> with your choice of packages; i.e.: ./lfs
 
@@ -78,14 +78,14 @@ $Id$
 
     Q. "What is the function of the SRC_ARCHIVE variable
     A. When then symlinked master.sh runs it creates a local copy of the
-       necessary packages in BUILDDIR/sources by downloading the files. If 
-       the variable SRC_ARCHIVE is defined the software will first look in 
+       necessary packages in BUILDDIR/sources by downloading the files. If
+       the variable SRC_ARCHIVE is defined the software will first look in
        this location for the file and, if found, will copy it to BUILDDIR/sources.
-       If the files are not found in SRC_ARCHIVE _and_ you have write priv to 
+       If the files are not found in SRC_ARCHIVE _and_ you have write priv to
        the directory any downloaded files will be mirrored there.
 
     Q. "Why have 2 copies of the files."
-    A. The package files must be visible during the chroot phase and this is a 
+    A. The package files must be visible during the chroot phase and this is a
        simple and reliable method of doing so. This method also handles the CLFS
        build method where the final build may be done on a separate machine.
 
