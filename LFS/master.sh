@@ -156,8 +156,8 @@ chapter6_Makefiles() {
     case "${this_script}" in
       *chroot)      continue ;;
       *stripping*) [[ "${STRIP}" = "0" ]] && continue
-                   [[ "${STRIP}" != "0" ]] && [[ "$RUN_ICA" != "0" ]] && \
-                   ICA_rebuild="$ICA_rebuild ${this_script}"
+                   [[ "${STRIP}" != "0" ]] && [[ "$COMPARE" != "0" ]] && \
+                   system_rebuild="$system_rebuild ${this_script}"
       ;;
     esac
 
@@ -185,8 +185,8 @@ chapter6_Makefiles() {
     if [ "$vrs" != "" ] ; then
       FILE="$name-$vrs.tar.*"
       wrt_unpack2 "$FILE"
-      # Add it to the ICA_rebuild target
-      [[ "$RUN_ICA" != "0" ]] && ICA_rebuild="$ICA_rebuild ${this_script}"
+      # Add it to the system_rebuild target
+      [[ "$COMPARE" != "0" ]] && system_rebuild="$system_rebuild ${this_script}"
     fi
 
     # In the mount of kernel filesystems we need to set LFS
@@ -219,8 +219,8 @@ chapter789_Makefiles() {
 #----------------------------#
   echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter7/8/9${R_arrow}"
 
-  # Reset $PREV for ICA runs
-  [[ "$RUN_ICA" != "0" ]] && PREV=iteration-last
+  # Reset $PREV for ICA/farce runs
+  [[ "$COMPARE" != "0" ]] && PREV=iteration-last
 
   for file in chapter0{7,8,9}/* ; do
     # Keep the script file name
@@ -401,8 +401,8 @@ restore-lfs-env:
 EOF
 ) >> $MKFILE
 
-  # Add the ICA targets
-  [[ "$RUN_ICA" != "0" ]] && wrt_ica_targets "$ICA_rebuild"
+  # Add the ICA/farce targets
+  [[ "$COMPARE" != "0" ]] && wrt_ica_targets "$system_rebuild"
 
   # Bring over the items from the Makefile.tmp
   cat $MKFILE.tmp >> $MKFILE

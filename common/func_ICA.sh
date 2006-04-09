@@ -3,18 +3,18 @@
 #----------------------------------#
 wrt_ica_targets() {                #
 #----------------------------------#
-  local ICA_rebuild=$1
-  wrt_ica_rebuild "$ICA_rebuild"
-  wrt_iterations  "$ICA_rebuild"
+  local system_rebuild=$1
+  wrt_system_rebuild "$system_rebuild"
+  wrt_iterations  "$system_rebuild"
 }
 
 #----------------------------------#
-wrt_ica_rebuild() {                #
+wrt_system_rebuild() {                #
 #----------------------------------#
-  local ICA_rebuild=$1
+  local system_rebuild=$1
 (
     cat << EOF
-ICA_rebuild:  $ICA_rebuild
+system_rebuild:  $system_rebuild
 
 EOF
 ) >> $MKFILE
@@ -23,7 +23,7 @@ EOF
 #----------------------------------#
 wrt_iterations() {                 #
 #----------------------------------#
-  local ICA_rebuild=$1
+  local system_rebuild=$1
 
   for ((N=1; N <= ITERATIONS ; N++)) ; do # Double parentheses,
                                           # and "ITERATIONS" with no "$".
@@ -35,9 +35,9 @@ $ITERATION:  chapter06
 	@do_ica_prep
 	@pushd logs && \\
 	mkdir $ITERATION && \\
-	mv $ICA_rebuild $ITERATION && \\
+	mv $system_rebuild $ITERATION && \\
 	popd
-	@rm -f $ICA_rebuild
+	@rm -f $system_rebuild
 	@touch \$@
 
 EOF
@@ -50,7 +50,7 @@ iteration-last: $PREV  ICA_rebuild
 	@do_ica_prep
 	@pushd logs && \\
 	mkdir iteration-last && \\
-	cp $ICA_rebuild iteration-last && \\
+	cp $system_rebuild iteration-last && \\
 	popd
 	@do_ica_work
 	@touch \$@
@@ -64,9 +64,9 @@ $ITERATION: $PREV  ICA_rebuild
 	@do_ica_prep
 	@pushd logs && \\
 	mkdir $ITERATION && \\
-	mv $ICA_rebuild $ITERATION && \\
+	mv $system_rebuild $ITERATION && \\
 	popd
-	@rm -f $ICA_rebuild
+	@rm -f $system_rebuild
 	@touch \$@
 
 EOF

@@ -220,12 +220,15 @@ while test $# -gt 0 ; do
       case $1 in
         ICA)              RUN_ICA=1
                         RUN_FARCE=0
+                          COMPARE=1
         ;;
         farce)            RUN_ICA=0
                         RUN_FARCE=1
+                          COMPARE=1
         ;;
         both)             RUN_ICA=1
                         RUN_FARCE=1
+                          COMPARE=1
         *)
           echo -e "\n$1 is an unknown analisys method."
           exit 1
@@ -478,7 +481,7 @@ fi
 
 if [[ "$PWD" != "$JHALFSDIR" ]]; then
   cp $COMMON_DIR/makefile-functions $JHALFSDIR/
-  if [[ "$RUN_ICA" = "1" ]] || [[ "$RUN_FARCE" = "1" ]]; then
+  if [[ "$COMPARE" != "0" ]] ; then
     mkdir $JHALFSDIR/extras
     cp extras/* $JHALFSDIR/extras
   fi
