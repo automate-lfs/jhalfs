@@ -217,7 +217,7 @@ while test $# -gt 0 ; do
     --comparasion | -C )
       test $# = 1 && eval "$exit_missing_arg"
       shift
-      case $PROGNAME in
+      case $1 in
         ICA)              RUN_ICA=1
                         RUN_FARCE=0
         ;;
