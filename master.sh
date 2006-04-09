@@ -483,7 +483,7 @@ fi
 if [[ "$PWD" != "$JHALFSDIR" ]]; then
   cp $COMMON_DIR/makefile-functions $JHALFSDIR/
   if [[ "$COMPARE" != "0" ]] ; then
-    mkdir $JHALFSDIR/extras
+    mkdir -p $JHALFSDIR/extras
     cp extras/* $JHALFSDIR/extras
   fi
   if [[ -n "$FILES" ]]; then
