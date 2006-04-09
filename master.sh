@@ -229,6 +229,7 @@ while test $# -gt 0 ; do
         both)             RUN_ICA=1
                         RUN_FARCE=1
                           COMPARE=1
+        ;;
         *)
           echo -e "\n$1 is an unknown analisys method."
           exit 1
