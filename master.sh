@@ -96,7 +96,7 @@ source $COMMON_DIR/func_validate_configs.sh
 
 
 ###################################
-###		MAIN		###
+###          MAIN               ###
 ###################################
 
 # Evaluate any command line switches
@@ -214,7 +214,24 @@ while test $# -gt 0 ; do
       ;;
 
     # Common options for LFS, CLFS and HLFS
-    --do-ICA )              RUN_ICA=1    ;;
+    --comparasion | -C )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      case $PROGNAME in
+        ICA)              RUN_ICA=1
+                        RUN_FARCE=0
+        ;;
+        farce)            RUN_ICA=0
+                        RUN_FARCE=1
+        ;;
+        both)             RUN_ICA=1
+                        RUN_FARCE=1
+        *)
+          echo -e "\n$1 is an unknown analisys method."
+          exit 1
+          ;;
+      esac
+      ;;
 
     --fstab | -F )
       test $# = 1 && eval "$exit_missing_arg"
@@ -461,8 +478,9 @@ fi
 
 if [[ "$PWD" != "$JHALFSDIR" ]]; then
   cp $COMMON_DIR/makefile-functions $JHALFSDIR/
-  if [[ "$RUN_ICA" != "0" ]]; then
-    cp $COMMON_DIR/do_ica_{prep,work} $JHALFSDIR/
+  if [[ "$RUN_ICA" = "1" ]] || [[ "$RUN_FARCE" = "1" ]]; then
+    mkdir $JHALFSDIR/extras
+    cp extras/* $JHALFSDIR/extras
   fi
   if [[ -n "$FILES" ]]; then
     # pushd/popd necessary to deal with mulitiple files

@@ -80,15 +80,15 @@ validate_config()    {       # Are the config values sane (within reason)
                 PROGNAME (lfs,clfs,hlfs,blfs)
     modifies:   none
     returns:    nothing
-    on error:	write text to console and dies
+    on error:   write text to console and dies
     on success: write text to console and returns
 inline_doc
 
   # First internal variables, then the ones that change the book's flavour, and lastly system configuration variables
   local -r blfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG         DEPEND                TEST"
-  local -r hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE MODEL GRSECURITY_HOST TEST RUN_ICA ITERATIONS STRIP FSTAB             CONFIG KEYMAP         PAGE TIMEZONE LANG LC_ALL"
-  local -r clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE METHOD  ARCH  TARGET  TEST RUN_ICA ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG KEYMAP VIMLANG PAGE TIMEZONE LANG"
-  local -r  lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE                       TEST RUN_ICA ITERATIONS STRIP FSTAB             CONFIG        VIMLANG PAGE TIMEZONE LANG"
+  local -r hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE MODEL GRSECURITY_HOST TEST RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG KEYMAP         PAGE TIMEZONE LANG LC_ALL"
+  local -r clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE METHOD  ARCH  TARGET  TEST RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG KEYMAP VIMLANG PAGE TIMEZONE LANG"
+  local -r  lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE                       TEST RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG        VIMLANG PAGE TIMEZONE LANG"
 
   local -r ERROR_MSG_pt1='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid,'
   local -r ERROR_MSG_pt2=' check the config file ${BOLD}${GREEN}\<$(echo $PROGNAME | tr [a-z] [A-Z])/config\> or \<common/config\>${OFF}'
@@ -133,6 +133,7 @@ inline_doc
         HPKG)       validation_str="x0x x1x";          validate_str; continue ;;
         RUNMAKE)    validation_str="x0x x1x";          validate_str; continue ;;
         RUN_ICA)    validation_str="x0x x1x";          validate_str; continue ;;
+        RUN_FARCE)  validation_str="x0x x1x";          validate_str; continue ;;
         ITERATIONS) validation_str="x2x x3x x4x x5x";  validate_str; continue ;;
         TEST)       validation_str="x0x x1x x2x x3x";  validate_str; continue ;;
         STRIP)      validation_str="x0x x1x";          validate_str; continue ;;
@@ -186,7 +187,7 @@ inline_doc
          if [ ! -z ${SRC_ARCHIVE} ]; then
            if [ ! -d ${SRC_ARCHIVE} ]; then
              echo "   -- is NOT a directory"
-	     write_error_and_die
+             write_error_and_die
            fi
            if [ ! -w ${SRC_ARCHIVE} ]; then
              echo -n "${nl_} [${BOLD}${YELLOW}WARN$OFF] You do not have <write> access to this directory, ${nl_}${tab_}downloaded files can not be saved in this archive"
