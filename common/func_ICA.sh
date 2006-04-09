@@ -5,7 +5,7 @@ wrt_ica_targets() {                #
 #----------------------------------#
   local system_rebuild=$1
   wrt_system_rebuild "$system_rebuild"
-  wrt_iterations  "$system_rebuild"
+  wrt_iterations     "$system_rebuild"
 }
 
 #----------------------------------#
@@ -57,7 +57,7 @@ wrt_prepare() {                    #
 #----------------------------------#
   local ITERATION=$1
 
-  if [[ "$PROGNAME" = "CLFS" ]] && [[ "$METHOD" = "boot" ]] ; then
+  if [[ "$PROGNAME" = "clfs" ]] && [[ "$METHOD" = "boot" ]] ; then
     local PRUNEPATH="/jhalfs /sources /var/log/paco /opt /dev /home /mnt /proc \
 /root /sys /tmp /usr/src /lost+found /tools"
     local ROOT_DIR=/
