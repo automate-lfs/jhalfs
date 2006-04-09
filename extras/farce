@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Acknowledgment:
+#  The following code is a no-modified version (except for this comment
+#  and the inline_doc fragment) of an original work written by
+#  Ken Moffat and is included here with his permission.
+#
+
 # FARCE: Farce Assists Rebuild Comparison Evaluation ;)
 #
 # to answer the question "can it rebuild itself?"
@@ -13,7 +19,7 @@
 # and this also allows us to build a sytem, boot it and get a
 # list of files, build a full desktop environment, and only then
 # build and boot the "can it build itself" test system and get
-# _its_ filelist. 
+# _its_ filelist.
 #
 # What this script aims to do:
 # ____________________________
@@ -34,7 +40,7 @@
 # timestamp, binaries, at least those using shared libs or
 # which are shared objects, are copied and subjected to
 # --strip-debug.  If files match at this stage, count them as
-# 'accepted'. 
+# 'accepted'.
 #
 # As a last step for any file that doesn't match, copy it
 # through some perl regexps to "process" it (convert any
@@ -70,19 +76,19 @@
 # date/time/kernel-version formats.
 #
 # farce-identical - the names of the files which are identical
-# 
+#
 # farce-substitutions - whenever using tokenizeanddiff results in a
 # difference being accepted, for both versions diff the before and
 # after versions to show what got changed.  If the file is a binary,
 # the output may still be hard to read.  Note that I _know_ glibc
 # version strings pass one of the regexps looking for a kernel version
 # - since I expect you to use the same version of glibc for each
-# build, this is not a problem.     
+# build, this is not a problem.
 #
 # farce-differ - the names of the files which could not be treated
 # as matching (whether or not I regard the failure as predictable)
 # for possible input to ICA processing.
-#  
+#
 # Copyright (C) 2005, 2006 Ken Moffat <ken@linuxfromscratch.org>
 #
 # All rights reserved.
@@ -102,6 +108,24 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
+
+set -e
+
+: <<inline_doc
+    desc:       do farce analisys and report
+    usage:      farce -directory $FARCELOGDIR/dir path1 list1 path2 list2
+    input vars: $1 farce log dir for this comparation
+                $2 full path to previous iteration
+                $2 full path to filelist for previos iteration
+                $3 full path to current iteration
+                $4 full path to filelist for current iteration
+    externals:  --
+    modifies:   --
+    returns:    --
+    on error:
+    on success:
+inline_doc
+
 
 VERSION="002"
 
@@ -203,7 +227,7 @@ function expected() {
 		# if one system has had extra stuff built, this will likely be bigger
 		true;;
 	/var/lib/locate/locatedb)
-		# if one system has had extra stuff built, this will likely be bigger 
+		# if one system has had extra stuff built, this will likely be bigger
 		true;;
 	/var/lib/nfs/*)
 		# allow nfs bookkeeping
@@ -249,7 +273,7 @@ function expected() {
 			*)
 				emessage "internal error, expected difference for $1 of type $TYPE not allowed"
 				exit 2
-				;; 
+				;;
 		esac
 		true
 	else
@@ -349,13 +373,13 @@ function onlyone() {
 #
 # NB if pathes are absolute, we need to prefix them
 # with the original $PWD to access the .a files
-# 
+#
 function testar() {
 	# ar archives include timestamps for the members,
 	# but diff doesn't show file timestamps unless the data differs
 	# put out a message to help locate which archive any messages
 	# about the members refer to.
-	
+
 	# try just stripping them U1,2 undebuggable
 	U1=`mktemp` || fatal "cannot create a temporary file"
 	U2=`mktemp` || fatal "cannot create a temporary file"
@@ -369,7 +393,7 @@ function testar() {
 		let accepted=$accepted+1
 		let ACCAR=$ACCAR+1
 		message "archive $3 matches after strip --strip-debug"
-		return 
+		return
 	fi
 	# rest of this function retained primarily for pathologically bad builds
 	# put out a message in the log to help identify which archive has issues.
@@ -377,7 +401,7 @@ function testar() {
 	D1=`mktemp -d` || fatal "cannot create a temporary directory"
 	D2=`mktemp -d` || fatal "cannot create a temporary directory"
 	cd $D1
-	ar -x ${OP1}${1}${3} 
+	ar -x ${OP1}${1}${3}
 	cd $D2
 	ar -x ${OP2}${2}${3}
 	cd
@@ -550,11 +574,11 @@ function tokenizeanddiff() {
 	tokenize $1 $F1
 	tokenize $2 $F2
 
-	# actually, cmp is probably more efficient 
+	# actually, cmp is probably more efficient
 	# but for picking up the pieces it will be better to
 	# use diff to see what got through.
 	cmp -s $F1 $F2
-	TOKENRESULT=$?	
+	TOKENRESULT=$?
 	if [ $TOKENRESULT -ne 0 ]; then
 		echo "failure in $3..." >&6
 		diff -a $F1 $F2 >&6
@@ -643,7 +667,7 @@ if [ $# -eq 4 ]; then
 fi
 if ! [ $ARGS == valid ]; then
 	dohelp
-	fatal "`basename $0`: error in arguments"	
+	fatal "`basename $0`: error in arguments"
 fi
 
 # ok, we're happy, lets hit these files
