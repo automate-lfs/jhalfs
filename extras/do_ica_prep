@@ -10,6 +10,17 @@
 
 set -e
 
+: <<inline_doc
+    desc:       prepare current iteration files for ICA report
+    usage:      do_ica_prep $DEST_ICA/$ITERATION
+    input vars: $1 directory where files from current iteration are stored
+    externals:  --
+    modifies:   --
+    returns:    --
+    on error:
+    on success:
+inline_doc
+
 local CMP_DIR=$1
 local F L BN
 

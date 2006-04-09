@@ -10,6 +10,20 @@
 
 set -e
 
+: <<inline_doc
+    desc:       creates the ICA report
+    usage:      do_ica_work $PREV $ITERATION $ICALOGDIR $DEST_ICA
+    input vars: $1 previous iteration
+                $2 current iteration
+                $3 ICA log dir
+                $4 directory where ICA iterations are stored
+    externals:  --
+    modifies:   --
+    returns:    --
+    on error:
+    on success:
+inline_doc
+
 local RAWDIFF=/tmp/rawdiff.$$
 local REPORT="${3}/REPORT.${1}V${2}"
 
