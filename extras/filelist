@@ -1,0 +1,161 @@
+#!/bin/bash
+#
+# filelist - prepare a list of the files in a built system.
+# This is for use in comparing two builds, to answer the
+# question "can it build itself" ?  Obviously, it can also be
+# used to compare two partial builds to see what changed.
+#
+# Call this script with the path to the root of the system.
+# If you are running the new system, the path is probably '/'.
+# Alternatively, the system might be mounted at /mnt/lfs, or
+# it might have been copied to ~/build1 or wherever.
+#
+# The output is a single file, filelist-CCYYMMDDhhmm
+# e.g. filelist-200510052108
+# which contains a list of the files to compare.
+# It excludes certain files which are not of interest (/tools,
+# /cross-tools, /home) together with any mounted filesystems.
+#
+# you should run this as a regular user - this will cause files
+# in e.g. /root to be ignored.
+#
+# I like to build a graphical desktop before using a new system
+# to see if it can build itself.  Filelist supports this by allowing
+# you to list the files at any time.  My normal process is:
+#
+# 1. Build an LFS system as normal.
+# 2. Build some extras before booting (nfs client, ntp, openssh,
+#    lynx, dhcp client, etc).
+# 3. Boot the new (first) system, set up users, run filelist.
+# 4. Build X and whatever else I want to use.
+# 5. Build the second system.
+# 6. Build the same extras for the second system.
+# 7. Boot the second system, to prove it works.
+# 8. Reboot to the first system, mount the second system at /mnt/lfs,
+#    then run filelist on /mnt/lfs and run the comparison.
+# 
+# Copyright (C) 2005, 2006 Ken Moffat <ken@linuxfromscratch.org>
+#
+# All rights reserved.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or (at
+# your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
+# NON INFRINGEMENT.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+
+VERSION="002"
+
+function error() {
+	echo "usage:"
+	echo "  `basename $0` [--whole-build] path name for output file]"
+	echo " e.g. '/' or '/mnt/lfs' or 'build1'"
+	echo " use --whole-build to compare files from /tools or /cross-tools"
+	echo
+	echo "Error: $1"
+	exit 1
+}
+
+
+# process the argument, if there is one
+# normally, we exclude files in /tools and /cross-tools
+EXCLUDE=true
+
+case "$1" in
+
+--whole-build)
+	# do NOT exclude cross-tools and tools
+	EXCLUDE=
+	shift
+	;;
+--*)
+	error "Bad option $1"
+	;;
+
+esac
+
+
+if [ $# -lt 1 ]; then
+	error "no argument"
+elif [ $1 = "--version" ]; then
+	echo "$0 version $VERSION"
+	exit
+elif [ $# -gt 2 ]; then
+	error "more than two arguments"
+elif ! [ -d $1 ]; then
+	error "not a directory"
+fi
+if [ $# -eq 2 ]; then
+	OUTFILE=$2
+	if [ -e $2 ]; then
+		echo "output $2 already exists"
+		exit
+	fi
+else
+	NOW=`date +%Y%m%d%H%M`
+	OUTFILE=~/filelist-${NOW}
+fi
+
+if [ "$1" == "/" ]; then
+	LOC=$1
+else
+	# ensure the path or mountpoint ends with a slash
+	# because of the seds after the 'find'
+	LOC=`echo $1 | sed 's%[^/]$%&/%'`
+fi
+
+echo "will create file list in $OUTFILE"
+if [ -f $OUTFILE ]; then
+	echo "refusing to overwrite $OUTFILE"
+	exit 1
+fi
+
+# check we can indeed do this
+>$OUTFILE
+if [ $? -ne 0 ]; then
+	echo "error, cannot write to $OUTFILE"
+	exit 1
+fi
+
+# Explanation of the find command: we exclude any filesystems mounted below
+# this path (typically, you are looking at '/' so this excludes /proc /sys
+# /dev).  We only care about files, not directories.
+# Exclusions - insert whatever we were given at the start of the pathes to
+# exclude - this might mean we have '//' in them, but that shouldn't matter.
+# /tools* /tools and also e.g. /tools.old if you rename an old version
+# /cross-tools* similar, for cross-lfs
+# /home/* - in case /home is not a separate filesystem
+# /sources/* - where the book thinks you should keep sources
+# /tmp/* - we really don't care about any junk left in here
+# /misc/* - where I keep buildscripts and stamps
+# we then sed it so that / or /mnt/lfs/ or whatever are all converted to '/'.
+
+# At one time, EXCLUDE contained the ! -path strings for cross-tools and tools
+# but htat didn't work, so now it is just a marker to control this logic.
+if [ -z "$EXCLUDE" ]; then
+	find $LOC -xdev -xtype f \
+	 ! -path "${LOC}home/*" \
+	 ! -path "${LOC}sources/*" ! -path "${LOC}tmp/*" \
+	 ! -path "${LOC}misc/*" | sed "s%^${LOC}%/%" | sort >$OUTFILE
+else
+	find $LOC -xdev -xtype f \
+	 ! -path "${LOC}cross-tools*/*" ! -path "${LOC}tools/*" \
+	 ! -path "${LOC}home/*" \
+	 ! -path "${LOC}sources/*" ! -path "${LOC}tmp/*" \
+	 ! -path "${LOC}misc/*" | sed "s%^${LOC}%/%" | sort >$OUTFILE
+fi
+
+exit
+
+
+
