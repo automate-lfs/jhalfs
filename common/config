@@ -68,14 +68,8 @@ ITERATIONS=3
 #--- Run ICA testing 0(no)/1(yes)
 RUN_ICA=0
 
-#--- ICA report log directory
-ICALOGDIR=$JHALFSDIR/logs/ICA
-
 #--- Run farce testing 0(no)/1(yes)
 RUN_FARCE=0
-
-#--- farce report log directory
-FARCELOGDIR=$JHALFSDIR/logs/farce
 
 #==== INTERNAL VARIABLES ====
 # Don't edit it unless you know what you are doing
@@ -83,3 +77,9 @@ FARCELOGDIR=$JHALFSDIR/logs/farce
 #--- Working directories
 JHALFSDIR=$BUILDDIR/jhalfs
    LOGDIR=$JHALFSDIR/logs
+
+#--- ICA report log directory
+ICALOGDIR=$LOGDIR/ICA
+
+#--- farce report log directory
+FARCELOGDIR=$LOGDIR/farce
