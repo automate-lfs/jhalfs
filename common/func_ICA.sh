@@ -54,8 +54,8 @@ wrt_prepare() {                    #
 #----------------------------------#
   local ITERATION=$1
   local      PREV=$2
-  local PRUNEPATH="/jhalfs /sources /var/log/paco /opt /dev /home /mnt /proc \
-/root /sys /tmp /usr/src /lost+found /tools"
+  local PRUNEPATH="/dev /home /jhalfs /lost+found /media /mnt /opt /proc \
+/sources /root /srv /sys /tmp /tools /usr/local /usr/src /var/log/paco"
 
   if [[ "$PROGNAME" = "clfs" ]] && [[ "$METHOD" = "boot" ]] ; then
     local    ROOT_DIR=/
