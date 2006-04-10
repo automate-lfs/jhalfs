@@ -1,6 +1,6 @@
 Index: LFS/master.sh
 ===================================================================
---- LFS/master.sh	(revision 2508)
+--- LFS/master.sh	(revision 2520)
 +++ LFS/master.sh	(working copy)
 @@ -188,7 +188,9 @@
      # and not to use chroot.
@@ -44,7 +44,7 @@ Index: LFS/master.sh
      esac
 Index: LFS/lfs.xsl
 ===================================================================
---- LFS/lfs.xsl	(revision 2508)
+--- LFS/lfs.xsl	(revision 2520)
 +++ LFS/lfs.xsl	(working copy)
 @@ -32,6 +32,9 @@
    <!-- Locale settings -->
@@ -90,50 +90,9 @@ Index: LFS/lfs.xsl
        <!-- The rest of commands -->
        <xsl:otherwise>
          <xsl:apply-templates/>
-Index: master.sh
-===================================================================
---- master.sh	(revision 2508)
-+++ master.sh	(working copy)
-@@ -66,6 +66,11 @@
- source $MODULE
- [[ $? > 0 ]] && echo "$MODULE did not load.." && exit 2
- [[ $VERBOSITY > 0 ]] && echo "OK"
-+# Load paco-functions
-+[[ $VERBOSITY > 0 ]] && echo -n "Loading paco module..."
-+source $COMMON_DIR/paco-functions
-+[[ $? > 0 ]] && echo "$COMMON_DIR/paco-functions did not load.." && exit 2
-+[[ $VERBOSITY > 0 ]] && echo "OK"
- #
- [[ $VERBOSITY > 0 ]] && echo "---------------${nl_}"
- 
-@@ -146,6 +151,8 @@
- 
-     --help | -h )  usage | more && exit  ;;
- 
-+    --no-paco )            USE_PACO=0    ;;
-+
-     --testsuites | -T )
-       test $# = 1 && eval "$exit_missing_arg"
-       shift
-@@ -455,6 +462,15 @@
- 
- if [[ "$PWD" != "$JHALFSDIR" ]]; then
-   cp $COMMON_DIR/makefile-functions $JHALFSDIR/
-+  if [[ $USE_PACO != "0" ]] ; then
-+    if [[ $PROGNAME != "blfs" ]]; then
-+      cp $COMMON_DIR/paco-build.sh $JHALFSDIR/
-+    else
-+      echo -e "export PACO_INCLUDE=$PACO_INCLUDE" > $JHALFSDIR/pacovars
-+      echo -e "export PACO_EXCLUDE=~/sources:$JHALFSDIR:$PACO_EXCLUDE" >> $JHALFSDIR/pacovars
-+      echo -e "export PACO_TMPFILE=$PACO_TMPFILE" >> $JHALFSDIR/pacovars
-+    fi
-+  fi
-   if [[ -n "$FILES" ]]; then
-     # pushd/popd necessary to deal with mulitiple files
-     pushd $PACKAGE_DIR 1> /dev/null
 Index: BLFS/master.sh
 ===================================================================
---- BLFS/master.sh	(revision 2508)
+--- BLFS/master.sh	(revision 2520)
 +++ BLFS/master.sh	(working copy)
 @@ -79,6 +79,19 @@
  EOF
@@ -157,7 +116,7 @@ Index: BLFS/master.sh
  (
 Index: BLFS/blfs.xsl
 ===================================================================
---- BLFS/blfs.xsl	(revision 2508)
+--- BLFS/blfs.xsl	(revision 2520)
 +++ BLFS/blfs.xsl	(working copy)
 @@ -159,7 +159,7 @@
          <xsl:when test="@role = 'nodump'"/>
@@ -170,12 +129,12 @@ Index: BLFS/blfs.xsl
          </xsl:otherwise>
 Index: common/config
 ===================================================================
---- common/config	(revision 2508)
+--- common/config	(revision 2520)
 +++ common/config	(working copy)
-@@ -74,3 +74,18 @@
- #--- Working directories
- JHALFSDIR=$BUILDDIR/jhalfs
-    LOGDIR=$JHALFSDIR/logs
+@@ -58,6 +58,23 @@
+ #    Not used in LFS
+ KEYMAP=none
+ 
 +
 +#==== PACO VARIABLES ====
 +#--- Use paco? 0/1 0(no)/1(yes)
@@ -191,9 +150,14 @@ Index: common/config
 +PACO_EXCLUDE=/sys:/dev:/proc:/tmp:/usr/src:/usr/share/info/dir
 +PACO_TMPFILE=/tmp/paco.tmp
 +LD_PRELOAD=/usr/lib/libpaco-log.so
++
++
+ #=== Variables needed by ICA (Not implemented yet :-/)===
+ #--- Run ICA testing 0/1  0(no)/1(yes)
+ RUN_ICA=0
 Index: common/func_validate_configs.sh
 ===================================================================
---- common/func_validate_configs.sh	(revision 2508)
+--- common/func_validate_configs.sh	(revision 2520)
 +++ common/func_validate_configs.sh	(working copy)
 @@ -85,10 +85,10 @@
  inline_doc
@@ -203,7 +167,7 @@ Index: common/func_validate_configs.sh
 -  local -r hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE MODEL GRSECURITY_HOST TEST STRIP FSTAB             CONFIG KEYMAP         PAGE TIMEZONE LANG LC_ALL"
 -  local -r clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE METHOD  ARCH  TARGET  TEST STRIP FSTAB BOOT_CONFIG CONFIG KEYMAP VIMLANG PAGE TIMEZONE LANG"
 -  local -r  lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE                       TEST STRIP FSTAB             CONFIG        VIMLANG PAGE TIMEZONE LANG"
-+  local -r blfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO HPKG         DEPEND                TEST"
++  local -r blfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO HPKG          DEPEND               TEST"
 +  local -r hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO HPKG RUNMAKE MODEL GRSECURITY_HOST TEST STRIP FSTAB             CONFIG KEYMAP         PAGE TIMEZONE LANG LC_ALL"
 +  local -r clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO HPKG RUNMAKE METHOD  ARCH  TARGET  TEST STRIP FSTAB BOOT_CONFIG CONFIG KEYMAP VIMLANG PAGE TIMEZONE LANG"
 +  local -r  lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO HPKG RUNMAKE                       TEST STRIP FSTAB             CONFIG        VIMLANG PAGE TIMEZONE LANG"
@@ -242,14 +206,22 @@ Index: common/paco-functions
 ===================================================================
 --- common/paco-functions	(revision 0)
 +++ common/paco-functions	(revision 0)
-@@ -0,0 +1,90 @@
+@@ -0,0 +1,113 @@
 +#!/bin/bash
 +
 +
 +#----------------------------#
 +wrt_paco_inst() {            #
 +#----------------------------#
-+if [ $USE_PACO != 0 ] && [ $MODEL != "uclibc" ]; then
++
++# Not using Paco with uClibc, even if requested
++if [ $PROGNAME = "hlfs" ]; then
++  if [ $MODEL = "uclibc" ]; then
++    $USE_PACO = 0
++  fi
++fi
++
++if [ $USE_PACO != 0 ]; then
 +  name="paco"
 +  this_script="$1-$name"
 +  file="chapter06/$this_script"
@@ -279,7 +251,15 @@ Index: common/paco-functions
 +#----------------------------------#
 +wrt_paco_prep() {                  # Export Paco variables
 +#----------------------------------# and remove tmpfile
-+if [ $USE_PACO != 0 ] && [ "$vrs" != "" ] && [ $MODEL != "uclibc" ]; then
++
++# Not using Paco with uClibc, even if requested
++if [ $PROGNAME = "hlfs" ]; then
++  if [ $MODEL = "uclibc" ]; then
++    $USE_PACO = 0
++  fi
++fi
++
++if [ $USE_PACO != 0 ] && [ "$vrs" != "" ]; then
 +(
 +cat  << EOF
 +	@echo "export PACO_INCLUDE=$PACO_INCLUDE" >> envars && \\
@@ -295,15 +275,23 @@ Index: common/paco-functions
 +#----------------------------------#
 +wrt_paco_log() {                   # If the tmpfile exist, then log the current package
 +#----------------------------------# and remove tempfile
-+  local PACKAGE
++local PACKAGE
 +
-+  if [[ $2 != "" ]] ; then
-+    PACKAGE="$1-$2";
-+  else
-+    PACKAGE="$1"
++# Allow packages to be logged without version
++if [[ $2 != "" ]] ; then
++  PACKAGE="$1-$2";
++else
++  PACKAGE="$1"
++fi
++
++# Not using Paco with uClibc, even if requested
++if [ $PROGNAME = "hlfs" ]; then
++  if [ $MODEL = "uclibc" ]; then
++    $USE_PACO = 0
 +  fi
++fi
 +
-+if [ $USE_PACO != 0 ] && [ "$vrs" != "" ] && [ $MODEL != "uclibc" ]; then
++if [ $USE_PACO != 0 ] && [ "$vrs" != "" ]; then
 +(
 +cat << EOF
 +	@if [ -e \$(MOUNT_PT)$PACO_TMPFILE ]; then \\
@@ -324,8 +312,7 @@ Index: common/paco-functions
 +cat << EOF
 +	@PACKAGE=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
 +	if [ -e $PACO_TMPFILE ]; then \\
-+		paco -E ~/sources:$JHALFSDIR:$PACO_EXCLUDE \\
-+		-lp \$\$PACKAGE < $PACO_TMPFILE && \\
++		paco -lp \$\$PACKAGE < $PACO_TMPFILE && \\
 +		rm -f $PACO_TMPFILE; \\
 +	fi;
 +EOF
@@ -341,7 +328,7 @@ Name: svn:keywords
 
 Index: common/common-functions
 ===================================================================
---- common/common-functions	(revision 2508)
+--- common/common-functions	(revision 2520)
 +++ common/common-functions	(working copy)
 @@ -60,6 +60,9 @@
          in the configuration file has the proper packages and patches for the
@@ -371,7 +358,7 @@ Index: common/common-functions
      blfs)
 Index: HLFS/hlfs.xsl
 ===================================================================
---- HLFS/hlfs.xsl	(revision 2508)
+--- HLFS/hlfs.xsl	(revision 2520)
 +++ HLFS/hlfs.xsl	(working copy)
 @@ -39,6 +39,9 @@
    <xsl:param name="lang" select="en_CA"/>
@@ -422,7 +409,7 @@ Index: HLFS/hlfs.xsl
          <xsl:apply-templates/>
 Index: HLFS/master.sh
 ===================================================================
---- HLFS/master.sh	(revision 2508)
+--- HLFS/master.sh	(revision 2520)
 +++ HLFS/master.sh	(working copy)
 @@ -376,7 +376,9 @@
          wrt_run_as_root "${this_script}" "${file}"
@@ -464,3 +451,44 @@ Index: HLFS/master.sh
        *)  # All other scripts
          wrt_run_as_chroot2 "${this_script}" "${file}"
          ;;
+Index: master.sh
+===================================================================
+--- master.sh	(revision 2520)
++++ master.sh	(working copy)
+@@ -66,6 +66,11 @@
+ source $MODULE
+ [[ $? > 0 ]] && echo "$MODULE did not load.." && exit 2
+ [[ $VERBOSITY > 0 ]] && echo "OK"
++# Load paco-functions
++[[ $VERBOSITY > 0 ]] && echo -n "Loading paco module..."
++source $COMMON_DIR/paco-functions
++[[ $? > 0 ]] && echo "$COMMON_DIR/paco-functions did not load.." && exit 2
++[[ $VERBOSITY > 0 ]] && echo "OK"
+ #
+ [[ $VERBOSITY > 0 ]] && echo "---------------${nl_}"
+ 
+@@ -146,6 +151,8 @@
+ 
+     --help | -h )  usage | more && exit  ;;
+ 
++    --no-paco )            USE_PACO=0    ;;
++
+     --testsuites | -T )
+       test $# = 1 && eval "$exit_missing_arg"
+       shift
+@@ -455,6 +462,15 @@
+ 
+ if [[ "$PWD" != "$JHALFSDIR" ]]; then
+   cp $COMMON_DIR/makefile-functions $JHALFSDIR/
++  if [[ $USE_PACO != "0" ]] ; then
++    if [[ $PROGNAME != "blfs" ]]; then
++      cp $COMMON_DIR/paco-build.sh $JHALFSDIR/
++    else
++      echo -e "export PACO_INCLUDE=$PACO_INCLUDE" > $JHALFSDIR/pacovars
++      echo -e "export PACO_EXCLUDE=~/sources:$JHALFSDIR:$PACO_EXCLUDE" >> $JHALFSDIR/pacovars
++      echo -e "export PACO_TMPFILE=$PACO_TMPFILE" >> $JHALFSDIR/pacovars
++    fi
++  fi
+   if [[ -n "$FILES" ]]; then
+     # pushd/popd necessary to deal with mulitiple files
+     pushd $PACKAGE_DIR 1> /dev/null
