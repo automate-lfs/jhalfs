@@ -21,8 +21,7 @@ set -e
     on success:
 inline_doc
 
-local CMP_DIR=$1
-local F L BN
+CMP_DIR=$1
 
 # Run ica_prep if it hasn't been done already
 if [ ! -f "$CMP_DIR/icaprep" ]; then

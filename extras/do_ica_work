@@ -24,8 +24,8 @@ set -e
     on success:
 inline_doc
 
-local RAWDIFF=/tmp/rawdiff.$$
-local REPORT="${3}/REPORT.${1}V${2}"
+RAWDIFF=/tmp/rawdiff.$$
+REPORT="${3}/REPORT.${1}V${2}"
 
 cd $4
 
