@@ -72,7 +72,7 @@ $BUILDDIR/usr/src $BUILDDIR/lost+found $BUILDDIR/tools"
     local DEST_ICA=$DEST_TOPDIR/ICA && \
 (
     cat << EOF
-	@extras/do_copy_files "$PRUNEPATH" $ROOT_DIR $DEST_ICA/$ITERATION \\
+	@extras/do_copy_files "$PRUNEPATH" $ROOT_DIR $DEST_ICA/$ITERATION && \\
 	extras/do_ica_prep $DEST_ICA/$ITERATION
 EOF
 ) >> $MKFILE
@@ -85,7 +85,7 @@ EOF
     local DEST_FARCE=$DEST_TOPDIR/farce && \
 (
     cat << EOF
-	@extras/do_copy_files "$PRUNEPATH" $ROOT_DIR $DEST_FARCE/$ITERATION \\
+	@extras/do_copy_files "$PRUNEPATH" $ROOT_DIR $DEST_FARCE/$ITERATION && \\
 	extras/filelist $DEST_FARCE/$ITERATION $DEST_FARCE/$ITERATION.filelist
 EOF
 ) >> $MKFILE
