@@ -29,7 +29,7 @@ wrt_iterations() {                 #
                                           # and "ITERATIONS" with no "$".
     ITERATION=iteration-$N
     if [ "$N" = "1" ] ; then
-      echo "$ITERATION:  chapter06" >> $MKFILE
+      echo "$ITERATION:  chapter6" >> $MKFILE
       wrt_prepare        "$ITERATION"
       wrt_logs_and_clean "$ITERATION"
       PREV=$ITERATION
