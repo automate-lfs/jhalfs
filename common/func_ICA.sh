@@ -30,15 +30,18 @@ wrt_iterations() {                 #
     ITERATION=iteration-$N
     if [ "$N" = "1" ] ; then
       echo "$ITERATION:  chapter6" >> $MKFILE
+      echo -e "\t@\$(call echo_message, Building)" >> $MKFILE
       wrt_prepare        "$ITERATION"
       wrt_logs_and_clean "$ITERATION"
       PREV=$ITERATION
     elif [ "$N" = "$ITERATIONS" ] ; then
       echo "iteration-last:  $PREV  system_rebuild" >> $MKFILE
+      echo -e "\t@\$(call echo_message, Building)" >> $MKFILE
       wrt_prepare        "$ITERATION" "$PREV"
       wrt_logs           "$ITERATION"
     else
       echo "$ITERATION:  $PREV  system_rebuild" >> $MKFILE
+      echo -e "\t@\$(call echo_message, Building)" >> $MKFILE
       wrt_prepare        "$ITERATION" "$PREV"
       wrt_logs_and_clean "$ITERATION"
       PREV=$ITERATION
