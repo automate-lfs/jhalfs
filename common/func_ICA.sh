@@ -54,19 +54,15 @@ wrt_prepare() {                    #
 #----------------------------------#
   local ITERATION=$1
   local      PREV=$2
+  local PRUNEPATH="/jhalfs /sources /var/log/paco /opt /dev /home /mnt /proc \
+/root /sys /tmp /usr/src /lost+found /tools"
 
   if [[ "$PROGNAME" = "clfs" ]] && [[ "$METHOD" = "boot" ]] ; then
-    local PRUNEPATH="/jhalfs /sources /var/log/paco /opt /dev /home /mnt /proc \
-/root /sys /tmp /usr/src /lost+found /tools"
     local    ROOT_DIR=/
     local DEST_TOPDIR=/jhalfs
     local   ICALOGDIR=/jhalfs/logs/ICA
     local FARCELOGDIR=/jhalfs/logs/farce
   else
-    local PRUNEPATH="$BUILDDIR/jhalfs $BUILDDIR/sources $BUILDDIR/var/log/paco \
-$BUILDDIR/opt $BUILDDIR/dev $BUILDDIR/home $BUILDDIR/mnt \
-$BUILDDIR/proc $BUILDDIR/root $BUILDDIR/sys $BUILDDIR/tmp \
-$BUILDDIR/usr/src $BUILDDIR/lost+found $BUILDDIR/tools"
     local    ROOT_DIR=$BUILDDIR
     local DEST_TOPDIR=$BUILDDIR/jhalfs
   fi

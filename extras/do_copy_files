@@ -21,7 +21,7 @@ TMP_FILE=/tmp/prunelist
 # There might be an easier way to achieve tar exclusions? Strip
 # the leading /.
 for F in $1 ; do
-  echo ${F#*/} >> $TMP_FILE
+  echo .${F} >> $TMP_FILE
 done
 
 mkdir -p $3
