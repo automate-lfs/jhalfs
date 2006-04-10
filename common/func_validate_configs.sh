@@ -158,8 +158,8 @@ inline_doc
 
       if [[ "${config_param}" = "LANG" ]]; then
          echo "`eval echo $PARAM_VALS`"
-         [[ -z "${!config_param}" ]] && continue
-          # See it the locale values exist on this machine
+         [[ -z "${!config_param}" ]] && echo -e "\nVariable LANG cannot be empty!" && write_error_and_die
+          # See if the locale values exist on this machine
          if [[ "`locale -a | grep -c ${!config_param}`" > 0 ]]; then
            continue
          else  # If you make it this far then there is a problem
