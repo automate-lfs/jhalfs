@@ -214,9 +214,6 @@ chapter789_Makefiles() {
 #----------------------------#
   echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter7/8/9${R_arrow}"
 
-  # Reset $PREV for ICA/farce runs
-  [[ "$COMPARE" != "0" ]] && PREV=iteration-last
-
   for file in chapter0{7,8,9}/* ; do
     # Keep the script file name
     this_script=`basename $file`
@@ -306,7 +303,7 @@ build_Makefile() {
   chapter5_Makefiles
   chapter6_Makefiles
   # Add the ICA/farce targets, if needed
-  [[ "$COMPARE" != "0" ]] && wrt_ica_targets
+  [[ "$COMPARE" != "0" ]] && wrt_compare_targets
   chapter789_Makefiles
 
 
