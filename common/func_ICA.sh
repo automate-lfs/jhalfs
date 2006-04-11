@@ -3,27 +3,6 @@
 #----------------------------------#
 wrt_ica_targets() {                #
 #----------------------------------#
-  local system_rebuild=$1
-  wrt_system_rebuild "$system_rebuild"
-  wrt_iterations     "$system_rebuild"
-}
-
-#----------------------------------#
-wrt_system_rebuild() {                #
-#----------------------------------#
-  local system_rebuild=$1
-(
-    cat << EOF
-system_rebuild:  $system_rebuild
-
-EOF
-) >> $MKFILE
-}
-
-#----------------------------------#
-wrt_iterations() {                 #
-#----------------------------------#
-  local system_rebuild=$1
 
   for ((N=1; N <= ITERATIONS ; N++)) ; do # Double parentheses,
                                           # and "ITERATIONS" with no "$".
@@ -31,26 +10,33 @@ wrt_iterations() {                 #
     if [ "$N" = "1" ] ; then
       echo "$ITERATION:  chapter6" >> $MKFILE
       echo -e "\t@\$(call echo_message, Building)" >> $MKFILE
-      wrt_prepare        "$ITERATION"
+      wrt_ica_work       "$ITERATION"
       wrt_logs_and_clean "$ITERATION"
-      PREV=$ITERATION
-    elif [ "$N" = "$ITERATIONS" ] ; then
-      echo "iteration-last:  $PREV  system_rebuild" >> $MKFILE
-      echo -e "\t@\$(call echo_message, Building)" >> $MKFILE
-      wrt_prepare        "$ITERATION" "$PREV"
-      wrt_logs           "$ITERATION"
     else
-      echo "$ITERATION:  $PREV  system_rebuild" >> $MKFILE
+      wrt_system_build $N
+      echo "iteration-last:  $PREV  system_build_$N" >> $MKFILE
       echo -e "\t@\$(call echo_message, Building)" >> $MKFILE
-      wrt_prepare        "$ITERATION" "$PREV"
-      wrt_logs_and_clean "$ITERATION"
-      PREV=$ITERATION
+      wrt_ica_work       "$ITERATION" "$PREV"
+      if [ "$N" = "$ITERATIONS" ] ; then
+        wrt_logs           "$ITERATION"
+      else
+        wrt_logs_and_clean "$ITERATION"
+      fi
     fi
+    PREV=$ITERATION
   done
 }
 
 #----------------------------------#
-wrt_prepare() {                    #
+wrt_system_build() {               #
+#----------------------------------#
+  local RUN=$1
+
+  # Placeholder for now
+}
+
+#----------------------------------#
+wrt_ica_work() {                   #
 #----------------------------------#
   local ITERATION=$1
   local      PREV=$2

@@ -155,10 +155,7 @@ chapter6_Makefiles() {
     # dependencies and target creation.
     case "${this_script}" in
       *chroot)      continue ;;
-      *stripping*) [[ "${STRIP}" = "0" ]] && continue
-                   [[ "${STRIP}" != "0" ]] && [[ "$COMPARE" != "0" ]] && \
-                   system_rebuild="$system_rebuild ${this_script}"
-      ;;
+      *stripping*) [[ "${STRIP}" = "0" ]] && continue ;;
     esac
 
     # First append each name of the script files to a list (this will become
@@ -185,8 +182,6 @@ chapter6_Makefiles() {
     if [ "$vrs" != "" ] ; then
       FILE="$name-$vrs.tar.*"
       wrt_unpack2 "$FILE"
-      # Add it to the system_rebuild target
-      [[ "$COMPARE" != "0" ]] && system_rebuild="$system_rebuild ${this_script}"
     fi
 
     # In the mount of kernel filesystems we need to set LFS
@@ -310,6 +305,8 @@ build_Makefile() {
   chapter4_Makefiles
   chapter5_Makefiles
   chapter6_Makefiles
+  # Add the ICA/farce targets, if needed
+  [[ "$COMPARE" != "0" ]] && wrt_ica_targets
   chapter789_Makefiles
 
 
@@ -400,9 +397,6 @@ restore-lfs-env:
 
 EOF
 ) >> $MKFILE
-
-  # Add the ICA/farce targets
-  [[ "$COMPARE" != "0" ]] && wrt_ica_targets "$system_rebuild"
 
   # Bring over the items from the Makefile.tmp
   cat $MKFILE.tmp >> $MKFILE
