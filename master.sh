@@ -56,9 +56,9 @@ source $COMMON_DIR/config
 [[ $? > 0 ]] && echo "$COMMON_DIR/conf did not load.." && exit
 [[ $VERBOSITY > 0 ]] && echo "OK"
 #
-[[ $VERBOSITY > 0 ]] && echo -n "Loading ICA module..."
-source $COMMON_DIR/func_ICA.sh
-[[ $? > 0 ]] && echo "$COMMON_DIR/func_ICA.sh did not load.." && exit
+[[ $VERBOSITY > 0 ]] && echo -n "Loading compare module..."
+source $COMMON_DIR/func_compare.sh
+[[ $? > 0 ]] && echo "$COMMON_DIR/func_compare.sh did not load.." && exit
 [[ $VERBOSITY > 0 ]] && echo "OK"
 #
 [[ $VERBOSITY > 0 ]] && echo -n "Loading config module <$MODULE_CONFIG>..."

@@ -25,7 +25,7 @@ wrt_system_build() {               #
 
   # Placeholder for now
 
-  echo "system_build_$N: $chapter6" >> $MKFILE.tmp
+  echo "system_build_$N: $PREV $chapter6" >> $MKFILE.tmp
   PREV=system_build_$N
 }
 
