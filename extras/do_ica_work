@@ -27,6 +27,8 @@ inline_doc
 RAWDIFF=/tmp/rawdiff.$$
 REPORT="${3}/REPORT.${1}V${2}"
 
+mkdir -p $3
+
 cd $4
 
 echo -e "Diffing ${1} and ${2}... " > $REPORT
