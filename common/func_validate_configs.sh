@@ -137,10 +137,10 @@ inline_doc
                     else
                       if [[ ! "${RUN_ICA}" = "1" ]] && [[ ! "${RUN_FARCE}" = "1" ]]; then
                          echo  "${nl_}${DD_BORDER}"
-                         echo  "You have have elected to analyse the build but have failed to select a tool." >&2
+                         echo  "You have elected to analyse the build but have failed to select a tool." >&2
                          echo  "Edit /common/config and set ${L_arrow}${BOLD}RUN_ICA${R_arrow} and/or ${L_arrow}${BOLD}RUN_FARCE${R_arrow} to the required values" >&2
                          echo  "${DD_BORDER}${nl_}"
-                         exit 1                      
+                         exit 1
                       fi
                     fi
                     continue ;;
@@ -165,7 +165,7 @@ inline_doc
 
       if [[ "${config_param}" = "LC_ALL" ]]; then
          echo "`eval echo $PARAM_VALS`"
-         [[ -z "${!config_param}" ]] && continue
+         [[ -z "${!config_param}" ]] && echo -e "\nVariable LC_ALL cannot be empty!" && write_error_and_die
           # See it the locale values exist on this machine
          if [[ "`locale -a | grep -c ${!config_param}`" > 0 ]]; then
            continue
@@ -176,7 +176,7 @@ inline_doc
 
       if [[ "${config_param}" = "LANG" ]]; then
          echo "`eval echo $PARAM_VALS`"
-         [[ -z "${!config_param}" ]] && continue
+         [[ -z "${!config_param}" ]] && echo -e "\nVariable LANG cannot be empty!" && write_error_and_die
           # See it the locale values exist on this machine
          if [[ "`locale -a | grep -c ${!config_param}`" > 0 ]]; then
            continue
