@@ -146,7 +146,7 @@ chapter5_Makefiles() {
 chapter6_Makefiles() {
 #----------------------------#
   # Set N and chapter6 for iteration targets
-  if [[ -z $1 ]] ; then
+  if [[ -z "$1" ]] ; then
     local N=""
   else
     local N=-build_$1
@@ -166,12 +166,24 @@ chapter6_Makefiles() {
       *stripping*) [[ "${STRIP}" = "0" ]] && continue ;;
     esac
 
+    # Grab the name of the target
+    name=`echo ${this_script} | sed -e 's@[0-9]\{3\}-@@'`
+
+    # Find the version of the command files, if it corresponds with the building of
+    # a specific package. We need this here to can skip scripts not needed for
+    # iterations rebuilds
+    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+
+    if [[ "$vrs" = "" ]] && [[ -n "$N" ]] ; then
+      case "${this_script}" in
+        *stripping*) ;;
+        *)  continue ;;
+      esac
+    fi
+
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
     chapter6="$chapter6 ${this_script}${N}"
-
-    # Grab the name of the target
-    name=`echo ${this_script} | sed -e 's@[0-9]\{3\}-@@'`
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
@@ -180,10 +192,6 @@ chapter6_Makefiles() {
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
     wrt_target "${this_script}${N}" "$PREV"
-
-    # Find the version of the command files, if it corresponds with the building of
-    # a specific package
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
 
     # If $vrs isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
