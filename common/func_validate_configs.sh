@@ -86,16 +86,15 @@ inline_doc
 
   # First internal variables, then the ones that change the book's flavour, and lastly system configuration variables
   local -r blfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG         DEPEND                TEST"
-  local -r hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE MODEL GRSECURITY_HOST TEST RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG KEYMAP         PAGE TIMEZONE LANG LC_ALL"
-  local -r clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE METHOD  ARCH  TARGET  TEST RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG KEYMAP VIMLANG PAGE TIMEZONE LANG"
-  local -r  lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE                       TEST RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG        VIMLANG PAGE TIMEZONE LANG"
+  local -r hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE MODEL GRSECURITY_HOST TEST COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG KEYMAP         PAGE TIMEZONE LANG LC_ALL"
+  local -r clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE METHOD  ARCH  TARGET  TEST COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG KEYMAP VIMLANG PAGE TIMEZONE LANG"
+  local -r  lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE                       TEST COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG        VIMLANG PAGE TIMEZONE LANG"
 
   local -r ERROR_MSG_pt1='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid,'
   local -r ERROR_MSG_pt2=' check the config file ${BOLD}${GREEN}\<$(echo $PROGNAME | tr [a-z] [A-Z])/config\> or \<common/config\>${OFF}'
   local -r PARAM_VALS='${config_param}: ${L_arrow}${BOLD}${!config_param}${OFF}${R_arrow}'
 
   local    PARAM_LIST=
-
   local config_param
   local validation_str
 
@@ -132,9 +131,26 @@ inline_doc
         MKFILE)     continue;;
         HPKG)       validation_str="x0x x1x";          validate_str; continue ;;
         RUNMAKE)    validation_str="x0x x1x";          validate_str; continue ;;
-        RUN_ICA)    validation_str="x0x x1x";          validate_str; continue ;;
-        RUN_FARCE)  validation_str="x0x x1x";          validate_str; continue ;;
-        ITERATIONS) validation_str="x2x x3x x4x x5x";  validate_str; continue ;;
+
+        COMPARE)    if [[ ! "$COMPARE" = "1" ]]; then
+                      validation_str="x0x x1x"; validate_str
+                    else
+                      if [[ ! "${RUN_ICA}" = "1" ]] && [[ ! "${RUN_FARCE}" = "1" ]]; then
+                         echo  "${nl_}${DD_BORDER}"
+                         echo  "You have have elected to analyse the build but have failed to select a tool." >&2
+                         echo  "Edit /common/config and set ${L_arrow}${BOLD}RUN_ICA${R_arrow} and/or ${L_arrow}${BOLD}RUN_FARCE${R_arrow} to the required values" >&2
+                         echo  "${DD_BORDER}${nl_}"
+                         exit 1                      
+                      fi
+                    fi
+                    continue ;;
+        RUN_ICA)    [[ "$COMPARE" = "1" ]] && validation_str="x0x x1x" && validate_str
+                    continue ;;
+        RUN_FARCE)  [[ "$COMPARE" = "1" ]] && validation_str="x0x x1x" && validate_str
+                    continue ;;
+        ITERATIONS) [[ "$COMPARE" = "1" ]] && validation_str="x2x x3x x4x x5x" && validate_str
+                    continue ;;
+
         TEST)       validation_str="x0x x1x x2x x3x";  validate_str; continue ;;
         STRIP)      validation_str="x0x x1x";          validate_str; continue ;;
         VIMLANG)    validation_str="x0x x1x";          validate_str; continue ;;
@@ -146,7 +162,6 @@ inline_doc
         ARCH)       validation_str="xx86x xx86_64x xx86_64-64x xsparcx xsparcv8x xsparc64x xsparc64-64x xmipsx xmips64x xmips64-64x xppcx xppc64x xalphax"; validate_str; continue ;;
         TARGET)     validate_target; continue ;;
       esac
-
 
       if [[ "${config_param}" = "LC_ALL" ]]; then
          echo "`eval echo $PARAM_VALS`"
