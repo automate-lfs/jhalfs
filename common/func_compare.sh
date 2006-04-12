@@ -23,10 +23,16 @@ wrt_system_build() {               #
 #----------------------------------#
   local RUN=$1
 
-  # Placeholder for now
-
   echo "system_build_$N: $PREV $chapter6" >> $MKFILE.tmp
-  PREV=system_build_$N
+
+  if [[ "$PROGNAME" = "clfs" ]] && [[ "$METHOD" = "chroot" ]] ; then
+    final_system_Makefiles $RUN
+  elif [[ "$PROGNAME" = "clfs" ]] && [[ "$METHOD" = "boot" ]] ; then
+    bm_final_system_Makefiles $RUN
+  else
+    chapter6_Makefiles $RUN
+  fi
+
 }
 
 #----------------------------------#
