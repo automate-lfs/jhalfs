@@ -147,7 +147,7 @@ inline_doc
 
       if [[ "${config_param}" = "LC_ALL" ]]; then
          echo "`eval echo $PARAM_VALS`"
-         [[ -z "${!config_param}" ]] && continue
+         [[ -z "${!config_param}" ]] && echo -e "\nVariable LC_ALL cannot be empty!" && write_error_and_die
           # See it the locale values exist on this machine
          if [[ "`locale -a | grep -c ${!config_param}`" > 0 ]]; then
            continue
