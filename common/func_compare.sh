@@ -8,7 +8,7 @@ wrt_compare_targets() {            #
                                           # and "ITERATIONS" with no "$".
     ITERATION=iteration-$N
     if [ "$N" != "1" ] ; then
-      wrt_system_build "$N"
+      wrt_system_build "$N" "$PREV_IT"
     fi
     wrt_target "$ITERATION" "$PREV"
     wrt_compare_work "$ITERATION" "$PREV_IT"
@@ -21,9 +21,8 @@ wrt_compare_targets() {            #
 #----------------------------------#
 wrt_system_build() {               #
 #----------------------------------#
-  local RUN=$1
-
-  echo "system_build_$N: $PREV $chapter6" >> $MKFILE.tmp
+  local     RUN=$1
+  local PREV_IT=$2
 
   if [[ "$PROGNAME" = "clfs" ]] && [[ "$METHOD" = "chroot" ]] ; then
     final_system_Makefiles $RUN
@@ -32,6 +31,9 @@ wrt_system_build() {               #
   else
     chapter6_Makefiles $RUN
   fi
+
+  echo -e "\nsystem_build_$RUN: $PREV_IT $system_build" >> $MKFILE.tmp
+  PREV=system_build_$RUN
 
 }
 
@@ -106,10 +108,9 @@ wrt_logs() {             #
     cat << EOF
 	@pushd logs && \\
 	mkdir $ITERATION && \\
-	cp ${chapter6}-$N $ITERATION && \\
+	cp ${system_build} $ITERATION && \\
 	popd
 	@touch \$@
-
 EOF
 ) >> $MKFILE.tmp
 }

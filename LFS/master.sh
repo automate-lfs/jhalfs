@@ -145,7 +145,15 @@ chapter5_Makefiles() {
 #----------------------------#
 chapter6_Makefiles() {
 #----------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6${R_arrow}"
+  # Set N and chapter6 for iteration targets
+  if [[ -z $1 ]] ; then
+    local N=""
+  else
+    local N=-build_$1
+    local chapter6=""
+  fi
+
+  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6$N${R_arrow}"
 
   for file in chapter06/* ; do
     # Keep the script file name
@@ -160,7 +168,7 @@ chapter6_Makefiles() {
 
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
-    chapter6="$chapter6 ${this_script}"
+    chapter6="$chapter6 ${this_script}${N}"
 
     # Grab the name of the target
     name=`echo ${this_script} | sed -e 's@[0-9]\{3\}-@@'`
@@ -171,7 +179,7 @@ chapter6_Makefiles() {
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    wrt_target "${this_script}" "$PREV"
+    wrt_target "${this_script}${N}" "$PREV"
 
     # Find the version of the command files, if it corresponds with the building of
     # a specific package
@@ -205,7 +213,9 @@ chapter6_Makefiles() {
     #--------------------------------------------------------------------#
 
     # Keep the script file name for Makefile dependencies.
-    PREV=${this_script}
+    PREV=${this_script}${N}
+    # Set system_build envar for iteration targets
+    system_build=$chapter6
   done # end for file in chapter06/*
 }
 
