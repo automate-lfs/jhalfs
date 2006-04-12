@@ -108,7 +108,7 @@ wrt_logs() {             #
     cat << EOF
 	@pushd logs && \\
 	mkdir $ITERATION && \\
-	cp ${system_build} $ITERATION && \\
+	cp ${chapter6} $ITERATION && \\
 	popd
 	@touch \$@
 EOF
