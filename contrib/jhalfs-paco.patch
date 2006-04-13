@@ -1,8 +1,22 @@
 Index: LFS/master.sh
 ===================================================================
---- LFS/master.sh	(revision 2520)
+--- LFS/master.sh	(revision 2542)
 +++ LFS/master.sh	(working copy)
-@@ -188,7 +188,9 @@
+@@ -158,6 +158,13 @@
+       *stripping*) [[ "${STRIP}" = "0" ]] && continue ;;
+     esac
+ 
++    # Install paco as the first package in ch6, before installing linux-libc-headers.
++    case "${this_script}" in
++      *linux-libc-headers)
++        PACO_NUM=`echo ${this_script} | sed -e 's/linux-libc-headers/a-paco/'`
++        wrt_paco_inst "$PACO_NUM"
++    esac
++
+     # First append each name of the script files to a list (this will become
+     # the names of the targets in the Makefile
+     chapter6="$chapter6 ${this_script}"
+@@ -188,7 +195,9 @@
      # and not to use chroot.
      case "${this_script}" in
        *kernfs)  wrt_run_as_root    "${this_script}" "$file" ;;
@@ -13,21 +27,22 @@ Index: LFS/master.sh
      esac
  
      # Remove the build directory(ies) except if the package build fails.
-@@ -206,6 +208,13 @@
+@@ -206,6 +215,14 @@
  
      # Keep the script file name for Makefile dependencies.
      PREV=${this_script}
 +
-+    # Inserting paco build commands
++    # Reinstalling paco after readsjusting the toolchain.
 +    case "${this_script}" in
-+      *devices)      wrt_paco_inst "065.5" ;;
-+      *readjusting)  wrt_paco_inst "069.5" ;;
++      *readjusting)
++        PACO_NUM=`echo ${this_script} | sed -e 's/readjusting/x-paco/'`
++        wrt_paco_inst "$PACO_NUM" ;;
 +    esac
 +
    done # end for file in chapter06/*
  }
  
-@@ -267,6 +276,14 @@
+@@ -267,6 +284,14 @@
                  wrt_run_as_chroot2 "$this_script" "$file"
                fi
          ;;
@@ -44,7 +59,7 @@ Index: LFS/master.sh
      esac
 Index: LFS/lfs.xsl
 ===================================================================
---- LFS/lfs.xsl	(revision 2520)
+--- LFS/lfs.xsl	(revision 2542)
 +++ LFS/lfs.xsl	(working copy)
 @@ -32,6 +32,9 @@
    <!-- Locale settings -->
@@ -92,7 +107,7 @@ Index: LFS/lfs.xsl
          <xsl:apply-templates/>
 Index: BLFS/master.sh
 ===================================================================
---- BLFS/master.sh	(revision 2520)
+--- BLFS/master.sh	(revision 2542)
 +++ BLFS/master.sh	(working copy)
 @@ -79,6 +79,19 @@
  EOF
@@ -116,7 +131,7 @@ Index: BLFS/master.sh
  (
 Index: BLFS/blfs.xsl
 ===================================================================
---- BLFS/blfs.xsl	(revision 2520)
+--- BLFS/blfs.xsl	(revision 2542)
 +++ BLFS/blfs.xsl	(working copy)
 @@ -159,7 +159,7 @@
          <xsl:when test="@role = 'nodump'"/>
@@ -129,7 +144,7 @@ Index: BLFS/blfs.xsl
          </xsl:otherwise>
 Index: common/config
 ===================================================================
---- common/config	(revision 2520)
+--- common/config	(revision 2542)
 +++ common/config	(working copy)
 @@ -58,6 +58,23 @@
  #    Not used in LFS
@@ -157,7 +172,7 @@ Index: common/config
  RUN_ICA=0
 Index: common/func_validate_configs.sh
 ===================================================================
---- common/func_validate_configs.sh	(revision 2520)
+--- common/func_validate_configs.sh	(revision 2542)
 +++ common/func_validate_configs.sh	(working copy)
 @@ -85,10 +85,10 @@
  inline_doc
@@ -182,31 +197,11 @@ Index: common/func_validate_configs.sh
          HPKG)      validation_str="x0x x1x";          validate_str; continue ;;
          RUNMAKE)   validation_str="x0x x1x";          validate_str; continue ;;
          TEST)      validation_str="x0x x1x x2x x3x";  validate_str; continue ;;
-Index: common/paco-build.sh
-===================================================================
---- common/paco-build.sh	(revision 0)
-+++ common/paco-build.sh	(revision 0)
-@@ -0,0 +1,9 @@
-+#!/bin/sh
-+set -e
-+
-+cd $PKGDIR
-+./configure --disable-gpaco \
-+	--sysconfdir=/etc &&
-+make &&
-+make install &&
-+make logme
-
-Property changes on: common/paco-build.sh
-___________________________________________________________________
-Name: svn:keywords
-   + Author Date Revision Id
-
 Index: common/paco-functions
 ===================================================================
 --- common/paco-functions	(revision 0)
 +++ common/paco-functions	(revision 0)
-@@ -0,0 +1,113 @@
+@@ -0,0 +1,112 @@
 +#!/bin/bash
 +
 +
@@ -217,33 +212,32 @@ Index: common/paco-functions
 +# Not using Paco with uClibc, even if requested
 +if [ $PROGNAME = "hlfs" ]; then
 +  if [ $MODEL = "uclibc" ]; then
-+    $USE_PACO = 0
++    USE_PACO=0
 +  fi
 +fi
 +
 +if [ $USE_PACO != 0 ]; then
-+  name="paco"
-+  this_script="$1-$name"
-+  file="chapter06/$this_script"
-+  chapter6="$chapter6 $this_script"
-+
-+  # Write target, dependency and unpack
-+  wrt_target "$this_script" "$PREV"
-+  wrt_unpack2 "$PACO_FILE"
++  paco_script="$1"
++  paco_file="chapter06/$paco_script"
++  chapter6="$chapter6 $paco_script"
 +
 +  # Copy the paco build script to the correct directory and make it executable
-+  echo -e "\t@cp $JHALFSDIR/paco-build.sh $JHALFSDIR/${PROGNAME}-commands/$file && \\" >> $MKFILE.tmp
-+  echo -e "\tchmod +x $JHALFSDIR/${PROGNAME}-commands/$file" >> $MKFILE.tmp
++  cp $JHALFSDIR/paco-build.sh $JHALFSDIR/${PROGNAME}-commands/$paco_file &&
++  chmod +x $JHALFSDIR/${PROGNAME}-commands/$paco_file
++
++  # Write target, dependency and unpack
++  wrt_target "$paco_script" "$PREV"
++  wrt_unpack2 "$PACO_FILE"
 +
 +  # Run the script
-+  wrt_run_as_chroot1 "${this_script}" "${file}"
++  wrt_run_as_chroot1 "${paco_script}" "${paco_file}"
 +
 +  # Clean up
-+  wrt_remove_build_dirs "$name"
++  wrt_remove_build_dirs "paco"
 +  echo -e '\t@touch $@' >> $MKFILE.tmp
 +
 +  # Override the PREV variable
-+  PREV="$this_script"
++  PREV="$paco_script"
 +fi
 +}
 +
@@ -255,7 +249,7 @@ Index: common/paco-functions
 +# Not using Paco with uClibc, even if requested
 +if [ $PROGNAME = "hlfs" ]; then
 +  if [ $MODEL = "uclibc" ]; then
-+    $USE_PACO = 0
++    USE_PACO=0
 +  fi
 +fi
 +
@@ -287,7 +281,7 @@ Index: common/paco-functions
 +# Not using Paco with uClibc, even if requested
 +if [ $PROGNAME = "hlfs" ]; then
 +  if [ $MODEL = "uclibc" ]; then
-+    $USE_PACO = 0
++    USE_PACO=0
 +  fi
 +fi
 +
@@ -320,15 +314,23 @@ Index: common/paco-functions
 +fi
 +}
 +
-
-Property changes on: common/paco-functions
-___________________________________________________________________
-Name: svn:keywords
-   + Author Date Revision Id
-
+Index: common/paco-build.sh
+===================================================================
+--- common/paco-build.sh	(revision 0)
++++ common/paco-build.sh	(revision 0)
+@@ -0,0 +1,9 @@
++#!/bin/sh
++set -e
++
++cd $PKGDIR
++./configure --disable-gpaco \
++	--sysconfdir=/etc &&
++make &&
++make install &&
++make logme
 Index: common/common-functions
 ===================================================================
---- common/common-functions	(revision 2520)
+--- common/common-functions	(revision 2542)
 +++ common/common-functions	(working copy)
 @@ -60,6 +60,9 @@
          in the configuration file has the proper packages and patches for the
@@ -358,7 +360,7 @@ Index: common/common-functions
      blfs)
 Index: HLFS/hlfs.xsl
 ===================================================================
---- HLFS/hlfs.xsl	(revision 2520)
+--- HLFS/hlfs.xsl	(revision 2542)
 +++ HLFS/hlfs.xsl	(working copy)
 @@ -39,6 +39,9 @@
    <xsl:param name="lang" select="en_CA"/>
@@ -409,9 +411,23 @@ Index: HLFS/hlfs.xsl
          <xsl:apply-templates/>
 Index: HLFS/master.sh
 ===================================================================
---- HLFS/master.sh	(revision 2520)
+--- HLFS/master.sh	(revision 2542)
 +++ HLFS/master.sh	(working copy)
-@@ -376,7 +376,9 @@
+@@ -318,6 +318,13 @@
+       *) ;;
+     esac
+ 
++    # Install paco as the first package in ch6, befire installing linux-libc-headers
++    case $this_script in
++      *linux-libc-headers)
++        PACO_NUM=`echo $this_script | sed -e 's/linux-libc-headers/a-paco/'`
++        wrt_paco_inst "$PACO_NUM"
++    esac
++
+     # First append each name of the script files to a list (this will become
+     # the names of the targets in the Makefile
+     chapter6="$chapter6 $this_script"
+@@ -376,7 +383,9 @@
          wrt_run_as_root "${this_script}" "${file}"
          ;;
        *)   # The rest of Chapter06
@@ -421,21 +437,22 @@ Index: HLFS/master.sh
         ;;
      esac
      #
-@@ -407,6 +409,13 @@
+@@ -407,6 +416,14 @@
  
      # Keep the script file name for Makefile dependencies.
      PREV=$this_script
 +
-+    # Inserting paco build commands
++    # Reinstall paco after the toolchain has been readjusted.
 +    case "${this_script}" in
-+      *devices)      wrt_paco_inst "068.5" ;;
-+      *readjusting)  wrt_paco_inst "073.5" ;;
++      *readjusting)
++        PACO_NUM=`echo $this_script | sed -e 's/readjusting/x-paco/'`
++        wrt_paco_inst "$PACO_NUM" ;;
 +    esac
 +
    done # end for file in chapter06/*
  
  }
-@@ -469,6 +478,15 @@
+@@ -469,6 +486,15 @@
            wrt_run_as_chroot2 "${this_script}" "${file}"
          fi
          ;;
@@ -453,7 +470,7 @@ Index: HLFS/master.sh
          ;;
 Index: master.sh
 ===================================================================
---- master.sh	(revision 2520)
+--- master.sh	(revision 2542)
 +++ master.sh	(working copy)
 @@ -66,6 +66,11 @@
  source $MODULE
