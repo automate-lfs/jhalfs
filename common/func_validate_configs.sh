@@ -205,6 +205,14 @@ inline_doc
       TARGET)     validate_target ;;
       GRSECURITY_HOST)  validate_against_str "x0x x1x" ;;
 
+      # BOOK validation. Very ugly, need be fixed
+      BOOK)        if [[ "${WC}" = "1" ]] ; then
+                     validate_dir -z -d
+                   else
+                     validate_against_str "x${PROGNAME}-developmentx xlfs-udev_updatex"
+                   fi
+                   ;;
+
       # Validate directories, testable states:
       #  fatal   -z -d -w,
       #  warning -z+   -w+
@@ -215,7 +223,6 @@ inline_doc
       #  warning -z+
       FSTAB)       validate_file -z+ -e -s ;;
       CONFIG)      validate_file -z+ -e -s ;;
-      BOOK)        [[ "${WC}" = 1 ]] && validate_file -z -e -s  ;;
       BOOT_CONFIG) [[ "${METHOD}" = "boot" ]] && validate_file -z -e -s ;;
 
       # Treatment of 'special' parameters
