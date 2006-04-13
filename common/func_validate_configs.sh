@@ -33,8 +33,6 @@ validate_target() {
     ;;
    "sparc")      [[ "${TARGET}" = "sparcv9-unknown-linux-gnu" ]] && return
     ;;
-   "sparcv8")    [[ "${TARGET}" = "sparc-unknown-linux-gnu" ]] && return
-    ;;
    "x86_64-64")  [[ "${TARGET}" = "x86_64-unknown-linux-gnu" ]] && return
     ;;
    "mips64-64")  [[ "${TARGET}" = "mipsel-unknown-linux-gnu" ]] && return
@@ -140,7 +138,7 @@ inline_doc
         PAGE)      validation_str="xletterx xA4x";    validate_str; continue ;;
         GRSECURITY_HOST)  validation_str="x0x x1x";   validate_str; continue ;;
         METHOD)    validation_str="xchrootx xbootx";  validate_str; continue ;;
-        ARCH)      validation_str="xx86x xx86_64x xx86_64-64x xsparcx xsparcv8x xsparc64x xsparc64-64x xmipsx xmips64x xmips64-64x xppcx xppc64x xalphax";  validate_str; continue ;;
+        ARCH)      validation_str="xx86x xx86_64x xx86_64-64x xsparcx xsparc64x xsparc64-64x xmipsx xmips64x xmips64-64x xppcx xppc64x xalphax";  validate_str; continue ;;
         TARGET)    validate_target; continue ;;
       esac
 
