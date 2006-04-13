@@ -98,7 +98,8 @@ inline_doc
   local    PARAM_LIST=
   local config_param
   local validation_str
-
+  local save_param
+  
   write_error_and_die() {
     echo -e "\n${DD_BORDER}"
     echo -e "`eval echo ${ERROR_MSG_pt1}`" >&2
@@ -236,9 +237,11 @@ inline_doc
                   write_error_and_die
                echo
                ;;
-      KEYMAP)  [[ ! "${!config_param}" = "none" ]] &&
+      KEYMAP)  save_param=${KEYMAP}
+               [[ ! "${!config_param}" = "none" ]] &&
                   KEYMAP="/usr/share/kbd/keymaps/${KEYMAP}" &&
                   validate_file -z -e -s
+               KEYMAP=${save_param}
                ;;
     esac
   done
