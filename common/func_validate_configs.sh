@@ -1,7 +1,8 @@
 # $Id$
 
-validate_target() {
-
+#----------------------------#
+validate_target() {          #
+#----------------------------#
   local -r ERROR_MSG_pt1='The variable \"${L_arrow}TARGET${R_arrow}\" value ${L_arrow}${BOLD}${TARGET}${R_arrow} is invalid for the ${L_arrow}${BOLD}${ARCH}${R_arrow} architecture'
   local -r ERROR_MSG_pt2='  check the config file ${BOLD}${GREEN}\<$(echo $PROGNAME | tr [a-z] [A-Z])/config\> or \<common/config\>${OFF}'
 
@@ -69,7 +70,7 @@ validate_target() {
 
 
 #----------------------------#
-validate_config()    {       # Are the config values sane (within reason)
+validate_config() {          # Are the config values sane (within reason)
 #----------------------------#
 : <<inline_doc
       Validates the configuration parameters. The global var PROGNAME selects the
@@ -106,158 +107,134 @@ inline_doc
     exit 1
   }
 
-  validate_str() {
+  validate_against_str() {
      # This is the 'regexp' test available in bash-3.0..
      # using it as a poor man's test for substring
      echo -e "`eval echo $PARAM_VALS`"
-     if [[ ! "${validation_str}" =~ "x${!config_param}x" ]] ; then
+     if [[ ! "$1" =~ "x${!config_param}x" ]] ; then
        # parameter value entered is no good
        write_error_and_die
      fi
   }
 
+  validate_file() {
+     # For parameters ending with a '+' failure causes a warning message only
+     echo -n "`eval echo $PARAM_VALS`"
+     while test $# -gt 0 ; do
+       case $1 in
+        # Failures caused program exit
+        "-z")  [[   -z "${!config_param}" ]] && echo "${tab_}<-- NO file name given"  && write_error_and_die ;;
+        "-e")  [[ ! -e "${!config_param}" ]] && echo "${tab_}<-- file does not exist" && write_error_and_die ;;
+        "-s")  [[ ! -s "${!config_param}" ]] && echo "${tab_}<-- file has zero bytes" && write_error_and_die ;;
+        "-r")  [[ ! -r "${!config_param}" ]] && echo "${tab_}<-- no read permission " && write_error_and_die ;;
+        "-w")  [[ ! -w "${!config_param}" ]] && echo "${tab_}<-- no write permission" && write_error_and_die ;;
+        "-x")  [[ ! -x "${!config_param}" ]] && echo "${tab_}<-- file cannot be executed" && write_error_and_die ;;
+        # Warning messages only
+        "-z+") [[   -z "${!config_param}" ]] && echo && return ;;
+       esac
+       shift 1
+     done
+     echo
+  }
+
+  validate_dir() {
+     # For parameters ending with a '+' failure causes a warning message only
+     echo -n "`eval echo $PARAM_VALS`"
+     while test $# -gt 0 ; do
+       case $1 in
+        "-z") [[   -z "${!config_param}" ]] && echo "${tab_}NO directory name given" && write_error_and_die ;;
+        "-d") [[ ! -d "${!config_param}" ]] && echo "${tab_}This is NOT a directory" && write_error_and_die ;;
+        "-w") if [[ ! -w "${!config_param}" ]]; then
+                echo "${nl_}${DD_BORDER}"
+                echo "${tab_}${RED}You do not have ${L_arrow}write${R_arrow}${RED} access to the directory${OFF}"
+                echo "${tab_}${BOLD}${!config_param}${OFF}"
+                echo "${DD_BORDER}${nl_}"
+                exit 1
+              fi  ;;
+        # Warnings only
+        "-w+") if [[ ! -w "${!config_param}" ]]; then
+                 echo "${nl_}${DD_BORDER}"
+                 echo "${tab_}WARNING-- You do not have ${L_arrow}write${R_arrow} access to the directory${OFF}"
+                 echo "${tab_}       -- ${BOLD}${!config_param}${OFF}"
+                 echo "${DD_BORDER}"
+               fi  ;;
+        "-z+") [[ -z "${!config_param}" ]] && echo "${tab_}<-- NO directory name given" && return
+       esac
+       shift 1
+     done
+     echo
+  }
+
   set +e
-  for PARAM_GROUP in ${PROGNAME}_PARAM_LIST; do
-    for config_param in ${!PARAM_GROUP}; do
-      # This is a tricky little piece of code.. executes a cmd string.
-      case $config_param in
-        BUILDDIR) # We cannot have an <empty> or </> root mount point
-            echo -e "`eval echo $PARAM_VALS`"
-            if [[ "xx x/x" =~ "x${!config_param}x" ]]; then
-              write_error_and_die
-            fi
-            continue  ;;
-        TIMEZONE)   continue;;
-        MKFILE)     continue;;
-        HPKG)       validation_str="x0x x1x";          validate_str; continue ;;
-        RUNMAKE)    validation_str="x0x x1x";          validate_str; continue ;;
+  PARAM_GROUP=${PROGNAME}_PARAM_LIST
+  for config_param in ${!PARAM_GROUP}; do
+    # This is a tricky little piece of code.. executes a cmd string.
+    case $config_param in
+      BUILDDIR) # We cannot have an <empty> or </> root mount point
+                  echo -e "`eval echo $PARAM_VALS`"
+                  [[ "xx x/x" =~ "x${!config_param}x" ]] &&
+                       write_error_and_die
+                  ;;
+      TIMEZONE)   ;;
 
-        COMPARE)    if [[ ! "$COMPARE" = "1" ]]; then
-                      validation_str="x0x x1x"; validate_str
-                    else
-                      if [[ ! "${RUN_ICA}" = "1" ]] && [[ ! "${RUN_FARCE}" = "1" ]]; then
-                         echo  "${nl_}${DD_BORDER}"
-                         echo  "You have elected to analyse the build but have failed to select a tool." >&2
-                         echo  "Edit /common/config and set ${L_arrow}${BOLD}RUN_ICA${R_arrow} and/or ${L_arrow}${BOLD}RUN_FARCE${R_arrow} to the required values" >&2
-                         echo  "${DD_BORDER}${nl_}"
-                         exit 1
-                      fi
+      # Validate general parameters..
+      HPKG)       validate_against_str "x0x x1x" ;;
+      RUNMAKE)    validate_against_str "x0x x1x" ;;
+      COMPARE)    if [[ ! "$COMPARE" = "1" ]]; then
+                    validate_against_str "x0x x1x"
+                  else
+                    if [[ ! "${RUN_ICA}" = "1" ]] && [[ ! "${RUN_FARCE}" = "1" ]]; then
+                       echo  "${nl_}${DD_BORDER}"
+                       echo  "You have elected to analyse your build but have failed to select a tool." >&2
+                       echo  "Edit /common/config and set ${L_arrow}${BOLD}RUN_ICA${R_arrow} and/or ${L_arrow}${BOLD}RUN_FARCE${R_arrow} to the required values" >&2
+                       echo  "${DD_BORDER}${nl_}"
+                       exit 1
                     fi
-                    continue ;;
-        RUN_ICA)    [[ "$COMPARE" = "1" ]] && validation_str="x0x x1x" && validate_str
-                    continue ;;
-        RUN_FARCE)  [[ "$COMPARE" = "1" ]] && validation_str="x0x x1x" && validate_str
-                    continue ;;
-        ITERATIONS) [[ "$COMPARE" = "1" ]] && validation_str="x2x x3x x4x x5x" && validate_str
-                    continue ;;
+                  fi ;;
+      RUN_ICA)    [[ "$COMPARE" = "1" ]] && validate_against_str "x0x x1x" ;;
+      RUN_FARCE)  [[ "$COMPARE" = "1" ]] && validate_against_str "x0x x1x" ;;
+      ITERATIONS) [[ "$COMPARE" = "1" ]] && validate_against_str "x2x x3x x4x x5x" ;;
+      TEST)       validate_against_str "x0x x1x x2x x3x" ;;
+      STRIP)      validate_against_str "x0x x1x" ;;
+      VIMLANG)    validate_against_str "x0x x1x" ;;
+      DEPEND)     validate_against_str "x0x x1x x2x" ;;
+      MODEL)      validate_against_str "xglibcx xuclibcx" ;;
+      PAGE)       validate_against_str "xletterx xA4x" ;;
+      METHOD)     validate_against_str "xchrootx xbootx" ;;
+      ARCH)       validate_against_str "xx86x xx86_64x xx86_64-64x xsparcx xsparcv8x xsparc64x xsparc64-64x xmipsx xmips64x xmips64-64x xppcx xppc64x xalphax" ;;
+      TARGET)     validate_target ;;
+      GRSECURITY_HOST)  validate_against_str "x0x x1x" ;;
 
-        TEST)       validation_str="x0x x1x x2x x3x";  validate_str; continue ;;
-        STRIP)      validation_str="x0x x1x";          validate_str; continue ;;
-        VIMLANG)    validation_str="x0x x1x";          validate_str; continue ;;
-        DEPEND)     validation_str="x0x x1x x2x";      validate_str; continue ;;
-        MODEL)      validation_str="xglibcx xuclibcx"; validate_str; continue ;;
-        PAGE)       validation_str="xletterx xA4x";    validate_str; continue ;;
-        GRSECURITY_HOST)  validation_str="x0x x1x";    validate_str; continue ;;
-        METHOD)     validation_str="xchrootx xbootx";  validate_str; continue ;;
-        ARCH)       validation_str="xx86x xx86_64x xx86_64-64x xsparcx xsparcv8x xsparc64x xsparc64-64x xmipsx xmips64x xmips64-64x xppcx xppc64x xalphax"; validate_str; continue ;;
-        TARGET)     validate_target; continue ;;
-      esac
+      # Validate directories, testable states:
+      #  fatal   -z -d -w,
+      #  warning -z+   -w+
+      SRC_ARCHIVE) validate_dir -z+ -d -w+ ;;
 
-      if [[ "${config_param}" = "LC_ALL" ]]; then
-         echo "`eval echo $PARAM_VALS`"
-         [[ -z "${!config_param}" ]] && echo -e "\nVariable LC_ALL cannot be empty!" && write_error_and_die
-          # See it the locale values exist on this machine
-         if [[ "`locale -a | grep -c ${!config_param}`" > 0 ]]; then
-           continue
-         else  # If you make it this far then there is a problem
-           write_error_and_die
-         fi
-      fi
+      # Validate files, testable states:
+      #  fatal   -z -e -s -w -x -r,
+      #  warning -z+
+      FSTAB)       validate_file -z+ -e -s ;;
+      CONFIG)      validate_file -z+ -e -s ;;
+      BOOK)        [[ "${WC}" = 1 ]] && validate_file -z -e -s  ;;
+      BOOT_CONFIG) [[ "${METHOD}" = "boot" ]] && validate_file -z -e -s ;;
 
-      if [[ "${config_param}" = "LANG" ]]; then
-         echo "`eval echo $PARAM_VALS`"
-         [[ -z "${!config_param}" ]] && echo -e "\nVariable LANG cannot be empty!" && write_error_and_die
-          # See it the locale values exist on this machine
-         if [[ "`locale -a | grep -c ${!config_param}`" > 0 ]]; then
-           continue
-         else  # If you make it this far then there is a problem
-           write_error_and_die
-         fi
-      fi
-
-
-      if [[ "${config_param}"  = "KEYMAP" ]]; then
-         echo "`eval echo $PARAM_VALS`"
-         [[ "${!config_param}" = "none" ]] && continue
-         if [[ -e "/usr/share/kbd/keymaps/${!config_param}" ]] &&
-            [[ -s "/usr/share/kbd/keymaps/${!config_param}" ]]; then
-            continue
-         else
-            write_error_and_die
-         fi
-      fi
-
-      if [[ "${config_param}" = "SRC_ARCHIVE" ]]; then
-         echo -n "`eval echo $PARAM_VALS`"
-         if [ ! -z ${SRC_ARCHIVE} ]; then
-           if [ ! -d ${SRC_ARCHIVE} ]; then
-             echo "   -- is NOT a directory"
-             write_error_and_die
-           fi
-           if [ ! -w ${SRC_ARCHIVE} ]; then
-             echo -n "${nl_} [${BOLD}${YELLOW}WARN$OFF] You do not have <write> access to this directory, ${nl_}${tab_}downloaded files can not be saved in this archive"
-           fi
-        fi
-        echo
-        continue
-      fi
-
-      if [[ "${config_param}" = "FSTAB" ]]; then
-         echo "`eval echo $PARAM_VALS`"
-         [[ -z "${!config_param}" ]] && continue
-         if [[ -e "${!config_param}" ]] &&
-            [[ -s "${!config_param}" ]]; then
-           continue
-         else
-           write_error_and_die
-         fi
-      fi
-
-      if [[ "${config_param}" = "BOOK" ]]; then
-         echo "`eval echo $PARAM_VALS`"
-         [[ ! "${WC}" = 1 ]] && continue
-         [[ -z "${!config_param}" ]] && continue
-         if [[ -e "${!config_param}" ]] &&
-            [[ -s "${!config_param}" ]]; then
-           continue
-         else
-           write_error_and_die
-         fi
-      fi
-
-      if [[ "${config_param}" = "CONFIG" ]]; then
-         echo "`eval echo $PARAM_VALS`"
-         [[ -z "${!config_param}" ]] && continue
-         if [[ -e "${!config_param}" ]] &&
-            [[ -s "${!config_param}" ]]; then
-           continue
-         else
-           write_error_and_die
-         fi
-      fi
-
-      if [[ "${config_param}" = "BOOT_CONFIG" ]]; then
-        if [[ "${METHOD}" = "boot" ]]; then
-            echo "`eval echo $PARAM_VALS`"
-           # There must be a config file when the build method is 'boot'
-           [[ -e "${!config_param}" ]] && [[ -s "${!config_param}" ]] && continue
-           # If you make it this far then there is a problem
-          write_error_and_die
-        fi
-      fi
-    done
+      # Treatment of 'special' parameters
+      LANG | \
+      LC_ALL)  # See it the locale values exist on this machine
+               echo -n "`eval echo $PARAM_VALS`"
+               [[ -z "${!config_param}" ]] &&
+                 echo " -- Variable $config_param cannot be empty!" &&
+                 write_error_and_die
+               [[ ! "`locale -a | grep -c ${!config_param}`" > 0 ]] &&
+                  write_error_and_die
+               echo
+               ;;
+      KEYMAP)  [[ ! "${!config_param}" = "none" ]] &&
+                  KEYMAP="/usr/share/kbd/keymaps/${KEYMAP}" &&
+                  validate_file -z -e -s
+               ;;
+    esac
   done
-
   set -e
   echo "$tab_***${BOLD}${GREEN} ${PARAM_GROUP%%_*T} config parameters look good${OFF} ***"
 }
