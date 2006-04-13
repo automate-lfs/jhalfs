@@ -145,17 +145,26 @@ chapter5_Makefiles() {
 #----------------------------#
 chapter6_Makefiles() {
 #----------------------------#
-  # Set N and chapter6 for iteration targets
+  # Set envars and scripts for iteration targets
   if [[ -z "$1" ]] ; then
     local N=""
   else
     local N=-build_$1
     local chapter6=""
+    mkdir chapter06$N
+    cp chapter06/* chapter06$N
+    for script in chapter06$N/* ; do
+      sed -e 's/ln -sv/&f/g' \
+          -e 's/mv -v/&f/g' \
+          -e 's/rm -v/&f/g' \
+          -e 's/mkdir -v/&p/g' \
+          -e 's/mknod -m.*/& || true/' -i ${script}
+    done
   fi
 
   echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6$N${R_arrow}"
 
-  for file in chapter06/* ; do
+  for file in chapter06$N/* ; do
     # Keep the script file name
     this_script=`basename $file`
 
