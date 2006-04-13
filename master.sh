@@ -114,7 +114,10 @@ while test $# -gt 0 ; do
                  exit 0
                 ;;
                udev*)  LFSVRS=udev_update   ;;
-               * )     echo "$1 is an unsupported version at this time." ;;
+               * )
+                 echo "$1 is an unsupported version at this time."
+                 exit 0
+                ;;
              esac
            else
              echo "The requested version, ${L_arrow} ${BOLD}$1${OFF} ${R_arrow}, is undefined in the ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF} series."
