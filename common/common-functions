@@ -599,9 +599,9 @@ extract_commands() {         #
   VERSION=`grep "ENTITY version " $BOOK/general.ent | sed 's@<!ENTITY version "@@;s@">@@'`
 
   # Start clean
-  if [ -d commands ]; then
-    rm -rf commands
-    mkdir -v commands
+  if [ -d ${PROGNAME}-commands ]; then
+    rm -rf ${PROGNAME}-commands
+    mkdir -v ${PROGNAME}-commands
   fi
   echo -n "Extracting commands for"
 
