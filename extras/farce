@@ -109,8 +109,6 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 
-set -e
-
 : <<inline_doc
     desc:       do farce analisys and report
     usage:      farce -directory $FARCELOGDIR/dir path1 list1 path2 list2
