@@ -1,6 +1,6 @@
 Index: LFS/master.sh
 ===================================================================
---- LFS/master.sh	(revision 2542)
+--- LFS/master.sh	(revision 2552)
 +++ LFS/master.sh	(working copy)
 @@ -158,6 +158,13 @@
        *stripping*) [[ "${STRIP}" = "0" ]] && continue ;;
@@ -59,7 +59,7 @@ Index: LFS/master.sh
      esac
 Index: LFS/lfs.xsl
 ===================================================================
---- LFS/lfs.xsl	(revision 2542)
+--- LFS/lfs.xsl	(revision 2552)
 +++ LFS/lfs.xsl	(working copy)
 @@ -32,6 +32,9 @@
    <!-- Locale settings -->
@@ -107,7 +107,7 @@ Index: LFS/lfs.xsl
          <xsl:apply-templates/>
 Index: BLFS/master.sh
 ===================================================================
---- BLFS/master.sh	(revision 2542)
+--- BLFS/master.sh	(revision 2552)
 +++ BLFS/master.sh	(working copy)
 @@ -79,6 +79,19 @@
  EOF
@@ -131,7 +131,7 @@ Index: BLFS/master.sh
  (
 Index: BLFS/blfs.xsl
 ===================================================================
---- BLFS/blfs.xsl	(revision 2542)
+--- BLFS/blfs.xsl	(revision 2552)
 +++ BLFS/blfs.xsl	(working copy)
 @@ -159,7 +159,7 @@
          <xsl:when test="@role = 'nodump'"/>
@@ -144,7 +144,7 @@ Index: BLFS/blfs.xsl
          </xsl:otherwise>
 Index: common/config
 ===================================================================
---- common/config	(revision 2542)
+--- common/config	(revision 2552)
 +++ common/config	(working copy)
 @@ -58,6 +58,23 @@
  #    Not used in LFS
@@ -172,9 +172,9 @@ Index: common/config
  RUN_ICA=0
 Index: common/func_validate_configs.sh
 ===================================================================
---- common/func_validate_configs.sh	(revision 2542)
+--- common/func_validate_configs.sh	(revision 2552)
 +++ common/func_validate_configs.sh	(working copy)
-@@ -85,10 +85,10 @@
+@@ -83,10 +83,10 @@
  inline_doc
  
    # First internal variables, then the ones that change the book's flavour, and lastly system configuration variables
@@ -189,7 +189,7 @@ Index: common/func_validate_configs.sh
  
    local -r ERROR_MSG_pt1='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid,'
    local -r ERROR_MSG_pt2=' check the config file ${BOLD}${GREEN}\<$(echo $PROGNAME | tr [a-z] [A-Z])/config\> or \<common/config\>${OFF}'
-@@ -130,6 +130,7 @@
+@@ -128,6 +128,7 @@
              continue  ;;
          TIMEZONE)  continue;;
          MKFILE)    continue;;
@@ -330,7 +330,7 @@ Index: common/paco-build.sh
 +make logme
 Index: common/common-functions
 ===================================================================
---- common/common-functions	(revision 2542)
+--- common/common-functions	(revision 2552)
 +++ common/common-functions	(working copy)
 @@ -60,6 +60,9 @@
          in the configuration file has the proper packages and patches for the
@@ -360,7 +360,7 @@ Index: common/common-functions
      blfs)
 Index: HLFS/hlfs.xsl
 ===================================================================
---- HLFS/hlfs.xsl	(revision 2542)
+--- HLFS/hlfs.xsl	(revision 2552)
 +++ HLFS/hlfs.xsl	(working copy)
 @@ -39,6 +39,9 @@
    <xsl:param name="lang" select="en_CA"/>
@@ -411,7 +411,7 @@ Index: HLFS/hlfs.xsl
          <xsl:apply-templates/>
 Index: HLFS/master.sh
 ===================================================================
---- HLFS/master.sh	(revision 2542)
+--- HLFS/master.sh	(revision 2552)
 +++ HLFS/master.sh	(working copy)
 @@ -318,6 +318,13 @@
        *) ;;
@@ -470,7 +470,7 @@ Index: HLFS/master.sh
          ;;
 Index: master.sh
 ===================================================================
---- master.sh	(revision 2542)
+--- master.sh	(revision 2552)
 +++ master.sh	(working copy)
 @@ -66,6 +66,11 @@
  source $MODULE
@@ -484,7 +484,7 @@ Index: master.sh
  #
  [[ $VERBOSITY > 0 ]] && echo "---------------${nl_}"
  
-@@ -146,6 +151,8 @@
+@@ -149,6 +154,8 @@
  
      --help | -h )  usage | more && exit  ;;
  
@@ -493,7 +493,7 @@ Index: master.sh
      --testsuites | -T )
        test $# = 1 && eval "$exit_missing_arg"
        shift
-@@ -455,6 +462,15 @@
+@@ -454,6 +461,15 @@
  
  if [[ "$PWD" != "$JHALFSDIR" ]]; then
    cp $COMMON_DIR/makefile-functions $JHALFSDIR/
