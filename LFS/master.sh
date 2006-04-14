@@ -154,14 +154,16 @@ chapter6_Makefiles() {
     mkdir chapter06$N
     cp chapter06/* chapter06$N
     for script in chapter06$N/* ; do
+      # Overwrite existing symlinks, files, and dirs
       sed -e 's/ln -sv/&f/g' \
           -e 's/mv -v/&f/g' \
-          -e 's/rm -v/&f/g' \
-          -e 's/mkdir -v/&p/g' \
-          -e 's/mknod -m.*/& || true/' -i ${script}
+          -e 's/mkdir -v/&p/g' -i ${script}
     done
     # Remove bzip2 binaries before make install
     sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i chapter06$N/*-bzip2
+    # Let some Udev pre-installation commands to fail
+    sed -e 's@/lib/udev/devices/fd@& || true@' \
+        -e 's/mknod -m.*/& || true/' -i chapter06$N/*-udev
   fi
 
   echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6$N${R_arrow}"
