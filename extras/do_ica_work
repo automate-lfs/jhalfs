@@ -27,6 +27,8 @@ inline_doc
 RAWDIFF=/tmp/rawdiff.$$
 REPORT="${3}/REPORT.${1}V${2}"
 
+echo -en "\nGenerating ICA analysis report $1 versus $2 ..."
+
 mkdir -p $3
 
 cd $4
@@ -49,3 +51,5 @@ grep -v "iles.*differ$" $RAWDIFF | \
 grep -v "^Only in" > ${ICA_DIR}/${1}V${2}.ASCII.DIFF
 
 rm -f $RAWDIFF
+
+echo "done."

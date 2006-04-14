@@ -17,6 +17,8 @@ inline_doc
 
 TMP_FILE=/tmp/prunelist
 
+echo -en "\nCopying system files to $3 ..."
+
 # Create a file that we can pass to tar as an "exclude list".
 # There might be an easier way to achieve tar exclusions? Strip
 # the leading /.
@@ -30,3 +32,5 @@ tar -X $TMP_FILE -cf - . | tar -C $3 -xf -
 
 # Clear out the temporary file
 rm -f ${TMP_FILE}
+
+echo "done."

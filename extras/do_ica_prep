@@ -26,7 +26,7 @@ CMP_DIR=$1
 # Run ica_prep if it hasn't been done already
 if [ ! -f "$CMP_DIR/icaprep" ]; then
 
-  echo -n "Removing symbolic links in ${CMP_DIR}... "
+  echo -en "\nRemoving symbolic links in ${CMP_DIR}... "
   find $CMP_DIR -type l | xargs rm -f
   echo "done."
 
@@ -69,7 +69,7 @@ if [ ! -f "$CMP_DIR/icaprep" ]; then
 
   # We're all done
   echo -en "\nSuccess: ICA preparation for "
-  echo -e "${CMP_DIR} complete.\n"
+  echo -e "${CMP_DIR} complete."
   touch $CMP_DIR/icaprep
 else
   echo -e "\n$CMP_DIR was already processed\n"

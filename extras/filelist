@@ -40,7 +40,7 @@ else
   LOC=`echo $1 | sed 's%[^/]$%&/%'`
 fi
 
-echo "Will create file list in $OUTFILE"
+echo -en "\nCreating file list for farce amalysis in $OUTFILE ..."
 if [ -f $OUTFILE ]; then
   echo "refusing to overwrite $OUTFILE"
   exit 1
@@ -54,5 +54,7 @@ if [ $? -ne 0 ]; then
 fi
 
 find $LOC -xdev -xtype f | sed "s%^${LOC}%/%" | sort >$OUTFILE
+
+echo -e "done.\n"
 
 exit
