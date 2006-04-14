@@ -160,6 +160,8 @@ chapter6_Makefiles() {
           -e 's/mkdir -v/&p/g' \
           -e 's/mknod -m.*/& || true/' -i ${script}
     done
+    # Remove bzip2 binaries before make install
+    sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i chapter06$N/*-bzip2
   fi
 
   echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6$N${R_arrow}"
