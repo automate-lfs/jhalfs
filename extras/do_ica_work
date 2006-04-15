@@ -48,7 +48,7 @@ else
 fi
 
 grep -v "iles.*differ$" $RAWDIFF | \
-grep -v "^Only in" > ${ICA_DIR}/${1}V${2}.ASCII.DIFF
+grep -v "^Only in" > ${3}/${1}V${2}.ASCII.DIFF
 
 rm -f $RAWDIFF
 
