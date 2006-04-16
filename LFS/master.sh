@@ -159,8 +159,10 @@ chapter6_Makefiles() {
           -e 's/mv -v/&f/g' \
           -e 's/mkdir -v/&p/g' -i ${script}
     done
-    # Remove bzip2 binaries before make install
+    # Remove Bzip2 binaries before make install
     sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i chapter06$N/*-bzip2
+    # Remove some Readline libraries and symlinks before make install
+    sed -e 's@make install@rm -vf /lib/lib{history,readline}.so.5*\n&@' -i chapter06$N/*-readline
     # Let some Udev pre-installation commands to fail
     sed -e 's@/lib/udev/devices/fd@& || true@' \
         -e 's/mknod -m.*/& || true/' -i chapter06$N/*-udev
