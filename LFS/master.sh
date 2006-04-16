@@ -163,8 +163,9 @@ chapter6_Makefiles() {
     sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i chapter06$N/*-bzip2
     # Tell Module-Init-Tools that we are reinstalling it
     sed -e 's@make install@make moveold\n&@' -i chapter06$N/*-module-init-tools
-    # Remove some Readline libraries and symlinks before make install
-    sed -e 's@make install@rm -vf /lib/lib{history,readline}.so.5*\n&@' -i chapter06$N/*-readline
+    # Relink some Readline libraries after make install
+    sed -e 's@make install@&\nln -sfv libreadline.so.5.1 /lib/libreadline.so.5@' \
+        -e 's@make install@&\nln -sfv libhistory.so.5.1 /lib/libhistory.so.5@' -i chapter06$N/*-readline
     # Let some Udev pre-installation commands to fail
     sed -e 's@/lib/udev/devices/fd@& || true@' \
         -e 's/mknod -m.*/& || true/' -i chapter06$N/*-udev
