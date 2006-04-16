@@ -161,6 +161,8 @@ chapter6_Makefiles() {
     done
     # Remove Bzip2 binaries before make install
     sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i chapter06$N/*-bzip2
+    # Remove Module-Init-Tools binaries before make install
+    sed -e 's@make install@rm -vf /sbin/{insmod,modprobe,rmmod,depmod}\n&@' -i chapter06$N/*-module-init-tools
     # Remove some Readline libraries and symlinks before make install
     sed -e 's@make install@rm -vf /lib/lib{history,readline}.so.5*\n&@' -i chapter06$N/*-readline
     # Let some Udev pre-installation commands to fail
