@@ -431,7 +431,7 @@ run_make() {
     # Build the system
     if [ -e $MKFILE ] ; then
       echo -ne "Building the system...\n"
-      cd $JHALFSDIR && make -f ${PROGNAME}-Makefile
+      cd $JHALFSDIR && make
       echo -ne "done\n"
     fi
   fi
