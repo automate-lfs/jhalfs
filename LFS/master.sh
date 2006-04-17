@@ -161,11 +161,16 @@ chapter6_Makefiles() {
     done
     # Remove Bzip2 binaries before make install
     sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i chapter06$N/*-bzip2
-    # Tell Module-Init-Tools that we are reinstalling it
-    sed -e 's@make install@make moveold\n&@' -i chapter06$N/*-module-init-tools
-    # Relink some Readline libraries after make install
+    # Tell Module-Init-Tools that we are reinstalling it and clean-up
+    sed -e 's@make install@make moveold\n&@' \
+        -e 's@make install@&\nrm -v /sbin/*.old@' \
+        -e 's@make install@&\nrm -v /bin/lsmod.old@' \
+        -e 's@make install@&\nrm -v /usr/share/man/man8/*.old.8@' -i chapter06$N/*-module-init-tools
+    # Delete *old Readline libraries and regenerate two links after make install
     sed -e 's@make install@&\nln -sfv libreadline.so.5.1 /lib/libreadline.so.5@' \
-        -e 's@make install@&\nln -sfv libhistory.so.5.1 /lib/libhistory.so.5@' -i chapter06$N/*-readline
+        -e 's@make install@&\nln -sfv libhistory.so.5.1 /lib/libhistory.so.5@' \
+        -e 's@make install@&\nrm -v /lib/lib{history,readline}*old@' \
+        -e 's@make install@&\nrm -v /lib/lib{history,readline}.so.5@' -i chapter06$N/*-readline
     # Let some Udev pre-installation commands to fail
     sed -e 's@/lib/udev/devices/fd@& || true@' \
         -e 's/mknod -m.*/& || true/' -i chapter06$N/*-udev
