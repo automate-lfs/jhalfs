@@ -201,6 +201,7 @@ cat << EOF
 
 $i:  $PREV
 	@\$(call echo_message, Building)
+	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=jhalfs/* \$(MOUNT_PT)\`\n" >logs/$this_script
 EOF
 ) >> $MKFILE.tmp
 }
@@ -270,9 +271,8 @@ wrt_run_as_su() {                  # header to log file, execute script, footer 
   local file=$2
 (
 cat << EOF
-	@echo -e "\n\`date\`\n\nKB: \`du -sk --exclude={0,1}??-* \$(MOUNT_PT)\`\n" >logs/$this_script && \\
-	su - lfs -c "source /home/lfs/.bashrc && $JHALFSDIR/${PROGNAME}-commands/$file" >>logs/$this_script 2>&1 && \\
-	echo -e "\n\`date\`\n\nKB: \`du -sk --exclude={0,1}??-* \$(MOUNT_PT)\`\n" >>logs/$this_script
+	@su - lfs -c "source /home/lfs/.bashrc && $JHALFSDIR/${PROGNAME}-commands/$file" >>logs/$this_script 2>&1 && \\
+	echo -e "\nKB: \`du -skx --exclude=jhalfs/* \$(MOUNT_PT)\`\n" >>logs/$this_script
 EOF
 ) >> $MKFILE.tmp
 }
@@ -285,9 +285,8 @@ wrt_run_as_root() {                #
   local file=$2
 (
 cat << EOF
-	@echo -e "\n\`date\`\n\nKB: \`du -sk --exclude={0,1}??-* \$(MOUNT_PT)\`\n" >logs/$this_script && \\
-	export LFS=\$(MOUNT_PT) && ${PROGNAME}-commands/$file >>logs/$this_script 2>&1 && \\
-	echo -e "\n\`date\`\n\nKB: \`du -sk --exclude={0,1}??-* \$(MOUNT_PT)\`\n" >>logs/$this_script
+	@export LFS=\$(MOUNT_PT) && ${PROGNAME}-commands/$file >>logs/$this_script 2>&1 && \\
+	echo -e "\nKB: \`du -skx --exclude=jhalfs/* \$(MOUNT_PT)\`\n" >>logs/$this_script
 EOF
 ) >> $MKFILE.tmp
 }
@@ -300,41 +299,8 @@ wrt_run_as_root2() {          # Some scripts must be run as root..
   local file=$2
 (
 cat << EOF
-	@echo -e "\n\`date\`\n\nKB: \`du -sk --exclude={0,1}??-* \`\n" >logs/$this_script && \\
-	source envars && ${PROGNAME}-commands/$file >>logs/$this_script 2>&1 && \\
-	echo -e "\n\`date\`\n\nKB: \`du -sk --exclude={0,1}??-* \`\n" >>logs/$this_script
-EOF
-) >> $MKFILE.tmp
-}
-
-
-#----------------------------------#
-wrt_remove_build_dirs() {          #
-#----------------------------------#
-  local name=$1
-(
-cat << EOF
-	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
-	rm -r \$(MOUNT_PT)\$(SRC)/\$\$ROOT && \\
-	if [ -e \$(MOUNT_PT)\$(SRC)/$name-build ]; then \\
-		rm -r \$(MOUNT_PT)\$(SRC)/$name-build; \\
-	fi;
-EOF
-) >> $MKFILE.tmp
-}
-
-
-#----------------------------------#
-wrt_remove_build_dirs2() {         #
-#----------------------------------#
-  local name=$1
-(
-cat << EOF
-	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
-	rm -r \$(SRC)/\$\$ROOT && \\
-	if [ -e \$(SRC)/$name-build ]; then \\
-		rm -r \$(SRC)/$name-build; \\
-	fi;
+	@source envars && ${PROGNAME}-commands/$file >>logs/$this_script 2>&1 && \\
+	echo -e "\nKB: \`du -skx --exclude=jhalfs/* \`\n" >>logs/$this_script
 EOF
 ) >> $MKFILE.tmp
 }
@@ -348,9 +314,8 @@ wrt_run_as_chroot1() {             #
   local file=$2
 (
     cat << EOF
-	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude={0,1}??-* \$(MOUNT_PT)\`\n" >logs/${this_script} && \\
-	\$(CHROOT1) 'cd /jhalfs && source envars && /jhalfs/${PROGNAME}-commands/$file >>/jhalfs/logs/${this_script} 2>&1' && \\
-	echo -e "\n\`date\`\n\nKB: \`du -skx --exclude={0,1}??-* \$(MOUNT_PT)\`\n" >>logs/${this_script}
+	@\$(CHROOT1) 'cd /jhalfs && source envars && /jhalfs/${PROGNAME}-commands/$file >>/jhalfs/logs/${this_script} 2>&1' && \\
+	echo -e "\nKB: \`du -skx --exclude=jhalfs/* \$(MOUNT_PT)\`\n" >>logs/${this_script}
 EOF
 ) >> $MKFILE.tmp
 }
@@ -363,9 +328,8 @@ wrt_run_as_chroot2() {             #
   local file=$2
 (
 cat << EOF
-	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude={0,1}??-* \$(MOUNT_PT)\`\n" >logs/${this_script} && \\
-	\$(CHROOT2) 'cd /jhalfs && source envars && /jhalfs/${PROGNAME}-commands/$file >>/jhalfs/logs/${this_script} 2>&1' && \\
-	echo -e "\n\`date\`\n\nKB: \`du -skx --exclude={0,1}??-* \$(MOUNT_PT)\`\n" >>logs/${this_script}
+	@\$(CHROOT2) 'cd /jhalfs && source envars && /jhalfs/${PROGNAME}-commands/$file >>/jhalfs/logs/${this_script} 2>&1' && \\
+	echo -e "\nKB: \`du -skx --exclude=jhalfs/* \$(MOUNT_PT)\`\n" >>logs/${this_script}
 EOF
 ) >> $MKFILE.tmp
 }
@@ -399,11 +363,32 @@ EOF
 
 
 #----------------------------------#
-wrt_export_pkgdir() {              #
+wrt_remove_build_dirs() {          #
 #----------------------------------#
+  local name=$1
 (
-    cat << EOF
-	@echo "export PKGDIR=\$(SRC)/binutils-build" > envars
+cat << EOF
+	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
+	rm -r \$(MOUNT_PT)\$(SRC)/\$\$ROOT && \\
+	if [ -e \$(MOUNT_PT)\$(SRC)/$name-build ]; then \\
+		rm -r \$(MOUNT_PT)\$(SRC)/$name-build; \\
+	fi;
+EOF
+) >> $MKFILE.tmp
+}
+
+
+#----------------------------------#
+wrt_remove_build_dirs2() {         #
+#----------------------------------#
+  local name=$1
+(
+cat << EOF
+	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
+	rm -r \$(SRC)/\$\$ROOT && \\
+	if [ -e \$(SRC)/$name-build ]; then \\
+		rm -r \$(SRC)/$name-build; \\
+	fi;
 EOF
 ) >> $MKFILE.tmp
 }
