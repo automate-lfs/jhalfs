@@ -10,6 +10,7 @@ wrt_compare_targets() {            #
     if [ "$N" != "1" ] ; then
       wrt_system_build "$N" "$PREV_IT"
     fi
+    this_script=$ITERATION
     wrt_target "$ITERATION" "$PREV"
     wrt_compare_work "$ITERATION" "$PREV_IT"
     wrt_logs "$N"
@@ -108,7 +109,7 @@ wrt_logs() {             #
     cat << EOF
 	@pushd logs 1> /dev/null && \\
 	mkdir $ITERATION && \\
-	cp ${chapter6} $ITERATION && \\
+	mv ${LOGS} $ITERATION && \\
 	popd 1> /dev/null
 	@touch \$@
 EOF

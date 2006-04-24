@@ -146,6 +146,7 @@ chapter5_Makefiles() {
 chapter6_Makefiles() {
 #----------------------------#
   # Set envars and scripts for iteration targets
+  LOGS="" # Start with an empty global LOGS envar
   if [[ -z "$1" ]] ; then
     local N=""
   else
@@ -198,9 +199,13 @@ chapter6_Makefiles() {
       esac
     fi
 
-    # First append each name of the script files to a list (this will become
-    # the names of the targets in the Makefile
+    # Append each name of the script files to a list (this will become
+    # the names of the targets in the Makefile)
     chapter6="$chapter6 ${this_script}${N}"
+
+    # Append each name of the script files to a list (this will become
+    # the names of the logs to be moved for each iteration)
+    LOGS="$LOGS ${this_script}"
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
@@ -337,7 +342,7 @@ build_Makefile() {
   chapter4_Makefiles
   chapter5_Makefiles
   chapter6_Makefiles
-  # Add the ICA/farce targets, if needed
+  # Add the iterations targets, if needed
   [[ "$COMPARE" != "0" ]] && wrt_compare_targets
   chapter789_Makefiles
 
