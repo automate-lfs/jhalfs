@@ -287,6 +287,9 @@ chapter789_Makefiles() {
     # Keep the script file name for Makefile dependencies.
     PREV=${this_script}
   done  # for file in chapter0{7,8,9}/*
+
+  # Add SBU-disk_usage report target if required
+  if [[ "$REPORT" = "1" ]] ; then wrt_report ; fi
 }
 
 
