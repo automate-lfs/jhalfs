@@ -784,6 +784,9 @@ bootable_Makefiles() {        #
 
   done
 
+  # Add SBU-disk_usage report target if required
+  if [[ "$REPORT" = "1" ]] ; then wrt_report ; fi
+
 }
 
 
@@ -860,6 +863,9 @@ bm_bootable_Makefiles() {     #
     PREV=$this_script
 
   done
+
+  # Add SBU-disk_usage report target if required
+  if [[ "$REPORT" = "1" ]] ; then wrt_report ; fi
 
 }
 

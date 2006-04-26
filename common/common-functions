@@ -399,6 +399,24 @@ EOF
 }
 
 
+#----------------------------------#
+wrt_report() {         #
+#----------------------------------#
+(
+cat << EOF
+
+create-sbu_du-report:  $PREV
+	@\$(call echo_message, Building)
+	@./create-sbu_du-report.sh logs $VERSION $TEST
+	@\$(call echo_report,$VERSION-SBU_DU-$(date --iso-8601).report)
+	@touch  \$@
+EOF
+) >> $MKFILE.tmp
+
+chapter789="$chapter789 create-sbu_du-report"
+}
+
+
 #----------------------------#
 run_make() {
 #----------------------------#

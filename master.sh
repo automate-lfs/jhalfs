@@ -495,6 +495,7 @@ if [[ "$PWD" != "$JHALFSDIR" ]]; then
       cp $FILES $JHALFSDIR/
     popd 1> /dev/null
   fi
+  [[ "$REPORT" = "1" ]] && cp $COMMON_DIR/create-sbu_du-report.sh  $JHALFSDIR/
   sed 's,FAKEDIR,'$BOOK',' $PACKAGE_DIR/$XSL > $JHALFSDIR/${XSL}
   export XSL=$JHALFSDIR/${XSL}
 fi
