@@ -1,6 +1,6 @@
 Index: LFS/master.sh
 ===================================================================
---- LFS/master.sh	(revision 2572)
+--- LFS/master.sh	(revision 2577)
 +++ LFS/master.sh	(working copy)
 @@ -158,6 +158,13 @@
        *stripping*) [[ "${STRIP}" = "0" ]] && continue ;;
@@ -59,7 +59,7 @@ Index: LFS/master.sh
      esac
 Index: LFS/lfs.xsl
 ===================================================================
---- LFS/lfs.xsl	(revision 2572)
+--- LFS/lfs.xsl	(revision 2577)
 +++ LFS/lfs.xsl	(working copy)
 @@ -32,6 +32,9 @@
    <!-- Locale settings -->
@@ -107,7 +107,7 @@ Index: LFS/lfs.xsl
          <xsl:apply-templates/>
 Index: BLFS/master.sh
 ===================================================================
---- BLFS/master.sh	(revision 2572)
+--- BLFS/master.sh	(revision 2577)
 +++ BLFS/master.sh	(working copy)
 @@ -79,6 +79,19 @@
  EOF
@@ -131,7 +131,7 @@ Index: BLFS/master.sh
  (
 Index: BLFS/blfs.xsl
 ===================================================================
---- BLFS/blfs.xsl	(revision 2572)
+--- BLFS/blfs.xsl	(revision 2577)
 +++ BLFS/blfs.xsl	(working copy)
 @@ -159,7 +159,7 @@
          <xsl:when test="@role = 'nodump'"/>
@@ -144,9 +144,9 @@ Index: BLFS/blfs.xsl
          </xsl:otherwise>
 Index: common/config
 ===================================================================
---- common/config	(revision 2572)
+--- common/config	(revision 2577)
 +++ common/config	(working copy)
-@@ -58,6 +58,23 @@
+@@ -62,6 +62,23 @@
  #    Not used in LFS
  KEYMAP=none
  
@@ -172,20 +172,20 @@ Index: common/config
  RUN_ICA=0
 Index: common/func_validate_configs.sh
 ===================================================================
---- common/func_validate_configs.sh	(revision 2572)
+--- common/func_validate_configs.sh	(revision 2577)
 +++ common/func_validate_configs.sh	(working copy)
 @@ -83,10 +83,10 @@
  inline_doc
  
    # First internal variables, then the ones that change the book's flavour, and lastly system configuration variables
--  local -r blfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG          DEPEND               TEST"
--  local -r hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE MODEL GRSECURITY_HOST TEST STRIP FSTAB             CONFIG KEYMAP         PAGE TIMEZONE LANG LC_ALL"
--  local -r clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE METHOD  ARCH  TARGET  TEST STRIP FSTAB BOOT_CONFIG CONFIG KEYMAP VIMLANG PAGE TIMEZONE LANG"
--  local -r  lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE                       TEST STRIP FSTAB             CONFIG        VIMLANG PAGE TIMEZONE LANG"
+-  local -r blfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG         DEPEND                TEST"
+-  local -r hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE MODEL GRSECURITY_HOST TEST REPORT STRIP FSTAB             CONFIG KEYMAP         PAGE TIMEZONE LANG LC_ALL"
+-  local -r clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE METHOD  ARCH  TARGET  TEST REPORT STRIP FSTAB BOOT_CONFIG CONFIG KEYMAP VIMLANG PAGE TIMEZONE LANG"
+-  local -r  lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE                       TEST REPORT STRIP FSTAB             CONFIG        VIMLANG PAGE TIMEZONE LANG"
 +  local -r blfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO HPKG          DEPEND               TEST"
-+  local -r hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO HPKG RUNMAKE MODEL GRSECURITY_HOST TEST STRIP FSTAB             CONFIG KEYMAP         PAGE TIMEZONE LANG LC_ALL"
-+  local -r clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO HPKG RUNMAKE METHOD  ARCH  TARGET  TEST STRIP FSTAB BOOT_CONFIG CONFIG KEYMAP VIMLANG PAGE TIMEZONE LANG"
-+  local -r  lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO HPKG RUNMAKE                       TEST STRIP FSTAB             CONFIG        VIMLANG PAGE TIMEZONE LANG"
++  local -r hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO HPKG RUNMAKE MODEL GRSECURITY_HOST TEST REPORT STRIP FSTAB             CONFIG KEYMAP         PAGE TIMEZONE LANG LC_ALL"
++  local -r clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO HPKG RUNMAKE METHOD  ARCH  TARGET  TEST REPORT STRIP FSTAB BOOT_CONFIG CONFIG KEYMAP VIMLANG PAGE TIMEZONE LANG"
++  local -r  lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO HPKG RUNMAKE                       TEST REPORT STRIP FSTAB             CONFIG        VIMLANG PAGE TIMEZONE LANG"
  
    local -r ERROR_MSG_pt1='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid,'
    local -r ERROR_MSG_pt2=' check the config file ${BOLD}${GREEN}\<$(echo $PROGNAME | tr [a-z] [A-Z])/config\> or \<common/config\>${OFF}'
@@ -330,7 +330,7 @@ Index: common/paco-build.sh
 +make logme
 Index: common/common-functions
 ===================================================================
---- common/common-functions	(revision 2572)
+--- common/common-functions	(revision 2577)
 +++ common/common-functions	(working copy)
 @@ -60,6 +60,9 @@
          in the configuration file has the proper packages and patches for the
@@ -342,7 +342,7 @@ Index: common/common-functions
  ${BOLD}  -T, --testsuites N ${OFF}
          Run test suites  [0-3]
            0 = none
-@@ -604,6 +607,7 @@
+@@ -622,6 +625,7 @@
                   --stringparam lc_all $LC_ALL \
                   --stringparam keymap $KEYMAP \
                   --stringparam grsecurity_host $GRSECURITY_HOST \
@@ -350,7 +350,7 @@ Index: common/common-functions
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
        ;;
      lfs)
-@@ -615,6 +619,7 @@
+@@ -633,6 +637,7 @@
                   --stringparam timezone $TIMEZONE \
                   --stringparam page $PAGE \
                   --stringparam lang $LANG \
@@ -360,7 +360,7 @@ Index: common/common-functions
      blfs)
 Index: HLFS/hlfs.xsl
 ===================================================================
---- HLFS/hlfs.xsl	(revision 2572)
+--- HLFS/hlfs.xsl	(revision 2577)
 +++ HLFS/hlfs.xsl	(working copy)
 @@ -39,6 +39,9 @@
    <xsl:param name="lang" select="en_CA"/>
@@ -411,7 +411,7 @@ Index: HLFS/hlfs.xsl
          <xsl:apply-templates/>
 Index: HLFS/master.sh
 ===================================================================
---- HLFS/master.sh	(revision 2572)
+--- HLFS/master.sh	(revision 2577)
 +++ HLFS/master.sh	(working copy)
 @@ -318,6 +318,13 @@
        *) ;;
@@ -470,7 +470,7 @@ Index: HLFS/master.sh
          ;;
 Index: master.sh
 ===================================================================
---- master.sh	(revision 2572)
+--- master.sh	(revision 2577)
 +++ master.sh	(working copy)
 @@ -66,6 +66,11 @@
  source $MODULE
