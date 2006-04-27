@@ -43,7 +43,7 @@ cat /proc/cpuinfo >> "$REPORT"
 echo -e "\n\t\tMemory info:\n" >> "$REPORT"
 free >> "$REPORT"
 
-# Parse only that logs that have time dataq
+# Parse only that logs that have time data
 BUILDLOGS=`grep -l "^real\>" $LOGSDIR/*`
 
 # Match the first timed log to extract the SBU unit value from it
