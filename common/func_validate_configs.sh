@@ -132,13 +132,15 @@ inline_doc
         RUNMAKE)   validation_str="x0x x1x";          validate_str; continue ;;
         TEST)      validation_str="x0x x1x x2x x3x";  validate_str; continue ;;
         REPORT)    validation_str="x0x x1x";          validate_str;
-            if [[ "${!config_param}" = "1" ]] && [[ `type -p bc` ]]; then
-              continue
-            else
-              echo -e "  ${BOLD}The bc binary was not found${OFF}"
-              echo -e "  The SBU and disk usage report creation will be skiped"
-              REPORT=0
-              continue
+            if [[ "${!config_param}" = "1" ]]; then
+              if [[ `type -p bc` ]]; then
+                continue
+              else
+                echo -e "  ${BOLD}The bc binary was not found${OFF}"
+                echo -e "  The SBU and disk usage report creation will be skiped"
+                REPORT=0
+                continue
+              fi
             fi ;;
         STRIP)     validation_str="x0x x1x";          validate_str; continue ;;
         VIMLANG)   validation_str="x0x x1x";          validate_str; continue ;;
