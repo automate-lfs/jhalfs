@@ -503,6 +503,11 @@ fi
 if [[ ! -d $LOGDIR ]]; then
   mkdir $LOGDIR
 fi
+
+# After be sure that all look sane and if REPORT=1, dump the settings to a file
+# This file will be used to create the REPORT header
+[[ "$REPORT" = "1" ]] && validate_config > $JHALFSDIR/jhalfs.config
+
 >$LOGDIR/$LOG
 
 get_book
