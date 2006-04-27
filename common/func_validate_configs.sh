@@ -182,13 +182,15 @@ inline_doc
       HPKG)       validate_against_str "x0x x1x" ;;
       RUNMAKE)    validate_against_str "x0x x1x" ;;
       REPORT)     validate_against_str "x0x x1x"
-                  if [[ "${!config_param}" = "1" ]] && [[ `type -p bc` ]]; then
-                    continue
-                  else
-                    echo -e "  ${BOLD}The bc binary was not found${OFF}"
-                    echo -e "  The SBU and disk usage report creation will be skiped"
-                    REPORT=0
-                    continue
+                  if [[ "${!config_param}" = "1" ]]; then
+                    if [[ `type -p bc` ]]; then
+                      continue
+                    else
+                      echo -e "  ${BOLD}The bc binary was not found${OFF}"
+                      echo -e "  The SBU and disk usage report creation will be skiped"
+                      REPORT=0
+                      continue
+                    fi
                   fi ;;
       COMPARE)    if [[ ! "$COMPARE" = "1" ]]; then
                     validate_against_str "x0x x1x"
