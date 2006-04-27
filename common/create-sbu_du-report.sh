@@ -5,20 +5,17 @@ set -e
 
 LOGSDIR=$1
 VERSION=$2
-TESTLEVEL=$3
 
 # Make sure that we have a directory as first argument
 [[ ! -d "$LOGSDIR" ]] && \
-  echo -e "\nUSAGE: create-sbu_du-report.sh logs_directory [book_version testsuites_level]\n" && exit
+  echo -e "\nUSAGE: create-sbu_du-report.sh logs_directory [book_version]\n" && exit
 
 # Make sure that the first argument is a jhalfs logs directory
 [[ ! -f "$LOGSDIR"/000-masterscript.log ]] && \
   echo -e "\nLooks like $LOGSDIR isn't a jhalfs logs directory.\n" && exit
 
-# If this script is run manually, the book version and testsuite levels
-# may be unknow
+# If this script is run manually, the book version may be unknow
 [[ -z "$VERSION" ]] && VERSION=unknown
-[[ -z "$TESTLEVEL" ]] && TESTLEVEL=unknown
 
 # If there is iteration logs directories, copy the logs inside iteration-1
 # to the top level dir
@@ -28,18 +25,25 @@ TESTLEVEL=$3
 # Set the report file
 REPORT="$VERSION"-SBU_DU-$(date --iso-8601).report
 
-# Dump generation time stamp, book version, and testsuites level
+# Dump generation time stamp and book version
 echo -e "\n`date`\n" > "$REPORT"
 echo -e "Book version is:\t$VERSION\n" >> "$REPORT"
-echo -e "Test suites level:\t$TESTLEVEL\n" >> "$REPORT"
+
+# If found, dump jhalfs.config file in a readable format
+if [[ -f jhalfs.config ]] ; then
+  echo -e "\n\tjhalfs configuration settings:\n" >> "$REPORT"
+  cat jhalfs.config | sed -e '/parameters/d;s/.\[[013;]*m//g;s/</\t</;s/^\w\{1,6\}:/&\t/' >> "$REPORT"
+else
+  echo -e "\nNOTE: the jhalfs configuration settings are unknown" >> "$REPORT"
+fi
 
 # Dump CPU and memory info
-echo -e "\n\t\tCPU type:\n" >> "$REPORT"
+echo -e "\n\n\t\tCPU type:\n" >> "$REPORT"
 cat /proc/cpuinfo >> "$REPORT"
 echo -e "\n\t\tMemory info:\n" >> "$REPORT"
 free >> "$REPORT"
 
-# Parse only that logs that have time data
+# Parse only that logs that have time dataq
 BUILDLOGS=`grep -l "^real\>" $LOGSDIR/*`
 
 # Match the first timed log to extract the SBU unit value from it
