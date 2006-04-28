@@ -361,8 +361,8 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     chapter6="$chapter6 ${this_script}${N}"
 
     # Append each name of the script files to a list (this will become
-    # the names of the targets in the Makefile)
-    chapter6="$chapter6 ${this_script}${N}"
+    # the names of the logs to be moved for each iteration)
+    LOGS="$LOGS ${this_script}"
 
     #
     # Sed replacement to fix some rm command that could fail.
