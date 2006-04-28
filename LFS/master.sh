@@ -112,7 +112,6 @@ chapter5_Makefiles() {
 
       # Insert instructions for unpacking the package and to set the PKGDIR variable.
       wrt_unpack "$FILE"
-      echo -e '\ttrue' >> $MKFILE.tmp
     fi
 
     # Insert date and disk usage at the top of the log file, the script run

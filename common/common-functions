@@ -216,7 +216,7 @@ cat << EOF
 	@\$(call unpack,$FILE)
 	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
 	echo "export PKGDIR=\$(MOUNT_PT)\$(SRC)/\$\$ROOT" > envars && \\
-	chown -R lfs \$(MOUNT_PT)\$(SRC)/\$\$ROOT && \\
+	chown -R lfs \$(MOUNT_PT)\$(SRC)/\$\$ROOT
 EOF
 ) >> $MKFILE.tmp
 }

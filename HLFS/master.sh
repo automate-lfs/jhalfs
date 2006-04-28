@@ -235,13 +235,15 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
 
     case $this_script in
       *binutils* )  # Dump the path to sources directory for later removal
-        echo -e '\techo "$(MOUNT_PT)$(SRC)/$$ROOT" >> sources-dir' >> $MKFILE.tmp
+(
+cat << EOF
+	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
+	echo "\$(MOUNT_PT)\$(SRC)/\$\$ROOT" >> sources-dir
+EOF
+) >> $MKFILE.tmp
         ;;
       *adjusting* )  # For the Adjusting phase we must to cd to the binutils-build directory.
         echo -e '\t@echo "export PKGDIR=$(MOUNT_PT)$(SRC)/binutils-build" > envars' >> $MKFILE.tmp
-        ;;
-      * )  # Everything else, add a true statment so we don't confuse make
-        echo -e '\ttrue' >> $MKFILE.tmp
         ;;
     esac
 

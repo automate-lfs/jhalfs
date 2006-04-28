@@ -131,7 +131,7 @@ cross_tools_Makefiles() {     #
     #
     # If $vrs isn't empty, we've got a package...
     #
-    [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*" &&  echo -e '\ttrue' >> $MKFILE.tmp
+    [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*"
     #
     wrt_run_as_su "${this_script}" "${file}"
     #
@@ -183,7 +183,7 @@ temptools_Makefiles() {       #
     # If $vrs isn't empty, we've got a package...
     # Insert instructions for unpacking the package and to set the PKGDIR variable.
     #
-    [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*" && echo -e '\ttrue' >> $MKFILE.tmp
+    [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*"
     #
     wrt_run_as_su "${this_script}" "${file}"
     #
@@ -254,7 +254,7 @@ boot_Makefiles() {            #
     # If $vrs isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     #
-    [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*" &&  echo -e '\ttrue' >> $MKFILE.tmp
+    [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*"
     #
     # Select a script execution method
     case $this_script in
@@ -322,11 +322,8 @@ chroot_Makefiles() {          #
     #
     if [ "$vrs" != "" ] ; then
       case $this_script in
-        *util-linux)    wrt_unpack  "$name-$vrs.tar.*"
-                        echo -e '\ttrue' >> $MKFILE.tmp
-            ;;
-        *)              wrt_unpack2 "$name-$vrs.tar.*"
-            ;;
+        *util-linux)    wrt_unpack  "$name-$vrs.tar.*"  ;;
+        *)              wrt_unpack2 "$name-$vrs.tar.*"  ;;
       esac
     fi
     #
