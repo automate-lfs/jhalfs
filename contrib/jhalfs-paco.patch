@@ -1,8 +1,8 @@
 Index: LFS/master.sh
 ===================================================================
---- LFS/master.sh	(revision 2577)
+--- LFS/master.sh	(revision 2588)
 +++ LFS/master.sh	(working copy)
-@@ -158,6 +158,13 @@
+@@ -157,6 +157,13 @@
        *stripping*) [[ "${STRIP}" = "0" ]] && continue ;;
      esac
  
@@ -16,7 +16,7 @@ Index: LFS/master.sh
      # First append each name of the script files to a list (this will become
      # the names of the targets in the Makefile
      chapter6="$chapter6 ${this_script}"
-@@ -188,7 +195,9 @@
+@@ -187,7 +194,9 @@
      # and not to use chroot.
      case "${this_script}" in
        *kernfs)  wrt_run_as_root    "${this_script}" "$file" ;;
@@ -27,7 +27,7 @@ Index: LFS/master.sh
      esac
  
      # Remove the build directory(ies) except if the package build fails.
-@@ -206,6 +215,14 @@
+@@ -205,6 +214,14 @@
  
      # Keep the script file name for Makefile dependencies.
      PREV=${this_script}
@@ -42,7 +42,7 @@ Index: LFS/master.sh
    done # end for file in chapter06/*
  }
  
-@@ -267,6 +284,14 @@
+@@ -266,6 +283,14 @@
                  wrt_run_as_chroot2 "$this_script" "$file"
                fi
          ;;
@@ -59,7 +59,7 @@ Index: LFS/master.sh
      esac
 Index: LFS/lfs.xsl
 ===================================================================
---- LFS/lfs.xsl	(revision 2577)
+--- LFS/lfs.xsl	(revision 2588)
 +++ LFS/lfs.xsl	(working copy)
 @@ -32,6 +32,9 @@
    <!-- Locale settings -->
@@ -107,7 +107,7 @@ Index: LFS/lfs.xsl
          <xsl:apply-templates/>
 Index: BLFS/master.sh
 ===================================================================
---- BLFS/master.sh	(revision 2577)
+--- BLFS/master.sh	(revision 2588)
 +++ BLFS/master.sh	(working copy)
 @@ -79,6 +79,19 @@
  EOF
@@ -131,7 +131,7 @@ Index: BLFS/master.sh
  (
 Index: BLFS/blfs.xsl
 ===================================================================
---- BLFS/blfs.xsl	(revision 2577)
+--- BLFS/blfs.xsl	(revision 2588)
 +++ BLFS/blfs.xsl	(working copy)
 @@ -159,7 +159,7 @@
          <xsl:when test="@role = 'nodump'"/>
@@ -144,7 +144,7 @@ Index: BLFS/blfs.xsl
          </xsl:otherwise>
 Index: common/config
 ===================================================================
---- common/config	(revision 2577)
+--- common/config	(revision 2588)
 +++ common/config	(working copy)
 @@ -62,6 +62,23 @@
  #    Not used in LFS
@@ -172,7 +172,7 @@ Index: common/config
  RUN_ICA=0
 Index: common/func_validate_configs.sh
 ===================================================================
---- common/func_validate_configs.sh	(revision 2577)
+--- common/func_validate_configs.sh	(revision 2588)
 +++ common/func_validate_configs.sh	(working copy)
 @@ -83,10 +83,10 @@
  inline_doc
@@ -330,7 +330,7 @@ Index: common/paco-build.sh
 +make logme
 Index: common/common-functions
 ===================================================================
---- common/common-functions	(revision 2577)
+--- common/common-functions	(revision 2588)
 +++ common/common-functions	(working copy)
 @@ -60,6 +60,9 @@
          in the configuration file has the proper packages and patches for the
@@ -360,7 +360,7 @@ Index: common/common-functions
      blfs)
 Index: HLFS/hlfs.xsl
 ===================================================================
---- HLFS/hlfs.xsl	(revision 2577)
+--- HLFS/hlfs.xsl	(revision 2588)
 +++ HLFS/hlfs.xsl	(working copy)
 @@ -39,6 +39,9 @@
    <xsl:param name="lang" select="en_CA"/>
@@ -411,9 +411,9 @@ Index: HLFS/hlfs.xsl
          <xsl:apply-templates/>
 Index: HLFS/master.sh
 ===================================================================
---- HLFS/master.sh	(revision 2577)
+--- HLFS/master.sh	(revision 2588)
 +++ HLFS/master.sh	(working copy)
-@@ -318,6 +318,13 @@
+@@ -320,6 +320,13 @@
        *) ;;
      esac
  
@@ -427,7 +427,7 @@ Index: HLFS/master.sh
      # First append each name of the script files to a list (this will become
      # the names of the targets in the Makefile
      chapter6="$chapter6 $this_script"
-@@ -376,7 +383,9 @@
+@@ -378,7 +385,9 @@
          wrt_run_as_root "${this_script}" "${file}"
          ;;
        *)   # The rest of Chapter06
@@ -437,7 +437,7 @@ Index: HLFS/master.sh
         ;;
      esac
      #
-@@ -407,6 +416,14 @@
+@@ -409,6 +418,14 @@
  
      # Keep the script file name for Makefile dependencies.
      PREV=$this_script
@@ -452,7 +452,7 @@ Index: HLFS/master.sh
    done # end for file in chapter06/*
  
  }
-@@ -469,6 +486,15 @@
+@@ -471,6 +488,15 @@
            wrt_run_as_chroot2 "${this_script}" "${file}"
          fi
          ;;
@@ -470,7 +470,7 @@ Index: HLFS/master.sh
          ;;
 Index: master.sh
 ===================================================================
---- master.sh	(revision 2577)
+--- master.sh	(revision 2588)
 +++ master.sh	(working copy)
 @@ -66,6 +66,11 @@
  source $MODULE
