@@ -295,8 +295,31 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
   local TARGET LOADER
   local file
   local this_script
+  # Set envars and scripts for iteration targets
+  LOGS="" # Start with an empty global LOGS envar
+  if [[ -z "$1" ]] ; then
+    local N=""
+  else
+    local N=-build_$1
+    local chapter6=""
+    mkdir chapter06$N
+    cp chapter06/* chapter06$N
+    for script in chapter06$N/* ; do
+      # Overwrite existing symlinks, files, and dirs
+      sed -e 's/ln -s /ln -sf /g' \
+          -e 's/^mv /&-f/g' -i ${script}
+    done
+    # Remove Bzip2 binaries before make install
+    sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i chapter06$N/*-bzip2
+    # Fix how Module-Init-Tools do the install target
+    sed -e 's@make install@make INSTALL=install install@' -i chapter06$N/*-module-init-tools
+    # Delete *old Readline libraries just after make install
+    sed -e 's@make install@&\nrm -v /lib/lib{history,readline}*old@' -i chapter06$N/*-readline
+    # Don't readd already existing groups
+    sed -e '/groupadd/d' -i chapter06$N/*-udev
+  fi
 
-  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6${R_arrow}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6$N${R_arrow}"
   #
   # Set these definitions early and only once
   #
@@ -306,7 +329,7 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     TARGET="pc-linux-gnu";    LOADER="ld-linux.so.2"
   fi
 
-  for file in chapter06/* ; do
+  for file in chapter06$N/* ; do
     # Keep the script file name
     this_script=`basename $file`
 
@@ -317,15 +340,29 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
       *chroot* )  continue ;;
         # Test if the stripping phase must be skipped
       *-stripping* )  [[ "$STRIP" = "0" ]] && continue ;;
-      *) ;;
     esac
-
-    # First append each name of the script files to a list (this will become
-    # the names of the targets in the Makefile
-    chapter6="$chapter6 $this_script"
 
     # Grab the name of the target
     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'`
+
+    # Find the version of the command files, if it corresponds with the building of
+    # a specific package
+    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+
+    if [[ "$vrs" = "" ]] && [[ -n "$N" ]] ; then
+      case "${this_script}" in
+        *stripping*) ;;
+        *)  continue ;;
+      esac
+    fi
+
+    # Append each name of the script files to a list (this will become
+    # the names of the targets in the Makefile
+    chapter6="$chapter6 ${this_script}${N}"
+
+    # Append each name of the script files to a list (this will become
+    # the names of the targets in the Makefile)
+    chapter6="$chapter6 ${this_script}${N}"
 
     #
     # Sed replacement to fix some rm command that could fail.
@@ -333,10 +370,10 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     #
     case $name in
       glibc)
-          sed 's/rm /rm -f /' -i chapter06/$this_script
+          sed 's/rm /rm -f /' -i chapter06$N/$this_script
         ;;
       gcc)
-          sed 's/rm /rm -f /' -i chapter06/$this_script
+          sed 's/rm /rm -f /' -i chapter06$N/$this_script
         ;;
     esac
 
@@ -346,11 +383,7 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    wrt_target "$this_script" "$PREV"
-
-    # Find the version of the command files, if it corresponds with the building of
-    # a specific package
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+    wrt_target "${this_script}${N}" "$PREV"
 
     # If $vrs isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
@@ -408,7 +441,9 @@ EOF
     #--------------------------------------------------------------------#
 
     # Keep the script file name for Makefile dependencies.
-    PREV=$this_script
+    PREV=${this_script}${N}
+    # Set system_build envar for iteration targets
+    system_build=$chapter6
   done # end for file in chapter06/*
 
 }
@@ -518,6 +553,8 @@ build_Makefile() {           # Construct a Makefile from the book scripts
   chapter3_Makefiles
   chapter5_Makefiles
   chapter6_Makefiles
+  # Add the iterations targets, if needed
+  [[ "$COMPARE" != "0" ]] && wrt_compare_targets
   chapter7_Makefiles
 
   # Add a header, some variables and include the function file
