@@ -127,7 +127,7 @@ cross_tools_Makefiles() {     #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    echo -e "\n$this_script:  $PREV\n\t@\$(call echo_message, Building)" >> $MKFILE.tmp
+    wrt_target "${this_script}" "$PREV"
     #
     # If $vrs isn't empty, we've got a package...
     #
@@ -178,7 +178,7 @@ temptools_Makefiles() {       #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    echo -e "\n$this_script:  $PREV\n\t@\$(call echo_message, Building)" >> $MKFILE.tmp
+    wrt_target "${this_script}" "$PREV"
     #
     # If $vrs isn't empty, we've got a package...
     # Insert instructions for unpacking the package and to set the PKGDIR variable.
@@ -249,7 +249,7 @@ boot_Makefiles() {            #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    echo -e "\n$this_script:  $PREV\n\t@\$(call echo_message, Building)" >> $MKFILE.tmp
+    wrt_target "${this_script}" "$PREV"
     #
     # If $vrs isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
@@ -315,7 +315,7 @@ chroot_Makefiles() {          #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    echo -e "\n$this_script:  $PREV\n\t@\$(call echo_message, Building)" >> $MKFILE.tmp
+    wrt_target "${this_script}" "$PREV"
     #
     # If $vrs isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
@@ -379,7 +379,7 @@ testsuite_tools_Makefiles() { #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    echo -e "\n$this_script:  $PREV\n\t@\$(call echo_message, Building)" >> $MKFILE.tmp
+    wrt_target "${this_script}" "$PREV"
     #
     case $name in
       tcl)    wrt_unpack2 "$name$vrs-src.tar.*" ;;
@@ -433,7 +433,7 @@ bm_testsuite_tools_Makefiles() { #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    echo -e "\n$this_script:  $PREV\n\t@\$(call echo_message, Building)" >> $MKFILE.tmp
+    wrt_target "${this_script}" "$PREV"
     #
     case $name in
       tcl)    wrt_unpack3 "$name$vrs-src.tar.*" ;;
@@ -493,7 +493,7 @@ final_system_Makefiles() {    #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    echo -e "\n$this_script:  $PREV\n\t@\$(call echo_message, Building)" >> $MKFILE.tmp
+    wrt_target "${this_script}" "$PREV"
 
     # If $vrs isn't empty, we've got a package...
     if [ "$vrs" != "" ] ; then
@@ -559,7 +559,7 @@ bm_final_system_Makefiles() { #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    echo -e "\n$this_script:  $PREV\n\t@\$(call echo_message, Building)" >> $MKFILE.tmp
+    wrt_target "${this_script}" "$PREV"
 
     # If $vrs isn't empty, we've got a package...
     if [ "$vrs" != "" ] ; then
@@ -624,7 +624,7 @@ bootscripts_Makefiles() {     #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    echo -e "\n$this_script:  $PREV\n\t@\$(call echo_message, Building)" >> $MKFILE.tmp
+    wrt_target "${this_script}" "$PREV"
     #
     # If $vrs isn't empty, we've got a package...
     #
@@ -685,7 +685,7 @@ bm_bootscripts_Makefiles() {  #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    echo -e "\n$this_script:  $PREV\n\t@\$(call echo_message, Building)" >> $MKFILE.tmp
+    wrt_target "${this_script}" "$PREV"
     #
     # If $vrs isn't empty, we've got a package...
     #
@@ -748,7 +748,7 @@ bootable_Makefiles() {        #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    echo -e "\n$this_script:  $PREV\n\t@\$(call echo_message, Building)" >> $MKFILE.tmp
+    wrt_target "${this_script}" "$PREV"
     #
     # If $vrs isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
@@ -826,7 +826,7 @@ bm_bootable_Makefiles() {     #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    echo -e "\n$this_script:  $PREV\n\t@\$(call echo_message, Building)" >> $MKFILE.tmp
+    wrt_target "${this_script}" "$PREV"
     #
     # If $vrs isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
@@ -1002,12 +1002,7 @@ if [[ "${METHOD}" = "boot" ]]; then
 (
 	cat << EOF
 
-all:	023-creatingtoolsdir 024-creatingcrossdir 025-addinguser 026-settingenvironment \
-	$cross_tools \
-	$temptools \
-	$chroottools \
-	$boottools
-	@\$(call echo_boot_finished,$VERSION)
+all:	makeboot
 
 makeboot: 023-creatingtoolsdir 024-creatingcrossdir 025-addinguser 026-settingenvironment \
 	$cross_tools\
