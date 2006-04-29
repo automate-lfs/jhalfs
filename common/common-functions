@@ -76,6 +76,15 @@ ${BOLD}  -W, --working-copy DIR${OFF}
 [[ ${PROGNAME} != "blfs" ]] &&
 cat <<- -EOF-
 
+${BOLD}  -C, --comparasion TYPE${OFF}
+         do iterative comparison analysis. That will take several time due that
+         the final system packages wil be rebuilded the times defined in the
+         ITERATIONS config option.
+         Analisys types allowed are:
+           ICA   = do the ICA analisys designed by Greg Schafer
+           farce = do the farce analisys designed by Ken Moffat
+           both  = perfom both ICA and farce analisys
+
 ${BOLD}  -F, --fstab FILE${OFF}
         use FILE as the /etc/fstab file for the ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF} system. If not specified,
         a default /etc/fstab file with dummy values is created.

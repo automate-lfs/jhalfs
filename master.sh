@@ -51,10 +51,14 @@ source $COMMON_DIR/common-functions
 [[ $? > 0 ]] && echo " $COMMON_DIR/common-functions did not load.." && exit
 [[ $VERBOSITY > 0 ]] && echo "OK"
 #
-
 [[ $VERBOSITY > 0 ]] && echo -n "Loading masterscript conf..."
 source $COMMON_DIR/config
 [[ $? > 0 ]] && echo "$COMMON_DIR/conf did not load.." && exit
+[[ $VERBOSITY > 0 ]] && echo "OK"
+#
+[[ $VERBOSITY > 0 ]] && echo -n "Loading compare module..."
+source $COMMON_DIR/func_compare.sh
+[[ $? > 0 ]] && echo "$COMMON_DIR/func_compare.sh did not load.." && exit
 [[ $VERBOSITY > 0 ]] && echo "OK"
 #
 [[ $VERBOSITY > 0 ]] && echo -n "Loading config module <$MODULE_CONFIG>..."
@@ -92,7 +96,7 @@ source $COMMON_DIR/func_validate_configs.sh
 
 
 ###################################
-###		MAIN		###
+###          MAIN               ###
 ###################################
 
 # Evaluate any command line switches
@@ -213,6 +217,29 @@ while test $# -gt 0 ; do
       ;;
 
     # Common options for LFS, CLFS and HLFS
+    --comparasion | -C )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      case $1 in
+        ICA)              RUN_ICA=1
+                        RUN_FARCE=0
+                          COMPARE=1
+        ;;
+        farce)            RUN_ICA=0
+                        RUN_FARCE=1
+                          COMPARE=1
+        ;;
+        both)             RUN_ICA=1
+                        RUN_FARCE=1
+                          COMPARE=1
+        ;;
+        *)
+          echo -e "\n$1 is an unknown analisys method."
+          exit 1
+          ;;
+      esac
+      ;;
+
     --fstab | -F )
       test $# = 1 && eval "$exit_missing_arg"
       shift
@@ -454,6 +481,10 @@ fi
 
 if [[ "$PWD" != "$JHALFSDIR" ]]; then
   cp $COMMON_DIR/makefile-functions $JHALFSDIR/
+  if [[ "$COMPARE" != "0" ]] ; then
+    mkdir -p $JHALFSDIR/extras
+    cp extras/* $JHALFSDIR/extras
+  fi
   if [[ -n "$FILES" ]]; then
     # pushd/popd necessary to deal with mulitiple files
     pushd $PACKAGE_DIR 1> /dev/null

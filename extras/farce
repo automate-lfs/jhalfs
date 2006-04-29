@@ -1,0 +1,896 @@
+#!/bin/bash
+
+# Acknowledgment:
+#  The following code is a no-modified version (except for this comment
+#  and the inline_doc fragment) of an original work written by
+#  Ken Moffat and is included here with his permission.
+#
+
+# FARCE: Farce Assists Rebuild Comparison Evaluation ;)
+#
+# to answer the question "can it rebuild itself?"
+#
+#  We expect four arguments - first directory path, filelist
+# containing the files in this directory which we wish to compare,
+# second directory path, filelist for second directory.
+#
+# Yes, we could just compare everything in each tree, but the
+# filelist script knows about files it can reasonably ignore,
+# and this also allows us to build a sytem, boot it and get a
+# list of files, build a full desktop environment, and only then
+# build and boot the "can it build itself" test system and get
+# _its_ filelist.
+#
+# What this script aims to do:
+# ____________________________
+#
+# First, report files not in both builds.
+#
+# Then, confirm symlinks point to same targets.
+#
+# After that, compare individual files -
+#  if different, run the file name through 'expected'
+# to pick out files that are unlikely to match (logs,
+# pids, fstab [assumes '/' is a different device each time],
+# count these as 'expected'.
+#
+# For whatever is left, check the file type - ar archives
+# have their members extraced and compared (every member has
+# a timestamp), gzipped files are compared beyond their
+# timestamp, binaries, at least those using shared libs or
+# which are shared objects, are copied and subjected to
+# --strip-debug.  If files match at this stage, count them as
+# 'accepted'.
+#
+# As a last step for any file that doesn't match, copy it
+# through some perl regexps to "process" it (convert any
+# date, time, kernel-version information from standard formats
+# into tokens, then see if the tokensi match.
+#
+# For details of the regexps, see the tokenize function.
+# Those files that match after this are also counted as
+# 'accepted'.  Note that I don't always start from the kernel
+# version that I'm going to build, so this copes with e.g. perl
+# files that hardcode the kernel version.
+#
+# We now have files that don't match.  A few of these seem to be
+# common to all builds - some (members of) c++ libraries or ar
+# archives, a few programs which perhaps use some sort of c++ code).
+# The file name # is passed to the 'failure' function - these
+# recognized filenames are labelled as 'predictable FAIL:',
+# anything else is labelled as 'unexpected FAIL:'.
+#
+# output:
+# stderr - files only in one of the builds, failure messages,
+#  and totals.
+#
+# farce-results - more details, including which files were treated
+# as expected differences, files where neither copy could be read,
+# files treated as accepted, with the reason (and member for ar
+# archives).  This data is typically up to 100 characters wide -
+# sometimes it's a bit more, but it doesn't wrap too badly in a
+# 100 character xterm.
+#
+# farce-extras - diffs for the files, or members, that didn't
+# match.  This file is to establish new regexps for picking up
+# date/time/kernel-version formats.
+#
+# farce-identical - the names of the files which are identical
+#
+# farce-substitutions - whenever using tokenizeanddiff results in a
+# difference being accepted, for both versions diff the before and
+# after versions to show what got changed.  If the file is a binary,
+# the output may still be hard to read.  Note that I _know_ glibc
+# version strings pass one of the regexps looking for a kernel version
+# - since I expect you to use the same version of glibc for each
+# build, this is not a problem.
+#
+# farce-differ - the names of the files which could not be treated
+# as matching (whether or not I regard the failure as predictable)
+# for possible input to ICA processing.
+#
+# Copyright (C) 2005, 2006 Ken Moffat <ken@linuxfromscratch.org>
+#
+# All rights reserved.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or (at
+# your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
+# NON INFRINGEMENT.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+
+: <<inline_doc
+    desc:       do farce analisys and report
+    usage:      farce -directory $FARCELOGDIR/dir path1 list1 path2 list2
+    input vars: $1 farce log dir for this comparation
+                $2 full path to previous iteration
+                $3 full path to filelist for previos iteration
+                $4 full path to current iteration
+                $5 full path to filelist for current iteration
+    externals:  --
+    modifies:   --
+    returns:    --
+    on error:
+    on success:
+inline_doc
+
+
+VERSION="002"
+
+# variables for output files
+RESULT=farce-results
+EXTRAS=farce-extras
+IDENTICAL=farce-identical
+SUBS=farce-substitutions
+DIFFER=farce-differ
+
+# documenting the variables
+# C1, C2	temp files to hold disassembled code
+# D1, D2	temp directories for extracting member of ar archive
+# DIFF		temp file for diffing the filelists
+# F1, F2	temp files for tokenizeanddiff
+# FTYPE		obsolete, commented out
+# M1, M2	temp files to hold members of an ar archive
+# MEMBERS	temp file to list members of ar archive
+# OP1, OP2	the original $PWD, needed when extracting members of ar
+#		archives
+# P1, P2	paths to first and second build
+# S1, S2	temp files for shared objects
+
+# functions
+function dohelp() {
+	echo "`basename $0`: compare trees of files from a build"
+	echo "and lists of the files they contained"
+	echo ""
+	echo "`basename $0` [ -help | -version ] || path1 list1 path2 list2"
+}
+
+function emessage() {
+	# write a string to both stderr and $RESULT
+	echo "$@" >&2
+	echo "$@" >&5
+}
+
+function expected() {
+	# if we expect it to differ because of its name,
+	# allow it and report, return true ; else return false
+	case $1 in
+	/boot/grub/menu.lst)
+		# just in case somebody puts this into the main filesystem
+		true;;
+	/etc/aliases.db)
+		# some sort of database for postfix, not parsable
+		true;;
+	/etc/blkid.tab)
+		# includes dev name for rootfs
+		true;;
+	/etc/fstab)
+		# fstab, e.g. ' / ' will differ
+		true;;
+	/etc/group*)
+		true;;
+	/etc/hosts)
+		# with dhcp client, I add current ip address to this in a hook
+		true;;
+	/etc/ld.so.*)
+		# .conf and .cache can vary,
+		# particularly if one system has a full build when I run this
+		true;;
+	/etc/lilo.conf|/etc/yaboot.conf)
+		# bootloader control, I assume grub will all be on a separate
+		true;;
+	/etc/mtab)
+		# at a minimum, different '/'
+		true;;
+	/etc/ntp.drift)
+		true;;
+	/etc/passwd*)
+		true;;
+	/etc/shadow*)
+		true;;
+	/etc/ssh/*key|/etc/ssh/*pub)
+		# openssh keys
+		true;;
+	/misc/*)
+		# where I put buildscripts (which mostly won't change)
+		# and stamps containing name/time/space which will differ in the times
+		true;;
+	/root/*)
+		# expect .bash_history etc to differ - if we can read them
+		true;;
+	/usr/bin/lynx)
+		# part of my inital builds, I guess this uses anonymous namespaces
+		true;;
+	/usr/include/c++/*/*/bits/stdc++.h.gch/*)
+		# precompiled headers
+		true;;
+	/usr/lib*/libstdc++.a|/usr/lib*/libstdc++.so*|/usr/lib*/libsupc++.a)
+		# probably, anonymous namespaces
+		# libstdc++.a, libstdc++.so.n.n.n, libsupc++.a
+		true;;
+	/usr/share/info/dir)
+		# if one system has had extra stuff built, this will likely be bigger
+		true;;
+	/usr/share/man/whatis)
+		# if one system has had extra stuff built, this will likely be bigger
+		true;;
+	/var/lib/locate/locatedb)
+		# if one system has had extra stuff built, this will likely be bigger
+		true;;
+	/var/lib/nfs/*)
+		# allow nfs bookkeeping
+		true;;
+	/var/log/*)
+		true;;
+	/var/run/utmp)
+		true;;
+	/var/spool/fcron*)
+		true;;
+	/var/state/*)
+		# allow dhcp leases
+		true;;
+	/var/tmp/random-seed)
+		true;;
+	# following start with wildcards
+	*Image*|*.PPCBoot*|*vmlinuz*|*lfskernel*)
+		# compressed kernels, sometimes just building at a different
+		# date/time is enough to change the length of them, because the
+		# long format date and time is part of the compressed data
+		true;;
+	*pid*)
+		# pids, including e.g. /var/spool/postfix/pid/*
+		true;;
+	*)
+		# nothing else is expected to be different
+		false;;
+	esac
+	if [ $? -eq 0 ]; then
+		message "expected difference in $1"
+		let expected=$expected+1
+		case $TYPE in
+			AR)
+				let EXPAR=$EXPAR+1
+				;;
+			ELF)
+				let EXPELF=$EXPELF+1
+				;;
+			UNK)
+				let EXPUNK=$EXPUNK+1
+				;;
+			# so far, no other valid types, so don't accumulate them
+			*)
+				emessage "internal error, expected difference for $1 of type $TYPE not allowed"
+				exit 2
+				;;
+		esac
+		true
+	else
+		false
+	fi
+}
+
+function failure() {
+	# first parm is filename or token
+	# second parm is the error message
+	# update the appropriate total
+	# and write to both stderr and the results
+	# by using emessage
+
+	let different=$different+1
+	case $TYPE in
+		AR)
+			let DIFAR=$DIFAR+1
+			;;
+		ELF)
+			let DIFELF=$DIFELF+1
+			;;
+		GZ)
+			let DIFGZ=$DIFGZ+1
+			;;
+		SYM)
+			let DIFSYM=$DIFSYM+1
+			;;
+		UNK)
+			let DIFUNK=$DIFUNK+1
+			;;
+		*)
+			emessage "internal error in failure() for TYPE $TYPE"
+			exit 2
+			;;
+		esac
+		test -f ${P1}$1 && echo $1 >&9
+		emessage "FAIL: $2"
+}
+
+function fatal() {
+	# unrecoverable error
+	echo $*
+	exit 1
+}
+
+function filetype() {
+	TYPE=`file ${P1}${FILE}`
+	case $TYPE in
+	*'current ar archive'*)
+		let TOTAR=$TOTAR+1
+		TYPE=AR
+		;;
+	*' ELF '*)
+		let TOTELF=$TOTELF+1
+		TYPE=ELF
+		;;
+	*'gzip compressed data'*)
+		let TOTGZ=$TOTGZ+1
+		TYPE=GZ
+		;;
+	*)
+		let TOTUNK=$TOTUNK+1
+		TYPE=UNK
+		;;
+	esac
+}
+
+function message() {
+	# write a string to $RESULT
+	echo $* >&5
+}
+
+function onlyone() {
+	#report files only in one build
+	# text should go to both stderr and the results,
+	# but blank lines only go to the results
+	if [ $1 == '<' ]; then
+		emessage "File(s) only in the first build"
+	else
+		emessage "File(s) only in the second build"
+	fi
+	message ""
+	FILES=`cat $DIFF | grep "^$1" | cut -d ' ' -f 2`
+	for F in $FILES; do
+		emessage $F
+		let only=$only+1
+	done
+	message ""
+}
+
+# 'test' functions are called with three arguments:
+# the two pathes and the filename
+# - we know the file is of this type, so see if we
+# can get it to match by reasonalbe means.
+# if not, treat it as different.
+#
+# NB if pathes are absolute, we need to prefix them
+# with the original $PWD to access the .a files
+#
+function testar() {
+	# ar archives include timestamps for the members,
+	# but diff doesn't show file timestamps unless the data differs
+	# put out a message to help locate which archive any messages
+	# about the members refer to.
+
+	# try just stripping them U1,2 undebuggable
+	U1=`mktemp` || fatal "cannot create a temporary file"
+	U2=`mktemp` || fatal "cannot create a temporary file"
+	cp ${1}${3} $U1
+	cp ${2}${3} $U2
+	strip --strip-debug $U1
+	strip --strip-debug $U2
+	cmp -s $U1 $U2
+	rm $U1 $U2
+	if [ $? -eq 0 ]; then
+		let accepted=$accepted+1
+		let ACCAR=$ACCAR+1
+		message "archive $3 matches after strip --strip-debug"
+		return
+	fi
+	# rest of this function retained primarily for pathologically bad builds
+	# put out a message in the log to help identify which archive has issues.
+	message "examining ar archive $3"
+	D1=`mktemp -d` || fatal "cannot create a temporary directory"
+	D2=`mktemp -d` || fatal "cannot create a temporary directory"
+	cd $D1
+	ar -x ${OP1}${1}${3}
+	cd $D2
+	ar -x ${OP2}${2}${3}
+	cd
+	# diff the members - true means they match
+	diff -Na $D1 $D2 >/dev/null
+	if [ $? -eq 0 ]; then
+		message "accept: $3 after diffing the members"
+		let accepted=$accepted+1
+		let ACCAR=$ACCAR+1
+	else
+		# process individual members to eliminate date/time/kernel-version
+		# first, check the members are the same
+		M1=`mktemp` || fatal "cannot create a temporary file"
+		M2=`mktemp` || fatal "cannot create a temporary file"
+		cd $D1
+		MEMBERS=
+		for F in *; do
+			MEMBERS="$MEMBERS $F"
+		done
+		cd
+		echo $MEMBERS | sort >$M1
+		cd $D2
+		MEMBERS=
+		for F in *; do
+			MEMBERS="$MEMBERS $F"
+		done
+		cd
+		echo $MEMBERS | sort >$M2
+		cmp -s $M1 $M2
+		if [ $? -ne 0 ]; then
+			# oh dear, different members
+			echo "list of members differs for archive $3" >&6
+			diff $M1 $M2 >&6
+			failure $3 "$3 list of members differs"
+		else
+			# members (names) are same,
+			# process each one
+			STATUS=0
+			for M in $MEMBERS; do
+				#avoid firing up perl on matching members
+				cmp -s $D1/$M $D2/$M
+				if [ $? -ne 0 ]; then
+					tokenizeanddiff $D1/$M $D2/$M $FILE:$M
+					if [ $? -eq 0 ]; then
+						message "member $M matches after processing"
+					else
+						message "member $M DIFFERS after processing"
+						STATUS=1
+					fi
+				fi
+			done
+			if [ $STATUS -eq 0 ]; then
+				let accepted=$accepted+1
+				let ACCAR=$ACCAR+1
+			else
+				let different=$different+1
+				let DIFAR=$DIFAR+1
+				echo $3 >&9
+				emessage "FAIL: in $3"
+			fi
+		fi
+		rm $M1 $M2
+	fi
+	rm -rf $D1 $D2
+}
+
+function testgzip() {
+	# bytes 4,5,6,7 are the timestamp, so ignore these
+	cmp -s -i 8 ${1}${3} ${2}${3}
+	if [ $? -eq 0 ]; then
+		message "accept: $3 after ignoring gzip timestamp"
+		let accepted=$accepted+1
+		let ACCGZ=$ACCGZ+1
+	else
+		failure $3 " $3 even after ignoring gzip timestamp"
+	fi
+}
+
+function testso() {
+	# shared object - first try stripping it
+	# in fact, this now handles ALL ELF files
+	S1=`mktemp` || fatal "cannot create a temporary file"
+	S2=`mktemp` || fatal "cannot create a temporary file"
+	cp ${1}${3} $S1
+	strip --strip-debug $S1
+	cp ${2}${3} $S2
+	strip --strip-debug $S2
+	cmp -s $S1 $S2
+	if [ $? -eq 0 ]; then
+		message "accept: $3 after --strip-debug"
+		let accepted=$accepted+1
+		let ACCELF=$ACCELF+1
+	else
+		tokenizeanddiff $S1 $S2 $3
+		if [ $? -ne 0 ]; then
+			failure $3 " $3 differs after stripping and processing"
+		else
+			message "accept: $3 after --strip-debug and processing"
+			let accepted=$accepted+1
+			let ACCELF=$ACCELF+1
+		fi
+	fi
+	rm $S1 $S2
+}
+
+function tokenize() {
+	# use regexes to replace date/time/kernel-version text
+	# with tokens which may allow files to match even though
+	# they have hardcoded date/time/kernel-version.
+	# arguments are file to process, and where to put it.
+	# these regexes are somewhat long, and the order they
+	# are applied in is important (to stop short ones being
+	# used when a longer version would match).
+	# KV00 linux version date (e.g. as in the kernel itself)
+	# allow 2 or 3 groups of three alphas here - optional smp,  with day, mon
+	# KV01 kernel version, including possible cpu details (that is for cdda2wav)
+	# KV02 just the version, in quotes e.g. "2.6.12.6" or '2.6.13', for perl stuff
+	# except that "|' gives me grif, so try a boundary
+	# also, it might need local version on the end, I really want
+	# quote2.\d+.\d+.{0,32}quote - it is the quotes that don't work.
+	# DT00 Day Mon .d+ hh:mm:ss TZN CCYY variations include non-caps and 'mon d'
+	# DT01 Mon .d+ CCYY hh:mm:ss
+	# DT02 hh:mm:ss Mon .d CCYY
+	# DT03 Mon .d CCYY
+	# DT04 Day Mon { ,d}d hh:mm:ss CCYY - for groff example postscript files
+	# (somewhat similar to DT00, but '  d' or ' dd' for day of month and no TZN )
+	# DT05 hh:mm:ss
+	# DT06 ISO date using space as separator
+	# DT07 ISO date using dash as separator
+	# DT08 ISO date using slash as separator
+	# DT09 fullmonth (capitalised), day number, comma, 4-digit year (groff 1.18.1 ps)
+	# DT10 dd, fullmonth (capitalised), 4-digit year (groff 1.18.1 manpages)
+	# DT11 '(xample comma space digit(s) backslash ) in groff memef.ps which is
+	# quite clearly the day of the month when it was compiled, preceded by 'example'
+	# with something weird between the e and the x.
+
+	if [ $# -ne 2 ]; then
+		fatal "tokenizing called with $# arguments : $*"
+	fi
+
+	cat $1 | perl -p \
+	 -e 's/(L|l)inux.*\d\.\d\.\d+.* \#\d+( [A-Za-z][a-z]{2}){2,3} \d+ \d\d:\d\d:\d\d [A-Za-z]{3} \d{4}\b/%KV00%/g;' \
+	 -e 's/(L|l)inux( (\w|_)+)?(-| |_)\d\.\d(\.\d+){1,2}((-|_)?(\w|_)+)?( |\000)*/%KV01%/g;' \
+	 -e 's/\W2(\.\d+){2,3}(-|_)?((\w|_)+)?\s*\W/%KV02%/g;' \
+	 -e 's/\b([A-Za-z][a-z]{2} ){2}( |\d)?\d \d\d:\d\d:\d\d [A-Za-z]{3} \d{4}\b/%DT00%/g;' \
+	 -e 's/\b[A-Z][a-z]{2} ( |\d)\d \d{4} \d\d:\d\d:\d\d\b/%DT01%/g;' \
+	 -e 's/\b\d\d:\d\d:\d\d [A-Z][a-z]{2} ( |\d)\d \d{4}\b/%DT02%/g;' \
+	 -e 's/\b[A-Z][a-z]{2} ( |\d)\d \d{4}\b/%DT03%/g;' \
+	 -e 's/\b([A-Z][a-z]{2} ){2}( |\d)\d \d\d:\d\d:\d\d \d{4}/%DT04%/g;' \
+	 -e 's/\b\d\d:\d\d:\d\d\b/%DT05%/g;' \
+	 -e 's/\b\d{4} \d\d \d\d\b/%DT06%/g;' \
+	 -e 's/\b\d{4}-\d\d-\d\d\b/%DT07%/g;' \
+	 -e 's/\b\d{4}\/\d\d\/\d\d\b/%DT08%/g;' \
+	 -e 's/\b[A-Z][a-z]{2,} \d{1,2}, \d{4}/%DT09%/g;' \
+	 -e 's/\b\d\d [A-Z][a-z]{2,} \d{4}/%DT10%/g;' \
+	 -e 's/\(xample, \d{1,2}\\\)/%DT11%/g;' \
+	>$2
+}
+
+function tokenizeanddiff() {
+	# Call tokenize for the inputs, then compare the results
+	# Input arguments are path/filename for old and new versions
+	# third parm is readable name (filename, or archivename:member)
+	# to help understand what is in the extras output.
+	#  - sometimes called for files, but other times called for
+	# members of ar archives extracted into temporary directories
+	#message tokenizeanddiff called for $1 $2 $3
+	F1=`mktemp` || fatal "cannot create a temporary file"
+	F2=`mktemp` || fatal "cannot create a temporary file"
+	tokenize $1 $F1
+	tokenize $2 $F2
+
+	# actually, cmp is probably more efficient
+	# but for picking up the pieces it will be better to
+	# use diff to see what got through.
+	cmp -s $F1 $F2
+	TOKENRESULT=$?
+	if [ $TOKENRESULT -ne 0 ]; then
+		echo "failure in $3..." >&6
+		diff -a $F1 $F2 >&6
+		rm $F1 $F2
+		false
+	else
+		# show what we did
+		echo "substitutions for $3" >&8
+		echo "build one" >&8
+		diff -a $1 $F1 >&8
+		echo "build two" >&8
+		diff -a $2 $F2 >&8
+		rm $F1 $F2
+		true
+	fi
+}
+
+function validateargs() {
+# validate the arguments
+BAD=0
+if ! [ -d $1 ]; then
+	echo "Error: first argument is not a directory" >&2
+	let BAD=$BAD+1
+fi
+NAME=`basename ${2%%-*}`
+if [ $NAME != filelist ]; then
+	echo "Error: second argument is not a recognized filelist" >&2
+	let BAD=$BAD+1
+fi
+if ! [ -d $3 ]; then
+	echo "Error: third argument is not a directory" >&2
+	let BAD=$BAD+1
+fi
+NAME=`basename ${4%%-*}`
+if [ $NAME != filelist ]; then
+	echo "Error: fourth argument is not a recognized filelist" >&2
+	let BAD=$BAD+1
+fi
+for I in $1 $2 $3 $4; do
+	if ! [ -r $I ]; then
+		echo "Error: cannot read $I" >&2
+		let BAD=$BAD+1
+	fi
+done
+if [ $1 == $3 ]; then
+	echo "Error: directory pathes are identical" >&2
+	let BAD=$BAD+1
+fi
+if [ $2 == $4 ]; then
+	echo "Error: filelist names are identical" >&2
+	let BAD=$BAD+1
+fi
+if [ $BAD -eq 0 ]; then
+	ARGS=valid
+fi
+}
+
+# Mainline
+ARGS=unproven
+OUTDIR=
+if [ $# -eq 1 ]; then
+	case $1 in
+		-version|--version)
+			echo "`basename $0` version $VERSION"
+			exit 0
+			;;
+		-help|--help)
+			dohelp
+			exit 0
+			;;
+	esac
+fi
+if [ $1 = "--directory" ]; then
+	OUTDIR=$2
+	shift 2
+	grep '/$' $OUTDIR >/dev/null 2>&1 || OUTDIR=`echo $OUTDIR | sed 's%$%/%'`
+	echo "creating directory $OUTDIR"
+	mkdir -p $OUTDIR
+	if [ $? -ne 0 ]; then
+		echo "cannot mkdir $OUTDIR"
+		exit 1
+	fi
+fi
+if [ $# -eq 4 ]; then
+	validateargs $*
+fi
+if ! [ $ARGS == valid ]; then
+	dohelp
+	fatal "`basename $0`: error in arguments"
+fi
+
+# ok, we're happy, lets hit these files
+exec 5>${OUTDIR}$RESULT
+exec 6>${OUTDIR}$EXTRAS
+exec 7>${OUTDIR}$IDENTICAL
+exec 8>${OUTDIR}$SUBS
+exec 9>${OUTDIR}$DIFFER
+
+>${OUTDIR}$RESULT
+if [ $? -ne 0 ]; then
+	fatal "cannot write to ${OUTDIR}$RESULT"
+fi
+
+emessage "will compare:"
+emessage " first build at $1 with files listed in $2"
+emessage "second build at $3 with files listed in $4"
+
+let accepted=0
+let different=0
+let expected=0
+let matched=0
+let only=0
+let predictable=0
+let unreadable=0
+let total=0
+
+# break down the accepted
+let ACCAR=0
+let ACCELF=0
+let ACCGZ=0
+let ACCUNK=0
+
+# break down definitely different
+let DIFAR=0
+let DIFELF=0
+let DIFGZ=0
+let DIFSYM=0
+let DIFUNK=0
+
+# break down the expected differences
+let EXPAR=0
+let EXPELF=0
+let EXPGZ=0
+let EXPUNK=0
+
+# break down the identical files
+let MATAR=0
+let MATELF=0
+let MATGZ=0
+let MATSYM=0
+let MATUNK=0
+
+# break down how many of each type
+let TOTAR=0
+let TOTELF=0
+let TOTGZ=0
+let TOTSYM=0
+let TOTUNK=0
+
+# now identify differences between the two trees
+DIFF=`mktemp` || fatal "cannot create a temporary file"
+diff $2 $4 >$DIFF
+
+for RUN in '<' '>' ; do
+	grep -q "$RUN" $DIFF && onlyone "$RUN"
+done
+
+rm $DIFF
+
+# and compare them
+message "Results of file comparison:"
+message ""
+
+# Strip any trailing slash from the path for tidyness,
+# because the filenames all start with a slash.  Unfortunately,
+# unfortunately, '/' becomes empty, which breaks subroutines,
+# so special case it.
+# also, to process ar archives we need to extract them in temp
+# directories - that means that after cd'ing we've broken any
+# relative path, so save original pwd as necessary.
+P1=`echo $1 | sed 's%/$%%'`
+echo $1 | grep '^/' >/dev/null
+if [ $? -ne 0 ]; then
+	# relative path
+	OP1=${PWD}/
+	#echo "setting OP1 to $OP1"
+else
+	OP1=
+	#echo "$1 is an absolute path"
+fi
+test -z "$P1" && P1='/'
+P2=`echo $3 | sed 's%/$%%'`
+echo $3 | grep '^/' >/dev/null
+if [ $? -ne 0 ]; then
+	# relative path
+	OP2=${PWD}/
+	#echo "setting OP2 to $OP2"
+else
+	OP2=
+	#echo "$3 is an absolute path"
+fi
+test -z "$P2" && P2='/'
+
+echo "about to read $2"
+while read FILE ; do
+#echo "process $FILE"
+#echo "test existence of ${P2}${FILE}"
+	# confirm it exists in second build
+	# we have already reported files only in one build
+	if [ -f ${P2}"${FILE}" ]; then
+		let total=$total+1
+		# check we can read both of them
+		# or count as unreadable - I used to separate only-one-unreadable,
+		# but if you compre '/' and a _copy_  of /mnt/lfs that assumption
+		# breaks, so be less picky.
+		if ! [ -r "${P1}${FILE}" ] || ! [ -r "${P2}${FILE}" ]; then
+			message "cannot read one or both versions of $FILE"
+			let unreadable=$unreadable+1
+			continue
+		fi
+		if [ -h "${P1}${FILE}" ]; then
+			# for symlink, look at what it points to
+			# exceptionally, do not call filetype
+			TYPE=SYM
+			let TOTSYM=$TOTSYM+1
+			SL1=`ls -l "${P1}${FILE}" | awk '{ print $11 }'`
+			SL2=`ls -l "${P2}${FILE}" | awk '{ print $11 }'`
+			if [ "$SL1" = "$SL2" ]; then
+				echo "symlink $FILE matches for $SL1" >&5
+				let matched=$matched+1
+				let MATSYM=$MATSYM+1
+			else
+				failure TARGET " symlink $FILE points to $SL1 and $SL2"
+				echo $FILE >&9
+			fi
+		else
+			# regular file, start by typing it for accounting,
+			# then compare it
+			filetype ${P1}${FILE}
+			cmp -s "${P1}${FILE}" "${P2}${FILE}"
+			if [ $? -eq 0 ]; then
+				let matched=$matched+1
+				case $TYPE in
+					AR)
+						let MATAR=$MATAR+1
+						;;
+					ELF)
+						let MATELF=$MATELF+1
+						;;
+					GZ)
+						let MATGZ=$MATGZ+1
+						;;
+					UNK)
+						let MATUNK=$MATUNK+1
+						;;
+					*)
+						echo "unexpected TYPE of $TYPE for $FILE" >&2
+						exit 2
+						;;
+				esac
+				echo ${FILE} >&7
+			else
+				# seems different, can we do better ?
+				# test if we expect it to differ
+				expected $FILE
+				if [ $? -ne 0 ]; then
+					case $TYPE in
+					GZ)
+						testgzip $P1 $P2 $FILE ;;
+					AR)
+						testar $P1 $P2 $FILE ;;
+					ELF)
+						testso $P1 $P2 $FILE ;;
+					*)
+						# long-stop - strip dates from text files
+						tokenizeanddiff "${P1}${FILE}" "${P2}${FILE}" "$FILE"
+						if [ $? -eq 0 ]; then
+							message "accepted $FILE after processing"
+							let accepted=$accepted+1
+							let ACCUNK=$ACCUNK+1
+						else
+							failure "$FILE" " $FILE is different"
+						fi
+						;;
+					esac
+				fi
+			fi
+		fi
+	fi
+done < $2
+
+message ""
+# write totals to stderr as well as the results file
+emessage "$only files in only one of the builds"
+emessage "$total files compared, of which"
+emessage "$unreadable files could not be read, skipped"
+emessage "$matched files are identical"
+emessage "$expected files differed as expected"
+emessage "$accepted files had allowable differences"
+#emessage "$predictable files differed as they normally do"
+emessage "$different files differed"
+
+# totals of different file types
+emessage ""
+emessage "$TOTAR ar archives"
+emessage " of which $MATAR are identical"
+emessage " of which $ACCAR are accepted after strip-debug or extracting, diffing, tokenizing"
+emessage " of which $EXPAR differed as expected"
+emessage "    of which $DIFAR differed"
+emessage "$TOTELF ELF executables or shared libraries"
+emessage " of which $MATELF are identical"
+emessage " of which $ACCELF are accepted after stripping and tokenizing"
+emessage " of which $EXPELF differed as expected"
+emessage "    of which $DIFELF differed"
+emessage "$TOTGZ gzipped files"
+emessage " of which $MATGZ are identical"
+emessage " of which $ACCGZ are accepted after comparing beyond timestamp"
+emessage " of which $DIFGZ are different"
+emessage "$TOTSYM symbolic links"
+emessage " of which $MATSYM are identical"
+emessage "    of which $DIFSYM have different targets"
+emessage "$TOTUNK other files"
+emessage " of which $MATUNK are identical"
+emessage " of which $ACCUNK are accepted after tokenizing"
+emessage " of which $EXPUNK differed as expected"
+emessage "    of which $DIFUNK differed"
+

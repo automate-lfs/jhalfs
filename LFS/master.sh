@@ -144,9 +144,35 @@ chapter5_Makefiles() {
 #----------------------------#
 chapter6_Makefiles() {
 #----------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6${R_arrow}"
+  # Set envars and scripts for iteration targets
+  LOGS="" # Start with an empty global LOGS envar
+  if [[ -z "$1" ]] ; then
+    local N=""
+  else
+    local N=-build_$1
+    local chapter6=""
+    mkdir chapter06$N
+    cp chapter06/* chapter06$N
+    for script in chapter06$N/* ; do
+      # Overwrite existing symlinks, files, and dirs
+      sed -e 's/ln -sv/&f/g' \
+          -e 's/mv -v/&f/g' \
+          -e 's/mkdir -v/&p/g' -i ${script}
+    done
+    # Remove Bzip2 binaries before make install
+    sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i chapter06$N/*-bzip2
+    # Fix how Module-Init-Tools do the install target
+    sed -e 's@make install@make INSTALL=install install@' -i chapter06$N/*-module-init-tools
+    # Delete *old Readline libraries just after make install
+    sed -e 's@make install@&\nrm -v /lib/lib{history,readline}*old@' -i chapter06$N/*-readline
+    # Let some Udev pre-installation commands to fail
+    sed -e 's@/lib/udev/devices/fd@& || true@' \
+        -e 's/mknod -m.*/& || true/' -i chapter06$N/*-udev
+  fi
 
-  for file in chapter06/* ; do
+  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6$N${R_arrow}"
+
+  for file in chapter06$N/* ; do
     # Keep the script file name
     this_script=`basename $file`
 
@@ -157,12 +183,28 @@ chapter6_Makefiles() {
       *stripping*) [[ "${STRIP}" = "0" ]] && continue ;;
     esac
 
-    # First append each name of the script files to a list (this will become
-    # the names of the targets in the Makefile
-    chapter6="$chapter6 ${this_script}"
-
     # Grab the name of the target
     name=`echo ${this_script} | sed -e 's@[0-9]\{3\}-@@'`
+
+    # Find the version of the command files, if it corresponds with the building of
+    # a specific package. We need this here to can skip scripts not needed for
+    # iterations rebuilds
+    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+
+    if [[ "$vrs" = "" ]] && [[ -n "$N" ]] ; then
+      case "${this_script}" in
+        *stripping*) ;;
+        *)  continue ;;
+      esac
+    fi
+
+    # Append each name of the script files to a list (this will become
+    # the names of the targets in the Makefile)
+    chapter6="$chapter6 ${this_script}${N}"
+
+    # Append each name of the script files to a list (this will become
+    # the names of the logs to be moved for each iteration)
+    LOGS="$LOGS ${this_script}"
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
@@ -170,11 +212,7 @@ chapter6_Makefiles() {
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    wrt_target "${this_script}" "$PREV"
-
-    # Find the version of the command files, if it corresponds with the building of
-    # a specific package
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+    wrt_target "${this_script}${N}" "$PREV"
 
     # If $vrs isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
@@ -204,7 +242,9 @@ chapter6_Makefiles() {
     #--------------------------------------------------------------------#
 
     # Keep the script file name for Makefile dependencies.
-    PREV=${this_script}
+    PREV=${this_script}${N}
+    # Set system_build envar for iteration targets
+    system_build=$chapter6
   done # end for file in chapter06/*
 }
 
@@ -304,6 +344,8 @@ build_Makefile() {
   chapter4_Makefiles
   chapter5_Makefiles
   chapter6_Makefiles
+  # Add the iterations targets, if needed
+  [[ "$COMPARE" != "0" ]] && wrt_compare_targets
   chapter789_Makefiles
 
 

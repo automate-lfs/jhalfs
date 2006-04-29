@@ -461,21 +461,41 @@ bm_testsuite_tools_Makefiles() { #
 #-----------------------------#
 final_system_Makefiles() {    #
 #-----------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}(chroot) final system${R_arrow}"
+  # Set envars and scripts for iteration targets
+  LOGS="" # Start with an empty global LOGS envar
+  if [[ -z "$1" ]] ; then
+    local N=""
+  else
+    local N=-build_$1
+    local basicsystem=""
+    mkdir final-system$N
+    cp final-system/* final-system$N
+    for script in final-system$N/* ; do
+      # Overwrite existing symlinks, files, and dirs
+      sed -e 's/ln -sv/&f/g' \
+          -e 's/mv -v/&f/g' \
+          -e 's/mkdir -v/&p/g' -i ${script}
+    done
+    # Remove Bzip2 binaries before make install
+    sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i final-system$N/*-bzip2
+    # Fix how Module-Init-Tools do the install target
+    sed -e 's@make install@make INSTALL=install install@' -i final-system$N/*-module-init-tools
+    # Delete *old Readline libraries just after make install
+    sed -e 's@make install@&\nrm -v /lib/lib{history,readline}*old@' -i final-system$N/*-readline
+  fi
 
-  for file in final-system/* ; do
+  echo "${tab_}${GREEN}Processing... ${L_arrow}(chroot) final system$N${R_arrow}"
+
+  for file in final-system$N/* ; do
     # Keep the script file name
     this_script=`basename $file`
 
-    # Test if the stripping phase must be skipped
+    # Test if the stripping phase must be skipped.
+    # Skip alsp temp-perl for iterative runs
     case $this_script in
-      *stripping*) [[ "$STRIP" = "0" ]] && continue
-       ;;
+      *stripping*) [[ "$STRIP" = "0" ]] && continue ;;
+      *temp-perl*) [[ -n "$N" ]] && continue ;;
     esac
-
-    # First append each name of the script files to a list (this will become
-    # the names of the targets in the Makefile
-    basicsystem="$basicsystem $this_script"
 
     # Grab the name of the target, strip id number, XXX-script
     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' \
@@ -485,7 +505,25 @@ final_system_Makefiles() {    #
                                   -e 's@64@@' \
                                   -e 's@n32@@'`
 
+    # Find the version of the command files, if it corresponds with the building of
+    # a specific package. We need this here to can skip scripts not needed for
+    # iterations rebuilds
     vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+
+    if [[ "$vrs" = "" ]] && [[ -n "$N" ]] ; then
+      case "${this_script}" in
+        *stripping*) ;;
+        *)  continue ;;
+      esac
+    fi
+
+    # Append each name of the script files to a list (this will become
+    # the names of the targets in the Makefile
+    basicsystem="$basicsystem ${this_script}${N}"
+
+    # Append each name of the script files to a list (this will become
+    # the names of the logs to be moved for each iteration)
+    LOGS="$LOGS ${this_script}"
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
@@ -493,14 +531,12 @@ final_system_Makefiles() {    #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    wrt_target "${this_script}" "$PREV"
+    wrt_target "${this_script}${N}" "$PREV"
 
     # If $vrs isn't empty, we've got a package...
     if [ "$vrs" != "" ] ; then
-      case $name in
-        temp-perl) wrt_unpack2 "perl-$vrs.tar.*"    ;;
-        *)         wrt_unpack2 "$name-$vrs.tar.*"   ;;
-      esac
+      FILE="$name-$vrs.tar.*"
+      wrt_unpack2 "$FILE"
     fi
     #
     wrt_run_as_chroot1 "${this_script}" "${file}"
@@ -515,8 +551,9 @@ final_system_Makefiles() {    #
     #--------------------------------------------------------------------#
     #
     # Keep the script file name for Makefile dependencies.
-    PREV=$this_script
-
+    PREV=${this_script}${N}
+    # Set system_build envar for iteration targets
+    system_build=$basicsystem
   done  # for file in final-system/* ...
 }
 
@@ -524,24 +561,43 @@ final_system_Makefiles() {    #
 #-----------------------------#
 bm_final_system_Makefiles() { #
 #-----------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}(boot) final system${R_arrow}"
+  # Set envars and scripts for iteration targets
+  LOGS="" # Start with an empty global LOGS envar
+  if [[ -z "$1" ]] ; then
+    local N=""
+    # The makesys phase was initiated in bm_testsuite_tools_makefile
+    [[ "$TEST" = 0 ]] && PREV=""
+  else
+    local N=-build_$1
+    local basicsystem=""
+    mkdir final-system$N
+    cp final-system/* final-system$N
+    for script in final-system$N/* ; do
+      # Overwrite existing symlinks, files, and dirs
+      sed -e 's/ln -sv/&f/g' \
+          -e 's/mv -v/&f/g' \
+          -e 's/mkdir -v/&p/g' -i ${script}
+    done
+    # Remove Bzip2 binaries before make install
+    sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i final-system$N/*-bzip2
+    # Fix how Module-Init-Tools do the install target
+    sed -e 's@make install@make INSTALL=install install@' -i final-system$N/*-module-init-tools
+    # Delete *old Readline libraries just after make install
+    sed -e 's@make install@&\nrm -v /lib/lib{history,readline}*old@' -i final-system$N/*-readline
+  fi
 
-  # The makesys phase was initiated in bm_testsuite_tools_makefile
-  [[ "$TEST" = 0 ]] && PREV=""
+  echo "${tab_}${GREEN}Processing... ${L_arrow}(boot) final system$N${R_arrow}"
 
-  for file in final-system/* ; do
+  for file in final-system$N/* ; do
     # Keep the script file name
     this_script=`basename $file`
 
     # Test if the stripping phase must be skipped
+    # Skip alsp temp-perl for iterative runs
     case $this_script in
-      *stripping*) [[ "$STRIP" = "0" ]] && continue
-       ;;
+      *stripping*) [[ "$STRIP" = "0" ]] && continue ;;
+      *temp-perl*) [[ -n "$N" ]] && continue ;;
     esac
-
-    # First append each name of the script files to a list (this will become
-    # the names of the targets in the Makefile
-    basicsystem="$basicsystem $this_script"
 
     # Grab the name of the target, strip id number, XXX-script
     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' \
@@ -551,7 +607,25 @@ bm_final_system_Makefiles() { #
                                   -e 's@64@@' \
                                   -e 's@n32@@'`
 
+    # Find the version of the command files, if it corresponds with the building of
+    # a specific package. We need this here to can skip scripts not needed for
+    # iterations rebuilds
     vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+
+    if [[ "$vrs" = "" ]] && [[ -n "$N" ]] ; then
+      case "${this_script}" in
+        *stripping*) ;;
+        *)  continue ;;
+      esac
+    fi
+
+    # Append each name of the script files to a list (this will become
+    # the names of the targets in the Makefile
+    basicsystem="$basicsystem ${this_script}${N}"
+
+    # Append each name of the script files to a list (this will become
+    # the names of the logs to be moved for each iteration)
+    LOGS="$LOGS ${this_script}"
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
@@ -559,14 +633,12 @@ bm_final_system_Makefiles() { #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    wrt_target "${this_script}" "$PREV"
+    wrt_target "${this_script}${N}" "$PREV"
 
     # If $vrs isn't empty, we've got a package...
     if [ "$vrs" != "" ] ; then
-      case $name in
-        temp-perl) wrt_unpack3 "perl-$vrs.tar.*"    ;;
-        *)         wrt_unpack3 "$name-$vrs.tar.*"   ;;
-      esac
+      FILE="$name-$vrs.tar.*"
+      wrt_unpack3 "$FILE"
     fi
     #
     wrt_run_as_root2 "${this_script}" "${file}"
@@ -581,8 +653,9 @@ bm_final_system_Makefiles() { #
     #--------------------------------------------------------------------#
     #
     # Keep the script file name for Makefile dependencies.
-    PREV=$this_script
-
+    PREV=${this_script}${N}
+    # Set system_build envar for iteration targets
+    system_build=$basicsystem
   done  # for file in final-system/* ...
 }
 
@@ -885,6 +958,8 @@ build_Makefile() {            # Construct a Makefile from the book scripts
       testsuite_tools_Makefiles    # $testsuitetools
     fi
     final_system_Makefiles         # $basicsystem
+    # Add the iterations targets, if needed
+    [[ "$COMPARE" != "0" ]] && wrt_compare_targets
     bootscripts_Makefiles          # $bootscripttools
     bootable_Makefiles             # $bootabletools
   else
@@ -893,6 +968,8 @@ build_Makefile() {            # Construct a Makefile from the book scripts
       bm_testsuite_tools_Makefiles # $testsuitetools
     fi
     bm_final_system_Makefiles      # $basicsystem
+    # Add the iterations targets, if needed
+    [[ "$COMPARE" != "0" ]] && wrt_compare_targets
     bm_bootscripts_Makefiles       # $bootscipttools
     bm_bootable_Makefiles          # $bootabletoosl
   fi

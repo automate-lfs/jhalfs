@@ -1,0 +1,77 @@
+#!/bin/bash
+# $Id$
+
+# Acknowledgment:
+#  The following code is a modified version of an original work written by
+#  Greg Schafer for the "DIY Linux" project and is included here with his
+#  permission.
+#  ref: http://www.diy-linux.org
+#
+
+set -e
+
+: <<inline_doc
+    desc:       prepare current iteration files for ICA report
+    usage:      do_ica_prep $DEST_ICA/$ITERATION
+    input vars: $1 directory where files from current iteration are stored
+    externals:  --
+    modifies:   --
+    returns:    --
+    on error:
+    on success:
+inline_doc
+
+CMP_DIR=$1
+
+# Run ica_prep if it hasn't been done already
+if [ ! -f "$CMP_DIR/icaprep" ]; then
+
+  echo -en "\nRemoving symbolic links in ${CMP_DIR}... "
+  find $CMP_DIR -type l | xargs rm -f
+  echo "done."
+
+  echo -n "Gunzipping \".gz\" files in ${CMP_DIR}... "
+  find $CMP_DIR -name '*.gz' | xargs gunzip
+  echo "done."
+
+  #echo -n "Bunzipping \".bz2\" files in ${CMP_DIR}... "
+  #find $CMP_DIR -name '*.bz2' | xargs bunzip2
+  #echo "done."
+
+  # ar archives contain date & time stamp info that causes us
+  # grief when trying to find differences. Here we perform some
+  # hackery to allow easy diffing. Essentially, replace each
+  # archive with a dir of the same name and extract the object
+  # files from the archive into this dir. Despite their names,
+  # libieee.a & libmcheck.a are not actual ar archives.
+  echo -n "Extracting object files from \".a\" files in ${CMP_DIR}... "
+  L=$(find $CMP_DIR -name '*.a' ! -name 'libieee.a' ! -name 'libmcheck.a')
+  for F in $L; do
+    mv $F ${F}.XX
+    mkdir $F
+    cd $F
+    BN=${F##*/}
+    ar x ../${BN}.XX || {
+    echo -e "\nError: ar archive extraction failed!\n" >&2
+    exit 1
+    }
+    rm -f ../${BN}.XX
+  done
+  echo "done."
+
+  echo -n "Stripping (debug) symbols from \".o\" files in ${CMP_DIR}... "
+  find $CMP_DIR -name '*.o' | xargs strip -p -g 2>/dev/null
+  echo "done."
+
+  echo -n "Stripping (all) symbols from files OTHER THAN \".o\" files in ${CMP_DIR}... "
+  find $CMP_DIR ! -name '*.o' | xargs strip -p 2>/dev/null || :
+  echo "done."
+
+  # We're all done
+  echo -en "\nSuccess: ICA preparation for "
+  echo -e "${CMP_DIR} complete."
+  touch $CMP_DIR/icaprep
+else
+  echo -e "\n$CMP_DIR was already processed\n"
+fi
+
