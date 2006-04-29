@@ -107,7 +107,7 @@ cat <<- -EOF-
 ${BOLD}  -A, --arch ARCH ${OFF}
         Select the TARGET architecture, valid selections are:
            32bit builds
-        x86, i486, i586, ppc, mips, mipsel, sparc, sparcv8
+        x86, i486, i586, ppc, mips, mipsel, sparc
            64bit builds
         x86_64-64, mips64-64, mipsel64-64, sparc64-64, alpha
            64bit multi-lib

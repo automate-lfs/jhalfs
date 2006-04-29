@@ -299,10 +299,6 @@ while test $# -gt 0 ; do
           ARCH=sparc
           TARGET="sparcv9-unknown-linux-gnu"
           ;;
-        sparcv8 )
-          ARCH=sparcv8
-          TARGET="sparc-unknown-linux-gnu"
-          ;;
         x86_64-64 )
           ARCH=x86_64-64
           TARGET="x86_64-unknown-linux-gnu"
