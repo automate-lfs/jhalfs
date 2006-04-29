@@ -7,13 +7,13 @@ MASTER SCRIPT
 
   - The BLFS moudule should can be called in conjunction with any of
     LFS, CLFS or HLFS modules.
+    Before working on that we need to fix the BLFS support.
 
-  - To create a Makefile to install jhalfs system-wide.
-    Note: is that actually wanted?
+  - To create a script to install jhalfs system-wide. Work in progess.
 
 
 
-LFS MODULE (some of this is applicable also to CLFS and HLFS modules)
+LFS MODULE (all this is applicable also to CLFS and HLFS modules)
 ----------
 
   - To fix the dowload code when all packages will be placed on the
@@ -24,12 +24,16 @@ LFS MODULE (some of this is applicable also to CLFS and HLFS modules)
     at this stage due that the BLFS book could be downloaded and parser
     at the same time that the LFS book. Plus links or lynx to read the
     (to be) generated BLFS HTML pages and, maybe, gpm.
+    Before working on that we need to fix the BLFS support.
 
 
 BLFS MODULE
 -----------
 
   - The SourceForge download links don't work.
+
+  - The current code to use a FTP mirror as fallback is broken
+    for several packages due FTP migration to upstream formats.
 
   - To fix files creation using sudo. Comment from Ag Hatzim:
 
@@ -80,10 +84,5 @@ OTHERS
     and Makefiles, using the Cracklib support for Shadow in LFS as an example.
     NOTE: that could require an special command line switch to regenerate the
     Makefile if additional scripts are manually added to the *-commands/*/ dirs.
-
-  - To add support for ICA/farce. That is a required feature.
-
-  - To add support for package management??? NO by default, but patches
-    are acepted and will be added to the sources as external contributions.
 
 
