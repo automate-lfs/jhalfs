@@ -544,7 +544,7 @@ EOF
 #----------------------------#
 build_Makefile() {           # Construct a Makefile from the book scripts
 #----------------------------#
-  echo "Creating Makefile... "
+  echo "Creating Makefile... ${BOLD}START${OFF}"
 
   cd $JHALFSDIR/${PROGNAME}-commands
   # Start with a clean Makefile.tmp file
@@ -654,5 +654,6 @@ EOF
   # Bring over the items from the Makefile.tmp
   cat $MKFILE.tmp >> $MKFILE
   rm $MKFILE.tmp
-  echo "done"
+  echo "Creating Makefile... ${BOLD}DONE${OFF}"
+
 }

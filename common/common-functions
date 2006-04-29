@@ -113,7 +113,7 @@ ${BOLD}  -A, --arch ARCH ${OFF}
            64bit multi-lib
         x86_64, mips64, mipsel64, sparc64, ppc64
 
-${BOLD}  --boot_config FILE ${OFF}
+${BOLD}  --boot-config FILE ${OFF}
         The configuration file for the bootstrap kernel if method=boot
 
 ${BOLD}  --method BUILDMETHOD ${OFF}
