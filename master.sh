@@ -117,7 +117,6 @@ while test $# -gt 0 ; do
                  echo "For stable 6.1.1 book, please use jhalfs-0.2."
                  exit 0
                 ;;
-               udev*)  LFSVRS=udev_update   ;;
                * )
                  echo "$1 is an unsupported version at this time."
                  exit 0
@@ -234,7 +233,7 @@ while test $# -gt 0 ; do
                           COMPARE=1
         ;;
         *)
-          echo -e "\n$1 is an unknown analisys method."
+          echo -e "\n$1 is an unknown analysis method."
           exit 1
           ;;
       esac

@@ -174,7 +174,7 @@ inline_doc
                   [[ "xx x/x" =~ "x${!config_param}x" ]] &&
                        write_error_and_die
                   ;;
-      TIMEZONE)   ;;
+      TIMEZONE)   echo -e "`eval echo $PARAM_VALS`" ;;
 
       # Validate general parameters..
       HPKG)       validate_against_str "x0x x1x" ;;
@@ -219,9 +219,8 @@ inline_doc
       BOOK)        if [[ "${WC}" = "1" ]] ; then
                      validate_dir -z -d
                    else
-                     validate_against_str "x${PROGNAME}-developmentx xlfs-udev_updatex"
-                   fi
-                   ;;
+                     validate_against_str "x${PROGNAME}-developmentx"
+                   fi ;;
 
       # Validate directories, testable states:
       #  fatal   -z -d -w,
