@@ -1,22 +1,25 @@
 Index: LFS/master.sh
 ===================================================================
---- LFS/master.sh	(revision 2588)
+--- LFS/master.sh	(revision 2598)
 +++ LFS/master.sh	(working copy)
-@@ -157,6 +157,13 @@
+@@ -183,6 +183,16 @@
        *stripping*) [[ "${STRIP}" = "0" ]] && continue ;;
      esac
  
-+    # Install paco as the first package in ch6, before installing linux-libc-headers.
-+    case "${this_script}" in
-+      *linux-libc-headers)
-+        PACO_NUM=`echo ${this_script} | sed -e 's/linux-libc-headers/a-paco/'`
-+        wrt_paco_inst "$PACO_NUM"
-+    esac
++    # Install paco as the first package in ch6, before installing
++    # linux-libc-headers, except in iterartive builds
++    if [[ -z "$N" ]]; then
++      case $this_script in
++        *linux-libc-headers)
++          PACO_NUM=`echo $this_script | sed -e 's/linux-libc-headers/a-paco/'`
++          wrt_paco_inst "$PACO_NUM" ;;
++      esac
++    fi
 +
-     # First append each name of the script files to a list (this will become
-     # the names of the targets in the Makefile
-     chapter6="$chapter6 ${this_script}"
-@@ -187,7 +194,9 @@
+     # Grab the name of the target
+     name=`echo ${this_script} | sed -e 's@[0-9]\{3\}-@@'`
+ 
+@@ -225,7 +235,9 @@
      # and not to use chroot.
      case "${this_script}" in
        *kernfs)  wrt_run_as_root    "${this_script}" "$file" ;;
@@ -27,10 +30,10 @@ Index: LFS/master.sh
      esac
  
      # Remove the build directory(ies) except if the package build fails.
-@@ -205,6 +214,14 @@
- 
-     # Keep the script file name for Makefile dependencies.
-     PREV=${this_script}
+@@ -245,6 +257,14 @@
+     PREV=${this_script}${N}
+     # Set system_build envar for iteration targets
+     system_build=$chapter6
 +
 +    # Reinstalling paco after readsjusting the toolchain.
 +    case "${this_script}" in
@@ -42,7 +45,7 @@ Index: LFS/master.sh
    done # end for file in chapter06/*
  }
  
-@@ -266,6 +283,14 @@
+@@ -306,6 +326,14 @@
                  wrt_run_as_chroot2 "$this_script" "$file"
                fi
          ;;
@@ -59,7 +62,7 @@ Index: LFS/master.sh
      esac
 Index: LFS/lfs.xsl
 ===================================================================
---- LFS/lfs.xsl	(revision 2588)
+--- LFS/lfs.xsl	(revision 2598)
 +++ LFS/lfs.xsl	(working copy)
 @@ -32,6 +32,9 @@
    <!-- Locale settings -->
@@ -107,7 +110,7 @@ Index: LFS/lfs.xsl
          <xsl:apply-templates/>
 Index: BLFS/master.sh
 ===================================================================
---- BLFS/master.sh	(revision 2588)
+--- BLFS/master.sh	(revision 2598)
 +++ BLFS/master.sh	(working copy)
 @@ -79,6 +79,19 @@
  EOF
@@ -131,7 +134,7 @@ Index: BLFS/master.sh
  (
 Index: BLFS/blfs.xsl
 ===================================================================
---- BLFS/blfs.xsl	(revision 2588)
+--- BLFS/blfs.xsl	(revision 2598)
 +++ BLFS/blfs.xsl	(working copy)
 @@ -159,7 +159,7 @@
          <xsl:when test="@role = 'nodump'"/>
@@ -144,59 +147,60 @@ Index: BLFS/blfs.xsl
          </xsl:otherwise>
 Index: common/config
 ===================================================================
---- common/config	(revision 2588)
+--- common/config	(revision 2598)
 +++ common/config	(working copy)
-@@ -62,6 +62,23 @@
- #    Not used in LFS
- KEYMAP=none
+@@ -75,6 +75,14 @@
+ #--- Run farce testing 0(no)/1(yes)
+ RUN_FARCE=0
  
-+
 +#==== PACO VARIABLES ====
-+#--- Use paco? 0/1 0(no)/1(yes)
++#--- Use paco? 0(no)/1(yes)
 +USE_PACO=1
 +PACO_VERSION=1.10.4
 +
 +#--- Name of the Paco source package
 +PACO_FILE=paco-$PACO_VERSION.tar.*
 +
-+#--- Variables needed
-+# Don't change unless you know what you're doing
+ #==== INTERNAL VARIABLES ====
+ # Don't edit it unless you know what you are doing
+ 
+@@ -87,3 +95,9 @@
+ 
+ #--- farce report log directory
+ FARCELOGDIR=$LOGDIR/farce
++
++#--- Variables needed by paco
 +PACO_INCLUDE=/
-+PACO_EXCLUDE=/sys:/dev:/proc:/tmp:/usr/src:/usr/share/info/dir
++PACO_EXCLUDE=/sys:/dev:/proc:/tmp:/usr/src:/usr/share/info/dir:/jhalfs
 +PACO_TMPFILE=/tmp/paco.tmp
 +LD_PRELOAD=/usr/lib/libpaco-log.so
-+
-+
- #=== Variables needed by ICA (Not implemented yet :-/)===
- #--- Run ICA testing 0/1  0(no)/1(yes)
- RUN_ICA=0
 Index: common/func_validate_configs.sh
 ===================================================================
---- common/func_validate_configs.sh	(revision 2588)
+--- common/func_validate_configs.sh	(revision 2598)
 +++ common/func_validate_configs.sh	(working copy)
-@@ -83,10 +83,10 @@
+@@ -84,10 +84,10 @@
  inline_doc
  
    # First internal variables, then the ones that change the book's flavour, and lastly system configuration variables
 -  local -r blfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG         DEPEND                TEST"
--  local -r hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE MODEL GRSECURITY_HOST TEST REPORT STRIP FSTAB             CONFIG KEYMAP         PAGE TIMEZONE LANG LC_ALL"
--  local -r clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE METHOD  ARCH  TARGET  TEST REPORT STRIP FSTAB BOOT_CONFIG CONFIG KEYMAP VIMLANG PAGE TIMEZONE LANG"
--  local -r  lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE                       TEST REPORT STRIP FSTAB             CONFIG        VIMLANG PAGE TIMEZONE LANG"
-+  local -r blfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO HPKG          DEPEND               TEST"
-+  local -r hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO HPKG RUNMAKE MODEL GRSECURITY_HOST TEST REPORT STRIP FSTAB             CONFIG KEYMAP         PAGE TIMEZONE LANG LC_ALL"
-+  local -r clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO HPKG RUNMAKE METHOD  ARCH  TARGET  TEST REPORT STRIP FSTAB BOOT_CONFIG CONFIG KEYMAP VIMLANG PAGE TIMEZONE LANG"
-+  local -r  lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO HPKG RUNMAKE                       TEST REPORT STRIP FSTAB             CONFIG        VIMLANG PAGE TIMEZONE LANG"
+-  local -r hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE MODEL GRSECURITY_HOST TEST REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG KEYMAP         PAGE TIMEZONE LANG LC_ALL"
+-  local -r clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE METHOD  ARCH  TARGET  TEST REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG KEYMAP VIMLANG PAGE TIMEZONE LANG"
+-  local -r  lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE HPKG RUNMAKE                       TEST REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG        VIMLANG PAGE TIMEZONE LANG"
++  local -r blfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO HPKG         DEPEND                TEST"
++  local -r hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO HPKG RUNMAKE MODEL GRSECURITY_HOST TEST REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG KEYMAP         PAGE TIMEZONE LANG LC_ALL"
++  local -r clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO HPKG RUNMAKE METHOD  ARCH  TARGET  TEST REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG KEYMAP VIMLANG PAGE TIMEZONE LANG"
++  local -r  lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO HPKG RUNMAKE                       TEST REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG        VIMLANG PAGE TIMEZONE LANG"
  
    local -r ERROR_MSG_pt1='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid,'
    local -r ERROR_MSG_pt2=' check the config file ${BOLD}${GREEN}\<$(echo $PROGNAME | tr [a-z] [A-Z])/config\> or \<common/config\>${OFF}'
-@@ -128,6 +128,7 @@
-             continue  ;;
-         TIMEZONE)  continue;;
-         MKFILE)    continue;;
-+        USE_PACO)  validation_str="x0x x1x";          validate_str; continue ;;
-         HPKG)      validation_str="x0x x1x";          validate_str; continue ;;
-         RUNMAKE)   validation_str="x0x x1x";          validate_str; continue ;;
-         TEST)      validation_str="x0x x1x x2x x3x";  validate_str; continue ;;
+@@ -179,6 +179,7 @@
+       # Validate general parameters..
+       HPKG)       validate_against_str "x0x x1x" ;;
+       RUNMAKE)    validate_against_str "x0x x1x" ;;
++      USE_PACO)   validate_against_str "x0x x1x" ;;
+       REPORT)     validate_against_str "x0x x1x"
+                   if [[ "${!config_param}" = "1" ]]; then
+                     if [[ `type -p bc` ]]; then
 Index: common/paco-functions
 ===================================================================
 --- common/paco-functions	(revision 0)
@@ -289,7 +293,7 @@ Index: common/paco-functions
 +(
 +cat << EOF
 +	@if [ -e \$(MOUNT_PT)$PACO_TMPFILE ]; then \\
-+		\$(CHROOT1) 'paco -lp $PACKAGE < $PACO_TMPFILE' && \\
++		\$(CHROOT1) 'paco -lp+ $PACKAGE < $PACO_TMPFILE' && \\
 +		rm -f \$(MOUNT_PT)$PACO_TMPFILE; \\
 +	fi;
 +EOF
@@ -330,9 +334,9 @@ Index: common/paco-build.sh
 +make logme
 Index: common/common-functions
 ===================================================================
---- common/common-functions	(revision 2588)
+--- common/common-functions	(revision 2598)
 +++ common/common-functions	(working copy)
-@@ -60,6 +60,9 @@
+@@ -59,6 +59,9 @@
          in the configuration file has the proper packages and patches for the
          book version being processed.
  
@@ -342,7 +346,7 @@ Index: common/common-functions
  ${BOLD}  -T, --testsuites N ${OFF}
          Run test suites  [0-3]
            0 = none
-@@ -622,6 +625,7 @@
+@@ -630,6 +633,7 @@
                   --stringparam lc_all $LC_ALL \
                   --stringparam keymap $KEYMAP \
                   --stringparam grsecurity_host $GRSECURITY_HOST \
@@ -350,7 +354,7 @@ Index: common/common-functions
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
        ;;
      lfs)
-@@ -633,6 +637,7 @@
+@@ -641,6 +645,7 @@
                   --stringparam timezone $TIMEZONE \
                   --stringparam page $PAGE \
                   --stringparam lang $LANG \
@@ -360,7 +364,7 @@ Index: common/common-functions
      blfs)
 Index: HLFS/hlfs.xsl
 ===================================================================
---- HLFS/hlfs.xsl	(revision 2588)
+--- HLFS/hlfs.xsl	(revision 2598)
 +++ HLFS/hlfs.xsl	(working copy)
 @@ -39,6 +39,9 @@
    <xsl:param name="lang" select="en_CA"/>
@@ -411,23 +415,26 @@ Index: HLFS/hlfs.xsl
          <xsl:apply-templates/>
 Index: HLFS/master.sh
 ===================================================================
---- HLFS/master.sh	(revision 2588)
+--- HLFS/master.sh	(revision 2598)
 +++ HLFS/master.sh	(working copy)
-@@ -320,6 +320,13 @@
-       *) ;;
+@@ -342,6 +342,16 @@
+       *-stripping* )  [[ "$STRIP" = "0" ]] && continue ;;
      esac
  
-+    # Install paco as the first package in ch6, befire installing linux-libc-headers
-+    case $this_script in
-+      *linux-libc-headers)
-+        PACO_NUM=`echo $this_script | sed -e 's/linux-libc-headers/a-paco/'`
-+        wrt_paco_inst "$PACO_NUM"
-+    esac
++    # Install paco as the first package in ch6, before installing
++    # linux-libc-headers, except in iterartive builds
++    if [[ -z "$N" ]]; then
++      case $this_script in
++        *linux-libc-headers)
++          PACO_NUM=`echo $this_script | sed -e 's/linux-libc-headers/a-paco/'`
++          wrt_paco_inst "$PACO_NUM" ;;
++      esac
++    fi
 +
-     # First append each name of the script files to a list (this will become
-     # the names of the targets in the Makefile
-     chapter6="$chapter6 $this_script"
-@@ -378,7 +385,9 @@
+     # Grab the name of the target
+     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'`
+ 
+@@ -411,7 +421,9 @@
          wrt_run_as_root "${this_script}" "${file}"
          ;;
        *)   # The rest of Chapter06
@@ -437,10 +444,10 @@ Index: HLFS/master.sh
         ;;
      esac
      #
-@@ -409,6 +418,14 @@
- 
-     # Keep the script file name for Makefile dependencies.
-     PREV=$this_script
+@@ -444,6 +456,14 @@
+     PREV=${this_script}${N}
+     # Set system_build envar for iteration targets
+     system_build=$chapter6
 +
 +    # Reinstall paco after the toolchain has been readjusted.
 +    case "${this_script}" in
@@ -452,7 +459,7 @@ Index: HLFS/master.sh
    done # end for file in chapter06/*
  
  }
-@@ -471,6 +488,15 @@
+@@ -506,6 +526,15 @@
            wrt_run_as_chroot2 "${this_script}" "${file}"
          fi
          ;;
@@ -470,9 +477,9 @@ Index: HLFS/master.sh
          ;;
 Index: master.sh
 ===================================================================
---- master.sh	(revision 2588)
+--- master.sh	(revision 2598)
 +++ master.sh	(working copy)
-@@ -66,6 +66,11 @@
+@@ -70,6 +70,11 @@
  source $MODULE
  [[ $? > 0 ]] && echo "$MODULE did not load.." && exit 2
  [[ $VERBOSITY > 0 ]] && echo "OK"
@@ -484,7 +491,7 @@ Index: master.sh
  #
  [[ $VERBOSITY > 0 ]] && echo "---------------${nl_}"
  
-@@ -149,6 +154,8 @@
+@@ -152,6 +157,8 @@
  
      --help | -h )  usage | more && exit  ;;
  
@@ -493,7 +500,7 @@ Index: master.sh
      --testsuites | -T )
        test $# = 1 && eval "$exit_missing_arg"
        shift
-@@ -454,6 +461,15 @@
+@@ -480,6 +487,15 @@
  
  if [[ "$PWD" != "$JHALFSDIR" ]]; then
    cp $COMMON_DIR/makefile-functions $JHALFSDIR/
@@ -506,6 +513,6 @@ Index: master.sh
 +      echo -e "export PACO_TMPFILE=$PACO_TMPFILE" >> $JHALFSDIR/pacovars
 +    fi
 +  fi
-   if [[ -n "$FILES" ]]; then
-     # pushd/popd necessary to deal with mulitiple files
-     pushd $PACKAGE_DIR 1> /dev/null
+   if [[ "$COMPARE" != "0" ]] ; then
+     mkdir -p $JHALFSDIR/extras
+     cp extras/* $JHALFSDIR/extras
