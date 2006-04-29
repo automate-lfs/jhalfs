@@ -49,7 +49,6 @@ ${BOLD}  -V, --version${OFF}
 ${BOLD}  -B, --book VER${OFF}
         checkout VER version of the book. Supported versions at this time are:
         dev* | trunk | SVN     aliases for Development {C,H,B}LFS
-        udev*                  aliases for the LFS udev_update branch
 
 ${BOLD}  -D  --directory DIR${OFF}
         use DIR directory for building ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF}; all files jhalfs produces
@@ -81,9 +80,9 @@ ${BOLD}  -C, --comparasion TYPE${OFF}
          the final system packages wil be rebuilded the times defined in the
          ITERATIONS config option.
          Analisys types allowed are:
-           ICA   = do the ICA analisys designed by Greg Schafer
-           farce = do the farce analisys designed by Ken Moffat
-           both  = perfom both ICA and farce analisys
+           ICA   = do the ICA analysis designed by Greg Schafer
+           farce = do the farce analysis designed by Ken Moffat
+           both  = perfom both ICA and farce analysis
 
 ${BOLD}  -F, --fstab FILE${OFF}
         use FILE as the /etc/fstab file for the ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF} system. If not specified,
