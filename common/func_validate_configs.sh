@@ -248,7 +248,8 @@ inline_doc
                   write_error_and_die
                echo
                ;;
-      KEYMAP)  save_param=${KEYMAP}
+      KEYMAP)  echo "`eval echo $PARAM_VALS`"
+               save_param=${KEYMAP}
                [[ ! "${!config_param}" = "none" ]] &&
                   KEYMAP="/usr/share/kbd/keymaps/${KEYMAP}" &&
                   validate_file -z -e -s
