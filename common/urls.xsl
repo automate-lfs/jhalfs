@@ -54,11 +54,17 @@
         <xsl:when test="contains($package2, 'bash')">
           <xsl:text>bash/</xsl:text>
         </xsl:when>
+        <xsl:when test="contains($package2, 'gcc')">
+          <xsl:text>gcc/</xsl:text>
+        </xsl:when>
         <xsl:when test="contains($package2, 'glibc')">
           <xsl:text>glibc/</xsl:text>
         </xsl:when>
         <xsl:when test="contains($package2, 'tcl')">
           <xsl:text>tcl/</xsl:text>
+        </xsl:when>
+        <xsl:when test="contains($package2, 'uClibc')">
+          <xsl:text>uClibc/</xsl:text>
         </xsl:when>
         <xsl:when test="contains($package2, 'udev')">
           <xsl:text>udev/</xsl:text>
