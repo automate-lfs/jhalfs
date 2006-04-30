@@ -5,7 +5,6 @@
 # $Id$
 #
 #####
-declare -r FTP=ftp://ftp.linuxfromscratch.org/pub/lfs/conglomeration
 
 #--- Which library model to use uclibc/glibc
 MODEL=glibc
@@ -38,6 +37,3 @@ LFSVRS=development
 
 #--- Name of the makefile
 MKFILE=$JHALFSDIR/Makefile
-
-#--- FTP/HTTP mirror used as fallback (full path)
-SERVER=ftp://anduin.linuxfromscratch.org/HLFS/conglomeration

@@ -5,7 +5,6 @@
 # $Id$
 #
 #####
-declare -r FTP=ftp://ftp.linuxfromscratch.org/pub/lfs/conglomeration
 
 #--- Location of fstab file (if empty, a template is created)
 FSTAB=
@@ -32,6 +31,3 @@ LFSVRS=development
 
 #--- Name of the makefile
 MKFILE=$JHALFSDIR/Makefile
-
-#--- FTP/HTTP mirror used as fallback (full path)
-SERVER=ftp://anduin.linuxfromscratch.org/LFS/conglomeration

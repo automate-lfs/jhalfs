@@ -521,69 +521,9 @@ get_book() {
   fi
 }
 
-
-#----------------------------#
-build_patches_file() {       # Supply a suitably formated list of patches.
-#----------------------------#
-  local saveIFS=$IFS
-  local IFS
-
-  rm -f patches
-
-  LOC_add_patches_entry() {
-    for f in `grep "/$1-" patcheslist_.wget`; do
-      basename $f | sed "s|${2}|\&${1}-version;|" >> patches
-    done
-  }
-
-  case ${PROGNAME} in
-    hlfs)
-         echo -n "Creating the HLFS ${L_arrow}${BOLD}$MODEL${R_arrow} specific patches file"
-         xsltproc --nonet \
-                  --xinclude \
-                  --stringparam model $MODEL \
-                  -o patcheslist_.wget \
-                  patcheslist.xsl \
-                  $BOOK/chapter04/patches.xml
-                  #> /dev/null 2>&1
-
-         # .... U G L Y .... what to do with the grsecurity patch to the kernel..
-         for f in `grep "/grsecurity-" patcheslist_.wget`; do
-           basename $f >> patches
-         done
-      ;;
-
-    clfs)  # Pull out a list of arch specific patches
-         echo -n "Creating CLFS ${L_arrow}${BOLD}$ARCH${R_arrow} specific patches file"
-         xsltproc -xinclude  \
-                  -o patcheslist_.wget \
-                  patcheslist.xsl \
-                  $BOOK/materials/${ARCH}-chapter.xml
-      ;;
-    *)  return
-  esac
-
-
-  IFS=$'\x0A'  # Modify the 'internal field separator' to break on 'LF' only
-  for f in `cat packages`; do
-    IFS=$saveIFS  # Restore the system defaults
-    LOC_add_patches_entry \
-    `echo $f | sed -e 's/-version//' \
-                   -e 's/-file.*//' \
-                   -e 's/"//g' \
-                   -e 's/uclibc/uClibc/'`
-  done
-
-  rm -f patcheslist_.wget
-
-  echo " ...OK"
-}
-
-
 #----------------------------#
 extract_commands() {         #
 #----------------------------#
-  local saveIFS=$IFS
 
   # Check for libxslt instead of just letting the script hit 'xsltproc' and fail.
   test `type -p xsltproc` || eval "echo \"This feature requires libxslt.\"
@@ -647,7 +587,7 @@ extract_commands() {         #
                  --stringparam server $SERVER \
                  -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
       ;;
-    *) exit 1
+    *) exit 1 ;;
   esac
 
   echo " ...OK"
@@ -655,62 +595,14 @@ extract_commands() {         #
   # Make the scripts executable.
   chmod -R +x $JHALFSDIR/${PROGNAME}-commands
 
-  # Grab the patches and package names.
-  for i in patches packages ; do
-    rm -f $i
-  done
-  #
+  # Create the packages file. We need it for proper Makefile creation
+  rm -f packages
   case "${PROGNAME}" in
     clfs)
-      ################################
-      # A LOCAL function
-      # xx_.wget contains arch specific files but in URL format
-      # Build a file with only arch specific files.. small ugly..
-      LOC_add_packages_entry() {
-        local fileMATCH aFILE
-
-	  # Deal with a non-standard format
-        if [[ "$1" = "clfs-bootscripts" ]]; then
-	  set -- "bootscripts-cross-lfs" $2
-	fi
-        fileMATCH="/$1"
-
-        # format.. Filename-Version  or FilenameVersion
-        for aFILE in `grep ${fileMATCH}-*[[:digit:]] packageslist_.wget`; do
-         # Block vim-x.x-lang file, will add it later based on config flag
-	 if [[ ! "${aFILE}" =~ "vim-$2-lang" ]]; then
-           echo "$1-version \"$2\"" >> packages
-	 fi
-        done
-      }
-      #################################
-
-      # We only want a list arch specific files..
-      # Unfortunately this script produces URL's which must be converted to a std format
-      echo -n "Creating CLFS ${L_arrow}${BOLD}${ARCH}${R_arrow} specific packages file"
-      xsltproc -xinclude  \
-               -o packageslist_.wget \
-               packageslist.xsl \
-               $BOOK/materials/${ARCH}-chapter.xml
-
-      # This has the correct format but contains packages from every book
+      echo -n "Creating <${PROGNAME}> specific packages file"
       grep "\-version " $BOOK/packages.ent | sed -e 's@<!ENTITY @@' \
                                                  -e 's@">@"@' \
-                                                 -e '/generic/d' > packages.tmp
-      # This variable is necessary to make sure the `cat $JHALFSDIR/packages`
-      # separates each iteration by lines.
-      # Modify the 'internal field separator' to break on 'LF' only
-      IFS=$'\x0A'
-      for f in `cat packages.tmp`; do
-        IFS=$saveIFS  # Restore the system defaults
-        LOC_add_packages_entry \
-        `echo $f | sed -e 's/-version//' \
-                       -e 's/-file.*//' \
-                       -e 's/"//g'`
-     done
-
-     rm -f packageslist_.wget packages.tmp
-
+                                                 -e '/generic/d' > packages
      echo " ...OK"
      ;;
 
@@ -727,28 +619,8 @@ extract_commands() {         #
       grep "\-version" $BOOK/general.ent | sed -e 's@<!ENTITY @@' \
                                                -e 's@">@"@' \
                                                -e '/generic/d' >> packages
-      echo `grep "glibc" packages | sed 's@glibc@glibc-libidn@'` >> packages
-      echo `grep "udev-config-file" $BOOK/general.ent | sed -e 's@<!ENTITY @@' -e 's@">@"@'` >> packages
       echo " ...OK"
       ;;
-  esac
-
-  # Download the vim-lang package if it must be installed
-  if [ "$VIMLANG" = "1" ] && [ ! "$PROGNAME" = "hlfs" ] ; then
-    echo `grep "vim" packages | sed 's@vim@&-lang@'` >> packages
-  fi
-
-  # Create the patches file
-  case "${PROGNAME}" in
-    hlfs)
-      build_patches_file ;;
-    clfs )
-      build_patches_file ;;
-    lfs)
-      grep "^<\!ENTITY" $BOOK/patches.ent | sed -e 's/.* "//' -e 's/">//' >> patches
-      ;;
-    blfs) ;;
-    *) exit 1
   esac
 
   # Done. Moving on...
@@ -757,120 +629,113 @@ extract_commands() {         #
 
 
 #----------------------------#
-download() {                 # Download file, write name to MISSING_FILES.DMP if an error
+get_sources() {              # Download file, write name to MISSING_FILES.DMP if an error
 #----------------------------#
-  cd $BUILDDIR/sources
-
-  # Hackish fix for the bash-doc, glibc-{linuxthreads,libidn}
-  # that don't conform to norms in the URL scheme.
-  DIR=`echo $1 | sed 's@-doc@@;s@-linuxthreads@@;s@-libidn@@;s@-testsuite@@'`
-
-  # If the file exists in the archive copy it to the $BUILDDIR/sources dir
-  # MD5SUM is assumed to be correct from previous download
-  if [ ! -z ${SRC_ARCHIVE} ] &&
-     [   -d ${SRC_ARCHIVE} ] &&
-     [   -f ${SRC_ARCHIVE}/$2 ]; then
-    cp ${SRC_ARCHIVE}/$2 .
-    echo "$2: -- ok"
-    return
-  fi
-
-  # Find the md5 sum for this package.
-  if [ $2 != MD5SUMS ] ; then
-    set +e
-    MD5=`grep "  $2" MD5SUMS`
-    if [ $? -ne 0 ]; then
-      set -e
-      echo "${RED}$2 not found in MD5SUMS${OFF}"
-      echo "$2 not found in MD5SUMS" >> MISSING_FILES.DMP
-      return
-      fi
-      set -e
-  fi
-
-  if [ ! -f $2 ] ; then
-    case $DL in
-      wgetFTP )  wget --passive $FTP/$DIR/$2            ;;
-      wget )  wget $HTTP/$DIR/$2            ;;
-      curl )  `curl -# $FTP/$DIR/$2 -o $2`     ;;
-      * )     echo "$DL not supported at this time."  ;;
-    esac
-  elif ! echo "$MD5" | md5sum -c - >/dev/null 2>/dev/null ; then
-    case $DL in
-      wgetFTP )  wget --passive -c $FTP/$DIR/$2         ;;
-      wget )   wget -c $HTTP/$DIR/$2            ;;
-      curl )  `curl -# -C - $FTP/$DIR/$2 -o $2`    ;;
-      * )     echo "$DL not supported at this time."  ;;
-    esac
-  fi
-
-  if [ $2 != MD5SUMS ] && ! echo "$MD5" | md5sum -c - ; then
-    exit 1
-  fi
-  if [ $2 != MD5SUMS ] ; then
-    echo `grep "$MD5" MD5SUMS` >> MD5SUMS-$VERSION
-  fi
-
-  # If we make it this far we should copy the freshly downloaded file
-  # to the source archive.
-  if [ ! -z ${SRC_ARCHIVE} ] &&
-     [   -d ${SRC_ARCHIVE} ] &&
-     [   -w ${SRC_ARCHIVE} ] &&
-     [ $2 != MD5SUMS ]; then
-       echo "Store file:<$2> in package archive"
-       cp -v $2 ${SRC_ARCHIVE}
-  fi
-
-}
-
-
-#----------------------------#
-get_sources() {
-#----------------------------#
+  local saveIFS=$IFS
+  local IFS line URL1 URL2 FILE MD5
 
   # Test if the packages must be downloaded
-  if [ "$HPKG" = "1" ] ; then
+  if [ "$GETPKG" = "1" ] ; then
 
-    # This variable is necessary to make sure the `cat $JHALFSDIR/packages`
-    # separates each iteration by lines.
-    # Modify the 'internal field separator' to break on 'LF' only
-    IFS=$'\x0A'
-
-    if [ ! -d $BUILDDIR/sources ] ; then mkdir $BUILDDIR/sources ; fi
+    [[ ! -d $BUILDDIR/sources ]] && mkdir $BUILDDIR/sources
     cd $BUILDDIR/sources
-    if [ -f MD5SUMS ] ; then rm MD5SUMS ; fi
-    if [ -f MD5SUMS-$VERSION ] ; then rm MD5SUMS-$VERSION ; fi
-    if [ -f MISSING_FILES.DMP ] ; then rm MISSING_FILES.DMP ; fi
+    [[ -f MD5SUMS ]] && rm MD5SUMS
+    [[ -f MD5SUMS-$VERSION ]] && rm MD5SUMS-$VERSION
+    [[ -f MISSING_FILES.DMP ]] && rm MISSING_FILES.DMP
+    [[ -f urls.lst ]] && rm urls.lst
 
-    download "" MD5SUMS
+    # Download a fresh MD5SUMS file
+    wget $SERVER/pub/lfs/conglomeration/MD5SUMS
 
-    # Iterate through each package and grab it, along with any patches it needs.
-    for i in `cat $JHALFSDIR/packages` ; do
-      PKG=`echo $i | sed -e 's/-version.*//' -e 's/-file.*//'`
+    # Generate URLs file
+    create_urls
 
-      # There are some entities that aren't valid packages.
-      if [ "$PKG" = "expect-lib" -o "$PKG" = "linux-dl" ] ; then continue ; fi
+    IFS=$'\x0A'  # Modify the 'internal field separator' to break on 'LF' only
+    for line in `cat urls.lst`; do
 
-      VRS=`echo $i | sed -e 's/.* //' -e 's/"//g'`
-      case $PKG in
-        tcl)         FILE="$PKG$VRS-src.tar.bz2"  ;;
-        vim-lang)    PKG="vim"
-                     FILE="vim-$VRS-lang.tar.bz2" ;;
-        udev-config) PKG="udev"
-                     FILE="$VRS"                  ;;
-        *)           FILE="$PKG-$VRS.tar.bz2"     ;;
-      esac
-      download $PKG $FILE
+      IFS=$saveIFS  # Restore the system defaults
+      URL1=`echo $line | cut -d" " -f1` # Upstream URL
+      URL2=`echo $line | cut -d" " -f2` # Fallback URL
+      FILE=`basename $URL2` # File name
 
-      # Download any associated patches
-      for patch in `grep "&$PKG-version" $JHALFSDIR/patches` ; do
-        PATCH=`echo $patch | sed 's@&'$PKG'-version;@'$VRS'@'`
-        download $PKG $PATCH
-      done
+      # If the file exists in the archive copy it to the $BUILDDIR/sources dir
+      # MD5SUM is assumed to be correct from previous download
+      if [ ! -z ${SRC_ARCHIVE} ] &&
+         [ -d ${SRC_ARCHIVE} ] &&
+         [ -f ${SRC_ARCHIVE}/$FILE ]; then
+        cp ${SRC_ARCHIVE}/$FILE .
+        echo "$FILE: -- copied from $SRC_ARCHIVE"
+      fi
+
+      # Find the md5 sum for this package.
+      set +e
+      MD5=`grep "  $FILE" MD5SUMS`
+      if [ $? -ne 0 ]; then
+        set -e
+        echo "${RED}$FILE not found in MD5SUMS${OFF}"
+        echo "$FILE not found in MD5SUMS" >> MISSING_FILES.DMP
+      fi
+      set -e
+
+      if [ ! -f $FILE ] ; then
+        wget $URL1 || wget $URL2
+      elif ! echo "$MD5" | md5sum -c - >/dev/null 2>/dev/null ; then
+        wget -N $URL1 || wget -N $URL2
+      fi
+
+      if ! echo "$MD5" | md5sum -c - ; then
+        exit 1
+      fi
+      echo `grep "$MD5" MD5SUMS` >> MD5SUMS-$VERSION
+
+      # Copy the freshly downloaded file
+      # to the source archive.
+      if [ ! -z ${SRC_ARCHIVE} ] &&
+         [ -d ${SRC_ARCHIVE} ] &&
+         [ -w ${SRC_ARCHIVE} ] &&
+         [ ! -f ${SRC_ARCHIVE}/$FILE ] ; then
+        echo "Store file:<$FILE> in package archive"
+        cp -v $FILE ${SRC_ARCHIVE}
+      fi
+
     done
-    if [[ -s $BUILDDIR/sources/MISSING_FILES.DMP ]]; then
-      echo  -e "\n\n${tab_}${RED} One or more files were not retrieved.\n${tab_} Check ${L_arrow}$BUILDDIR/sources/MISSING_FILES.DMP${R_arrow} for names ${OFF}\n\n"
-    fi
+
   fi
 }
 
+
+#----------------------------#
+create_urls() {              #
+#----------------------------#
+  cd $JHALFSDIR
+
+  case ${PROGNAME} in
+    clfs)
+        echo -n "Creating CLFS <${ARCH}> specific URLs file"
+        xsltproc --nonet --xinclude \
+                 --stringparam server $SERVER \
+                 -o $BUILDDIR/sources/urls.lst urls.xsl \
+                 $BOOK/materials/$ARCH-chapter.xml >>$LOGDIR/$LOG 2>&1
+        echo " ...OK"
+      ;;
+    hlfs)
+        echo -n "Creating HLFS <${MODEL}> specific URLs file"
+        xsltproc --nonet --xinclude \
+                 --stringparam server $SERVER \
+                 --stringparam model $MODEL \
+                 -o $BUILDDIR/sources/urls.lst urls.xsl \
+                 $BOOK/chapter04/chapter04.xml >>$LOGDIR/$LOG 2>&1
+        echo " ...OK"
+      ;;
+    lfs)
+        echo -n "Creating LFS specific URLs file"
+        xsltproc --nonet --xinclude \
+                 --stringparam server $SERVER \
+                 -o ../sources/urls.lst urls.xsl \
+                 $BOOK/chapter03/chapter03.xml >>$LOGDIR/$LOG 2>&1
+        echo " ...OK"
+      ;;
+  esac
+
+  cd $BUILDDIR/sources
+}

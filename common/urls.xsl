@@ -44,8 +44,7 @@
       <xsl:if test="not(contains(@url,'?'))">
         <xsl:value-of select="@url"/>
       </xsl:if>
-      <!-- Using a tab character as fields separator -->
-      <xsl:text>	</xsl:text>
+      <xsl:text> </xsl:text>
       <xsl:value-of select="$server"/>
       <xsl:text>/pub/lfs/conglomeration/</xsl:text>
       <xsl:choose>
