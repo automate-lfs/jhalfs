@@ -505,10 +505,6 @@ get_book() {
       case $LFSVRS in
         development)
            svn co $SVN/${svn_root}/trunk/BOOK ${PROGNAME}-$LFSVRS >>$LOGDIR/$LOG 2>&1 ;;
-        alphabetical)
-           svn co $SVN/${svn_root}/branches/$LFSVRS/BOOK ${PROGNAME}-$LFSVRS >>$LOGDIR/$LOG 2>&1 ;;
-        udev_update)
-           svn co $SVN/LFS/branches/$LFSVRS/BOOK lfs-$LFSVRS >>$LOGDIR/$LOG 2>&1 ;;
       esac
       echo -ne "done\n"
       # Set the canonical book version
