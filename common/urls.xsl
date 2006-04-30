@@ -22,7 +22,7 @@
     <xsl:if test="(ancestor::varlistentry[@condition=$model]
                   or not(ancestor::varlistentry[@condition])) and
                   (contains(@url, '.tar.') or contains(@url, '.tgz')
-                  or contains(@url, '.patch')) and
+                  or contains(@url, '.patch') or contains(@url, '.rules')) and
                   not(ancestor-or-self::*/@condition = 'pdf')">
       <!-- Extract the package name -->
       <xsl:variable name="package">
@@ -59,6 +59,9 @@
         </xsl:when>
         <xsl:when test="contains($package2, 'tcl')">
           <xsl:text>tcl/</xsl:text>
+        </xsl:when>
+        <xsl:when test="contains($package2, 'udev')">
+          <xsl:text>udev/</xsl:text>
         </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="$dirname"/>
