@@ -49,13 +49,16 @@
       <xsl:value-of select="$server"/>
       <xsl:text>/pub/lfs/conglomeration/</xsl:text>
       <xsl:choose>
-        <!-- TCL don't conform the standard package naming -->
-        <xsl:when test="contains($package, 'tcl')">
-          <xsl:text>tcl/</xsl:text>
-        </xsl:when>
-        <!-- Fix bash-doc directory -->
-        <xsl:when test="contains($package, 'bash-doc')">
+        <!-- Fix some directories. Test against package2 to be sure that we
+        are matching the start of a package name, not a string in a patch name -->
+        <xsl:when test="contains($package2, 'bash')">
           <xsl:text>bash/</xsl:text>
+        </xsl:when>
+        <xsl:when test="contains($package2, 'glibc')">
+          <xsl:text>glibc/</xsl:text>
+        </xsl:when>
+        <xsl:when test="contains($package2, 'tcl')">
+          <xsl:text>tcl/</xsl:text>
         </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="$dirname"/>
