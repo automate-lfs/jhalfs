@@ -11,13 +11,11 @@ MASTER SCRIPT
 
   - To create a script to install jhalfs system-wide. Work in progess.
 
+  - To add support for build optimizations
 
 
 LFS MODULE (all this is applicable also to CLFS and HLFS modules)
 ----------
-
-  - To fix the dowload code when all packages will be placed on the
-    FTP mirrors in the upstream formats.
 
   - To add a switch to build the BLFS module dependencies at the end of
     the LFS build, that is, wget and sudo. SVN and libxslt aren't needed
