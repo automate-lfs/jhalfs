@@ -652,8 +652,18 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
 
     IFS=$'\x0A'  # Modify the 'internal field separator' to break on 'LF' only
     for line in `cat urls.lst`; do
-
       IFS=$saveIFS  # Restore the system defaults
+
+      # Skip some packages if they aren't needed
+      case $line in
+        */tcl* | */expect* | */dejagnu* | */tree* | */gcc-testsuite* )
+            [[ "$TEST" = "0" ]] && continue
+          ;;
+        */vim-*-lang* )
+            [[ "$VIMLANG" = "0" ]] && continue
+          ;;
+      esac
+
       URL1=`echo $line | cut -d" " -f1` # Upstream URL
       URL2=`echo $line | cut -d" " -f2` # Fallback URL
       FILE=`basename $URL2` # File name
@@ -684,7 +694,8 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
       fi
 
       if ! echo "$MD5" | md5sum -c - ; then
-        exit 1
+        echo "${RED}$FILE not match MD5SUMS value${OFF}"
+        echo "$FILE not match MD5SUMS value" >> MISSING_FILES.DMP
       fi
       echo `grep "$MD5" MD5SUMS` >> MD5SUMS-$VERSION
 
@@ -699,6 +710,10 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
       fi
 
     done
+
+    if [[ -s MISSING_FILES.DMP ]]; then
+      echo  -e "\n\n${tab_}${RED} One or more files were not retrieved or have a bad MD5SUMS chechsum.\n${tab_} Check ${L_arrow}$BUILDDIR/sources/MISSING_FILES.DMP${R_arrow} for names ${OFF}\n\n"
+    fi
 
   fi
 }
