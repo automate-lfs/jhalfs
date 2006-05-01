@@ -487,8 +487,8 @@ get_book() {
     # sources.
     if [ -d ${PROGNAME}-$LFSVRS ] ; then
       cd ${PROGNAME}-$LFSVRS
-      if LC_ALL=C svn up | grep -q At && test -d $JHALFSDIR/commands && \
-      test -f $JHALFSDIR/packages && test -f $JHALFSDIR/patches ; then
+      if LC_ALL=C svn up | grep -q At && test -d $JHALFSDIR/${PROGNAME}-commands && \
+      test -f $JHALFSDIR/packages ; then
         echo -ne "done\n"
         # Set the canonical book version
         cd $JHALFSDIR
@@ -632,7 +632,7 @@ extract_commands() {         #
 get_sources() {              # Download file, write name to MISSING_FILES.DMP if an error
 #----------------------------#
   local saveIFS=$IFS
-  local IFS line URL1 URL2 FILE MD5
+  local IFS line URL1 URL2 FILE MD5 NOMD5
 
   # Test if the packages must be downloaded
   if [ "$GETPKG" = "1" ] ; then
@@ -674,7 +674,7 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
          [ -d ${SRC_ARCHIVE} ] &&
          [ -f ${SRC_ARCHIVE}/$FILE ]; then
         cp ${SRC_ARCHIVE}/$FILE .
-        echo "$FILE: -- copied from $SRC_ARCHIVE"
+        echo "$FILE: -- copied from $SRC_ARCHIVE" && continue
       fi
 
       # Find the md5 sum for this package.
@@ -684,16 +684,21 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
         set -e
         echo "${RED}$FILE not found in MD5SUMS${OFF}"
         echo "$FILE not found in MD5SUMS" >> MISSING_FILES.DMP
+        NOMD5=1
       fi
       set -e
 
       if [ ! -f $FILE ] ; then
-        wget $URL1 || wget $URL2
-      elif ! echo "$MD5" | md5sum -c - >/dev/null 2>/dev/null ; then
-        wget -N $URL1 || wget -N $URL2
+        wget $URL1 || wget $URL2 || \
+        echo "${RED}$FILE not found on the servers${OFF}"
+        echo "$FILE not found on the servers" >> MISSING_FILES.DMP
+      elif [[ "$NOMD5" != "1" ]] && ! echo "$MD5" | md5sum -c - ; then
+        wget -N $URL1 || wget -N $URL2 || \
+        echo "${RED}$FILE not found on the servers${OFF}"
+        echo "$FILE not found on the servers" >> MISSING_FILES.DMP
       fi
 
-      if ! echo "$MD5" | md5sum -c - ; then
+      if [[ "$NOMD5" != "1" ]] && ! echo "$MD5" | md5sum -c - ; then
         echo "${RED}$FILE not match MD5SUMS value${OFF}"
         echo "$FILE not match MD5SUMS value" >> MISSING_FILES.DMP
       fi
