@@ -148,7 +148,7 @@ while test $# -gt 0 ; do
       esac
       ;;
 
-    --get-packages | -G )      HPKG=1    ;;
+    --get-packages | -G )      GETPKG=1    ;;
 
     --help | -h )  usage | more && exit  ;;
 
@@ -411,18 +411,6 @@ while test $# -gt 0 ; do
   shift
 done
 
-# Find the download client to use, if not already specified.
-
-if [ -z $DL ] ; then
-  if [ `type -p wget` ] ; then
-    DL=wget
-  elif [ `type -p curl` ] ; then
-    DL=curl
-  else
-    eval "$no_dl_client"
-  fi
-fi
-
 #===================================================
 # Set the document location...
 # BOOK is either defined in
@@ -491,6 +479,7 @@ if [[ "$PWD" != "$JHALFSDIR" ]]; then
     popd 1> /dev/null
   fi
   [[ "$REPORT" = "1" ]] && cp $COMMON_DIR/create-sbu_du-report.sh  $JHALFSDIR/
+  [[ "$GETPKG" = "1" ]] && cp $COMMON_DIR/urls.xsl  $JHALFSDIR/
   sed 's,FAKEDIR,'$BOOK',' $PACKAGE_DIR/$XSL > $JHALFSDIR/${XSL}
   export XSL=$JHALFSDIR/${XSL}
 fi

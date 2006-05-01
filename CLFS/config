@@ -5,7 +5,6 @@
 # $Id$
 #
 #####
-declare -r FTP=ftp://ftp.linuxfromscratch.org/pub/lfs/conglomeration
 
 #--- Which target architecture you want to build for,
 #    used to select proper book and set TARGETS
@@ -58,7 +57,7 @@ BOOK=
 # Don't edit it unless you know what you are doing
 
 #--- Extra files that need be copied to $JHALFSDIR
-FILES="patcheslist.xsl  packageslist.xsl"
+FILES=""
 
 #--- Default stylesheet
 XSL=clfs.xsl
@@ -69,5 +68,3 @@ LFSVRS=development
 #--- Name of the makefile
 MKFILE=$JHALFSDIR/Makefile
 
-#--- FTP/HTTP mirror used as fallback (full path)
-SERVER=ftp://anduin.linuxfromscratch.org/LFS/conglomeration
