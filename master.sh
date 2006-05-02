@@ -71,7 +71,7 @@ source $MODULE
 [[ $? > 0 ]] && echo "$MODULE did not load.." && exit 2
 [[ $VERBOSITY > 0 ]] && echo "OK"
 #
-[[ $VERBOSITY > 0 ]] && echo "---------------${nl_}"
+[[ $VERBOSITY > 0 ]] && echo "${SD_BORDER}${nl_}"
 
 
 #===========================================================
@@ -92,7 +92,7 @@ source $COMMON_DIR/func_check_version.sh
 source $COMMON_DIR/func_validate_configs.sh
 [[ $? > 0 ]] && echo " function module did not load.." && exit 2
 [[ $VERBOSITY > 0 ]] && echo "OK"
-[[ $VERBOSITY > 0 ]] && echo "---------------${nl_}"
+[[ $VERBOSITY > 0 ]] && echo "${SD_BORDER}${nl_}"
 
 
 ###################################
@@ -432,10 +432,10 @@ check_version "3.0"   "$BASH_VERSION"      "BASH"
 check_version "3.0"   "`gcc -dumpversion`" "GCC"
 tarVer=`tar --version`
 check_version "1.15.0" "${tarVer##* }"      "TAR"
-echo "---------------${nl_}"
+echo "${SD_BORDER}${nl_}"
 
 validate_config
-echo "---------------${nl_}"
+echo "${SD_BORDER}${nl_}"
 
 echo -n "Are you happy with these settings? yes/no (no): "
 read ANSWER
@@ -443,7 +443,7 @@ if [ x$ANSWER != "xyes" ] ; then
   echo "${nl_}Fix the configuration options and rerun the script.${nl_}"
   exit 1
 fi
-echo "${nl_}---------------${nl_}"
+echo "${nl_}${SD_BORDER}${nl_}"
 
 # Prevents setting "-d /" by mistake.
 
@@ -495,10 +495,10 @@ fi
 >$LOGDIR/$LOG
 
 get_book
-echo "---------------${nl_}"
+echo "${SD_BORDER}${nl_}"
 
 build_Makefile
-echo "---------------${nl_}"
+echo "${SD_BORDER}${nl_}"
 
 run_make
 
