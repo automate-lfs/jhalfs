@@ -690,10 +690,10 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
 
       if [ ! -f $FILE ] ; then
         wget $URL1 || wget $URL2 || (echo "${RED}$FILE not found on the servers${OFF}" &&
-                                     echo "$FILE not found on the servers 1" >> MISSING_FILES.DMP )
+                                     echo "$FILE not found on the servers" >> MISSING_FILES.DMP )
       elif [[ "$NOMD5" != "1" ]] && ! echo "$MD5" | md5sum -c - ; then
         wget -N $URL1 || wget -N $URL2 || ( echo "${RED}$FILE not found on the servers${OFF}" &&
-                                            echo "$FILE not found on the servers 2" >> MISSING_FILES.DMP )
+                                            echo "$FILE not found on the servers" >> MISSING_FILES.DMP )
       fi
 
       if [[ "$NOMD5" != "1" ]] && ! echo "$MD5" | md5sum -c - ; then
