@@ -245,9 +245,9 @@ EOF
 }
 
 
-#=============================#
-wrt_unpack3() {               #
-#=============================#
+#----------------------------------#
+wrt_unpack3() {                    #
+#----------------------------------#
   local FILE=$1
 (
 cat  << EOF
@@ -301,9 +301,9 @@ EOF
 }
 
 
-#=============================#
-wrt_run_as_root2() {          #
-#=============================#
+#----------------------------------#
+wrt_run_as_root2() {               #
+#----------------------------------#
   local this_script=$1
   local file=$2
 (
@@ -400,7 +400,7 @@ EOF
 
 
 #----------------------------------#
-wrt_report() {         #
+wrt_report() {                     #
 #----------------------------------#
 (
 cat << EOF
@@ -418,7 +418,7 @@ chapter789="$chapter789 create-sbu_du-report"
 
 
 #----------------------------#
-run_make() {
+run_make() {                 #
 #----------------------------#
   # Test if make must be run.
   if [ "$RUNMAKE" = "1" ] ; then
@@ -438,7 +438,7 @@ run_make() {
 
 
 #----------------------------#
-clean_builddir() {
+clean_builddir() {           #
 #----------------------------#
   # Test if the clean must be done.
   if [ "$CLEAN" = "1" ] ; then
@@ -465,7 +465,7 @@ clean_builddir() {
 }
 
 #----------------------------#
-get_book() {
+get_book() {                 #
 #----------------------------#
   cd $JHALFSDIR
 
@@ -679,10 +679,10 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
     HAVEMD5=1  # Always assume we have a MD5SUM
     MD5=`grep "  $FILE" MD5SUMS`
     if [ $? -ne 0 ]; then
-        set -e
-	gs_wrt_message "$FILE not found in MD5SUMS"
-	  # IMPORTANT:: There is no MD5SUM for this file.
-        HAVEMD5=0
+      set -e
+      gs_wrt_message "$FILE not found in MD5SUMS"
+        # IMPORTANT:: There is no MD5SUM for this file.
+      HAVEMD5=0
     fi
 
     set -e
@@ -700,8 +700,8 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
       # If the file does not exist in /sources download a fresh one
       if [ ! -f $FILE ] ; then
         if ! wget $URL1 && ! wget $URL2 ; then
-	  gs_wrt_message "$FILE not found in the SRC_ARCHIVE or on any server..SKIPPING" 
-	  continue 
+          gs_wrt_message "$FILE not found in the SRC_ARCHIVE or on any server..SKIPPING" 
+          continue 
         fi
       fi
     fi
@@ -710,18 +710,17 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
     if [[ "$HAVEMD5" = "1" ]] ; then
         # IF the md5sum does not match the existing files
       if ! echo "$MD5" | md5sum -c - >/dev/null ; then
-	[[ $fromARCHIVE = "1" ]] && echo "${BOLD}${YELLOW}MD5SUM did not match SRC_ARCHIVE copy${OFF}"
-	[[ $fromARCHIVE = "0" ]] && echo "${BOLD}${YELLOW}MD5SUM did not match REMOTE copy${OFF}"
+        [[ $fromARCHIVE = "1" ]] && echo "${BOLD}${YELLOW}MD5SUM did not match SRC_ARCHIVE copy${OFF}"
+        [[ $fromARCHIVE = "0" ]] && echo "${BOLD}${YELLOW}MD5SUM did not match REMOTE copy${OFF}"
           # Remove the old file and download a new one
-	rm -fv $FILE
-	  # Force generation of MD5SUM and storage in SRC_ARCHIVE 
+        rm -fv $FILE
+          # Force generation of MD5SUM and storage in SRC_ARCHIVE 
         fromARCHIVE=0; HAVEMD5=0
-	  # Try and retrieve the file
-	  # I swap server priority to allow for corruption on the primary site
+          # Try and retrieve the file
         if ! wget -N $URL1 && ! wget -N $URL2 ; then
-	  gs_wrt_message "$FILE not found on the servers.. SKIPPING"
-	  continue
-	fi
+          gs_wrt_message "$FILE not found on the servers.. SKIPPING"
+          continue
+        fi
       fi
     fi
 
@@ -754,7 +753,7 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
   if [[ -s MISSING_FILES.DMP ]]; then
     echo  -e "\n\n${tab_}${RED} One or more files were not retrieved or have a bad MD5SUMS chechsum.\n${tab_} Check ${L_arrow}$BUILDDIR/sources/MISSING_FILES.DMP${R_arrow} for names ${OFF}\n"
       # Do not allow the automatic exection of the Makefile.
-    echo     "${tab_}${BOLD}${RED}*** ${YELLOW}Automatic execution of the generated makefile has been inhibited. ${RED}***${OFF}${nl_}"
+    echo "${tab_}${BOLD}${RED}*** ${YELLOW}Automatic execution of the generated makefile has been inhibited. ${RED}***${OFF}${nl_}"
     RUNMAKE=0
   fi
 }
