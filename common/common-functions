@@ -670,8 +670,8 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
     esac
 
       # Locations
-    URL1=`echo $line | cut -d" " -f1` # Upstream URL
-    URL2=`echo $line | cut -d" " -f2` # Fallback URL
+    URL1=`echo $line | cut -d" " -f2` # Preferred URL
+    URL2=`echo $line | cut -d" " -f1` # Fallback Upstream URL
     FILE=`basename $URL2` # File name
 
       # Find the md5 sum for this package.
