@@ -53,6 +53,7 @@ ${BOLD}  -B, --book VER${OFF}
 ${BOLD}  -D  --directory DIR${OFF}
         use DIR directory for building ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF}; all files jhalfs produces
         will be in the directory DIR/jhalfs.
+        The current setting for BUILDDIR is "$BUILDDIR"
 
 ${BOLD}  -G, --get-packages${OFF}
         download the packages and patches. This assumes that the server declared
