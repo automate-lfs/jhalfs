@@ -255,5 +255,5 @@ inline_doc
     esac
   done
   set -e
-  echo "$tab_***${BOLD}${GREEN} ${PARAM_GROUP%%_*T} config parameters look good${OFF} ***"
+  echo "${nl_}***${BOLD}${GREEN} ${PARAM_GROUP%%_*T} config parameters look good${OFF} ***${nl_}"
 }

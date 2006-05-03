@@ -24,9 +24,9 @@ declare -r  HIDDEN=$'\e[8m'
 declare -r  tab_=$'\t'
 declare -r  nl_=$'\n'
 
-declare -r   DD_BORDER="${BOLD}${WHITE}==============================================================================${OFF}"
-declare -r   SD_BORDER="${BOLD}${WHITE}------------------------------------------------------------------------------${OFF}"
-declare -r STAR_BORDER="${BOLD}${WHITE}******************************************************************************${OFF}"
+declare -r   DD_BORDER="${BOLD}==============================================================================${OFF}"
+declare -r   SD_BORDER="${BOLD}------------------------------------------------------------------------------${OFF}"
+declare -r STAR_BORDER="${BOLD}******************************************************************************${OFF}"
 
 # bold yellow > <  pair
 declare -r R_arrow=$'\e[1;33m>\e[0m'
@@ -53,6 +53,7 @@ ${BOLD}  -B, --book VER${OFF}
 ${BOLD}  -D  --directory DIR${OFF}
         use DIR directory for building ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF}; all files jhalfs-X produces
         will be in the directory DIR/jhalfs.
+        The current setting for BUILDDIR is "$BUILDDIR"
 
 ${BOLD}  -G, --get-packages${OFF}
         download the packages and patches. This assumes that the server declared
@@ -244,9 +245,9 @@ EOF
 }
 
 
-#=============================#
-wrt_unpack3() {               #
-#=============================#
+#----------------------------------#
+wrt_unpack3() {                    #
+#----------------------------------#
   local FILE=$1
 (
 cat  << EOF
@@ -300,9 +301,9 @@ EOF
 }
 
 
-#=============================#
-wrt_run_as_root2() {          #
-#=============================#
+#----------------------------------#
+wrt_run_as_root2() {               #
+#----------------------------------#
   local this_script=$1
   local file=$2
 (
@@ -399,7 +400,7 @@ EOF
 
 
 #----------------------------------#
-wrt_report() {         #
+wrt_report() {                     #
 #----------------------------------#
 (
 cat << EOF
@@ -417,7 +418,7 @@ chapter789="$chapter789 create-sbu_du-report"
 
 
 #----------------------------#
-run_make() {
+run_make() {                 #
 #----------------------------#
   # Test if make must be run.
   if [ "$RUNMAKE" = "1" ] ; then
@@ -437,7 +438,7 @@ run_make() {
 
 
 #----------------------------#
-clean_builddir() {
+clean_builddir() {           #
 #----------------------------#
   # Test if the clean must be done.
   if [ "$CLEAN" = "1" ] ; then
@@ -464,7 +465,7 @@ clean_builddir() {
 }
 
 #----------------------------#
-get_book() {
+get_book() {                 #
 #----------------------------#
   cd $JHALFSDIR
 
@@ -487,8 +488,8 @@ get_book() {
     # sources.
     if [ -d ${PROGNAME}-$LFSVRS ] ; then
       cd ${PROGNAME}-$LFSVRS
-      if LC_ALL=C svn up | grep -q At && test -d $JHALFSDIR/commands && \
-      test -f $JHALFSDIR/packages && test -f $JHALFSDIR/patches ; then
+      if LC_ALL=C svn up | grep -q At && test -d $JHALFSDIR/${PROGNAME}-commands && \
+      test -f $JHALFSDIR/packages ; then
         echo -ne "done\n"
         # Set the canonical book version
         cd $JHALFSDIR
@@ -627,94 +628,133 @@ extract_commands() {         #
   get_sources
 }
 
-
 #----------------------------#
 get_sources() {              # Download file, write name to MISSING_FILES.DMP if an error
 #----------------------------#
   local saveIFS=$IFS
-  local IFS line URL1 URL2 FILE MD5
+  local IFS line URL1 URL2 FILE MD5 HAVEMD5 fromARCHIVE
 
-  # Test if the packages must be downloaded
-  if [ "$GETPKG" = "1" ] ; then
+    # Test if the packages must be downloaded
+  [ ! "$GETPKG" = "1" ] && return
 
-    [[ ! -d $BUILDDIR/sources ]] && mkdir $BUILDDIR/sources
-    cd $BUILDDIR/sources
-    [[ -f MD5SUMS ]] && rm MD5SUMS
-    [[ -f MD5SUMS-$VERSION ]] && rm MD5SUMS-$VERSION
-    [[ -f MISSING_FILES.DMP ]] && rm MISSING_FILES.DMP
-    [[ -f urls.lst ]] && rm urls.lst
+  gs_wrt_message(){
+    echo "${RED}$1${OFF}"
+    echo "$1" >> MISSING_FILES.DMP
+  }
+    # Housekeeping
+  [[ ! -d $BUILDDIR/sources ]] && mkdir $BUILDDIR/sources
+  cd $BUILDDIR/sources
+  [[ -f MD5SUMS ]] && rm MD5SUMS
+  [[ -f MD5SUMS-$VERSION ]] && rm MD5SUMS-$VERSION
+  [[ -f MISSING_FILES.DMP ]] && rm MISSING_FILES.DMP
+  [[ -f urls.lst ]] && rm urls.lst
 
     # Download a fresh MD5SUMS file
-    wget $SERVER/pub/lfs/conglomeration/MD5SUMS
+  wget $SERVER/pub/lfs/conglomeration/MD5SUMS
 
     # Generate URLs file
-    create_urls
+  create_urls
 
-    IFS=$'\x0A'  # Modify the 'internal field separator' to break on 'LF' only
-    for line in `cat urls.lst`; do
-      IFS=$saveIFS  # Restore the system defaults
+  IFS=$'\x0A'  # Modify the 'internal field separator' to break on 'LF' only
+  for line in `cat urls.lst`; do
+    IFS=$saveIFS  # Restore the system defaults
 
       # Skip some packages if they aren't needed
-      case $line in
+    case $line in
         */tcl* | */expect* | */dejagnu* | */tree* | */gcc-testsuite* )
             [[ "$TEST" = "0" ]] && continue
           ;;
         */vim-*-lang* )
             [[ "$VIMLANG" = "0" ]] && continue
           ;;
-      esac
+    esac
 
-      URL1=`echo $line | cut -d" " -f1` # Upstream URL
-      URL2=`echo $line | cut -d" " -f2` # Fallback URL
-      FILE=`basename $URL2` # File name
-
-      # If the file exists in the archive copy it to the $BUILDDIR/sources dir
-      # MD5SUM is assumed to be correct from previous download
-      if [ ! -z ${SRC_ARCHIVE} ] &&
-         [ -d ${SRC_ARCHIVE} ] &&
-         [ -f ${SRC_ARCHIVE}/$FILE ]; then
-        cp ${SRC_ARCHIVE}/$FILE .
-        echo "$FILE: -- copied from $SRC_ARCHIVE"
-      fi
+      # Locations
+    URL1=`echo $line | cut -d" " -f2` # Preferred URL
+    URL2=`echo $line | cut -d" " -f1` # Fallback Upstream URL
+    FILE=`basename $URL2` # File name
 
       # Find the md5 sum for this package.
-      set +e
-      MD5=`grep "  $FILE" MD5SUMS`
-      if [ $? -ne 0 ]; then
-        set -e
-        echo "${RED}$FILE not found in MD5SUMS${OFF}"
-        echo "$FILE not found in MD5SUMS" >> MISSING_FILES.DMP
-      fi
+    set +e
+    HAVEMD5=1  # Always assume we have a MD5SUM
+    MD5=`grep "  $FILE" MD5SUMS`
+    if [ $? -ne 0 ]; then
       set -e
-
-      if [ ! -f $FILE ] ; then
-        wget $URL1 || wget $URL2
-      elif ! echo "$MD5" | md5sum -c - >/dev/null 2>/dev/null ; then
-        wget -N $URL1 || wget -N $URL2
-      fi
-
-      if ! echo "$MD5" | md5sum -c - ; then
-        echo "${RED}$FILE not match MD5SUMS value${OFF}"
-        echo "$FILE not match MD5SUMS value" >> MISSING_FILES.DMP
-      fi
-      echo `grep "$MD5" MD5SUMS` >> MD5SUMS-$VERSION
-
-      # Copy the freshly downloaded file
-      # to the source archive.
-      if [ ! -z ${SRC_ARCHIVE} ] &&
-         [ -d ${SRC_ARCHIVE} ] &&
-         [ -w ${SRC_ARCHIVE} ] &&
-         [ ! -f ${SRC_ARCHIVE}/$FILE ] ; then
-        echo "Store file:<$FILE> in package archive"
-        cp -v $FILE ${SRC_ARCHIVE}
-      fi
-
-    done
-
-    if [[ -s MISSING_FILES.DMP ]]; then
-      echo  -e "\n\n${tab_}${RED} One or more files were not retrieved or have a bad MD5SUMS chechsum.\n${tab_} Check ${L_arrow}$BUILDDIR/sources/MISSING_FILES.DMP${R_arrow} for names ${OFF}\n\n"
+      gs_wrt_message "$FILE not found in MD5SUMS"
+        # IMPORTANT:: There is no MD5SUM for this file.
+      HAVEMD5=0
     fi
 
+    set -e
+      # If the file exists in the archive copy it to the
+      # $BUILDDIR/sources dir. MD5SUM will be validated later.
+    if [ ! -z ${SRC_ARCHIVE} ] &&
+       [   -d ${SRC_ARCHIVE} ] &&
+       [   -f ${SRC_ARCHIVE}/$FILE ]; then
+      cp ${SRC_ARCHIVE}/$FILE .
+      echo "$FILE: -- copied from $SRC_ARCHIVE"
+      fromARCHIVE=1
+    else
+      echo "${BOLD}${YELLOW}$FILE: not found in ${SRC_ARCHIVE}${OFF}"
+      fromARCHIVE=0
+      # If the file does not exist in /sources download a fresh one
+      if [ ! -f $FILE ] ; then
+        if ! wget $URL1 && ! wget $URL2 ; then
+          gs_wrt_message "$FILE not found in the SRC_ARCHIVE or on any server..SKIPPING"
+          continue
+        fi
+      fi
+    fi
+
+      # Is there a MD5SUM to validate the file against.
+    if [[ "$HAVEMD5" = "1" ]] ; then
+        # IF the md5sum does not match the existing files
+      if ! echo "$MD5" | md5sum -c - >/dev/null ; then
+        [[ $fromARCHIVE = "1" ]] && echo "${BOLD}${YELLOW}MD5SUM did not match SRC_ARCHIVE copy${OFF}"
+        [[ $fromARCHIVE = "0" ]] && echo "${BOLD}${YELLOW}MD5SUM did not match REMOTE copy${OFF}"
+          # Remove the old file and download a new one
+        rm -fv $FILE
+          # Force generation of MD5SUM and storage in SRC_ARCHIVE
+        fromARCHIVE=0; HAVEMD5=0
+          # Try and retrieve the file
+        if ! wget -N $URL1 && ! wget -N $URL2 ; then
+          gs_wrt_message "$FILE not found on the servers.. SKIPPING"
+          continue
+        fi
+      fi
+    fi
+
+      # Validate the MD5SUM one last time
+    if [[ "$HAVEMD5" = "1" ]] && ! echo "$MD5" | md5sum -c - >/dev/null ; then
+      gs_wrt_message "$FILE does not match MD5SUMS value"
+    fi
+
+      # Generate a fresh MD5SUM for this file
+    if [[ "$HAVEMD5" = "0" ]] ; then
+      echo "${BOLD}${YELLOW}Generating a new MD5SUM for ${OFF}$FILE"
+      echo "NEW MD5SUM $(md5sum $FILE)" >> MISSING_FILES.DMP
+    fi
+
+      # Good or bad we write the original md5sum to a file
+    echo "$MD5" >> MD5SUMS-$VERSION
+
+     # Copy the freshly downloaded file
+     # to the source archive.
+   if [ ! -z ${SRC_ARCHIVE}  ] &&
+      [   -d ${SRC_ARCHIVE}  ] &&
+      [   -w ${SRC_ARCHIVE}  ] &&
+      [ "$fromARCHIVE" = "0" ] ; then
+        echo "Storing file:<$FILE> in the package archive"
+        cp -f $FILE ${SRC_ARCHIVE}
+   fi
+
+  done
+
+  if [[ -s MISSING_FILES.DMP ]]; then
+    echo  -e "\n\n${tab_}${RED} One or more files were not retrieved or have a bad MD5SUMS chechsum.\n${tab_} Check ${L_arrow}$BUILDDIR/sources/MISSING_FILES.DMP${R_arrow} for names ${OFF}\n"
+      # Do not allow the automatic exection of the Makefile.
+    echo "${tab_}${BOLD}${RED}*** ${YELLOW}Automatic execution of the generated makefile has been inhibited. ${RED}***${OFF}${nl_}"
+    RUNMAKE=0
   fi
 }
 

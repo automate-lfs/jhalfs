@@ -108,6 +108,7 @@ wrt_logs() {             #
 (
     cat << EOF
 	@pushd logs 1> /dev/null && \\
+	rm $ITERATION && \\
 	mkdir $ITERATION && \\
 	mv ${LOGS} $ITERATION && \\
 	popd 1> /dev/null

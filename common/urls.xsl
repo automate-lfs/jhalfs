@@ -22,7 +22,7 @@
     <xsl:if test="(ancestor::varlistentry[@condition=$model]
                   or not(ancestor::varlistentry[@condition])) and
                   (contains(@url, '.tar.') or contains(@url, '.tgz')
-                  or contains(@url, '.patch') or contains(@url, '.rules')) and
+                  or contains(@url, '.patch')) and
                   not(ancestor-or-self::*/@condition = 'pdf')">
       <!-- Extract the package name -->
       <xsl:variable name="package">
