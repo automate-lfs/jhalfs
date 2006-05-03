@@ -14,7 +14,7 @@ VERSION=$2
 [[ ! -f "$LOGSDIR"/000-masterscript.log ]] && \
   echo -e "\nLooks like $LOGSDIR isn't a jhalfs logs directory.\n" && exit
 
-# If this script is run manually, the book version may be unknow
+# If this script is run manually, the book version may be unknown
 [[ -z "$VERSION" ]] && VERSION=unknown
 
 # If there is iteration logs directories, copy the logs inside iteration-1
@@ -74,10 +74,10 @@ for log in $BUILDLOGS ; do
   SBU2="$SBU2 + $SBU"
 
 #Start disk usage calculation
-  # Disk usage before unpack the package
+  # Disk usage before unpacking the package
   DU1=`grep "^KB: " $log | head -n1 | cut -f1 | sed -e 's/KB: //'`
   DU1MB=`echo "scale=2; $DU1 / 1024" | bc`
-  # Disk usage before delete sources and build dirs
+  # Disk usage before deleting the source and build dirs
   DU2=`grep "^KB: " $log | tail -n1 | cut -f1 | sed -e 's/KB: //'`
   DU2MB=`echo "scale=2; $DU2 / 1024" | bc`
   # Calculate disk space required to do the build
@@ -108,8 +108,8 @@ for log in $BUILDLOGS ; do
   echo -e "Approximate SBU time is:\t$SBU" >> "$REPORT"
 
   # Dump disk usage values
-  echo -e "\nDisk usage before unpack the package:\t\t\t$DU1 KB or $DU1MB MB" >> "$REPORT"
-  echo -e "Disk usage before delete sources and build dirs:\t$DU2 KB or $DU2MB MB" >> "$REPORT"
+  echo -e "\nDisk usage before unpacking the package:\t\t\t$DU1 KB or $DU1MB MB" >> "$REPORT"
+  echo -e "Disk usage before deleting the source and build dirs:\t$DU2 KB or $DU2MB MB" >> "$REPORT"
   echo -e "Required space to build the package:\t\t\t$REQUIRED1 KB or $REQUIRED2 MB\n" >> "$REPORT"
 
 done
