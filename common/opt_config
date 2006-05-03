@@ -1,0 +1,50 @@
+#####
+#
+# optimization configuration file
+#
+#####
+
+#--- Default optimization level
+#    This level is overridden by definitions in common/def_opt_override;
+#    in this way, packages can be tuned independently.  For example,
+#    if you have trouble building a package at level 3, add it to
+#    common/def_opt_override as an alternate level.
+#
+#    Optimization levels need not be numeric; custom strings
+#    can be defined.
+#      For example: CFLAGS_myLevel="-O3 -pipe"
+#                   cat "fooPkg myLevel" >> common/def_opt_override
+DEF_OPT_LVL=3
+
+#--- Optimization level definitions
+#      Usage: - Apply optimization string at any given level
+#             - "unset" will cause the variable to be not set
+#               instead of set to null
+#--- LEVEL 0
+#      WARNING: Do not edit this level unless you know what you are
+#               doing.  By default, this is set to affect packages
+#               which may have problems with optimization.
+CFLAGS_0="unset"
+CXXFLAGS_0=$CFLAGS_0
+LDFLAGS_0="unset"
+
+
+#--- LEVEL 1
+CFLAGS_1="-O2 -pipe"
+CXXFLAGS_1=$CFLAGS_1
+LDFLAGS_1=""
+
+#--- LEVEL 2
+CFLAGS_2="-O3 -pipe"
+CXXFLAGS_2=$CFLAGS_2
+LDFLAGS_2=""
+
+#--- LEVEL 3
+CFLAGS_3="-O3 -march=pentium4 -pipe -s"
+CXXFLAGS_3=$CFLAGS_3
+LDFLAGS_3="-s"
+
+#--- LEVEL noOpt_noSymbols
+CFLAGS_noOpt_noSymbols="-s"
+CXXFLAGS_noOpt_noSymbols=$CFLAGS_noOpt_noSymbols
+LDFLAGS_noOpt_noSymbols="-s"

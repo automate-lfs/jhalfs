@@ -215,6 +215,7 @@ chapter6_Makefiles() {
     if [ "$vrs" != "" ] ; then
       FILE="$name-$vrs.tar.*"
       wrt_unpack2 "$FILE"
+      [[ "$OPTIMIZE" = "1" ]] && wrt_optimize "$name"
     fi
 
     # In the mount of kernel filesystems we need to set LFS

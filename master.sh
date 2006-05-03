@@ -56,6 +56,11 @@ source $COMMON_DIR/config
 [[ $? > 0 ]] && echo "$COMMON_DIR/conf did not load.." && exit
 [[ $VERBOSITY > 0 ]] && echo "OK"
 #
+[[ $VERBOSITY > 0 ]] && echo -n "Loading optimization config..."
+source $COMMON_DIR/opt_config
+[[ $? > 0 ]] && echo " $COMMON_DIR/opt_config did not load.." && exit
+[[ $VERBOSITY > 0 ]] && echo "OK"
+#
 [[ $VERBOSITY > 0 ]] && echo -n "Loading compare module..."
 source $COMMON_DIR/func_compare.sh
 [[ $? > 0 ]] && echo "$COMMON_DIR/func_compare.sh did not load.." && exit
@@ -468,6 +473,7 @@ fi
 
 if [[ "$PWD" != "$JHALFSDIR" ]]; then
   cp $COMMON_DIR/makefile-functions $JHALFSDIR/
+  [[ "$OPTIMIZE" = "1" ]] && cp $COMMON_DIR/opt_override $JHALFSDIR/
   if [[ "$COMPARE" != "0" ]] ; then
     mkdir -p $JHALFSDIR/extras
     cp extras/* $JHALFSDIR/extras
