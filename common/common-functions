@@ -68,9 +68,9 @@ ${BOLD}  -G, --get-packages${OFF}
 ${BOLD}  -T, --testsuites N ${OFF}
         Run test suites  [0-3]
           0 = none
-          1 = only chapter06 Glibc, GCC and Binutils testsuites
-          2 = all chapter06 testsuites
-          3 = all chapter05 and chapter06 testsuites
+          1 = only final system Glibc, GCC and Binutils testsuites
+          2 = all final system testsuites
+          3 = all temporaly tools and final system testsuites
         In CLFS, 3 is an alias to 2
         In BLFS, 1, 2, and 3 are equivalents and means that the testsuites
         will be run.
