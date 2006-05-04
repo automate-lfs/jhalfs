@@ -203,12 +203,16 @@ wrt_target() {                     # Create target and initialize log file
 #----------------------------------#
   local i=$1
   local PREV=$2
+  case $i in
+    iteration* ) local LOGFILE=$this_script.log ;;
+             * ) local LOGFILE=$this_script ;;
+  esac
 (
 cat << EOF
 
 $i:  $PREV
 	@\$(call echo_message, Building)
-	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=jhalfs \$(MOUNT_PT)\`\n" >logs/$this_script
+	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=jhalfs \$(MOUNT_PT)\`\n" >logs/$LOGFILE
 EOF
 ) >> $MKFILE.tmp
 }

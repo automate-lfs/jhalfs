@@ -25,8 +25,8 @@ GETPKG=0
 #    if the user has the right priviledges.
 SRC_ARCHIVE=$SRC_ARCHIVE
 
-# --- Server used as fallback if the file isn't found in
-# SRC_ARCHIVE and/or can't be dowloaded from upstream
+# --- Server used if the file isn't found in SRC_ARCHIVE.
+# As a last resort, the file will dowloaded from upstream, if possible.
 SERVER=ftp://ftp.lfs-matrix.net
 
 #=== Build options ===
