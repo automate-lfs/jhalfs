@@ -47,8 +47,9 @@ ${BOLD}  -V, --version${OFF}
         print version information, then exit
 
 ${BOLD}  -B, --book VER${OFF}
-        checkout VER version of the book. Supported versions at this time are:
-        dev* | trunk | SVN     aliases for Development {C,H,B}LFS
+        use VER version of the book as the system to build.
+        Supported versions are: dev*, trunk, SVN
+        These are aliases for the Development version of {C,H,B}LFS
 
 ${BOLD}  -D  --directory DIR${OFF}
         use DIR directory for building ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF}; all files jhalfs produces
@@ -77,11 +78,11 @@ ${BOLD}  -W, --working-copy DIR${OFF}
 cat <<- -EOF-
 
 ${BOLD}  -C, --comparasion TYPE${OFF}
-         do iterative comparison analysis. That will take several time due that
-         the final system packages wil be rebuilded the times defined in the
-         ITERATIONS config option.
+         do iterative comparison analysis. This extends the total build time
+         considerably because the entire final system will rebuild itself
+         the number of times specified by ITERATIONS in common/config.
          Analisys types allowed are:
-           ICA   = do the ICA analysis designed by Greg Schafer
+           ICA   = do ICA as designed by Greg Schafer
            farce = do the farce analysis designed by Ken Moffat
            both  = perfom both ICA and farce analysis
 
@@ -97,7 +98,7 @@ ${BOLD}  -M, --run-make${OFF}
         run make on the generated Makefile
 
 ${BOLD}  -R --rebuild${OFF}
-        clean the build directory before to perfom any other task. The directory
+        clean the build directory before perfoming any other task. The directory
         is cleaned only if it was populated by a previous jhalfs run.
 -EOF-
 
