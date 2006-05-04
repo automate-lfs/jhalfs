@@ -11,6 +11,10 @@ declare -r LOG=000-masterscript.log
 #--- Mount point for the build
 BUILDDIR=/mnt/build_dir
 
+# Create SBU and disk usage report  0(no)/1(yes)
+# NOTE: requires to have bc installed on the host
+REPORT=1
+
 #=== Getting packages ===
 #--- Download the source packages 0(no)/1(yes)
 GETPKG=0
@@ -21,8 +25,8 @@ GETPKG=0
 #    if the user has the right priviledges.
 SRC_ARCHIVE=$SRC_ARCHIVE
 
-# --- Server used as fallback if the file isn't found in
-# SRC_ARCHIVE and/or can't be dowloaded from upstream
+# --- Server used if the file isn't found in SRC_ARCHIVE.
+# As a last resort, the file will dowloaded from upstream, if possible.
 SERVER=ftp://ftp.lfs-matrix.net
 
 #=== Build options ===
@@ -40,10 +44,6 @@ RUNMAKE=0
 #      (in BLFS, alias to 1)
 #      (in CLFS, alias to 2)
 TEST=1
-
-# Create SBU and disk usage report  0(no)/1(yes)
-# NOTE: requires to have bc installed on the host
-REPORT=1
 
 #--- Run the stripping phases  0(no)/1(yes)
 STRIP=1
