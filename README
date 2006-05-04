@@ -37,44 +37,65 @@ $Id$
      The term <symlink> refers to the 1 of 4 package symlinks, lfs,hlfs,clfs,blfs.
      Replace <symlink> with your choice of packages; i.e.: ./lfs
 
-     ./<symlink>
+     ./<symlink>		eg: ./lfs or ./hlfs
      Create a makefile based on the settings found in the config files.
      You must enter the build partition/jhalfs directory and manually run <make>
 
-     ./<symlink> -G
+     ./<symlink> -G		eg: ./lfs -G
      Download the packages and patches necessary to build <symlink>
 
-     ./<symlink> -G -M
+     ./<symlink> -G -M		eg: ./lfs -G -M
      Download the packages, create and automatically run the Makefile
 
-     ./<symlink> --help  will give you a context sensitive list of command
-                         line switches.
+     ./<symlink> --help		eg: ./lfs --help
+     will give you a context sensitive list of command line switches.
 
 5. LAYOUT::
 
-        blfs --+  /BLFS config ---+             /common/config
-               |       master.sh -+                    /common_functions
-               |       xxxx.xsl  -+                    /makefile_functions
-               |                                       /func_check_versions.sh
-        clfs --+  /CLFS config ---+                    /func_validate_configs.sh
-               |       master.sh -+
-               |       xxxx.xsl  -+
-               |
-               +--------------------- master.sh --------------->>>
-               +--README
-               |
-        hlfs --+  /HLFS config ---+
-               |       master.sh -+
-               |       xxxx.xsl  -+
-               |
-        lfs  --+  /LFS  config ---+
-                       master.sh -+
-                       xxxx.xsl  -+
+        /BLFS/config
+             /master.sh
+             /xxxx.xsl
 
+        /CLFS/config
+             /master.sh
+             /xxxx.xsl
+	      
+        /HLFS/config
+             /master.sh
+             /xxxx.xsl
 
+        /LFS/config
+            / master.sh
+            /xxxx.xsl
+
+        /common/config
+               /common_functions
+               /makefile_functions
+               /func_check_versions.sh
+               /func_validate_configs.sh
+
+        /contrib/jhalfs-paco.patch
+
+	/extras/do_copy_files
+               /do_ica_prep
+               /do_ica_work
+               /farce
+               /filelist
+
+         README
+	 README.PACO
+	 TODO
+	 
+	 ./blfs  ---+
+	 ./clfs  ---|
+	            +---> master.sh
+	 ./hlfs  ---|
+	 ./lfs   ---+
+	 
+	 
 6. FAQ::
     Q. "It doesn't work"
-    A. Yes it does..
+    A. Yes it does, try ./lfs --help
     
     Q. "How do I specify the build location"
     A. The original LFS document worked against the well know location /mnt/lfs.
@@ -85,9 +106,9 @@ $Id$
        The layout below $BUILDDIR is as follows.
        $BUILDDIR/
             jhalfs      (makefile,cmd scripts,logs..etc)
-	    sources     (where packages reside
-	    temptools   (temporary bootstrap system
-	    cross-tools (CLFS only)
+	    sources     (where packages reside)
+	    temptools   (temporary bootstrap system)
+	    cross-tools (temporary CLFS only)
 	        ...
 	    FHS dir structure
 	        ...
