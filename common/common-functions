@@ -81,7 +81,7 @@ ${BOLD}  -C, --comparasion TYPE${OFF}
          do iterative comparison analysis. This extends the total build time
          considerably because the entire final system will rebuild itself
          the number of times specified by ITERATIONS in common/config.
-         Analisys types allowed are:
+         Types allowed are:
            ICA   = do ICA as designed by Greg Schafer
            farce = do the farce analysis designed by Ken Moffat
            both  = perfom both ICA and farce analysis
