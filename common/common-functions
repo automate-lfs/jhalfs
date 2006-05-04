@@ -39,6 +39,10 @@ ${DD_BORDER}
 ${BOLD}
  Usage: $0 ${BOLD}[OPTION]
 
+${RED}IMPORTANT:${OFF} Only supported command line switches are listed here.
+           For more fine-grained setups you must to edit the relevant
+           configuration files placed under ${BOLD}common/${OFF} and ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])/${OFF}
+
 Options:
 ${BOLD}  -h, --help${OFF}
         print this help, then exit
