@@ -56,16 +56,6 @@ source $COMMON_DIR/config
 [[ $? > 0 ]] && echo "$COMMON_DIR/conf did not load.." && exit
 [[ $VERBOSITY > 0 ]] && echo "OK"
 #
-[[ $VERBOSITY > 0 ]] && echo -n "Loading optimization config..."
-source optimize/opt_config
-[[ $? > 0 ]] && echo " optimize/opt_config did not load.." && exit
-[[ $VERBOSITY > 0 ]] && echo "OK"
-#
-[[ $VERBOSITY > 0 ]] && echo -n "Loading compare module..."
-source $COMMON_DIR/func_compare.sh
-[[ $? > 0 ]] && echo "$COMMON_DIR/func_compare.sh did not load.." && exit
-[[ $VERBOSITY > 0 ]] && echo "OK"
-#
 [[ $VERBOSITY > 0 ]] && echo -n "Loading config module <$MODULE_CONFIG>..."
 source $MODULE_CONFIG
 [[ $? > 0 ]] && echo "$MODULE_CONFIG did not load.." && exit 1
@@ -464,6 +454,24 @@ if [ x$ANSWER != "xyes" ] ; then
   exit 1
 fi
 echo "${nl_}${SD_BORDER}${nl_}"
+
+# Loadd additional modules or configuration files based on global settings
+# compare module
+if [[ "$COMPARE" = "1" ]]; then
+  [[ $VERBOSITY > 0 ]] && echo -n "Loading compare module..."
+  source $COMMON_DIR/func_compare.sh
+  [[ $? > 0 ]] && echo "$COMMON_DIR/func_compare.sh did not load.." && exit
+  [[ $VERBOSITY > 0 ]] && echo "OK"
+fi
+#
+# optimize configurations
+if [[ "$OPTIMIZE" != "0" ]]; then
+  [[ $VERBOSITY > 0 ]] && echo -n "Loading optimization config..."
+  source optimize/opt_config
+  [[ $? > 0 ]] && echo " optimize/opt_config did not load.." && exit
+  [[ $VERBOSITY > 0 ]] && echo "OK"
+fi
+#
 
 # Prevents setting "-d /" by mistake.
 
