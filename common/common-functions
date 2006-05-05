@@ -39,6 +39,10 @@ ${DD_BORDER}
 ${BOLD}
  Usage: $0 ${BOLD}[OPTION]
 
+${RED}IMPORTANT:${OFF} Only supported command line switches are listed here.
+           For more fine-grained setups you must edit the relevant
+           configuration files placed under ${BOLD}common/${OFF} and ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])/${OFF}
+
 Options:
 ${BOLD}  -h, --help${OFF}
         print this help, then exit
@@ -47,8 +51,9 @@ ${BOLD}  -V, --version${OFF}
         print version information, then exit
 
 ${BOLD}  -B, --book VER${OFF}
-        checkout VER version of the book. Supported versions at this time are:
-        dev* | trunk | SVN     aliases for Development {C,H,B}LFS
+        use VER version of the book as the system to build.
+        Supported versions are: dev*, trunk, SVN
+        These are aliases for the Development version of {C,H,B}LFS
 
 ${BOLD}  -D  --directory DIR${OFF}
         use DIR directory for building ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF}; all files jhalfs-X produces
@@ -63,11 +68,12 @@ ${BOLD}  -G, --get-packages${OFF}
 ${BOLD}  -T, --testsuites N ${OFF}
         Run test suites  [0-3]
           0 = none
-          1 = only chapter06 Glibc, GCC and Binutils testsuites
-          2 = all chapter06 testsuites (in BLFS, alias to 1)
-          3 = all chapter05 and chapter06 testsuites
-        In BLFS, 2 and 3 are aliases to 1
+          1 = only final system Glibc, GCC and Binutils testsuites
+          2 = all final system testsuites
+          3 = all temporary tools and final system testsuites
         In CLFS, 3 is an alias to 2
+        In BLFS, 1, 2, and 3 are equivalents and means that the testsuites
+        will be run.
 
 ${BOLD}  -W, --working-copy DIR${OFF}
         use the local working copy placed in DIR as the $(echo $PROGNAME | tr [a-z] [A-Z]) book
@@ -77,11 +83,11 @@ ${BOLD}  -W, --working-copy DIR${OFF}
 cat <<- -EOF-
 
 ${BOLD}  -C, --comparasion TYPE${OFF}
-         do iterative comparison analysis. That will take several time due that
-         the final system packages wil be rebuilded the times defined in the
-         ITERATIONS config option.
-         Analisys types allowed are:
-           ICA   = do the ICA analysis designed by Greg Schafer
+         do iterative comparison analysis. This extends the total build time
+         considerably because the entire final system will rebuild itself
+         the number of times specified by ITERATIONS in common/config.
+         Types allowed are:
+           ICA   = do ICA as designed by Greg Schafer
            farce = do the farce analysis designed by Ken Moffat
            both  = perfom both ICA and farce analysis
 
@@ -97,7 +103,7 @@ ${BOLD}  -M, --run-make${OFF}
         run make on the generated Makefile
 
 ${BOLD}  -R --rebuild${OFF}
-        clean the build directory before to perfom any other task. The directory
+        clean the build directory before perfoming any other task. The directory
         is cleaned only if it was populated by a previous jhalfs-X run.
 -EOF-
 
