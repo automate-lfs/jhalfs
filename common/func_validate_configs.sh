@@ -205,7 +205,7 @@ inline_doc
       RUN_FARCE)  [[ "$COMPARE" = "1" ]] && validate_against_str "x0x x1x" ;;
       ITERATIONS) [[ "$COMPARE" = "1" ]] && validate_against_str "x2x x3x x4x x5x" ;;
       TEST)       validate_against_str "x0x x1x x2x x3x" ;;
-      OPTIMIZE)   validate_against_str "x0x x1x" ;;
+      OPTIMIZE)   validate_against_str "x0x x1x x2x" ;;
       STRIP)      validate_against_str "x0x x1x" ;;
       VIMLANG)    validate_against_str "x0x x1x" ;;
       DEPEND)     validate_against_str "x0x x1x x2x" ;;

@@ -157,6 +157,21 @@ while test $# -gt 0 ; do
 
     --help | -h )  usage | more && exit  ;;
 
+    --optimize | -O )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      case $1 in
+        0 | 1 | 2 )
+          OPTIMIZE=$1
+          ;;
+        * )
+          echo -e "\n$1 isn't a valid optimize level value."
+          echo -e "You must use 0, 1, or 2.\n"
+          exit 1
+          ;;
+      esac
+      ;;
+
     --testsuites | -T )
       test $# = 1 && eval "$exit_missing_arg"
       shift
@@ -473,7 +488,7 @@ fi
 
 if [[ "$PWD" != "$JHALFSDIR" ]]; then
   cp $COMMON_DIR/makefile-functions $JHALFSDIR/
-  [[ "$OPTIMIZE" = "1" ]] && cp $COMMON_DIR/opt_override $JHALFSDIR/
+  [[ "$OPTIMIZE" != "0" ]] && cp $COMMON_DIR/opt_override $JHALFSDIR/
   if [[ "$COMPARE" != "0" ]] ; then
     mkdir -p $JHALFSDIR/extras
     cp extras/* $JHALFSDIR/extras

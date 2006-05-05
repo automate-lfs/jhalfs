@@ -3,48 +3,36 @@
 # optimization configuration file
 #
 #####
-
-#--- Default optimization level
-#    This level is overridden by definitions in common/def_opt_override;
-#    in this way, packages can be tuned independently.  For example,
-#    if you have trouble building a package at level 3, add it to
-#    common/def_opt_override as an alternate level.
 #
-#    Optimization levels need not be numeric; custom strings
-#    can be defined.
-#      For example: CFLAGS_myLevel="-O3 -pipe"
-#                   cat "fooPkg myLevel" >> common/def_opt_override
-DEF_OPT_LVL=3
+#$Id$
+#
 
-#--- Optimization level definitions
-#      Usage: - Apply optimization string at any given level
-#             - "unset" will cause the variable to be not set
-#               instead of set to null
-#--- LEVEL 0
-#      WARNING: Do not edit this level unless you know what you are
-#               doing.  By default, this is set to affect packages
-#               which may have problems with optimization.
-CFLAGS_0="unset"
-CXXFLAGS_0=$CFLAGS_0
-LDFLAGS_0="unset"
+#--- Default optimization mode
+#    This level is overridden by definitions in common/opt_override;
+#    in this way, packages can be tuned independently.  For example,
+#    if you have trouble building a package in mode defOpt, add
+#    the package to common/opt_override with a different mode.
+DEF_OPT_LVL=defOpt
 
 
-#--- LEVEL 1
-CFLAGS_1="-O2 -pipe"
-CXXFLAGS_1=$CFLAGS_1
-LDFLAGS_1=""
+#--- Active optimization variables
+#    Variables listed here will be set as defined in the appropriate
+#    file in common/opt_config.d/; others will be ignored.
+ACTIVE_OPT_VARS="CFLAGS CXXFLAGS LDFLAGS \
+                 OTHER_CFLAGS OTHER_CXXFLAGS OTHER_LDFLAGS"
 
-#--- LEVEL 2
-CFLAGS_2="-O3 -pipe"
-CXXFLAGS_2=$CFLAGS_2
-LDFLAGS_2=""
-
-#--- LEVEL 3
-CFLAGS_3="-O3 -march=pentium4 -pipe -s"
-CXXFLAGS_3=$CFLAGS_3
-LDFLAGS_3="-s"
-
-#--- LEVEL noOpt_noSymbols
-CFLAGS_noOpt_noSymbols="-s"
-CXXFLAGS_noOpt_noSymbols=$CFLAGS_noOpt_noSymbols
-LDFLAGS_noOpt_noSymbols="-s"
+#--- Load optimization modes
+#    To add modes, create a working template..
+#      cp opt_config.d/defOpt opt_config.d/newMode
+#    ..and edit it as desired.
+#
+#    To inherit another mode and add to it, see opt_config.d/defOpt_fPIC
+#    as an example.  Given opt_config.d/modeA_modeB_modeC, modeB inherits
+#    the optimizations of modeA by sourcing it, and modeC inherits those
+#    of modeB (which includes those of modeA).
+#
+#    Add packages that are to use this mode to opt_override with:
+#      echo 'myPkg  newMode' >> opt_override
+for mode in $COMMON_DIR/opt_config.d/* ; do
+  source $mode
+done

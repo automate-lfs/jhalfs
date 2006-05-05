@@ -1,4 +1,5 @@
-binutils       0
-gcc            0
-glibc          0
-grub           0
+binutils       noOpt
+gcc            noOpt
+glibc          noOpt
+grub           noOpt
+zlib           defOpt_fPIC

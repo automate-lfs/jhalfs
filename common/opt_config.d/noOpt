@@ -1,0 +1,24 @@
+#
+#$Id$
+#
+#####
+#
+# MODE noOpt configuration
+#
+# WARNING: Do not edit this mode unless you know what you are
+#          doing.  By default, this is set to disable optimization
+#          of packages known to have build or runtime failure.
+#
+# Usage: - Apply optimization string to each variable
+#        - "unset" will cause the variable to be not set
+#          instead of being just set to null.
+#
+#####
+
+CFLAGS_noOpt="unset"
+CXXFLAGS_noOpt="unset"
+LDFLAGS_noOpt="unset"
+
+OTHER_CFLAGS_noOpt="unset"
+OTHER_CXXFLAGS_noOpt="unset"
+OTHER_LDFLAGS_noOpt="unset"

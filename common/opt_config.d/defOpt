@@ -1,0 +1,20 @@
+#
+#$Id$
+#
+#####
+#
+# MODE defOpt configuration
+#
+# Usage: - Apply optimization string to each variable
+#        - "unset" will cause the variable to be not set
+#          instead of just set to null.
+#
+#####
+
+CFLAGS_defOpt="-O3 -pipe -s"
+CXXFLAGS_defOpt=$CFLAGS_defOpt
+LDFLAGS_defOpt="-s"
+
+OTHER_CFLAGS_defOpt=$CFLAGS_defOpt
+OTHER_CXXFLAGS_defOpt=$CXXFLAGS_defOpt
+OTHER_LDFLAGS_defOpt=$LDFLAGS_defOpt

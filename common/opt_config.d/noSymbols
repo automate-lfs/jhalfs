@@ -1,0 +1,20 @@
+#
+#$Id$
+#
+#####
+#
+# MODE noOpt_noSymbols configuration
+#
+# Usage: - Apply optimization string to each variable
+#        - "unset" will cause the variable to be not set
+#          instead of just set to null.
+#
+#####
+
+CFLAGS_noSymbols="-s"
+CXXFLAGS_noSymbols=$CFLAGS_noSymbols
+LDFLAGS_noSymbols="-s"
+
+OTHER_CFLAGS_noSymbols=$CFLAGS_noSymbols
+OTHER_CXXFLAGS_noSymbols=$CXXFLAGS_noSymbols
+OTHER_LDFLAGS_noSymbols=$LDFLAGS_noSymbols
