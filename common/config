@@ -36,10 +36,10 @@ RUNMAKE=0
 
 #--- Optimize the build  [0-2]
 #  0 = no optimization
-#  1 = optimize chapter06 only
-#  2 = optimize both chapter05 and chapter06
+#  1 = optimize final system only
+#  2 = optimize both temporary tools and final system
 #
-# Optimization values are set in opt_config and opt_override
+# Optimization values are set in optimize/* files
 OPTIMIZE=0
 
 #--- Run test suites  [0-3]

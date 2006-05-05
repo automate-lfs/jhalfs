@@ -12,7 +12,7 @@
 #####
 
 # Inherit optimizations from defOpt
-source $COMMON_DIR/opt_config.d/defOpt
+source optimize/opt_config.d/defOpt
 
 CFLAGS_defOpt_fPIC=$CFLAGS_defOpt" -fPIC"
 CXXFLAGS_defOpt_fPIC=$CFLAGS_defOpt" -fPIC"
