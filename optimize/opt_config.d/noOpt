@@ -9,6 +9,9 @@
 #          doing.  By default, this is set to disable optimization
 #          of packages known to have build or runtime failure.
 #
+#          Also, if you what to use MAKEFLAGS but no build
+#          optimizations, set this mode in DEF_OPT_LVL
+#
 # Usage: - Apply optimization string to each variable
 #        - "unset" will cause the variable to be not set
 #          instead of being just set to null.

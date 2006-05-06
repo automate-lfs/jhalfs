@@ -7,6 +7,11 @@
 #$Id$
 #
 
+#--- Extra flags passed to the packages make commands
+#    "unset" will cause the variable to be not set
+#    instead of just set to null.
+MAKEFLAGS="-j3"
+
 #--- Default optimization mode
 #    This level is overridden by definitions in opt_override;
 #    in this way, packages can be tuned independently.  For example,

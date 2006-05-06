@@ -30,3 +30,17 @@ EOF
     fi
   done
 }
+
+#----------------------------------#
+wrt_makeflags() {                  # Apply MAKEFLAGS to build
+#----------------------------------#
+  if [[ "$MAKEFLAGS" != "unset" ]]; then
+(
+cat << EOF
+	@echo "export MAKEFLAGS=\"$MAKEFLAGS\"" >> envars
+EOF
+) >> $MKFILE.tmp
+  else
+    continue
+  fi
+}
