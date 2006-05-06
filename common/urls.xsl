@@ -41,10 +41,16 @@
       </xsl:variable>
       <xsl:variable name="dirname" select="substring-before($package2, '-0')"/>
       <!-- Write the upstream URLs, except the redirected ones -->
-      <xsl:if test="not(contains(@url,'?'))">
-        <xsl:value-of select="@url"/>
-      </xsl:if>
+      <xsl:choose>
+        <xsl:when test="contains(@url,'?')">
+          <xsl:text>dummy-url</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="@url"/>
+        </xsl:otherwise>
+      </xsl:choose>
       <xsl:text> </xsl:text>
+      <!-- Write FTP mirror URLs -->
       <xsl:value-of select="$server"/>
       <xsl:text>/pub/lfs/conglomeration/</xsl:text>
       <xsl:choose>
@@ -74,6 +80,9 @@
         </xsl:otherwise>
       </xsl:choose>
       <xsl:value-of select="$package"/>
+      <!-- Write MD5SUM value -->
+      <xsl:text> </xsl:text>
+      <xsl:value-of select="../../para[3]/literal"/>
       <xsl:text>&#x0a;</xsl:text>
     </xsl:if>
   </xsl:template>
