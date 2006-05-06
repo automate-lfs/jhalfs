@@ -1,0 +1,56 @@
+#
+#$Id$
+#
+#####
+#
+# MODE Zlib configuration
+#
+# Usage: - Apply optimization string to each variable
+#        - "unset" will cause the variable to be not set
+#          instead of just set to null.
+#
+#####
+
+# Inherit optimizations from DEF_OPT_LVL
+source optimize/opt_config.d/$DEF_OPT_LVL
+
+eval CFLAGS_Zlib_base=\$CFLAGS_${DEF_OPT_LVL}
+eval CXXFLAGS_Zlib_base=\$CXXFLAGS_${DEF_OPT_LVL}
+eval LDFLAGS_Zlib_base=\$LDFLAGS_${DEF_OPT_LVL}
+
+eval OTHER_CFLAGS_Zlib_base=\$CFLAGS_${DEF_OPT_LVL}
+eval OTHER_CXXFLAGS_Zlib_base=\$OTHER_CXXFLAGS_${DEF_OPT_LVL}
+eval OTHER_LDFLAGS_Zlib_base=\$OTHER_LDFLAGS_${DEF_OPT_LVL}
+
+# Set the actual values for Zlib mode
+if [[ "$CFLAGS_Zlib_base" != "unset" ]]; then
+  CFLAGS_Zlib=$CFLAGS_Zlib_base" -fPIC"
+else
+  CFLAGS_Zlib="unset"
+fi
+if [[ "$CXXFLAGS_Zlib_base" != "unset" ]]; then
+  CXXFLAGS_Zlib=$CXXFLAGS_Zlib_base" -fPIC"
+else
+  CXXFLAGS_Zlib="unset"
+fi
+if [[ "$LDFLAGS_Zlib_base" != "unset" ]]; then
+  LDFLAGS_Zlib=$LDFLAGS_Zlib_base
+else
+  LDFLAGS_Zlib="unset"
+fi
+
+if [[ "$OTHER_CFLAGS_Zlib_base" != "unset" ]]; then
+  OTHER_CFLAGS_Zlib=$OTHER_CFLAGS_Zlib_base" -fPIC"
+else
+  OTHER_CFLAGS_Zlib="unset"
+fi
+if [[ "$OTHER_CXXFLAGS_Zlib_base" != "unset" ]]; then
+  OTHER_CXXFLAGS_Zlib=$OTHER_CXXFLAGS_Zlib_base" -fPIC"
+else
+  OTHER_CXXFLAGS_Zlib="unset"
+fi
+if [[ "$OTHER_LDFLAGS_Zlib_base" != "unset" ]]; then
+  OTHER_LDFLAGS_Zlib=$OTHER_LDFLAGS_Zlib_base
+else
+  OTHER_LDFLAGS_Zlib="unset"
+fi
