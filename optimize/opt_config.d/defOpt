@@ -11,9 +11,9 @@
 #
 #####
 
-CFLAGS_defOpt="-O3 -pipe -s"
+CFLAGS_defOpt="-O3 -pipe"
 CXXFLAGS_defOpt=$CFLAGS_defOpt
-LDFLAGS_defOpt="-s"
+LDFLAGS_defOpt="unset"
 
 OTHER_CFLAGS_defOpt=$CFLAGS_defOpt
 OTHER_CXXFLAGS_defOpt=$CXXFLAGS_defOpt
