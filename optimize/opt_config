@@ -31,7 +31,7 @@ ACTIVE_OPT_VARS="CFLAGS CXXFLAGS LDFLAGS \
 #      cp opt_config.d/defOpt opt_config.d/newMode
 #    ..and edit it as desired.
 #
-#    To inherit another mode and add to it, see opt_config.d/defOpt_fPIC
+#    To inherit another mode and add to it, see opt_config.d/defOpt_march
 #    as an example.  Given opt_config.d/modeA_modeB_modeC, modeB inherits
 #    the optimizations of modeA by sourcing it, and modeC inherits those
 #    of modeB (which includes those of modeA).
