@@ -17,7 +17,7 @@ MAKEFLAGS="-j3"
 #    in this way, packages can be tuned independently.  For example,
 #    if you have trouble building a package in mode defOpt, add
 #    the package to opt_override with a different mode.
-DEF_OPT_LVL=defOpt_march
+DEF_OPT_LVL=defOpt
 
 
 #--- Active optimization variables
