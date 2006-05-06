@@ -640,7 +640,7 @@ extract_commands() {         #
 get_sources() {              # Download file, write name to MISSING_FILES.DMP if an error
 #----------------------------#
   local saveIFS=$IFS
-  local IFS line URL1 URL2 FILE MD5 HAVEMD5 fromARCHIVE
+  local IFS line URL1 URL2 FILE BOOKMD5 MD5 HAVEMD5 fromARCHIVE
 
     # Test if the packages must be downloaded
   [ ! "$GETPKG" = "1" ] && return
@@ -680,17 +680,23 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
       # Locations
     URL1=`echo $line | cut -d" " -f2` # Preferred URL
     URL2=`echo $line | cut -d" " -f1` # Fallback Upstream URL
-    FILE=`basename $URL2` # File name
+    FILE=`basename $URL1` # File name
+    BOOKMD5=`echo $line | cut -d" " -f3` # MD5 book value
 
-      # Find the md5 sum for this package.
-    set +e
-    HAVEMD5=1  # Always assume we have a MD5SUM
-    MD5=`grep "  $FILE" MD5SUMS`
-    if [ $? -ne 0 ]; then
-      set -e
-      gs_wrt_message "$FILE not found in MD5SUMS"
-        # IMPORTANT:: There is no MD5SUM for this file.
-      HAVEMD5=0
+    if [[ x"$BOOKMD5" != "x" ]]; then
+      HAVEMD5=1
+      MD5="$BOOKMD5  $FILE"
+    else
+      # Find the md5 sum for this package in the server MD5SUMS file.
+      set +e
+      HAVEMD5=1  # Always assume we have a MD5SUM
+      MD5=`grep "  $FILE" MD5SUMS`
+      if [ $? -ne 0 ]; then
+        set -e
+        gs_wrt_message "$FILE not found in MD5SUMS"
+          # IMPORTANT:: There is no MD5SUM for this file.
+        HAVEMD5=0
+      fi
     fi
 
     set -e
