@@ -9,7 +9,6 @@ set +e
 validate_opt_settings() {          # Show optimize setting and wait user agreement
 #----------------------------------#
   local OPT_VAR optVal
-  local -r PARAM_VALS='${config_param}: ${L_arrow}${BOLD}${!config_param}${OFF}${R_arrow}'
 
   echo -e "MAKEFLAGS: ${L_arrow}${BOLD}${MAKEFLAGS}${OFF}${R_arrow}\n"
   echo -e "DEF_OPT_LVL: ${L_arrow}${BOLD}${DEF_OPT_LVL}${OFF}${R_arrow}\n"
