@@ -481,6 +481,9 @@ if [[ "$OPTIMIZE" != "0" ]]; then
 fi
 #
 
+# Validate optimize settings, if required
+[[ "$OPTIMIZE" != "0" ]] && validate_opt_settings
+
 # Prevents setting "-d /" by mistake.
 
 if [ $BUILDDIR = / ] ; then

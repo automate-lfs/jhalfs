@@ -6,6 +6,33 @@ set +e
 
 
 #----------------------------------#
+validate_opt_settings() {          # Show optimize setting and wait user agreement
+#----------------------------------#
+  local OPT_VAR optVal
+  local -r PARAM_VALS='${config_param}: ${L_arrow}${BOLD}${!config_param}${OFF}${R_arrow}'
+
+  echo -e "MAKEFLAGS: ${L_arrow}${BOLD}${MAKEFLAGS}${OFF}${R_arrow}\n"
+  echo -e "DEF_OPT_LVL: ${L_arrow}${BOLD}${DEF_OPT_LVL}${OFF}${R_arrow}\n"
+
+  for OPT_VAR in $ACTIVE_OPT_VARS ; do
+    eval optVal=\$${OPT_VAR}_${DEF_OPT_LVL}
+    echo -e "${OPT_VAR}: ${L_arrow}${BOLD}${optVal}${OFF}${R_arrow}"
+  done
+
+  echo -e "\nOverrided packages:"
+  cat optimize/opt_override
+  echo "${nl_}${SD_BORDER}${nl_}"
+
+  echo -n "Are you happy with these optimization settings? yes/no (no): "
+  read ANSWER
+  if [ x$ANSWER != "xyes" ] ; then
+    echo "${nl_}Fix the optimization options and rerun the script.${nl_}"
+    exit 1
+  fi
+  echo "${nl_}${SD_BORDER}${nl_}"
+}
+
+#----------------------------------#
 wrt_optimize() {                   # Apply pkg specific opt's to build
 #----------------------------------#
   local pkg=$1
