@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# $Id$
+
+set +e
+
+
+#----------------------------------#
+wrt_optimize() {                   # Apply pkg specific opt's to build
+#----------------------------------#
+  local pkg=$1
+  local optLvl optVal OPT_VAR
+
+  optLvl=`awk -v pkg="$pkg" '$1 == pkg { print $2 }' $JHALFSDIR/opt_override`
+  if [[ "$optLvl" = "" ]] ; then
+    optLvl=$DEF_OPT_LVL;
+  fi
+
+  for OPT_VAR in $ACTIVE_OPT_VARS ; do
+    eval optVal=\$${OPT_VAR}_$optLvl
+
+    if [[ "$optVal" != "unset" ]]; then
+(
+cat << EOF
+	@echo "export $OPT_VAR=\"$optVal\"" >> envars
+EOF
+) >> $MKFILE.tmp
+    else
+      continue
+    fi
+  done
+}

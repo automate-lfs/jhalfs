@@ -464,6 +464,14 @@ if [[ "$COMPARE" = "1" ]]; then
   [[ $VERBOSITY > 0 ]] && echo "OK"
 fi
 #
+# optimize module
+if [[ "$OPTIMIZE" != "0" ]]; then
+  [[ $VERBOSITY > 0 ]] && echo -n "Loading optimization module..."
+  source optimize/optimize_functions
+  [[ $? > 0 ]] && echo " optimize/optimize_functions did not load.." && exit
+  [[ $VERBOSITY > 0 ]] && echo "OK"
+fi
+#
 # optimize configurations
 if [[ "$OPTIMIZE" != "0" ]]; then
   [[ $VERBOSITY > 0 ]] && echo -n "Loading optimization config..."
