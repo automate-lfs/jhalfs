@@ -184,6 +184,7 @@ temptools_Makefiles() {       #
     # Insert instructions for unpacking the package and to set the PKGDIR variable.
     #
     [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*"
+    [[ "$vrs" != "" ]] && [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags
     #
     wrt_run_as_su "${this_script}" "${file}"
     #
@@ -255,6 +256,7 @@ boot_Makefiles() {            #
     # Insert instructions for unpacking the package and changing directories
     #
     [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*"
+    [[ "$vrs" != "" ]] && [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags
     #
     # Select a script execution method
     case $this_script in
@@ -325,6 +327,7 @@ chroot_Makefiles() {          #
         *util-linux)    wrt_unpack  "$name-$vrs.tar.*"  ;;
         *)              wrt_unpack2 "$name-$vrs.tar.*"  ;;
       esac
+      [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags
     fi
     #
     # Select a script execution method
@@ -385,6 +388,7 @@ testsuite_tools_Makefiles() { #
       tcl)    wrt_unpack2 "$name$vrs-src.tar.*" ;;
       *)      wrt_unpack2 "$name-$vrs.tar.*"    ;;
     esac
+    [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags
     #
     wrt_run_as_chroot1 "${this_script}" "${file}"
     #
@@ -439,6 +443,7 @@ bm_testsuite_tools_Makefiles() { #
       tcl)    wrt_unpack3 "$name$vrs-src.tar.*" ;;
       *)      wrt_unpack3 "$name-$vrs.tar.*"    ;;
     esac
+    [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags
     #
     wrt_run_as_root2 "${this_script}" "${file}"
     #
@@ -537,6 +542,7 @@ final_system_Makefiles() {    #
     if [ "$vrs" != "" ] ; then
       FILE="$name-$vrs.tar.*"
       wrt_unpack2 "$FILE"
+      [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags
     fi
     #
     wrt_run_as_chroot1 "${this_script}" "${file}"
@@ -639,6 +645,7 @@ bm_final_system_Makefiles() { #
     if [ "$vrs" != "" ] ; then
       FILE="$name-$vrs.tar.*"
       wrt_unpack3 "$FILE"
+      [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags
     fi
     #
     wrt_run_as_root2 "${this_script}" "${file}"
