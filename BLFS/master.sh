@@ -91,7 +91,7 @@ EOF
 
     # Include a touch of the target name so make can check
     # if it's already been made.
-    echo -e '\t@touch $@' >> $MKFILE.tmp
+    echo -e '\t@touch $@' >> $MKFILE
     #
     #--------------------------------------------------------------------#
     #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #

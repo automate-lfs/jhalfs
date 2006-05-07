@@ -518,8 +518,10 @@ if [[ "$PWD" != "$JHALFSDIR" ]]; then
       cp $FILES $JHALFSDIR/
     popd 1> /dev/null
   fi
-  [[ "$REPORT" = "1" ]] && cp $COMMON_DIR/create-sbu_du-report.sh  $JHALFSDIR/
-  [[ "$GETPKG" = "1" ]] && cp $COMMON_DIR/urls.xsl  $JHALFSDIR/
+  if [[ "$PROGNAME" != "blfs" ]]; then
+    [[ "$REPORT" = "1" ]] && cp $COMMON_DIR/create-sbu_du-report.sh  $JHALFSDIR/
+    [[ "$GETPKG" = "1" ]] && cp $COMMON_DIR/urls.xsl  $JHALFSDIR/
+  fi
   sed 's,FAKEDIR,'$BOOK',' $PACKAGE_DIR/$XSL > $JHALFSDIR/${XSL}
   export XSL=$JHALFSDIR/${XSL}
 fi
@@ -530,7 +532,7 @@ fi
 
 # After be sure that all look sane and if REPORT=1, dump the settings to a file
 # This file will be used to create the REPORT header
-[[ "$REPORT" = "1" ]] && validate_config > $JHALFSDIR/jhalfs.config
+[[ "$PROGNAME" != "blfs" ]] && [[ "$REPORT" = "1" ]] && validate_config > $JHALFSDIR/jhalfs.config
 
 >$LOGDIR/$LOG
 
