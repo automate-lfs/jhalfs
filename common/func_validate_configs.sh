@@ -241,8 +241,6 @@ inline_doc
                [[ -z "${!config_param}" ]] &&
                  echo " -- Variable $config_param cannot be empty!" &&
                  write_error_and_die
-               [[ ! "`locale -a | grep -c ${!config_param}`" > 0 ]] &&
-                  write_error_and_die
                echo
                ;;
       KEYMAP)  echo "`eval echo $PARAM_VALS`"
