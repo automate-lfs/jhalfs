@@ -10,7 +10,7 @@
 #          of packages known to have build or runtime failure.
 #
 #          Also, if you what to use MAKEFLAGS but no build
-#          optimizations, set this mode in DEF_OPT_LVL
+#          optimizations, set this mode in DEF_OPT_MODE
 #
 # Usage: - Apply optimization string to each variable
 #        - "unset" will cause the variable to be not set

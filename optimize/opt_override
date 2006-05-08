@@ -2,4 +2,4 @@ binutils       noOpt
 gcc            noOpt
 glibc          noOpt
 grub           noOpt
-zlib           Zlib
+zlib           defOpt_fPIC

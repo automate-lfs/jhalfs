@@ -13,11 +13,11 @@
 MAKEFLAGS="-j3"
 
 #--- Default optimization mode
-#    This level is overridden by definitions in opt_override;
+#    This mode is overridden by definitions in opt_override;
 #    in this way, packages can be tuned independently.  For example,
 #    if you have trouble building a package in mode defOpt, add
 #    the package to opt_override with a different mode.
-DEF_OPT_LVL=defOpt
+DEF_OPT_MODE=O3pipe
 
 
 #--- Active optimization variables
@@ -28,11 +28,12 @@ ACTIVE_OPT_VARS="CFLAGS CXXFLAGS LDFLAGS \
 
 #--- Load optimization modes
 #    To add modes, create a working template..
-#      cp opt_config.d/defOpt opt_config.d/newMode
+#      cp opt_config.d/O3pipe opt_config.d/newMode
 #    ..and edit it as desired.
 #
-#    To inherit another mode and add to it, see opt_config.d/defOpt_march
-#    as an example.  Given opt_config.d/modeA_modeB_modeC, modeB inherits
+#    To inherit another mode and add to it, see opt_config.d/O3pipe_march
+#    or opt_config.d/defOpt_fPIC as examples for two different ways of
+#    doing it.  Given opt_config.d/modeA_modeB_modeC, modeB inherits
 #    the optimizations of modeA by sourcing it, and modeC inherits those
 #    of modeB (which includes those of modeA).
 #

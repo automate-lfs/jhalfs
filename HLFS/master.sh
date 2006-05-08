@@ -142,7 +142,7 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
       esac
       # Insert instructions for unpacking the package and to set the PKGDIR variable.
       wrt_unpack "$FILE"
-      [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags
+      [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
 
     case $this_script in
@@ -309,7 +309,7 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
       esac
       wrt_unpack2 "$FILE"
       wrt_target_vars
-      [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags
+      [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
 
     case $this_script in

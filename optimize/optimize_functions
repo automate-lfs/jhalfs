@@ -11,14 +11,14 @@ validate_opt_settings() {          # Show optimize setting and wait user agreeme
   local OPT_VAR optVal
 
   echo -e "MAKEFLAGS: ${L_arrow}${BOLD}${MAKEFLAGS}${OFF}${R_arrow}\n"
-  echo -e "DEF_OPT_LVL: ${L_arrow}${BOLD}${DEF_OPT_LVL}${OFF}${R_arrow}\n"
+  echo -e "DEF_OPT_MODE: ${L_arrow}${BOLD}${DEF_OPT_MODE}${OFF}${R_arrow}\n"
 
   for OPT_VAR in $ACTIVE_OPT_VARS ; do
-    eval optVal=\$${OPT_VAR}_${DEF_OPT_LVL}
+    eval optVal=\$${OPT_VAR}_${DEF_OPT_MODE}
     echo -e "${OPT_VAR}: ${L_arrow}${BOLD}${optVal}${OFF}${R_arrow}"
   done
 
-  echo -e "\nOverrided packages:"
+  echo -e "\nOverridden packages:"
   cat optimize/opt_override
   echo "${nl_}${SD_BORDER}${nl_}"
 
@@ -35,15 +35,15 @@ validate_opt_settings() {          # Show optimize setting and wait user agreeme
 wrt_optimize() {                   # Apply pkg specific opt's to build
 #----------------------------------#
   local pkg=$1
-  local optLvl optVal OPT_VAR
+  local optMode optVal OPT_VAR
 
-  optLvl=`awk -v pkg="$pkg" '$1 == pkg { print $2 }' $JHALFSDIR/opt_override`
-  if [[ "$optLvl" = "" ]] ; then
-    optLvl=$DEF_OPT_LVL;
+  optMode=`awk -v pkg="$pkg" '$1 == pkg { print $2 }' $JHALFSDIR/opt_override`
+  if [[ "$optMode" = "" ]] ; then
+    optMode=$DEF_OPT_MODE;
   fi
 
   for OPT_VAR in $ACTIVE_OPT_VARS ; do
-    eval optVal=\$${OPT_VAR}_$optLvl
+    eval optVal=\$${OPT_VAR}_$optMode
 
     if [[ "$optVal" != "unset" ]]; then
 (
@@ -60,13 +60,21 @@ EOF
 #----------------------------------#
 wrt_makeflags() {                  # Apply MAKEFLAGS to build
 #----------------------------------#
-  if [[ "$MAKEFLAGS" != "unset" ]]; then
+  local pkg=$1
+
+  case $pkg in
+    gettext | groff ) # Don't support -jX for now
+      ;;
+    *)
+      if [[ "$MAKEFLAGS" != "unset" ]]; then
 (
 cat << EOF
 	@echo "export MAKEFLAGS=\"$MAKEFLAGS\"" >> envars
 EOF
 ) >> $MKFILE.tmp
-  else
-    continue
-  fi
+      else
+        continue
+      fi
+      ;;
+  esac
 }

@@ -1,0 +1,28 @@
+#####
+#
+# MODE defOpt_fPIC configuration
+#
+# Usage: - Apply optimization string to each variable
+#        - "unset" will cause the variable to be not set
+#          instead of just set to null.
+#
+#####
+
+# Inherit optimizations from DEF_OPT_MODE
+source optimize/opt_config.d/${DEF_OPT_MODE}
+
+# Append " -fPIC" to default *C{,XX}FLAGS and retain other defaults
+for OPT_VAR in $ACTIVE_OPT_VARS ; do
+  case $OPT_VAR in
+    CFLAGS | CXXFLAGS | OTHER_CFLAGS | OTHER_CXXFLAGS)
+      if [[ "$(eval "echo \$${OPT_VAR}_${DEF_OPT_MODE}")" != "unset" ]] ; then
+        eval ${OPT_VAR}_defOpt_fPIC=\$${OPT_VAR}_${DEF_OPT_MODE}\" -fPIC\"
+      else
+        eval ${OPT_VAR}_defOpt_fPIC="unset"
+      fi
+      ;;
+    *)
+      eval ${OPT_VAR}_defOpt_fPIC=\$${OPT_VAR}_${DEF_OPT_MODE}
+      ;;
+  esac
+done

@@ -11,8 +11,8 @@
 #
 #####
 #
-# NOTE: If using this mode in DEF_OPT_LVL (alone or combined with
-# other mode) please set STRIP=0 in common/config
+# NOTE: If using this mode in DEF_OPT_MODE (alone or combined with
+# other modes) please set STRIP=0 in common/config
 #
 CFLAGS_noSymbols="-s"
 CXXFLAGS_noSymbols=$CFLAGS_noSymbols
