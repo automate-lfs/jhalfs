@@ -63,7 +63,7 @@ wrt_makeflags() {                  # Apply MAKEFLAGS to build
   local pkg=$1
 
   case $pkg in
-    gettext | groff ) # Don't support -jX for now
+    dejagnu | gettext | groff ) # Don't support well -jX for now
       ;;
     *)
       if [[ "$MAKEFLAGS" != "unset" ]]; then
