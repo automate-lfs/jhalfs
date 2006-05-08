@@ -1,10 +1,18 @@
+#
+#$Id$
+#
 #####
 #
 # MODE defOpt_fPIC configuration
 #
+# WARNING: Do not edit this mode unless you know what you are
+#          doing. It's required to build Zlib.
+#
 # Usage: - Apply optimization string to each variable
 #        - "unset" will cause the variable to be not set
 #          instead of just set to null.
+#
+# Use this as an example for defOpt_myMode combined modes
 #
 #####
 

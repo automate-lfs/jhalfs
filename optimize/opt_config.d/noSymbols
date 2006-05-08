@@ -9,11 +9,11 @@
 #        - "unset" will cause the variable to be not set
 #          instead of just set to null.
 #
-#####
-#
 # NOTE: If using this mode in DEF_OPT_MODE (alone or combined with
-# other modes) please set STRIP=0 in common/config
+#       other modes) please set STRIP=0 in common/config
 #
+#####
+
 CFLAGS_noSymbols="-s"
 CXXFLAGS_noSymbols=$CFLAGS_noSymbols
 LDFLAGS_noSymbols="-s"

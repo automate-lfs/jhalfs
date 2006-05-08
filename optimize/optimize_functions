@@ -12,14 +12,16 @@ validate_opt_settings() {          # Show optimize setting and wait user agreeme
 
   echo -e "\t\t${RED}${BOLD}WARNING:${OFF}\n"
   echo -e "${BOLD}The use of build optimizations may be dangerous.\n"
-  echo -e "You should to know what you are doing and be sure that"
-  echo -e "the optimization settings listed below are what you want.\n"
+  echo -e "You should know what you are doing and be sure that the"
+  echo -e "optimization settings listed below are what you want.\n"
   echo -e "If there are build issues or the system doesn't work as"
   echo -e "expected, please rebuild without optimizations before"
   echo -e "asking for support.${OFF}\n"
 
   echo -e "MAKEFLAGS: ${L_arrow}${BOLD}${MAKEFLAGS}${OFF}${R_arrow}"
+  [[ "$MAKEFLAGS" != "unset" ]] && \
   echo -e "DejaGNU, Gettext, and Groff will not use MAKEFLAGS\n"
+
   echo -e "DEF_OPT_MODE: ${L_arrow}${BOLD}${DEF_OPT_MODE}${OFF}${R_arrow}\n"
 
   for OPT_VAR in $ACTIVE_OPT_VARS ; do

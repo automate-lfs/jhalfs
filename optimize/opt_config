@@ -15,8 +15,11 @@ MAKEFLAGS="-j3"
 #--- Default optimization mode
 #    This mode is overridden by definitions in opt_override;
 #    in this way, packages can be tuned independently.  For example,
-#    if you have trouble building a package in mode defOpt, add
+#    if you have trouble building a package in the mode set here, add
 #    the package to opt_override with a different mode.
+#
+#    Not set here combined modes of form defOpt_myMode.
+#    Combined modes of form modeA_modeB can be set here.
 DEF_OPT_MODE=O3pipe
 
 
