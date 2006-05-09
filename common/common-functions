@@ -735,9 +735,9 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
           # Remove the old file and download a new one
         rm -fv $FILE
           # Force generation of MD5SUM and storage in SRC_ARCHIVE
-        fromARCHIVE=0; HAVEMD5=0
-          # Try and retrieve the file
-        if ! wget -N $URL1 && ! wget -N $URL2 ; then
+        fromARCHIVE=0;
+          # Try and retrieve the file. Servers in reverse order.
+        if ! wget $URL2 && ! wget $URL1 ; then
           gs_wrt_message "$FILE not found on the servers.. SKIPPING"
           continue
         fi
@@ -747,6 +747,8 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
       # Validate the MD5SUM one last time
     if [[ "$HAVEMD5" = "1" ]] && ! echo "$MD5" | md5sum -c - >/dev/null ; then
       gs_wrt_message "$FILE does not match MD5SUMS value"
+      # Force generation of MD5SUM
+      HAVEMD5=0
     fi
 
       # Generate a fresh MD5SUM for this file
