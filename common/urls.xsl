@@ -54,24 +54,24 @@
       <xsl:value-of select="$server"/>
       <xsl:text>/pub/lfs/conglomeration/</xsl:text>
       <xsl:choose>
-        <!-- Fix some directories. Test against package2 to be sure that we
+        <!-- Fix some directories. Test against dirname to be sure that we
         are matching the start of a package name, not a string in a patch name -->
-        <xsl:when test="contains($package2, 'bash')">
+        <xsl:when test="contains($dirname, 'bash')">
           <xsl:text>bash/</xsl:text>
         </xsl:when>
-        <xsl:when test="contains($package2, 'gcc')">
+        <xsl:when test="contains($dirname, 'gcc')">
           <xsl:text>gcc/</xsl:text>
         </xsl:when>
-        <xsl:when test="contains($package2, 'glibc')">
+        <xsl:when test="contains($dirname, 'glibc')">
           <xsl:text>glibc/</xsl:text>
         </xsl:when>
-        <xsl:when test="contains($package2, 'tcl')">
+        <xsl:when test="contains($dirname, 'tcl')">
           <xsl:text>tcl/</xsl:text>
         </xsl:when>
-        <xsl:when test="contains($package2, 'uClibc')">
+        <xsl:when test="contains($dirname, 'uClibc')">
           <xsl:text>uClibc/</xsl:text>
         </xsl:when>
-        <xsl:when test="contains($package2, 'udev')">
+        <xsl:when test="contains($dirname, 'udev')">
           <xsl:text>udev/</xsl:text>
         </xsl:when>
         <xsl:otherwise>
