@@ -19,8 +19,9 @@ validate_opt_settings() {          # Show optimize setting and wait user agreeme
   echo -e "asking for support.${OFF}\n"
 
   echo -e "MAKEFLAGS: ${L_arrow}${BOLD}${MAKEFLAGS}${OFF}${R_arrow}"
+  [[ "$MAKEFLAGS" = "unset" ]] && echo
   [[ "$MAKEFLAGS" != "unset" ]] && \
-  echo -e "DejaGNU, Gettext, and Groff will not use MAKEFLAGS\n"
+  echo -e "BLACK_LIST: ${L_arrow}${BOLD}${BLACK_LIST}${OFF}${R_arrow}\n"
 
   echo -e "DEF_OPT_MODE: ${L_arrow}${BOLD}${DEF_OPT_MODE}${OFF}${R_arrow}\n"
 
@@ -72,20 +73,19 @@ EOF
 wrt_makeflags() {                  # Apply MAKEFLAGS to build
 #----------------------------------#
   local pkg=$1
+  local MKF
 
-  case $pkg in
-    dejagnu | gettext | groff ) # Don't support well -jX for now
-      ;;
-    *)
-      if [[ "$MAKEFLAGS" != "unset" ]]; then
+  if [[ "$BLACK_LIST" =~ "$pkg" ]]; then
+    MKF=unset
+  else
+    MKF=$MAKEFLAGS
+  fi
+
+  if [[ "$MKF" != "unset" ]]; then
 (
 cat << EOF
 	@echo "export MAKEFLAGS=\"$MAKEFLAGS\"" >> envars
 EOF
 ) >> $MKFILE.tmp
-      else
-        continue
-      fi
-      ;;
-  esac
+  fi
 }
