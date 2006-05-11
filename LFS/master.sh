@@ -47,7 +47,7 @@ chapter4_Makefiles() {
 	fi;
 	@echo "set +h" > /home/lfs/.bashrc && \\
 	echo "umask 022" >> /home/lfs/.bashrc && \\
-	echo "LFS=/mnt/lfs" >> /home/lfs/.bashrc && \\
+	echo "LFS=\$(MOUNT_PT)" >> /home/lfs/.bashrc && \\
 	echo "LC_ALL=POSIX" >> /home/lfs/.bashrc && \\
 	echo "PATH=/tools/bin:/bin:/usr/bin" >> /home/lfs/.bashrc && \\
 	echo "export LFS LC_ALL PATH" >> /home/lfs/.bashrc && \\
