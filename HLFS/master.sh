@@ -140,9 +140,10 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
         gcc)    FILE="gcc-core-$vrs.tar.*"  ;;
         *)      FILE="$name-$vrs.tar.*"     ;;
       esac
-     # Insert instructions for unpacking the package and to set the PKGDIR variable.
-     wrt_unpack "$FILE"
-  fi
+      # Insert instructions for unpacking the package and to set the PKGDIR variable.
+      wrt_unpack "$FILE"
+      [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
+    fi
 
     case $this_script in
       *binutils* )  # Dump the path to sources directory for later removal
@@ -308,6 +309,7 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
       esac
       wrt_unpack2 "$FILE"
       wrt_target_vars
+      [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
 
     case $this_script in

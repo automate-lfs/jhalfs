@@ -147,6 +147,21 @@ while test $# -gt 0 ; do
 
     --help | -h )  usage | more && exit  ;;
 
+    --optimize | -O )
+      test $# = 1 && eval "$exit_missing_arg"
+      shift
+      case $1 in
+        0 | 1 | 2 )
+          OPTIMIZE=$1
+          ;;
+        * )
+          echo -e "\n$1 isn't a valid optimize level value."
+          echo -e "You must use 0, 1, or 2.\n"
+          exit 1
+          ;;
+      esac
+      ;;
+
     --testsuites | -T )
       test $# = 1 && eval "$exit_missing_arg"
       shift
@@ -448,6 +463,26 @@ if [[ "$COMPARE" = "1" ]]; then
   [[ $? > 0 ]] && echo "$COMMON_DIR/func_compare.sh did not load.." && exit
   [[ $VERBOSITY > 0 ]] && echo "OK"
 fi
+#
+# optimize module
+if [[ "$OPTIMIZE" != "0" ]]; then
+  [[ $VERBOSITY > 0 ]] && echo -n "Loading optimization module..."
+  source optimize/optimize_functions
+  [[ $? > 0 ]] && echo " optimize/optimize_functions did not load.." && exit
+  [[ $VERBOSITY > 0 ]] && echo "OK"
+fi
+#
+# optimize configurations
+if [[ "$OPTIMIZE" != "0" ]]; then
+  [[ $VERBOSITY > 0 ]] && echo -n "Loading optimization config..."
+  source optimize/opt_config
+  [[ $? > 0 ]] && echo " optimize/opt_config did not load.." && exit
+  [[ $VERBOSITY > 0 ]] && echo "OK"
+fi
+#
+
+# Validate optimize settings, if required
+[[ "$OPTIMIZE" != "0" ]] && validate_opt_settings
 
 # Prevents setting "-d /" by mistake.
 
@@ -472,6 +507,7 @@ fi
 
 if [[ "$PWD" != "$JHALFSDIR" ]]; then
   cp $COMMON_DIR/makefile-functions $JHALFSDIR/
+  [[ "$OPTIMIZE" != "0" ]] && cp optimize/opt_override $JHALFSDIR/
   if [[ "$COMPARE" != "0" ]] ; then
     mkdir -p $JHALFSDIR/extras
     cp extras/* $JHALFSDIR/extras

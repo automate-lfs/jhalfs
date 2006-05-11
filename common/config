@@ -34,6 +34,14 @@ SERVER=ftp://ftp.lfs-matrix.net
 #    In BLFS the Makefile can't be run automatically
 RUNMAKE=0
 
+#--- Optimize the build  [0-2]
+#  0 = no optimization
+#  1 = optimize final system only
+#  2 = optimize both temporary tools and final system
+#
+# Optimization values are set in optimize/* files
+OPTIMIZE=0
+
 #--- Run test suites  [0-3]
 #  0 = none
 #  1 = only chapter06 Glibc, GCC and Binutils testsuites

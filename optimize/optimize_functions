@@ -1,0 +1,91 @@
+#!/bin/bash
+
+# $Id$
+
+set +e
+
+
+#----------------------------------#
+validate_opt_settings() {          # Show optimize setting and wait user agreement
+#----------------------------------#
+  local OPT_VAR optVal
+
+  echo -e "\t\t${RED}${BOLD}WARNING:${OFF}\n"
+  echo -e "${BOLD}The use of build optimizations may be dangerous.\n"
+  echo -e "You should know what you are doing and be sure that the"
+  echo -e "optimization settings listed below are what you want.\n"
+  echo -e "If there are build issues or the system doesn't work as"
+  echo -e "expected, please rebuild without optimizations before"
+  echo -e "asking for support.${OFF}\n"
+
+  echo -e "MAKEFLAGS: ${L_arrow}${BOLD}${MAKEFLAGS}${OFF}${R_arrow}"
+  [[ "$MAKEFLAGS" = "unset" ]] && echo
+  [[ "$MAKEFLAGS" != "unset" ]] && \
+  echo -e "BLACK_LIST: ${L_arrow}${BOLD}${BLACK_LIST}${OFF}${R_arrow}\n"
+
+  echo -e "DEF_OPT_MODE: ${L_arrow}${BOLD}${DEF_OPT_MODE}${OFF}${R_arrow}\n"
+
+  for OPT_VAR in $ACTIVE_OPT_VARS ; do
+    eval optVal=\$${OPT_VAR}_${DEF_OPT_MODE}
+    echo -e "${OPT_VAR}: ${L_arrow}${BOLD}${optVal}${OFF}${R_arrow}"
+  done
+
+  echo -e "\nOverridden packages:"
+  cat optimize/opt_override
+  echo "${nl_}${SD_BORDER}${nl_}"
+
+  echo -n "Are you happy with these optimization settings? yes/no (no): "
+  read ANSWER
+  if [ x$ANSWER != "xyes" ] ; then
+    echo "${nl_}Fix the optimization options and rerun the script.${nl_}"
+    exit 1
+  fi
+  echo "${nl_}${SD_BORDER}${nl_}"
+}
+
+#----------------------------------#
+wrt_optimize() {                   # Apply pkg specific opt's to build
+#----------------------------------#
+  local pkg=$1
+  local optMode optVal OPT_VAR
+
+  optMode=`awk -v pkg="$pkg" '$1 == pkg { print $2 }' $JHALFSDIR/opt_override`
+  if [[ "$optMode" = "" ]] ; then
+    optMode=$DEF_OPT_MODE;
+  fi
+
+  for OPT_VAR in $ACTIVE_OPT_VARS ; do
+    eval optVal=\$${OPT_VAR}_$optMode
+
+    if [[ "$optVal" != "unset" ]]; then
+(
+cat << EOF
+	@echo "export $OPT_VAR=\"$optVal\"" >> envars
+EOF
+) >> $MKFILE.tmp
+    else
+      continue
+    fi
+  done
+}
+
+#----------------------------------#
+wrt_makeflags() {                  # Apply MAKEFLAGS to build
+#----------------------------------#
+  local pkg=$1
+  local MKF
+
+  if [[ "$BLACK_LIST" =~ "$pkg" ]]; then
+    MKF=unset
+  else
+    MKF=$MAKEFLAGS
+  fi
+
+  if [[ "$MKF" != "unset" ]]; then
+(
+cat << EOF
+	@echo "export MAKEFLAGS=\"$MAKEFLAGS\"" >> envars
+EOF
+) >> $MKFILE.tmp
+  fi
+}

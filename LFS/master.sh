@@ -112,6 +112,7 @@ chapter5_Makefiles() {
 
       # Insert instructions for unpacking the package and to set the PKGDIR variable.
       wrt_unpack "$FILE"
+      [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
 
     # Insert date and disk usage at the top of the log file, the script run
@@ -215,6 +216,7 @@ chapter6_Makefiles() {
     if [ "$vrs" != "" ] ; then
       FILE="$name-$vrs.tar.*"
       wrt_unpack2 "$FILE"
+      [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
 
     # In the mount of kernel filesystems we need to set LFS

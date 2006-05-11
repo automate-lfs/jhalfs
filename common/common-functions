@@ -65,6 +65,13 @@ ${BOLD}  -G, --get-packages${OFF}
         in the configuration file has the proper packages and patches for the
         book version being processed.
 
+${BOLD}  -O, --optimize${OFF}
+        Optimize [0-2]
+          0 = no optimization
+          1 = optimize chapter06 only
+          2 = optimize both chapter05 and chapter06
+        Edit common/opt_config{,.d/*} and common/opt_override as desired.
+
 ${BOLD}  -T, --testsuites N ${OFF}
         Run test suites  [0-3]
           0 = none
@@ -265,7 +272,6 @@ cat  << EOF
 EOF
 ) >> $MKFILE.tmp
 }
-
 
 
 #----------------------------------#
