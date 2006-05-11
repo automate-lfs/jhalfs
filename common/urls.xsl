@@ -40,6 +40,17 @@
         <xsl:value-of select="$cut"/>
       </xsl:variable>
       <xsl:variable name="dirname" select="substring-before($package2, '-0')"/>
+      <xsl:message>
+        <xsl:text>pakage is: </xsl:text>
+        <xsl:value-of select="$package"/>
+        <xsl:text>&#x0a;</xsl:text>
+        <xsl:text>pakage2 is: </xsl:text>
+        <xsl:value-of select="$package2"/>
+        <xsl:text>&#x0a;</xsl:text>
+        <xsl:text>dirname is: </xsl:text>
+        <xsl:value-of select="$dirname"/>
+        <xsl:text>&#x0a;&#x0a;</xsl:text>
+      </xsl:message>
       <!-- Write the upstream URLs, except the redirected ones -->
       <xsl:choose>
         <xsl:when test="contains(@url,'?')">
@@ -65,7 +76,7 @@
         <xsl:when test="contains($dirname, 'glibc')">
           <xsl:text>glibc/</xsl:text>
         </xsl:when>
-        <xsl:when test="contains($dirname, 'tcl')">
+        <xsl:when test="contains($package, 'tcl')">
           <xsl:text>tcl/</xsl:text>
         </xsl:when>
         <xsl:when test="contains($dirname, 'uClibc')">
