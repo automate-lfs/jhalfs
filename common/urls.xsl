@@ -59,6 +59,9 @@
         <xsl:when test="contains($dirname, 'bash')">
           <xsl:text>bash/</xsl:text>
         </xsl:when>
+        <xsl:when test="contains($package, 'dvhtool')">
+          <xsl:text>dvhtool/</xsl:text>
+        </xsl:when>
         <xsl:when test="contains($dirname, 'gcc')">
           <xsl:text>gcc/</xsl:text>
         </xsl:when>
