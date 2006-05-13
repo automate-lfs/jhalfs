@@ -659,12 +659,8 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
   [[ ! -d $BUILDDIR/sources ]] && mkdir $BUILDDIR/sources
   cd $BUILDDIR/sources
   [[ -f MD5SUMS ]] && rm MD5SUMS
-  [[ -f MD5SUMS-$VERSION ]] && rm MD5SUMS-$VERSION
   [[ -f MISSING_FILES.DMP ]] && rm MISSING_FILES.DMP
   [[ -f urls.lst ]] && rm urls.lst
-
-    # Download a fresh MD5SUMS file
-  wget $SERVER/pub/lfs/conglomeration/MD5SUMS
 
     # Generate URLs file
   create_urls
@@ -689,21 +685,9 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
     FILE=`basename $URL1` # File name
     BOOKMD5=`echo $line | cut -d" " -f3` # MD5 book value
 
-    if [[ x"$BOOKMD5" != "x" ]]; then
-      HAVEMD5=1
-      MD5="$BOOKMD5  $FILE"
-    else
-      # Find the md5 sum for this package in the server MD5SUMS file.
-      set +e
-      HAVEMD5=1  # Always assume we have a MD5SUM
-      MD5=`grep "  $FILE" MD5SUMS`
-      if [ $? -ne 0 ]; then
-        set -e
-        gs_wrt_message "$FILE not found in MD5SUMS"
-          # IMPORTANT:: There is no MD5SUM for this file.
-        HAVEMD5=0
-      fi
-    fi
+      # Validation pair
+    MD5="$BOOKMD5  $FILE"
+    HAVEMD5=1
 
     set -e
       # If the file exists in the archive copy it to the
@@ -717,7 +701,7 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
     else
       echo "${BOLD}${YELLOW}$FILE: not found in ${SRC_ARCHIVE}${OFF}"
       fromARCHIVE=0
-      # If the file does not exist in /sources download a fresh one
+      # If the file does not exist yet in /sources download a fresh one
       if [ ! -f $FILE ] ; then
         if ! wget $URL1 && ! wget $URL2 ; then
           gs_wrt_message "$FILE not found in the SRC_ARCHIVE or on any server..SKIPPING"
@@ -726,26 +710,23 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
       fi
     fi
 
-      # Is there a MD5SUM to validate the file against.
-    if [[ "$HAVEMD5" = "1" ]] ; then
-        # IF the md5sum does not match the existing files
-      if ! echo "$MD5" | md5sum -c - >/dev/null ; then
-        [[ $fromARCHIVE = "1" ]] && echo "${BOLD}${YELLOW}MD5SUM did not match SRC_ARCHIVE copy${OFF}"
-        [[ $fromARCHIVE = "0" ]] && echo "${BOLD}${YELLOW}MD5SUM did not match REMOTE copy${OFF}"
-          # Remove the old file and download a new one
-        rm -fv $FILE
-          # Force generation of MD5SUM and storage in SRC_ARCHIVE
-        fromARCHIVE=0;
-          # Try and retrieve the file. Servers in reverse order.
-        if ! wget $URL2 && ! wget $URL1 ; then
-          gs_wrt_message "$FILE not found on the servers.. SKIPPING"
-          continue
-        fi
+      # IF the md5sum does not match the existing files
+    if ! echo "$MD5" | md5sum -c - >/dev/null ; then
+      [[ $fromARCHIVE = "1" ]] && echo "${BOLD}${YELLOW}MD5SUM did not match SRC_ARCHIVE copy${OFF}"
+      [[ $fromARCHIVE = "0" ]] && echo "${BOLD}${YELLOW}MD5SUM did not match REMOTE copy${OFF}"
+        # Remove the old file and download a new one
+      rm -fv $FILE
+        # Force storage in SRC_ARCHIVE
+      fromARCHIVE=0;
+        # Try to retrieve again the file. Servers in reverse order.
+      if ! wget $URL2 && ! wget $URL1 ; then
+        gs_wrt_message "$FILE not found on the servers.. SKIPPING"
+        continue
       fi
     fi
 
       # Validate the MD5SUM one last time
-    if [[ "$HAVEMD5" = "1" ]] && ! echo "$MD5" | md5sum -c - >/dev/null ; then
+    if ! echo "$MD5" | md5sum -c - >/dev/null ; then
       gs_wrt_message "$FILE does not match MD5SUMS value"
       # Force generation of MD5SUM
       HAVEMD5=0
@@ -754,11 +735,11 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
       # Generate a fresh MD5SUM for this file
     if [[ "$HAVEMD5" = "0" ]] ; then
       echo "${BOLD}${YELLOW}Generating a new MD5SUM for ${OFF}$FILE"
-      echo "NEW MD5SUM $(md5sum $FILE)" >> MISSING_FILES.DMP
+      echo "NEW MD5SUM: $(md5sum $FILE)" >> MISSING_FILES.DMP
     fi
 
       # Good or bad we write the original md5sum to a file
-    echo "$MD5" >> MD5SUMS-$VERSION
+    echo "$MD5" >> MD5SUMS
 
      # Copy the freshly downloaded file
      # to the source archive.
