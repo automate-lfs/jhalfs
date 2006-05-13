@@ -505,7 +505,7 @@ EOF
   # as a dependency.
 (
   cat << EOF
-all:  chapter3 chapter5 chapter6 chapter7
+all:  chapter3 chapter5 chapter6 chapter7 do-housekeeping
 	@\$(call echo_finished,$VERSION)
 
 chapter3:  020-creatingtoolsdir 021-addinguser 022-settingenvironment
