@@ -540,7 +540,7 @@ get_book
 echo "${SD_BORDER}${nl_}"
 
 # If $BUILDDIR/sources hasn't been created yet at this point, create it.
-[[ -d $BUILDDIR/sources ]] && mkdir $BUILDDIR/sources
+[[ ! -d $BUILDDIR/sources ]] && mkdir $BUILDDIR/sources
 
 build_Makefile
 echo "${SD_BORDER}${nl_}"
