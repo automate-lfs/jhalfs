@@ -446,7 +446,6 @@ echo "${SD_BORDER}${nl_}"
 
 validate_config
 echo "${SD_BORDER}${nl_}"
-
 echo -n "Are you happy with these settings? yes/no (no): "
 read ANSWER
 if [ x$ANSWER != "xyes" ] ; then
@@ -455,7 +454,7 @@ if [ x$ANSWER != "xyes" ] ; then
 fi
 echo "${nl_}${SD_BORDER}${nl_}"
 
-# Loadd additional modules or configuration files based on global settings
+# Load additional modules or configuration files based on global settings
 # compare module
 if [[ "$COMPARE" = "1" ]]; then
   [[ $VERBOSITY > 0 ]] && echo -n "Loading compare module..."
@@ -470,30 +469,19 @@ if [[ "$OPTIMIZE" != "0" ]]; then
   source optimize/optimize_functions
   [[ $? > 0 ]] && echo " optimize/optimize_functions did not load.." && exit
   [[ $VERBOSITY > 0 ]] && echo "OK"
-fi
-#
-# optimize configurations
-if [[ "$OPTIMIZE" != "0" ]]; then
+  #
+  # optimize configurations
   [[ $VERBOSITY > 0 ]] && echo -n "Loading optimization config..."
   source optimize/opt_config
   [[ $? > 0 ]] && echo " optimize/opt_config did not load.." && exit
   [[ $VERBOSITY > 0 ]] && echo "OK"
+  # Validate optimize settings, if required
+  validate_opt_settings
 fi
 #
 
-# Validate optimize settings, if required
-[[ "$OPTIMIZE" != "0" ]] && validate_opt_settings
-
-# Prevents setting "-d /" by mistake.
-
-if [ $BUILDDIR = / ] ; then
-  echo -ne "\nThe root directory can't be used to build LFS.\n\n"
-  exit 1
-fi
-
 # If $BUILDDIR has subdirectories like tools/ or bin/, stop the run
 # and notify the user about that.
-
 if [ -d $BUILDDIR/tools -o -d $BUILDDIR/bin ] && [ -z $CLEAN ] ; then
   eval "$no_empty_builddir"
 fi
@@ -504,7 +492,19 @@ clean_builddir
 if [[ ! -d $JHALFSDIR ]]; then
   mkdir -p $JHALFSDIR
 fi
-
+#
+# Create $BUILDDIR/sources even though it could be created by get_sources()
+if [[ ! -d $BUILDDIR/sources ]]; then
+  mkdir -p $BUILDDIR/sources
+fi
+#
+# Create the log directory
+if [[ ! -d $LOGDIR ]]; then
+  mkdir $LOGDIR
+fi
+>$LOGDIR/$LOG
+#
+#
 if [[ "$PWD" != "$JHALFSDIR" ]]; then
   cp $COMMON_DIR/makefile-functions $JHALFSDIR/
   [[ "$OPTIMIZE" != "0" ]] && cp optimize/opt_override $JHALFSDIR/
@@ -512,35 +512,32 @@ if [[ "$PWD" != "$JHALFSDIR" ]]; then
     mkdir -p $JHALFSDIR/extras
     cp extras/* $JHALFSDIR/extras
   fi
+  #
   if [[ -n "$FILES" ]]; then
     # pushd/popd necessary to deal with mulitiple files
     pushd $PACKAGE_DIR 1> /dev/null
       cp $FILES $JHALFSDIR/
     popd 1> /dev/null
   fi
+  #
   if [[ "$PROGNAME" != "blfs" ]]; then
-    [[ "$REPORT" = "1" ]] && cp $COMMON_DIR/create-sbu_du-report.sh  $JHALFSDIR/
+    if [[ "$REPORT" = "1" ]]; then
+      cp $COMMON_DIR/create-sbu_du-report.sh  $JHALFSDIR/
+      # After be sure that all look sane and if REPORT=1, dump the settings to a file
+      # This file will be used to create the REPORT header
+      validate_config > $JHALFSDIR/jhalfs.config
+    fi     
     [[ "$GETPKG" = "1" ]] && cp $COMMON_DIR/urls.xsl  $JHALFSDIR/
   fi
+  #
   sed 's,FAKEDIR,'$BOOK',' $PACKAGE_DIR/$XSL > $JHALFSDIR/${XSL}
   export XSL=$JHALFSDIR/${XSL}
 fi
 
-if [[ ! -d $LOGDIR ]]; then
-  mkdir $LOGDIR
-fi
-
-# After be sure that all look sane and if REPORT=1, dump the settings to a file
-# This file will be used to create the REPORT header
-[[ "$PROGNAME" != "blfs" ]] && [[ "$REPORT" = "1" ]] && validate_config > $JHALFSDIR/jhalfs.config
-
->$LOGDIR/$LOG
 
 get_book
 echo "${SD_BORDER}${nl_}"
 
-# If $BUILDDIR/sources hasn't been created yet at this point, create it.
-[[ ! -d $BUILDDIR/sources ]] && mkdir $BUILDDIR/sources
 
 build_Makefile
 echo "${SD_BORDER}${nl_}"
