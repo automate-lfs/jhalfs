@@ -1,6 +1,6 @@
 Index: LFS/master.sh
 ===================================================================
---- LFS/master.sh	(revision 2677)
+--- LFS/master.sh	(revision 2695)
 +++ LFS/master.sh	(working copy)
 @@ -180,6 +180,18 @@
        *stripping*) [[ "${STRIP}" = "0" ]] && continue ;;
@@ -66,7 +66,7 @@ Index: LFS/master.sh
      esac
 Index: LFS/lfs.xsl
 ===================================================================
---- LFS/lfs.xsl	(revision 2677)
+--- LFS/lfs.xsl	(revision 2695)
 +++ LFS/lfs.xsl	(working copy)
 @@ -32,6 +32,9 @@
    <!-- Locale settings -->
@@ -114,7 +114,7 @@ Index: LFS/lfs.xsl
          <xsl:apply-templates/>
 Index: BLFS/master.sh
 ===================================================================
---- BLFS/master.sh	(revision 2677)
+--- BLFS/master.sh	(revision 2695)
 +++ BLFS/master.sh	(working copy)
 @@ -79,6 +79,19 @@
  EOF
@@ -146,7 +146,7 @@ Index: BLFS/master.sh
      # if it's already been made.
 Index: BLFS/blfs.xsl
 ===================================================================
---- BLFS/blfs.xsl	(revision 2677)
+--- BLFS/blfs.xsl	(revision 2695)
 +++ BLFS/blfs.xsl	(working copy)
 @@ -159,7 +159,7 @@
          <xsl:when test="@role = 'nodump'"/>
@@ -175,7 +175,7 @@ Index: common/paco-build-hlfs.sh
 +make logme
 Index: common/config
 ===================================================================
---- common/config	(revision 2677)
+--- common/config	(revision 2695)
 +++ common/config	(working copy)
 @@ -88,6 +88,14 @@
  #--- Run farce testing 0(no)/1(yes)
@@ -204,7 +204,7 @@ Index: common/config
 +LD_PRELOAD=/usr/lib/libpaco-log.so
 Index: common/func_validate_configs.sh
 ===================================================================
---- common/func_validate_configs.sh	(revision 2677)
+--- common/func_validate_configs.sh	(revision 2695)
 +++ common/func_validate_configs.sh	(working copy)
 @@ -84,10 +84,10 @@
  inline_doc
@@ -221,7 +221,7 @@ Index: common/func_validate_configs.sh
  
    local -r ERROR_MSG_pt1='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid,'
    local -r ERROR_MSG_pt2=' check the config file ${BOLD}${GREEN}\<$(echo $PROGNAME | tr [a-z] [A-Z])/config\> or \<common/config\>${OFF}'
-@@ -179,6 +179,7 @@
+@@ -174,6 +174,7 @@
        # Validate general parameters..
        GETPKG)     validate_against_str "x0x x1x" ;;
        RUNMAKE)    validate_against_str "x0x x1x" ;;
@@ -362,7 +362,7 @@ Index: common/paco-build-lfs.sh
 +make logme
 Index: common/common-functions
 ===================================================================
---- common/common-functions	(revision 2677)
+--- common/common-functions	(revision 2695)
 +++ common/common-functions	(working copy)
 @@ -65,6 +65,9 @@
          in the configuration file has the proper packages and patches for the
@@ -392,7 +392,7 @@ Index: common/common-functions
      blfs)
 Index: HLFS/hlfs.xsl
 ===================================================================
---- HLFS/hlfs.xsl	(revision 2677)
+--- HLFS/hlfs.xsl	(revision 2695)
 +++ HLFS/hlfs.xsl	(working copy)
 @@ -39,6 +39,9 @@
    <xsl:param name="lang" select="en_CA"/>
@@ -443,7 +443,7 @@ Index: HLFS/hlfs.xsl
          <xsl:apply-templates/>
 Index: HLFS/master.sh
 ===================================================================
---- HLFS/master.sh	(revision 2677)
+--- HLFS/master.sh	(revision 2695)
 +++ HLFS/master.sh	(working copy)
 @@ -254,6 +254,18 @@
        *-stripping* )  [[ "$STRIP" = "0" ]] && continue ;;
@@ -509,7 +509,7 @@ Index: HLFS/master.sh
          ;;
 Index: master.sh
 ===================================================================
---- master.sh	(revision 2677)
+--- master.sh	(revision 2695)
 +++ master.sh	(working copy)
 @@ -147,6 +147,8 @@
  
@@ -520,7 +520,7 @@ Index: master.sh
      --optimize | -O )
        test $# = 1 && eval "$exit_missing_arg"
        shift
-@@ -464,6 +466,14 @@
+@@ -463,6 +465,14 @@
    [[ $VERBOSITY > 0 ]] && echo "OK"
  fi
  #
@@ -536,7 +536,7 @@ Index: master.sh
  if [[ "$OPTIMIZE" != "0" ]]; then
    [[ $VERBOSITY > 0 ]] && echo -n "Loading optimization module..."
 @@ -507,6 +517,15 @@
- 
+ #
  if [[ "$PWD" != "$JHALFSDIR" ]]; then
    cp $COMMON_DIR/makefile-functions $JHALFSDIR/
 +  if [[ $USE_PACO != "0" ]] ; then
