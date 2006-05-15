@@ -658,6 +658,9 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
         */vim-*-lang* )
             [[ "$VIMLANG" = "0" ]] && continue
           ;;
+        *linux/linux-* )
+            [[ -z "$CONFIG" ]] && [[ -z "$BOOT_CONFIG" ]] && continue
+          ;;
     esac
 
       # Locations
