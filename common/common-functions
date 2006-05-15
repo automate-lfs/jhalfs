@@ -612,31 +612,12 @@ extract_commands() {         #
 
   # Create the packages file. We need it for proper Makefile creation
   rm -f packages
-  case "${PROGNAME}" in
-    clfs)
-      echo -n "Creating <${PROGNAME}> specific packages file"
-      grep "\-version " $BOOK/packages.ent | sed -e 's@<!ENTITY @@' \
-                                                 -e 's@">@"@' \
-                                                 -e '/generic/d' > packages
-     echo " ...OK"
-     ;;
-
-    hlfs)
-      echo -n "Creating <${PROGNAME}> specific packages file"
-      grep "\-version" $BOOK/general.ent | sed -e 's@<!ENTITY @@' \
-                                               -e 's@">@"@' \
-                                               -e '/generic/d' >> packages
-      echo " ...OK"
-      ;;
-
-    lfs)
-      echo -n "Creating <${PROGNAME}> specific packages file"
-      grep "\-version" $BOOK/general.ent | sed -e 's@<!ENTITY @@' \
-                                               -e 's@">@"@' \
-                                               -e '/generic/d' >> packages
-      echo " ...OK"
-      ;;
-  esac
+  if [[ "${PROGNAME}" != "blfs" ]] ; then
+    echo -n "Creating <${PROGNAME}> specific packages file"
+    grep "\-version " $BOOK/packages.ent | sed -e 's@<!ENTITY @@' \
+                                                -e 's@">@"@' > packages
+    echo " ...OK"
+  fi
 
   # Done. Moving on...
   get_sources
