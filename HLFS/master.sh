@@ -505,7 +505,7 @@ EOF
   # as a dependency.
 (
   cat << EOF
-all:  chapter3 chapter5 chapter6 chapter7
+all:  chapter3 chapter5 chapter6 chapter7 do-housekeeping
 	@\$(call echo_finished,$VERSION)
 
 chapter3:  020-creatingtoolsdir 021-addinguser 022-settingenvironment
@@ -561,6 +561,17 @@ restore-lfs-env:
 	@chown lfs:lfs /home/lfs/.bash* && \\
 	touch \$@
 
+do-housekeeping:
+	-umount \$(MOUNT_PT)/dev/pts
+	-umount \$(MOUNT_PT)/dev/shm
+	-umount \$(MOUNT_PT)/dev
+	-umount \$(MOUNT_PT)/sys
+	-umount \$(MOUNT_PT)/proc
+	-if [ ! -f user-lfs-exist ]; then \\
+		userdel lfs; \\
+		rm -rf /home/lfs; \\
+	fi;
+	
 EOF
 ) >> $MKFILE
 

@@ -54,10 +54,14 @@
       <xsl:value-of select="$server"/>
       <xsl:text>/pub/lfs/conglomeration/</xsl:text>
       <xsl:choose>
-        <!-- Fix some directories. Test against dirname to be sure that we
-        are matching the start of a package name, not a string in a patch name -->
+        <!-- Fix some directories. Test against $dirname to be sure that we
+        are matching the start of a package name, not a string in a patch name
+        But some packages requires test against $package. -->
         <xsl:when test="contains($dirname, 'bash')">
           <xsl:text>bash/</xsl:text>
+        </xsl:when>
+        <xsl:when test="contains($package, 'dvhtool')">
+          <xsl:text>dvhtool/</xsl:text>
         </xsl:when>
         <xsl:when test="contains($dirname, 'gcc')">
           <xsl:text>gcc/</xsl:text>
@@ -65,7 +69,10 @@
         <xsl:when test="contains($dirname, 'glibc')">
           <xsl:text>glibc/</xsl:text>
         </xsl:when>
-        <xsl:when test="contains($dirname, 'tcl')">
+        <xsl:when test="contains($package, 'powerpc-utils')">
+          <xsl:text>powerpc-utils/</xsl:text>
+        </xsl:when>
+        <xsl:when test="contains($package, 'tcl')">
           <xsl:text>tcl/</xsl:text>
         </xsl:when>
         <xsl:when test="contains($dirname, 'uClibc')">

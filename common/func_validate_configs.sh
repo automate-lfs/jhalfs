@@ -169,11 +169,6 @@ inline_doc
   for config_param in ${!PARAM_GROUP}; do
     # This is a tricky little piece of code.. executes a cmd string.
     case $config_param in
-      BUILDDIR) # We cannot have an <empty> or </> root mount point
-                  echo -e "`eval echo $PARAM_VALS`"
-                  [[ "xx x/x" =~ "x${!config_param}x" ]] &&
-                       write_error_and_die
-                  ;;
       TIMEZONE)   echo -e "`eval echo $PARAM_VALS`" ;;
 
       # Validate general parameters..
@@ -227,6 +222,11 @@ inline_doc
       #  fatal   -z -d -w,
       #  warning -z+   -w+
       SRC_ARCHIVE) validate_dir -z+ -d -w+ ;;
+      BUILDDIR)   # The build directory/partition MUST exist and be writable by the user
+                  validate_dir -z -d -w
+                  [[ "xx x/x" =~ "x${!config_param}x" ]] &&
+                       write_error_and_die
+                  ;;
 
       # Validate files, testable states:
       #  fatal   -z -e -s -w -x -r,

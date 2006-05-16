@@ -1016,7 +1016,7 @@ EOF
 if [[ "${METHOD}" = "chroot" ]]; then
 (
 	cat << EOF
-all:  chapter2 chapter3 chapter4 chapter5 chapter6 chapter7 chapter8
+all:  chapter2 chapter3 chapter4 chapter5 chapter6 chapter7 chapter8 do-housekeeping
 	@\$(call echo_finished,$VERSION)
 
 chapter2:  023-creatingtoolsdir 024-creatingcrossdir 025-addinguser 026-settingenvironment
@@ -1076,6 +1076,17 @@ restore-lfs-env:
 	fi;
 	@chown lfs:lfs /home/lfs/.bash* && \\
 	touch \$@
+
+do-housekeeping:
+	-umount \$(MOUNT_PT)/dev/pts
+	-umount \$(MOUNT_PT)/dev/shm
+	-umount \$(MOUNT_PT)/dev
+	-umount \$(MOUNT_PT)/sys
+	-umount \$(MOUNT_PT)/proc
+	-if [ ! -f user-lfs-exist ]; then \\
+		userdel lfs; \\
+		rm -rf /home/lfs; \\
+	fi;
 
 EOF
 ) >> $MKFILE
@@ -1145,6 +1156,7 @@ restore-lfs-env:
 	fi;
 	@chown lfs:lfs /home/lfs/.bash* && \\
 	touch \$@
+
 
 EOF
 ) >> $MKFILE

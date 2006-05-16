@@ -60,7 +60,7 @@ STRIP=1
 PAGE=letter
 
 #--- set default timezone.
-TIMEZONE=GMT
+TIMEZONE=${TZ:-GMT}
 
 #--- install the optional vim-lang package  0(no)/1(yes)
 VIMLANG=1
