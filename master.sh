@@ -187,7 +187,7 @@ while test $# -gt 0 ; do
       shift
       case $PROGNAME in # Poor checks. We should find better ones.
         lfs)
-          if [ -f $1/patches.ent ] ; then
+          if [ -d $1/chapter09 ] ; then
             WC=1
             BOOK=$1
           else
@@ -196,7 +196,7 @@ while test $# -gt 0 ; do
           fi
           ;;
         clfs)
-          if [ -f $1/patches.ent ] && [ -f $1/packages.ent ]; then
+          if [ -d $1/cross-tools ] ; then
             WC=1
             BOOK=$1
           else
@@ -210,15 +210,6 @@ while test $# -gt 0 ; do
             BOOK=$1
           else
             echo -e "\nLooks like $1 isn't a HLFS working copy."
-            exit 1
-          fi
-          ;;
-        blfs)
-          if [ -f $1/use-unzip.xml ] ; then
-            WC=1
-            BOOK=$1
-          else
-            echo -e "\nLooks like $1 isn't a BLFS working copy."
             exit 1
           fi
           ;;
