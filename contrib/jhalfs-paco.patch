@@ -1,8 +1,20 @@
 Index: LFS/master.sh
 ===================================================================
---- LFS/master.sh	(revision 2695)
+--- LFS/master.sh	(revision 2702)
 +++ LFS/master.sh	(working copy)
-@@ -180,6 +180,18 @@
+@@ -173,6 +173,11 @@
+     # Keep the script file name
+     this_script=`basename $file`
+ 
++    # If $this_script corresponds to a paco script, then skip it
++    case "${this_script}" in
++      *paco)       continue ;;
++    esac
++
+     # We'll run the chroot commands differently than the others, so skip them in the
+     # dependencies and target creation.
+     case "${this_script}" in
+@@ -180,6 +185,18 @@
        *stripping*) [[ "${STRIP}" = "0" ]] && continue ;;
      esac
  
@@ -21,7 +33,7 @@ Index: LFS/master.sh
      # Grab the name of the target
      name=`echo ${this_script} | sed -e 's@[0-9]\{3\}-@@'`
  
-@@ -223,7 +235,9 @@
+@@ -223,7 +240,9 @@
      # and not to use chroot.
      case "${this_script}" in
        *kernfs)  wrt_run_as_root    "${this_script}" "$file" ;;
@@ -32,7 +44,7 @@ Index: LFS/master.sh
      esac
  
      # Remove the build directory(ies) except if the package build fails.
-@@ -243,6 +257,16 @@
+@@ -243,6 +262,16 @@
      PREV=${this_script}${N}
      # Set system_build envar for iteration targets
      system_build=$chapter6
@@ -49,7 +61,7 @@ Index: LFS/master.sh
    done # end for file in chapter06/*
  }
  
-@@ -304,6 +328,14 @@
+@@ -304,6 +333,14 @@
                  wrt_run_as_chroot2 "$this_script" "$file"
                fi
          ;;
@@ -66,7 +78,7 @@ Index: LFS/master.sh
      esac
 Index: LFS/lfs.xsl
 ===================================================================
---- LFS/lfs.xsl	(revision 2695)
+--- LFS/lfs.xsl	(revision 2702)
 +++ LFS/lfs.xsl	(working copy)
 @@ -32,6 +32,9 @@
    <!-- Locale settings -->
@@ -112,51 +124,6 @@ Index: LFS/lfs.xsl
        <!-- The rest of commands -->
        <xsl:otherwise>
          <xsl:apply-templates/>
-Index: BLFS/master.sh
-===================================================================
---- BLFS/master.sh	(revision 2695)
-+++ BLFS/master.sh	(working copy)
-@@ -79,6 +79,19 @@
- EOF
- ) >> $MKFILE
- 
-+    if [[ $USE_PACO != 0 ]]; then
-+(
-+    cat << EOF
-+	@echo -e "\n\`date\`\n\nKB: \`du -sk --exclude=logs/* /\`\n" >logs/$this_script && \\
-+	source $JHALFSDIR/pacovars && \\
-+	rm -f $PACO_TMPFILE && \\
-+	$JHALFSDIR/${PROGNAME}-commands/$file >>logs/$this_script 2>&1 && \\
-+	echo -e "\n\`date\`\n\nKB: \`du -sk --exclude=logs/* /\`\n" >>logs/$this_script
-+EOF
-+) >> $MKFILE
-+    wrt_paco_log_blfs
-+
-+    else
-     # Insert date and disk usage at the top of the log file, the script run
-     # and date and disk usage again at the bottom of the log file.
- (
-@@ -88,6 +101,7 @@
- 	echo -e "\n\`date\`\n\nKB: \`du -sk --exclude=logs/* /\`\n" >>logs/$this_script
- EOF
- ) >> $MKFILE
-+    fi
- 
-     # Include a touch of the target name so make can check
-     # if it's already been made.
-Index: BLFS/blfs.xsl
-===================================================================
---- BLFS/blfs.xsl	(revision 2695)
-+++ BLFS/blfs.xsl	(working copy)
-@@ -159,7 +159,7 @@
-         <xsl:when test="@role = 'nodump'"/>
-         <xsl:otherwise>
-           <xsl:if test="@role = 'root'">
--            <xsl:text>sudo </xsl:text>
-+            <xsl:text>export LD_PRELOAD=/usr/lib/libpaco-log.so&#xA;</xsl:text>
-           </xsl:if>
-           <xsl:apply-templates select="userinput" mode="screen"/>
-         </xsl:otherwise>
 Index: common/paco-build-hlfs.sh
 ===================================================================
 --- common/paco-build-hlfs.sh	(revision 0)
@@ -175,9 +142,9 @@ Index: common/paco-build-hlfs.sh
 +make logme
 Index: common/config
 ===================================================================
---- common/config	(revision 2695)
+--- common/config	(revision 2702)
 +++ common/config	(working copy)
-@@ -88,6 +88,14 @@
+@@ -84,6 +84,14 @@
  #--- Run farce testing 0(no)/1(yes)
  RUN_FARCE=0
  
@@ -192,7 +159,7 @@ Index: common/config
  #==== INTERNAL VARIABLES ====
  # Don't edit it unless you know what you are doing
  
-@@ -100,3 +108,9 @@
+@@ -96,3 +104,9 @@
  
  #--- farce report log directory
  FARCELOGDIR=$LOGDIR/farce
@@ -204,24 +171,22 @@ Index: common/config
 +LD_PRELOAD=/usr/lib/libpaco-log.so
 Index: common/func_validate_configs.sh
 ===================================================================
---- common/func_validate_configs.sh	(revision 2695)
+--- common/func_validate_configs.sh	(revision 2702)
 +++ common/func_validate_configs.sh	(working copy)
-@@ -84,10 +84,10 @@
+@@ -84,9 +84,9 @@
  inline_doc
  
    # First internal variables, then the ones that change the book's flavour, and lastly system configuration variables
--  local -r blfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG         DEPEND                TEST OPTIMIZE"
 -  local -r hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE MODEL GRSECURITY_HOST TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG KEYMAP         PAGE TIMEZONE LANG LC_ALL"
 -  local -r clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE METHOD  ARCH  TARGET  TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG KEYMAP VIMLANG PAGE TIMEZONE LANG"
 -  local -r  lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE                       TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG        VIMLANG PAGE TIMEZONE LANG"
-+  local -r blfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG         DEPEND                TEST OPTIMIZE"
 +  local -r hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE MODEL GRSECURITY_HOST TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG KEYMAP         PAGE TIMEZONE LANG LC_ALL"
 +  local -r clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE METHOD  ARCH  TARGET  TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG KEYMAP VIMLANG PAGE TIMEZONE LANG"
 +  local -r  lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE                       TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG        VIMLANG PAGE TIMEZONE LANG"
  
    local -r ERROR_MSG_pt1='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid,'
    local -r ERROR_MSG_pt2=' check the config file ${BOLD}${GREEN}\<$(echo $PROGNAME | tr [a-z] [A-Z])/config\> or \<common/config\>${OFF}'
-@@ -174,6 +174,7 @@
+@@ -173,6 +173,7 @@
        # Validate general parameters..
        GETPKG)     validate_against_str "x0x x1x" ;;
        RUNMAKE)    validate_against_str "x0x x1x" ;;
@@ -233,7 +198,7 @@ Index: common/paco-functions
 ===================================================================
 --- common/paco-functions	(revision 0)
 +++ common/paco-functions	(revision 0)
-@@ -0,0 +1,112 @@
+@@ -0,0 +1,105 @@
 +#!/bin/bash
 +
 +
@@ -327,25 +292,18 @@ Index: common/paco-functions
 +EOF
 +) >> $MKFILE.tmp
 +fi
-+}
 +
-+
-+#----------------------------------#
-+wrt_paco_log_blfs() {              # If the tmpfile exist, then log the current package
-+#----------------------------------# and remove tempfile
-+if [ $USE_PACO != 0 ] ; then
++# Glibc uses 'sln' to install symlinks in /lib
++# add these to the log since paco can't track statically linked executables
++# Glibc is the first package to install into /lib, so a simple 'find' will suffice
++if [ $USE_PACO != 0 ] && [ "$name" = "glibc" ]; then
 +(
 +cat << EOF
-+	@PACKAGE=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
-+	if [ -e $PACO_TMPFILE ]; then \\
-+		paco -lp \$\$PACKAGE < $PACO_TMPFILE && \\
-+		rm -f $PACO_TMPFILE; \\
-+	fi;
++	@\$(CHROOT1) 'find /lib -type l | paco -lp+ $PACKAGE'
 +EOF
-+) >> $MKFILE
++) >> $MKFILE.tmp
 +fi
 +}
-+
 Index: common/paco-build-lfs.sh
 ===================================================================
 --- common/paco-build-lfs.sh	(revision 0)
@@ -362,7 +320,7 @@ Index: common/paco-build-lfs.sh
 +make logme
 Index: common/common-functions
 ===================================================================
---- common/common-functions	(revision 2695)
+--- common/common-functions	(revision 2702)
 +++ common/common-functions	(working copy)
 @@ -65,6 +65,9 @@
          in the configuration file has the proper packages and patches for the
@@ -374,7 +332,7 @@ Index: common/common-functions
  ${BOLD}  -O, --optimize${OFF}
          Optimize [0-2]
            0 = no optimization
-@@ -581,6 +584,7 @@
+@@ -556,6 +559,7 @@
                   --stringparam lc_all $LC_ALL \
                   --stringparam keymap $KEYMAP \
                   --stringparam grsecurity_host $GRSECURITY_HOST \
@@ -382,17 +340,17 @@ Index: common/common-functions
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
        ;;
      lfs)
-@@ -592,6 +596,7 @@
+@@ -567,6 +571,7 @@
                   --stringparam timezone $TIMEZONE \
                   --stringparam page $PAGE \
                   --stringparam lang $LANG \
 +                 --stringparam use_paco $USE_PACO \
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
        ;;
-     blfs)
+     *) exit 1 ;;
 Index: HLFS/hlfs.xsl
 ===================================================================
---- HLFS/hlfs.xsl	(revision 2695)
+--- HLFS/hlfs.xsl	(revision 2702)
 +++ HLFS/hlfs.xsl	(working copy)
 @@ -39,6 +39,9 @@
    <xsl:param name="lang" select="en_CA"/>
@@ -443,9 +401,21 @@ Index: HLFS/hlfs.xsl
          <xsl:apply-templates/>
 Index: HLFS/master.sh
 ===================================================================
---- HLFS/master.sh	(revision 2695)
+--- HLFS/master.sh	(revision 2702)
 +++ HLFS/master.sh	(working copy)
-@@ -254,6 +254,18 @@
+@@ -245,6 +245,11 @@
+     # Keep the script file name
+     this_script=`basename $file`
+ 
++    # If this script is *-paco, then skip it
++    case $this_script in
++      *paco )     continue ;;
++    esac
++
+     # Skip this script depending on jhalfs.conf flags set.
+     case $this_script in
+         # We'll run the chroot commands differently than the others, so skip them in the
+@@ -254,6 +259,18 @@
        *-stripping* )  [[ "$STRIP" = "0" ]] && continue ;;
      esac
  
@@ -464,7 +434,7 @@ Index: HLFS/master.sh
      # Grab the name of the target
      name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'`
  
-@@ -324,7 +336,9 @@
+@@ -324,7 +341,9 @@
          wrt_run_as_root "${this_script}" "${file}"
          ;;
        *)   # The rest of Chapter06
@@ -474,7 +444,7 @@ Index: HLFS/master.sh
         ;;
      esac
      #
-@@ -357,6 +371,16 @@
+@@ -357,6 +376,16 @@
      PREV=${this_script}${N}
      # Set system_build envar for iteration targets
      system_build=$chapter6
@@ -491,7 +461,7 @@ Index: HLFS/master.sh
    done # end for file in chapter06/*
  
  }
-@@ -419,6 +443,15 @@
+@@ -419,6 +448,15 @@
            wrt_run_as_chroot2 "${this_script}" "${file}"
          fi
          ;;
@@ -509,7 +479,7 @@ Index: HLFS/master.sh
          ;;
 Index: master.sh
 ===================================================================
---- master.sh	(revision 2695)
+--- master.sh	(revision 2702)
 +++ master.sh	(working copy)
 @@ -147,6 +147,8 @@
  
@@ -520,7 +490,7 @@ Index: master.sh
      --optimize | -O )
        test $# = 1 && eval "$exit_missing_arg"
        shift
-@@ -463,6 +465,14 @@
+@@ -438,6 +440,14 @@
    [[ $VERBOSITY > 0 ]] && echo "OK"
  fi
  #
@@ -535,19 +505,15 @@ Index: master.sh
  # optimize module
  if [[ "$OPTIMIZE" != "0" ]]; then
    [[ $VERBOSITY > 0 ]] && echo -n "Loading optimization module..."
-@@ -507,6 +517,15 @@
+@@ -482,7 +492,11 @@
  #
  if [[ "$PWD" != "$JHALFSDIR" ]]; then
    cp $COMMON_DIR/makefile-functions $JHALFSDIR/
-+  if [[ $USE_PACO != "0" ]] ; then
-+    if [[ $PROGNAME != "blfs" ]]; then
-+      cp $COMMON_DIR/paco-build-$PROGNAME.sh $JHALFSDIR/
-+    else
-+      echo -e "export PACO_INCLUDE=$PACO_INCLUDE" > $JHALFSDIR/pacovars
-+      echo -e "export PACO_EXCLUDE=~/sources:$JHALFSDIR:$PACO_EXCLUDE" >> $JHALFSDIR/pacovars
-+      echo -e "export PACO_TMPFILE=$PACO_TMPFILE" >> $JHALFSDIR/pacovars
-+    fi
-+  fi
++  #
++  [[ $USE_PACO != "0" ]] && cp $COMMON_DIR/paco-build-$PROGNAME.sh $JHALFSDIR/
++  #
    [[ "$OPTIMIZE" != "0" ]] && cp optimize/opt_override $JHALFSDIR/
++  #
    if [[ "$COMPARE" != "0" ]] ; then
      mkdir -p $JHALFSDIR/extras
+     cp extras/* $JHALFSDIR/extras
