@@ -31,7 +31,6 @@ SERVER=ftp://ftp.lfs-matrix.net
 
 #=== Build options ===
 #--- Run the makefile at the end  0(no)/1(yes)
-#    In BLFS the Makefile can't be run automatically
 RUNMAKE=0
 
 #--- Optimize the build  [0-2]
@@ -45,11 +44,8 @@ OPTIMIZE=0
 #--- Run test suites  [0-3]
 #  0 = none
 #  1 = only chapter06 Glibc, GCC and Binutils testsuites
-#      (in BLFS, run the package testsuite, if any)
 #  2 = all chapter06 testsuites
-#      (in BLFS, alias to 1)
 #  3 = all chapter05 and chapter06 testsuites
-#      (in BLFS, alias to 1)
 #      (in CLFS, alias to 2)
 TEST=1
 

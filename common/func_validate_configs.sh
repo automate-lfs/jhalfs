@@ -76,7 +76,7 @@ validate_config() {          # Are the config values sane (within reason)
 
     input vars: none
     externals:  color constants
-                PROGNAME (lfs,clfs,hlfs,blfs)
+                PROGNAME (lfs,clfs,hlfs)
     modifies:   none
     returns:    nothing
     on error:   write text to console and dies
@@ -84,7 +84,6 @@ validate_config() {          # Are the config values sane (within reason)
 inline_doc
 
   # First internal variables, then the ones that change the book's flavour, and lastly system configuration variables
-  local -r blfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG         DEPEND                TEST OPTIMIZE"
   local -r hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE MODEL GRSECURITY_HOST TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG KEYMAP         PAGE TIMEZONE LANG LC_ALL"
   local -r clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE METHOD  ARCH  TARGET  TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG KEYMAP VIMLANG PAGE TIMEZONE LANG"
   local -r  lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE                       TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG        VIMLANG PAGE TIMEZONE LANG"
@@ -203,7 +202,6 @@ inline_doc
       OPTIMIZE)   validate_against_str "x0x x1x x2x" ;;
       STRIP)      validate_against_str "x0x x1x" ;;
       VIMLANG)    validate_against_str "x0x x1x" ;;
-      DEPEND)     validate_against_str "x0x x1x x2x" ;;
       MODEL)      validate_against_str "xglibcx xuclibcx" ;;
       PAGE)       validate_against_str "xletterx xA4x" ;;
       METHOD)     validate_against_str "xchrootx xbootx" ;;

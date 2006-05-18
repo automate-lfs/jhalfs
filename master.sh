@@ -98,7 +98,7 @@ source $COMMON_DIR/func_validate_configs.sh
 
 while test $# -gt 0 ; do
   case $1 in
-  # Common options for all books
+  # Common options for {C,H}LFS books
     --book | -B )
       test $# = 1 && eval "$exit_missing_arg"
       shift
@@ -225,7 +225,6 @@ while test $# -gt 0 ; do
       esac
       ;;
 
-    # Common options for LFS, CLFS and HLFS
     --comparasion | -C )
       test $# = 1 && eval "$exit_missing_arg"
       shift
@@ -400,21 +399,6 @@ while test $# -gt 0 ; do
       esac
       ;;
 
-    # BLFS options
-    --dependencies )
-      test $# = 1 && eval "$exit_missing_arg"
-      shift
-      case $1 in
-        0 | 1 | 2 )
-          DEPEND=$1
-          ;;
-        * )
-          echo -e "\n$1 isn't a valid dependencies level."
-          exit 1
-          ;;
-      esac
-      ;;
-
     # Unknown options
     * )   usage   ;;
   esac
@@ -520,27 +504,23 @@ if [[ "$PWD" != "$JHALFSDIR" ]]; then
     popd 1> /dev/null
   fi
   #
-  if [[ "$PROGNAME" != "blfs" ]]; then
-    if [[ "$REPORT" = "1" ]]; then
-      cp $COMMON_DIR/create-sbu_du-report.sh  $JHALFSDIR/
-      # After be sure that all look sane and if REPORT=1, dump the settings to a file
-      # This file will be used to create the REPORT header
-      validate_config > $JHALFSDIR/jhalfs.config
-    fi     
-    [[ "$GETPKG" = "1" ]] && cp $COMMON_DIR/urls.xsl  $JHALFSDIR/
+  if [[ "$REPORT" = "1" ]]; then
+    cp $COMMON_DIR/create-sbu_du-report.sh  $JHALFSDIR/
+    # After be sure that all look sane, dump the settings to a file
+    # This file will be used to create the REPORT header
+    validate_config > $JHALFSDIR/jhalfs.config
   fi
+  #
+  [[ "$GETPKG" = "1" ]] && cp $COMMON_DIR/urls.xsl  $JHALFSDIR/
   #
   sed 's,FAKEDIR,'$BOOK',' $PACKAGE_DIR/$XSL > $JHALFSDIR/${XSL}
   export XSL=$JHALFSDIR/${XSL}
 fi
 
-
 get_book
 echo "${SD_BORDER}${nl_}"
-
 
 build_Makefile
 echo "${SD_BORDER}${nl_}"
 
 run_make
-
