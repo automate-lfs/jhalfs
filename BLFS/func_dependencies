@@ -111,7 +111,6 @@ do_dependencies()  {    #  Loop to find sub-dependencies
           done
         # Create the xinclude file
         else
-          # We will call the function from inside it
           echo -e "\nStart new loop for PKG $DEP (to solve $PKG)\n" >> depure.txt
           # We will call the function from inside it
           set +e
