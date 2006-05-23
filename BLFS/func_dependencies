@@ -1,0 +1,151 @@
+#!/bin/bash
+#
+# $Id$
+#
+set -e
+
+#-----------------------#
+do_dependencies()  {    #  Loop to find sub-dependencies
+#-----------------------#
+  set -e
+  local PKG=$1
+  local saveIFS=$IFS
+  local DEP_LV=$DEP_LEVEL
+  local line line2 DEP
+
+  echo -e "\tPKG is $PKG" >> depure.txt
+  echo -e "\tDEP_LEVEL for $PKG is $DEP_LV\n" >> depure.txt
+
+  #  If a premade xinclude file esist, use it. If not, create one
+  if [[ -f xincludes/$PKG.xinc ]] ; then
+    echo -e "\tReusing xinclude file for PKG $PKG" >> depure.txt
+    IFS=$'\x0A'
+    for line in `cat xincludes/$PKG.xinc` ; do
+      IFS=$saveIFS
+      # Remove the Xinclude entry if found. We want the most newer one.
+      # Using double quotes to let bash expand variables.
+      # Remove also the empty line created. Can not be done in one step
+      # due that d requires the pattner between /, but we have a lot of /
+      # inside the pattner.
+      sed -e "s,^[[:space:]]*$line,," -e '/./!d' -i $TARGET-index.xml.tmp
+      # Write the XInclude
+      echo -e "$line" >> $TARGET-index.xml.tmp
+    done
+  else
+    # Start with a clean $PKG.xinc.tmp file
+    > xincludes/$PKG.xinc.tmp
+    for DEP in `cat dependencies/$PKG.dep`; do
+      # Especial packages (a lot of hacks)
+      case $DEP in
+        # The proper version of DB is installed in LFS
+        db ) continue ;;
+        # ID value don't have their own XML package file
+        hal-requirements ) continue ;;
+        perl-* | tk-perl ) DEP=perl-modules ;;
+        # Orphan links (proper link must be created when generating the book)
+        arts ) DEP=aRts ;; # That should be fixed in the BLFS book
+        # Set values for alternative packages
+        # X is a meta-package, thus handled in another way.
+        LPRng | cups ) DEP=$PRINT_SERVER ;;
+        mitkrb | heimdal ) DEP=$KBR5 ;;
+        gs | espgs ) DEP=$GHOSTSCRIPT ;;
+        MTA ) DEP=$MAIL_SERVER ;; # The BLFS book need be fixed yet for that
+      esac
+      echo -e "\tDEP for $PKG is $DEP" >> depure.txt
+      case $DEP in
+        # Circular dependencies at level 3
+        cracklib | docbook-utils | libxml2 | cyrus-sasl | alsa-lib | \
+        unixodbc | cups | libexif | esound | gimp )
+          [[ "$DEP_LV" = "3" ]] && DEP_LV=2
+          ;;
+        * ) DEP_LV=$DEP_LEVEL ;;
+      esac
+      echo -e "\tDEP_LEVEL for $DEP is $DEP_LV" >> depure.txt
+      # XML file of dependency package
+      DEP_XML=`grep "^$DEP[[:space:]]" ../packages | cut -f2`
+      echo -e "\t\tDEP_XML is $DEP_XML\n" >> depure.txt
+      case $DEP in
+        x-window-system ) ;; # No page for that (proper link must be created when generating the book)
+        xorg7 ) ;; # This page will be dump in the xorg7.xinc file
+        * )
+          # Remove the Xinclude entry if found
+          sed -e "s,^[[:space:]]*$ENTRY_START$DEP_XML$ENTRY_END,," \
+              -e '/./!d' -i xincludes/$PKG.xinc.tmp
+          # Write the XInclude
+          echo -e "    $ENTRY_START$DEP_XML$ENTRY_END" >> xincludes/$PKG.xinc.tmp
+          ;;
+      esac
+      # If not already created, create its dependencies list
+      if [[ ! -f dependencies/$DEP.dep ]] ; then
+        case $DEP in
+          # Meta-packages at dependency level (ugly *.dep files, but work for now)
+          alsa ) # When dependency "alsa", use all alsa-* packages
+            echo -e "alsa-oss\nalsa-firmware\nalsa-tools\nalsa-utils\n \
+                     alsa-plugins\nalsa-lib" > dependencies/$DEP.dep
+            ;;
+          x-window-system ) # X11 alternatives
+            echo -e "x-config\nx-setup\n$X11" > dependencies/$DEP.dep
+            ;;
+          xorg7 ) # All Xorg7 packages except Xterm (circular dependency)
+            echo -e "rman\nxorg7-driver\nxorg7-server\nluit\nxorg7-font\n \
+                     xorg7-data\nxorg7-app\nxbitmaps\nmesalib\nlibdrm\n \
+                     xorg7-lib\nxorg7-util\nxorg7-proto" > dependencies/$DEP.dep
+            ;;
+          * ) xsltproc --stringparam dependencies $DEP_LV \
+                 -o dependencies/$DEP.dep ../dependencies.xsl ../$DEP_XML
+            ;;
+        esac
+      fi
+      # If needed, process its dependencies
+      if [[ -f dependencies/$DEP.dep ]] ; then
+        # If a premade xinclude file esist, include it
+        if [[ -f xincludes/$DEP.xinc ]] ; then
+          echo -e "\tReusing xinclude file for PKG $DEP (to solve $PKG)\n" >> depure.txt
+          IFS=$'\x0A'
+          for line2 in `cat xincludes/$DEP.xinc` ; do
+            IFS=$saveIFS
+            # Remove the Xinclude entry if found
+            sed -e "s,^[[:space:]]*$line2,," -e '/./!d' -i xincludes/$PKG.xinc.tmp
+            # Write the XInclude
+            echo -e "$line2" >> xincludes/$PKG.xinc.tmp
+          done
+        # Create the xinclude file
+        else
+          # We will call the function from inside it
+          echo -e "\nStart new loop for PKG $DEP (to solve $PKG)\n" >> depure.txt
+          # We will call the function from inside it
+          set +e
+          do_dependencies $DEP
+          set -e
+          # Include it when done
+          echo -e "\tUsing the new xinclude file for PKG $DEP (to solve $PKG)\n" >> depure.txt
+          IFS=$'\x0A'
+          for line2 in `cat xincludes/$DEP.xinc` ; do
+            IFS=$saveIFS
+            # Remove the Xinclude entry if found
+            sed -e "s,^[[:space:]]*$line2,," -e '/./!d' -i xincludes/$PKG.xinc.tmp
+            # Write the XInclude
+            echo -e "$line2" >> xincludes/$PKG.xinc.tmp
+          done
+        fi
+      fi
+    done
+    if [[ "$PKG" = "xorg7" ]] ; then
+      # Add their XInclude
+      PKG_XML=`grep "^$PKG[[:space:]]" ../packages | cut -f2`
+      echo -e "    $ENTRY_START$PKG_XML$ENTRY_END" >> xincludes/$PKG.xinc.tmp
+    fi
+    mv xincludes/$PKG.xinc.tmp xincludes/$PKG.xinc
+    echo -e "Using the new xinclude file for PKG $PKG" >> depure.txt
+    IFS=$'\x0A'
+    for line in `cat xincludes/$PKG.xinc` ; do
+      IFS=$saveIFS
+      # Remove the Xinclude entry if found.
+      sed -e "s,^[[:space:]]*$line,," -e '/./!d' -i $TARGET-index.xml.tmp
+      # Write the XInclude
+      echo -e "$line" >> $TARGET-index.xml.tmp
+    done
+  fi
+
+ echo -e "\nEnd loop for PKG $PKG\n" >> depure.txt
+}
