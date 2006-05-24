@@ -29,6 +29,11 @@ source alternatives.conf
 source func_dependencies
 [[ $? > 0 ]] && echo -e "\n\tERROR: func_dependencies did not load..\n" && exit
 
+#---------------------
+# parser module
+source func_parser
+[[ $? > 0 ]] && echo -e "\n\tERROR: func_parser did not load..\n" && exit
+
 
 
 #-------------------------#
