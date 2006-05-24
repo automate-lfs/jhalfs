@@ -1,0 +1,135 @@
+#####
+#
+# Parse the XML documents to create a 'package' book
+#
+# $Id:
+#####
+
+
+#----------------------------#
+generate_TARGET_xml()  {     #
+#----------------------------#
+: <<inline_doc
+    function:   Generate the XML document for the TARGET package
+    input vars: nothing
+    externals:  vars: TARGET
+    modifies:   nothing
+    returns:    nothing
+    output:     file: $TARGET-index.xml
+    on error:   nothing
+    on success: nothing
+inline_doc
+
+  local  
+  echo -en "\tGenerating $TARGET-index.xml ..."
+
+  #---------------------
+  # Header to $TARGET-index.xml
+{
+cat << EOF
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+  "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd" >
+
+<book>
+
+  <xi:include xmlns:xi="http://www.w3.org/2003/XInclude" href="../$BLFS_XML/book/bookinfo.xml"/>
+
+  <preface>
+    <?dbhtml filename="preface.html" dir="preface"?>
+
+    <title>Preface</title>
+
+    <xi:include xmlns:xi="http://www.w3.org/2003/XInclude" href="../$BLFS_XML/introduction/important/locale-issues.xml"/>
+    <xi:include xmlns:xi="http://www.w3.org/2003/XInclude" href="../$BLFS_XML/introduction/important/bootscripts.xml"/>
+
+  </preface>
+
+  <chapter>
+    <?dbhtml filename="chapter.html" dir="installing"?>
+
+    <title>Installing $TARGET in Dependencies Build Order</title>
+
+EOF
+} > $TARGET-index.xml
+
+  #---------------------
+  # Dump $TARGET-index.xml.tmp in reverse order.
+  tac $TARGET-index.xml.tmp >> $TARGET-index.xml
+  rm $TARGET-index.xml.tmp
+
+  #---------------------
+  # Footer of $TARGET-index.xml
+{
+cat << EOF
+
+  </chapter>
+
+  <xi:include xmlns:xi="http://www.w3.org/2003/XInclude" href="../$BLFS_XML/appendices/creat-comm.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2003/XInclude" href="../$BLFS_XML/appendices/ac-free-lic.xml"/>
+
+  <index/>
+
+</book>
+
+EOF
+} >> $TARGET-index.xml
+
+  echo "done"
+}
+
+
+#-------------------------#
+generate_target_book() {  #
+#-------------------------#
+: <<inline_doc
+    function:   Create an HTML document of the requested TARGET.
+    input vars: nothing
+    externals:  vars: TARGET
+                      BLFS_XML
+    modifies:   nothing
+    returns:    nothing
+    output:     file: NUMEROUS FILES
+    on error:   nothing
+    on success: nothing
+inline_doc
+
+  local filename # output filename
+  
+  echo -en  "\tGenerating the HTML book ..."
+  xsltproc --xinclude --nonet --stringparam base.dir HTML/ \
+           --stringparam chunk.quietly 1 \
+           ../$BLFS_XML/stylesheets/blfs-chunked.xsl \
+           $TARGET-index.xml > xsltproc.log 2>&1
+
+  mkdir HTML/{stylesheets,images}
+  cp ../$BLFS_XML/stylesheets/*.css HTML/stylesheets
+  cp ../$BLFS_XML/images/*.png HTML/images
+  cd HTML
+  sed -i -e "s@../stylesheets@stylesheets@g" *.html
+  sed -i -e "s@../images@images@g" *.html
+  for filename in `find . -name "*.html"` ; do
+    tidy -config ../../$BLFS_XML/tidy.conf $filename || true
+    sh ../../$BLFS_XML/obfuscate.sh $filename
+    sed -i -e "s@text/html@application/xhtml+xml@g" $filename
+  done
+  echo "done"
+}
+
+
+#-------------------------#
+create_build_scripts() {  # 
+#-------------------------#
+: <<inline_doc
+    function:   
+    input vars: nothing
+    externals:  none
+    modifies:   nothing    
+    returns:    nothing
+    output:     none
+    on error:   nothing
+    on success: nothing
+inline_doc
+
+  echo -en  "\tGenerating the build scripts ... not implemented yet, sorry\n"
+}
