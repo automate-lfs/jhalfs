@@ -2,26 +2,26 @@
 #
 # Project TODO list
 #
-# $Id:
+# $Id$
 #####
 
-For now the code is able to do the first step for the new approach: to create 
-LFS-like books from BLFS sources, allowing to create linear build scrips and 
+For now the code is able to do the first step for the new approach: to create
+LFS-like books from BLFS sources, allowing to create linear build scrips and
 Makefiles similars to the current ones for {C,H}LFS.
 
 What remains to do:
 
-1. - To make the top-level blfs script functional. That script should to create 
+1. - To make the top-level blfs script functional. That script should to create
        the working directory (selected at command line)
-     a. Copy all BLFS/* files to it, 
-     b. Fetch the BLFS sources (output directory selected at command line or 
-          based on the book version), 
+     a. Copy all BLFS/* files to it,
+     b. Fetch the BLFS sources (output directory selected at command line or
+          based on the book version),
      c. Run the packages.sh script.
-  
+
 2. - To develop the XSL code needed to create the build scripts.
 
 3. - To develop the code to create the Makefile
 
-4. - To find a way to track already installed packages by previous runs, to can 
+4. - To find a way to track already installed packages by previous runs, to can
        skip them when creating the book/scripts/Makefile for a new target.
 

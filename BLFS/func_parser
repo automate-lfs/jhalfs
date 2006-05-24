@@ -1,8 +1,9 @@
+#!/bin/bash
 #####
 #
 # Parse the XML documents to create a 'package' book
 #
-# $Id:
+# $Id$
 #####
 
 
@@ -20,7 +21,7 @@ generate_TARGET_xml()  {     #
     on success: nothing
 inline_doc
 
-  local  
+  local
   echo -en "\tGenerating $TARGET-index.xml ..."
 
   #---------------------
@@ -95,7 +96,7 @@ generate_target_book() {  #
 inline_doc
 
   local filename # output filename
-  
+
   echo -en  "\tGenerating the HTML book ..."
   xsltproc --xinclude --nonet --stringparam base.dir HTML/ \
            --stringparam chunk.quietly 1 \
@@ -118,13 +119,13 @@ inline_doc
 
 
 #-------------------------#
-create_build_scripts() {  # 
+create_build_scripts() {  #
 #-------------------------#
 : <<inline_doc
-    function:   
+    function:
     input vars: nothing
     externals:  none
-    modifies:   nothing    
+    modifies:   nothing
     returns:    nothing
     output:     none
     on error:   nothing
