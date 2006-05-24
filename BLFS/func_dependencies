@@ -248,9 +248,7 @@ inline_doc
 	# 
         set +e
          [[ "${VERBOSITY}" > 0 ]] && echo -ne "\nrecursive call: $((++cntr)) ${spaceSTR:0:$cntr} ${RED}$DEP${OFF}"
-         echo -ne "\nrecursive call: $cntr ${spaceSTR:0:$cntr} $DEP" >>koffice.XX
             do_dependencies $DEP
-         echo -ne  "\nrecursive ret:  $cntr ${spaceSTR:0:$cntr} $DEP\t(to solve $PKG)" >>koffice.XX
          [[ "${VERBOSITY}" > 0 ]] && echo -ne  "\nrecursive ret:  $cntr ${spaceSTR:0:$((cntr--))} ${GREEN}$DEP${OFF}\tUsing the new xinclude file for PKG $DEP (to solve $PKG)"
         set -e
 	
