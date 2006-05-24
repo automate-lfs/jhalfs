@@ -17,7 +17,7 @@ generate_dependency_tree() { #
                       PKGXML
 		      DEP_LEVEL
                 func: do_dependencies
-    modifies:   vars: PKGXML 
+    modifies:   vars: PKGXML
                       BLFS_XML
     returns:    nothing
     output:     files: $TARGET.dep
@@ -29,7 +29,7 @@ inline_doc
 
   local ENTRY_START
   local ENTRY_END
-  
+
   #---------------------
   # Create the working directory and cd into it
   mkdir $TARGET && cd $TARGET
@@ -111,14 +111,14 @@ do_dependencies()  {    #  Loop to find sub-dependencies  :::WARNING::: THIS IS 
                 file:  depure.txt
                        $TARGET-index.xml.tmp
                        $PKG.dep
-                       $PKG.inc		
+                       $PKG.inc
     modifies:   files
     returns:    nothing
     output:     file:  $PKG-xinc.tmp
                        depure.txt
                        $TARGET-index.xml.tmp
     on error:   exit
-    on success: 
+    on success:
 inline_doc
 
   set -e
@@ -147,16 +147,16 @@ inline_doc
     done
     return
   fi
-  
+
   #------------------
   # Start with a clean $PKG.xinc.tmp file
   > xincludes/$PKG.xinc.tmp
   for DEP in `cat dependencies/$PKG.dep`; do
     # Special packages (a lot of hacks)
     case $DEP in
-        
+
       db ) # The proper version of DB is installed in LFS
-        continue ;;        
+        continue ;;
       hal-requirements ) # ID value don't have their own XML package file
         continue ;;
       perl-* | tk-perl )  DEP=perl-modules ;;
@@ -173,13 +173,52 @@ inline_doc
 
     #------------------
     echo -e "\tDEP for $PKG is $DEP" >> depure.txt
+    # Prevent circular dependencies when level 3
     case $DEP in
-      # Circular dependencies at level 3
-      cracklib | docbook-utils | libxml2 | cyrus-sasl | alsa-lib | \
-      unixodbc | cups | libexif | esound | gimp )
-        [[ "$DEP_LV" = "3" ]] && DEP_LV=2
+      python )
+        # cracklib-->python-->tk-->X-->linux-pam-->cracklib
+        [[ "$PKG" = "cracklib" ]] && continue
         ;;
-      * ) DEP_LV=$DEP_LEVEL ;;
+      jadetex | perl-* | lynx | Links | w3m )
+        # Optional dependencies are runtime only
+        [[ "$PKG" = "docbook-utils" ]] && continue
+        ;;
+      libxslt )
+        # libxml2-->libxslt-->libxml2
+        [[ "$PKG" = "libxml2" ]] && continue
+        ;;
+      openldap | postgresql | $KBR5 )
+        # cyrus-sasl-->several-->cyrus-sasl
+        [[ "$PKG" = "cyrus-sasl" ]] && continue
+        ;;
+      doxygen )
+        # alsa-lib-->doxygen-->graphviz-->jdk-->alsa-lib
+        # Commented out due that it bomb "jdk 3" Why??
+        #[[ "$PKG" = "alsa-lib" ]] && continue
+        # libexif-->doxygen-->graphviz-->php-->libexif
+        [[ "$PKG" = "libexif" ]] && continue
+        ;;
+      qt )
+        # unixodbc-->qt-->unixodbc
+        [[ "$PKG" = "unixodbc" ]] && continue
+        ;;
+      espgs )
+        # sendmail-->espgs-->cups-->php-->sendmail
+        # We should to use $MAIL_SERVER, when it actually work :-/
+        [[ "$PKG" = "sendmail" ]] && continue
+        ;;
+      graphviz )
+        # libexif-->graphviz-->php-->libexif
+        [[ "$PKG" = "libexif" ]] && continue
+        ;;
+      aRts )
+        # esound-->aRts-->esound
+        [[ "$PKG" = "esound" ]] && continue
+        ;;
+      gimp )
+        # imagemagick-->gimp-->imagemagick
+        [[ "$PKG" = "imagemagick" ]] && continue
+        ;;
     esac
 
     #------------------
@@ -203,6 +242,9 @@ inline_doc
     # If not already created, create its dependencies list
     if [[ ! -f dependencies/$DEP.dep ]] ; then
       case $DEP in
+        alsa-lib ) ;; # Only one optional dependency and is recursive.
+                      # When placed inside the circular dependencies handler
+                      # some packages may bomb. But I don't know yet why
         # Meta-packages at dependency level (ugly *.dep files, but work for now)
         alsa ) # When dependency "alsa", use all alsa-* packages
           echo -e "alsa-oss\nalsa-firmware\nalsa-tools\nalsa-utils\n \
@@ -245,13 +287,13 @@ inline_doc
 	#
 	# If the recursion depth is not too great this is an acceptable methodology for a script language
 	# However, uncontrolled recursion will cause a seg-fault due to stack issues with local variables.
-	# 
+	#
         set +e
          [[ "${VERBOSITY}" > 0 ]] && echo -ne "\nrecursive call: $((++cntr)) ${spaceSTR:0:$cntr} ${RED}$DEP${OFF}"
             do_dependencies $DEP
          [[ "${VERBOSITY}" > 0 ]] && echo -ne  "\nrecursive ret:  $cntr ${spaceSTR:0:$((cntr--))} ${GREEN}$DEP${OFF}\tUsing the new xinclude file for PKG $DEP (to solve $PKG)"
         set -e
-	
+
         # Include it when done
         echo -e "\tUsing the new xinclude file for PKG $DEP (to solve $PKG)\n" >> depure.txt
         IFS=$'\x0A'

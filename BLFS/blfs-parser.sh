@@ -10,7 +10,7 @@ declare BLFS_XML
 declare VERBOSITY=1
 
 # Grab and name the command line options
-    optTARGET=$1 
+    optTARGET=$1
 optDEPENDENCY=$2
 
 
@@ -40,14 +40,14 @@ source func_parser
 validate_target() {       # ID of target package (as listed in packages file)
 #-------------------------#
 : <<inline_doc
-    function:   Validate the TARGET parameter. 
+    function:   Validate the TARGET parameter.
     input vars: $1, package/target to validate
     externals:  file: packages
     modifies:   TARGET
     returns:    nothing
     output:     nothing
     on error:   exit
-    on success: modifies TARGET 
+    on success: modifies TARGET
 inline_doc
 
   if [[ -z "$1" ]] ; then
@@ -79,7 +79,7 @@ inline_doc
 validate_dependency() {   # Dependencies level 1(required)/2(1 + recommended)/3(2+ optional)
 #-------------------------#
 : <<inline_doc
-    function:   Validate the dependency level requested. 
+    function:   Validate the dependency level requested.
     input vars: $1, requested dependency level
     externals:  vars: TARGET
     modifies:   vars: DEP_LEVEL
@@ -97,34 +97,9 @@ inline_doc
   fi
 
   case $1 in
-    1 | 2 )
+    1 | 2 | 3 )
       DEP_LEVEL=$1
       echo -e "\n\tUsing $DEP_LEVEL as dependencies level.\n"
-      ;;
-      # Prevent circular dependencies when level 3
-      # cracklib-->python-->tk-->X-->linux-pam-->cracklib
-      # docbook-utils--> Optional dependencies are runtime only
-      # libxml2-->libxslt-->libxml2
-      # cyrus-sasl-->openldap-->cyrus-sasl
-      # alsa-lib-->doxygen-->graphviz-->jdk-->alsa-lib
-      # unixodbc-->qt-->unixodbc
-      # cups-->php-->sendmail-->espgs-->cups
-      # libexif-->graphviz-->php-->libexif
-      # esound-->aRts-->esound
-      # gimp-->imagemagick-->gimp
-    3 )
-      case $TARGET in
-        cracklib | docbook-utils | libxml2 | cyrus-sasl | alsa-lib | \
-        unixodbc | cups | libexif | esound | gimp )
-          DEP_LEVEL=2
-          echo -e "\n\t$TARGET have circular dependencies at level $1"
-          echo -e "\tUsing $DEP_LEVEL as dependencies level.\n"
-          ;;
-        * )
-          DEP_LEVEL=$1
-          echo -e "\n\tUsing $DEP_LEVEL as dependencies level.\n"
-          ;;
-      esac
       ;;
     * )
       DEP_LEVEL=2
