@@ -62,17 +62,8 @@ inline_doc
     exit 1
   fi
 
-  case $1 in
-    xorg7 )
-      TARGET=xterm2
-      echo -e "\n\tUsing $TARGET as the target package"
-      echo -e "to build the Xorg7 meta-package."
-      ;;
-    * )
-      TARGET=$1
-      echo -e "\n\tUsing $TARGET as the target package."
-      ;;
-  esac
+  TARGET=$1
+  echo -e "\n\tUsing $TARGET as the target package."
 }
 
 #-------------------------#

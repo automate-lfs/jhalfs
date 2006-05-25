@@ -32,7 +32,13 @@ inline_doc
 
   #---------------------
   # Create the working directory and cd into it
-  mkdir $TARGET && cd $TARGET
+  if [[ -d $TARGET ]] ; then
+    echo -e "\tERROR: Looks like $TARGET has been already processed."
+    echo -e "\tPlease delete or rename the $TARGET directory.\n"
+    exit 1
+  else
+    mkdir $TARGET && cd $TARGET
+  fi
 
   #---------------------
   # XML file of the target package
@@ -62,8 +68,15 @@ inline_doc
     # Meta-packages at target level
     # KDE and Gnome-{core,full} could be made via packages.sh, but not sure yet how.
     alsa ) # When target "alsa", use all alsa-* packages
+      mkdir dependencies
       echo -e "alsa-oss\nalsa-firmware\nalsa-tools\nalsa-utils\n \
                alsa-plugins\nalsa-lib" > dependencies/$TARGET.dep
+      ;;
+    xorg7 ) # At atarget level, add also x-config and x-setup
+      mkdir dependencies
+      echo -e "x-config\nx-setup\nrman\nxterm2\nxorg7-driver\nxorg7-server\nluit\n \
+               xorg7-font\nxorg7-data\nxorg7-app\nxbitmaps\nmesalib\nlibdrm\n \
+               xorg7-lib\nxorg7-util\nxorg7-proto" > dependencies/$TARGET.dep
       ;;
     * ) # Default
       xsltproc --stringparam dependencies $DEP_LEVEL \
@@ -253,8 +266,8 @@ inline_doc
         x-window-system ) # X11 alternatives
           echo -e "x-config\nx-setup\n$X11" > dependencies/$DEP.dep
           ;;
-        xorg7 ) # All Xorg7 packages except Xterm (circular dependency)
-          echo -e "rman\nxorg7-driver\nxorg7-server\nluit\nxorg7-font\n \
+        xorg7 )
+          echo -e "rman\nxterm2\nxorg7-driver\nxorg7-server\nluit\nxorg7-font\n \
                    xorg7-data\nxorg7-app\nxbitmaps\nmesalib\nlibdrm\n \
                    xorg7-lib\nxorg7-util\nxorg7-proto" > dependencies/$DEP.dep
           ;;
