@@ -63,7 +63,6 @@ generate_gnome_core()  {   # GNOME core
 
   for line in `grep "xi:include" $BLFS_XML/gnome/core/core.xml` ; do
     base_xml=`echo $line | sed 's/^.*href="//;s/".*//'`
-    echo "base_xml = $base_xml" >> base_xml
     package=`grep "gnome/core/$base_xml" packages | cut -f1`
     [[ -n "$package" ]] && echo $package >> gnome-core.dep.tmp
   done
