@@ -1,0 +1,74 @@
+#!/bin/bash
+#
+# $Id$
+#
+set -e
+
+#-----------------------#
+generate_packages()  {  # Master packages file
+#-----------------------#
+  local pkg_id file
+
+  > packages.tmp
+
+  # Extract Id and path for sect1 files
+  for file in `find $BLFS_XML -name "*.xml"` ; do
+    pkg_id=`grep "sect1 id" $file | sed -e 's/<sect1 id="//;s/".*//'`
+    [[ ! -z "$pkg_id" ]] && echo -e "$pkg_id\t$file" >> packages.tmp
+  done
+
+  # IDs clean-up (unuseful pages or commented-out packages, could be more)
+  sed -i '/template/d;/ntroduction/d;/preface/d' packages.tmp
+  sed -i '/courier.xml/d' packages.tmp
+  sed -i '/nautilus-media.xml/d;/gal.xml/d;/gpdf.xml/d;/gv.xml/d' packages.tmp
+
+  # Add header with meta-packages pseudo Id
+{
+  cat << EOF
+
+=== GNOME META-PACKAGES ===
+# GNOME base packages
+gnome-core	$BLFS_XML
+# All GNOME packages
+gnome-full	$BLFS_XML
+
+=== KDE META-PACKAGES ===
+# KDE base packages
+kde-core	$BLFS_XML
+# All KDE packages
+kde	$BLFS_XML
+# All KDE packages plus Koffice
+kde-full	$BLFS_XML
+
+=== INDIVIDUAL PACKAGES ===
+
+EOF
+} > packages
+
+  # Dump packages list
+  sort packages.tmp >> packages
+
+  # Clean up
+  rm packages.tmp
+}
+
+# Pre-made *.dep files for meta-packages
+
+#--------------------------#
+generate_gnome_core()  {   # GNOME core
+#--------------------------#
+  local line base_xml package
+
+  > gnome-core.dep.tmp
+
+  for line in `grep "xi:include" $BLFS_XML/gnome/core/core.xml` ; do
+    base_xml=`echo $line | sed 's/^.*href="//;s/".*//'`
+    echo "base_xml = $base_xml" >> base_xml
+    package=`grep "gnome/core/$base_xml" packages | cut -f1`
+    [[ -n "$package" ]] && echo $package >> gnome-core.dep.tmp
+  done
+
+  tac gnome-core.dep.tmp > gnome-core.dep
+  rm gnome-core.dep.tmp
+}
+
