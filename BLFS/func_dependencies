@@ -181,7 +181,7 @@ inline_doc
       LPRng | cups )      DEP=$PRINT_SERVER ;;
       mitkrb | heimdal )  DEP=$KBR5 ;;
       gs | espgs )        DEP=$GHOSTSCRIPT ;;
-      MTA )               DEP=$MAIL_SERVER ;; # The BLFS book need be fixed yet for that
+      server-mail )       DEP=$MAIL_SERVER ;;
     esac
 
     #------------------
@@ -217,8 +217,7 @@ inline_doc
         ;;
       espgs )
         # sendmail-->espgs-->cups-->php-->sendmail
-        # We should to use $MAIL_SERVER, when it actually work :-/
-        [[ "$PKG" = "sendmail" ]] && continue
+        [[ "$PKG" = "$MAIL_SERVER" ]] && continue
         ;;
       graphviz )
         # libexif-->graphviz-->php-->libexif
