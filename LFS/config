@@ -13,6 +13,10 @@ FSTAB=
 # If no config file is  specified the kernel is NOT compiled
 CONFIG=
 
+# Get the kernel package and patches even if no configutation file
+# has been supplied? 0(no)/1(yes)
+GETKERNEL=0
+
 #--- Book's sources directory
 # If you have previously checked out the book from the repository
 BOOK=
