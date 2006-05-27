@@ -65,6 +65,8 @@ inline_doc
   #---------------------
   # Create target package dependencies list
   case $TARGET in
+    # Skip the creation when all dependencies are circular.
+    alsa-lib | cracklib | libexif | unixodbc ) ;;
     # Meta-packages at target level
     # KDE and Gnome-{core,full} could be made via packages.sh, but not sure yet how.
     alsa ) # When target "alsa", use all alsa-* packages
@@ -91,7 +93,13 @@ inline_doc
 
   #---------------------
   # Write the XInclude
-  echo -e "    $ENTRY_START$PKGXML$ENTRY_END" >> $TARGET-index.xml.tmp
+  case $TARGET in
+    # If there is no usefull XML page, skip it.
+    alsa | arts | gnome-core | gnome-full | kde-core | kde-full | kde-koffice ) ;;
+    * )
+      echo -e "    $ENTRY_START$PKGXML$ENTRY_END" >> $TARGET-index.xml.tmp
+      ;;
+  esac
 
   #------------------P---
   # Start with a clean depure.txt file
@@ -175,7 +183,7 @@ inline_doc
       perl-* | tk-perl )  DEP=perl-modules ;;
 
         # Orphan links (proper link must be created when generating the book)
-      arts )              DEP=aRts ;; # That should be fixed in the BLFS book
+      arts )              DEP=aRts ;;
         # Set values for alternative packages
         # X is a meta-package, thus handled in another way.
       LPRng | cups )      DEP=$PRINT_SERVER ;;
@@ -186,12 +194,11 @@ inline_doc
 
     #------------------
     echo -e "\tDEP for $PKG is $DEP" >> depure.txt
-    # Prevent circular dependencies when level 3
+    # Prevent circular dependencies
+    # If all dependencies are circular, the creation of the *.dep file
+    # must be skipped, not placed here, to avoid that the script will bomb
+    # due empty *.xinc files
     case $DEP in
-      python )
-        # cracklib-->python-->tk-->X-->linux-pam-->cracklib
-        [[ "$PKG" = "cracklib" ]] && continue
-        ;;
       jadetex | perl-* | lynx | Links | w3m )
         # Optional dependencies are runtime only
         [[ "$PKG" = "docbook-utils" ]] && continue
@@ -204,32 +211,21 @@ inline_doc
         # cyrus-sasl-->several-->cyrus-sasl
         [[ "$PKG" = "cyrus-sasl" ]] && continue
         ;;
-      doxygen )
-        # alsa-lib-->doxygen-->graphviz-->jdk-->alsa-lib
-        # Commented out due that it bomb "jdk 3" Why??
-        #[[ "$PKG" = "alsa-lib" ]] && continue
-        # libexif-->doxygen-->graphviz-->php-->libexif
-        [[ "$PKG" = "libexif" ]] && continue
-        ;;
-      qt )
-        # unixodbc-->qt-->unixodbc
-        [[ "$PKG" = "unixodbc" ]] && continue
-        ;;
       espgs )
         # sendmail-->espgs-->cups-->php-->sendmail
         [[ "$PKG" = "$MAIL_SERVER" ]] && continue
-        ;;
-      graphviz )
-        # libexif-->graphviz-->php-->libexif
-        [[ "$PKG" = "libexif" ]] && continue
         ;;
       aRts )
         # esound-->aRts-->esound
         [[ "$PKG" = "esound" ]] && continue
         ;;
-      gimp )
-        # imagemagick-->gimp-->imagemagick
+      gimp | sane )
+        # imagemagick-->{sane}-->gimp-->imagemagick
         [[ "$PKG" = "imagemagick" ]] && continue
+        ;;
+      ffmpeg )
+        # alsa-plugins-->ffmpeg-->several-->alsa-plugins
+        [[ "$PKG" = "alsa-plugins" ]] && continue
         ;;
     esac
 
@@ -239,7 +235,7 @@ inline_doc
     DEP_XML=`grep "^$DEP[[:space:]]" ../packages | cut -f2`
     echo -e "\t\tDEP_XML is $DEP_XML\n" >> depure.txt
     case $DEP in
-      x-window-system ) ;; # No page for that (proper link must be created when generating the book)
+      x-window-system | alsa ) ;; # No page for that (proper link must be created when generating the book)
       xorg7 ) ;; # This page will be dump in the xorg7.xinc file
       * )
         # Remove the Xinclude entry if found
@@ -254,9 +250,8 @@ inline_doc
     # If not already created, create its dependencies list
     if [[ ! -f dependencies/$DEP.dep ]] ; then
       case $DEP in
-        alsa-lib ) ;; # Only one optional dependency and is recursive.
-                      # When placed inside the circular dependencies handler
-                      # some packages may bomb. But I don't know yet why
+        # Skip the creation when all dependencies are circular.
+        alsa-lib | cracklib | libexif | unixodbc ) ;;
         # Meta-packages at dependency level (ugly *.dep files, but work for now)
         alsa ) # When dependency "alsa", use all alsa-* packages
           echo -e "alsa-oss\nalsa-firmware\nalsa-tools\nalsa-utils\n \
