@@ -34,7 +34,7 @@ $Id$
   supplied symlinks. After editing the config file for the project you wish
   to build, run the script.
 
-     The term <symlink> refers to the 1 of 4 package symlinks, lfs,hlfs,clfs,blfs.
+     The term <symlink> refers to the 1 of 3 package symlinks, lfs,hlfs,clfs.
      Replace <symlink> with your choice of packages; i.e.: ./lfs
 
      ./<symlink>		eg: ./lfs or ./hlfs
@@ -52,14 +52,10 @@ $Id$
 
 5. LAYOUT::
 
-        /BLFS/config
-             /master.sh
-             /xxxx.xsl
-
         /CLFS/config
              /master.sh
              /xxxx.xsl
-	      
+
         /HLFS/config
              /master.sh
              /xxxx.xsl
@@ -85,34 +81,32 @@ $Id$
          README
 	 README.PACO
 	 TODO
-	 
-	 ./blfs  ---+
+
 	 ./clfs  ---|
-	            +---> master.sh
-	 ./hlfs  ---|
-	 ./lfs   ---+
-	 
-	 
+	 ./hlfs  ---|+---> master.sh
+	 ./lfs   ---|
+
+
 6. FAQ::
     Q. "It doesn't work!"
     A. Yes it does, try ./lfs --help
-    
+
     Q. "How do I specify the build location?"
     A. The original LFS document worked against the well know location /mnt/lfs.
        This script automates the build of all of the LFS series of books and uses
        a generic location $BUILDDIR with a default value a /mnt/build_dir.
        You may change this value to suit your needs.
- 
+
        The layout below $BUILDDIR is as follows.
        $BUILDDIR/
             jhalfs      (makefile,cmd scripts,logs..etc)
 	    sources     (where packages reside)
-	    temptools   (temporary bootstrap system)
+	    tools       (temporary bootstrap system)
 	    cross-tools (temporary CLFS only)
 	        ...
 	    FHS dir structure
 	        ...
-    
+
     Q. "What is the function of the SRC_ARCHIVE variable?"
     A. When then symlinked master.sh runs it creates a local copy of the
        necessary packages in BUILDDIR/sources by downloading the files. If
@@ -120,13 +114,13 @@ $Id$
        this location for the file and, if found, will copy it to BUILDDIR/sources.
        If the files are not found in SRC_ARCHIVE _and_ you have write priv to
        the directory any downloaded files will be mirrored there.
-       
+
     Q. "How do I set the SRC_ARCHIVE location?"
     A. The best way to set the value of SRC_ARCHIVE is
        export SRC_ARCHIVE=/wherever/you/store/downloaded/packages
                        OR
-       you can change the setting in .common/config. 
-    
+       you can change the setting in .common/config.
+
     Q. "Why have 2 copies of the files?"
     A. The package files must be visible during the chroot phase and this is a
        simple and reliable method of doing so. This method also handles the CLFS
