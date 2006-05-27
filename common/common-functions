@@ -624,7 +624,8 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
             [[ "$VIMLANG" = "0" ]] && continue
           ;;
         *linux/linux-* )
-            [[ -z "$CONFIG" ]] && [[ -z "$BOOT_CONFIG" ]] && continue
+            [[ -z "$CONFIG" ]] && [[ -z "$BOOT_CONFIG" ]] && \
+            [[ "$GETKERNEL" = "0" ]] && continue
           ;;
     esac
 
