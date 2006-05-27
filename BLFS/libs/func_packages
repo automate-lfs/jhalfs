@@ -67,7 +67,7 @@ generate_gnome_core()  {   # GNOME core
     [[ -n "$package" ]] && echo $package >> gnome-core.dep.tmp
   done
 
-  tac gnome-core.dep.tmp > gnome-core.dep
+  tac gnome-core.dep.tmp > libs/gnome-core.dep
   rm gnome-core.dep.tmp
 }
 
@@ -84,7 +84,7 @@ generate_gnome_full()  {   # GNOME full
     [[ -n "$package" ]] && echo $package >> gnome-full.dep.tmp
   done
 
-  tac gnome-full.dep.tmp > gnome-full.dep
+  tac gnome-full.dep.tmp > libs/gnome-full.dep
   rm gnome-full.dep.tmp
 }
 
@@ -101,7 +101,7 @@ generate_kde_core()  {     # KDE core
     [[ -n "$package" ]] && echo $package >> kde-core.dep.tmp
   done
 
-  tac kde-core.dep.tmp > kde-core.dep
+  tac kde-core.dep.tmp > libs/kde-core.dep
   rm kde-core.dep.tmp
 }
 
@@ -124,6 +124,6 @@ generate_kde_full()  {     # KDE full
     [[ -n "$package" ]] && echo $package >> kde-full.dep.tmp
   done
 
-  tac kde-full.dep.tmp > kde-full.dep
+  tac kde-full.dep.tmp > libs/kde-full.dep
   rm kde-full.dep.tmp
 }

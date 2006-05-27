@@ -16,7 +16,7 @@ optDEPENDENCY=$2
 
 #---------------------
 # Constants
-source constants.inc
+source libs/constants.inc
 [[ $? > 0 ]] && echo -e "\n\tERROR: constants.inc did not load..\n" && exit
 
 #---------------------
@@ -26,12 +26,12 @@ source alternatives.conf
 
 #---------------------
 # Dependencies module
-source func_dependencies
+source libs/func_dependencies
 [[ $? > 0 ]] && echo -e "\n\tERROR: func_dependencies did not load..\n" && exit
 
 #---------------------
 # parser module
-source func_parser
+source libs/func_parser
 [[ $? > 0 ]] && echo -e "\n\tERROR: func_parser did not load..\n" && exit
 
 

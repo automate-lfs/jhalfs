@@ -81,7 +81,7 @@ inline_doc
     * ) # Default
       xsltproc --stringparam dependencies $DEP_LEVEL \
                -o dependencies/$TARGET.dep \
-               ../dependencies.xsl ../$PKGXML
+               ../libs/dependencies.xsl ../$PKGXML
       ;;
   esac
 
@@ -271,7 +271,7 @@ inline_doc
                    xorg7-lib\nxorg7-util\nxorg7-proto" > dependencies/$DEP.dep
           ;;
         * ) xsltproc --stringparam dependencies $DEP_LV \
-               -o dependencies/$DEP.dep ../dependencies.xsl ../$DEP_XML
+               -o dependencies/$DEP.dep ../libs/dependencies.xsl ../$DEP_XML
           ;;
       esac
     fi

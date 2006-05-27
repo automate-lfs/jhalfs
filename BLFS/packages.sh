@@ -6,7 +6,7 @@ set -e
 
 #---------------------
 # packages module
-source func_packages
+source libs/func_packages
 [[ $? > 0 ]] && echo -e "\n\tERROR: func_packages did not load..\n" && exit
 
 
