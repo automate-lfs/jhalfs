@@ -201,6 +201,7 @@ inline_doc
 
         # Orphan links (proper link must be created when generating the book)
       arts )              DEP=aRts ;;
+      kde )               DEP=kde-core ;;
         # Set values for alternative packages
         # X is a meta-package, thus handled in another way.
       LPRng | cups )      DEP=$PRINT_SERVER ;;
@@ -278,6 +279,9 @@ inline_doc
         alsa ) # When dependency "alsa", use all alsa-* packages
           echo -e "alsa-oss\nalsa-firmware\nalsa-tools\nalsa-utils\n \
                    alsa-plugins\nalsa-lib" > dependencies/alsa.dep
+          ;;
+        kde-core )
+          cp ../libs/kde-core.dep dependencies/
           ;;
         x-window-system ) # X11 alternatives
           echo -e "x-config\nx-setup\n$X11" > dependencies/x-window-system.dep
