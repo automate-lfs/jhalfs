@@ -131,7 +131,7 @@ cross_tools_Makefiles() {     #
     #
     # If $vrs isn't empty, we've got a package...
     #
-    [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*"
+    [[ "$vrs" != "" ]] && wrt_remove_build_dirs "${name}" && wrt_unpack "$name-$vrs.tar.*"
     #
     wrt_run_as_su "${this_script}" "${file}"
     #
@@ -183,7 +183,7 @@ temptools_Makefiles() {       #
     # If $vrs isn't empty, we've got a package...
     # Insert instructions for unpacking the package and to set the PKGDIR variable.
     #
-    [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*"
+    [[ "$vrs" != "" ]] && wrt_remove_build_dirs "${name}" && wrt_unpack "$name-$vrs.tar.*"
     [[ "$vrs" != "" ]] && [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     #
     wrt_run_as_su "${this_script}" "${file}"
@@ -255,7 +255,7 @@ boot_Makefiles() {            #
     # If $vrs isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     #
-    [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*"
+    [[ "$vrs" != "" ]] && wrt_remove_build_dirs "${name}" && wrt_unpack "$name-$vrs.tar.*"
     [[ "$vrs" != "" ]] && [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     #
     # Select a script execution method
@@ -324,8 +324,8 @@ chroot_Makefiles() {          #
     #
     if [ "$vrs" != "" ] ; then
       case $this_script in
-        *util-linux)    wrt_unpack  "$name-$vrs.tar.*"  ;;
-        *)              wrt_unpack2 "$name-$vrs.tar.*"  ;;
+        *util-linux)    wrt_remove_build_dirs "${name}" && wrt_unpack  "$name-$vrs.tar.*"  ;;
+        *)              wrt_remove_build_dirs "${name}" && wrt_unpack2 "$name-$vrs.tar.*"  ;;
       esac
       [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
@@ -385,8 +385,8 @@ testsuite_tools_Makefiles() { #
     wrt_target "${this_script}" "$PREV"
     #
     case $name in
-      tcl)    wrt_unpack2 "$name$vrs-src.tar.*" ;;
-      *)      wrt_unpack2 "$name-$vrs.tar.*"    ;;
+      tcl)    wrt_remove_build_dirs "${name}" && wrt_unpack2 "$name$vrs-src.tar.*" ;;
+      *)      wrt_remove_build_dirs "${name}" && wrt_unpack2 "$name-$vrs.tar.*"    ;;
     esac
     [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     #
@@ -440,8 +440,8 @@ bm_testsuite_tools_Makefiles() { #
     wrt_target "${this_script}" "$PREV"
     #
     case $name in
-      tcl)    wrt_unpack3 "$name$vrs-src.tar.*" ;;
-      *)      wrt_unpack3 "$name-$vrs.tar.*"    ;;
+      tcl)    wrt_remove_build_dirs2 "${name}" && wrt_unpack3 "$name$vrs-src.tar.*" ;;
+      *)      wrt_remove_build_dirs2 "${name}" && wrt_unpack3 "$name-$vrs.tar.*"    ;;
     esac
     [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     #
@@ -541,6 +541,7 @@ final_system_Makefiles() {    #
     # If $vrs isn't empty, we've got a package...
     if [ "$vrs" != "" ] ; then
       FILE="$name-$vrs.tar.*"
+      wrt_remove_build_dirs "${name}"
       wrt_unpack2 "$FILE"
       [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
@@ -644,6 +645,7 @@ bm_final_system_Makefiles() { #
     # If $vrs isn't empty, we've got a package...
     if [ "$vrs" != "" ] ; then
       FILE="$name-$vrs.tar.*"
+      wrt_remove_build_dirs2 "${name}"
       wrt_unpack3 "$FILE"
       [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
@@ -708,7 +710,7 @@ bootscripts_Makefiles() {     #
     #
     # If $vrs isn't empty, we've got a package...
     #
-    [[ "$vrs" != "" ]] && wrt_unpack2 "$name-$vrs.tar.*"
+    [[ "$vrs" != "" ]] && wrt_remove_build_dirs "${name}" && wrt_unpack2 "$name-$vrs.tar.*"
     #
     wrt_run_as_chroot1 "${this_script}" "${file}"
     #
@@ -769,7 +771,7 @@ bm_bootscripts_Makefiles() {  #
     #
     # If $vrs isn't empty, we've got a package...
     #
-    [[ "$vrs" != "" ]] && wrt_unpack3 "$name-$vrs.tar.*"
+    [[ "$vrs" != "" ]] && wrt_remove_build_dirs2 "${name}" && wrt_unpack3 "$name-$vrs.tar.*"
     #
     wrt_run_as_root2 "${this_script}" "${file}"
     #
@@ -833,7 +835,7 @@ bootable_Makefiles() {        #
     # If $vrs isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     #
-    [[ "$vrs" != "" ]] && wrt_unpack2 "$name-$vrs.tar.*"
+    [[ "$vrs" != "" ]] && wrt_remove_build_dirs "${name}" && wrt_unpack2 "$name-$vrs.tar.*"
     #
     # Select a script execution method
     case $this_script in
@@ -911,7 +913,7 @@ bm_bootable_Makefiles() {     #
     # If $vrs isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     #
-    [[ "$vrs" != "" ]] && wrt_unpack3 "$name-$vrs.tar.*"
+    [[ "$vrs" != "" ]] && wrt_remove_build_dirs2 "${name}" && wrt_unpack3 "$name-$vrs.tar.*"
     #
     # Select a script execution method
     case $this_script in

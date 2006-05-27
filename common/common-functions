@@ -211,6 +211,7 @@ EOF
 wrt_unpack() {                     # Unpack and set 'ROOT' var
 #----------------------------------#
   local FILE=$1
+  local file=$2
 (
 cat << EOF
 	@\$(call unpack,$FILE)
@@ -363,9 +364,11 @@ wrt_remove_build_dirs() {          #
   local name=$1
 (
 cat << EOF
-	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
-	rm -r \$(MOUNT_PT)\$(SRC)/\$\$ROOT && \\
-	if [ -e \$(MOUNT_PT)\$(SRC)/$name-build ]; then \\
+	@if [ -f /tmp/unpacked ] ; then \\
+	 	ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
+	 	if [ "x" != "x\$\$ROOT" ] ; then rm -r \$(MOUNT_PT)\$(SRC)/\$\$ROOT; fi; \\
+	fi;
+	@if [ -e \$(MOUNT_PT)\$(SRC)/$name-build ]; then \\
 		rm -r \$(MOUNT_PT)\$(SRC)/$name-build; \\
 	fi;
 EOF
@@ -379,9 +382,11 @@ wrt_remove_build_dirs2() {         #
   local name=$1
 (
 cat << EOF
-	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
-	rm -r \$(SRC)/\$\$ROOT && \\
-	if [ -e \$(SRC)/$name-build ]; then \\
+	@if [ -f /tmp/unpacked ] ; then \\
+		ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
+		if [ "x" != "x\$\$ROOT" ] ; then rm -r \$(SRC)/\$\$ROOT; fi; \\
+	fi;
+	@if [ -e \$(SRC)/$name-build ]; then \\
 		rm -r \$(SRC)/$name-build; \\
 	fi;
 EOF

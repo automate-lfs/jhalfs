@@ -109,7 +109,10 @@ chapter5_Makefiles() {
       else
         FILE="$name-$vrs.tar.*"
       fi
-
+      # Always remove possibly exiting unpacked source directories before beginning
+      # to build. This prevent build failures from fogetting to manually remove
+      # directories from previous runs of jhalfs.
+      wrt_remove_build_dirs "$name"
       # Insert instructions for unpacking the package and to set the PKGDIR variable.
       wrt_unpack "$FILE"
       [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
@@ -215,6 +218,10 @@ chapter6_Makefiles() {
     # Insert instructions for unpacking the package and changing directories
     if [ "$vrs" != "" ] ; then
       FILE="$name-$vrs.tar.*"
+      # Always remove possibly exiting unpacked source directories before beginning
+      # to build. This prevent build failures from fogetting to manually remove
+      # directories from previous runs of jhalfs.
+      wrt_remove_build_dirs "$name"
       wrt_unpack2 "$FILE"
       [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
@@ -442,6 +449,7 @@ do_housekeeping:
 		userdel lfs; \\
 		rm -rf /home/lfs; \\
 	fi;
+	-rm -f /tmp/unpacked
 	
 EOF
 ) >> $MKFILE
