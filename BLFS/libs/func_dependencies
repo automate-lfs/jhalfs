@@ -62,23 +62,40 @@ inline_doc
 
   echo -en "\tGenerating $TARGET dependencies tree ..."
 
+  mkdir dependencies
+
   #---------------------
   # Create target package dependencies list
   case $TARGET in
     # Skip the creation when all dependencies are circular.
     alsa-lib | cracklib | libexif | unixodbc ) ;;
+
     # Meta-packages at target level
     # KDE and Gnome-{core,full} could be made via packages.sh, but not sure yet how.
-    alsa ) # When target "alsa", use all alsa-* packages
-      mkdir dependencies
+    alsa )
       echo -e "alsa-oss\nalsa-firmware\nalsa-tools\nalsa-utils\n \
-               alsa-plugins\nalsa-lib" > dependencies/$TARGET.dep
+               alsa-plugins\nalsa-lib" > dependencies/alsa.dep
+      ;;
+    gnome-core )
+      cp ../libs/gnome-core.dep dependencies/
+      ;;
+    gnome-full )
+      cp ../libs/gnome-{core,full}.dep dependencies/
+      ;;
+    kde-core )
+      cp ../libs/kde-core.dep dependencies/
+      ;;
+    kde-full )
+      cp ../libs/kde-{core,full}.dep dependencies/
+      ;;
+    kde-koffice )
+      cp ../libs/kde-{core,full}.dep dependencies/
+      echo -e "koffice\nkde-full\nkde-core" > dependencies/kde-koffice.dep
       ;;
     xorg7 ) # At atarget level, add also x-config and x-setup
-      mkdir dependencies
       echo -e "x-config\nx-setup\nrman\nxterm2\nxorg7-driver\nxorg7-server\nluit\n \
                xorg7-font\nxorg7-data\nxorg7-app\nxbitmaps\nmesalib\nlibdrm\n \
-               xorg7-lib\nxorg7-util\nxorg7-proto" > dependencies/$TARGET.dep
+               xorg7-lib\nxorg7-util\nxorg7-proto" > dependencies/xorg7.dep
       ;;
     * ) # Default
       xsltproc --stringparam dependencies $DEP_LEVEL \
@@ -95,7 +112,7 @@ inline_doc
   # Write the XInclude
   case $TARGET in
     # If there is no usefull XML page, skip it.
-    alsa | arts | gnome-core | gnome-full | kde-core | kde-full | kde-koffice ) ;;
+    alsa | gnome-core | gnome-full | kde-core | kde-full | kde-koffice ) ;;
     * )
       echo -e "    $ENTRY_START$PKGXML$ENTRY_END" >> $TARGET-index.xml.tmp
       ;;
@@ -178,7 +195,7 @@ inline_doc
 
       db ) # The proper version of DB is installed in LFS
         continue ;;
-      hal-requirements ) # ID value don't have their own XML package file
+      hal-requirements | hal-runtime-dependencies ) # Don't have their own XML file
         continue ;;
       perl-* | tk-perl )  DEP=perl-modules ;;
 
@@ -227,6 +244,10 @@ inline_doc
         # alsa-plugins-->ffmpeg-->several-->alsa-plugins
         [[ "$PKG" = "alsa-plugins" ]] && continue
         ;;
+      akode )
+        # Both are in the same page
+        [[ "$PKG" = "kdemultimedia" ]] && continue
+        ;;
     esac
 
     #------------------
@@ -237,6 +258,7 @@ inline_doc
     case $DEP in
       x-window-system | alsa ) ;; # No page for that (proper link must be created when generating the book)
       xorg7 ) ;; # This page will be dump in the xorg7.xinc file
+      gnome-core | kde-core | kde-full ) ;; # Invented packages
       * )
         # Remove the Xinclude entry if found
         sed -e "s,^[[:space:]]*$ENTRY_START$DEP_XML$ENTRY_END,," \
@@ -255,15 +277,15 @@ inline_doc
         # Meta-packages at dependency level (ugly *.dep files, but work for now)
         alsa ) # When dependency "alsa", use all alsa-* packages
           echo -e "alsa-oss\nalsa-firmware\nalsa-tools\nalsa-utils\n \
-                   alsa-plugins\nalsa-lib" > dependencies/$DEP.dep
+                   alsa-plugins\nalsa-lib" > dependencies/alsa.dep
           ;;
         x-window-system ) # X11 alternatives
-          echo -e "x-config\nx-setup\n$X11" > dependencies/$DEP.dep
+          echo -e "x-config\nx-setup\n$X11" > dependencies/x-window-system.dep
           ;;
         xorg7 )
           echo -e "rman\nxterm2\nxorg7-driver\nxorg7-server\nluit\nxorg7-font\n \
                    xorg7-data\nxorg7-app\nxbitmaps\nmesalib\nlibdrm\n \
-                   xorg7-lib\nxorg7-util\nxorg7-proto" > dependencies/$DEP.dep
+                   xorg7-lib\nxorg7-util\nxorg7-proto" > dependencies/xorg7.dep
           ;;
         * ) xsltproc --stringparam dependencies $DEP_LV \
                -o dependencies/$DEP.dep ../libs/dependencies.xsl ../$DEP_XML
