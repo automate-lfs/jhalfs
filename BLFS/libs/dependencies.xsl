@@ -19,14 +19,14 @@
 
   <xsl:template match="para[@role='required']">
     <xsl:apply-templates select="xref">
-      <xsl:sort select="position()" order="descending"/>
+      <xsl:sort select="position()" data-type="number" order="descending"/>
     </xsl:apply-templates>
   </xsl:template>
 
   <xsl:template match="para[@role='recommended']">
     <xsl:if test="$dependencies != '1'">
       <xsl:apply-templates select="xref">
-        <xsl:sort select="position()" order="descending"/>
+        <xsl:sort select="position()" data-type="number" order="descending"/>
       </xsl:apply-templates>
     </xsl:if>
   </xsl:template>
@@ -34,7 +34,7 @@
   <xsl:template match="para[@role='optional']">
     <xsl:if test="$dependencies = '3'">
       <xsl:apply-templates select="xref">
-        <xsl:sort select="position()" order="descending"/>
+        <xsl:sort select="position()" data-type="number" order="descending"/>
       </xsl:apply-templates>
     </xsl:if>
   </xsl:template>
