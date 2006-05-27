@@ -54,3 +54,16 @@ echo "done."
 echo -en "\tGenerating gnome-core dependencies list ..."
 generate_gnome_core
 echo "done."
+
+echo -en "\tGenerating gnome-full dependencies list ..."
+generate_gnome_full
+echo "done."
+
+echo -en "\tGenerating kde-core dependencies list ..."
+generate_kde_core
+echo "done."
+
+echo -en "\tGenerating kde-full dependencies list ..."
+generate_kde_full
+echo -e "done.\n"
+

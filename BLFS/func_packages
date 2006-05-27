@@ -36,9 +36,9 @@ gnome-full	$BLFS_XML
 # KDE base packages
 kde-core	$BLFS_XML
 # All KDE packages
-kde	$BLFS_XML
-# All KDE packages plus Koffice
 kde-full	$BLFS_XML
+# All KDE packages plus Koffice
+kde-koffice	$BLFS_XML
 
 === INDIVIDUAL PACKAGES ===
 
@@ -71,3 +71,59 @@ generate_gnome_core()  {   # GNOME core
   rm gnome-core.dep.tmp
 }
 
+#--------------------------#
+generate_gnome_full()  {   # GNOME full
+#--------------------------#
+  local line base_xml package
+
+  echo "gnome-core" > gnome-full.dep.tmp
+
+  for line in `grep "xi:include" $BLFS_XML/gnome/add/add.xml` ; do
+    base_xml=`echo $line | sed 's/^.*href="//;s/".*//'`
+    package=`grep "gnome/add/$base_xml" packages | cut -f1`
+    [[ -n "$package" ]] && echo $package >> gnome-full.dep.tmp
+  done
+
+  tac gnome-full.dep.tmp > gnome-full.dep
+  rm gnome-full.dep.tmp
+}
+
+#--------------------------#
+generate_kde_core()  {     # KDE core
+#--------------------------#
+  local line base_xml package
+
+  > kde-core.dep.tmp
+
+  for line in `grep "xi:include" $BLFS_XML/kde/core/core.xml` ; do
+    base_xml=`echo $line | sed 's/^.*href="//;s/".*//'`
+    package=`grep "kde/core/$base_xml" packages | cut -f1`
+    [[ -n "$package" ]] && echo $package >> kde-core.dep.tmp
+  done
+
+  tac kde-core.dep.tmp > kde-core.dep
+  rm kde-core.dep.tmp
+}
+
+#--------------------------#
+generate_kde_full()  {     # KDE full
+#--------------------------#
+  local line base_xml package
+
+  echo "kde-core" > kde-full.dep.tmp
+
+  for line in `grep "xi:include" $BLFS_XML/kde/add/add.xml` ; do
+    base_xml=`echo $line | sed 's/^.*href="//;s/".*//'`
+    package=`grep "kde/add/$base_xml" packages | cut -f1`
+    [[ -n "$package" ]] && echo $package >> kde-full.dep.tmp
+  done
+
+  for line in `grep "xi:include" $BLFS_XML/kde/devel/devel.xml` ; do
+    base_xml=`echo $line | sed 's/^.*href="//;s/".*//'`
+    package=`grep "kde/devel/$base_xml" packages | cut -f1`
+    [[ -n "$package" ]] && echo $package >> kde-full.dep.tmp
+  done
+
+  tac kde-full.dep.tmp > kde-full.dep
+  rm kde-full.dep.tmp
+}
