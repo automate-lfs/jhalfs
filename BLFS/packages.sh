@@ -4,6 +4,9 @@
 #
 set -e
 
+BLFS_XML=$1  # Book directory
+DOC_MODE=$2  # Action to take, only update at the moment
+
 #---------------------
 # packages module
 source libs/func_packages
@@ -11,11 +14,9 @@ source libs/func_packages
 
 
 if [[ -z "$1" ]] ; then
-  echo -e "n\tYou must to provide the name of the BLFS book sources directory.\n"
+  echo -e "\n\tYou must to provide the name of the BLFS book sources directory.\n"
   exit 1
 fi
-
-BLFS_XML=$1
 
 if [[ ! -d $BLFS_XML ]] ; then
   echo -e "\n\t$BLFS_XML is not a directory\n"
@@ -27,8 +28,8 @@ if [[ ! -f $BLFS_XML/use-unzip.xml ]] ; then
   exit 1
 fi
 
-if [[ -n "$2" ]] ; then
-  case $2 in
+if [[ -n "$DOC_MODE" ]] ; then
+  case $DOC_MODE in
     update )
       if [[ -d $BLFS_XML/.svn ]] ; then
       echo -e "\n\tUpdating the $BLFS_XML book sources ...\n"
@@ -42,7 +43,7 @@ if [[ -n "$2" ]] ; then
       fi
       ;;
     * )
-      echo -e "\n\tUnknown option $2 ignored.\n"
+      echo -e "\n\tUnknown option ${DOC_MODE} ignored.\n"
       ;;
   esac
 fi
