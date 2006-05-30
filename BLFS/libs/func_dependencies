@@ -322,9 +322,11 @@ inline_doc
 	# However, uncontrolled recursion will cause a seg-fault due to stack issues with local variables.
 	#
         set +e
+[[ "${VERBOSITY}" > 0 ]] && echo -ne "\n ${spaceSTR:0:$cntr}>push ${DEP}.xinc" >>call_stack
          [[ "${VERBOSITY}" > 0 ]] && echo -ne "\nrecursive call: $((++cntr)) ${spaceSTR:0:$cntr} ${RED}$DEP${OFF}"
             do_dependencies $DEP
-         [[ "${VERBOSITY}" > 0 ]] && echo -ne  "\nrecursive ret:  $cntr ${spaceSTR:0:$((cntr--))} ${GREEN}$DEP${OFF}\tUsing the new xinclude file for PKG $DEP (to solve $PKG)"
+[[ "${VERBOSITY}" > 0 ]] && echo -ne  "\n${spaceSTR:0:$((cntr))}<pop  ${DEP}.xinc for pkg $PKG call build routine" >>call_stack
+         [[ "${VERBOSITY}" > 0 ]] && echo -ne  "\n          ret:  $cntr ${spaceSTR:0:$((cntr--))} ${GREEN}$DEP${OFF}\tUsing the new xinclude file for PKG $DEP (to solve $PKG)"
         set -e
 
         # Include it when done
