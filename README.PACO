@@ -42,7 +42,7 @@ http://www.linuxfromscratch.org/lfs and start from there.
    (Only ./lfs ./hlfs --model glibc, and ./blfs if you want to use paco)
 
 4. Download the paco source package to the $BUILDDIR/sources dir.
-   paco-1.10.7 or later is recommended.
+   paco-1.10.8 or later is recommended.
    If using a newer paco version, remember to update also the
    PACO_VERSION variable.
 

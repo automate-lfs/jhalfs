@@ -1,6 +1,6 @@
 Index: LFS/master.sh
 ===================================================================
---- LFS/master.sh	(revision 2727)
+--- LFS/master.sh	(revision 2734)
 +++ LFS/master.sh	(working copy)
 @@ -173,6 +173,11 @@
      # Keep the script file name
@@ -61,9 +61,11 @@ Index: LFS/master.sh
    done # end for file in chapter06/*
  }
  
-@@ -304,6 +333,14 @@
+@@ -303,8 +332,18 @@
+               else
                  wrt_run_as_chroot2 "$this_script" "$file"
                fi
++              wrt_paco_log "lfs-sysconf"
          ;;
 +      *kernel)       wrt_paco_prep
 +                     wrt_run_as_chroot2 "$this_script" "$file"
@@ -74,11 +76,13 @@ Index: LFS/master.sh
 +                     wrt_paco_log "lfs-bootscripts" "$vrs"
 +        ;;
        *)        wrt_run_as_chroot2 "$this_script" "$file"
++                wrt_paco_log "lfs-sysconf"
          ;;
      esac
+ 
 Index: LFS/lfs.xsl
 ===================================================================
---- LFS/lfs.xsl	(revision 2727)
+--- LFS/lfs.xsl	(revision 2734)
 +++ LFS/lfs.xsl	(working copy)
 @@ -32,6 +32,9 @@
    <!-- Locale settings -->
@@ -128,21 +132,22 @@ Index: common/paco-build-hlfs.sh
 ===================================================================
 --- common/paco-build-hlfs.sh	(revision 0)
 +++ common/paco-build-hlfs.sh	(revision 0)
-@@ -0,0 +1,11 @@
+@@ -0,0 +1,12 @@
 +#!/bin/sh
 +set -e
 +
 +cd $PKGDIR
-+./configure --with-pic \
-+	--disable-static \
++./configure --sysconfdir=/etc \
++	--enable-scripts \
 +	--disable-gpaco \
-+	--sysconfdir=/etc &&
++	--disable-static \
++	--with-pic &&
 +make &&
 +make install &&
 +make logme
 Index: common/config
 ===================================================================
---- common/config	(revision 2727)
+--- common/config	(revision 2734)
 +++ common/config	(working copy)
 @@ -84,6 +84,14 @@
  #--- Run farce testing 0(no)/1(yes)
@@ -151,7 +156,7 @@ Index: common/config
 +#==== PACO VARIABLES ====
 +#--- Use paco? 0(no)/1(yes)
 +USE_PACO=1
-+PACO_VERSION=1.10.7
++PACO_VERSION=1.10.8
 +
 +#--- Name of the Paco source package
 +PACO_FILE=paco-$PACO_VERSION.tar.*
@@ -166,12 +171,12 @@ Index: common/config
 +
 +#--- Variables needed by paco
 +PACO_INCLUDE=/
-+PACO_EXCLUDE=/sys:/dev:/proc:/tmp:/usr/src:/usr/share/info/dir:/jhalfs
++PACO_EXCLUDE=/jhalfs
 +PACO_TMPFILE=/tmp/paco.tmp
 +LD_PRELOAD=/usr/lib/libpaco-log.so
 Index: common/func_validate_configs.sh
 ===================================================================
---- common/func_validate_configs.sh	(revision 2727)
+--- common/func_validate_configs.sh	(revision 2734)
 +++ common/func_validate_configs.sh	(working copy)
 @@ -84,9 +84,9 @@
  inline_doc
@@ -198,9 +203,8 @@ Index: common/paco-functions
 ===================================================================
 --- common/paco-functions	(revision 0)
 +++ common/paco-functions	(revision 0)
-@@ -0,0 +1,105 @@
+@@ -0,0 +1,211 @@
 +#!/bin/bash
-+
 +
 +#----------------------------#
 +wrt_paco_inst() {            #
@@ -250,11 +254,13 @@ Index: common/paco-functions
 +  fi
 +fi
 +
-+if [ $USE_PACO != 0 ] && [ "$vrs" != "" ]; then
++check_log_package
++
++if [ $USE_PACO != 0 ] && [ $LOG_PACKAGE != 0 ]; then
 +(
 +cat  << EOF
 +	@echo "export PACO_INCLUDE=$PACO_INCLUDE" >> envars && \\
-+	echo "export PACO_EXCLUDE=\$(SRC):$JHALFSDIR:$PACO_EXCLUDE" >> envars && \\
++	echo "export PACO_EXCLUDE=\$(SRC):$PACO_EXCLUDE" >> envars && \\
 +	echo "export PACO_TMPFILE=$PACO_TMPFILE" >> envars && \\
 +	rm -f \$(MOUNT_PT)$PACO_TMPFILE
 +EOF
@@ -282,7 +288,10 @@ Index: common/paco-functions
 +  fi
 +fi
 +
-+if [ $USE_PACO != 0 ] && [ "$vrs" != "" ]; then
++check_log_package
++
++if [ $USE_PACO != 0 ]; then
++  if [ $LOG_PACKAGE != 0 ]; then
 +(
 +cat << EOF
 +	@if [ -e \$(MOUNT_PT)$PACO_TMPFILE ]; then \\
@@ -291,36 +300,139 @@ Index: common/paco-functions
 +	fi;
 +EOF
 +) >> $MKFILE.tmp
++  fi
++  wrt_paco_add_log
 +fi
++}
 +
-+# Glibc uses 'sln' to install symlinks in /lib
-+# add these to the log since paco can't track statically linked executables
-+# Glibc is the first package to install into /lib, so a simple 'find' will suffice
-+if [ $USE_PACO != 0 ] && [ "$name" = "glibc" ]; then
-+(
-+cat << EOF
-+	@\$(CHROOT1) 'find /lib -type l | paco -lp+ $PACKAGE'
-+EOF
-+) >> $MKFILE.tmp
++
++#----------------------------------#
++wrt_paco_add_log() {               #
++#----------------------------------#
++# Some packages create files using bash redirection, which the LD_PRELOAD lib don't notice
++# These rules will add the missing files to the proper logs.
++# Most of these is not needed for HLFS, but they do no harm.
++if [ $USE_PACO != 0 ]; then
++  case $this_script in
++    *glibc)
++      echo -e "\t@\$(CHROOT1) 'find /lib -type l | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      echo -e "\t@\$(CHROOT1) 'find /etc/{nsswitch.conf,ld.so.conf} | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++    ;;
++    *ncurses)
++      LIBS="/usr/lib/{libcurses.so,libncurses.so,libform.so,libpanel.so,libmenu.so}"
++      echo -e "\t@\$(CHROOT1) 'find $LIBS | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++    ;;
++    *bash)
++      echo -e "\t@\$(CHROOT1) 'echo /bin/sh | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++    ;;
++    *flex)
++      echo -e "\t@\$(CHROOT1) 'echo /usr/bin/lex | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++    ;;
++    *shadow)
++      echo -e "\t@\$(CHROOT1) 'echo /etc/login.defs | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++    ;;
++    *hotplug)
++      echo -e "\t@\$(CHROOT1) 'echo /var/log/hotplug | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      echo -e "\t@\$(CHROOT1) 'echo /var/run/usb | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++    ;;
++    *sysklogd)
++      echo -e "\t@\$(CHROOT1) 'echo /etc/syslog.conf | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++    ;;
++    *sysvinit)
++      echo -e "\t@\$(CHROOT1) 'echo /etc/inittab | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++    ;;
++    *udev)
++      echo -e "\t@\$(CHROOT1) 'find /lib/udev/devices | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      echo -e "\t@\$(CHROOT1) 'echo /lib/firmware | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      echo -e "\t@\$(CHROOT1) 'find /etc/udev/rules.d -type f | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++    ;;
++    *util-linux)
++      echo -e "\t@\$(CHROOT1) 'echo /var/lib/hwclock | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      echo -e "\t@\$(CHROOT1) 'echo /etc/nologin.txt | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++    ;;
++    *vim)
++      echo -e "\t@\$(CHROOT1) 'echo /etc/vimrc | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++    ;;
++    # Rules below here will log configuration files created in LFS and HLFS
++    # They will end up in a log named {h}lfs-sysconf
++    *setclock)
++      echo -e "\t@\$(CHROOT2) 'echo /etc/sysconfig/clock | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++    ;;
++    *inputrc)
++      echo -e "\t@\$(CHROOT2) 'echo /etc/inputrc | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++    ;;
++    *profile)
++      echo -e "\t@\$(CHROOT2) 'echo /etc/profile | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++    ;;
++    *hostname)
++      echo -e "\t@\$(CHROOT2) 'echo /etc/sysconfig/network | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++    ;;
++    *localnet)
++      echo -e "\t@\$(CHROOT2) 'echo /etc/sysconfig/network | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++    ;;
++    *hosts)
++      echo -e "\t@\$(CHROOT2) 'echo /etc/hosts | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++    ;;
++    *network)
++      echo -e "\t@\$(CHROOT2) 'echo /etc/sysconfig/network-devices/ifconfig.eth0/ipv4 | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      echo -e "\t@\$(CHROOT2) 'echo /etc/resolv.conf | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++    ;;
++    *fstab)
++      echo -e "\t@\$(CHROOT2) 'echo /etc/fstab | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++    ;;
++    *theend) # LFS
++      echo -e "\t@\$(CHROOT2) 'echo /etc/$PROGNAME-release | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++    ;;
++    *finished) # HLFS
++      echo -e "\t@\$(CHROOT2) 'echo /etc/$PROGNAME-release | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++    ;;
++  esac
 +fi
++}
++
++
++#----------------------------------#
++check_log_package() {              #
++#----------------------------------#
++# Maybe don't need this function, but it will avoid writing some
++# unnecessary paco commands in the Makefile.
++
++case $this_script in
++  *creatingdirs)    LOG_PACKAGE=0 ;;
++  *createfiles)     LOG_PACKAGE=0 ;;
++  *strippingagain)  LOG_PACKAGE=0 ;;
++  *readjusting)     LOG_PACKAGE=0 ;;
++  *setclock)        LOG_PACKAGE=0 ;;
++  *inputrc)         LOG_PACKAGE=0 ;;
++  *profile)         LOG_PACKAGE=0 ;;
++  *hostname)        LOG_PACKAGE=0 ;;
++  *localnet)        LOG_PACKAGE=0 ;;
++  *hosts)           LOG_PACKAGE=0 ;;
++  *network)         LOG_PACKAGE=0 ;;
++  *fstab)           LOG_PACKAGE=0 ;;
++  *theend)          LOG_PACKAGE=0 ;;
++  *finished)        LOG_PACKAGE=0 ;;
++  *)                LOG_PACKAGE=1 ;;
++esac
 +}
 Index: common/paco-build-lfs.sh
 ===================================================================
 --- common/paco-build-lfs.sh	(revision 0)
 +++ common/paco-build-lfs.sh	(revision 0)
-@@ -0,0 +1,9 @@
+@@ -0,0 +1,10 @@
 +#!/bin/sh
 +set -e
 +
 +cd $PKGDIR
-+./configure --disable-gpaco \
-+	--sysconfdir=/etc &&
++./configure --sysconfdir=/etc \
++	--enable-scripts \
++	--disable-gpaco &&
 +make &&
 +make install &&
 +make logme
 Index: common/common-functions
 ===================================================================
---- common/common-functions	(revision 2727)
+--- common/common-functions	(revision 2734)
 +++ common/common-functions	(working copy)
 @@ -65,6 +65,9 @@
          in the configuration file has the proper packages and patches for the
@@ -332,7 +444,7 @@ Index: common/common-functions
  ${BOLD}  -O, --optimize${OFF}
          Optimize [0-2]
            0 = no optimization
-@@ -556,6 +559,7 @@
+@@ -557,6 +560,7 @@
                   --stringparam lc_all $LC_ALL \
                   --stringparam keymap $KEYMAP \
                   --stringparam grsecurity_host $GRSECURITY_HOST \
@@ -340,7 +452,7 @@ Index: common/common-functions
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
        ;;
      lfs)
-@@ -567,6 +571,7 @@
+@@ -568,6 +572,7 @@
                   --stringparam timezone $TIMEZONE \
                   --stringparam page $PAGE \
                   --stringparam lang $LANG \
@@ -350,7 +462,7 @@ Index: common/common-functions
      *) exit 1 ;;
 Index: HLFS/hlfs.xsl
 ===================================================================
---- HLFS/hlfs.xsl	(revision 2727)
+--- HLFS/hlfs.xsl	(revision 2734)
 +++ HLFS/hlfs.xsl	(working copy)
 @@ -39,6 +39,9 @@
    <xsl:param name="lang" select="en_CA"/>
@@ -401,7 +513,7 @@ Index: HLFS/hlfs.xsl
          <xsl:apply-templates/>
 Index: HLFS/master.sh
 ===================================================================
---- HLFS/master.sh	(revision 2727)
+--- HLFS/master.sh	(revision 2734)
 +++ HLFS/master.sh	(working copy)
 @@ -245,6 +245,11 @@
      # Keep the script file name
@@ -461,9 +573,11 @@ Index: HLFS/master.sh
    done # end for file in chapter06/*
  
  }
-@@ -419,6 +448,15 @@
+@@ -418,9 +447,20 @@
+         else  # Initialize the log and run the script
            wrt_run_as_chroot2 "${this_script}" "${file}"
          fi
++        wrt_paco_log "hlfs-sysconf"
          ;;
 +      *kernel)       wrt_paco_prep
 +                     wrt_run_as_chroot2 "$this_script" "$file"
@@ -476,10 +590,13 @@ Index: HLFS/master.sh
 +        ;;
        *)  # All other scripts
          wrt_run_as_chroot2 "${this_script}" "${file}"
++        wrt_paco_log "hlfs-sysconf"
          ;;
+     esac
+ 
 Index: master.sh
 ===================================================================
---- master.sh	(revision 2727)
+--- master.sh	(revision 2734)
 +++ master.sh	(working copy)
 @@ -147,6 +147,8 @@
  
@@ -505,15 +622,13 @@ Index: master.sh
  # optimize module
  if [[ "$OPTIMIZE" != "0" ]]; then
    [[ $VERBOSITY > 0 ]] && echo -n "Loading optimization module..."
-@@ -482,7 +492,11 @@
+@@ -482,6 +492,9 @@
  #
  if [[ "$PWD" != "$JHALFSDIR" ]]; then
-   cp $COMMON_DIR/makefile-functions $JHALFSDIR/
+   cp $COMMON_DIR/{makefile-functions,progress_bar.sh} $JHALFSDIR/
 +  #
 +  [[ $USE_PACO != "0" ]] && cp $COMMON_DIR/paco-build-$PROGNAME.sh $JHALFSDIR/
 +  #
    [[ "$OPTIMIZE" != "0" ]] && cp optimize/opt_override $JHALFSDIR/
-+  #
    if [[ "$COMPARE" != "0" ]] ; then
      mkdir -p $JHALFSDIR/extras
-     cp extras/* $JHALFSDIR/extras
