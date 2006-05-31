@@ -481,7 +481,7 @@ fi
 #
 #
 if [[ "$PWD" != "$JHALFSDIR" ]]; then
-  cp $COMMON_DIR/makefile-functions $JHALFSDIR/
+  cp $COMMON_DIR/{makefile-functions,progress_bar.sh} $JHALFSDIR/
   [[ "$OPTIMIZE" != "0" ]] && cp optimize/opt_override $JHALFSDIR/
   if [[ "$COMPARE" != "0" ]] ; then
     mkdir -p $JHALFSDIR/extras

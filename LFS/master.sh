@@ -355,6 +355,7 @@ $HEADER
 
 SRC= /sources
 MOUNT_PT= $BUILDDIR
+MAKE_PID=\`pidof make | cut -d " " -f1\`
 
 include makefile-functions
 
@@ -431,7 +432,7 @@ restore-lfs-env:
 	fi;
 	@chown lfs:lfs /home/lfs/.bash* && \\
 	touch \$@
-	
+
 do_housekeeping:
 	-umount \$(MOUNT_PT)/sys
 	-umount \$(MOUNT_PT)/proc
@@ -442,7 +443,7 @@ do_housekeeping:
 		userdel lfs; \\
 		rm -rf /home/lfs; \\
 	fi;
-	
+
 EOF
 ) >> $MKFILE
 
