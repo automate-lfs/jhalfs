@@ -1,6 +1,6 @@
 Index: LFS/master.sh
 ===================================================================
---- LFS/master.sh	(revision 2734)
+--- LFS/master.sh	(revision 2743)
 +++ LFS/master.sh	(working copy)
 @@ -173,6 +173,11 @@
      # Keep the script file name
@@ -82,7 +82,7 @@ Index: LFS/master.sh
  
 Index: LFS/lfs.xsl
 ===================================================================
---- LFS/lfs.xsl	(revision 2734)
+--- LFS/lfs.xsl	(revision 2743)
 +++ LFS/lfs.xsl	(working copy)
 @@ -32,6 +32,9 @@
    <!-- Locale settings -->
@@ -147,7 +147,7 @@ Index: common/paco-build-hlfs.sh
 +make logme
 Index: common/config
 ===================================================================
---- common/config	(revision 2734)
+--- common/config	(revision 2743)
 +++ common/config	(working copy)
 @@ -84,6 +84,14 @@
  #--- Run farce testing 0(no)/1(yes)
@@ -164,7 +164,7 @@ Index: common/config
  #==== INTERNAL VARIABLES ====
  # Don't edit it unless you know what you are doing
  
-@@ -96,3 +104,9 @@
+@@ -100,3 +108,9 @@
  
  #--- farce report log directory
  FARCELOGDIR=$LOGDIR/farce
@@ -176,7 +176,7 @@ Index: common/config
 +LD_PRELOAD=/usr/lib/libpaco-log.so
 Index: common/func_validate_configs.sh
 ===================================================================
---- common/func_validate_configs.sh	(revision 2734)
+--- common/func_validate_configs.sh	(revision 2743)
 +++ common/func_validate_configs.sh	(working copy)
 @@ -84,9 +84,9 @@
  inline_doc
@@ -432,7 +432,7 @@ Index: common/paco-build-lfs.sh
 +make logme
 Index: common/common-functions
 ===================================================================
---- common/common-functions	(revision 2734)
+--- common/common-functions	(revision 2743)
 +++ common/common-functions	(working copy)
 @@ -65,6 +65,9 @@
          in the configuration file has the proper packages and patches for the
@@ -444,7 +444,7 @@ Index: common/common-functions
  ${BOLD}  -O, --optimize${OFF}
          Optimize [0-2]
            0 = no optimization
-@@ -557,6 +560,7 @@
+@@ -607,6 +610,7 @@
                   --stringparam lc_all $LC_ALL \
                   --stringparam keymap $KEYMAP \
                   --stringparam grsecurity_host $GRSECURITY_HOST \
@@ -452,7 +452,7 @@ Index: common/common-functions
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
        ;;
      lfs)
-@@ -568,6 +572,7 @@
+@@ -618,6 +622,7 @@
                   --stringparam timezone $TIMEZONE \
                   --stringparam page $PAGE \
                   --stringparam lang $LANG \
@@ -462,7 +462,7 @@ Index: common/common-functions
      *) exit 1 ;;
 Index: HLFS/hlfs.xsl
 ===================================================================
---- HLFS/hlfs.xsl	(revision 2734)
+--- HLFS/hlfs.xsl	(revision 2743)
 +++ HLFS/hlfs.xsl	(working copy)
 @@ -39,6 +39,9 @@
    <xsl:param name="lang" select="en_CA"/>
@@ -513,9 +513,9 @@ Index: HLFS/hlfs.xsl
          <xsl:apply-templates/>
 Index: HLFS/master.sh
 ===================================================================
---- HLFS/master.sh	(revision 2734)
+--- HLFS/master.sh	(revision 2743)
 +++ HLFS/master.sh	(working copy)
-@@ -245,6 +245,11 @@
+@@ -250,6 +250,11 @@
      # Keep the script file name
      this_script=`basename $file`
  
@@ -527,7 +527,7 @@ Index: HLFS/master.sh
      # Skip this script depending on jhalfs.conf flags set.
      case $this_script in
          # We'll run the chroot commands differently than the others, so skip them in the
-@@ -254,6 +259,18 @@
+@@ -259,6 +264,18 @@
        *-stripping* )  [[ "$STRIP" = "0" ]] && continue ;;
      esac
  
@@ -546,7 +546,7 @@ Index: HLFS/master.sh
      # Grab the name of the target
      name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'`
  
-@@ -324,7 +341,9 @@
+@@ -329,7 +346,9 @@
          wrt_run_as_root "${this_script}" "${file}"
          ;;
        *)   # The rest of Chapter06
@@ -556,7 +556,7 @@ Index: HLFS/master.sh
         ;;
      esac
      #
-@@ -357,6 +376,16 @@
+@@ -362,6 +381,16 @@
      PREV=${this_script}${N}
      # Set system_build envar for iteration targets
      system_build=$chapter6
@@ -573,7 +573,7 @@ Index: HLFS/master.sh
    done # end for file in chapter06/*
  
  }
-@@ -418,9 +447,20 @@
+@@ -423,9 +452,20 @@
          else  # Initialize the log and run the script
            wrt_run_as_chroot2 "${this_script}" "${file}"
          fi
@@ -596,7 +596,7 @@ Index: HLFS/master.sh
  
 Index: master.sh
 ===================================================================
---- master.sh	(revision 2734)
+--- master.sh	(revision 2743)
 +++ master.sh	(working copy)
 @@ -147,6 +147,8 @@
  
