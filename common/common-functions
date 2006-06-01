@@ -201,7 +201,7 @@ cat << EOF
 
 $i:  $PREV
 	@\$(call echo_message, Building)
-	@./progress_bar.sh \$@ \$(MAKE_PID) &
+	@./progress_bar.sh \$@ &
 	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >logs/$LOGFILE
 EOF
 ) >> $MKFILE.tmp

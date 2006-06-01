@@ -992,7 +992,6 @@ $HEADER
 SRC= /sources
 MOUNT_PT= $BUILDDIR
 PKG_LST= $PKG_LST
-MAKE_PID=\`pidof make | cut -d " " -f1\`
 
 include makefile-functions
 
