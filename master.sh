@@ -136,7 +136,7 @@ while test $# -gt 0 ; do
           ;;
         * )
           BUILDDIR=$1
-          JHALFSDIR=$BUILDDIR/jhalfs
+          JHALFSDIR=$BUILDDIR/${SCRIPT_ROOT}
           LOGDIR=$JHALFSDIR/logs
           MKFILE=$JHALFSDIR/Makefile
           ;;

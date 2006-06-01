@@ -57,7 +57,7 @@ ${BOLD}  -B, --book VER${OFF}
 
 ${BOLD}  -D  --directory DIR${OFF}
         use DIR directory for building ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF}; all files jhalfs produces
-        will be in the directory DIR/jhalfs.
+        will be in the directory DIR/${SCRIPT_ROOT}.
         The current setting for BUILDDIR is "$BUILDDIR"
 
 ${BOLD}  -G, --get-packages${OFF}
@@ -202,7 +202,7 @@ cat << EOF
 $i:  $PREV
 	@\$(call echo_message, Building)
 	@./progress_bar.sh \$@ \$(MAKE_PID) &
-	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=jhalfs \$(MOUNT_PT)\`\n" >logs/$LOGFILE
+	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >logs/$LOGFILE
 EOF
 ) >> $MKFILE.tmp
 }
@@ -322,7 +322,7 @@ wrt_run_as_su() {                  # Execute script inside time { }, footer to l
 (
 cat << EOF
 	@( time { su - lfs -c "source /home/lfs/.bashrc && $JHALFSDIR/${PROGNAME}-commands/$file" >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
-	echo -e "\nKB: \`du -skx --exclude=jhalfs \$(MOUNT_PT)\`\n" >>logs/$this_script
+	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >>logs/$this_script
 EOF
 ) >> $MKFILE.tmp
 }
@@ -336,7 +336,7 @@ wrt_run_as_root() {                # Some scripts must be run as root..
 (
 cat << EOF
 	@( time { export LFS=\$(MOUNT_PT) && ${PROGNAME}-commands/$file >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
-	echo -e "\nKB: \`du -skx --exclude=jhalfs \$(MOUNT_PT)\`\n" >>logs/$this_script
+	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >>logs/$this_script
 EOF
 ) >> $MKFILE.tmp
 }
@@ -350,7 +350,7 @@ wrt_run_as_root2() {               #
 (
 cat << EOF
 	@( time { source envars && ${PROGNAME}-commands/$file >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
-	echo -e "\nKB: \`du -skx --exclude=jhalfs \`\n" >>logs/$this_script
+	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \`\n" >>logs/$this_script
 EOF
 ) >> $MKFILE.tmp
 }
@@ -364,8 +364,8 @@ wrt_run_as_chroot1() {             #
   local file=$2
 (
     cat << EOF
-	@( time { \$(CHROOT1) 'cd /jhalfs && source envars && /jhalfs/${PROGNAME}-commands/$file >>/jhalfs/logs/${this_script} 2>&1' ; } ) 2>>logs/$this_script && \\
-	echo -e "\nKB: \`du -skx --exclude=jhalfs \$(MOUNT_PT)\`\n" >>logs/${this_script}
+	@( time { \$(CHROOT1) 'cd /${SCRIPT_ROOT} && source envars && /${SCRIPT_ROOT}/${PROGNAME}-commands/$file >>/${SCRIPT_ROOT}/logs/${this_script} 2>&1' ; } ) 2>>logs/$this_script && \\
+	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >>logs/${this_script}
 EOF
 ) >> $MKFILE.tmp
 }
@@ -378,8 +378,8 @@ wrt_run_as_chroot2() {             #
   local file=$2
 (
 cat << EOF
-	@( time { \$(CHROOT2) 'cd /jhalfs && source envars && /jhalfs/${PROGNAME}-commands/$file >>/jhalfs/logs/${this_script} 2>&1' ; } ) 2>>logs/$this_script && \\
-	echo -e "\nKB: \`du -skx --exclude=jhalfs \$(MOUNT_PT)\`\n" >>logs/${this_script}
+	@( time { \$(CHROOT2) 'cd /${SCRIPT_ROOT} && source envars && /${SCRIPT_ROOT}/${PROGNAME}-commands/$file >>/${SCRIPT_ROOT}/logs/${this_script} 2>&1' ; } ) 2>>logs/$this_script && \\
+	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >>logs/${this_script}
 EOF
 ) >> $MKFILE.tmp
 }
