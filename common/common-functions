@@ -209,9 +209,48 @@ EOF
 
 
 #----------------------------------#
+wrt_remove_existing_dirs() {       #
+#----------------------------------#
+  local PKG_NAME=$1
+(
+cat << EOF
+	@ROOT=\`tar -tf \$(MOUNT_PT)\$(SRC)/${PKG_NAME} | head -n1 | sed -e 's@^./@@;s@/.*@@'\` && \\
+	[[ -n \$\$ROOT ]] && \\
+	rm -rf \$(MOUNT_PT)\$(SRC)/\$\$ROOT && \\
+	if [ -e \$(MOUNT_PT)\$(SRC)/${PKG_NAME%%-*}-build ]; then \\
+		rm -rf \$(MOUNT_PT)\$(SRC)/${PKG_NAME%%-*}-build; \\
+	fi;
+EOF
+) >> $MKFILE.tmp
+}
+
+#----------------------------------#
+wrt_remove_existing_dirs2() {      #
+#----------------------------------#
+  local PKG_NAME=$1
+(
+cat << EOF
+	@ROOT=\`tar -tf \$(SRC)/${PKG_NAME} | head -n1 | sed -e 's@^./@@;s@/.*@@'\` && \\
+	[[ -n \$\$ROOT ]] && \\
+	rm -rf \$(SRC)/\$\$ROOT && \\
+	if [ -e \$(SRC)/${PKG_NAME%%-*}-build ]; then \\
+		rm -rf \$(SRC)/${PKG_NAME%%-*}-build; \\
+	fi;
+EOF
+) >> $MKFILE.tmp
+}
+
+
+
+#----------------------------------#
 wrt_unpack() {                     # Unpack and set 'ROOT' var
 #----------------------------------#
   local FILE=$1
+  local optSAVE_PREVIOUS=$2
+  
+  if [ "${optSAVE_PREVIOUS}" != "1" ]; then
+    wrt_remove_existing_dirs "$FILE"
+  fi
 (
 cat << EOF
 	@\$(call unpack,$FILE)
@@ -227,6 +266,11 @@ EOF
 wrt_unpack2() {                    #
 #----------------------------------#
   local FILE=$1
+  local optSAVE_PREVIOUS=$2
+
+  if [ "${optSAVE_PREVIOUS}" != "1" ]; then
+    wrt_remove_existing_dirs "$FILE"
+  fi
 (
 cat  << EOF
 	@\$(call unpack2,$FILE)
@@ -241,6 +285,11 @@ EOF
 wrt_unpack3() {                    #
 #----------------------------------#
   local FILE=$1
+  local optSAVE_PREVIOUS=$2
+
+  if [ "${optSAVE_PREVIOUS}" != "1" ]; then
+    wrt_remove_existing_dirs2 "$FILE"
+  fi
 (
 cat  << EOF
 	@\$(call unpack3,$FILE)
@@ -249,7 +298,6 @@ cat  << EOF
 EOF
 ) >> $MKFILE.tmp
 }
-
 
 #----------------------------------#
 wrt_target_vars() {                # Target vars for hlfs (cross-build method)

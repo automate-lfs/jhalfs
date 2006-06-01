@@ -141,7 +141,12 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
         *)      FILE="$name-$vrs.tar.*"     ;;
       esac
       # Insert instructions for unpacking the package and to set the PKGDIR variable.
-      wrt_unpack "$FILE"
+      case $this_script in
+        *binutils* ) 
+	  wrt_unpack "$FILE" 1 ;; # Do not delete an existing package directories
+	*)
+	  wrt_unpack "$FILE" ;;
+      esac
       [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
 
