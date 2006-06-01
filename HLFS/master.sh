@@ -142,7 +142,7 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
       esac
       # Insert instructions for unpacking the package and to set the PKGDIR variable.
       case $this_script in
-        *binutils* ) 
+        *binutils* )
 	  wrt_unpack "$FILE" 1 ;; # Do not delete an existing package directories
 	*)
 	  wrt_unpack "$FILE" ;;
@@ -154,7 +154,7 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
       *binutils* )  # Dump the path to sources directory for later removal
 (
 cat << EOF
-	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
+	@ROOT=\`head -n1 \$(MOUNT_PT)\$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
 	echo "\$(MOUNT_PT)\$(SRC)/\$\$ROOT" >> sources-dir
 EOF
 ) >> $MKFILE.tmp
@@ -434,7 +434,7 @@ chapter7_Makefiles() {       # Create a bootable system.. kernel, bootscripts..e
       *bootscripts*)
 (
 cat << EOF
-	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
+	@ROOT=\`head -n1 \$(MOUNT_PT)\$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
 	rm -r \$(MOUNT_PT)\$(SRC)/\$\$ROOT
 	@rm -r \`cat sources-dir\` && \\
 	rm sources-dir
@@ -483,6 +483,7 @@ $HEADER
 
 SRC= /sources
 MOUNT_PT= $BUILDDIR
+PKG_LST= $PKG_LST
 MAKE_PID=\`pidof make | cut -d " " -f1\`
 
 include makefile-functions

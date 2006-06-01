@@ -91,6 +91,9 @@ RUN_FARCE=0
 JHALFSDIR=$BUILDDIR/jhalfs
    LOGDIR=$JHALFSDIR/logs
 
+#--- File listing package contents (from where package sources dir is extracted)
+PKG_LST=unpacked
+
 #--- ICA report log directory
 ICALOGDIR=$LOGDIR/ICA
 

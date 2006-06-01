@@ -17,17 +17,17 @@ endef
 
 define unpack
   @cd $(MOUNT_PT)$(SRC) && \
-  tar -xvf `ls -t $(1) | head -n1` > /tmp/unpacked
+  tar -xvf `ls -t $(1) | head -n1` > $(PKG_LST)
 endef
 
 define unpack2
   @cd $(MOUNT_PT)$(SRC) && \
-  /tools/bin/tar -xvf `ls -t $(1) | head -n1` > /tmp/unpacked
+  /tools/bin/tar -xvf `ls -t $(1) | head -n1` > $(PKG_LST)
 endef
 
 define unpack3
   @cd $(SRC) && \
-  tar -xvf `ls -t $(1) | head -n1` > /tmp/unpacked
+  tar -xvf `ls -t $(1) | head -n1` > $(PKG_LST)
 endef
 
 define echo_report

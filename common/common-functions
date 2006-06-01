@@ -247,14 +247,14 @@ wrt_unpack() {                     # Unpack and set 'ROOT' var
 #----------------------------------#
   local FILE=$1
   local optSAVE_PREVIOUS=$2
-  
+
   if [ "${optSAVE_PREVIOUS}" != "1" ]; then
     wrt_remove_existing_dirs "$FILE"
   fi
 (
 cat << EOF
 	@\$(call unpack,$FILE)
-	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
+	@ROOT=\`head -n1 \$(MOUNT_PT)\$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
 	echo "export PKGDIR=\$(MOUNT_PT)\$(SRC)/\$\$ROOT" > envars && \\
 	chown -R lfs \$(MOUNT_PT)\$(SRC)/\$\$ROOT
 EOF
@@ -274,7 +274,7 @@ wrt_unpack2() {                    #
 (
 cat  << EOF
 	@\$(call unpack2,$FILE)
-	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
+	@ROOT=\`head -n1 \$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
 	echo "export PKGDIR=\$(SRC)/\$\$ROOT" > envars
 EOF
 ) >> $MKFILE.tmp
@@ -293,7 +293,7 @@ wrt_unpack3() {                    #
 (
 cat  << EOF
 	@\$(call unpack3,$FILE)
-	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
+	@ROOT=\`head -n1 \$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
 	echo "export PKGDIR=\$(SRC)/\$\$ROOT" > envars
 EOF
 ) >> $MKFILE.tmp
@@ -412,7 +412,7 @@ wrt_remove_build_dirs() {          #
   local name=$1
 (
 cat << EOF
-	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
+	@ROOT=\`head -n1 \$(MOUNT_PT)\$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
 	rm -r \$(MOUNT_PT)\$(SRC)/\$\$ROOT && \\
 	if [ -e \$(MOUNT_PT)\$(SRC)/$name-build ]; then \\
 		rm -r \$(MOUNT_PT)\$(SRC)/$name-build; \\
@@ -428,7 +428,7 @@ wrt_remove_build_dirs2() {         #
   local name=$1
 (
 cat << EOF
-	@ROOT=\`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'\` && \\
+	@ROOT=\`head -n1 \$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
 	rm -r \$(SRC)/\$\$ROOT && \\
 	if [ -e \$(SRC)/$name-build ]; then \\
 		rm -r \$(SRC)/$name-build; \\
