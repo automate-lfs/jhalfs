@@ -9,7 +9,7 @@ set -e
 
 if [ ! -f $1 ] ; then
   while [ -d /proc/$2 ] ; do
-    echo -n "$2 "
+    echo -n "."
     sleep 1
   done
 fi
