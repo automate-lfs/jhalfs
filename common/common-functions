@@ -214,7 +214,8 @@ wrt_remove_existing_dirs() {       #
   local PKG_NAME=$1
 (
 cat << EOF
-	@ROOT=\`tar -tf \$(MOUNT_PT)\$(SRC)/${PKG_NAME} | head -n1 | sed -e 's@^./@@;s@/.*@@'\` && \\
+	@PKG_PATH=\`ls -t \$(MOUNT_PT)\$(SRC)/${PKG_NAME} | head -n1\` && \\
+	ROOT=\`tar -tf \$\$PKG_PATH | head -n1 | sed -e 's@^./@@;s@/.*@@'\` && \\
 	[[ -n \$\$ROOT ]] && \\
 	rm -rf \$(MOUNT_PT)\$(SRC)/\$\$ROOT && \\
 	if [ -e \$(MOUNT_PT)\$(SRC)/${PKG_NAME%%-*}-build ]; then \\
@@ -230,7 +231,8 @@ wrt_remove_existing_dirs2() {      #
   local PKG_NAME=$1
 (
 cat << EOF
-	@ROOT=\`tar -tf \$(SRC)/${PKG_NAME} | head -n1 | sed -e 's@^./@@;s@/.*@@'\` && \\
+	@PKG_PATH=\`ls -t \$(SRC)/${PKG_NAME} | head -n1\` && \\
+	ROOT=\`tar -tf \$\$PKG_PATH | head -n1 | sed -e 's@^./@@;s@/.*@@'\` && \\
 	[[ -n \$\$ROOT ]] && \\
 	rm -rf \$(SRC)/\$\$ROOT && \\
 	if [ -e \$(SRC)/${PKG_NAME%%-*}-build ]; then \\
