@@ -195,26 +195,26 @@ inline_doc
     # Special packages (a lot of hacks)
     case $DEP in
 
-      db ) # The proper version of DB is installed in LFS
-        continue ;;
+      db ) continue ;; # The proper version of DB is installed in LFS
 
         # Don't have their own XML file
-      hal-requirements | hal-runtime-dependencies )
-        continue ;;
+      hal-requirements | hal-runtime-dependencies ) continue ;;
+      perl-* | tk-perl )         DEP=perl-modules ;;
 
         # Orphan links (proper link must be created when generating the book)
       arts )                     DEP=aRts ;;
       kde )                      DEP=kde-core ;;
-      perl-* | tk-perl )         DEP=perl-modules ;;
+
+       # Dummy gnome-core pages
       GNOME-desktop-file-utils ) DEP=desktop-file-utils ;;
       GNOME-shared-mime-info )   DEP=shared-mime-info ;;
 
         # Set values for alternative packages
         # X is a meta-package, thus handled in another way.
-      LPRng | cups )      DEP=$PRINT_SERVER ;;
-      mitkrb | heimdal )  DEP=$KBR5 ;;
-      gs | espgs )        DEP=$GHOSTSCRIPT ;;
-      server-mail )       DEP=$MAIL_SERVER ;;
+      LPRng | cups )             DEP=$PRINT_SERVER ;;
+      mitkrb | heimdal )         DEP=$KBR5 ;;
+      gs | espgs )               DEP=$GHOSTSCRIPT ;;
+      server-mail )              DEP=$MAIL_SERVER ;;
     esac
 
     #------------------
