@@ -99,8 +99,7 @@ inline_doc
 
   echo -en  "\tGenerating the HTML book ..."
   xsltproc --xinclude --nonet --stringparam base.dir HTML/ \
-           --stringparam chunk.quietly 1 \
-           ../$BLFS_XML/stylesheets/blfs-chunked.xsl \
+           ../libs/book.xsl \
            $TARGET-index.xml > xsltproc.log 2>&1
 
   mkdir HTML/{stylesheets,images}

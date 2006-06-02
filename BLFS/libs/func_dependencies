@@ -46,6 +46,8 @@ inline_doc
 
   #---------------------
   # The BLFS sources directory.
+  # Note: for book.xsl this value must be set via a sed in ./blfs.
+  # For consistency, we should to do the same here.
   BLFS_XML=`echo $PKGXML | sed -e 's,/.*,,'`
 
   if [[ ! -d ../$BLFS_XML ]] ; then
@@ -195,13 +197,18 @@ inline_doc
 
       db ) # The proper version of DB is installed in LFS
         continue ;;
-      hal-requirements | hal-runtime-dependencies ) # Don't have their own XML file
+
+        # Don't have their own XML file
+      hal-requirements | hal-runtime-dependencies )
         continue ;;
-      perl-* | tk-perl )  DEP=perl-modules ;;
 
         # Orphan links (proper link must be created when generating the book)
-      arts )              DEP=aRts ;;
-      kde )               DEP=kde-core ;;
+      arts )                     DEP=aRts ;;
+      kde )                      DEP=kde-core ;;
+      perl-* | tk-perl )         DEP=perl-modules ;;
+      GNOME-desktop-file-utils ) DEP=desktop-file-utils ;;
+      GNOME-shared-mime-info )   DEP=shared-mime-info ;;
+
         # Set values for alternative packages
         # X is a meta-package, thus handled in another way.
       LPRng | cups )      DEP=$PRINT_SERVER ;;
