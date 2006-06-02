@@ -136,7 +136,7 @@ while test $# -gt 0 ; do
           ;;
         * )
           BUILDDIR=$1
-          JHALFSDIR=$BUILDDIR/jhalfs
+          JHALFSDIR=$BUILDDIR/${SCRIPT_ROOT}
           LOGDIR=$JHALFSDIR/logs
           MKFILE=$JHALFSDIR/Makefile
           ;;
@@ -481,7 +481,7 @@ fi
 #
 #
 if [[ "$PWD" != "$JHALFSDIR" ]]; then
-  cp $COMMON_DIR/makefile-functions $JHALFSDIR/
+  cp $COMMON_DIR/{makefile-functions,progress_bar.sh} $JHALFSDIR/
   [[ "$OPTIMIZE" != "0" ]] && cp optimize/opt_override $JHALFSDIR/
   if [[ "$COMPARE" != "0" ]] ; then
     mkdir -p $JHALFSDIR/extras

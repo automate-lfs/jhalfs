@@ -88,8 +88,12 @@ RUN_FARCE=0
 # Don't edit it unless you know what you are doing
 
 #--- Working directories
-JHALFSDIR=$BUILDDIR/jhalfs
+SCRIPT_ROOT=jhalfs
+JHALFSDIR=$BUILDDIR/$SCRIPT_ROOT
    LOGDIR=$JHALFSDIR/logs
+
+#--- File listing package contents (from where package sources dir is extracted)
+PKG_LST=unpacked
 
 #--- ICA report log directory
 ICALOGDIR=$LOGDIR/ICA

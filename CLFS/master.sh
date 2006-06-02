@@ -991,6 +991,7 @@ $HEADER
 
 SRC= /sources
 MOUNT_PT= $BUILDDIR
+PKG_LST= $PKG_LST
 
 include makefile-functions
 

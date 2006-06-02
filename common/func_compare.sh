@@ -43,17 +43,17 @@ wrt_compare_work() {               #
 #----------------------------------#
   local ITERATION=$1
   local   PREV_IT=$2
-  local PRUNEPATH="/dev /home /jhalfs /lost+found /media /mnt /opt /proc \
+  local PRUNEPATH="/dev /home /${SCRIPT_ROOT} /lost+found /media /mnt /opt /proc \
 /sources /root /srv /sys /tmp /tools /usr/local /usr/src /var/log/paco"
 
   if [[ "$PROGNAME" = "clfs" ]] && [[ "$METHOD" = "boot" ]] ; then
     local    ROOT_DIR=/
-    local DEST_TOPDIR=/jhalfs
-    local   ICALOGDIR=/jhalfs/logs/ICA
-    local FARCELOGDIR=/jhalfs/logs/farce
+    local DEST_TOPDIR=/${SCRIPT_ROOT}
+    local   ICALOGDIR=/${SCRIPT_ROOT}/logs/ICA
+    local FARCELOGDIR=/${SCRIPT_ROOT}/logs/farce
   else
     local    ROOT_DIR=$BUILDDIR
-    local DEST_TOPDIR=$BUILDDIR/jhalfs
+    local DEST_TOPDIR=$BUILDDIR/${SCRIPT_ROOT}
   fi
 
   if [[ "$RUN_ICA" = "1" ]] ; then
