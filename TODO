@@ -9,9 +9,7 @@ MASTER SCRIPT
     LFS, CLFS or HLFS modules.
     Before working on that we need to fix the BLFS support.
 
-  - To create a script to install jhalfs system-wide. Work in progess.
-
-  - To add support for build optimizations
+  - To create a script to install jhalfs system-wide.
 
 
 LFS MODULE (all this is applicable also to CLFS and HLFS modules)
@@ -25,8 +23,8 @@ LFS MODULE (all this is applicable also to CLFS and HLFS modules)
     Before working on that we need to fix the BLFS support.
 
 
-BLFS MODULE
------------
+BLFS MODULE (work in progress in the experimental branch.
+-----------  See also BLFS/TODO file on that branch)
 
   - The SourceForge download links don't work.
 
@@ -70,9 +68,6 @@ BLFS MODULE
   - Figure out how to handle Perl modules installation and other pages
     that have commands to install more that one package (e.g., Gnat in GCC
     Java-bin in Java, sane-backends and sane-frotnends in Sane, etc)
-
-  - Figure out how to handle alternative dependencies. I.e.,
-    XFRee86 versus Xorg.
 
 
 OTHERS
