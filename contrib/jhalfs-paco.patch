@@ -171,7 +171,7 @@ Index: common/config
 +
 +#--- Variables needed by paco
 +PACO_INCLUDE=/
-+PACO_EXCLUDE=/jhalfs
++PACO_EXCLUDE=/${SCRIPT_ROOT}
 +PACO_TMPFILE=/tmp/paco.tmp
 +LD_PRELOAD=/usr/lib/libpaco-log.so
 Index: common/func_validate_configs.sh
