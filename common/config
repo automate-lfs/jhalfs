@@ -89,8 +89,9 @@ RUN_FARCE=0
 
 #--- Working directories
 SCRIPT_ROOT=jhalfs
-JHALFSDIR=$BUILDDIR/$SCRIPT_ROOT
-   LOGDIR=$JHALFSDIR/logs
+  JHALFSDIR=$BUILDDIR/$SCRIPT_ROOT
+     LOGDIR=$JHALFSDIR/logs
+ TESTLOGDIR=$JHALFSDIR/test-logs
 
 #--- File listing package contents (from where package sources dir is extracted)
 PKG_LST=unpacked

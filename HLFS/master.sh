@@ -143,10 +143,13 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
       # Insert instructions for unpacking the package and to set the PKGDIR variable.
       case $this_script in
         *binutils* )
-	  wrt_unpack "$FILE" 1 ;; # Do not delete an existing package directories
-	*)
-	  wrt_unpack "$FILE" ;;
+          wrt_unpack "$FILE" 1 ;; # Do not delete an existing package directories
+        *)
+          wrt_unpack "$FILE" ;;
       esac
+      # If the testsuites must be run, initialize the log file
+      [[ "$TEST" = "3" ]] && wrt_test_log "${this_script}"
+      # If using optimizations, write the instructions
       [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
 
@@ -314,6 +317,16 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
       esac
       wrt_unpack2 "$FILE"
       wrt_target_vars
+      # If the testsuites must be run, initialize the log file
+      case $name in
+        binutils | gcc | glibc )
+          [[ "$TEST" != "0" ]] && wrt_test_log2 "${this_script}"
+          ;;
+        * )
+          [[ "$TEST" = "2" ]] || [[ "$TEST" = "3" ]] && wrt_test_log2 "${this_script}"
+          ;;
+      esac
+      # If using optimizations, write the instructions
       [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
 
