@@ -112,6 +112,9 @@ chapter5_Makefiles() {
 
       # Insert instructions for unpacking the package and to set the PKGDIR variable.
       wrt_unpack "$FILE"
+      # If the testsuites must be run, initialize the log file
+      [[ "$TEST" = "3" ]] && wrt_test_log "${this_script}"
+      # If using optimizations, write the instructions
       [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
 
@@ -216,6 +219,16 @@ chapter6_Makefiles() {
     if [ "$vrs" != "" ] ; then
       FILE="$name-$vrs.tar.*"
       wrt_unpack2 "$FILE"
+      # If the testsuites must be run, initialize the log file
+      case $name in
+        binutils | gcc | glibc )
+          [[ "$TEST" != "0" ]] && wrt_test_log2 "${this_script}"
+          ;;
+        * )
+          [[ "$TEST" = "2" ]] || [[ "$TEST" = "3" ]] && wrt_test_log2 "${this_script}"
+          ;;
+      esac
+      # If using optimizations, write the instructions
       [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
 

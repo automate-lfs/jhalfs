@@ -30,13 +30,13 @@
   <xsl:param name="vim-lang" select="1"/>
 
   <!-- Time zone -->
-  <xsl:param name="timezone" select="America/Toronto"/>
+  <xsl:param name="timezone" select="GMT"/>
 
   <!-- Page size -->
   <xsl:param name="page" select="letter"/>
 
   <!-- Locale settings -->
-  <xsl:param name="lang" select="en_CA"/>
+  <xsl:param name="lang" select="C"/>
 
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
@@ -120,7 +120,7 @@
       <xsl:value-of select="substring-before(string(),'make')"/>
       <xsl:text>make -k</xsl:text>
       <xsl:value-of select="substring-after(string(),'make')"/>
-      <xsl:text> || true&#xA;</xsl:text>
+      <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
     </xsl:if>
   </xsl:template>
 
@@ -165,27 +165,35 @@
       <!-- No interactive commands are needed if the .config file is the proper one -->
       <xsl:when test="contains(string(),'menuconfig')"/>
       <!-- The Coreutils and Module-Init-Tools test suites are optional -->
-      <xsl:when test="($testsuite = '0' or $testsuite = '1') and
-                (ancestor::sect1[@id='ch-system-coreutils'] or
+      <xsl:when test="(ancestor::sect1[@id='ch-system-coreutils'] or
                 ancestor::sect1[@id='ch-system-module-init-tools']) and
                 (contains(string(),'check') or
-                contains(string(),'dummy'))"/>
+                contains(string(),'dummy'))">
+        <xsl:choose>
+          <xsl:when test="$testsuite = '0' or $testsuite = '1'"/>
+          <xsl:otherwise>
+            <xsl:apply-templates/>
+            <xsl:if test="contains(string(),'check')">
+              <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true</xsl:text>
+            </xsl:if>
+            <xsl:text>&#xA;</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
       <!-- Fixing toolchain test suites run -->
       <xsl:when test="string() = 'make check' or
                 string() = 'make -k check'">
         <xsl:choose>
           <xsl:when test="$testsuite != '0'">
-            <xsl:text>make -k check || true&#xA;</xsl:text>
+            <xsl:text>make -k check &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
           </xsl:when>
         </xsl:choose>
       </xsl:when>
       <xsl:when test="contains(string(),'glibc-check-log')">
         <xsl:choose>
           <xsl:when test="$testsuite != '0'">
-            <xsl:value-of select="substring-before(string(),';')"/>
-            <xsl:text> || true&#xA;</xsl:text>
-            <xsl:value-of select="substring-after(string(),';')"/>
-            <xsl:text>&#xA;</xsl:text>
+            <xsl:value-of select="substring-before(string(),'&gt;g')"/>
+            <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
           </xsl:when>
         </xsl:choose>
       </xsl:when>
@@ -194,6 +202,9 @@
         <xsl:choose>
           <xsl:when test="$testsuite != '0'">
             <xsl:apply-templates/>
+            <xsl:if test="contains(string(),'test_summary')">
+              <xsl:text> &gt;&gt; $TEST_LOG</xsl:text>
+            </xsl:if>
             <xsl:text>&#xA;</xsl:text>
           </xsl:when>
         </xsl:choose>

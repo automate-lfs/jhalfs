@@ -138,6 +138,7 @@ while test $# -gt 0 ; do
           BUILDDIR=$1
           JHALFSDIR=$BUILDDIR/${SCRIPT_ROOT}
           LOGDIR=$JHALFSDIR/logs
+          TESTLOGDIR=$JHALFSDIR/test-logs
           MKFILE=$JHALFSDIR/Makefile
           ;;
       esac
@@ -415,8 +416,8 @@ echo
 check_version "2.6.2" "`uname -r`"         "KERNEL"
 check_version "3.0"   "$BASH_VERSION"      "BASH"
 check_version "3.0"   "`gcc -dumpversion`" "GCC"
-tarVer=`tar --version`
-check_version "1.15.0" "${tarVer##* }"      "TAR"
+tarVer=`tar --version | head -n1 | cut -d " " -f4`
+check_version "1.15.0" "${tarVer}"      "TAR"
 echo "${SD_BORDER}${nl_}"
 
 validate_config
@@ -479,10 +480,13 @@ if [[ ! -d $LOGDIR ]]; then
 fi
 >$LOGDIR/$LOG
 #
+[[ "$TEST" != "0" ]] && [[ ! -d $TESTLOGDIR ]] && install -d -m 1777 $TESTLOGDIR
 #
 if [[ "$PWD" != "$JHALFSDIR" ]]; then
   cp $COMMON_DIR/{makefile-functions,progress_bar.sh} $JHALFSDIR/
+  #
   [[ "$OPTIMIZE" != "0" ]] && cp optimize/opt_override $JHALFSDIR/
+  #
   if [[ "$COMPARE" != "0" ]] ; then
     mkdir -p $JHALFSDIR/extras
     cp extras/* $JHALFSDIR/extras

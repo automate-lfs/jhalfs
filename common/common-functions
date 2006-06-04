@@ -276,7 +276,7 @@ wrt_unpack2() {                    #
 (
 cat  << EOF
 	@\$(call unpack2,$FILE)
-	@ROOT=\`head -n1 \$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
+	@ROOT=\`head -n1 \$(MOUNT_PT)\$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
 	echo "export PKGDIR=\$(SRC)/\$\$ROOT" > envars
 EOF
 ) >> $MKFILE.tmp
@@ -297,6 +297,30 @@ cat  << EOF
 	@\$(call unpack3,$FILE)
 	@ROOT=\`head -n1 \$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
 	echo "export PKGDIR=\$(SRC)/\$\$ROOT" > envars
+EOF
+) >> $MKFILE.tmp
+}
+
+#----------------------------------#
+wrt_test_log() {                   # Initialize testsuite log file
+#----------------------------------#
+  local TESTLOGFILE=$1
+(
+cat  << EOF
+	@echo "export TEST_LOG=$TESTLOGDIR/$TESTLOGFILE" >> envars && \\
+	su - lfs -c "echo -e '\n\`date\`\n' >$TESTLOGDIR/$TESTLOGFILE"
+EOF
+) >> $MKFILE.tmp
+}
+
+#----------------------------------#
+wrt_test_log2() {                  #
+#----------------------------------#
+  local TESTLOGFILE=$1
+(
+cat  << EOF
+	@echo "export TEST_LOG=/$SCRIPT_ROOT/test-logs/$TESTLOGFILE" >> envars && \\
+	echo -e "\n\`date\`\n" >test-logs/$TESTLOGFILE
 EOF
 ) >> $MKFILE.tmp
 }
