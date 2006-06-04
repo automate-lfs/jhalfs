@@ -1,8 +1,8 @@
 Index: LFS/master.sh
 ===================================================================
---- LFS/master.sh	(revision 2743)
+--- LFS/master.sh	(revision 2752)
 +++ LFS/master.sh	(working copy)
-@@ -173,6 +173,11 @@
+@@ -176,6 +176,11 @@
      # Keep the script file name
      this_script=`basename $file`
  
@@ -14,7 +14,7 @@ Index: LFS/master.sh
      # We'll run the chroot commands differently than the others, so skip them in the
      # dependencies and target creation.
      case "${this_script}" in
-@@ -180,6 +185,18 @@
+@@ -183,6 +188,18 @@
        *stripping*) [[ "${STRIP}" = "0" ]] && continue ;;
      esac
  
@@ -33,7 +33,7 @@ Index: LFS/master.sh
      # Grab the name of the target
      name=`echo ${this_script} | sed -e 's@[0-9]\{3\}-@@'`
  
-@@ -223,7 +240,9 @@
+@@ -236,7 +253,9 @@
      # and not to use chroot.
      case "${this_script}" in
        *kernfs)  wrt_run_as_root    "${this_script}" "$file" ;;
@@ -44,7 +44,7 @@ Index: LFS/master.sh
      esac
  
      # Remove the build directory(ies) except if the package build fails.
-@@ -243,6 +262,16 @@
+@@ -256,6 +275,16 @@
      PREV=${this_script}${N}
      # Set system_build envar for iteration targets
      system_build=$chapter6
@@ -61,7 +61,7 @@ Index: LFS/master.sh
    done # end for file in chapter06/*
  }
  
-@@ -303,8 +332,18 @@
+@@ -316,8 +345,18 @@
                else
                  wrt_run_as_chroot2 "$this_script" "$file"
                fi
@@ -82,11 +82,11 @@ Index: LFS/master.sh
  
 Index: LFS/lfs.xsl
 ===================================================================
---- LFS/lfs.xsl	(revision 2743)
+--- LFS/lfs.xsl	(revision 2752)
 +++ LFS/lfs.xsl	(working copy)
 @@ -32,6 +32,9 @@
    <!-- Locale settings -->
-   <xsl:param name="lang" select="en_CA"/>
+   <xsl:param name="lang" select="C"/>
  
 +  <!-- Use paco? -->
 +  <xsl:param name="use_paco" select="1"/>
@@ -94,7 +94,7 @@ Index: LFS/lfs.xsl
    <xsl:template match="/">
      <xsl:apply-templates select="//sect1"/>
    </xsl:template>
-@@ -190,6 +193,33 @@
+@@ -200,6 +203,33 @@
          <xsl:apply-templates/>
          <xsl:text> || true&#xA;</xsl:text>
        </xsl:when>
@@ -147,7 +147,7 @@ Index: common/paco-build-hlfs.sh
 +make logme
 Index: common/config
 ===================================================================
---- common/config	(revision 2743)
+--- common/config	(revision 2752)
 +++ common/config	(working copy)
 @@ -84,6 +84,14 @@
  #--- Run farce testing 0(no)/1(yes)
@@ -164,7 +164,7 @@ Index: common/config
  #==== INTERNAL VARIABLES ====
  # Don't edit it unless you know what you are doing
  
-@@ -100,3 +108,9 @@
+@@ -101,3 +109,9 @@
  
  #--- farce report log directory
  FARCELOGDIR=$LOGDIR/farce
@@ -176,7 +176,7 @@ Index: common/config
 +LD_PRELOAD=/usr/lib/libpaco-log.so
 Index: common/func_validate_configs.sh
 ===================================================================
---- common/func_validate_configs.sh	(revision 2743)
+--- common/func_validate_configs.sh	(revision 2752)
 +++ common/func_validate_configs.sh	(working copy)
 @@ -84,9 +84,9 @@
  inline_doc
@@ -432,7 +432,7 @@ Index: common/paco-build-lfs.sh
 +make logme
 Index: common/common-functions
 ===================================================================
---- common/common-functions	(revision 2743)
+--- common/common-functions	(revision 2752)
 +++ common/common-functions	(working copy)
 @@ -65,6 +65,9 @@
          in the configuration file has the proper packages and patches for the
@@ -444,7 +444,7 @@ Index: common/common-functions
  ${BOLD}  -O, --optimize${OFF}
          Optimize [0-2]
            0 = no optimization
-@@ -607,6 +610,7 @@
+@@ -631,6 +634,7 @@
                   --stringparam lc_all $LC_ALL \
                   --stringparam keymap $KEYMAP \
                   --stringparam grsecurity_host $GRSECURITY_HOST \
@@ -452,7 +452,7 @@ Index: common/common-functions
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
        ;;
      lfs)
-@@ -618,6 +622,7 @@
+@@ -642,6 +646,7 @@
                   --stringparam timezone $TIMEZONE \
                   --stringparam page $PAGE \
                   --stringparam lang $LANG \
@@ -462,11 +462,11 @@ Index: common/common-functions
      *) exit 1 ;;
 Index: HLFS/hlfs.xsl
 ===================================================================
---- HLFS/hlfs.xsl	(revision 2743)
+--- HLFS/hlfs.xsl	(revision 2752)
 +++ HLFS/hlfs.xsl	(working copy)
 @@ -39,6 +39,9 @@
-   <xsl:param name="lang" select="en_CA"/>
-   <xsl:param name="lc_all" select="en_CA"/>
+   <xsl:param name="lang" select="C"/>
+   <xsl:param name="lc_all" select="C"/>
  
 +  <!-- Use paco? -->
 +  <xsl:param name="use_paco" select="1"/>
@@ -485,7 +485,7 @@ Index: HLFS/hlfs.xsl
          <xsl:text>make install&#xA;</xsl:text>
          <xsl:text>cd ../blfs-bootscripts-&blfs-bootscripts-version;&#xA;</xsl:text>
        </xsl:when>
-@@ -248,6 +255,25 @@
+@@ -257,6 +264,25 @@
          <xsl:apply-templates/>
          <xsl:text> || true&#xA;</xsl:text>
        </xsl:when>
@@ -513,9 +513,9 @@ Index: HLFS/hlfs.xsl
          <xsl:apply-templates/>
 Index: HLFS/master.sh
 ===================================================================
---- HLFS/master.sh	(revision 2743)
+--- HLFS/master.sh	(revision 2752)
 +++ HLFS/master.sh	(working copy)
-@@ -250,6 +250,11 @@
+@@ -253,6 +253,11 @@
      # Keep the script file name
      this_script=`basename $file`
  
@@ -527,7 +527,7 @@ Index: HLFS/master.sh
      # Skip this script depending on jhalfs.conf flags set.
      case $this_script in
          # We'll run the chroot commands differently than the others, so skip them in the
-@@ -259,6 +264,18 @@
+@@ -262,6 +267,18 @@
        *-stripping* )  [[ "$STRIP" = "0" ]] && continue ;;
      esac
  
@@ -546,7 +546,7 @@ Index: HLFS/master.sh
      # Grab the name of the target
      name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'`
  
-@@ -329,7 +346,9 @@
+@@ -342,7 +359,9 @@
          wrt_run_as_root "${this_script}" "${file}"
          ;;
        *)   # The rest of Chapter06
@@ -556,7 +556,7 @@ Index: HLFS/master.sh
         ;;
      esac
      #
-@@ -362,6 +381,16 @@
+@@ -375,6 +394,16 @@
      PREV=${this_script}${N}
      # Set system_build envar for iteration targets
      system_build=$chapter6
@@ -573,7 +573,7 @@ Index: HLFS/master.sh
    done # end for file in chapter06/*
  
  }
-@@ -423,9 +452,20 @@
+@@ -436,9 +465,20 @@
          else  # Initialize the log and run the script
            wrt_run_as_chroot2 "${this_script}" "${file}"
          fi
@@ -596,9 +596,9 @@ Index: HLFS/master.sh
  
 Index: master.sh
 ===================================================================
---- master.sh	(revision 2743)
+--- master.sh	(revision 2752)
 +++ master.sh	(working copy)
-@@ -147,6 +147,8 @@
+@@ -148,6 +148,8 @@
  
      --help | -h )  usage | more && exit  ;;
  
@@ -607,7 +607,7 @@ Index: master.sh
      --optimize | -O )
        test $# = 1 && eval "$exit_missing_arg"
        shift
-@@ -438,6 +440,14 @@
+@@ -439,6 +441,14 @@
    [[ $VERBOSITY > 0 ]] && echo "OK"
  fi
  #
@@ -622,13 +622,12 @@ Index: master.sh
  # optimize module
  if [[ "$OPTIMIZE" != "0" ]]; then
    [[ $VERBOSITY > 0 ]] && echo -n "Loading optimization module..."
-@@ -482,6 +492,9 @@
- #
+@@ -485,6 +495,8 @@
  if [[ "$PWD" != "$JHALFSDIR" ]]; then
    cp $COMMON_DIR/{makefile-functions,progress_bar.sh} $JHALFSDIR/
-+  #
+   #
 +  [[ $USE_PACO != "0" ]] && cp $COMMON_DIR/paco-build-$PROGNAME.sh $JHALFSDIR/
 +  #
    [[ "$OPTIMIZE" != "0" ]] && cp optimize/opt_override $JHALFSDIR/
+   #
    if [[ "$COMPARE" != "0" ]] ; then
-     mkdir -p $JHALFSDIR/extras
