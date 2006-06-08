@@ -7,6 +7,7 @@ GREEN= "[0;32m"
 ORANGE= "[0;33m"
 BLUE= "[1;34m"
 WHITE= "[00m"
+CURSOR_ON= "[?25h"
 
 define echo_message
   @echo $(BOLD)
@@ -72,7 +73,7 @@ define echo_finished
   @echo that you already know and there is no need to discuss it here.
   @echo $(BOLD)
   @echo --------------------------------------------------------------------------------
-  @echo -e \\t\\t$(GREEN)Have a nice day $(ORANGE):-\)$(BOLD)
+  @echo -e \\t\\t$(GREEN)Have a nice day $(ORANGE):-\)$(BOLD)$(CURSOR_ON)
   @echo --------------------------------------------------------------------------------$(WHITE)
 endef
 
@@ -97,6 +98,6 @@ define echo_boot_finished
   @echo -e \\t $(BOLD)make makesys
   @echo  The build process should resume. Follow any instructions that appear.
   @echo --------------------------------------------------------------------------------
-  @echo -e \\t\\t$(GREEN)Have a nice day $(ORANGE):-\)$(BOLD)
+  @echo -e \\t\\t$(GREEN)Have a nice day $(ORANGE):-\)$(BOLD)$(CURSOR_ON)
   @echo --------------------------------------------------------------------------------$(WHITE)
 endef
