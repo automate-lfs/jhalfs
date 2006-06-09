@@ -443,7 +443,7 @@ restore-lfs-env:
 		mv -f /home/lfs/.bashrc.XXX /home/lfs/.bashrc; \\
 	fi;
 	@if [ -f /home/lfs/.bash_profile.XXX ]; then \\
-		mv  /home/lfs/.bash_profile.XXX /home/lfs/.bash_profile; \\
+		mv /home/lfs/.bash_profile.XXX /home/lfs/.bash_profile; \\
 	fi;
 	@chown lfs:lfs /home/lfs/.bash* && \\
 	touch \$@
@@ -487,7 +487,7 @@ restart_code:
 	  if ! mount -l | grep "$\(MOUNT_PT)/sys" >/dev/null ; then \\
 	    mount -vt sysfs sysfs \$(MOUNT_PT)/sys;\\
 	  fi;\\
-	fi; 
+	fi;
 
 EOF
 ) >> $MKFILE
