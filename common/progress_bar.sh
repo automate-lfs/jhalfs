@@ -27,10 +27,8 @@ write_or_exit() {
   if ! fuser -v . 2>&1 | grep make >/dev/null ; then
      echo -n "${CURSOR_ON}" && exit
   fi
-    # Target build complete, leave. If we are here, make is alive and a new
-    # package target may has been started. Close this instance of the script.
-    # The cursor will be restored by echo-finished in makefile-functions.
-  [[ -f ${TARGET} ]] && exit
+    # Target build complete, leave.
+  [[ -f ${TARGET} ]] && echo -n "${CURSOR_ON}" && exit
     # It is safe to write to the screen
   echo -n "$1"
 }
@@ -42,7 +40,8 @@ for ((MIN=0; MIN >= 0; MIN++)); do
   for ((SEC=1, POS=3; SEC <= 60; SEC++, POS++)); do
     for GRAPHIC_CHAR in ${GRAPHIC_STR} ; do
       write_or_exit "${CSI}${POS}G${GRAPHIC_CHAR}"
-      sleep .2
+      # Compensate code execution time (need verification on other machines)
+      sleep .137
     done
       # Display the accumulated time.
     write_or_exit "${TS_POSITION}${MIN} min. ${SEC} sec. "

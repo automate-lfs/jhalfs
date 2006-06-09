@@ -23,7 +23,9 @@ chapter4_Makefiles() {
 	@mkdir \$(MOUNT_PT)/tools && \\
 	rm -f /tools && \\
 	ln -s \$(MOUNT_PT)/tools / && \\
-	touch \$@
+	touch \$@ && \\
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK\$(WHITE) && \\
+	echo --------------------------------------------------------------------------------
 
 021-addinguser:  020-creatingtoolsdir
 	@\$(call echo_message, Building)
@@ -35,7 +37,9 @@ chapter4_Makefiles() {
 	fi;
 	@chown lfs \$(MOUNT_PT)/tools && \\
 	chmod a+wt \$(MOUNT_PT)/sources && \\
-	touch \$@
+	touch \$@ && \\
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK\$(WHITE) && \\
+	echo --------------------------------------------------------------------------------
 
 022-settingenvironment:  021-addinguser
 	@\$(call echo_message, Building)
@@ -54,7 +58,9 @@ chapter4_Makefiles() {
 	echo "source $JHALFSDIR/envars" >> /home/lfs/.bashrc && \\
 	chown lfs:lfs /home/lfs/.bashrc && \\
 	touch envars && \\
-	touch \$@
+	touch \$@ && \\
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK\$(WHITE) && \\
+	echo --------------------------------------------------------------------------------
 EOF
 ) >> $MKFILE.tmp
 }
@@ -134,7 +140,7 @@ chapter5_Makefiles() {
 
     # Include a touch of the target name so make can check
     # if it's already been made.
-    echo -e '\t@touch $@' >> $MKFILE.tmp
+    wrt_touch
     #
     #--------------------------------------------------------------------#
     #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
@@ -246,7 +252,7 @@ chapter6_Makefiles() {
 
     # Include a touch of the target name so make can check
     # if it's already been made.
-    echo -e '\t@touch $@' >> $MKFILE.tmp
+    wrt_touch
     #
     #--------------------------------------------------------------------#
     #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
@@ -328,7 +334,7 @@ chapter789_Makefiles() {
 
     # Include a touch of the target name so make can check
     # if it's already been made.
-    echo -e '\t@touch $@' >> $MKFILE.tmp
+    wrt_touch
     #
     #--------------------------------------------------------------------#
     #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
@@ -446,7 +452,9 @@ restore-lfs-env:
 		mv /home/lfs/.bash_profile.XXX /home/lfs/.bash_profile; \\
 	fi;
 	@chown lfs:lfs /home/lfs/.bash* && \\
-	touch \$@
+	touch \$@ && \\
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK\$(WHITE) && \\
+	echo --------------------------------------------------------------------------------
 
 do_housekeeping:
 	-umount \$(MOUNT_PT)/sys
