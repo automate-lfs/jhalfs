@@ -44,7 +44,7 @@ for ((MIN=0; MIN >= 0; MIN++)); do
       write_or_exit "${CSI}${POS}G${GRAPHIC_CHAR}"
       sleep .2
     done
-      # Display the accumlated time.
+      # Display the accumulated time.
     write_or_exit "${TS_POSITION}${MIN} min. ${SEC} sec. "
   done
 done
