@@ -24,8 +24,8 @@ chapter4_Makefiles() {
 	rm -f /tools && \\
 	ln -s \$(MOUNT_PT)/tools / && \\
 	touch \$@ && \\
-	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK\$(WHITE) && \\
-	echo --------------------------------------------------------------------------------
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
+	echo --------------------------------------------------------------------------------\$(WHITE)
 
 021-addinguser:  020-creatingtoolsdir
 	@\$(call echo_message, Building)
@@ -38,8 +38,8 @@ chapter4_Makefiles() {
 	@chown lfs \$(MOUNT_PT)/tools && \\
 	chmod a+wt \$(MOUNT_PT)/sources && \\
 	touch \$@ && \\
-	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK\$(WHITE) && \\
-	echo --------------------------------------------------------------------------------
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
+	echo --------------------------------------------------------------------------------\$(WHITE)
 
 022-settingenvironment:  021-addinguser
 	@\$(call echo_message, Building)
@@ -59,8 +59,8 @@ chapter4_Makefiles() {
 	chown lfs:lfs /home/lfs/.bashrc && \\
 	touch envars && \\
 	touch \$@ && \\
-	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK\$(WHITE) && \\
-	echo --------------------------------------------------------------------------------
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
+	echo --------------------------------------------------------------------------------\$(WHITE)
 EOF
 ) >> $MKFILE.tmp
 }
@@ -453,8 +453,8 @@ restore-lfs-env:
 	fi;
 	@chown lfs:lfs /home/lfs/.bash* && \\
 	touch \$@ && \\
-	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK\$(WHITE) && \\
-	echo --------------------------------------------------------------------------------
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
+	echo --------------------------------------------------------------------------------\$(WHITE)
 
 do_housekeeping:
 	-umount \$(MOUNT_PT)/sys
