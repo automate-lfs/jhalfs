@@ -460,10 +460,20 @@ do_housekeeping:
 	fi;
 
 restart_code:
-	@echo "This feature is experimental, BUGS may exist"
+	@echo ">>> This feature is experimental, BUGS may exist"
+
+	@if [ ! -L /tools ]; then \\
+	  echo -e "\\nERROR::\\n /tools is NOT a symlink.. /tools must point to \$(MOUNT_PT)/tools\\n" && false;\\
+	fi;
+
+	@if [ ! -e /tools ]; then \\
+	  echo -e "\\nERROR::\\nThe target /tools points to does not exist.\\nVerify the target.. \$(MOUNT_PT)/tools\\n" && false;\\
+	fi;
+
 	@if ! stat -c %N /tools | grep "\$(MOUNT_PT)/tools" >/dev/null ; then \\
 	  echo -e "\\nERROR::\\nThe symlink \\"/tools\\" does not point to \\"\$(MOUNT_PT)/tools\\".\\nCorrect the problem and rerun\\n" && false;\\
 	fi;
+
 	@if [ -f ???-kernfs ]; then \\
 	  mkdir -pv \$(MOUNT_PT)/{dev,proc,sys};\\
 	  if [ ! -e \$(MOUNT_PT)/dev/console ]; then \\
