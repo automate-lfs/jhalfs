@@ -406,6 +406,8 @@ clean-all:  clean
 
 clean:  clean-chapter789 clean-chapter6 clean-chapter5 clean-chapter4
 
+restart: restart_code all
+
 clean-chapter4:
 	-if [ ! -f user-lfs-exist ]; then \\
 		userdel lfs; \\
@@ -456,6 +458,36 @@ do_housekeeping:
 		userdel lfs; \\
 		rm -rf /home/lfs; \\
 	fi;
+
+restart_code:
+	@echo "This feature is experimental, BUGS may exist"
+	@if ! stat -c %N /tools | grep "\$(MOUNT_PT)/tools" >/dev/null ; then \\
+	  echo -e "\\nERROR::\\nThe symlink \\"/tools\\" does not point to \\"\$(MOUNT_PT)/tools\\".\\nCorrect the problem and rerun\\n" && false;\\
+	fi;
+	@if [ -f ???-kernfs ]; then \\
+	  mkdir -pv \$(MOUNT_PT)/{dev,proc,sys};\\
+	  if [ ! -e \$(MOUNT_PT)/dev/console ]; then \\
+	    mknod -m 600 \$(MOUNT_PT)/dev/console c 5 1;\\
+	  fi;\\
+	  if [ ! -e \$(MOUNT_PT)/dev/null ]; then \\
+	    mknod -m 666 \$(MOUNT_PT)/dev/null c 1 3;\\
+	  fi;\\
+	  if !  mount -l | grep bind >/dev/null ; then \\
+	    mount --bind /dev \$(MOUNT_PT)/dev;\\
+	  fi;\\
+	  if ! mount -l | grep "\$(MOUNT_PT)/dev/pts" >/dev/null ; then \\
+	    mount -vt devpts devpts \$(MOUNT_PT)/dev/pts;\\
+	  fi;\\
+	  if ! mount -l | grep "\$(MOUNT_PT)/dev/shm" >/dev/null ; then \\
+	    mount -vt tmpfs shm \$(MOUNT_PT)/dev/shm;\\
+	  fi;\\
+	  if ! mount -l | grep "\$(MOUNT_PT)/proc" >/dev/null ; then \\
+	    mount -vt proc proc \$(MOUNT_PT)/proc;\\
+	  fi;\\
+	  if ! mount -l | grep "$\(MOUNT_PT)/sys" >/dev/null ; then \\
+	    mount -vt sysfs sysfs \$(MOUNT_PT)/sys;\\
+	  fi;\\
+	fi; 
 
 EOF
 ) >> $MKFILE
