@@ -218,8 +218,8 @@ cat << EOF
 	ROOT=\`tar -tf \$\$PKG_PATH | head -n1 | sed -e 's@^./@@;s@/.*@@'\` && \\
 	[[ -n \$\$ROOT ]] && \\
 	rm -rf \$(MOUNT_PT)\$(SRC)/\$\$ROOT && \\
-	if [ -e \$(MOUNT_PT)\$(SRC)/${PKG_NAME%%-*}-build ]; then \\
-		rm -rf \$(MOUNT_PT)\$(SRC)/${PKG_NAME%%-*}-build; \\
+	if [ -e \$(MOUNT_PT)\$(SRC)/${PKG_NAME%-*}-build ]; then \\
+		rm -rf \$(MOUNT_PT)\$(SRC)/${PKG_NAME%-*}-build; \\
 	fi;
 EOF
 ) >> $MKFILE.tmp
@@ -235,8 +235,8 @@ cat << EOF
 	ROOT=\`tar -tf \$\$PKG_PATH | head -n1 | sed -e 's@^./@@;s@/.*@@'\` && \\
 	[[ -n \$\$ROOT ]] && \\
 	rm -rf \$(SRC)/\$\$ROOT && \\
-	if [ -e \$(SRC)/${PKG_NAME%%-*}-build ]; then \\
-		rm -rf \$(SRC)/${PKG_NAME%%-*}-build; \\
+	if [ -e \$(SRC)/${PKG_NAME%-*}-build ]; then \\
+		rm -rf \$(SRC)/${PKG_NAME%-*}-build; \\
 	fi;
 EOF
 ) >> $MKFILE.tmp
