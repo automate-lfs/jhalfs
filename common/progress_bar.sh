@@ -23,7 +23,7 @@ declare -i  SEC=0  # Seconds accumulator
 declare -i  POS=0  # Start value for seconds/cursor position
 
 write_or_exit() {
-    # make has been killed or failed, leave
+    # make has been killed or failed or run to completion, leave
   if ! fuser -v . 2>&1 | grep make >/dev/null ; then
      echo -n "${CURSOR_ON}" && exit
   fi
@@ -35,7 +35,7 @@ write_or_exit() {
   echo -n "$1"
 }
 
-  # This will loop forever.. or overflow, which ever comes forst :)
+  # This will loop forever.. or overflow, which ever comes first :)
 for ((MIN=0; MIN >= 0; MIN++)); do
   write_or_exit "${RESET_LINE}${TS_POSITION}${MIN} min. 0 sec. "
   # Count the seconds
@@ -44,7 +44,7 @@ for ((MIN=0; MIN >= 0; MIN++)); do
       write_or_exit "${CSI}${POS}G${GRAPHIC_CHAR}"
       sleep .2
     done
-      # Display then accumlated time.
+      # Display the accumlated time.
     write_or_exit "${TS_POSITION}${MIN} min. ${SEC} sec. "
   done
 done
