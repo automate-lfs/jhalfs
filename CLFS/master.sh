@@ -27,13 +27,17 @@ cat << EOF
 		mkdir \$(MOUNT_PT)/sources; \\
 	fi;
 	@chmod a+wt \$(MOUNT_PT)/sources && \\
-	touch \$@
+	touch \$@ && \\
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
+	echo --------------------------------------------------------------------------------\$(WHITE)
 
 024-creatingcrossdir: 023-creatingtoolsdir
 	@mkdir -v \$(MOUNT_PT)/cross-tools && \\
 	rm -f /cross-tools && \\
 	ln -s \$(MOUNT_PT)/cross-tools /
-	@touch \$@
+	@touch \$@ && \\
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
+	echo --------------------------------------------------------------------------------\$(WHITE)
 
 025-addinguser:  024-creatingcrossdir
 	@\$(call echo_message, Building)
@@ -47,7 +51,9 @@ cat << EOF
 	chown lfs \$(MOUNT_PT)/tools && \\
 	chown lfs \$(MOUNT_PT)/cross-tools && \\
 	chown lfs \$(MOUNT_PT)/sources && \\
-	touch \$@
+	touch \$@ && \\
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
+	echo --------------------------------------------------------------------------------\$(WHITE)
 
 026-settingenvironment:  025-addinguser
 	@\$(call echo_message, Building)
@@ -73,7 +79,9 @@ cat << EOF
 	echo "source $JHALFSDIR/envars" >> /home/lfs/.bashrc
 	@chown lfs:lfs /home/lfs/.bashrc && \\
 	touch envars && \\
-	touch \$@
+	touch \$@ && \\
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
+	echo --------------------------------------------------------------------------------\$(WHITE)
 EOF
 ) >> $MKFILE.tmp
 
@@ -138,7 +146,7 @@ cross_tools_Makefiles() {     #
     [[ "$vrs" != "" ]] && wrt_remove_build_dirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
-    echo -e '\t@touch $@' >> $MKFILE.tmp
+    wrt_touch
     #
     #--------------------------------------------------------------------#
     #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
@@ -191,7 +199,7 @@ temptools_Makefiles() {       #
     [[ "$vrs" != "" ]] && wrt_remove_build_dirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
-    echo -e '\t@touch $@' >> $MKFILE.tmp
+    wrt_touch
     #
     #--------------------------------------------------------------------#
     #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
@@ -275,7 +283,7 @@ boot_Makefiles() {            #
     [[ "$vrs" != "" ]] && wrt_remove_build_dirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
-    echo -e '\t@touch $@' >> $MKFILE.tmp
+    wrt_touch
     #
     #--------------------------------------------------------------------#
     #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
@@ -341,7 +349,7 @@ chroot_Makefiles() {          #
     [[ "$vrs" != "" ]] && wrt_remove_build_dirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
-    echo -e '\t@touch $@' >> $MKFILE.tmp
+    wrt_touch
     #
     #--------------------------------------------------------------------#
     #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
@@ -395,7 +403,7 @@ testsuite_tools_Makefiles() { #
     wrt_remove_build_dirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
-    echo -e '\t@touch $@' >> $MKFILE.tmp
+    wrt_touch
     #
     #--------------------------------------------------------------------#
     #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
@@ -450,7 +458,7 @@ bm_testsuite_tools_Makefiles() { #
     wrt_remove_build_dirs2 "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
-    echo -e '\t@touch $@' >> $MKFILE.tmp
+    wrt_touch
     #
     #--------------------------------------------------------------------#
     #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
@@ -560,7 +568,7 @@ final_system_Makefiles() {    #
     [[ "$vrs" != "" ]] && wrt_remove_build_dirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
-    echo -e '\t@touch $@' >> $MKFILE.tmp
+    wrt_touch
     #
     #--------------------------------------------------------------------#
     #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
@@ -673,7 +681,7 @@ bm_final_system_Makefiles() { #
     [[ "$vrs" != "" ]] && wrt_remove_build_dirs2 "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
-    echo -e '\t@touch $@' >> $MKFILE.tmp
+    wrt_touch
     #
     #--------------------------------------------------------------------#
     #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
@@ -735,7 +743,7 @@ bootscripts_Makefiles() {     #
     [[ "$vrs" != "" ]] && wrt_remove_build_dirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
-    echo -e '\t@touch $@' >> $MKFILE.tmp
+    wrt_touch
     #
     #--------------------------------------------------------------------#
     #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
@@ -796,7 +804,7 @@ bm_bootscripts_Makefiles() {  #
     [[ "$vrs" != "" ]] && wrt_remove_build_dirs2 "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
-    echo -e '\t@touch $@' >> $MKFILE.tmp
+    wrt_touch
     #
     #--------------------------------------------------------------------#
     #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
@@ -870,7 +878,7 @@ bootable_Makefiles() {        #
     [[ "$vrs" != "" ]] && wrt_remove_build_dirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
-    echo -e '\t@touch $@' >> $MKFILE.tmp
+    wrt_touch
     #
     #--------------------------------------------------------------------#
     #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
@@ -950,7 +958,7 @@ bm_bootable_Makefiles() {     #
     [[ "$vrs" != "" ]] && wrt_remove_build_dirs2 "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
-    echo -e '\t@touch $@' >> $MKFILE.tmp
+    wrt_touch
     #
     #--------------------------------------------------------------------#
     #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
@@ -1096,7 +1104,9 @@ restore-lfs-env:
 		mv /home/lfs/.bash_profile.XXX /home/lfs/.bash_profile; \\
 	fi;
 	@chown lfs:lfs /home/lfs/.bash* && \\
-	touch \$@
+	touch \$@ && \\
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
+	echo --------------------------------------------------------------------------------\$(WHITE)
 
 do-housekeeping:
 	-umount \$(MOUNT_PT)/dev/pts
@@ -1176,7 +1186,9 @@ restore-lfs-env:
 		mv -v /home/lfs/.bash_profile.XXX /home/lfs/.bash_profile; \\
 	fi;
 	@chown lfs:lfs /home/lfs/.bash* && \\
-	touch \$@
+	touch \$@ && \\
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
+	echo --------------------------------------------------------------------------------\$(WHITE)
 
 
 EOF

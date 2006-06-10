@@ -101,7 +101,7 @@ wrt_do_farce_work() {              #
 }
 
 #----------------------------------#
-wrt_logs() {             #
+wrt_logs() {                       #
 #----------------------------------#
   local ITERATION=iteration-$1
 
@@ -111,7 +111,9 @@ wrt_logs() {             #
 	mkdir $ITERATION && \\
 	mv ${LOGS} $ITERATION && \\
 	popd 1> /dev/null
-	@touch \$@
+	@touch \$@ && \\
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
+	echo --------------------------------------------------------------------------------\$(WHITE)
 EOF
 ) >> $MKFILE.tmp
 }
