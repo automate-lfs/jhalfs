@@ -63,7 +63,7 @@ define echo_finished
   @echo -e \\t/etc/sysconfig//network-devices/ifconfig.eth0/ipv4 and
   @echo -e \\tany other configuration file required to suit your needs.
   @echo
-  @echo -e \\t- Exist from the chroot.
+  @echo -e \\t- Exit from the chroot.
   @echo
   @echo -e \\t- Set-up the boot loader, except if building CLFS with METHOO=boot.
   @echo -e \\tYou can set-up the host bootloader or the new boot-loader
