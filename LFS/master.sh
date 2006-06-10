@@ -457,12 +457,12 @@ restore-lfs-env:
 	echo --------------------------------------------------------------------------------\$(WHITE)
 
 do_housekeeping:
-	-umount \$(MOUNT_PT)/sys
-	-umount \$(MOUNT_PT)/proc
-	-umount \$(MOUNT_PT)/dev/shm
-	-umount \$(MOUNT_PT)/dev/pts
-	-umount \$(MOUNT_PT)/dev
-	-if [ ! -f user-lfs-exist ]; then \\
+	@-umount \$(MOUNT_PT)/sys
+	@-umount \$(MOUNT_PT)/proc
+	@-umount \$(MOUNT_PT)/dev/shm
+	@-umount \$(MOUNT_PT)/dev/pts
+	@-umount \$(MOUNT_PT)/dev
+	@-if [ ! -f user-lfs-exist ]; then \\
 		userdel lfs; \\
 		rm -rf /home/lfs; \\
 	fi;
