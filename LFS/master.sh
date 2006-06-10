@@ -20,10 +20,12 @@ chapter4_Makefiles() {
     cat << EOF
 020-creatingtoolsdir:
 	@\$(call echo_message, Building)
-	@mkdir -v \$(MOUNT_PT)/tools && \\
-	rm -fv /tools && \\
-	ln -sv \$(MOUNT_PT)/tools / && \\
-	touch \$@
+	@mkdir \$(MOUNT_PT)/tools && \\
+	rm -f /tools && \\
+	ln -s \$(MOUNT_PT)/tools / && \\
+	touch \$@ && \\
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
+	echo --------------------------------------------------------------------------------\$(WHITE)
 
 021-addinguser:  020-creatingtoolsdir
 	@\$(call echo_message, Building)
@@ -35,15 +37,17 @@ chapter4_Makefiles() {
 	fi;
 	@chown lfs \$(MOUNT_PT)/tools && \\
 	chmod a+wt \$(MOUNT_PT)/sources && \\
-	touch \$@
+	touch \$@ && \\
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
+	echo --------------------------------------------------------------------------------\$(WHITE)
 
 022-settingenvironment:  021-addinguser
 	@\$(call echo_message, Building)
 	@if [ -f /home/lfs/.bashrc -a ! -f /home/lfs/.bashrc.XXX ]; then \\
-		mv -v /home/lfs/.bashrc /home/lfs/.bashrc.XXX; \\
+		mv /home/lfs/.bashrc /home/lfs/.bashrc.XXX; \\
 	fi;
 	@if [ -f /home/lfs/.bash_profile  -a ! -f /home/lfs/.bash_profile.XXX ]; then \\
-		mv -v /home/lfs/.bash_profile /home/lfs/.bash_profile.XXX; \\
+		mv /home/lfs/.bash_profile /home/lfs/.bash_profile.XXX; \\
 	fi;
 	@echo "set +h" > /home/lfs/.bashrc && \\
 	echo "umask 022" >> /home/lfs/.bashrc && \\
@@ -54,7 +58,9 @@ chapter4_Makefiles() {
 	echo "source $JHALFSDIR/envars" >> /home/lfs/.bashrc && \\
 	chown lfs:lfs /home/lfs/.bashrc && \\
 	touch envars && \\
-	touch \$@
+	touch \$@ && \\
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
+	echo --------------------------------------------------------------------------------\$(WHITE)
 EOF
 ) >> $MKFILE.tmp
 }
@@ -134,7 +140,7 @@ chapter5_Makefiles() {
 
     # Include a touch of the target name so make can check
     # if it's already been made.
-    echo -e '\t@touch $@' >> $MKFILE.tmp
+    wrt_touch
     #
     #--------------------------------------------------------------------#
     #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
@@ -246,7 +252,7 @@ chapter6_Makefiles() {
 
     # Include a touch of the target name so make can check
     # if it's already been made.
-    echo -e '\t@touch $@' >> $MKFILE.tmp
+    wrt_touch
     #
     #--------------------------------------------------------------------#
     #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
@@ -328,7 +334,7 @@ chapter789_Makefiles() {
 
     # Include a touch of the target name so make can check
     # if it's already been made.
-    echo -e '\t@touch $@' >> $MKFILE.tmp
+    wrt_touch
     #
     #--------------------------------------------------------------------#
     #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
@@ -406,6 +412,8 @@ clean-all:  clean
 
 clean:  clean-chapter789 clean-chapter6 clean-chapter5 clean-chapter4
 
+restart: restart_code all
+
 clean-chapter4:
 	-if [ ! -f user-lfs-exist ]; then \\
 		userdel lfs; \\
@@ -438,23 +446,65 @@ clean-chapter789:
 restore-lfs-env:
 	@\$(call echo_message, Building)
 	@if [ -f /home/lfs/.bashrc.XXX ]; then \\
-		mv -fv /home/lfs/.bashrc.XXX /home/lfs/.bashrc; \\
+		mv -f /home/lfs/.bashrc.XXX /home/lfs/.bashrc; \\
 	fi;
 	@if [ -f /home/lfs/.bash_profile.XXX ]; then \\
-		mv -v /home/lfs/.bash_profile.XXX /home/lfs/.bash_profile; \\
+		mv /home/lfs/.bash_profile.XXX /home/lfs/.bash_profile; \\
 	fi;
 	@chown lfs:lfs /home/lfs/.bash* && \\
-	touch \$@
+	touch \$@ && \\
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
+	echo --------------------------------------------------------------------------------\$(WHITE)
 
 do_housekeeping:
-	-umount \$(MOUNT_PT)/sys
-	-umount \$(MOUNT_PT)/proc
-	-umount \$(MOUNT_PT)/dev/shm
-	-umount \$(MOUNT_PT)/dev/pts
-	-umount \$(MOUNT_PT)/dev
-	-if [ ! -f user-lfs-exist ]; then \\
+	@-umount \$(MOUNT_PT)/sys
+	@-umount \$(MOUNT_PT)/proc
+	@-umount \$(MOUNT_PT)/dev/shm
+	@-umount \$(MOUNT_PT)/dev/pts
+	@-umount \$(MOUNT_PT)/dev
+	@-if [ ! -f user-lfs-exist ]; then \\
 		userdel lfs; \\
 		rm -rf /home/lfs; \\
+	fi;
+
+restart_code:
+	@echo ">>> This feature is experimental, BUGS may exist"
+
+	@if [ ! -L /tools ]; then \\
+	  echo -e "\\nERROR::\\n /tools is NOT a symlink.. /tools must point to \$(MOUNT_PT)/tools\\n" && false;\\
+	fi;
+
+	@if [ ! -e /tools ]; then \\
+	  echo -e "\\nERROR::\\nThe target /tools points to does not exist.\\nVerify the target.. \$(MOUNT_PT)/tools\\n" && false;\\
+	fi;
+
+	@if ! stat -c %N /tools | grep "\$(MOUNT_PT)/tools" >/dev/null ; then \\
+	  echo -e "\\nERROR::\\nThe symlink \\"/tools\\" does not point to \\"\$(MOUNT_PT)/tools\\".\\nCorrect the problem and rerun\\n" && false;\\
+	fi;
+
+	@if [ -f ???-kernfs ]; then \\
+	  mkdir -pv \$(MOUNT_PT)/{dev,proc,sys};\\
+	  if [ ! -e \$(MOUNT_PT)/dev/console ]; then \\
+	    mknod -m 600 \$(MOUNT_PT)/dev/console c 5 1;\\
+	  fi;\\
+	  if [ ! -e \$(MOUNT_PT)/dev/null ]; then \\
+	    mknod -m 666 \$(MOUNT_PT)/dev/null c 1 3;\\
+	  fi;\\
+	  if !  mount -l | grep bind >/dev/null ; then \\
+	    mount --bind /dev \$(MOUNT_PT)/dev;\\
+	  fi;\\
+	  if ! mount -l | grep "\$(MOUNT_PT)/dev/pts" >/dev/null ; then \\
+	    mount -vt devpts devpts \$(MOUNT_PT)/dev/pts;\\
+	  fi;\\
+	  if ! mount -l | grep "\$(MOUNT_PT)/dev/shm" >/dev/null ; then \\
+	    mount -vt tmpfs shm \$(MOUNT_PT)/dev/shm;\\
+	  fi;\\
+	  if ! mount -l | grep "\$(MOUNT_PT)/proc" >/dev/null ; then \\
+	    mount -vt proc proc \$(MOUNT_PT)/proc;\\
+	  fi;\\
+	  if ! mount -l | grep "$\(MOUNT_PT)/sys" >/dev/null ; then \\
+	    mount -vt sysfs sysfs \$(MOUNT_PT)/sys;\\
+	  fi;\\
 	fi;
 
 EOF

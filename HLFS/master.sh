@@ -30,14 +30,16 @@ chapter3_Makefiles() {       # Initialization of the system
 cat << EOF
 020-creatingtoolsdir:
 	@\$(call echo_message, Building)
-	@mkdir -v \$(MOUNT_PT)/tools && \\
-	rm -fv /tools && \\
-	ln -sv \$(MOUNT_PT)/tools /
+	@mkdir \$(MOUNT_PT)/tools && \\
+	rm -f /tools && \\
+	ln -s \$(MOUNT_PT)/tools /
 	@if [ ! -d \$(MOUNT_PT)/sources ]; then \\
 		mkdir \$(MOUNT_PT)/sources; \\
 	fi;
 	@chmod a+wt \$(MOUNT_PT)/sources && \\
-	touch \$@
+	touch \$@ && \\
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
+	echo --------------------------------------------------------------------------------\$(WHITE)
 
 021-addinguser:  020-creatingtoolsdir
 	@\$(call echo_message, Building)
@@ -49,15 +51,17 @@ cat << EOF
 	fi;
 	@chown lfs \$(MOUNT_PT)/tools && \\
 	chown lfs \$(MOUNT_PT)/sources && \\
-	touch \$@
+	touch \$@ && \\
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
+	echo --------------------------------------------------------------------------------\$(WHITE)
 
 022-settingenvironment:  021-addinguser
 	@\$(call echo_message, Building)
 	@if [ -f /home/lfs/.bashrc -a ! -f /home/lfs/.bashrc.XXX ]; then \\
-		mv -v /home/lfs/.bashrc /home/lfs/.bashrc.XXX; \\
+		mv /home/lfs/.bashrc /home/lfs/.bashrc.XXX; \\
 	fi;
 	@if [ -f /home/lfs/.bash_profile  -a ! -f /home/lfs/.bash_profile.XXX ]; then \\
-		mv -v /home/lfs/.bash_profile /home/lfs/.bash_profile.XXX; \\
+		mv /home/lfs/.bash_profile /home/lfs/.bash_profile.XXX; \\
 	fi;
 	@echo "set +h" > /home/lfs/.bashrc && \\
 	echo "umask 022" >> /home/lfs/.bashrc && \\
@@ -72,7 +76,9 @@ cat << EOF
 	echo "source $JHALFSDIR/envars" >> /home/lfs/.bashrc && \\
 	chown lfs:lfs /home/lfs/.bashrc && \\
 	touch envars && \\
-	touch \$@
+	touch \$@ && \\
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
+	echo --------------------------------------------------------------------------------\$(WHITE)
 EOF
 ) >> $MKFILE.tmp
 
@@ -197,7 +203,7 @@ EOF
     esac
 
     # Include a touch of the target name so make can check if it's already been made.
-    echo -e '\t@touch $@' >> $MKFILE.tmp
+    wrt_touch
     #
     #--------------------------------------------------------------------#
     #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
@@ -365,7 +371,7 @@ EOF
     esac
 
     # Include a touch of the target name so make can check if it's already been made.
-    echo -e '\t@touch $@' >> $MKFILE.tmp
+    wrt_touch
     #
     #--------------------------------------------------------------------#
     #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
@@ -457,7 +463,7 @@ EOF
     esac
 
     # Include a touch of the target name so make can check if it's already been made.
-    echo -e '\t@touch $@' >> $MKFILE.tmp
+    wrt_touch
     #
     #--------------------------------------------------------------------#
     #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
@@ -572,21 +578,23 @@ clean-chapter7:
 restore-lfs-env:
 	@\$(call echo_message, Building)
 	@if [ -f /home/lfs/.bashrc.XXX ]; then \\
-		mv -fv /home/lfs/.bashrc.XXX /home/lfs/.bashrc; \\
+		mv -f /home/lfs/.bashrc.XXX /home/lfs/.bashrc; \\
 	fi;
 	@if [ -f /home/lfs/.bash_profile.XXX ]; then \\
-		mv -v /home/lfs/.bash_profile.XXX /home/lfs/.bash_profile; \\
+		mv /home/lfs/.bash_profile.XXX /home/lfs/.bash_profile; \\
 	fi;
 	@chown lfs:lfs /home/lfs/.bash* && \\
-	touch \$@
+	touch \$@ && \\
+	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
+	echo --------------------------------------------------------------------------------\$(WHITE)
 
 do-housekeeping:
-	-umount \$(MOUNT_PT)/dev/pts
-	-umount \$(MOUNT_PT)/dev/shm
-	-umount \$(MOUNT_PT)/dev
-	-umount \$(MOUNT_PT)/sys
-	-umount \$(MOUNT_PT)/proc
-	-if [ ! -f user-lfs-exist ]; then \\
+	@-umount \$(MOUNT_PT)/dev/pts
+	@-umount \$(MOUNT_PT)/dev/shm
+	@-umount \$(MOUNT_PT)/dev
+	@-umount \$(MOUNT_PT)/sys
+	@-umount \$(MOUNT_PT)/proc
+	@-if [ ! -f user-lfs-exist ]; then \\
 		userdel lfs; \\
 		rm -rf /home/lfs; \\
 	fi;
