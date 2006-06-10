@@ -18,9 +18,9 @@ declare -r  TS_POSITION=${CSI}$'65G'
 declare -a  RESET_LINE=${CURSOR_OFF}${ERASE_LINE}${FRAME_OPEN}${FRAME_CLOSE}
 
 declare -a  GRAPHIC_STR="| / - \\ + "
-declare -i  MIN=0  # Start value for minutes
 declare -i  SEC=0  # Seconds accumulator
-declare -i  POS=0  # Start value for seconds/cursor position
+declare -i  PREV_SEC=0
+
 
 write_or_exit() {
     # make has been killed or failed or run to completion, leave
@@ -33,19 +33,28 @@ write_or_exit() {
   echo -n "$1"
 }
 
-  # This will loop forever.. or overflow, which ever comes first :)
-for ((MIN=0; MIN >= 0; MIN++)); do
-  write_or_exit "${RESET_LINE}${TS_POSITION}${MIN} min. 0 sec. "
-  # Count the seconds
-  for ((SEC=1, POS=3; SEC <= 60; SEC++, POS++)); do
-    for GRAPHIC_CHAR in ${GRAPHIC_STR} ; do
-      write_or_exit "${CSI}${POS}G${GRAPHIC_CHAR}"
-      # Compensate code execution time (need verification on other machines)
-      sleep .137
-    done
-      # Display the accumulated time.
-    write_or_exit "${TS_POSITION}${MIN} min. ${SEC} sec. "
-  done
-done
-exit
+  # initialize screen
+write_or_exit "${RESET_LINE}${TS_POSITION}0 min. 0 sec. "
 
+  # loop forever..
+while true ; do
+
+      # Loop through the animation string
+    for GRAPHIC_CHAR in ${GRAPHIC_STR} ; do
+      write_or_exit "${CSI}$((SEC + 3))G${GRAPHIC_CHAR}"
+      sleep .12 # This value MUST be less than .2 seconds.
+    done
+
+      # A BASH internal variable, the number of seconds the script
+      # has been running. modulo convert to 0-59
+    SEC=$(($SECONDS % 60))
+
+      # Detect rollover of the seconds.
+    (( PREV_SEC > SEC )) && write_or_exit "${RESET_LINE}"
+    (( PREV_SEC = SEC ))
+
+      # Display the accumulated time. div minutes.. modulo seconds.
+    write_or_exit "${TS_POSITION}$(($SECONDS / 60)) min. $SEC sec. "
+done
+
+exit
