@@ -56,16 +56,22 @@ define echo_finished
   @echo -e \\tin the section -Entering the Chroot Environment-
   @echo -e \\texcept if building CLFS with METHOO=boot.
   @echo
-  @echo -e \\t- Set a password for the root user
+  @echo -e \\t- Set a password for the root user.
   @echo
   @echo -e \\t- Edit /etc/fstab, /etc/hosts, /etc/sysconfig/clock,
   @echo -e \\t/etc/sysconfig/console, /etc/sysconfig/network,
   @echo -e \\t/etc/sysconfig//network-devices/ifconfig.eth0/ipv4 and
   @echo -e \\tany other configuration file required to suit your needs.
   @echo
-  @echo -e \\t- Set-up the boot loader. See the relevant book section.
+  @echo -e \\t- Exist from the chroot.
   @echo
-  @echo -e \\t- Unmount the filesystems.
+  @echo -e \\t- Set-up the boot loader, except if building CLFS with METHOO=boot.
+  @echo -e \\tYou can set-up the host bootloader or the new boot-loader
+  @echo -e \\tinstalled on the new system.
+  @echo -e \\tIf the last, you must to mount the virtual filesystems, re-enter
+  @echo -e \\tto the chroot and be sure that /dev is populated with the
+  @echo -e \\trequired devices before configure the boot-loader. When ready,
+  @echo -e \\texit from the chroot and umount the filesystems
   @echo
   @echo If you are an experienced LFS user, several of those steps can be
   @echo skipped or done in a different way. But then, that is something
