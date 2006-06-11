@@ -47,15 +47,22 @@
         <!-- Creating dirs and files -->
       <exsl:document href="{$order}-{$filename}" method="text">
         <xsl:text>#!/bin/sh&#xA;set -e&#xA;&#xA;</xsl:text>
-        <xsl:apply-templates select="sect2 | .//screen">
-          <xsl:with-param name="package" select="$package"/>
-          <xsl:with-param name="ftpdir" select="$ftpdir"/>
-        </xsl:apply-templates>
-        <xsl:if test="sect2[@role='package']">
-          <xsl:text>cd ~/sources/</xsl:text>
-          <xsl:value-of select="$ftpdir"/>
-          <xsl:text>&#xA;rm -rf $UNPACKDIR&#xA;&#xA;</xsl:text>
-        </xsl:if>
+        <xsl:choose>
+          <xsl:when test="sect2[@role='package']">
+            <xsl:apply-templates select="sect2">
+              <xsl:with-param name="package" select="$package"/>
+              <xsl:with-param name="ftpdir" select="$ftpdir"/>
+            </xsl:apply-templates>
+            <xsl:if test="sect2[@role='package']">
+              <xsl:text>cd ~/sources/</xsl:text>
+              <xsl:value-of select="$ftpdir"/>
+              <xsl:text>&#xA;rm -rf $UNPACKDIR&#xA;&#xA;</xsl:text>
+            </xsl:if>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:apply-templates select=".//screen"/>
+          </xsl:otherwise>
+        </xsl:choose>
         <xsl:text>exit</xsl:text>
       </exsl:document>
     </xsl:if>
