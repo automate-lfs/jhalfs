@@ -55,8 +55,12 @@
 
       <!-- Dead links -->
       <xsl:when test="count($target) = 0">
-        <xsl:value-of select="@linkend"/>
-        <xsl:text> (link in the full book)</xsl:text>
+        <b>
+          <xsl:value-of select="@linkend"/>
+        </b>
+        <tt>
+          <xsl:text> (in the full book)</xsl:text>
+        </tt>
       </xsl:when>
       <!-- -->
 
