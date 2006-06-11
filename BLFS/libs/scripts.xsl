@@ -47,7 +47,7 @@
         <!-- Creating dirs and files -->
       <exsl:document href="{$order}-{$filename}" method="text">
         <xsl:text>#!/bin/sh&#xA;set -e&#xA;&#xA;</xsl:text>
-        <xsl:apply-templates select="sect2 | screen">
+        <xsl:apply-templates select="sect2 | .//screen">
           <xsl:with-param name="package" select="$package"/>
           <xsl:with-param name="ftpdir" select="$ftpdir"/>
         </xsl:apply-templates>
@@ -103,7 +103,7 @@
     <xsl:param name="ftpdir" select="foo"/>
     <xsl:choose>
       <xsl:when test="contains(string(),'HTTP')">
-        <!-- SRC_ARCHIVE may heva subdirectories or not -->
+        <!-- SRC_ARCHIVE may have subdirectories or not -->
         <xsl:text>cp $SRC_ARCHIVE/</xsl:text>
         <xsl:value-of select="$ftpdir"/>
         <xsl:text>/</xsl:text>
