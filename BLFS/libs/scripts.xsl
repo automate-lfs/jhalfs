@@ -53,11 +53,9 @@
               <xsl:with-param name="package" select="$package"/>
               <xsl:with-param name="ftpdir" select="$ftpdir"/>
             </xsl:apply-templates>
-            <xsl:if test="sect2[@role='package']">
-              <xsl:text>cd ~/sources/</xsl:text>
-              <xsl:value-of select="$ftpdir"/>
-              <xsl:text>&#xA;rm -rf $UNPACKDIR&#xA;&#xA;</xsl:text>
-            </xsl:if>
+            <xsl:text>cd ~/sources/</xsl:text>
+            <xsl:value-of select="$ftpdir"/>
+            <xsl:text>&#xA;rm -rf $UNPACKDIR&#xA;&#xA;</xsl:text>
           </xsl:when>
           <xsl:otherwise>
             <xsl:apply-templates select=".//screen"/>
