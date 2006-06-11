@@ -491,8 +491,6 @@ final_system_Makefiles() {    #
     done
     # Remove Bzip2 binaries before make install
     sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i final-system$N/*-bzip2
-    # Fix how Module-Init-Tools do the install target
-    sed -e 's@make install@make INSTALL=install install@' -i final-system$N/*-module-init-tools
     # Delete *old Readline libraries just after make install
     sed -e 's@make install@&\nrm -v /lib/lib{history,readline}*old@' -i final-system$N/*-readline
   fi
@@ -604,8 +602,6 @@ bm_final_system_Makefiles() { #
     done
     # Remove Bzip2 binaries before make install
     sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i final-system$N/*-bzip2
-    # Fix how Module-Init-Tools do the install target
-    sed -e 's@make install@make INSTALL=install install@' -i final-system$N/*-module-init-tools
     # Delete *old Readline libraries just after make install
     sed -e 's@make install@&\nrm -v /lib/lib{history,readline}*old@' -i final-system$N/*-readline
   fi
