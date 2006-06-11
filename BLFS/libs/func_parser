@@ -88,6 +88,8 @@ generate_target_book() {  #
     input vars: nothing
     externals:  vars: TARGET
                       BLFS_XML
+                      MAIL_SERVER
+                      X11
     modifies:   nothing
     returns:    nothing
     output:     file: NUMEROUS FILES
@@ -116,6 +118,7 @@ inline_doc
     sh ../../$BLFS_XML/obfuscate.sh $filename
     sed -i -e "s@text/html@application/xhtml+xml@g" $filename
   done
+  cd ..
   echo "done"
 }
 
@@ -124,15 +127,22 @@ inline_doc
 create_build_scripts() {  #
 #-------------------------#
 : <<inline_doc
-    function:
+    function:   Create shell scripts of the requested TARGET.
     input vars: nothing
-    externals:  none
+    externals:  TARGET
     modifies:   nothing
     returns:    nothing
-    output:     none
+    output:     file: NUMEROUS FILES
     on error:   nothing
     on success: nothing
 inline_doc
 
-  echo -en  "\tGenerating the build scripts ... not implemented yet, sorry\n"
+  # Log separator
+  echo -e "\n\tScripts generation errors:\n" >> xsltproc.log
+
+  echo -en  "\tGenerating the build scripts ..."
+  xsltproc --xinclude --nonet \
+           -o ./scripts/ ../libs/scripts.xsl \
+           $TARGET-index.xml >> xsltproc.log 2>&1
+  echo "done"
 }

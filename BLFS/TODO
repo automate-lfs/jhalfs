@@ -19,8 +19,13 @@ What remains to do:
      c. Run the packages.sh script.
 
 2. - To develop the XSL code needed to create the build scripts.
+     Work in progress.
 
-3. - To develop the code to create the Makefile
+3. - To develop the code to create the Makefile.
+     Should be a separate script to be run manually after the user has
+     review and edited the target build scripts.
+     Must make the build scripts executables and set the SRC_ARCHIVE and
+     FTP_SERVER envars.
 
 4. - To find a way to track already installed packages by previous runs, to can
        skip them when creating the book/scripts/Makefile for a new target.
