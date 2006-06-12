@@ -7,7 +7,7 @@
 
 <!-- $Id$ -->
 
-<!-- XSLT stylesheet to create shell scripts from BLFS books. -->
+<!-- XSLT stylesheet to create shell scripts from "linear build" BLFS books. -->
 
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
@@ -20,13 +20,27 @@
                   (count(descendant::screen/userinput) &gt; 0 and
                   count(descendant::screen/userinput) &gt;
                   count(descendant::screen[@role='nodump']))">
+
         <!-- The file names -->
       <xsl:variable name="pi-file" select="processing-instruction('dbhtml')"/>
       <xsl:variable name="pi-file-value" select="substring-after($pi-file,'filename=')"/>
       <xsl:variable name="filename" select="substring-before(substring($pi-file-value,2),'.html')"/>
-        <!-- Package variables BROKEN Need be fixed -->
-      <xsl:param name="package" select="sect1info/keywordset/keyword[@role='package']"/>
-      <xsl:param name="ftpdir" select="sect1info/keywordset/keyword[@role='ftpdir']"/>
+
+        <!-- Package name (what happens if "Download HTTP" is empty?)-->
+      <xsl:param name="package">
+        <xsl:call-template name="package_name">
+          <xsl:with-param name="url"
+            select="sect2[@role='package']/itemizedlist/listitem/para/ulink/@url"/>
+        </xsl:call-template>
+      </xsl:param>
+
+        <!-- FTP dir name -->
+      <xsl:param name="ftpdir">
+        <xsl:call-template name="ftp_dir">
+          <xsl:with-param name="package" select="$package"/>
+        </xsl:call-template>
+      </xsl:param>
+
         <!-- The build order -->
       <xsl:variable name="position" select="position()"/>
       <xsl:variable name="order">
@@ -44,7 +58,8 @@
           </xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
-        <!-- Creating dirs and files -->
+
+        <!-- Creating the scripts -->
       <exsl:document href="{$order}-{$filename}" method="text">
         <xsl:text>#!/bin/sh&#xA;set -e&#xA;&#xA;</xsl:text>
         <xsl:choose>
@@ -63,6 +78,7 @@
         </xsl:choose>
         <xsl:text>exit</xsl:text>
       </exsl:document>
+
     </xsl:if>
   </xsl:template>
 
@@ -102,6 +118,38 @@
   </xsl:template>
 
 <!--==================== Download code =======================-->
+
+  <xsl:template name="package_name">
+    <xsl:param name="url" select="foo"/>
+    <xsl:message>
+      <xsl:text>URL es </xsl:text>
+      <xsl:value-of select="$url"/>
+    </xsl:message>
+    <xsl:param name="sub-url" select="substring-after($url,'/')"/>
+    <xsl:choose>
+      <xsl:when test="contains($sub-url,'/')">
+        <xsl:call-template name="package_name">
+          <xsl:with-param name="url" select="$sub-url"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:choose>
+          <xsl:when test="contains($sub-url,'?')">
+            <xsl:value-of select="substring-before($sub-url,'?')"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$sub-url"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="ftp_dir">
+    <xsl:param name="package" select="foo"/>
+    <!-- Placeholder. We need here a lot of code from BLFS patcheslist.xsl -->
+    <xsl:value-of select="substring-before($package,'-')"/>
+  </xsl:template>
 
   <xsl:template match="itemizedlist/listitem/para">
     <xsl:param name="package" select="foo"/>
