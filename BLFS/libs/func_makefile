@@ -8,11 +8,11 @@
 # TEMPORARY VARIABLES.. development use only
 declare MKFILE=devMakefile
 declare PREV_PACKAGE=""
-SCRIPT_ROOT=jhalfs
-BUILD_SCRIPTS=scripts
-TRACKING_DIR=/var/lib/jhalfs/BLFS
-BUILDDIR=~/TRIAL
-LOGDIR=$BUILDDIR/logs
+declare SCRIPT_ROOT=jhalfs
+declare BUILD_SCRIPTS=scripts
+declare TRACKING_DIR=/var/lib/jhalfs/BLFS
+declare BUILDDIR=~/TRIAL
+declare LOGDIR=$BUILDDIR/logs
 
 #----------------------------------#
 __wrt_target() {                   # Create target and initialize log file
@@ -48,7 +48,7 @@ __wrt_touch() {                    #
 (
 cat << EOF
 	@touch  \$@ && \\
-	touch /var/lib/jhalfs/BLFS/${1#*-} \\
+	touch /var/lib/jhalfs/BLFS/${1#*-} && \\
 	sleep .25 && \\
 	echo -e "\n\n "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
@@ -114,6 +114,7 @@ $HEADER
 SRC= /sources
 MOUNT_PT= $BUILDDIR
 LOGDIR= $LOGDIR
+PACKAGE= "`basename $PKGXML .xml`"
 
 BOLD= "[0;1m"
 RED= "[1;31m"
@@ -129,8 +130,16 @@ define echo_message
   @echo \$(WHITE)
 endef
 
-all : $pkg_list
 
+define fin_message
+  @echo \$(BOLD)
+  @echo --------------------------------------------------------------------------------
+  @echo \$(BOLD) Build complete for the package \$(BLUE)\$(PACKAGE)\$(BOLD) and its dependencies
+  @echo \$(WHITE)
+endef
+
+all : $pkg_list
+	@\$(call fin_message )
 EOF
 ) > $MKFILE
 
