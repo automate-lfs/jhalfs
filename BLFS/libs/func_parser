@@ -98,15 +98,13 @@ generate_target_book() {  #
 inline_doc
 
   local filename # output filename
-
-  echo -en  "\tGenerating the HTML book ..."
+  echo -en  "\tGenerating the HTML book for <$TARGET> from the xml files located in <$BLFS_XML>..."
   xsltproc --xinclude --nonet \
            --stringparam mail_server $MAIL_SERVER \
            --stringparam xwindow $X11 \
            --stringparam base.dir HTML/ \
            ../libs/book.xsl \
            $TARGET-index.xml > xsltproc.log 2>&1
-
   mkdir HTML/{stylesheets,images}
   cp ../$BLFS_XML/stylesheets/*.css HTML/stylesheets
   cp ../$BLFS_XML/images/*.png HTML/images
@@ -145,4 +143,7 @@ inline_doc
            -o ./scripts/ ../libs/scripts.xsl \
            $TARGET-index.xml >> xsltproc.log 2>&1
   echo "done"
+    # Make the scripts executable.
+  chmod -R +x scripts
+
 }

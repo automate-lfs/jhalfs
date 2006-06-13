@@ -4,3 +4,139 @@
 #
 # $Id$
 #####
+
+# TEMPORARY VARIABLES.. development use only
+declare MKFILE=devMakefile
+declare PREV_PACKAGE=""
+SCRIPT_ROOT=jhalfs
+BUILD_SCRIPTS=scripts
+TRACKING_DIR=/var/lib/jhalfs/BLFS
+BUILDDIR=~/TRIAL
+LOGDIR=$BUILDDIR/logs
+
+#----------------------------------#
+__wrt_target() {                   # Create target and initialize log file
+#----------------------------------#
+  local i=$1
+  local PREV=$2
+(
+cat << EOF
+
+$i:  $PREV
+	@\$(call echo_message, Building)
+EOF
+) >> $MKFILE.tmp
+}
+
+
+
+#----------------------------------#
+__write_build_cmd() {              # Some scripts must be run as root..
+#----------------------------------#
+  local this_script=$1
+  local file=$2
+(
+cat << EOF
+	@( time { export LFS=\$(MOUNT_PT) && ${BUILD_SCRIPTS}/$file >>\$(LOGDIR)/$this_script 2>&1 ; } ) 2>>\$(LOGDIR)/$this_script
+EOF
+) >> $MKFILE.tmp
+}
+
+#----------------------------------#
+__wrt_touch() {                    #
+#----------------------------------#
+(
+cat << EOF
+	@touch  \$@ && \\
+	touch /var/lib/jhalfs/BLFS/${1#*-} \\
+	sleep .25 && \\
+	echo -e "\n\n "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
+	echo --------------------------------------------------------------------------------\$(WHITE)
+EOF
+) >> $MKFILE.tmp
+}
+
+
+#----------------------------#
+__write_entry() {            #
+#----------------------------#
+  local pkg_name=$1
+
+  echo "${tab_}${tab_} entry for <$pkg_name>"
+
+  #--------------------------------------------------------------------#
+  #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
+  #--------------------------------------------------------------------#
+  #
+  # Drop in the name of the target on a new line, and the previous target
+  # as a dependency. Also call the echo_message function.
+  __wrt_target "${pkg_name}" "$PREV_PACKAGE"
+  __write_build_cmd "${pkg_name}" "${pkg_name}"
+
+  # Include a touch of the target name so make can check
+  # if it's already been made.
+  __wrt_touch "${pkg_name}"
+  #
+  #--------------------------------------------------------------------#
+  #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
+  #--------------------------------------------------------------------#
+
+}
+
+#----------------------------#
+generate_Makefile () {       #
+#----------------------------#
+
+
+  echo "${tab_}Creating Makefile... ${BOLD}START${OFF}"
+
+  # Start with a clean files
+  >$MKFILE
+  >$MKFILE.tmp
+
+  
+  for package_script in scripts/* ; do
+    this_script=`basename $package_script`
+    if [ ! -e $TRACKING_DIR/${this_script#*-} ]; then
+      pkg_list="$pkg_list ${this_script}"
+      __write_entry $this_script
+      PREV_PACKAGE=${this_script}
+    fi
+  done
+
+
+  # Add a header, some variables and include the function file
+  # to the top of the real Makefile.
+(
+    cat << EOF
+$HEADER
+
+SRC= /sources
+MOUNT_PT= $BUILDDIR
+LOGDIR= $LOGDIR
+
+BOLD= "[0;1m"
+RED= "[1;31m"
+GREEN= "[0;32m"
+ORANGE= "[0;33m"
+BLUE= "[1;34m"
+WHITE= "[00m"
+
+define echo_message
+  @echo \$(BOLD)
+  @echo --------------------------------------------------------------------------------
+  @echo \$(BOLD)\$(1) target \$(BLUE)\$@\$(BOLD)
+  @echo \$(WHITE)
+endef
+
+all : $pkg_list
+
+EOF
+) > $MKFILE
+
+ 
+  cat $MKFILE.tmp >> $MKFILE
+
+  echo "${tab_}Creating Makefile... ${BOLD}DONE${OFF}"
+
+}

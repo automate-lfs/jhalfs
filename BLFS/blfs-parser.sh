@@ -34,6 +34,11 @@ source libs/func_dependencies
 source libs/func_parser
 [[ $? > 0 ]] && echo -e "\n\tERROR: func_parser did not load..\n" && exit
 
+#---------------------
+# Makefile module
+source libs/func_makefile
+[[ $? > 0 ]] && echo -e "\n\tERROR: func_makefile did not load..\n" && exit
+
 
 
 #-------------------------#
@@ -117,3 +122,4 @@ generate_dependency_tree
 generate_TARGET_xml
 generate_target_book
 create_build_scripts
+generate_Makefile
