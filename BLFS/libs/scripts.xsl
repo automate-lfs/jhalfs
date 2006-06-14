@@ -59,6 +59,17 @@
         </xsl:choose>
       </xsl:variable>
 
+      <!-- Depuration code -->
+      <xsl:message>
+        <xsl:text>SCRIPT is </xsl:text>
+        <xsl:value-of select="concat($order,'-',$filename)"/>
+        <xsl:text>&#xA;   PACKAGE is </xsl:text>
+        <xsl:value-of select="$package"/>
+        <xsl:text>&#xA;    FTPDIR is </xsl:text>
+        <xsl:value-of select="$ftpdir"/>
+        <xsl:text>&#xA;&#xA;</xsl:text>
+      </xsl:message>
+
         <!-- Creating the scripts -->
       <exsl:document href="{$order}-{$filename}" method="text">
         <xsl:text>#!/bin/sh&#xA;set -e&#xA;&#xA;</xsl:text>
@@ -121,10 +132,6 @@
 
   <xsl:template name="package_name">
     <xsl:param name="url" select="foo"/>
-    <xsl:message>
-      <xsl:text>URL es </xsl:text>
-      <xsl:value-of select="$url"/>
-    </xsl:message>
     <xsl:param name="sub-url" select="substring-after($url,'/')"/>
     <xsl:choose>
       <xsl:when test="contains($sub-url,'/')">
@@ -147,8 +154,36 @@
 
   <xsl:template name="ftp_dir">
     <xsl:param name="package" select="foo"/>
-    <!-- Placeholder. We need here a lot of code from BLFS patcheslist.xsl -->
-    <xsl:value-of select="substring-before($package,'-')"/>
+    <!-- From BLFS patcheslist.xsl. Need be revised and fixed. -->
+    <xsl:choose>
+        <!-- cdparanoia -->
+      <xsl:when test="contains($package, '-III')">
+        <xsl:text>cdparanoia</xsl:text>
+      </xsl:when>
+        <!-- Open Office -->
+      <xsl:when test="contains($package, 'OOo')">
+        <xsl:text>OOo</xsl:text>
+      </xsl:when>
+        <!-- QT -->
+      <xsl:when test="contains($package, 'qt-x')">
+        <xsl:text>qt</xsl:text>
+      </xsl:when>
+        <!-- XOrg -->
+      <xsl:when test="contains($package, 'X11R6')">
+        <xsl:text>xorg</xsl:text>
+      </xsl:when>
+        <!-- General rule -->
+      <xsl:otherwise>
+        <xsl:variable name="cut"
+          select="translate(substring-after($package, '-'), '0123456789', '0000000000')"/>
+        <xsl:variable name="package2">
+          <xsl:value-of select="substring-before($package, '-')"/>
+          <xsl:text>-</xsl:text>
+          <xsl:value-of select="$cut"/>
+        </xsl:variable>
+        <xsl:value-of select="substring-before($package2, '-0')"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="itemizedlist/listitem/para">

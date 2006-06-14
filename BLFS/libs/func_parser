@@ -136,7 +136,7 @@ create_build_scripts() {  #
 inline_doc
 
   # Log separator
-  echo -e "\n\tScripts generation errors:\n" >> xsltproc.log
+  echo -e "\n\tScripts generation depuration and errors:\n" >> xsltproc.log
 
   echo -en  "\tGenerating the build scripts ..."
   xsltproc --xinclude --nonet \
