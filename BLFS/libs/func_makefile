@@ -8,10 +8,8 @@
 # TEMPORARY VARIABLES.. development use only
 declare MKFILE=devMakefile
 declare PREV_PACKAGE=""
-declare SCRIPT_ROOT=jhalfs
 declare BUILD_SCRIPTS=scripts
 declare TRACKING_DIR=/var/lib/jhalfs/BLFS
-declare BUILDDIR=~/TRIAL
 
 
 #----------------------------------#
@@ -38,7 +36,7 @@ __write_build_cmd() {              #
   local file=$2
 (
 cat << EOF
-	@( time { export LFS=\$(MOUNT_PT) && ${BUILD_SCRIPTS}/${file} >>logs/${this_script} 2>&1 ; } ) 2>>logs/${this_script}
+	@( time { ${BUILD_SCRIPTS}/${file} >>logs/${this_script} 2>&1 ; } ) 2>>logs/${this_script}
 EOF
 ) >> $MKFILE.tmp
 }
@@ -113,8 +111,6 @@ generate_Makefile () {       #
     cat << EOF
 $HEADER
 
-SRC= /sources
-MOUNT_PT= $BUILDDIR
 PACKAGE= "`basename $PKGXML .xml`"
 TRACKING_DIR= $TRACKING_DIR
 
