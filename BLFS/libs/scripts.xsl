@@ -74,15 +74,25 @@
       <exsl:document href="{$order}-{$filename}" method="text">
         <xsl:text>#!/bin/sh&#xA;set -e&#xA;&#xA;</xsl:text>
         <xsl:choose>
+          <!-- Package page -->
           <xsl:when test="sect2[@role='package']">
+            <!-- Variables -->
+            <xsl:text>SRC_ARCHIVE=$SRC_ARCHIVE&#xA;</xsl:text>
+            <xsl:text>FTP_SERVER=$FTP_SERVER&#xA;&#xA;PACKAGE=</xsl:text>
+            <xsl:value-of select="$package"/>
+            <xsl:text>&#xA;PKG_DIR=</xsl:text>
+            <xsl:value-of select="$ftpdir"/>
+            <xsl:text>&#xA;&#xA;</xsl:text>
+            <!-- Download code and build commands -->
             <xsl:apply-templates select="sect2">
               <xsl:with-param name="package" select="$package"/>
               <xsl:with-param name="ftpdir" select="$ftpdir"/>
             </xsl:apply-templates>
-            <xsl:text>cd ~/sources/</xsl:text>
-            <xsl:value-of select="$ftpdir"/>
-            <xsl:text>&#xA;rm -rf $UNPACKDIR&#xA;&#xA;</xsl:text>
+            <!-- Clean-up -->
+            <xsl:text>cd ~/sources/$PKG_DIR&#xA;</xsl:text>
+            <xsl:text>rm -rf $UNPACKDIR&#xA;&#xA;</xsl:text>
           </xsl:when>
+          <!-- Non-package page -->
           <xsl:otherwise>
             <xsl:apply-templates select=".//screen"/>
           </xsl:otherwise>
@@ -100,11 +110,8 @@
     <xsl:param name="ftpdir" select="foo"/>
     <xsl:choose>
       <xsl:when test="@role = 'package'">
-        <xsl:text>mkdir -p ~/sources/</xsl:text>
-        <xsl:value-of select="$ftpdir"/>
-        <xsl:text>&#xA;cd ~/sources/</xsl:text>
-        <xsl:value-of select="$ftpdir"/>
-        <xsl:text>&#xA;</xsl:text>
+        <xsl:text>mkdir -p ~/sources/$PKG_DIR&#xA;</xsl:text>
+        <xsl:text>cd ~/sources/$PKG_DIR&#xA;</xsl:text>
         <xsl:apply-templates select="itemizedlist/listitem/para">
           <xsl:with-param name="package" select="$package"/>
           <xsl:with-param name="ftpdir" select="$ftpdir"/>
@@ -112,10 +119,8 @@
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
       <xsl:when test="@role = 'installation'">
-        <xsl:text>tar -xvf </xsl:text>
-        <xsl:value-of select="$package"/>
-        <xsl:text> > /tmp/unpacked&#xA;</xsl:text>
-        <xsl:text>UNPACKDIR=`head -n1 /tmp/unpacked | sed 's@^./@@;s@/.*@@'`&#xA;</xsl:text>
+        <xsl:text>tar -xvf $PACKAGE > unpacked&#xA;</xsl:text>
+        <xsl:text>UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`&#xA;</xsl:text>
         <xsl:text>cd $UNPACKDIR&#xA;</xsl:text>
         <xsl:apply-templates select=".//screen | .//para/command"/>
         <xsl:text>&#xA;</xsl:text>
@@ -124,7 +129,6 @@
         <xsl:apply-templates select=".//screen"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
-      <xsl:otherwise/>
     </xsl:choose>
   </xsl:template>
 
@@ -190,39 +194,31 @@
     <xsl:param name="package" select="foo"/>
     <xsl:param name="ftpdir" select="foo"/>
     <xsl:choose>
+      <!-- This depend on all package pages having both "Download HTTP" and "Download FTP" lines -->
       <xsl:when test="contains(string(),'HTTP')">
+        <xsl:text>if [[ ! -f $PACKAGE ]] ; then&#xA;</xsl:text>
         <!-- SRC_ARCHIVE may have subdirectories or not -->
-        <xsl:text>cp $SRC_ARCHIVE/</xsl:text>
-        <xsl:value-of select="$ftpdir"/>
-        <xsl:text>/</xsl:text>
-        <xsl:value-of select="$package"/>
-        <xsl:text> || \&#xA;</xsl:text>
-        <xsl:text>cp $SRC_ARCHIVE/</xsl:text>
-        <xsl:value-of select="$package"/>
-        <xsl:text> || \&#xA;</xsl:text>
+        <xsl:text>  if [[ -f $SRC_ARCHIVE/$PKG_DIR/$PACKAGE ]] ; then&#xA;</xsl:text>
+        <xsl:text>    cp $SRC_ARCHIVE/$PKG_DIR/$PACKAGE $PACKAGE&#xA;</xsl:text>
+        <xsl:text>  elif [[ -f $SRC_ARCHIVE/$PACKAGE ]] ; then&#xA;</xsl:text>
+        <xsl:text>    cp $SRC_ARCHIVE/$PACKAGE $PACKAGE&#xA;  else&#xA;</xsl:text>
         <!-- The FTP_SERVER mirror -->
-        <xsl:text>wget $FTP_SERVER/BLFS/conglomeration/</xsl:text>
-        <xsl:value-of select="$ftpdir"/>
-        <xsl:text>/</xsl:text>
-        <xsl:value-of select="$package"/>
-        <xsl:text> || \&#xA;</xsl:text>
+        <xsl:text>    wget $FTP_SERVER/BLFS/conglomeration/$PKG_DIR/$PACKAGE || \&#xA;</xsl:text>
         <!-- Upstream HTTP URL -->
-        <xsl:text>wget </xsl:text>
+        <xsl:text>    wget </xsl:text>
         <xsl:value-of select="ulink/@url"/>
         <xsl:text> || \&#xA;</xsl:text>
       </xsl:when>
       <xsl:when test="contains(string(),'FTP')">
         <!-- Upstream FTP URL -->
-        <xsl:text>wget </xsl:text>
+        <xsl:text>    wget </xsl:text>
         <xsl:value-of select="ulink/@url"/>
-        <xsl:text>&#xA;</xsl:text>
+        <xsl:text>&#xA;  fi&#xA;fi&#xA;</xsl:text>
       </xsl:when>
       <xsl:when test="contains(string(),'MD5')">
         <xsl:text>echo "</xsl:text>
         <xsl:value-of select="substring-after(string(),'sum: ')"/>
-        <xsl:text>&#x20;&#x20;</xsl:text>
-        <xsl:value-of select="$package"/>
-        <xsl:text>" | md5sum -c -&#xA;</xsl:text>
+        <xsl:text>&#x20;&#x20;$PACKAGE" | md5sum -c -&#xA;</xsl:text>
       </xsl:when>
       <!-- Patches. Need be veryfied -->
       <xsl:when test="contains(string(),'patch')">
@@ -230,7 +226,6 @@
         <xsl:value-of select="ulink/@url"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
-      <xsl:otherwise/>
     </xsl:choose>
   </xsl:template>
 
