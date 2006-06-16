@@ -123,11 +123,11 @@ cross_tools_Makefiles() {     #
     # Adjust 'name' and patch a few scripts on the fly..
     case $name in
       linux-libc) name=linux-libc-headers ;;
+      linux)      name=linux-headers ;;
     esac
     #
     # Find the version of the command files, if it corresponds with the building of a specific package
     vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
-
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
