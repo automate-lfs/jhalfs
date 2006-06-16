@@ -127,8 +127,15 @@ cross_tools_Makefiles() {     #
     esac
     #
     # Find the version of the command files, if it corresponds with the building of a specific package
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
 
+    # oh-oh.. This small ugly is necessary to handle the LFS headers naming scheme
+    if [ "${name}" = "linux-headers" ]; then
+      linux_vrs=`grep "^linux-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+      vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+      vrs=${linux_vrs}-${vrs##*-}
+    else
+      vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+    fi
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
     #--------------------------------------------------------------------#
@@ -519,7 +526,15 @@ final_system_Makefiles() {    #
     # Find the version of the command files, if it corresponds with the building of
     # a specific package. We need this here to can skip scripts not needed for
     # iterations rebuilds
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+
+    # oh-oh.. This small ugly is necessary to handle the LFS headers naming scheme
+    if [ "${name}" = "linux-headers" ]; then
+      linux_vrs=`grep "^linux-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+      vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+      vrs=${linux_vrs}-${vrs##*-}
+    else
+      vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+    fi
 
     if [[ "$vrs" = "" ]] && [[ -n "$N" ]] ; then
       case "${this_script}" in
