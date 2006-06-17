@@ -26,12 +26,24 @@
       <xsl:variable name="pi-file-value" select="substring-after($pi-file,'filename=')"/>
       <xsl:variable name="filename" select="substring-before(substring($pi-file-value,2),'.html')"/>
 
-        <!-- Package name (what happens if "Download HTTP" is empty?)-->
+        <!-- Package name (use "Download FTP" by default. If empty, use "Download HTTP" -->
       <xsl:param name="package">
-        <xsl:call-template name="package_name">
-          <xsl:with-param name="url"
-            select="sect2[@role='package']/itemizedlist/listitem/para/ulink/@url"/>
-        </xsl:call-template>
+        <xsl:choose>
+          <xsl:when
+            test="string-length(sect2[@role='package']/itemizedlist/listitem[2]/para/ulink/@url)
+            &gt; '10'">
+            <xsl:call-template name="package_name">
+              <xsl:with-param name="url"
+                select="sect2[@role='package']/itemizedlist/listitem[2]/para/ulink/@url"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:call-template name="package_name">
+              <xsl:with-param name="url"
+                select="sect2[@role='package']/itemizedlist/listitem[1]/para/ulink/@url"/>
+            </xsl:call-template>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:param>
 
         <!-- FTP dir name -->
@@ -200,9 +212,17 @@
       <xsl:when test="contains($package, 'pine')">
         <xsl:text>pine</xsl:text>
       </xsl:when>
+        <!-- portmap -->
+      <xsl:when test="contains($package, 'portmap')">
+        <xsl:text>portmap</xsl:text>
+      </xsl:when>
         <!-- psutils -->
       <xsl:when test="contains($package, 'psutils')">
         <xsl:text>psutils</xsl:text>
+      </xsl:when>
+        <!-- qpopper -->
+      <xsl:when test="contains($package, 'qpopper')">
+        <xsl:text>qpopper</xsl:text>
       </xsl:when>
         <!-- QT -->
       <xsl:when test="contains($package, 'qt-x')">
@@ -285,15 +305,20 @@
         <!-- The FTP_SERVER mirror -->
         <xsl:text>    wget $FTP_SERVER/BLFS/conglomeration/$PKG_DIR/$PACKAGE || \&#xA;</xsl:text>
         <!-- Upstream HTTP URL -->
-        <xsl:text>    wget </xsl:text>
-        <xsl:value-of select="ulink/@url"/>
-        <xsl:text> || \&#xA;</xsl:text>
+        <xsl:if test="string-length(ulink/@url) &gt; '10'">
+          <xsl:text>    wget </xsl:text>
+          <xsl:value-of select="ulink/@url"/>
+          <xsl:text> || \&#xA;</xsl:text>
+        </xsl:if>
       </xsl:when>
       <xsl:when test="contains(string(),'FTP')">
         <!-- Upstream FTP URL -->
-        <xsl:text>    wget </xsl:text>
-        <xsl:value-of select="ulink/@url"/>
-        <xsl:text>&#xA;  fi&#xA;fi&#xA;</xsl:text>
+        <xsl:if test="string-length(ulink/@url) &gt; '10'">
+          <xsl:text>    wget </xsl:text>
+          <xsl:value-of select="ulink/@url"/>
+          <xsl:text>&#xA;</xsl:text>
+        </xsl:if>
+        <xsl:text>  fi&#xA;fi&#xA;</xsl:text>
       </xsl:when>
       <xsl:when test="contains(string(),'MD5')">
         <xsl:text>echo "</xsl:text>
