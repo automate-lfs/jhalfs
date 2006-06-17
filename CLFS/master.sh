@@ -401,6 +401,7 @@ testsuite_tools_Makefiles() { #
     #
     case $name in
       tcl)    wrt_unpack2 "$name$vrs-src.tar.*" ;;
+      tree)   wrt_unpack2 "$name-$vrs.tgz"      ;;
       *)      wrt_unpack2 "$name-$vrs.tar.*"    ;;
     esac
     [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
@@ -456,6 +457,7 @@ bm_testsuite_tools_Makefiles() { #
     #
     case $name in
       tcl)    wrt_unpack3 "$name$vrs-src.tar.*" ;;
+      tree)   wrt_unpack3 "$name-$vrs.tgz"      ;;
       *)      wrt_unpack3 "$name-$vrs.tar.*"    ;;
     esac
     [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
