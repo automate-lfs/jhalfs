@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+?xml version="1.0"?>
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:exsl="http://exslt.org/common"
@@ -158,23 +158,99 @@
 
   <xsl:template name="ftp_dir">
     <xsl:param name="package" select="foo"/>
-    <!-- From BLFS patcheslist.xsl. Need be revised and fixed. -->
+    <!-- A lot of hardcoded dir names. Not full revised yet. -->
     <xsl:choose>
         <!-- cdparanoia -->
       <xsl:when test="contains($package, '-III')">
         <xsl:text>cdparanoia</xsl:text>
       </xsl:when>
+        <!-- DobBook 3.1 -->
+      <xsl:when test="contains($package, 'docbk31')">
+        <xsl:text>docbk</xsl:text>
+      </xsl:when>
+        <!-- gc -->
+      <xsl:when test="contains($package, 'gc6')">
+        <xsl:text>gc</xsl:text>
+      </xsl:when>
+        <!-- ISO-codes -->
+      <xsl:when test="contains($package, 'iso-codes')">
+        <xsl:text>iso-codes</xsl:text>
+      </xsl:when>
+        <!-- JPEG -->
+      <xsl:when test="contains($package, 'jpegsrc')">
+        <xsl:text>jpeg</xsl:text>
+      </xsl:when>
+        <!-- lynx -->
+      <xsl:when test="contains($package, 'lynx')">
+        <xsl:text>lynx</xsl:text>
+      </xsl:when>
+        <!-- ntp -->
+      <xsl:when test="contains($package, 'ntp')">
+        <xsl:text>ntp</xsl:text>
+      </xsl:when>
+        <!-- OpenLDAP -->
+      <xsl:when test="contains($package, 'openldap')">
+        <xsl:text>openldap</xsl:text>
+      </xsl:when>
         <!-- Open Office -->
       <xsl:when test="contains($package, 'OOo')">
         <xsl:text>OOo</xsl:text>
       </xsl:when>
-        <!-- QT -->
-      <xsl:when test="contains($package, 'qt-x')">
-        <xsl:text>qt</xsl:text>
+        <!-- pine -->
+      <xsl:when test="contains($package, 'pine')">
+        <xsl:text>pine</xsl:text>
+      </xsl:when>
+        <!-- psutils -->
+      <xsl:when test="contains($package, 'psutils')">
+        <xsl:text>psutils</xsl:text>
+      </xsl:when>
+        <!-- sendmail -->
+      <xsl:when test="contains($package, 'sendmail')">
+        <xsl:text>sendmail</xsl:text>
+      </xsl:when>
+        <!-- Slib -->
+      <xsl:when test="contains($package, 'slib')">
+        <xsl:text>slib</xsl:text>
+      </xsl:when>
+        <!-- TCL -->
+      <xsl:when test="contains($package, 'tcl')">
+        <xsl:text>tcl</xsl:text>
+      </xsl:when>
+        <!-- tcpwrappers -->
+      <xsl:when test="contains($package, 'tcp_wrappers')">
+        <xsl:text>tcp_wrappers</xsl:text>
+      </xsl:when>
+        <!-- TeTeX -->
+      <xsl:when test="contains($package, 'tetex')">
+        <xsl:text>tetex</xsl:text>
+      </xsl:when>
+        <!-- Tidy -->
+      <xsl:when test="contains($package, 'tidy')">
+        <xsl:text>tidy</xsl:text>
+      </xsl:when>
+        <!-- Tk -->
+      <xsl:when test="contains($package, 'tk')">
+        <xsl:text>tk</xsl:text>
+      </xsl:when>
+        <!-- unzip -->
+      <xsl:when test="contains($package, 'unzip')">
+        <xsl:text>unzip</xsl:text>
+      </xsl:when>
+        <!-- wireless_tools -->
+      <xsl:when test="contains($package, 'wireless_tools')">
+        <xsl:text>wireless_tools</xsl:text>
+      </xsl:when>
+        <!-- whois -->
+      <xsl:when test="contains($package, 'whois')">
+        <xsl:text>whois</xsl:text>
       </xsl:when>
         <!-- XOrg -->
       <xsl:when test="contains($package, 'X11R6')">
-        <xsl:text>xorg</xsl:text>
+        <xsl:text>Xorg</xsl:text>
+      </xsl:when>
+        <!-- zip -->
+      <xsl:when test="contains($package, 'zip2')">
+        <xsl:text>zip</xsl:text>
       </xsl:when>
         <!-- General rule -->
       <xsl:otherwise>
