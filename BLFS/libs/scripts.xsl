@@ -1,4 +1,4 @@
-?xml version="1.0"?>
+<?xml version="1.0"?>
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:exsl="http://exslt.org/common"
@@ -204,6 +204,10 @@
       <xsl:when test="contains($package, 'psutils')">
         <xsl:text>psutils</xsl:text>
       </xsl:when>
+        <!-- QT -->
+      <xsl:when test="contains($package, 'qt-x')">
+        <xsl:text>qt-x11-free</xsl:text>
+      </xsl:when>
         <!-- sendmail -->
       <xsl:when test="contains($package, 'sendmail')">
         <xsl:text>sendmail</xsl:text>
@@ -229,7 +233,7 @@
         <xsl:text>tidy</xsl:text>
       </xsl:when>
         <!-- Tk -->
-      <xsl:when test="contains($package, 'tk')">
+      <xsl:when test="contains($package, 'tk8')">
         <xsl:text>tk</xsl:text>
       </xsl:when>
         <!-- unzip -->
