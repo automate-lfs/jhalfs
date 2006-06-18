@@ -337,16 +337,15 @@
 <!--======================== Commands code ==========================-->
 
   <xsl:template match="screen">
-    <xsl:if test="child::* = userinput">
-      <xsl:choose>
-        <xsl:when test="@role = 'nodump'"/>
-        <xsl:otherwise>
-          <xsl:if test="@role = 'root'">
-            <xsl:text>sudo </xsl:text>
-          </xsl:if>
-          <xsl:apply-templates select="userinput" mode="screen"/>
-        </xsl:otherwise>
-      </xsl:choose>
+    <xsl:if test="child::* = userinput and not(@role = 'nodump')">
+      <xsl:if test="@role = 'root'">
+        <xsl:text>sudo sh -c "</xsl:text>
+      </xsl:if>
+      <xsl:apply-templates select="userinput"/>
+      <xsl:if test="@role = 'root'">
+        <xsl:text>"</xsl:text>
+      </xsl:if>
+      <xsl:text>&#xA;</xsl:text>
     </xsl:if>
   </xsl:template>
 
@@ -361,9 +360,8 @@
     </xsl:if>
   </xsl:template>
 
-  <xsl:template match="userinput" mode="screen">
+  <xsl:template match="userinput">
     <xsl:apply-templates/>
-    <xsl:text>&#xA;</xsl:text>
   </xsl:template>
 
   <xsl:template match="replaceable">
