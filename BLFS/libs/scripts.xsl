@@ -326,7 +326,7 @@
         <xsl:text>&#x20;&#x20;$PACKAGE" | md5sum -c -&#xA;</xsl:text>
       </xsl:when>
       <!-- Patches. Need be veryfied -->
-      <xsl:when test="contains(string(),'patch')">
+      <xsl:when test="contains(string(ulink/@url),'.patch')">
         <xsl:text>wget </xsl:text>
         <xsl:value-of select="ulink/@url"/>
         <xsl:text>&#xA;</xsl:text>
