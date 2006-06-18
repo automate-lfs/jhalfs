@@ -160,6 +160,7 @@
           <xsl:when test="contains($sub-url,'?')">
             <xsl:value-of select="substring-before($sub-url,'?')"/>
           </xsl:when>
+          <xsl:when test="contains($sub-url,'.patch')"/>
           <xsl:otherwise>
             <xsl:value-of select="$sub-url"/>
           </xsl:otherwise>
