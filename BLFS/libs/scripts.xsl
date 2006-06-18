@@ -303,29 +303,28 @@
         <xsl:text>  elif [[ -f $SRC_ARCHIVE/$PACKAGE ]] ; then&#xA;</xsl:text>
         <xsl:text>    cp $SRC_ARCHIVE/$PACKAGE $PACKAGE&#xA;  else&#xA;</xsl:text>
         <!-- The FTP_SERVER mirror -->
-        <xsl:text>    wget $FTP_SERVER/BLFS/conglomeration/$PKG_DIR/$PACKAGE || \&#xA;</xsl:text>
+        <xsl:text>    wget $FTP_SERVER/BLFS/conglomeration/$PKG_DIR/$PACKAGE</xsl:text>
         <!-- Upstream HTTP URL -->
-        <xsl:if test="string-length(ulink/@url) &gt; '10'">
-          <xsl:text>    wget </xsl:text>
+        <xsl:if test="string-length(ulink/@url) &gt; '10' and
+                      not(contains(string(ulink/@url),'sourceforge'))">
+          <xsl:text> || \&#xA;    wget </xsl:text>
           <xsl:value-of select="ulink/@url"/>
-          <xsl:text> || \&#xA;</xsl:text>
         </xsl:if>
       </xsl:when>
       <xsl:when test="contains(string(),'FTP')">
         <!-- Upstream FTP URL -->
         <xsl:if test="string-length(ulink/@url) &gt; '10'">
-          <xsl:text>    wget </xsl:text>
+          <xsl:text> || \&#xA;    wget </xsl:text>
           <xsl:value-of select="ulink/@url"/>
-          <xsl:text>&#xA;</xsl:text>
         </xsl:if>
-        <xsl:text>  fi&#xA;fi&#xA;</xsl:text>
+        <xsl:text>&#xA;  fi&#xA;fi&#xA;</xsl:text>
       </xsl:when>
       <xsl:when test="contains(string(),'MD5')">
         <xsl:text>echo "</xsl:text>
         <xsl:value-of select="substring-after(string(),'sum: ')"/>
         <xsl:text>&#x20;&#x20;$PACKAGE" | md5sum -c -&#xA;</xsl:text>
       </xsl:when>
-      <!-- Patches. Need be veryfied -->
+      <!-- Patches -->
       <xsl:when test="contains(string(ulink/@url),'.patch')">
         <xsl:text>wget </xsl:text>
         <xsl:value-of select="ulink/@url"/>
