@@ -256,9 +256,14 @@ boot_Makefiles() {            #
       *lilo-build)    name=lilo                    ;;
       *)              name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' -e 's@-build@@' ` ;;
     esac
-
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
-
+      # Identify the unique version naming scheme for the clfs bootscripts..(bad boys)
+    case $name in
+      bootscripts-cross-lfs)
+        vrs=`grep "^clfs-bootscripts-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+         ;;
+      *) vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+         ;;
+    esac
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
     #--------------------------------------------------------------------#
@@ -401,7 +406,6 @@ testsuite_tools_Makefiles() { #
     #
     case $name in
       tcl)    wrt_unpack2 "$name$vrs-src.tar.*" ;;
-      tree)   wrt_unpack2 "$name-$vrs.tgz"      ;;
       *)      wrt_unpack2 "$name-$vrs.tar.*"    ;;
     esac
     [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
@@ -457,7 +461,6 @@ bm_testsuite_tools_Makefiles() { #
     #
     case $name in
       tcl)    wrt_unpack3 "$name$vrs-src.tar.*" ;;
-      tree)   wrt_unpack3 "$name-$vrs.tgz"      ;;
       *)      wrt_unpack3 "$name-$vrs.tar.*"    ;;
     esac
     [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
@@ -734,13 +737,17 @@ bootscripts_Makefiles() {     #
                                   -e 's@64@@' \
                                   -e 's@n32@@'`
     case $name in
-      *bootscripts*) name=clfs-bootscripts ;; # Very dirty hack
+      *bootscripts*) name=bootscripts-cross-lfs ;;
       *udev-rules)   name=udev-cross-lfs ;;
     esac
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
-    # Very dirty hack
+
+      # Identify the unique version naming scheme for the clfs bootscripts..(bad boys)
     case $name in
-      *bootscripts*) name=bootscripts-cross-lfs ;;
+      bootscripts-cross-lfs)
+	 vrs=`grep "^clfs-bootscripts-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+	 ;;
+      *) vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+         ;;
     esac
 
     #--------------------------------------------------------------------#
@@ -783,7 +790,7 @@ bm_bootscripts_Makefiles() {  #
     this_script=`basename $file`
 
     case $this_script in
-      *udev) continue    ;;  # This is not a script but a commentary
+      *udev*) continue    ;;  # This is not a script but a commentary
       *console*) continue ;; # Use the files that came with the bootscripts
       *)  ;;
     esac
@@ -799,14 +806,10 @@ bm_bootscripts_Makefiles() {  #
                                   -e 's@64@@' \
                                   -e 's@n32@@'`
     case $name in
-      *bootscripts*) name=clfs-bootscripts ;; # Very dirty hack
-      *udev-rules)   name=udev-cross-lfs ;;
+      *bootscripts*) name=bootscripts-cross-lfs
+       ;;
     esac
     vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
-    # Very dirty hack
-    case $name in
-      *bootscripts*) name=bootscripts-cross-lfs ;;
-    esac
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
