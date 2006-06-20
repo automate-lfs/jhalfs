@@ -683,6 +683,9 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
   local saveIFS=$IFS
   local IFS line URL1 URL2 FILE BOOKMD5 MD5 HAVEMD5 fromARCHIVE
 
+  # ALWAYS create a list of the full filenames
+  create_package_list
+
     # Test if the packages must be downloaded
   [ ! "$GETPKG" = "1" ] && return
 
@@ -800,6 +803,28 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
   fi
 }
 
+#----------------------------#
+create_package_list() {      #
+#----------------------------#
+
+  # Create the packages file. We need it for proper Makefile creation
+  echo -n "Creating <${PROGNAME}> list of tarball names for $BOOK $ARCH"
+  case ${PROGNAME} in
+    clfs)
+        xsltproc --nonet \
+                 --xinclude \
+                 -o pkg_tarball_list packages.xsl $BOOK/${ARCH}-index.xml
+      ;;
+    hlfs | lfs )
+        xsltproc --nonet \
+                 --xinclude \
+                 -o pkg_tarball_list packages.xsl $BOOK/index.xml
+      ;;
+  esac
+  echo " ...OK"
+
+}
+
 
 #----------------------------#
 create_urls() {              #
@@ -835,4 +860,20 @@ create_urls() {              #
   esac
 
   cd $BUILDDIR/sources
+}
+
+
+#----------------------------#
+get_package_tarball_name() { #
+#----------------------------#
+  local script_name=$1
+
+   # The use of 'head' is necessary to limit the return value to the FIRST match..
+   # hopefully this will not cause problems.
+   #
+   case $script_name in
+     tcl)   echo $(grep "^tcl" $JHALFSDIR/pkg_tarball_list | head -n1 ) ;;
+     *)     echo $(grep "^$script_name-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 ) ;;
+   esac
+
 }

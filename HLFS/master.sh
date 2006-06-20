@@ -119,12 +119,13 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
 
     # Adjust 'name'
     case $name in
-      linux-libc) name=linux-libc-headers ;;
+      linux-libc) name="linux-libc-headers" ;;
+      gcc)        name="gcc-core"  ;;
+      uclibc)     name="uClibc"  ;;
     esac
 
     # Set the dependency for the first target.
     if [ -z $PREV ] ; then PREV=022-settingenvironment ; fi
-
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
@@ -136,22 +137,13 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
 
     # Find the version of the command files, if it corresponds with the building of
     # a specific package
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
-    # If $vrs isn't empty, we've got a package...
-    if [ "$vrs" != "" ] ; then
-      # Deal with non-standard names
-      case $name in
-        tcl)    FILE="$name$vrs-src.tar.*"  ;;
-        uclibc) FILE="uClibc-$vrs.tar.*"    ;;
-        gcc)    FILE="gcc-core-$vrs.tar.*"  ;;
-        *)      FILE="$name-$vrs.tar.*"     ;;
-      esac
+    pkg_tarball=$(get_package_tarball_name $name)
+    # If $pkg_tarball isn't empty, we've got a package...
+    if [ "$pkg_tarball" != "" ] ; then
       # Insert instructions for unpacking the package and to set the PKGDIR variable.
       case $this_script in
-        *binutils* )
-          wrt_unpack "$FILE" 1 ;; # Do not delete an existing package directories
-        *)
-          wrt_unpack "$FILE" ;;
+        *binutils* )  wrt_unpack "$pkg_tarball" 1 ;; # Do not delete an existing package directories
+        *)            wrt_unpack "$pkg_tarball" ;;
       esac
       # If the testsuites must be run, initialize the log file
       [[ "$TEST" = "3" ]] && wrt_test_log "${this_script}"
@@ -180,12 +172,11 @@ EOF
     # Remove the build directory(ies) except if the package build fails
     # (so we can review config.cache, config.log, etc.)
     # For Binutils the sources must be retained for some time.
-    if [ "$vrs" != "" ] ; then
+    if [ "$pkg_tarball" != "" ] ; then
       case "${this_script}" in
-        *binutils*) : # do NOTHING
-          ;;
-        *) wrt_remove_build_dirs "$name"
-          ;;
+        *binutils*) : ;;   # do NOTHING
+	*gcc*) wrt_remove_build_dirs "gcc"    ;;
+        *)     wrt_remove_build_dirs "$name"    ;;
       esac
     fi
 
@@ -271,11 +262,25 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     # Grab the name of the target
     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'`
 
+    #
+    # Sed replacement to fix some rm command that could fail.
+    # That should be fixed in the book sources.
+    #
+    case $name in
+      glibc)  sed 's/rm /rm -f /' -i chapter06$N/$this_script        ;;
+      gcc)    sed 's/rm /rm -f /' -i chapter06$N/$this_script        ;;
+    esac
+
+    case $name in
+      gcc)     name="gcc-core" ;;
+      uclibc)  name="uClibc"   ;;
+    esac
+
     # Find the version of the command files, if it corresponds with the building of
     # a specific package
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+    pkg_tarball=$(get_package_tarball_name $name)
 
-    if [[ "$vrs" = "" ]] && [[ -n "$N" ]] ; then
+    if [[ "$pkg_tarball" = "" ]] && [[ -n "$N" ]] ; then
       case "${this_script}" in
         *stripping*) ;;
         *)  continue ;;
@@ -290,42 +295,23 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     # the names of the logs to be moved for each iteration)
     LOGS="$LOGS ${this_script}"
 
-    #
-    # Sed replacement to fix some rm command that could fail.
-    # That should be fixed in the book sources.
-    #
-    case $name in
-      glibc)
-          sed 's/rm /rm -f /' -i chapter06$N/$this_script
-        ;;
-      gcc)
-          sed 's/rm /rm -f /' -i chapter06$N/$this_script
-        ;;
-    esac
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
     #--------------------------------------------------------------------#
     #
     # Drop in the name of the target on a new line, and the previous target
-    # as a dependency. Also call the echo_message function.
+    # as a dependency. Also call the echo_message function.		
     wrt_target "${this_script}${N}" "$PREV"
 
-    # If $vrs isn't empty, we've got a package...
+    # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
-    if [ "$vrs" != "" ] ; then
-      # Deal with non-standard names
-      case $name in
-        tcl)    FILE="$name$vrs-src.tar.*" ;;
-        uclibc) FILE="uClibc-$vrs.tar.*" ;;
-        gcc)    FILE="gcc-core-$vrs.tar.*" ;;
-        *)      FILE="$name-$vrs.tar.*" ;;
-      esac
-      wrt_unpack2 "$FILE"
+    if [ "$pkg_tarball" != "" ] ; then
+      wrt_unpack2 "$pkg_tarball"
       wrt_target_vars
       # If the testsuites must be run, initialize the log file
       case $name in
-        binutils | gcc | glibc )
+        binutils | gcc-core | glibc )
           [[ "$TEST" != "0" ]] && wrt_test_log2 "${this_script}"
           ;;
         * )
@@ -353,7 +339,7 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     esac
     #
     # Remove the build directory(ies) except if the package build fails.
-    if [ "$vrs" != "" ] ; then
+    if [ "$pkg_tarball" != "" ] ; then
       wrt_remove_build_dirs "$name"
     fi
     #
@@ -427,11 +413,9 @@ chapter7_Makefiles() {       # Create a bootable system.. kernel, bootscripts..e
 
     case "${this_script}" in
       *bootscripts*)
-        vrs=`grep "^lfs-bootscripts-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
-        FILE="lfs-bootscripts-$vrs.tar.*"
-        wrt_unpack2 "$FILE"
-        vrs=`grep "^blfs-bootscripts-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
-        echo -e "\t@echo \"\$(MOUNT_PT)\$(SRC)/blfs-bootscripts-$vrs\" >> sources-dir" >> $MKFILE.tmp
+        wrt_unpack2 $(get_package_tarball_name "lfs-bootscripts")
+        blfs_bootscripts=$(get_package_tarball_name "blfs-bootscripts" | sed -e 's/.tar.*//' )
+        echo -e "\t@echo \"\$(MOUNT_PT)\$(SRC)/$blfs_bootscripts\" >> sources-dir" >> $MKFILE.tmp
         ;;
     esac
 
@@ -546,6 +530,8 @@ clean-all:  clean
 
 clean:  clean-chapter7 clean-chapter6 clean-chapter5 clean-chapter3
 
+restart: restart_code all
+
 clean-chapter3:
 	-if [ ! -f user-lfs-exist ]; then \\
 		userdel lfs; \\
@@ -598,6 +584,47 @@ do-housekeeping:
 		userdel lfs; \\
 		rm -rf /home/lfs; \\
 	fi;
+
+restart_code:
+	@echo ">>> This feature is experimental, BUGS may exist"	
+	
+	@if [ ! -L /tools ]; then \\
+	  echo -e "\\nERROR::\\n /tools is NOT a symlink.. /tools must point to \$(MOUNT_PT)/tools\\n" && false;\\
+	fi;
+	
+	@if [ ! -e /tools ]; then \\
+	  echo -e "\\nERROR::\\nThe target /tools points to does not exist.\\nVerify the target.. \$(MOUNT_PT)/tools\\n" && false;\\
+	fi;
+	
+	@if ! stat -c %N /tools | grep "\$(MOUNT_PT)/tools" >/dev/null ; then \\
+	  echo -e "\\nERROR::\\nThe symlink \\"/tools\\" does not point to \\"\$(MOUNT_PT)/tools\\".\\nCorrect the problem and rerun\\n" && false;\\
+	fi;	
+
+	@if [ -f ???-kernfs ]; then \\
+	  mkdir -pv \$(MOUNT_PT)/{proc,sys};\\
+	  if !  mount -l | "\$(MOUNT_PT)/dev" >/dev/null ; then \\
+	    mount -vt ramfs ramfs \$(MOUNT_PT)/dev;\\
+	  fi;\\
+	  if [ ! -e \$(MOUNT_PT)/dev/console ]; then \\
+	    mknod -m 600 \$(MOUNT_PT)/dev/console c 5 1;\\
+	  fi;\\
+	  if [ ! -e \$(MOUNT_PT)/dev/null ]; then \\
+	    mknod -m 666 \$(MOUNT_PT)/dev/null c 1 3;\\
+	  fi;\\
+	  if ! mount -l | grep "\$(MOUNT_PT)/dev/pts" >/dev/null ; then \\
+	    mount -vt devpts -o gid=4,mode=620 devpts \$(MOUNT_PT)/dev/pts;\\
+	  fi;\\
+	  if ! mount -l | grep "\$(MOUNT_PT)/dev/shm" >/dev/null ; then \\
+	    mount -vt tmpfs shm \$(MOUNT_PT)/dev/shm;\\
+	  fi;\\
+	  if ! mount -l | grep "\$(MOUNT_PT)/proc" >/dev/null ; then \\
+	    mount -vt proc proc \$(MOUNT_PT)/proc;\\
+	  fi;\\
+	  if ! mount -l | grep "\$(MOUNT_PT)/sys" >/dev/null ; then \\
+	    mount -vt sysfs sysfs \$(MOUNT_PT)/sys;\\
+	  fi;\\
+	fi;
+
 
 EOF
 ) >> $MKFILE

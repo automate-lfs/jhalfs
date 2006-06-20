@@ -507,6 +507,7 @@ if [[ "$PWD" != "$JHALFSDIR" ]]; then
   fi
   #
   [[ "$GETPKG" = "1" ]] && cp $COMMON_DIR/urls.xsl  $JHALFSDIR/
+  cp $COMMON_DIR/packages.xsl  $JHALFSDIR/
   #
   sed 's,FAKEDIR,'$BOOK',' $PACKAGE_DIR/$XSL > $JHALFSDIR/${XSL}
   export XSL=$JHALFSDIR/${XSL}
