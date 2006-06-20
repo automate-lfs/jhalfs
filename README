@@ -50,6 +50,42 @@ $Id$
      ./<symlink> --help		eg: ./lfs --help
      will give you a context sensitive list of command line switches.
 
+   >>>> an expanded example
+   
+   export SRC_ARCHIVE=/mnt/SourceFiles
+   
+   ./lfs -D /mnt/partition4 \
+         -K ~/jhalfs_configs/linux-2.6.16.19-LFS.config \
+	 -F ~/jhalfs-configs/fstab-sda3 \
+	 -G -T 0 -M  
+
+   explanation:::
+   
+   export SRC_ARCHIVE=/mnt/SourceFiles
+      # This points to a local archive of existing packages. If the version in 
+        the archive is incorrect jhalfs will access the net and download the 
+	necessary version and store it here for later use. DO NOT set this to
+	$BUILDDIR/sources. If you do not set this variable to a valide directory
+	ALL package tarballs will be downloaded from the 'net. 
+
+   -D /mnt/partition4 
+      # where everything takes place.  ..NOTE it must already exist and be mounted
+      
+   -K ~/jhalfs_configs/linux-2.6.16.19-LFS.config
+      # If you want to automatically build a the kernel you MUST supply a valid 
+        kernel configuration file. The file you supply will be copied and renamed.
+
+   -F ~/jhalfs-configs/fstab-sda3 
+      # If you have a fstab file you wish to use it will be copied and renamed 
+      
+   -G   # Retrieve the package files. You MUST enable this flag at least once if you 
+          wish to do a build or whenever you update the book.
+   
+   -T 0 # don't run any testsuites
+   
+   -M   # automatically run make against Makefile once jhalfs finishes its work.
+
+   
 5. LAYOUT::
 
         /CLFS/config
