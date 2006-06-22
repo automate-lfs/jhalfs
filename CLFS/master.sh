@@ -383,10 +383,7 @@ testsuite_tools_Makefiles() { #
     # as a dependency. Also call the echo_message function.
     wrt_target "${this_script}" "$PREV"
     #
-    case $name in
-      tcl)    wrt_unpack2 `grep "^tcl" $JHALFSDIR/my_packages` ;;
-      *)      wrt_unpack2 "$pkg_tarball"    ;;
-    esac
+    wrt_unpack2 "$pkg_tarball"
     [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     #
     wrt_run_as_chroot1 "${this_script}" "${file}"
@@ -438,10 +435,7 @@ bm_testsuite_tools_Makefiles() { #
     # as a dependency. Also call the echo_message function.
     wrt_target "${this_script}" "$PREV"
     #
-    case $name in
-      tcl)    wrt_unpack3 `grep "^tcl" $JHALFSDIR/my_packages` ;;
-      *)      wrt_unpack3 "$pkg_tarball"    ;;
-    esac
+    wrt_unpack3 "$pkg_tarball"
     [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     #
     wrt_run_as_root2 "${this_script}" "${file}"
