@@ -34,6 +34,15 @@ $Id$
   supplied symlinks. After editing the config file for the project you wish
   to build, run the script.
 
+     IMPORTANT:
+       If you use the switch -M (automatically run the generated makefile) you
+       must be 'root' or you can run the scripts using 'sudo'
+        i.e.  sudo ./lfs -G -M 
+	
+       If you want to run make manually you can only do so if you are 'root' or
+       via 'sudo' 
+        i.e  (from within the jhalfs directory) sudo make
+
      The term <symlink> refers to the 1 of 3 package symlinks, lfs,hlfs,clfs.
      Replace <symlink> with your choice of packages; i.e.: ./lfs
 
