@@ -579,13 +579,6 @@ get_book() {                 #
         get_sources
       else
         echo -ne "done\n"
-        # Set the canonical book version
-        cd $JHALFSDIR
-        VERSION=`grep "ENTITY version " $BOOK/general.ent | sed 's@<!ENTITY version "@@;s@">@@'`
-         # Another work-around, clfs book has a x.x.x-date versioning system
-         if [ "$PROGNAME" = "clfs" ]; then
-           VERSION=${VERSION##*-}
-         fi
         extract_commands
       fi
     else
@@ -594,24 +587,10 @@ get_book() {                 #
            svn co $SVN/${svn_root}/trunk/BOOK ${PROGNAME}-$LFSVRS >>$LOGDIR/$LOG 2>&1 ;;
       esac
       echo -ne "done\n"
-      # Set the canonical book version
-      cd $JHALFSDIR
-      VERSION=`grep "ENTITY version " $BOOK/general.ent | sed 's@<!ENTITY version "@@;s@">@@'`
-      # Another work-around, clfs book has a x.x.x-date versioning system
-      if [ "$PROGNAME" = "clfs" ]; then
-        VERSION=${VERSION##*-}
-      fi
       extract_commands
     fi
   else
     echo -ne "Using $BOOK as book's sources ...\n"
-    # Set the canonical book version
-    cd $JHALFSDIR
-    VERSION=`grep "ENTITY version " $BOOK/general.ent | sed 's@<!ENTITY version "@@;s@">@@'`
-    # Another work-around, clfs book has a x.x.x-date versioning system
-    if [ "$PROGNAME" = "clfs" ]; then
-      VERSION=${VERSION##*-}
-    fi
     extract_commands
   fi
 }
@@ -626,6 +605,10 @@ extract_commands() {         #
 
   cd $JHALFSDIR
   VERSION=`grep "ENTITY version " $BOOK/general.ent | sed 's@<!ENTITY version "@@;s@">@@'`
+  # Another work-around, clfs book has a x.x.x-date versioning system
+  if [ "$PROGNAME" = "clfs" ]; then
+    VERSION=${VERSION##*-}
+  fi
 
   # Start clean
   if [ -d ${PROGNAME}-commands ]; then
