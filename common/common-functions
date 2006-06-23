@@ -207,6 +207,20 @@ EOF
 ) >> $MKFILE.tmp
 }
 
+#----------------------------#
+get_package_tarball_name() { #
+#----------------------------#
+  local script_name=$1
+
+   # The use of 'head' is necessary to limit the return value to the FIRST match..
+   # hopefully this will not cause problems.
+   #
+   case $script_name in
+     tcl)   echo $(grep "^tcl" $JHALFSDIR/pkg_tarball_list | head -n1 ) ;;
+     *)     echo $(grep "^$script_name-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 ) ;;
+   esac
+
+}
 
 #----------------------------------#
 wrt_remove_existing_dirs() {       #
@@ -535,7 +549,7 @@ clean_builddir() {           #
       echo -ne "Cleaning $BUILDDIR...\n"
       rm -rf $BUILDDIR/{bin,boot,dev,etc,home,lib,media,mnt,opt,proc,root,sbin,srv,sys,tmp,tools,cross-tools,usr,var}
       echo -ne "Cleaning $JHALFSDIR...\n"
-      rm -rf $JHALFSDIR/{0*,1*,envars,sources-dir,*commands,logs,Makefile,*.xsl,makefile-functions,packages,patches}
+      rm -rf $JHALFSDIR/{0*,1*,envars,sources-dir,*commands,*logs,Makefile,*.xsl,makefile-functions,pkg_tarball_list,*.config,*.sh}
       echo -ne "Cleaning remainig extracted sources in $BUILDDIR/sources...\n"
       rm -rf `find $BUILDDIR/sources/* -maxdepth 0 -type d`
       echo -ne "done\n"
@@ -567,7 +581,7 @@ get_book() {                 #
     if [ -d ${PROGNAME}-$LFSVRS ] ; then
       cd ${PROGNAME}-$LFSVRS
       if LC_ALL=C svn up | grep -q At && test -d $JHALFSDIR/${PROGNAME}-commands && \
-      test -f $JHALFSDIR/packages ; then
+      test -f $JHALFSDIR/pkg_tarball_list ; then
         echo -ne "done\n"
         # Set the canonical book version
         cd $JHALFSDIR
@@ -666,24 +680,43 @@ extract_commands() {         #
   chmod -R +x $JHALFSDIR/${PROGNAME}-commands
 
   # Create the packages file. We need it for proper Makefile creation
-  rm -f packages
-  echo -n "Creating <${PROGNAME}> specific packages file"
-  grep "\-version " $BOOK/packages.ent | sed -e 's@<!ENTITY @@' \
-                                             -e 's@">@"@' > packages
-  echo " ...OK"
+  create_package_list
 
   # Done. Moving on...
   get_sources
 }
 
 #----------------------------#
+create_package_list() {      #
+#----------------------------#
+
+  # Create the packages file. We need it for proper Makefile creation
+  rm -f pkg_tarball_list
+  echo -n "Creating <${PROGNAME}> list of tarball names for $BOOK $ARCH"
+  case ${PROGNAME} in
+    clfs)
+        xsltproc --nonet --xinclude -o pkg_tarball_list packages.xsl \
+                 $BOOK/materials/${ARCH}-chapter.xml >>$LOGDIR/$LOG 2>&1
+      ;;
+    hlfs)
+        xsltproc --nonet --xinclude -o pkg_tarball_list packages.xsl \
+                 $BOOK/chapter04/chapter04.xml >>$LOGDIR/$LOG 2>&1
+      ;;
+    lfs)
+        xsltproc --nonet --xinclude -o pkg_tarball_list packages.xsl \
+                 $BOOK/chapter03/chapter03.xml >>$LOGDIR/$LOG 2>&1
+      ;;
+  esac
+  echo " ...OK"
+
+}
+
+
+#----------------------------#
 get_sources() {              # Download file, write name to MISSING_FILES.DMP if an error
 #----------------------------#
   local saveIFS=$IFS
   local IFS line URL1 URL2 FILE BOOKMD5 MD5 HAVEMD5 fromARCHIVE
-
-  # ALWAYS create a list of the full filenames
-  create_package_list
 
     # Test if the packages must be downloaded
   [ ! "$GETPKG" = "1" ] && return
@@ -803,29 +836,6 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
 }
 
 #----------------------------#
-create_package_list() {      #
-#----------------------------#
-
-  # Create the packages file. We need it for proper Makefile creation
-  echo -n "Creating <${PROGNAME}> list of tarball names for $BOOK $ARCH"
-  case ${PROGNAME} in
-    clfs)
-        xsltproc --nonet \
-                 --xinclude \
-                 -o pkg_tarball_list packages.xsl $BOOK/${ARCH}-index.xml
-      ;;
-    hlfs | lfs )
-        xsltproc --nonet \
-                 --xinclude \
-                 -o pkg_tarball_list packages.xsl $BOOK/index.xml
-      ;;
-  esac
-  echo " ...OK"
-
-}
-
-
-#----------------------------#
 create_urls() {              #
 #----------------------------#
   cd $JHALFSDIR
@@ -859,20 +869,4 @@ create_urls() {              #
   esac
 
   cd $BUILDDIR/sources
-}
-
-
-#----------------------------#
-get_package_tarball_name() { #
-#----------------------------#
-  local script_name=$1
-
-   # The use of 'head' is necessary to limit the return value to the FIRST match..
-   # hopefully this will not cause problems.
-   #
-   case $script_name in
-     tcl)   echo $(grep "^tcl" $JHALFSDIR/pkg_tarball_list | head -n1 ) ;;
-     *)     echo $(grep "^$script_name-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 ) ;;
-   esac
-
 }
