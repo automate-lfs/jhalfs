@@ -160,6 +160,15 @@ temptools_Makefiles() {       #
     # Keep the script file name
     this_script=`basename $file`
     #
+    #  Deal with any odd scripts..
+    case $this_script in
+      *choose) # The choose script will fail if you cannot enter the new environment
+               # If the 'boot' build method was chosen don't run the script
+         [[ $METHOD = "boot" ]] && continue; ;;
+      *) ;;
+    esac
+    
+    #
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
     temptools="$temptools $this_script"

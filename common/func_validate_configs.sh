@@ -36,8 +36,8 @@ validate_target() {          #
     ;;
    "x86_64-64")  [[ "${TARGET}" = "x86_64-unknown-linux-gnu" ]] && return
     ;;
-   "mips64-64")  [[ "${TARGET}" = "mipsel-unknown-linux-gnu" ]] && return
-                 [[ "${TARGET}" = "mips-unknown-linux-gnu"   ]] && return
+   "mips64-64")  [[ "${TARGET}" = "mips64el-unknown-linux-gnu" ]] && return
+                 [[ "${TARGET}" = "mips64-unknown-linux-gnu"   ]] && return
     ;;
    "sparc64-64") [[ "${TARGET}" = "sparc64-unknown-linux-gnu" ]] && return
     ;;
@@ -46,14 +46,14 @@ validate_target() {          #
    "x86_64")     [[ "${TARGET}"   = "x86_64-unknown-linux-gnu" ]] &&
                  [[ "${TARGET32}" = "i686-pc-linux-gnu" ]] && return
     ;;
-   "mips64")     [[ "${TARGET}"   = "mipsel-unknown-linux-gnu" ]] &&
+   "mips64")     [[ "${TARGET}"   = "mips64el-unknown-linux-gnu" ]] &&
                  [[ "${TARGET32}" = "mipsel-unknown-linux-gnu" ]] && return
 
-                 [[ "${TARGET}"   = "mips-unknown-linux-gnu" ]] &&
+                 [[ "${TARGET}"   = "mips64-unknown-linux-gnu" ]] &&
                  [[ "${TARGET32}" = "mips-unknown-linux-gnu" ]] && return
     ;;
    "sparc64")    [[ "${TARGET}"   = "sparc64-unknown-linux-gnu" ]] &&
-                 [[ "${TARGET32}" = "sparcv9-unknown-linux-gnu" ]] && return
+                 [[ "${TARGET32}" = "sparc-unknown-linux-gnu" ]] && return
     ;;
    "ppc64")      [[ "${TARGET}"   = "powerpc64-unknown-linux-gnu" ]] &&
                  [[ "${TARGET32}" = "powerpc-unknown-linux-gnu"   ]] && return
