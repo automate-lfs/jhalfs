@@ -262,7 +262,7 @@ while test $# -gt 0 ; do
       fi
       ;;
 
-    --make | -M )          RUNMAKE=1 ;;
+    --run-make | -M )      RUNMAKE=1 ;;
 
     --rebuild | -R )       CLEAN=1   ;;
 
