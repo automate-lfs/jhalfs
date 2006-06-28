@@ -34,8 +34,6 @@ wrt_system_build() {               #
   fi
 
   echo -e "\nsystem_build_$RUN: $PREV_IT $system_build" >> $MKFILE.tmp
-  PREV=system_build_$RUN
-
 }
 
 #----------------------------------#
@@ -112,6 +110,7 @@ wrt_logs() {                       #
 	mv ${LOGS} $ITERATION && \\
 	popd 1> /dev/null
 	@touch \$@ && \\
+        sleep .25 && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
 EOF
