@@ -21,14 +21,16 @@ declare -a  GRAPHIC_STR="| / - \\ + "
 declare -i  SEC=0  # Seconds accumulator
 declare -i  PREV_SEC=0
 
+makePID=$(fuser -v . 2>&1 | grep make)
+makePID=$(echo $makePID | cut -d" " -f2)
 
 write_or_exit() {
     # make has been killed or failed or run to completion, leave
-  if ! fuser -v . 2>&1 | grep make >/dev/null ; then
-     echo -n "${CURSOR_ON}" && exit
-  fi
+  [[ ! -e /proc/$makePID ]] && echo -n "progress bar dies:${CURSOR_ON}" && exit
+
     # Target build complete, leave.
   [[ -f ${TARGET} ]] && echo -n "${CURSOR_ON}" && exit
+
     # It is safe to write to the screen
   echo -n "$1"
 }
