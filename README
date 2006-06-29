@@ -171,6 +171,24 @@ $Id$
        simple and reliable method of doing so. This method also handles the CLFS
        build method where the final build may be done on a separate machine.
 
+    Q. "When I try to build 'xxx' with clfs the makefile fails at the mid-point"
+    A. There could be numerous reasons for the failure but the most likely reason
+       is you are doing a cross-build using the 'chroot' method and the target is
+       not compatible with the host.  If you choose to build using the chroot
+       method a test is performed at the end of the temptools phase. If the test
+       succeeds the build continues inside a chroot jail. However if the test fails
+       it means the host and target are not compatible an you should use the 
+       'boot' method to create your target code.        
+       As an extreme example: You can build a sparc target on a x86 platform but 
+       only the temptools phase. You must run ./clfs using the 'boot' method and
+       not the 'chroot.' You must transfer the toolchain to a sparc platform, reboot 
+       the sparc box and continue the build.
+       Of all the LFS series of books the Cross-LFS requires the greatest 
+       understanding of host/target hardware combination. Please read the book
+       carefully and don't skip the easy parts (there are none..)
+       
+
+
 Authors:
   George Boudreau
   Manuel Canales Esparcia
