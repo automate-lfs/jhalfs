@@ -10,12 +10,12 @@
 #----------------------------#
 host_prep_Makefiles() {      # Initialization of the system
 #----------------------------#
-  local   LFS_HOST
+  local   CLFS_HOST
 
   echo "${tab_}${GREEN}Processing... ${L_arrow}host prep files${R_arrow}"
 
   # defined here, only for ease of reading
-  LFS_HOST="`echo ${MACHTYPE} | sed -e 's/unknown/cross/g' -e 's/-pc-/-cross-/g'`"
+  CLFS_HOST="`echo ${MACHTYPE} | sed -e 's/unknown/cross/g' -e 's/-pc-/-cross-/g'`"
 (
 cat << EOF
 023-creatingtoolsdir:
@@ -65,17 +65,17 @@ cat << EOF
 	fi;
 	@echo "set +h" > /home/lfs/.bashrc && \\
 	echo "umask 022" >> /home/lfs/.bashrc && \\
-	echo "LFS=\$(MOUNT_PT)" >> /home/lfs/.bashrc && \\
+	echo "CLFS=\$(MOUNT_PT)" >> /home/lfs/.bashrc && \\
 	echo "LC_ALL=POSIX" >> /home/lfs/.bashrc && \\
 	echo "PATH=/cross-tools/bin:/bin:/usr/bin" >> /home/lfs/.bashrc && \\
-	echo "export LFS LC_ALL PATH" >> /home/lfs/.bashrc && \\
+	echo "export CLFS LC_ALL PATH" >> /home/lfs/.bashrc && \\
 	echo "" >> /home/lfs/.bashrc && \\
 	echo "unset CFLAGS" >> /home/lfs/.bashrc && \\
 	echo "unset CXXFLAGS" >> /home/lfs/.bashrc && \\
 	echo "" >> /home/lfs/.bashrc && \\
-	echo "export LFS_HOST=\"${LFS_HOST}\"" >> /home/lfs/.bashrc && \\
-	echo "export LFS_TARGET=\"${TARGET}\"" >> /home/lfs/.bashrc && \\
-	echo "export LFS_TARGET32=\"${TARGET32}\"" >> /home/lfs/.bashrc && \\
+	echo "export CLFS_HOST=\"${CLFS_HOST}\"" >> /home/lfs/.bashrc && \\
+	echo "export CLFS_TARGET=\"${TARGET}\"" >> /home/lfs/.bashrc && \\
+	echo "export CLFS_TARGET32=\"${TARGET32}\"" >> /home/lfs/.bashrc && \\
 	echo "source $JHALFSDIR/envars" >> /home/lfs/.bashrc
 	@chown lfs:lfs /home/lfs/.bashrc && \\
 	touch envars && \\
@@ -167,7 +167,7 @@ temptools_Makefiles() {       #
          [[ $METHOD = "boot" ]] && continue; ;;
       *) ;;
     esac
-    
+
     #
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
@@ -1027,7 +1027,7 @@ EOF
                                                                 -e 's|\\$|&&|g' \
                                                                 -e 's|exit||g' \
                                                                 -e 's|$| -c|' \
-                                                                -e 's|"$$LFS"|$(MOUNT_PT)|'\
+                                                                -e 's|"$$CLFS"|$(MOUNT_PT)|'\
                                                                 -e 's|set -e||'`
     echo -e "CHROOT1= $chroot\n" >> $MKFILE
   fi
