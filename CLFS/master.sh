@@ -41,43 +41,43 @@ cat << EOF
 
 025-addinguser:  024-creatingcrossdir
 	@\$(call echo_message, Building)
-	@if [ ! -d /home/lfs ]; then \\
-		groupadd lfs; \\
-		useradd -s /bin/bash -g lfs -m -k /dev/null lfs; \\
+	@if [ ! -d /home/clfs ]; then \\
+		groupadd clfs; \\
+		useradd -s /bin/bash -g clfs -m -k /dev/null clfs; \\
 	else \\
-		touch user-lfs-exist; \\
+		touch user-clfs-exist; \\
 	fi;
-	@chown lfs \$(MOUNT_PT) && \\
-	chown lfs \$(MOUNT_PT)/tools && \\
-	chown lfs \$(MOUNT_PT)/cross-tools && \\
-	chown lfs \$(MOUNT_PT)/sources && \\
+	@chown clfs \$(MOUNT_PT) && \\
+	chown clfs \$(MOUNT_PT)/tools && \\
+	chown clfs \$(MOUNT_PT)/cross-tools && \\
+	chown clfs \$(MOUNT_PT)/sources && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
 
 026-settingenvironment:  025-addinguser
 	@\$(call echo_message, Building)
-	@if [ -f /home/lfs/.bashrc -a ! -f /home/lfs/.bashrc.XXX ]; then \\
-		mv /home/lfs/.bashrc /home/lfs/.bashrc.XXX; \\
+	@if [ -f /home/clfs/.bashrc -a ! -f /home/clfs/.bashrc.XXX ]; then \\
+		mv /home/clfs/.bashrc /home/clfs/.bashrc.XXX; \\
 	fi;
-	@if [ -f /home/lfs/.bash_profile  -a ! -f /home/lfs/.bash_profile.XXX ]; then \\
-		mv /home/lfs/.bash_profile /home/lfs/.bash_profile.XXX; \\
+	@if [ -f /home/clfs/.bash_profile  -a ! -f /home/clfs/.bash_profile.XXX ]; then \\
+		mv /home/clfs/.bash_profile /home/clfs/.bash_profile.XXX; \\
 	fi;
-	@echo "set +h" > /home/lfs/.bashrc && \\
-	echo "umask 022" >> /home/lfs/.bashrc && \\
-	echo "CLFS=\$(MOUNT_PT)" >> /home/lfs/.bashrc && \\
-	echo "LC_ALL=POSIX" >> /home/lfs/.bashrc && \\
-	echo "PATH=/cross-tools/bin:/bin:/usr/bin" >> /home/lfs/.bashrc && \\
-	echo "export CLFS LC_ALL PATH" >> /home/lfs/.bashrc && \\
-	echo "" >> /home/lfs/.bashrc && \\
-	echo "unset CFLAGS" >> /home/lfs/.bashrc && \\
-	echo "unset CXXFLAGS" >> /home/lfs/.bashrc && \\
-	echo "" >> /home/lfs/.bashrc && \\
-	echo "export CLFS_HOST=\"${CLFS_HOST}\"" >> /home/lfs/.bashrc && \\
-	echo "export CLFS_TARGET=\"${TARGET}\"" >> /home/lfs/.bashrc && \\
-	echo "export CLFS_TARGET32=\"${TARGET32}\"" >> /home/lfs/.bashrc && \\
-	echo "source $JHALFSDIR/envars" >> /home/lfs/.bashrc
-	@chown lfs:lfs /home/lfs/.bashrc && \\
+	@echo "set +h" > /home/clfs/.bashrc && \\
+	echo "umask 022" >> /home/clfs/.bashrc && \\
+	echo "CLFS=\$(MOUNT_PT)" >> /home/clfs/.bashrc && \\
+	echo "LC_ALL=POSIX" >> /home/clfs/.bashrc && \\
+	echo "PATH=/cross-tools/bin:/bin:/usr/bin" >> /home/clfs/.bashrc && \\
+	echo "export CLFS LC_ALL PATH" >> /home/clfs/.bashrc && \\
+	echo "" >> /home/clfs/.bashrc && \\
+	echo "unset CFLAGS" >> /home/clfs/.bashrc && \\
+	echo "unset CXXFLAGS" >> /home/clfs/.bashrc && \\
+	echo "" >> /home/clfs/.bashrc && \\
+	echo "export CLFS_HOST=\"${CLFS_HOST}\"" >> /home/clfs/.bashrc && \\
+	echo "export CLFS_TARGET=\"${TARGET}\"" >> /home/clfs/.bashrc && \\
+	echo "export CLFS_TARGET32=\"${TARGET32}\"" >> /home/clfs/.bashrc && \\
+	echo "source $JHALFSDIR/envars" >> /home/clfs/.bashrc
+	@chown clfs:clfs /home/clfs/.bashrc && \\
 	touch envars && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
@@ -131,9 +131,9 @@ cross_tools_Makefiles() {     #
     #
     # If $pkg_tarball isn't empty, we've got a package...
     #
-    [[ "$pkg_tarball" != "" ]] && wrt_unpack "$pkg_tarball"
+    [[ "$pkg_tarball" != "" ]] && wrt_unpack_clfs "$pkg_tarball"
     #
-    wrt_run_as_su "${this_script}" "${file}"
+    wrt_run_as_clfs_su "${this_script}" "${file}"
     #
     [[ "$pkg_tarball" != "" ]] && wrt_remove_build_dirs "${name}"
     #
@@ -190,10 +190,10 @@ temptools_Makefiles() {       #
     # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and to set the PKGDIR variable.
     #
-    [[ "$pkg_tarball" != "" ]] && wrt_unpack "$pkg_tarball"
+    [[ "$pkg_tarball" != "" ]] && wrt_unpack_clfs "$pkg_tarball"
     [[ "$pkg_tarball" != "" ]] && [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     #
-    wrt_run_as_su "${this_script}" "${file}"
+    wrt_run_as_clfs_su "${this_script}" "${file}"
     #
     [[ "$pkg_tarball" != "" ]] && wrt_remove_build_dirs "${name}"
     #
@@ -262,7 +262,7 @@ boot_Makefiles() {            #
     # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     #
-    [[ "$pkg_tarball" != "" ]] && wrt_unpack "$pkg_tarball"
+    [[ "$pkg_tarball" != "" ]] && wrt_unpack_clfs "$pkg_tarball"
     [[ "$pkg_tarball" != "" ]] && [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     #
     # Select a script execution method
@@ -272,10 +272,10 @@ boot_Makefiles() {            #
       *fstab*)   if [[ -n "$FSTAB" ]]; then
                    wrt_copy_fstab "${this_script}"
                  else
-                   wrt_run_as_su  "${this_script}" "${file}"
+                   wrt_run_as_clfs_su  "${this_script}" "${file}"
                  fi
          ;;
-      *)         wrt_run_as_su  "${this_script}" "${file}"       ;;
+      *)         wrt_run_as_clfs_su  "${this_script}" "${file}"       ;;
     esac
     #
     # Housekeeping...remove any build directory(ies) except if the package build fails.
@@ -332,7 +332,7 @@ chroot_Makefiles() {          #
     #
     if [ "$pkg_tarball" != "" ] ; then
       case $this_script in
-        *util-linux)    wrt_unpack  "$pkg_tarball"  ;;
+        *util-linux)    wrt_unpack_clfs  "$pkg_tarball"  ;;
         *)              wrt_unpack2 "$pkg_tarball"  ;;
       esac
       [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
@@ -341,7 +341,7 @@ chroot_Makefiles() {          #
     # Select a script execution method
     case $this_script in
       *kernfs)        wrt_run_as_clfs_root "${this_script}" "${file}"  ;;
-      *util-linux)    wrt_run_as_su        "${this_script}" "${file}"  ;;
+      *util-linux)    wrt_run_as_clfs_s    "${this_script}" "${file}"  ;;
       *)              wrt_run_as_chroot1   "${this_script}" "${file}"  ;;
     esac
     #
@@ -1063,20 +1063,20 @@ restart:
 	@echo "This feature does not exist for the CLFS makefile. (yet)"
 
 clean-chapter2:
-	-if [ ! -f user-lfs-exist ]; then \\
-		userdel lfs; \\
-		rm -rf /home/lfs; \\
+	-if [ ! -f user-clfs-exist ]; then \\
+		userdel clfs; \\
+		rm -rf /home/clfs; \\
 	fi;
 	rm -rf \$(MOUNT_PT)/tools
 	rm -f /tools
 	rm -rf \$(MOUNT_PT)/cross-tools
 	rm -f /cross-tools
-	rm -f envars user-lfs-exist
+	rm -f envars user-clfs-exist
 	rm -f 02* logs/02*.log
 
 clean-chapter3:
 	rm -rf \$(MOUNT_PT)/tools/*
-	rm -f $cross_tools restore-lfs-env sources-dir
+	rm -f $cross_tools restore-clfs-env sources-dir
 	cd logs && rm -f $cross_tools && cd ..
 
 clean-chapter4:
@@ -1090,15 +1090,15 @@ clean-chapter4:
 	cd logs && rm -f $temptools && cd ..
 
 
-restore-lfs-env:
+restore-clfs-env:
 	@\$(call echo_message, Building)
-	@if [ -f /home/lfs/.bashrc.XXX ]; then \\
-		mv -f /home/lfs/.bashrc.XXX /home/lfs/.bashrc; \\
+	@if [ -f /home/clfs/.bashrc.XXX ]; then \\
+		mv -f /home/clfs/.bashrc.XXX /home/clfs/.bashrc; \\
 	fi;
-	@if [ -f /home/lfs/.bash_profile.XXX ]; then \\
-		mv /home/lfs/.bash_profile.XXX /home/lfs/.bash_profile; \\
+	@if [ -f /home/clfs/.bash_profile.XXX ]; then \\
+		mv /home/clfs/.bash_profile.XXX /home/clfs/.bash_profile; \\
 	fi;
-	@chown lfs:lfs /home/lfs/.bash* && \\
+	@chown clfs:clfs /home/clfs/.bash* && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
@@ -1109,9 +1109,9 @@ do-housekeeping:
 	@-umount \$(MOUNT_PT)/dev
 	@-umount \$(MOUNT_PT)/sys
 	@-umount \$(MOUNT_PT)/proc
-	@-if [ ! -f user-lfs-exist ]; then \\
-		userdel lfs; \\
-		rm -rf /home/lfs; \\
+	@-if [ ! -f user-clfs-exist ]; then \\
+		userdel clfs; \\
+		rm -rf /home/clfs; \\
 	fi;
 
 EOF
@@ -1145,21 +1145,21 @@ restart:
 	@echo "This feature does not exist for the CLFS makefile. (yet)"
 
 clean-jhalfs:
-	-if [ ! -f user-lfs-exist ]; then \\
-		userdel lfs; \\
-		rm -rf /home/lfs; \\
+	-if [ ! -f user-clfs-exist ]; then \\
+		userdel clfs; \\
+		rm -rf /home/clfs; \\
 	fi;
 	rm -rf \$(MOUNT_PT)/tools
 	rm -f /tools
 	rm -rf \$(MOUNT_PT)/cross-tools
 	rm -f /cross-tools
-	rm -f envars user-lfs-exist
+	rm -f envars user-clfs-exist
 	rm -f 02* logs/02*.log
 
 clean-makeboot:
 	rm -rf /tools/*
 	rm -f $cross_tools && rm -f $temptools && rm -f $chroottools && rm -f $boottools
-	rm -f restore-lfs-env sources-dir
+	rm -f restore-clfs-env sources-dir
 	cd logs && rm -f $cross_tools && rm -f $temptools && rm -f $chroottools && rm -f $boottools && cd ..
 
 clean-makesys:
@@ -1175,15 +1175,15 @@ clean-makesys:
 	cd logs && rm -f $basicsystem && rm -f $bootscripttools && rm -f $bootabletools && cd ..
 
 
-restore-lfs-env:
+restore-clfs-env:
 	@\$(call echo_message, Building)
-	@if [ -f /home/lfs/.bashrc.XXX ]; then \\
-		mv -fv /home/lfs/.bashrc.XXX /home/lfs/.bashrc; \\
+	@if [ -f /home/clfs/.bashrc.XXX ]; then \\
+		mv -fv /home/clfs/.bashrc.XXX /home/clfs/.bashrc; \\
 	fi;
-	@if [ -f /home/lfs/.bash_profile.XXX ]; then \\
-		mv -v /home/lfs/.bash_profile.XXX /home/lfs/.bash_profile; \\
+	@if [ -f /home/clfs/.bash_profile.XXX ]; then \\
+		mv -v /home/clfs/.bash_profile.XXX /home/clfs/.bash_profile; \\
 	fi;
-	@chown lfs:lfs /home/lfs/.bash* && \\
+	@chown clfs:clfs /home/clfs/.bash* && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)

@@ -279,6 +279,26 @@ EOF
 
 
 #----------------------------------#
+wrt_unpack_clfs() {                # Unpack and set 'ROOT' var
+#----------------------------------#
+  local FILE=$1
+  local optSAVE_PREVIOUS=$2
+
+  if [ "${optSAVE_PREVIOUS}" != "1" ]; then
+    wrt_remove_existing_dirs "$FILE"
+  fi
+(
+cat << EOF
+	@\$(call unpack,$FILE)
+	@ROOT=\`head -n1 \$(MOUNT_PT)\$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
+	echo "export PKGDIR=\$(MOUNT_PT)\$(SRC)/\$\$ROOT" > envars && \\
+	chown -R clfs \$(MOUNT_PT)\$(SRC)/\$\$ROOT
+EOF
+) >> $MKFILE.tmp
+}
+
+
+#----------------------------------#
 wrt_unpack2() {                    #
 #----------------------------------#
   local FILE=$1
@@ -374,6 +394,20 @@ wrt_run_as_root() {                # Some scripts must be run as root..
 (
 cat << EOF
 	@( time { export LFS=\$(MOUNT_PT) && ${PROGNAME}-commands/$file >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
+	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >>logs/$this_script
+EOF
+) >> $MKFILE.tmp
+}
+
+
+#----------------------------------#
+wrt_run_as_clfs_su() {             # Execute script inside time { }, footer to log file
+#----------------------------------#
+  local this_script=$1
+  local file=$2
+(
+cat << EOF
+	@( time { su - clfs -c "source /home/clfs/.bashrc && $JHALFSDIR/${PROGNAME}-commands/$file" >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
 	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >>logs/$this_script
 EOF
 ) >> $MKFILE.tmp
