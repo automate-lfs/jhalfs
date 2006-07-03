@@ -340,9 +340,9 @@ chroot_Makefiles() {          #
     #
     # Select a script execution method
     case $this_script in
-      *kernfs)        wrt_run_as_root    "${this_script}" "${file}"  ;;
-      *util-linux)    wrt_run_as_su      "${this_script}" "${file}"  ;;
-      *)              wrt_run_as_chroot1 "${this_script}" "${file}"  ;;
+      *kernfs)        wrt_run_as_clfs_root "${this_script}" "${file}"  ;;
+      *util-linux)    wrt_run_as_su        "${this_script}" "${file}"  ;;
+      *)              wrt_run_as_chroot1   "${this_script}" "${file}"  ;;
     esac
     #
     # Housekeeping...remove the build directory(ies), except if the package build fails.

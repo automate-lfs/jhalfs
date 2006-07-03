@@ -135,6 +135,12 @@ $Id$
 6. FAQ::
     Q. "It doesn't work!"
     A. Yes it does, try ./lfs --help
+    
+    Q. "It still doesn't work"
+    A. jhalfs was designed to work against the developement versions of the LFS
+       series of books. Consequently changes in a book(s) sometimes breaks older
+       versions of jhalfs. Before you start pulling out your hair download the
+       latest version of jhalfs is see it that solves your problem.
 
     Q. "How do I specify the build location?"
     A. The original LFS document worked against the well know location /mnt/lfs.

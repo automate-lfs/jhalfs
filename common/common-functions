@@ -381,6 +381,20 @@ EOF
 
 
 #----------------------------------#
+wrt_run_as_clfs_root() {           # Some scripts must be run as root..
+#----------------------------------#
+  local this_script=$1
+  local file=$2
+(
+cat << EOF
+	@( time { export CLFS=\$(MOUNT_PT) && ${PROGNAME}-commands/$file >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
+	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >>logs/$this_script
+EOF
+) >> $MKFILE.tmp
+}
+
+
+#----------------------------------#
 wrt_run_as_root2() {               #
 #----------------------------------#
   local this_script=$1
