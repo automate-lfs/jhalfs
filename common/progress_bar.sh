@@ -26,7 +26,7 @@ makePID=$(echo $makePID | cut -d" " -f2)
 
 write_or_exit() {
     # make has been killed or failed or run to completion, leave
-  [[ ! -e /proc/$makePID ]] && echo -n "progress bar dies:${CURSOR_ON}" && exit
+  [[ ! -e /proc/$makePID ]] && echo -n "${CURSOR_ON}" && exit
 
     # Target build complete, leave.
   [[ -f ${TARGET} ]] && echo -n "${CURSOR_ON}" && exit
