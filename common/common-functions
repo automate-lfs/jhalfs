@@ -207,6 +207,27 @@ EOF
 ) >> $MKFILE.tmp
 }
 
+
+#----------------------------------#
+wrt_target_boot() {                # Create target and initialize log file
+#----------------------------------#
+  local i=$1
+  local PREV=$2
+  case $i in
+    iteration* ) local LOGFILE=$this_script.log ;;
+             * ) local LOGFILE=$this_script ;;
+  esac
+(
+cat << EOF
+
+$i:  $PREV
+	@\$(call echo_message, Building)
+	@./progress_bar.sh \$@ &
+	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=${SCRIPT_ROOT}\`\n" >logs/$LOGFILE
+EOF
+) >> $MKFILE.tmp
+}
+
 #----------------------------#
 get_package_tarball_name() { #
 #----------------------------#

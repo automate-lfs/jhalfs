@@ -442,7 +442,7 @@ bm_testsuite_tools_Makefiles() { #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    wrt_target "${this_script}" "$PREV"
+    wrt_target_boot "${this_script}" "$PREV"
     #
     wrt_unpack3 "$pkg_tarball"
     [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
@@ -647,7 +647,7 @@ bm_final_system_Makefiles() { #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    wrt_target "${this_script}${N}" "$PREV"
+    wrt_target_boot "${this_script}${N}" "$PREV"
 
     # If $pkg_tarball isn't empty, we've got a package...
     if [ "$pkg_tarball" != "" ] ; then
@@ -785,7 +785,7 @@ bm_bootscripts_Makefiles() {  #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    wrt_target "${this_script}" "$PREV"
+    wrt_target_boot "${this_script}" "$PREV"
     #
     # If $pkg_tarball isn't empty, we've got a package...
     #
@@ -926,7 +926,7 @@ bm_bootable_Makefiles() {     #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    wrt_target "${this_script}" "$PREV"
+    wrt_target_boot "${this_script}" "$PREV"
     #
     # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
