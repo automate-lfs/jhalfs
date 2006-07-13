@@ -1,6 +1,6 @@
 Index: LFS/master.sh
 ===================================================================
---- LFS/master.sh	(revision 2804)
+--- LFS/master.sh	(revision 2818)
 +++ LFS/master.sh	(working copy)
 @@ -176,6 +176,11 @@
      # Keep the script file name
@@ -40,7 +40,7 @@ Index: LFS/master.sh
 -      *)        wrt_run_as_chroot1 "${this_script}" "$file" ;;
 +      *)        wrt_paco_prep
 +                wrt_run_as_chroot1 "${this_script}" "$file"
-+                wrt_paco_log "$name" "$vrs" ;;
++                wrt_paco_log "$pkg_tarball" ;;
      esac
  
      # Remove the build directory(ies) except if the package build fails.
@@ -69,11 +69,11 @@ Index: LFS/master.sh
          ;;
 +      *kernel)       wrt_paco_prep
 +                     wrt_run_as_chroot2 "$this_script" "$file"
-+                     wrt_paco_log "linux-kernel" "$vrs"
++                     wrt_paco_log "$pkg_tarball"
 +        ;;
 +      *bootscripts)  wrt_paco_prep
 +                     wrt_run_as_chroot2 "$this_script" "$file"
-+                     wrt_paco_log "lfs-bootscripts" "$vrs"
++                     wrt_paco_log "$pkg_tarball"
 +        ;;
        *)        wrt_run_as_chroot2 "$this_script" "$file"
 +                wrt_paco_log "lfs-sysconf"
@@ -82,7 +82,7 @@ Index: LFS/master.sh
  
 Index: LFS/lfs.xsl
 ===================================================================
---- LFS/lfs.xsl	(revision 2804)
+--- LFS/lfs.xsl	(revision 2818)
 +++ LFS/lfs.xsl	(working copy)
 @@ -32,6 +32,9 @@
    <!-- Locale settings -->
@@ -147,7 +147,7 @@ Index: common/paco-build-hlfs.sh
 +make logme
 Index: common/config
 ===================================================================
---- common/config	(revision 2804)
+--- common/config	(revision 2818)
 +++ common/config	(working copy)
 @@ -86,6 +86,14 @@
  #--- Run farce testing 0(no)/1(yes)
@@ -176,7 +176,7 @@ Index: common/config
 +LD_PRELOAD=/usr/lib/libpaco-log.so
 Index: common/func_validate_configs.sh
 ===================================================================
---- common/func_validate_configs.sh	(revision 2804)
+--- common/func_validate_configs.sh	(revision 2818)
 +++ common/func_validate_configs.sh	(working copy)
 @@ -84,9 +84,9 @@
  inline_doc
@@ -203,7 +203,7 @@ Index: common/paco-functions
 ===================================================================
 --- common/paco-functions	(revision 0)
 +++ common/paco-functions	(revision 0)
-@@ -0,0 +1,211 @@
+@@ -0,0 +1,209 @@
 +#!/bin/bash
 +
 +#----------------------------#
@@ -235,7 +235,7 @@ Index: common/paco-functions
 +
 +  # Clean up
 +  wrt_remove_build_dirs "paco"
-+  echo -e '\t@touch $@' >> $MKFILE.tmp
++  wrt_touch
 +
 +  # Override the PREV variable
 +  PREV="$paco_script"
@@ -274,12 +274,7 @@ Index: common/paco-functions
 +#----------------------------------# and remove tempfile
 +local PACKAGE
 +
-+# Allow packages to be logged without version
-+if [[ $2 != "" ]] ; then
-+  PACKAGE="$1-$2";
-+else
-+  PACKAGE="$1"
-+fi
++PACKAGE=`echo $1 | sed -e 's/.tar.*//'`
 +
 +# Not using Paco with uClibc, even if requested
 +if [ $PROGNAME = "hlfs" ]; then
@@ -398,8 +393,11 @@ Index: common/paco-functions
 +# unnecessary paco commands in the Makefile.
 +
 +case $this_script in
++  *changingowner)   LOG_PACKAGE=0 ;;
 +  *creatingdirs)    LOG_PACKAGE=0 ;;
 +  *createfiles)     LOG_PACKAGE=0 ;;
++  *pwdgroup)        LOG_PACKAGE=0 ;;
++  *devices)         LOG_PACKAGE=0 ;;
 +  *strippingagain)  LOG_PACKAGE=0 ;;
 +  *readjusting)     LOG_PACKAGE=0 ;;
 +  *setclock)        LOG_PACKAGE=0 ;;
@@ -432,7 +430,7 @@ Index: common/paco-build-lfs.sh
 +make logme
 Index: common/common-functions
 ===================================================================
---- common/common-functions	(revision 2804)
+--- common/common-functions	(revision 2818)
 +++ common/common-functions	(working copy)
 @@ -65,6 +65,9 @@
          in the configuration file has the proper packages and patches for the
@@ -444,7 +442,7 @@ Index: common/common-functions
  ${BOLD}  -O, --optimize${OFF}
          Optimize [0-2]
            0 = no optimization
-@@ -658,6 +661,7 @@
+@@ -732,6 +735,7 @@
                   --stringparam lc_all $LC_ALL \
                   --stringparam keymap $KEYMAP \
                   --stringparam grsecurity_host $GRSECURITY_HOST \
@@ -452,7 +450,7 @@ Index: common/common-functions
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
        ;;
      lfs)
-@@ -669,6 +673,7 @@
+@@ -743,6 +747,7 @@
                   --stringparam timezone $TIMEZONE \
                   --stringparam page $PAGE \
                   --stringparam lang $LANG \
@@ -462,7 +460,7 @@ Index: common/common-functions
      *) exit 1 ;;
 Index: HLFS/hlfs.xsl
 ===================================================================
---- HLFS/hlfs.xsl	(revision 2804)
+--- HLFS/hlfs.xsl	(revision 2818)
 +++ HLFS/hlfs.xsl	(working copy)
 @@ -39,6 +39,9 @@
    <xsl:param name="lang" select="C"/>
@@ -513,7 +511,7 @@ Index: HLFS/hlfs.xsl
          <xsl:apply-templates/>
 Index: HLFS/master.sh
 ===================================================================
---- HLFS/master.sh	(revision 2804)
+--- HLFS/master.sh	(revision 2818)
 +++ HLFS/master.sh	(working copy)
 @@ -250,6 +250,11 @@
      # Keep the script file name
@@ -552,7 +550,7 @@ Index: HLFS/master.sh
        *)   # The rest of Chapter06
 +        wrt_paco_prep
          wrt_run_as_chroot1 "${this_script}" "${file}"
-+        wrt_paco_log "$name" "$vrs"
++        wrt_paco_log "$pkg_tarball"
         ;;
      esac
      #
@@ -573,7 +571,7 @@ Index: HLFS/master.sh
    done # end for file in chapter06/*
  
  }
-@@ -426,9 +455,20 @@
+@@ -426,9 +455,19 @@
          else  # Initialize the log and run the script
            wrt_run_as_chroot2 "${this_script}" "${file}"
          fi
@@ -581,12 +579,11 @@ Index: HLFS/master.sh
          ;;
 +      *kernel)       wrt_paco_prep
 +                     wrt_run_as_chroot2 "$this_script" "$file"
-+                     version=`grep "^linux-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
-+                     wrt_paco_log "linux-kernel" "$version"
++                     wrt_paco_log "$(get_package_tarball_name "linux")"
 +        ;;
 +      *bootscripts)  wrt_paco_prep
 +                     wrt_run_as_chroot2 "$this_script" "$file"
-+                     wrt_paco_log "hlfs-bootscripts"
++                     wrt_paco_log "$(get_package_tarball_name "lfs-bootscripts")"
 +        ;;
        *)  # All other scripts
          wrt_run_as_chroot2 "${this_script}" "${file}"
@@ -596,7 +593,7 @@ Index: HLFS/master.sh
  
 Index: master.sh
 ===================================================================
---- master.sh	(revision 2804)
+--- master.sh	(revision 2818)
 +++ master.sh	(working copy)
 @@ -148,6 +148,8 @@
  
