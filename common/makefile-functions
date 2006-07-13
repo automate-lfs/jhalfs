@@ -58,7 +58,7 @@ define echo_finished
   @echo
   @echo -e \\t- Set a password for the root user.
   @echo
-  @echo -e \\t- Edit /etc/fstab, /etc/hosts, /etc/sysconfig/clock,
+  @echo -e \\t- Edit or create /etc/fstab, /etc/hosts, /etc/sysconfig/clock,
   @echo -e \\t/etc/sysconfig/console, /etc/sysconfig/network,
   @echo -e \\t/etc/sysconfig//network-devices/ifconfig.eth0/ipv4 and
   @echo -e \\tany other configuration file required to suit your needs.
@@ -92,7 +92,7 @@ define echo_boot_finished
   @echo
   @echo The build is not complete. Follow the next steps:$(WHITE)
   @echo
-  @echo -e \\t- Edit $(MOUNT_PT)/etc/fstab
+  @echo -e \\t- Edit or create $(MOUNT_PT)/etc/fstab
   @echo -e \\t and any other configuration file required to suit your needs.
   @echo $(BOLD)
   @echo $(BOLD)$(YELLOW)
