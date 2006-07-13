@@ -230,6 +230,10 @@
       <xsl:when test="ancestor::sect1[@id='ch-system-groff']">
         <xsl:value-of select="$page"/>
       </xsl:when>
+      <xsl:when test="ancestor::sect1[@id='ch-boot-kernel'] or
+                      ancestor::sect1[@id='ch-bootable-kernel']">
+        <xsl:value-of select="$keymap"/>
+      </xsl:when>
       <xsl:otherwise>
         <xsl:text>**EDITME</xsl:text>
         <xsl:apply-templates/>
