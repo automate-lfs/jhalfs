@@ -133,6 +133,11 @@ $Id$
 
 
 6. FAQ::
+    Q. "This 'help' file is very sparse"
+    A. Yes, it is. This tool, jhalfs, is for those who understand the LFS books
+       and wish to automate the build. 99% of any problems that arise can be
+       solved by reading the book(s).
+   
     Q. "It doesn't work!"
     A. Yes it does, try ./lfs --help
 
@@ -192,7 +197,6 @@ $Id$
        Of all the LFS series of books the Cross-LFS requires the greatest
        understanding of host/target hardware combination. Please read the book
        carefully and don't skip the easy parts (there are none..)
-
 
 
 Authors:

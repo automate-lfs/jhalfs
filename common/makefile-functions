@@ -54,7 +54,7 @@ define echo_finished
   @echo
   @echo -e \\t- Enter to the chroot using the command found
   @echo -e \\tin the section -Entering the Chroot Environment-
-  @echo -e \\texcept if building CLFS with METHOO=boot.
+  @echo -e \\texcept if building CLFS with METHOD=boot.
   @echo
   @echo -e \\t- Set a password for the root user.
   @echo
@@ -69,7 +69,7 @@ define echo_finished
   @echo -e \\tYou can set-up the host bootloader or the new boot-loader
   @echo -e \\tinstalled on the new system.
   @echo -e \\tIf the last, you must to mount the virtual filesystems, re-enter
-  @echo -e \\tto the chroot and be sure that /dev is populated with the
+  @echo -e \\tthe chroot and be sure that /dev is populated with the
   @echo -e \\trequired devices before configure the boot-loader. When ready,
   @echo -e \\texit from the chroot and umount the filesystems
   @echo

@@ -21,8 +21,9 @@ declare -a  GRAPHIC_STR="| / - \\ + "
 declare -i  SEC=0  # Seconds accumulator
 declare -i  PREV_SEC=0
 
-makePID=$(fuser -v . 2>&1 | grep make)
-makePID=$(echo $makePID | cut -d" " -f2)
+mypid=$$
+  # A small ugly.. who is my parent *not root
+makePID=`(cat /proc/$mypid/stat) | cut -d " " -f5`
 
 write_or_exit() {
     # make has been killed or failed or run to completion, leave
