@@ -9,10 +9,8 @@ MASTER SCRIPT
     LFS, CLFS or HLFS modules.
     Before working on that we need to fix the BLFS support.
 
-  - To create a script to install jhalfs system-wide.
 
-
-LFS MODULE (all this is applicable also to CLFS and HLFS modules)
+LFS MODULE (Applicable also to CLFS and HLFS modules)
 ----------
 
   - To add a switch to build the BLFS module dependencies at the end of
@@ -22,52 +20,12 @@ LFS MODULE (all this is applicable also to CLFS and HLFS modules)
     (to be) generated BLFS HTML pages and, maybe, gpm.
     Before working on that we need to fix the BLFS support.
 
+  - To add support for copying to the final system pre-generated
+    configuration files created by the user.
 
-BLFS MODULE (work in progress in the experimental branch.
------------  See also BLFS/TODO file on that branch)
 
-  - The SourceForge download links don't work.
-
-  - The current code to use a FTP mirror as fallback is broken
-    for several packages due FTP migration to upstream formats.
-
-  - To fix files creation using sudo. Comment from Ag Hatzim:
-
-      Commands, that using cat with sudo, to redirect the output to
-      certain files that users have no write access, will fail.
-
-      Eg. fcron.
-
-      #-------------------------------#
-      (~/jhablfs)sudo cat >> /etc/syslog.conf << "EOF"
-      # Begin fcron addition to /etc/syslog.conf
-
-      cron.* -/var/log/cron.log
-
-      # End fcron addition
-      EOF
-      zsh: permission denied: /etc/syslog.conf
-      #-------------------------------#
-
-      Since the shell is doing the redirection (man bash -REDIRECTION),
-      *before* the command is executed, sudo can not see the redirection,
-      so a new shell is needed for sudo to execute the actual command.
-
-      Like so, the previous command should be something like this.
-
-      #-------------------------------#
-      (~/jhablfs)sudo sh -c "cat >> /etc/syslog.conf << "EOF"
-      # Begin fcron addition to /etc/syslog.conf
-
-      cron.* -/var/log/cron.log
-
-      # End fcron addition
-      EOF"
-      #-------------------------------#
-
-  - Figure out how to handle Perl modules installation and other pages
-    that have commands to install more that one package (e.g., Gnat in GCC
-    Java-bin in Java, sane-backends and sane-frotnends in Sane, etc)
+BLFS MODULE (See BLFS/TODO)
+-----------
 
 
 OTHERS
@@ -78,4 +36,5 @@ OTHERS
     NOTE: that could require an special command line switch to regenerate the
     Makefile if additional scripts are manually added to the *-commands/*/ dirs.
 
+  - To create a script to install jhalfs system-wide, if possible.
 
