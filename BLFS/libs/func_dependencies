@@ -1,0 +1,371 @@
+#!/bin/bash
+#
+# $Id$
+#
+set -e
+
+declare -i cntr=0
+declare -a spaceSTR="                                                                   "
+
+#----------------------------#
+generate_dependency_tree() { #
+#----------------------------#
+: <<inline_doc
+    function:   Create a dependency tree for the TARGET
+    input vars: none
+    externals:  vars: TARGET
+                      PKGXML
+		      DEP_LEVEL
+                func: do_dependencies
+    modifies:   vars: PKGXML
+                      BLFS_XML
+    returns:    nothing
+    output:     files: $TARGET.dep
+                       $TARGET-index.xml.tmp
+                       depure.txt
+    on error:   nothing
+    on success: nothing
+inline_doc
+
+  local ENTRY_START
+  local ENTRY_END
+
+  #---------------------
+  # Create the working directory and cd into it
+  if [[ -d $TARGET ]] ; then
+    echo -e "\tERROR: Looks like $TARGET has been already processed."
+    echo -e "\tPlease delete or rename the $TARGET directory.\n"
+    exit 1
+  else
+    mkdir $TARGET && cd $TARGET
+  fi
+
+  #---------------------
+  # XML file of the target package
+  PKGXML=`grep "^$TARGET[[:space:]]" ../packages | cut -f2`
+
+  #---------------------
+  # The BLFS sources directory.
+  # Note: for book.xsl this value must be set via a sed in ./blfs.
+  # For consistency, we should to do the same here.
+  BLFS_XML=`echo $PKGXML | sed -e 's,/.*,,'`
+
+  if [[ ! -d ../$BLFS_XML ]] ; then
+    echo -e "\tThe BLFS book sources directory is missing.\n"
+    echo -e "\tExecution aborted.\n"
+    cd .. && rmdir $TARGET
+    exit 1
+  fi
+
+  #---------------------
+  # XInclude stuff
+  ENTRY_START="<xi:include xmlns:xi=\"http://www.w3.org/2003/XInclude\" href=\"../"
+  ENTRY_END="\"/>"
+
+  echo -en "\tGenerating $TARGET dependencies tree ..."
+
+  mkdir dependencies
+
+  #---------------------
+  # Create target package dependencies list
+  case $TARGET in
+    # Skip the creation when all dependencies are circular.
+    alsa-lib | cracklib | libexif | unixodbc ) ;;
+
+    # Meta-packages at target level
+    # KDE and Gnome-{core,full} could be made via packages.sh, but not sure yet how.
+    alsa )
+      echo -e "alsa-oss\nalsa-firmware\nalsa-tools\nalsa-utils\n \
+               alsa-plugins\nalsa-lib" > dependencies/alsa.dep
+      ;;
+    gnome-core )
+      cp ../libs/gnome-core.dep dependencies/
+      ;;
+    gnome-full )
+      cp ../libs/gnome-{core,full}.dep dependencies/
+      ;;
+    kde-core )
+      cp ../libs/kde-core.dep dependencies/
+      ;;
+    kde-full )
+      cp ../libs/kde-{core,full}.dep dependencies/
+      ;;
+    kde-koffice )
+      cp ../libs/kde-{core,full}.dep dependencies/
+      echo -e "koffice\nkde-full\nkde-core" > dependencies/kde-koffice.dep
+      ;;
+    xorg7 ) # At atarget level, add also x-config and x-setup
+      echo -e "x-config\nx-setup\nrman\nxterm2\nxorg7-driver\nxorg7-server\nluit\n \
+               xorg7-font\nxorg7-data\nxorg7-app\nxbitmaps\nmesalib\nlibdrm\n \
+               xorg7-lib\nxorg7-util\nxorg7-proto" > dependencies/xorg7.dep
+      ;;
+    * ) # Default
+      xsltproc --stringparam dependencies $DEP_LEVEL \
+               -o dependencies/$TARGET.dep \
+               ../libs/dependencies.xsl ../$PKGXML
+      ;;
+  esac
+
+  #---------------------
+  # Start with a clean $TARGET-index.xml.tmp file
+  > $TARGET-index.xml.tmp
+
+  #---------------------
+  # Write the XInclude
+  case $TARGET in
+    # If there is no usefull XML page, skip it.
+    alsa | gnome-core | gnome-full | kde-core | kde-full | kde-koffice ) ;;
+    * )
+      echo -e "    $ENTRY_START$PKGXML$ENTRY_END" >> $TARGET-index.xml.tmp
+      ;;
+  esac
+
+  #------------------P---
+  # Start with a clean depure.txt file
+  > depure.txt
+
+  #---------------------
+  # If have dependencies, write its XInclude and find sub-dependencies
+  if [[ -f dependencies/$TARGET.dep ]]; then
+    echo -e "Start loop for PKG $TARGET\n" >> depure.txt
+    mkdir xincludes && do_dependencies $TARGET
+  fi
+
+  echo "done"
+}
+
+
+
+#-----------------------#
+do_dependencies()  {    #  Loop to find sub-dependencies  :::WARNING::: THIS IS A RECURVISE FUNCTION
+#-----------------------#
+: <<inline_doc
+    function:   Loop through all the packages and create a sub-dependency tree
+    input vars: $1, package name
+    externals:  vars:  $DEP_LEVEL
+                       $TARGET
+                       $PRINT_SERVER
+                       $KBR5
+                       $GHOSTSCRIPT
+                       $MAILSERVER
+                file:  depure.txt
+                       $TARGET-index.xml.tmp
+                       $PKG.dep
+                       $PKG.inc
+    modifies:   files
+    returns:    nothing
+    output:     file:  $PKG-xinc.tmp
+                       depure.txt
+                       $TARGET-index.xml.tmp
+    on error:   exit
+    on success:
+inline_doc
+
+  set -e
+  local PKG=$1
+  local saveIFS=$IFS
+  local DEP_LV=$DEP_LEVEL
+  local line line2 DEP
+  echo -e "\tPKG is $PKG" >> depure.txt
+  echo -e "\tDEP_LEVEL for $PKG is $DEP_LV\n" >> depure.txt
+
+  #------------------
+  #  If a premade xinclude file exists, use it. If not, create one
+  if [[ -f xincludes/$PKG.xinc ]] ; then
+    echo -e "\tReusing xinclude file for PKG $PKG" >> depure.txt
+    IFS=$'\x0A'
+    for line in `cat xincludes/$PKG.xinc` ; do
+      IFS=$saveIFS
+      # Remove the Xinclude entry if found. We want the most newer one.
+      # Using double quotes to let bash expand variables.
+      # Remove also the empty line created. Can not be done in one step
+      # due that d requires the pattner between /, but we have a lot of /
+      # inside the pattner.
+      sed -e "s,^[[:space:]]*$line,," -e '/./!d' -i $TARGET-index.xml.tmp
+      # Write the XInclude
+      echo -e "$line" >> $TARGET-index.xml.tmp
+    done
+    return
+  fi
+
+  #------------------
+  # Start with a clean $PKG.xinc.tmp file
+  > xincludes/$PKG.xinc.tmp
+  for DEP in `cat dependencies/$PKG.dep`; do
+    # Special packages (a lot of hacks)
+    case $DEP in
+
+      db ) continue ;; # The proper version of DB is installed in LFS
+
+        # Don't have their own XML file
+      hal-requirements | hal-runtime-dependencies ) continue ;;
+      perl-* | tk-perl )         DEP=perl-modules ;;
+
+        # Orphan links (proper link must be created when generating the book)
+      arts )                     DEP=aRts ;;
+      kde )                      DEP=kde-core ;;
+
+       # Dummy gnome-core pages
+      GNOME-desktop-file-utils ) DEP=desktop-file-utils ;;
+      GNOME-shared-mime-info )   DEP=shared-mime-info ;;
+
+        # Set values for alternative packages
+        # X is a meta-package, thus handled in another way.
+      LPRng | cups )             DEP=$PRINT_SERVER ;;
+      mitkrb | heimdal )         DEP=$KBR5 ;;
+      gs | espgs )               DEP=$GHOSTSCRIPT ;;
+      server-mail )              DEP=$MAIL_SERVER ;;
+    esac
+
+    #------------------
+    echo -e "\tDEP for $PKG is $DEP" >> depure.txt
+    # Prevent circular dependencies
+    # If all dependencies are circular, the creation of the *.dep file
+    # must be skipped, not placed here, to avoid that the script will bomb
+    # due empty *.xinc files
+    case $DEP in
+      jadetex | perl-* | lynx | Links | w3m )
+        # Optional dependencies are runtime only
+        [[ "$PKG" = "docbook-utils" ]] && continue
+        ;;
+      libxslt )
+        # libxml2-->libxslt-->libxml2
+        [[ "$PKG" = "libxml2" ]] && continue
+        ;;
+      openldap | postgresql | $KBR5 )
+        # cyrus-sasl-->several-->cyrus-sasl
+        [[ "$PKG" = "cyrus-sasl" ]] && continue
+        ;;
+      espgs )
+        # sendmail-->espgs-->cups-->php-->sendmail
+        [[ "$PKG" = "$MAIL_SERVER" ]] && continue
+        ;;
+      aRts )
+        # esound-->aRts-->esound
+        [[ "$PKG" = "esound" ]] && continue
+        ;;
+      gimp | sane )
+        # imagemagick-->{sane}-->gimp-->imagemagick
+        [[ "$PKG" = "imagemagick" ]] && continue
+        ;;
+      ffmpeg )
+        # alsa-plugins-->ffmpeg-->several-->alsa-plugins
+        [[ "$PKG" = "alsa-plugins" ]] && continue
+        ;;
+      akode )
+        # Both are in the same page
+        [[ "$PKG" = "kdemultimedia" ]] && continue
+        ;;
+    esac
+
+    #------------------
+    echo -e "\tDEP_LEVEL for $DEP is $DEP_LV" >> depure.txt
+    # XML file of dependency package
+    DEP_XML=`grep "^$DEP[[:space:]]" ../packages | cut -f2`
+    echo -e "\t\tDEP_XML is $DEP_XML\n" >> depure.txt
+    case $DEP in
+      x-window-system | alsa ) ;; # No page for that (proper link must be created when generating the book)
+      xorg7 ) ;; # This page will be dump in the xorg7.xinc file
+      gnome-core | kde-core | kde-full ) ;; # Invented packages
+      * )
+        # Remove the Xinclude entry if found
+        sed -e "s,^[[:space:]]*$ENTRY_START$DEP_XML$ENTRY_END,," \
+            -e '/./!d' -i xincludes/$PKG.xinc.tmp
+        # Write the XInclude
+        echo -e "    $ENTRY_START$DEP_XML$ENTRY_END" >> xincludes/$PKG.xinc.tmp
+        ;;
+    esac
+
+    #------------------
+    # If not already created, create its dependencies list
+    if [[ ! -f dependencies/$DEP.dep ]] ; then
+      case $DEP in
+        # Skip the creation when all dependencies are circular.
+        alsa-lib | cracklib | libexif | unixodbc ) ;;
+        # Meta-packages at dependency level (ugly *.dep files, but work for now)
+        alsa ) # When dependency "alsa", use all alsa-* packages
+          echo -e "alsa-oss\nalsa-firmware\nalsa-tools\nalsa-utils\n \
+                   alsa-plugins\nalsa-lib" > dependencies/alsa.dep
+          ;;
+        kde-core )
+          cp ../libs/kde-core.dep dependencies/
+          ;;
+        x-window-system ) # X11 alternatives
+          echo -e "x-config\nx-setup\n$X11" > dependencies/x-window-system.dep
+          ;;
+        xorg7 )
+          echo -e "rman\nxterm2\nxorg7-driver\nxorg7-server\nluit\nxorg7-font\n \
+                   xorg7-data\nxorg7-app\nxbitmaps\nmesalib\nlibdrm\n \
+                   xorg7-lib\nxorg7-util\nxorg7-proto" > dependencies/xorg7.dep
+          ;;
+        * ) xsltproc --stringparam dependencies $DEP_LV \
+               -o dependencies/$DEP.dep ../libs/dependencies.xsl ../$DEP_XML
+          ;;
+      esac
+    fi
+
+    #------------------
+    # If needed, process its dependencies
+    if [[ -f dependencies/$DEP.dep ]] ; then
+      # If a premade xinclude file esist, include it
+      if [[ -f xincludes/$DEP.xinc ]] ; then
+        echo -e "\tReusing xinclude file for PKG $DEP (to solve $PKG)\n" >> depure.txt
+        IFS=$'\x0A'
+        for line2 in `cat xincludes/$DEP.xinc` ; do
+          IFS=$saveIFS
+          # Remove the Xinclude entry if found
+          sed -e "s,^[[:space:]]*$line2,," -e '/./!d' -i xincludes/$PKG.xinc.tmp
+          # Write the XInclude
+          echo -e "$line2" >> xincludes/$PKG.xinc.tmp
+        done
+      #------------------
+      # Create the xinclude file
+      else
+        echo -e "\nStart new loop for PKG $DEP (to solve $PKG)\n" >> depure.txt
+	#
+	# >>>>>> THIS IS A RECURSIVE FUNCTION CALL.. BEWARE OF GREMLINS. <<<<<<
+	#
+	# If the recursion depth is not too great this is an acceptable methodology for a script language
+	# However, uncontrolled recursion will cause a seg-fault due to stack issues with local variables.
+	#
+        set +e
+         [[ "${VERBOSITY}" > 0 ]] && echo -ne "\nrecursive call: $((++cntr)) ${spaceSTR:0:$cntr} ${RED}$DEP${OFF}"
+            do_dependencies $DEP
+         [[ "${VERBOSITY}" > 0 ]] && echo -ne  "\n          ret:  $cntr ${spaceSTR:0:$((cntr--))} ${GREEN}$DEP${OFF}\tUsing the new xinclude file for PKG $DEP (to solve $PKG)"
+        set -e
+
+        # Include it when done
+        echo -e "\tUsing the new xinclude file for PKG $DEP (to solve $PKG)\n" >> depure.txt
+        IFS=$'\x0A'
+        for line2 in `cat xincludes/$DEP.xinc` ; do
+          IFS=$saveIFS
+          # Remove the Xinclude entry if found
+          sed -e "s,^[[:space:]]*$line2,," -e '/./!d' -i xincludes/$PKG.xinc.tmp
+          # Write the XInclude
+          echo -e "$line2" >> xincludes/$PKG.xinc.tmp
+        done
+      fi
+    fi
+  done
+
+  #------------------
+  if [[ "$PKG" = "xorg7" ]] ; then
+    # Add their XInclude
+    PKG_XML=`grep "^$PKG[[:space:]]" ../packages | cut -f2`
+    echo -e "    $ENTRY_START$PKG_XML$ENTRY_END" >> xincludes/$PKG.xinc.tmp
+  fi
+
+  #------------------
+  mv xincludes/$PKG.xinc.tmp xincludes/$PKG.xinc
+  echo -e "Using the new xinclude file for PKG $PKG" >> depure.txt
+  IFS=$'\x0A'
+  for line in `cat xincludes/$PKG.xinc` ; do
+    IFS=$saveIFS
+    # Remove the Xinclude entry if found.
+    sed -e "s,^[[:space:]]*$line,," -e '/./!d' -i $TARGET-index.xml.tmp
+    # Write the XInclude
+    echo -e "$line" >> $TARGET-index.xml.tmp
+  done
+
+  echo -e "\nEnd loop for PKG $PKG\n" >> depure.txt
+}
