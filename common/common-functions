@@ -52,8 +52,12 @@ ${BOLD}  -V, --version${OFF}
 
 ${BOLD}  -B, --book VER${OFF}
         use VER version of the book as the system to build.
-        Supported versions are: dev*, trunk, SVN
-        These are aliases for the Development version of {C,H}LFS
+        Supported VER values are:
+          dev*, trunk, SVN = aliases for the Development version of {C,H}LFS
+          branch-NAME = a branch of name NAME
+          VERSION = the version of a stable released book
+        To know what branches and stable books works with this version of jhalfs
+        please see http://wiki.linuxfromscratch.org/alfs/wiki/SupportedBooks
 
 ${BOLD}  -D  --directory DIR${OFF}
         use DIR directory for building ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF}; all files jhalfs produces
@@ -653,7 +657,7 @@ get_book() {                 #
          test -d $JHALFSDIR/${PROGNAME}-commands && \
          test -f $JHALFSDIR/pkg_tarball_list ; then
         # Set the canonical book version
-        echo -ne "done\n" 
+        echo -ne "done\n"
         cd $JHALFSDIR
         case $PROGNAME in
           clfs)
@@ -667,10 +671,7 @@ get_book() {                 #
         extract_commands
       fi
     else
-      case $LFSVRS in
-        development)
-           svn co $SVN/${svn_root}/trunk/BOOK ${PROGNAME}-$LFSVRS >>$LOGDIR/$LOG 2>&1 ;;
-      esac
+      svn co $SVN/${svn_root}/${TREE} ${PROGNAME}-$LFSVRS >>$LOGDIR/$LOG 2>&1
       echo -ne "done\n"
       extract_commands
     fi
@@ -679,7 +680,7 @@ get_book() {                 #
     echo -ne "Using $BOOK as book's sources ...\n"
     extract_commands
   fi
-  echo -ne " Document version ${L_arrow}${BOLD}${VERSION}${R_arrow}\n" 
+  echo -ne " Document version ${L_arrow}${BOLD}${VERSION}${R_arrow}\n"
 }
 
 #----------------------------#
@@ -692,7 +693,7 @@ extract_commands() {         #
 
   cd $JHALFSDIR
   case $PROGNAME in
-    clfs) 
+    clfs)
       VERSION=$(xmllint --noent $BOOK/prologue/$ARCH/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
     *)
       VERSION=$(xmllint --noent $BOOK/prologue/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//')  ;;

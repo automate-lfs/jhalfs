@@ -32,6 +32,7 @@ XSL=lfs.xsl
 
 #--- Book version
 LFSVRS=development
+TREE=trunk/BOOK
 
 #--- Name of the makefile
 MKFILE=$JHALFSDIR/Makefile

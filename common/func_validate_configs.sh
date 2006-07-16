@@ -216,7 +216,7 @@ inline_doc
       BOOK)        if [[ "${WC}" = "1" ]] ; then
                      validate_dir -z -d
                    else
-                     validate_against_str "x${PROGNAME}-developmentx"
+                     validate_against_str "x${PROGNAME}-${LFSVRS}x"
                    fi ;;
 
       # Validate directories, testable states:
