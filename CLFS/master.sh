@@ -15,7 +15,7 @@ host_prep_Makefiles() {      # Initialization of the system
   echo "${tab_}${GREEN}Processing... ${L_arrow}host prep files${R_arrow}"
 
   # defined here, only for ease of reading
-  CLFS_HOST="`echo ${MACHTYPE} | sed -e 's/unknown/cross/g' -e 's/-pc-/-cross-/g'`"
+  CLFS_HOST="$(echo $MACHTYPE | sed "s/$(echo $MACHTYPE | cut -d- -f2)/cross/")"
 (
 cat << EOF
 023-creatingtoolsdir:
