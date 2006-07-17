@@ -903,7 +903,7 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
   done
 
   if [[ -s MISSING_FILES.DMP ]]; then
-    echo  -e "\n\n${tab_}${RED} One or more files were not retrieved or have a bad MD5SUMS chechsum.\n${tab_} Check ${L_arrow}$BUILDDIR/sources/MISSING_FILES.DMP${R_arrow} for names ${OFF}\n"
+    echo  -e "\n\n${tab_}${RED} One or more files were not retrieved or have a bad MD5SUMS.\n${tab_} Check ${L_arrow}$BUILDDIR/sources/MISSING_FILES.DMP${R_arrow} for names ${OFF}\n"
       # Do not allow the automatic exection of the Makefile.
     echo "${tab_}${BOLD}${RED}*** ${YELLOW}Automatic execution of the generated makefile has been inhibited. ${RED}***${OFF}${nl_}"
     RUNMAKE=0
