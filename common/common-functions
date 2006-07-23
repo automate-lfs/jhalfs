@@ -146,7 +146,7 @@ ${DD_BORDER}
 }
 
 version="
-${BOLD}  \"jhalfs\"${OFF} builder tool (development) \$Rev$
+${BOLD}  \"jhalfs\"${OFF} builder tool (branch 1.0.x) \$Rev$
 \$Date$
 
 ${BOLD}              \"${PROGNAME}\"${OFF} script module
