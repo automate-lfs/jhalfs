@@ -131,6 +131,18 @@ ${BOLD}  --method BUILDMETHOD ${OFF}
         Select the build method, chroot or boot
 -EOF-
 
+[[ ${PROGNAME} = "clfs2" ]] &&
+cat <<- -EOF-
+
+${BOLD}  -A, --arch ARCH ${OFF}
+        Select the TARGET architecture, valid selections are:
+           32bit builds
+        arm
+           64bit builds
+
+	64bit multi-lib
+-EOF-
+
 [[ ${PROGNAME} = "hlfs" ]] &&
 cat <<- -EOF-
 
@@ -645,6 +657,7 @@ get_book() {                 #
       lfs) svn_root="LFS" ;;
       hlfs) svn_root="HLFS" ;;
       clfs) svn_root="cross-lfs" ;;
+      clfs2) svn_root="cross-lfs" ;;
       *) echo "BOOK not defined in function <get_book>"
           exit 1 ;;
     esac
@@ -660,7 +673,7 @@ get_book() {                 #
         echo -ne "done\n"
         cd $JHALFSDIR
         case $PROGNAME in
-          clfs)
+          clfs | clfs2)
             VERSION=$(xmllint --noent $BOOK/prologue/$ARCH/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
           *)
             VERSION=$(xmllint --noent $BOOK/prologue/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//')  ;;
@@ -671,7 +684,10 @@ get_book() {                 #
         extract_commands
       fi
     else
-      svn co $SVN/${svn_root}/${TREE} ${PROGNAME}-$LFSVRS >>$LOGDIR/$LOG 2>&1
+       case $PROGNAME in
+         clfs2 ) svn co $SVN/${svn_root}/branches/clfs-2.0/BOOK ${PROGNAME}-$LFSVRS >>$LOGDIR/$LOG 2>&1 ;;
+              *) svn co $SVN/${svn_root}/${TREE} ${PROGNAME}-$LFSVRS >>$LOGDIR/$LOG 2>&1 ;;
+       esac
       echo -ne "done\n"
       extract_commands
     fi
@@ -693,7 +709,7 @@ extract_commands() {         #
 
   cd $JHALFSDIR
   case $PROGNAME in
-    clfs)
+    clfs | clfs2 )
       VERSION=$(xmllint --noent $BOOK/prologue/$ARCH/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
     *)
       VERSION=$(xmllint --noent $BOOK/prologue/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//')  ;;
@@ -713,6 +729,19 @@ extract_commands() {         #
         xsltproc --nonet \
                  --xinclude \
                  --stringparam method $METHOD \
+                 --stringparam testsuite $TEST \
+                 --stringparam vim-lang $VIMLANG \
+                 --stringparam timezone $TIMEZONE \
+                 --stringparam page $PAGE \
+                 --stringparam lang $LANG \
+                 --stringparam keymap $KEYMAP \
+                 -o ./${PROGNAME}-commands/ $XSL $BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
+      ;;
+
+    clfs2)
+        echo -n " ${L_arrow}${BOLD}$ARCH${R_arrow} target architecture"
+        xsltproc --nonet \
+                 --xinclude \
                  --stringparam testsuite $TEST \
                  --stringparam vim-lang $VIMLANG \
                  --stringparam timezone $TIMEZONE \
@@ -769,7 +798,7 @@ create_package_list() {      #
   rm -f pkg_tarball_list
   echo -n "Creating <${PROGNAME}> list of tarball names for $BOOK $ARCH"
   case ${PROGNAME} in
-    clfs)
+    clfs | clfs2)
         xsltproc --nonet --xinclude -o pkg_tarball_list packages.xsl \
                  $BOOK/materials/${ARCH}-chapter.xml >>$LOGDIR/$LOG 2>&1
       ;;
@@ -918,6 +947,14 @@ create_urls() {              #
   case ${PROGNAME} in
     clfs)
         echo -n "Creating CLFS <${ARCH}> specific URLs file"
+        xsltproc --nonet --xinclude \
+                 --stringparam server $SERVER \
+                 -o $BUILDDIR/sources/urls.lst urls.xsl \
+                 $BOOK/materials/$ARCH-chapter.xml >>$LOGDIR/$LOG 2>&1
+        echo " ...OK"
+      ;;
+    clfs2)
+        echo -n "Creating CLFS2 <${ARCH}> specific URLs file"
         xsltproc --nonet --xinclude \
                  --stringparam server $SERVER \
                  -o $BUILDDIR/sources/urls.lst urls.xsl \

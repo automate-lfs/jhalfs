@@ -272,6 +272,10 @@ while test $# -gt 0 ; do
       test $# = 1 && eval "$exit_missing_arg"
       shift
       case $1 in
+        arm )
+          ARCH=arm
+          TARGET="arm-unknown-linux-gnu"
+          ;;
         x86 )
           ARCH=x86
           TARGET="i686-pc-linux-gnu"

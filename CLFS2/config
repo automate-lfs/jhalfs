@@ -1,0 +1,53 @@
+#####
+#
+# Configuration file for the CLFS module
+#
+# $Id$
+#
+#####
+
+#--- Which target architecture you want to build for,
+#    used to select proper book and set TARGETS
+#--------------------------------
+TARGET=
+TARGET32=
+# >>>> 32-32 BUILD <<<<
+  ARCH=x86 ;     TARGET="i486-pc-linux-gnu"
+# ARCH=x86 ;     TARGET="i586-pc-linux-gnu"
+# ARCH=x86 ;     TARGET="i686-pc-linux-gnu"
+# ARCH=arm ;     TARGET="arm-unknown-linux-gnu"
+#--------------------------------
+# >>>> 64-64 BUILD <<<<
+#--------------------------------
+# >>>> MULTILIB 32/64 <<<<
+
+#--- Location of fstab file (if empty, a template is created)
+FSTAB=
+
+#--- Fully qualified path to a kernel config file
+# If no config file is  specified the kernel is NOT compiled
+CONFIG=
+
+# Get the kernel package and patches even if no configutation file
+# has been supplied? 0(no)/1(yes)
+GETKERNEL=0
+
+#--- Book's sources directory
+# If you have previously checked out the book from the repository
+BOOK=
+
+#==== INTERNAL VARIABLES ====
+# Don't edit it unless you know what you are doing
+
+#--- Extra files that need be copied to $JHALFSDIR
+FILES=""
+
+#--- Default stylesheet
+XSL=clfs2.xsl
+
+#--- Book version
+LFSVRS=development
+
+#--- Name of the makefile
+MKFILE=$JHALFSDIR/Makefile
+
