@@ -72,6 +72,7 @@ LC_ALL=$LC_ALL # (not used in LFS)
 #    (e.g., i386/qwerty/us.map.gz) or "none"
 #    Not used in LFS
 KEYMAP=none
+KEYMAP=i386/qwerty/us.map.gz
 
 #=== Variables needed by iterative comparison analysis ===
 #--- Should some iterative comparison analysis by made? 0(no)/1(yes)
