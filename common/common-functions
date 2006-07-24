@@ -56,7 +56,7 @@ ${BOLD}  -B, --book VER${OFF}
           dev*, trunk, SVN = aliases for the Development version of {C,H}LFS
           branch-NAME = a branch of name NAME
           VERSION = the version of a stable released book
-        To know what branches and stable books works with this version of jhalfs
+        To know what branches and stable books work with this version of jhalfs
         please see http://wiki.linuxfromscratch.org/alfs/wiki/SupportedBooks
 
 ${BOLD}  -D  --directory DIR${OFF}
@@ -87,14 +87,14 @@ ${BOLD}  -T, --testsuites N ${OFF}
 ${BOLD}  -W, --working-copy DIR${OFF}
         use the local working copy placed in DIR as the $(echo $PROGNAME | tr [a-z] [A-Z]) book
 
-${BOLD}  -C, --comparasion TYPE${OFF}
+${BOLD}  -C, --comparison TYPE${OFF}
          do iterative comparison analysis. This extends the total build time
          considerably because the entire final system will rebuild itself
          the number of times specified by ITERATIONS in common/config.
          Types allowed are:
            ICA   = do ICA as designed by Greg Schafer
            farce = do the farce analysis designed by Ken Moffat
-           both  = perfom both ICA and farce analysis
+           both  = perform both ICA and farce analysis
 
 ${BOLD}  -F, --fstab FILE${OFF}
         use FILE as the /etc/fstab file for the ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF} system. If not specified,
@@ -108,7 +108,7 @@ ${BOLD}  -M, --run-make${OFF}
         run make on the generated Makefile
 
 ${BOLD}  -R --rebuild${OFF}
-        clean the build directory before perfoming any other task. The directory
+        clean the build directory before performing any other task. The directory
         is cleaned only if it was populated by a previous jhalfs run.
 -EOF-
 
@@ -932,8 +932,8 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
   done
 
   if [[ -s MISSING_FILES.DMP ]]; then
-    echo  -e "\n\n${tab_}${RED} One or more files were not retrieved or have a bad MD5SUMS.\n${tab_} Check ${L_arrow}$BUILDDIR/sources/MISSING_FILES.DMP${R_arrow} for names ${OFF}\n"
-      # Do not allow the automatic exection of the Makefile.
+    echo  -e "\n\n${tab_}${RED} One or more files were not retrieved or have bad MD5SUMS.\n${tab_} Check ${L_arrow}$BUILDDIR/sources/MISSING_FILES.DMP${R_arrow} for names ${OFF}\n"
+      # Do not allow the automatic execution of the Makefile.
     echo "${tab_}${BOLD}${RED}*** ${YELLOW}Automatic execution of the generated makefile has been inhibited. ${RED}***${OFF}${nl_}"
     RUNMAKE=0
   fi

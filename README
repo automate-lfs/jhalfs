@@ -74,7 +74,7 @@ $Id$
       # This points to a local archive of existing packages. If the version in
         the archive is incorrect jhalfs will access the net and download the
 	necessary version and store it here for later use. DO NOT set this to
-	$BUILDDIR/sources. If you do not set this variable to a valide directory
+	$BUILDDIR/sources. If you do not set this variable to a valid directory
 	ALL package tarballs will be downloaded from the 'net.
 
    -D /mnt/partition4
@@ -153,9 +153,9 @@ $Id$
        latest version of jhalfs to see if that solves your problem.
 
     Q. "How do I specify the build location?"
-    A. The original LFS document worked against the well know location /mnt/lfs.
+    A. The original LFS document worked against the well known location /mnt/lfs.
        This script automates the build of all of the LFS series of books and uses
-       a generic location $BUILDDIR with a default value a /mnt/build_dir.
+       a generic location $BUILDDIR with a default value of /mnt/build_dir.
        You may change this value to suit your needs.
 
        The layout below $BUILDDIR is as follows.
@@ -180,7 +180,7 @@ $Id$
     A. The best way to set the value of SRC_ARCHIVE is
        export SRC_ARCHIVE=/wherever/you/store/downloaded/packages
                        OR
-       you can change the setting in .common/config.
+       you can change the setting in common/config.
 
     Q. "Why have 2 copies of the files?"
     A. The package files must be visible during the chroot phase and this is a
@@ -199,7 +199,7 @@ $Id$
        only the temptools phase. You must run ./clfs using the 'boot' method and
        not the 'chroot.' You must transfer the toolchain to a sparc platform, reboot
        the sparc box and continue the build.
-       Of all the LFS series of books the Cross-LFS requires the greatest
+       Of all the LFS series of books Cross-LFS requires the greatest
        understanding of host/target hardware combination. Please read the book
        carefully and don't skip the easy parts (there are none..)
 

@@ -10,10 +10,10 @@
 FSTAB=
 
 #--- Fully qualified path to a kernel config file
-# If no config file is  specified the kernel is NOT compiled
+# If no config file is specified the kernel is NOT compiled
 CONFIG=
 
-# Get the kernel package and patches even if no configutation file
+# Get the kernel package and patches even if no configuration file
 # has been supplied? 0(no)/1(yes)
 GETKERNEL=0
 

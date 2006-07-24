@@ -193,7 +193,7 @@ while test $# -gt 0 ; do
             WC=1
             BOOK=$1
           else
-            echo -e "\nLooks like $1 isn't a LFS working copy."
+            echo -e "\nLooks like $1 isn't an LFS working copy."
             exit 1
           fi
           ;;
@@ -211,14 +211,14 @@ while test $# -gt 0 ; do
             WC=1
             BOOK=$1
           else
-            echo -e "\nLooks like $1 isn't a HLFS working copy."
+            echo -e "\nLooks like $1 isn't an HLFS working copy."
             exit 1
           fi
           ;;
       esac
       ;;
 
-    --comparasion | -C )
+    --comparison | -C )
       test $# = 1 && eval "$exit_missing_arg"
       shift
       case $1 in
@@ -350,7 +350,7 @@ while test $# -gt 0 ; do
           TARGET32="powerpc-unknown-linux-gnu"
           ;;
         * )
-          echo -e "\n$1 is an unknown or unsopported arch."
+          echo -e "\n$1 is an unknown or unsupported arch."
           exit 1
           ;;
       esac
@@ -415,7 +415,7 @@ BOOK=${BOOK:=$PROGNAME-$LFSVRS}
 #===================================================
 
 
-# Check for minumum gcc and kernel versions
+# Check for minimum gcc and kernel versions
 #check_requirements  1 # 0/1  0-do not display values.
 echo
 check_version "2.6.2" "`uname -r`"         "KERNEL"
@@ -498,7 +498,7 @@ if [[ "$PWD" != "$JHALFSDIR" ]]; then
   fi
   #
   if [[ -n "$FILES" ]]; then
-    # pushd/popd necessary to deal with mulitiple files
+    # pushd/popd necessary to deal with multiple files
     pushd $PACKAGE_DIR 1> /dev/null
       cp $FILES $JHALFSDIR/
     popd 1> /dev/null
@@ -506,7 +506,7 @@ if [[ "$PWD" != "$JHALFSDIR" ]]; then
   #
   if [[ "$REPORT" = "1" ]]; then
     cp $COMMON_DIR/create-sbu_du-report.sh  $JHALFSDIR/
-    # After be sure that all look sane, dump the settings to a file
+    # After being sure that all looks sane, dump the settings to a file
     # This file will be used to create the REPORT header
     validate_config > $JHALFSDIR/jhalfs.config
   fi

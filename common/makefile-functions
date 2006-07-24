@@ -65,7 +65,7 @@ define echo_finished
   @echo
   @echo -e \\t- Exit from the chroot.
   @echo
-  @echo -e \\t- Set-up the boot loader, except if building CLFS with METHOO=boot.
+  @echo -e \\t- Set-up the boot loader, except if building CLFS with METHOD=boot.
   @echo -e \\tYou can set-up the host bootloader or the new boot-loader
   @echo -e \\tinstalled on the new system.
   @echo -e \\tIf the last, you must to mount the virtual filesystems, re-enter
