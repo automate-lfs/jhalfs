@@ -684,10 +684,7 @@ get_book() {                 #
         extract_commands
       fi
     else
-       case $PROGNAME in
-         clfs2 ) svn co $SVN/${svn_root}/branches/clfs-2.0/BOOK ${PROGNAME}-$LFSVRS >>$LOGDIR/$LOG 2>&1 ;;
-              *) svn co $SVN/${svn_root}/${TREE} ${PROGNAME}-$LFSVRS >>$LOGDIR/$LOG 2>&1 ;;
-       esac
+      svn co $SVN/${svn_root}/${TREE} ${PROGNAME}-$LFSVRS >>$LOGDIR/$LOG 2>&1
       echo -ne "done\n"
       extract_commands
     fi

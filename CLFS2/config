@@ -47,6 +47,7 @@ XSL=clfs2.xsl
 
 #--- Book version
 LFSVRS=development
+TREE=branches/clfs-2.0/BOOK
 
 #--- Name of the makefile
 MKFILE=$JHALFSDIR/Makefile
