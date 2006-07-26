@@ -44,11 +44,17 @@ mainmenu "JHALFS Build Script Configuration"
 		string	"Branch"
 		default	""
 		depends	BRANCH
+		help
+			#-- A list of valid branch ID's is available here.
+			#   http://wiki.linuxfromscratch.org/alfs/wiki/SupportedBooks
 
 	config	BOOK
 		string	"Loc of working copy"
 		default	"**EDIT ME**"
 		depends	WORKING_COPY
+		help
+			#--- The full path to a local copy of the book
+			#
 #endmenu
 		
 #-----------------------
@@ -207,6 +213,12 @@ depends on BOOK_CLFS || BOOK_CLFS2
 			#    keymap file relative to /usr/share/kbd/keymaps/
 			#    (e.g., i386/qwerty/us.map.gz) or "none" if you do not want
 			#    a keymap included in the kernel
+			
+			=== Note about CLFS ===
+			If building the SVN or 1.0.0rc3 version using the boot method and
+			compiling the keymap into the kernel, you MUST to edit the "loadkeys"
+			command found in $JHALFSDIR/clfs-commands/boot/066-kernel to set the 
+			full path in your host to the keymap file.
 
 comment	"----------------------------------------"
 depends on BOOK_CLFS || BOOK_CLFS2
