@@ -54,22 +54,22 @@ define echo_finished
   @echo
   @echo -e \\t- Enter to the chroot using the command found
   @echo -e \\tin the section -Entering the Chroot Environment-
-  @echo -e \\texcept if building CLFS with METHOO=boot.
+  @echo -e \\texcept if building CLFS with METHOD=boot.
   @echo
   @echo -e \\t- Set a password for the root user.
   @echo
-  @echo -e \\t- Edit /etc/fstab, /etc/hosts, /etc/sysconfig/clock,
+  @echo -e \\t- Edit or create /etc/fstab, /etc/hosts, /etc/sysconfig/clock,
   @echo -e \\t/etc/sysconfig/console, /etc/sysconfig/network,
   @echo -e \\t/etc/sysconfig//network-devices/ifconfig.eth0/ipv4 and
   @echo -e \\tany other configuration file required to suit your needs.
   @echo
   @echo -e \\t- Exit from the chroot.
   @echo
-  @echo -e \\t- Set-up the boot loader, except if building CLFS with METHOO=boot.
+  @echo -e \\t- Set-up the boot loader, except if building CLFS with METHOD=boot.
   @echo -e \\tYou can set-up the host bootloader or the new boot-loader
   @echo -e \\tinstalled on the new system.
   @echo -e \\tIf the last, you must to mount the virtual filesystems, re-enter
-  @echo -e \\tto the chroot and be sure that /dev is populated with the
+  @echo -e \\tthe chroot and be sure that /dev is populated with the
   @echo -e \\trequired devices before configure the boot-loader. When ready,
   @echo -e \\texit from the chroot and umount the filesystems
   @echo
@@ -92,7 +92,7 @@ define echo_boot_finished
   @echo
   @echo The build is not complete. Follow the next steps:$(WHITE)
   @echo
-  @echo -e \\t- Edit $(MOUNT_PT)/etc/fstab
+  @echo -e \\t- Edit or create $(MOUNT_PT)/etc/fstab
   @echo -e \\t and any other configuration file required to suit your needs.
   @echo $(BOLD)
   @echo $(BOLD)$(YELLOW)

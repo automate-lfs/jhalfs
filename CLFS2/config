@@ -1,16 +1,25 @@
 #####
 #
-# Configuration file for the HLFS module
+# Configuration file for the CLFS module
 #
 # $Id$
 #
 #####
 
-#--- Which library model to use uclibc/glibc
-MODEL=glibc
-
-#--- The host system has grsecurity options enabled? 0(no)/1(yes)
-GRSECURITY_HOST=0
+#--- Which target architecture you want to build for,
+#    used to select proper book and set TARGETS
+#--------------------------------
+TARGET=
+TARGET32=
+# >>>> 32-32 BUILD <<<<
+  ARCH=x86 ;     TARGET="i486-pc-linux-gnu"
+# ARCH=x86 ;     TARGET="i586-pc-linux-gnu"
+# ARCH=x86 ;     TARGET="i686-pc-linux-gnu"
+# ARCH=arm ;     TARGET="arm-unknown-linux-gnu"
+#--------------------------------
+# >>>> 64-64 BUILD <<<<
+#--------------------------------
+# >>>> MULTILIB 32/64 <<<<
 
 #--- Location of fstab file (if empty, a template is created)
 FSTAB=
@@ -34,11 +43,12 @@ BOOK=
 FILES=""
 
 #--- Default stylesheet
-XSL=hlfs.xsl
+XSL=clfs2.xsl
 
 #--- Book version
 LFSVRS=development
-TREE=trunk/BOOK
+TREE=branches/clfs-2.0/BOOK
 
 #--- Name of the makefile
 MKFILE=$JHALFSDIR/Makefile
+

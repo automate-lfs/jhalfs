@@ -10,12 +10,12 @@
 #----------------------------#
 host_prep_Makefiles() {      # Initialization of the system
 #----------------------------#
-  local   LFS_HOST
+  local   CLFS_HOST
 
   echo "${tab_}${GREEN}Processing... ${L_arrow}host prep files${R_arrow}"
 
   # defined here, only for ease of reading
-  LFS_HOST="`echo ${MACHTYPE} | sed -e 's/unknown/cross/g' -e 's/-pc-/-cross-/g'`"
+  CLFS_HOST="$(echo $MACHTYPE | sed "s/$(echo $MACHTYPE | cut -d- -f2)/cross/")"
 (
 cat << EOF
 023-creatingtoolsdir:
@@ -41,43 +41,43 @@ cat << EOF
 
 025-addinguser:  024-creatingcrossdir
 	@\$(call echo_message, Building)
-	@if [ ! -d /home/lfs ]; then \\
-		groupadd lfs; \\
-		useradd -s /bin/bash -g lfs -m -k /dev/null lfs; \\
+	@if [ ! -d /home/clfs ]; then \\
+		groupadd clfs; \\
+		useradd -s /bin/bash -g clfs -m -k /dev/null clfs; \\
 	else \\
-		touch user-lfs-exist; \\
+		touch user-clfs-exist; \\
 	fi;
-	@chown lfs \$(MOUNT_PT) && \\
-	chown lfs \$(MOUNT_PT)/tools && \\
-	chown lfs \$(MOUNT_PT)/cross-tools && \\
-	chown lfs \$(MOUNT_PT)/sources && \\
+	@chown clfs \$(MOUNT_PT) && \\
+	chown clfs \$(MOUNT_PT)/tools && \\
+	chown clfs \$(MOUNT_PT)/cross-tools && \\
+	chown clfs \$(MOUNT_PT)/sources && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
 
 026-settingenvironment:  025-addinguser
 	@\$(call echo_message, Building)
-	@if [ -f /home/lfs/.bashrc -a ! -f /home/lfs/.bashrc.XXX ]; then \\
-		mv /home/lfs/.bashrc /home/lfs/.bashrc.XXX; \\
+	@if [ -f /home/clfs/.bashrc -a ! -f /home/clfs/.bashrc.XXX ]; then \\
+		mv /home/clfs/.bashrc /home/clfs/.bashrc.XXX; \\
 	fi;
-	@if [ -f /home/lfs/.bash_profile  -a ! -f /home/lfs/.bash_profile.XXX ]; then \\
-		mv /home/lfs/.bash_profile /home/lfs/.bash_profile.XXX; \\
+	@if [ -f /home/clfs/.bash_profile  -a ! -f /home/clfs/.bash_profile.XXX ]; then \\
+		mv /home/clfs/.bash_profile /home/clfs/.bash_profile.XXX; \\
 	fi;
-	@echo "set +h" > /home/lfs/.bashrc && \\
-	echo "umask 022" >> /home/lfs/.bashrc && \\
-	echo "LFS=\$(MOUNT_PT)" >> /home/lfs/.bashrc && \\
-	echo "LC_ALL=POSIX" >> /home/lfs/.bashrc && \\
-	echo "PATH=/cross-tools/bin:/bin:/usr/bin" >> /home/lfs/.bashrc && \\
-	echo "export LFS LC_ALL PATH" >> /home/lfs/.bashrc && \\
-	echo "" >> /home/lfs/.bashrc && \\
-	echo "unset CFLAGS" >> /home/lfs/.bashrc && \\
-	echo "unset CXXFLAGS" >> /home/lfs/.bashrc && \\
-	echo "" >> /home/lfs/.bashrc && \\
-	echo "export LFS_HOST=\"${LFS_HOST}\"" >> /home/lfs/.bashrc && \\
-	echo "export LFS_TARGET=\"${TARGET}\"" >> /home/lfs/.bashrc && \\
-	echo "export LFS_TARGET32=\"${TARGET32}\"" >> /home/lfs/.bashrc && \\
-	echo "source $JHALFSDIR/envars" >> /home/lfs/.bashrc
-	@chown lfs:lfs /home/lfs/.bashrc && \\
+	@echo "set +h" > /home/clfs/.bashrc && \\
+	echo "umask 022" >> /home/clfs/.bashrc && \\
+	echo "CLFS=\$(MOUNT_PT)" >> /home/clfs/.bashrc && \\
+	echo "LC_ALL=POSIX" >> /home/clfs/.bashrc && \\
+	echo "PATH=/cross-tools/bin:/bin:/usr/bin" >> /home/clfs/.bashrc && \\
+	echo "export CLFS LC_ALL PATH" >> /home/clfs/.bashrc && \\
+	echo "" >> /home/clfs/.bashrc && \\
+	echo "unset CFLAGS" >> /home/clfs/.bashrc && \\
+	echo "unset CXXFLAGS" >> /home/clfs/.bashrc && \\
+	echo "" >> /home/clfs/.bashrc && \\
+	echo "export CLFS_HOST=\"${CLFS_HOST}\"" >> /home/clfs/.bashrc && \\
+	echo "export CLFS_TARGET=\"${TARGET}\"" >> /home/clfs/.bashrc && \\
+	echo "export CLFS_TARGET32=\"${TARGET32}\"" >> /home/clfs/.bashrc && \\
+	echo "source $JHALFSDIR/envars" >> /home/clfs/.bashrc
+	@chown clfs:clfs /home/clfs/.bashrc && \\
 	touch envars && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
@@ -117,17 +117,9 @@ cross_tools_Makefiles() {     #
     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' \
                                   -e 's@-static@@' \
                                   -e 's@-final@@' \
-                                  -e 's@-headers@@' \
-                                  -e 's@-64@@' \
+				  -e 's@-64@@' \
                                   -e 's@-n32@@'`
-    # Adjust 'name' and patch a few scripts on the fly..
-    case $name in
-      linux-libc) name=linux-libc-headers ;;
-    esac
-    #
-    # Find the version of the command files, if it corresponds with the building of a specific package
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
-
+    pkg_tarball=$(get_package_tarball_name $name)
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
@@ -137,13 +129,13 @@ cross_tools_Makefiles() {     #
     # as a dependency. Also call the echo_message function.
     wrt_target "${this_script}" "$PREV"
     #
-    # If $vrs isn't empty, we've got a package...
+    # If $pkg_tarball isn't empty, we've got a package...
     #
-    [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*"
+    [[ "$pkg_tarball" != "" ]] && wrt_unpack_clfs "$pkg_tarball"
     #
-    wrt_run_as_su "${this_script}" "${file}"
+    wrt_run_as_clfs_su "${this_script}" "${file}"
     #
-    [[ "$vrs" != "" ]] && wrt_remove_build_dirs "${name}"
+    [[ "$pkg_tarball" != "" ]] && wrt_remove_build_dirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -168,6 +160,15 @@ temptools_Makefiles() {       #
     # Keep the script file name
     this_script=`basename $file`
     #
+    #  Deal with any odd scripts..
+    case $this_script in
+      *choose) # The choose script will fail if you cannot enter the new environment
+               # If the 'boot' build method was chosen don't run the script
+         [[ $METHOD = "boot" ]] && continue; ;;
+      *) ;;
+    esac
+
+    #
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
     temptools="$temptools $this_script"
@@ -176,9 +177,7 @@ temptools_Makefiles() {       #
     # Grab the name of the target, strip id number, XXX-script
     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'`
     #
-    # Find the version of the command files, if it corresponds with the building of a specific package
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
-
+    pkg_tarball=$(get_package_tarball_name $name)
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
@@ -188,15 +187,15 @@ temptools_Makefiles() {       #
     # as a dependency. Also call the echo_message function.
     wrt_target "${this_script}" "$PREV"
     #
-    # If $vrs isn't empty, we've got a package...
+    # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and to set the PKGDIR variable.
     #
-    [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*"
-    [[ "$vrs" != "" ]] && [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
+    [[ "$pkg_tarball" != "" ]] && wrt_unpack_clfs "$pkg_tarball"
+    [[ "$pkg_tarball" != "" ]] && [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     #
-    wrt_run_as_su "${this_script}" "${file}"
+    wrt_run_as_clfs_su "${this_script}" "${file}"
     #
-    [[ "$vrs" != "" ]] && wrt_remove_build_dirs "${name}"
+    [[ "$pkg_tarball" != "" ]] && wrt_remove_build_dirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -249,8 +248,8 @@ boot_Makefiles() {            #
       *lilo-build)    name=lilo                    ;;
       *)              name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' -e 's@-build@@' ` ;;
     esac
-
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+      # Identify the unique version naming scheme for the clfs bootscripts..(bad boys)
+    pkg_tarball=$(get_package_tarball_name $name)
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
@@ -260,27 +259,27 @@ boot_Makefiles() {            #
     # as a dependency. Also call the echo_message function.
     wrt_target "${this_script}" "$PREV"
     #
-    # If $vrs isn't empty, we've got a package...
+    # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     #
-    [[ "$vrs" != "" ]] && wrt_unpack "$name-$vrs.tar.*"
-    [[ "$vrs" != "" ]] && [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
+    [[ "$pkg_tarball" != "" ]] && wrt_unpack_clfs "$pkg_tarball"
+    [[ "$pkg_tarball" != "" ]] && [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     #
     # Select a script execution method
     case $this_script in
-      *changingowner*)  wrt_run_as_root "${this_script}" "${file}"    ;;
-      *devices*)        wrt_run_as_root "${this_script}" "${file}"    ;;
+      *changingowner*)  wrt_run_as_clfs_root "${this_script}" "${file}"    ;;
+      *devices*)        wrt_run_as_clfs_root "${this_script}" "${file}"    ;;
       *fstab*)   if [[ -n "$FSTAB" ]]; then
                    wrt_copy_fstab "${this_script}"
                  else
-                   wrt_run_as_su  "${this_script}" "${file}"
+                   wrt_run_as_clfs_su  "${this_script}" "${file}"
                  fi
          ;;
-      *)         wrt_run_as_su  "${this_script}" "${file}"       ;;
+      *)         wrt_run_as_clfs_su  "${this_script}" "${file}"       ;;
     esac
     #
     # Housekeeping...remove any build directory(ies) except if the package build fails.
-    [[ "$vrs" != "" ]] && wrt_remove_build_dirs "${name}"
+    [[ "$pkg_tarball" != "" ]] && wrt_remove_build_dirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -317,7 +316,8 @@ chroot_Makefiles() {          #
 
     # Grab the name of the target, strip id number, XXX-script
     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'`
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+
+    pkg_tarball=$(get_package_tarball_name $name)
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
@@ -327,26 +327,26 @@ chroot_Makefiles() {          #
     # as a dependency. Also call the echo_message function.
     wrt_target "${this_script}" "$PREV"
     #
-    # If $vrs isn't empty, we've got a package...
+    # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     #
-    if [ "$vrs" != "" ] ; then
+    if [ "$pkg_tarball" != "" ] ; then
       case $this_script in
-        *util-linux)    wrt_unpack  "$name-$vrs.tar.*"  ;;
-        *)              wrt_unpack2 "$name-$vrs.tar.*"  ;;
+        *util-linux)    wrt_unpack_clfs  "$pkg_tarball"  ;;
+        *)              wrt_unpack2 "$pkg_tarball"  ;;
       esac
       [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
     #
     # Select a script execution method
     case $this_script in
-      *kernfs)        wrt_run_as_root    "${this_script}" "${file}"  ;;
-      *util-linux)    wrt_run_as_su     "${this_script}" "${file}"  ;;
-      *)              wrt_run_as_chroot1 "${this_script}" "${file}"  ;;
+      *kernfs)        wrt_run_as_clfs_root "${this_script}" "${file}"  ;;
+      *util-linux)    wrt_run_as_clfs_su   "${this_script}" "${file}"  ;;
+      *)              wrt_run_as_chroot1   "${this_script}" "${file}"  ;;
     esac
     #
     # Housekeeping...remove the build directory(ies), except if the package build fails.
-    [[ "$vrs" != "" ]] && wrt_remove_build_dirs "${name}"
+    [[ "$pkg_tarball" != "" ]] && wrt_remove_build_dirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -382,7 +382,7 @@ testsuite_tools_Makefiles() { #
                                   -e 's@64@@' \
                                   -e 's@n32@@'`
 
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+    pkg_tarball=$(get_package_tarball_name $name)
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
@@ -392,10 +392,7 @@ testsuite_tools_Makefiles() { #
     # as a dependency. Also call the echo_message function.
     wrt_target "${this_script}" "$PREV"
     #
-    case $name in
-      tcl)    wrt_unpack2 "$name$vrs-src.tar.*" ;;
-      *)      wrt_unpack2 "$name-$vrs.tar.*"    ;;
-    esac
+    wrt_unpack2 "$pkg_tarball"
     [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     #
     wrt_run_as_chroot1 "${this_script}" "${file}"
@@ -437,7 +434,7 @@ bm_testsuite_tools_Makefiles() { #
                                   -e 's@64@@' \
                                   -e 's@n32@@'`
 
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+    pkg_tarball=$(get_package_tarball_name $name)
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
@@ -445,12 +442,9 @@ bm_testsuite_tools_Makefiles() { #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    wrt_target "${this_script}" "$PREV"
+    wrt_target_boot "${this_script}" "$PREV"
     #
-    case $name in
-      tcl)    wrt_unpack3 "$name$vrs-src.tar.*" ;;
-      *)      wrt_unpack3 "$name-$vrs.tar.*"    ;;
-    esac
+    wrt_unpack3 "$pkg_tarball"
     [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     #
     wrt_run_as_root2 "${this_script}" "${file}"
@@ -519,9 +513,9 @@ final_system_Makefiles() {    #
     # Find the version of the command files, if it corresponds with the building of
     # a specific package. We need this here to can skip scripts not needed for
     # iterations rebuilds
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+    pkg_tarball=$(get_package_tarball_name $name)
 
-    if [[ "$vrs" = "" ]] && [[ -n "$N" ]] ; then
+    if [[ "$pkg_tarball" = "" ]] && [[ -n "$N" ]] ; then
       case "${this_script}" in
         *stripping*) ;;
         *)  continue ;;
@@ -544,10 +538,9 @@ final_system_Makefiles() {    #
     # as a dependency. Also call the echo_message function.
     wrt_target "${this_script}${N}" "$PREV"
 
-    # If $vrs isn't empty, we've got a package...
-    if [ "$vrs" != "" ] ; then
-      FILE="$name-$vrs.tar.*"
-      wrt_unpack2 "$FILE"
+    # If $pkg_tarball isn't empty, we've got a package...
+    if [ "$pkg_tarball" != "" ] ; then
+      wrt_unpack2 "$pkg_tarball"
       # If the testsuites must be run, initialize the log file
       case $name in
         binutils | gcc | glibc )
@@ -563,7 +556,7 @@ final_system_Makefiles() {    #
     #
     wrt_run_as_chroot1 "${this_script}" "${file}"
     #
-    [[ "$vrs" != "" ]] && wrt_remove_build_dirs "${name}"
+    [[ "$pkg_tarball" != "" ]] && wrt_remove_build_dirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -630,9 +623,10 @@ bm_final_system_Makefiles() { #
     # Find the version of the command files, if it corresponds with the building of
     # a specific package. We need this here to can skip scripts not needed for
     # iterations rebuilds
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
 
-    if [[ "$vrs" = "" ]] && [[ -n "$N" ]] ; then
+    pkg_tarball=$(get_package_tarball_name $name)
+
+    if [[ "$pkg_tarball" = "" ]] && [[ -n "$N" ]] ; then
       case "${this_script}" in
         *stripping*) ;;
         *)  continue ;;
@@ -653,11 +647,11 @@ bm_final_system_Makefiles() { #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    wrt_target "${this_script}${N}" "$PREV"
+    wrt_target_boot "${this_script}${N}" "$PREV"
 
-    # If $vrs isn't empty, we've got a package...
-    if [ "$vrs" != "" ] ; then
-      FILE="$name-$vrs.tar.*"
+    # If $pkg_tarball isn't empty, we've got a package...
+    if [ "$pkg_tarball" != "" ] ; then
+      FILE="$pkg_tarball"
       wrt_unpack3 "$FILE"
       # If the testsuites must be run, initialize the log file
       case $name in
@@ -674,7 +668,7 @@ bm_final_system_Makefiles() { #
     #
     wrt_run_as_root2 "${this_script}" "${file}"
     #
-    [[ "$vrs" != "" ]] && wrt_remove_build_dirs2 "${name}"
+    [[ "$pkg_tarball" != "" ]] && wrt_remove_build_dirs2 "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -720,7 +714,8 @@ bootscripts_Makefiles() {     #
       *bootscripts*) name=bootscripts-cross-lfs ;;
       *udev-rules)   name=udev-cross-lfs ;;
     esac
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+
+    pkg_tarball=$(get_package_tarball_name $name)
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
@@ -730,13 +725,13 @@ bootscripts_Makefiles() {     #
     # as a dependency. Also call the echo_message function.
     wrt_target "${this_script}" "$PREV"
     #
-    # If $vrs isn't empty, we've got a package...
+    # If $pkg_tarball isn't empty, we've got a package...
     #
-    [[ "$vrs" != "" ]] && wrt_unpack2 "$name-$vrs.tar.*"
+    [[ "$pkg_tarball" != "" ]] && wrt_unpack2 "$pkg_tarball"
     #
     wrt_run_as_chroot1 "${this_script}" "${file}"
     #
-    [[ "$vrs" != "" ]] && wrt_remove_build_dirs "${name}"
+    [[ "$pkg_tarball" != "" ]] && wrt_remove_build_dirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -781,7 +776,8 @@ bm_bootscripts_Makefiles() {  #
       *bootscripts*) name=bootscripts-cross-lfs
        ;;
     esac
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+
+    pkg_tarball=$(get_package_tarball_name $name)
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
@@ -789,15 +785,15 @@ bm_bootscripts_Makefiles() {  #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    wrt_target "${this_script}" "$PREV"
+    wrt_target_boot "${this_script}" "$PREV"
     #
-    # If $vrs isn't empty, we've got a package...
+    # If $pkg_tarball isn't empty, we've got a package...
     #
-    [[ "$vrs" != "" ]] && wrt_unpack3 "$name-$vrs.tar.*"
+    [[ "$pkg_tarball" != "" ]] && wrt_unpack3 "$pkg_tarball"
     #
     wrt_run_as_root2 "${this_script}" "${file}"
     #
-    [[ "$vrs" != "" ]] && wrt_remove_build_dirs2 "${name}"
+    [[ "$pkg_tarball" != "" ]] && wrt_remove_build_dirs2 "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -844,7 +840,8 @@ bootable_Makefiles() {        #
       *kernel*) name=linux
        ;;
     esac
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+
+    pkg_tarball=$(get_package_tarball_name $name)
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
@@ -854,10 +851,10 @@ bootable_Makefiles() {        #
     # as a dependency. Also call the echo_message function.
     wrt_target "${this_script}" "$PREV"
     #
-    # If $vrs isn't empty, we've got a package...
+    # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     #
-    [[ "$vrs" != "" ]] && wrt_unpack2 "$name-$vrs.tar.*"
+    [[ "$pkg_tarball" != "" ]] && wrt_unpack2 "$pkg_tarball"
     #
     # Select a script execution method
     case $this_script in
@@ -871,7 +868,7 @@ bootable_Makefiles() {        #
     esac
     #
     # Housekeeping...remove any build directory(ies) except if the package build fails.
-    [[ "$vrs" != "" ]] && wrt_remove_build_dirs "${name}"
+    [[ "$pkg_tarball" != "" ]] && wrt_remove_build_dirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -917,12 +914,11 @@ bm_bootable_Makefiles() {     #
     #
     # Grab the name of the target, strip id number and misc words.
     case $this_script in
-      *kernel) name=linux
-         ;;
+      *kernel) name=linux  ;;
       *)       name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' -e 's@-build@@' ` ;;
     esac
 
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+    pkg_tarball=$(get_package_tarball_name $name)
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
@@ -930,12 +926,12 @@ bm_bootable_Makefiles() {     #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    wrt_target "${this_script}" "$PREV"
+    wrt_target_boot "${this_script}" "$PREV"
     #
-    # If $vrs isn't empty, we've got a package...
+    # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     #
-    [[ "$vrs" != "" ]] && wrt_unpack3 "$name-$vrs.tar.*"
+    [[ "$pkg_tarball" != "" ]] && wrt_unpack3 "$pkg_tarball"
     #
     # Select a script execution method
     case $this_script in
@@ -951,7 +947,7 @@ bm_bootable_Makefiles() {     #
     esac
     #
     # Housekeeping...remove any build directory(ies) except if the package build fails.
-    [[ "$vrs" != "" ]] && wrt_remove_build_dirs2 "${name}"
+    [[ "$pkg_tarball" != "" ]] && wrt_remove_build_dirs2 "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -1031,7 +1027,7 @@ EOF
                                                                 -e 's|\\$|&&|g' \
                                                                 -e 's|exit||g' \
                                                                 -e 's|$| -c|' \
-                                                                -e 's|"$$LFS"|$(MOUNT_PT)|'\
+                                                                -e 's|"$$CLFS"|$(MOUNT_PT)|'\
                                                                 -e 's|set -e||'`
     echo -e "CHROOT1= $chroot\n" >> $MKFILE
   fi
@@ -1063,21 +1059,24 @@ clean-all:  clean
 
 clean:  clean-chapter4 clean-chapter3 clean-chapter2
 
+restart:
+	@echo "This feature does not exist for the CLFS makefile. (yet)"
+
 clean-chapter2:
-	-if [ ! -f user-lfs-exist ]; then \\
-		userdel lfs; \\
-		rm -rf /home/lfs; \\
+	-if [ ! -f user-clfs-exist ]; then \\
+		userdel clfs; \\
+		rm -rf /home/clfs; \\
 	fi;
 	rm -rf \$(MOUNT_PT)/tools
 	rm -f /tools
 	rm -rf \$(MOUNT_PT)/cross-tools
 	rm -f /cross-tools
-	rm -f envars user-lfs-exist
+	rm -f envars user-clfs-exist
 	rm -f 02* logs/02*.log
 
 clean-chapter3:
 	rm -rf \$(MOUNT_PT)/tools/*
-	rm -f $cross_tools restore-lfs-env sources-dir
+	rm -f $cross_tools restore-clfs-env sources-dir
 	cd logs && rm -f $cross_tools && cd ..
 
 clean-chapter4:
@@ -1091,15 +1090,15 @@ clean-chapter4:
 	cd logs && rm -f $temptools && cd ..
 
 
-restore-lfs-env:
+restore-clfs-env:
 	@\$(call echo_message, Building)
-	@if [ -f /home/lfs/.bashrc.XXX ]; then \\
-		mv -f /home/lfs/.bashrc.XXX /home/lfs/.bashrc; \\
+	@if [ -f /home/clfs/.bashrc.XXX ]; then \\
+		mv -f /home/clfs/.bashrc.XXX /home/clfs/.bashrc; \\
 	fi;
-	@if [ -f /home/lfs/.bash_profile.XXX ]; then \\
-		mv /home/lfs/.bash_profile.XXX /home/lfs/.bash_profile; \\
+	@if [ -f /home/clfs/.bash_profile.XXX ]; then \\
+		mv /home/clfs/.bash_profile.XXX /home/clfs/.bash_profile; \\
 	fi;
-	@chown lfs:lfs /home/lfs/.bash* && \\
+	@chown clfs:clfs /home/clfs/.bash* && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
@@ -1110,9 +1109,9 @@ do-housekeeping:
 	@-umount \$(MOUNT_PT)/dev
 	@-umount \$(MOUNT_PT)/sys
 	@-umount \$(MOUNT_PT)/proc
-	@-if [ ! -f user-lfs-exist ]; then \\
-		userdel lfs; \\
-		rm -rf /home/lfs; \\
+	@-if [ ! -f user-clfs-exist ]; then \\
+		userdel clfs; \\
+		rm -rf /home/clfs; \\
 	fi;
 
 EOF
@@ -1142,22 +1141,25 @@ clean-all:  clean
 
 clean:  clean-makesys clean-makeboot clean-jhalfs
 
+restart:
+	@echo "This feature does not exist for the CLFS makefile. (yet)"
+
 clean-jhalfs:
-	-if [ ! -f user-lfs-exist ]; then \\
-		userdel lfs; \\
-		rm -rf /home/lfs; \\
+	-if [ ! -f user-clfs-exist ]; then \\
+		userdel clfs; \\
+		rm -rf /home/clfs; \\
 	fi;
 	rm -rf \$(MOUNT_PT)/tools
 	rm -f /tools
 	rm -rf \$(MOUNT_PT)/cross-tools
 	rm -f /cross-tools
-	rm -f envars user-lfs-exist
+	rm -f envars user-clfs-exist
 	rm -f 02* logs/02*.log
 
 clean-makeboot:
 	rm -rf /tools/*
 	rm -f $cross_tools && rm -f $temptools && rm -f $chroottools && rm -f $boottools
-	rm -f restore-lfs-env sources-dir
+	rm -f restore-clfs-env sources-dir
 	cd logs && rm -f $cross_tools && rm -f $temptools && rm -f $chroottools && rm -f $boottools && cd ..
 
 clean-makesys:
@@ -1173,15 +1175,15 @@ clean-makesys:
 	cd logs && rm -f $basicsystem && rm -f $bootscripttools && rm -f $bootabletools && cd ..
 
 
-restore-lfs-env:
+restore-clfs-env:
 	@\$(call echo_message, Building)
-	@if [ -f /home/lfs/.bashrc.XXX ]; then \\
-		mv -fv /home/lfs/.bashrc.XXX /home/lfs/.bashrc; \\
+	@if [ -f /home/clfs/.bashrc.XXX ]; then \\
+		mv -fv /home/clfs/.bashrc.XXX /home/clfs/.bashrc; \\
 	fi;
-	@if [ -f /home/lfs/.bash_profile.XXX ]; then \\
-		mv -v /home/lfs/.bash_profile.XXX /home/lfs/.bash_profile; \\
+	@if [ -f /home/clfs/.bash_profile.XXX ]; then \\
+		mv -v /home/clfs/.bash_profile.XXX /home/clfs/.bash_profile; \\
 	fi;
-	@chown lfs:lfs /home/lfs/.bash* && \\
+	@chown clfs:clfs /home/clfs/.bash* && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)

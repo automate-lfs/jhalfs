@@ -16,6 +16,8 @@ BUILDDIR=/mnt/build_dir
 REPORT=1
 
 #=== Getting packages ===
+#    Files will be retrieved from the local archive SRC_ARCHIVE 
+#    (if defined) or the 'net and will be stored in $BUILDDIR/sources
 #--- Download the source packages 0(no)/1(yes)
 GETPKG=0
 
@@ -30,7 +32,7 @@ SRC_ARCHIVE=$SRC_ARCHIVE
 SERVER=ftp://ftp.lfs-matrix.net
 
 #=== Build options ===
-#--- Run the makefile at the end  0(no)/1(yes)
+#--- Automatically run the makefile once it has been created  0(no)/1(yes)
 RUNMAKE=0
 
 #--- Optimize the build  [0-2]

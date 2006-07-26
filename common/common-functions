@@ -52,8 +52,12 @@ ${BOLD}  -V, --version${OFF}
 
 ${BOLD}  -B, --book VER${OFF}
         use VER version of the book as the system to build.
-        Supported versions are: dev*, trunk, SVN
-        These are aliases for the Development version of {C,H}LFS
+        Supported VER values are:
+          dev*, trunk, SVN = aliases for the Development version of {C,H}LFS
+          branch-NAME = a branch of name NAME
+          VERSION = the version of a stable released book
+        To know what branches and stable books work with this version of jhalfs
+        please see http://wiki.linuxfromscratch.org/alfs/wiki/SupportedBooks
 
 ${BOLD}  -D  --directory DIR${OFF}
         use DIR directory for building ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF}; all files jhalfs-X produces
@@ -83,14 +87,14 @@ ${BOLD}  -T, --testsuites N ${OFF}
 ${BOLD}  -W, --working-copy DIR${OFF}
         use the local working copy placed in DIR as the $(echo $PROGNAME | tr [a-z] [A-Z]) book
 
-${BOLD}  -C, --comparasion TYPE${OFF}
+${BOLD}  -C, --comparison TYPE${OFF}
          do iterative comparison analysis. This extends the total build time
          considerably because the entire final system will rebuild itself
          the number of times specified by ITERATIONS in common/config.
          Types allowed are:
            ICA   = do ICA as designed by Greg Schafer
            farce = do the farce analysis designed by Ken Moffat
-           both  = perfom both ICA and farce analysis
+           both  = perform both ICA and farce analysis
 
 ${BOLD}  -F, --fstab FILE${OFF}
         use FILE as the /etc/fstab file for the ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF} system. If not specified,
@@ -104,7 +108,7 @@ ${BOLD}  -M, --run-make${OFF}
         run make on the generated Makefile
 
 ${BOLD}  -R --rebuild${OFF}
-        clean the build directory before perfoming any other task. The directory
+        clean the build directory before performing any other task. The directory
         is cleaned only if it was populated by a previous jhalfs-X run.
 -EOF-
 
@@ -125,6 +129,18 @@ ${BOLD}  --boot-config FILE ${OFF}
 
 ${BOLD}  --method BUILDMETHOD ${OFF}
         Select the build method, chroot or boot
+-EOF-
+
+[[ ${PROGNAME} = "clfs2" ]] &&
+cat <<- -EOF-
+
+${BOLD}  -A, --arch ARCH ${OFF}
+        Select the TARGET architecture, valid selections are:
+           32bit builds
+        arm
+           64bit builds
+
+	64bit multi-lib
 -EOF-
 
 [[ ${PROGNAME} = "hlfs" ]] &&
@@ -209,6 +225,41 @@ EOF
 
 
 #----------------------------------#
+wrt_target_boot() {                # Create target and initialize log file
+#----------------------------------#
+  local i=$1
+  local PREV=$2
+  case $i in
+    iteration* ) local LOGFILE=$this_script.log ;;
+             * ) local LOGFILE=$this_script ;;
+  esac
+(
+cat << EOF
+
+$i:  $PREV
+	@\$(call echo_message, Building)
+	@./progress_bar.sh \$@ &
+	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=${SCRIPT_ROOT}\`\n" >logs/$LOGFILE
+EOF
+) >> $MKFILE.tmp
+}
+
+#----------------------------#
+get_package_tarball_name() { #
+#----------------------------#
+  local script_name=$1
+
+   # The use of 'head' is necessary to limit the return value to the FIRST match..
+   # hopefully this will not cause problems.
+   #
+   case $script_name in
+     tcl)   echo $(grep "^tcl" $JHALFSDIR/pkg_tarball_list | head -n1 ) ;;
+     *)     echo $(grep "^$script_name-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 ) ;;
+   esac
+
+}
+
+#----------------------------------#
 wrt_remove_existing_dirs() {       #
 #----------------------------------#
   local PKG_NAME=$1
@@ -259,6 +310,26 @@ cat << EOF
 	@ROOT=\`head -n1 \$(MOUNT_PT)\$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
 	echo "export PKGDIR=\$(MOUNT_PT)\$(SRC)/\$\$ROOT" > envars && \\
 	chown -R lfs \$(MOUNT_PT)\$(SRC)/\$\$ROOT
+EOF
+) >> $MKFILE.tmp
+}
+
+
+#----------------------------------#
+wrt_unpack_clfs() {                # Unpack and set 'ROOT' var
+#----------------------------------#
+  local FILE=$1
+  local optSAVE_PREVIOUS=$2
+
+  if [ "${optSAVE_PREVIOUS}" != "1" ]; then
+    wrt_remove_existing_dirs "$FILE"
+  fi
+(
+cat << EOF
+	@\$(call unpack,$FILE)
+	@ROOT=\`head -n1 \$(MOUNT_PT)\$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
+	echo "export PKGDIR=\$(MOUNT_PT)\$(SRC)/\$\$ROOT" > envars && \\
+	chown -R clfs \$(MOUNT_PT)\$(SRC)/\$\$ROOT
 EOF
 ) >> $MKFILE.tmp
 }
@@ -360,6 +431,34 @@ wrt_run_as_root() {                # Some scripts must be run as root..
 (
 cat << EOF
 	@( time { export LFS=\$(MOUNT_PT) && ${PROGNAME}-commands/$file >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
+	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >>logs/$this_script
+EOF
+) >> $MKFILE.tmp
+}
+
+
+#----------------------------------#
+wrt_run_as_clfs_su() {             # Execute script inside time { }, footer to log file
+#----------------------------------#
+  local this_script=$1
+  local file=$2
+(
+cat << EOF
+	@( time { su - clfs -c "source /home/clfs/.bashrc && $JHALFSDIR/${PROGNAME}-commands/$file" >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
+	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >>logs/$this_script
+EOF
+) >> $MKFILE.tmp
+}
+
+
+#----------------------------------#
+wrt_run_as_clfs_root() {           # Some scripts must be run as root..
+#----------------------------------#
+  local this_script=$1
+  local file=$2
+(
+cat << EOF
+	@( time { export CLFS=\$(MOUNT_PT) && ${PROGNAME}-commands/$file >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
 	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >>logs/$this_script
 EOF
 ) >> $MKFILE.tmp
@@ -535,7 +634,7 @@ clean_builddir() {           #
       echo -ne "Cleaning $BUILDDIR...\n"
       rm -rf $BUILDDIR/{bin,boot,dev,etc,home,lib,media,mnt,opt,proc,root,sbin,srv,sys,tmp,tools,cross-tools,usr,var}
       echo -ne "Cleaning $JHALFSDIR...\n"
-      rm -rf $JHALFSDIR/{0*,1*,envars,sources-dir,*commands,logs,Makefile,*.xsl,makefile-functions,packages,patches}
+      rm -rf $JHALFSDIR/{0*,1*,envars,sources-dir,*commands,*logs,Makefile,*.xsl,makefile-functions,pkg_tarball_list,*.config,*.sh}
       echo -ne "Cleaning remainig extracted sources in $BUILDDIR/sources...\n"
       rm -rf `find $BUILDDIR/sources/* -maxdepth 0 -type d`
       echo -ne "done\n"
@@ -558,6 +657,7 @@ get_book() {                 #
       lfs) svn_root="LFS" ;;
       hlfs) svn_root="HLFS" ;;
       clfs) svn_root="cross-lfs" ;;
+      clfs2) svn_root="cross-lfs" ;;
       *) echo "BOOK not defined in function <get_book>"
           exit 1 ;;
     esac
@@ -566,38 +666,34 @@ get_book() {                 #
     # sources.
     if [ -d ${PROGNAME}-$LFSVRS ] ; then
       cd ${PROGNAME}-$LFSVRS
-      if LC_ALL=C svn up | grep -q At && test -d $JHALFSDIR/${PROGNAME}-commands && \
-      test -f $JHALFSDIR/packages ; then
-        echo -ne "done\n"
+      if LC_ALL=C svn up | grep -q At && \
+         test -d $JHALFSDIR/${PROGNAME}-commands && \
+         test -f $JHALFSDIR/pkg_tarball_list ; then
         # Set the canonical book version
+        echo -ne "done\n"
         cd $JHALFSDIR
-        VERSION=`grep "ENTITY version " $BOOK/general.ent | sed 's@<!ENTITY version "@@;s@">@@'`
+        case $PROGNAME in
+          clfs | clfs2)
+            VERSION=$(xmllint --noent $BOOK/prologue/$ARCH/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
+          *)
+            VERSION=$(xmllint --noent $BOOK/prologue/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//')  ;;
+        esac
         get_sources
       else
         echo -ne "done\n"
-        # Set the canonical book version
-        cd $JHALFSDIR
-        VERSION=`grep "ENTITY version " $BOOK/general.ent | sed 's@<!ENTITY version "@@;s@">@@'`
         extract_commands
       fi
     else
-      case $LFSVRS in
-        development)
-           svn co $SVN/${svn_root}/trunk/BOOK ${PROGNAME}-$LFSVRS >>$LOGDIR/$LOG 2>&1 ;;
-      esac
+      svn co $SVN/${svn_root}/${TREE} ${PROGNAME}-$LFSVRS >>$LOGDIR/$LOG 2>&1
       echo -ne "done\n"
-      # Set the canonical book version
-      cd $JHALFSDIR
-      VERSION=`grep "ENTITY version " $BOOK/general.ent | sed 's@<!ENTITY version "@@;s@">@@'`
       extract_commands
     fi
+
   else
     echo -ne "Using $BOOK as book's sources ...\n"
-    # Set the canonical book version
-    cd $JHALFSDIR
-    VERSION=`grep "ENTITY version " $BOOK/general.ent | sed 's@<!ENTITY version "@@;s@">@@'`
     extract_commands
   fi
+  echo -ne " Document version ${L_arrow}${BOLD}${VERSION}${R_arrow}\n"
 }
 
 #----------------------------#
@@ -609,7 +705,12 @@ extract_commands() {         #
   exit 1"
 
   cd $JHALFSDIR
-  VERSION=`grep "ENTITY version " $BOOK/general.ent | sed 's@<!ENTITY version "@@;s@">@@'`
+  case $PROGNAME in
+    clfs | clfs2 )
+      VERSION=$(xmllint --noent $BOOK/prologue/$ARCH/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
+    *)
+      VERSION=$(xmllint --noent $BOOK/prologue/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//')  ;;
+  esac
 
   # Start clean
   if [ -d ${PROGNAME}-commands ]; then
@@ -625,6 +726,19 @@ extract_commands() {         #
         xsltproc --nonet \
                  --xinclude \
                  --stringparam method $METHOD \
+                 --stringparam testsuite $TEST \
+                 --stringparam vim-lang $VIMLANG \
+                 --stringparam timezone $TIMEZONE \
+                 --stringparam page $PAGE \
+                 --stringparam lang $LANG \
+                 --stringparam keymap $KEYMAP \
+                 -o ./${PROGNAME}-commands/ $XSL $BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
+      ;;
+
+    clfs2)
+        echo -n " ${L_arrow}${BOLD}$ARCH${R_arrow} target architecture"
+        xsltproc --nonet \
+                 --xinclude \
                  --stringparam testsuite $TEST \
                  --stringparam vim-lang $VIMLANG \
                  --stringparam timezone $TIMEZONE \
@@ -667,15 +781,37 @@ extract_commands() {         #
   chmod -R +x $JHALFSDIR/${PROGNAME}-commands
 
   # Create the packages file. We need it for proper Makefile creation
-  rm -f packages
-  echo -n "Creating <${PROGNAME}> specific packages file"
-  grep "\-version " $BOOK/packages.ent | sed -e 's@<!ENTITY @@' \
-                                             -e 's@">@"@' > packages
-  echo " ...OK"
+  create_package_list
 
   # Done. Moving on...
   get_sources
 }
+
+#----------------------------#
+create_package_list() {      #
+#----------------------------#
+
+  # Create the packages file. We need it for proper Makefile creation
+  rm -f pkg_tarball_list
+  echo -n "Creating <${PROGNAME}> list of tarball names for $BOOK $ARCH"
+  case ${PROGNAME} in
+    clfs | clfs2)
+        xsltproc --nonet --xinclude -o pkg_tarball_list packages.xsl \
+                 $BOOK/materials/${ARCH}-chapter.xml >>$LOGDIR/$LOG 2>&1
+      ;;
+    hlfs)
+        xsltproc --nonet --xinclude -o pkg_tarball_list packages.xsl \
+                 $BOOK/chapter04/chapter04.xml >>$LOGDIR/$LOG 2>&1
+      ;;
+    lfs)
+        xsltproc --nonet --xinclude -o pkg_tarball_list packages.xsl \
+                 $BOOK/chapter03/chapter03.xml >>$LOGDIR/$LOG 2>&1
+      ;;
+  esac
+  echo " ...OK"
+
+}
+
 
 #----------------------------#
 get_sources() {              # Download file, write name to MISSING_FILES.DMP if an error
@@ -793,13 +929,12 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
   done
 
   if [[ -s MISSING_FILES.DMP ]]; then
-    echo  -e "\n\n${tab_}${RED} One or more files were not retrieved or have a bad MD5SUMS chechsum.\n${tab_} Check ${L_arrow}$BUILDDIR/sources/MISSING_FILES.DMP${R_arrow} for names ${OFF}\n"
-      # Do not allow the automatic exection of the Makefile.
+    echo  -e "\n\n${tab_}${RED} One or more files were not retrieved or have bad MD5SUMS.\n${tab_} Check ${L_arrow}$BUILDDIR/sources/MISSING_FILES.DMP${R_arrow} for names ${OFF}\n"
+      # Do not allow the automatic execution of the Makefile.
     echo "${tab_}${BOLD}${RED}*** ${YELLOW}Automatic execution of the generated makefile has been inhibited. ${RED}***${OFF}${nl_}"
     RUNMAKE=0
   fi
 }
-
 
 #----------------------------#
 create_urls() {              #
@@ -809,6 +944,14 @@ create_urls() {              #
   case ${PROGNAME} in
     clfs)
         echo -n "Creating CLFS <${ARCH}> specific URLs file"
+        xsltproc --nonet --xinclude \
+                 --stringparam server $SERVER \
+                 -o $BUILDDIR/sources/urls.lst urls.xsl \
+                 $BOOK/materials/$ARCH-chapter.xml >>$LOGDIR/$LOG 2>&1
+        echo " ...OK"
+      ;;
+    clfs2)
+        echo -n "Creating CLFS2 <${ARCH}> specific URLs file"
         xsltproc --nonet --xinclude \
                  --stringparam server $SERVER \
                  -o $BUILDDIR/sources/urls.lst urls.xsl \

@@ -22,16 +22,16 @@ TARGET=
 #--------------------------------
 # >>>> 64-64 BUILD <<<<
 # ARCH=x86_64-64  ; TARGET="x86_64-unknown-linux-gnu"
-# ARCH=mips64-64  ; TARGET="mipsel-unknown-linux-gnu"
-# ARCH=mips64-64  ; TARGET="mips-unknown-linux-gnu"
+# ARCH=mips64-64  ; TARGET="mips64el-unknown-linux-gnu"
+# ARCH=mips64-64  ; TARGET="mips64-unknown-linux-gnu"
 # ARCH=sparc64-64 ; TARGET="sparc64-unknown-linux-gnu"
 # ARCH=alpha	  ; TARGET="alpha-unknown-linux-gnu"
 #--------------------------------
 # >>>> MULTILIB 32/64 <<<<
 # ARCH=x86_64  ; TARGET="x86_64-unknown-linux-gnu"    ; TARGET32="i686-pc-linux-gnu"
-# ARCH=mips64  ; TARGET="mipsel-unknown-linux-gnu"    ; TARGET32="mipsel-unknown-linux-gnu"
-# ARCH=mips64  ; TARGET="mips-unknown-linux-gnu"      ; TARGET32="mips-unknown-linux-gnu"
-# ARCH=sparc64 ; TARGET="sparc64-unknown-linux-gnu"   ; TARGET32="sparcv9-unknown-linux-gnu"
+# ARCH=mips64  ; TARGET="mips64el-unknown-linux-gnu"  ; TARGET32="mipsel-unknown-linux-gnu"
+# ARCH=mips64  ; TARGET="mips64-unknown-linux-gnu"    ; TARGET32="mips-unknown-linux-gnu"
+# ARCH=sparc64 ; TARGET="sparc64-unknown-linux-gnu"   ; TARGET32="sparc-unknown-linux-gnu"
 # ARCH=ppc64   ; TARGET="powerpc64-unknown-linux-gnu" ; TARGET32="powerpc-unknown-linux-gnu"
 
 #--- What build method should be used chroot/boot
@@ -68,6 +68,7 @@ XSL=clfs.xsl
 
 #--- Book version
 LFSVRS=development
+TREE=trunk/BOOK
 
 #--- Name of the makefile
 MKFILE=$JHALFSDIR/Makefile

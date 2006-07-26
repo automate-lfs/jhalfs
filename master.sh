@@ -105,22 +105,23 @@ while test $# -gt 0 ; do
       case $1 in
         dev* | SVN | trunk )
           LFSVRS=development
+          TREE=trunk/BOOK
           ;;
-        *) if [[ "$PROGNAME" = "lfs" ]]; then
-             case $1 in
-               6.1.1 )
-                 echo "For stable 6.1.1 book, please use jhalfs-0.2."
-                 exit 0
-                ;;
-               * )
-                 echo "$1 is an unsupported version at this time."
-                 exit 0
-                ;;
-             esac
-           else
-             echo "The requested version, ${L_arrow} ${BOLD}$1${OFF} ${R_arrow}, is undefined in the ${BOLD}$(echo $PROGNAME | tr [a-z] [A-Z])${OFF} series."
-             exit 0
-           fi
+        branch-* )
+          LFSVRS=$1
+          TREE=branches/${1#branch-}/BOOK
+          ;;
+        * )
+          case $PROGNAME in
+            lfs | hlfs )
+              LFSVRS=$1
+              TREE=tags/$1/BOOK
+              ;;
+            clfs )
+              LFSVRS=$1
+              TREE=tags/$1
+              ;;
+          esac
           ;;
       esac
       ;;
@@ -192,7 +193,7 @@ while test $# -gt 0 ; do
             WC=1
             BOOK=$1
           else
-            echo -e "\nLooks like $1 isn't a LFS working copy."
+            echo -e "\nLooks like $1 isn't an LFS working copy."
             exit 1
           fi
           ;;
@@ -210,14 +211,14 @@ while test $# -gt 0 ; do
             WC=1
             BOOK=$1
           else
-            echo -e "\nLooks like $1 isn't a HLFS working copy."
+            echo -e "\nLooks like $1 isn't an HLFS working copy."
             exit 1
           fi
           ;;
       esac
       ;;
 
-    --comparasion | -C )
+    --comparison | -C )
       test $# = 1 && eval "$exit_missing_arg"
       shift
       case $1 in
@@ -262,7 +263,7 @@ while test $# -gt 0 ; do
       fi
       ;;
 
-    --make | -M )          RUNMAKE=1 ;;
+    --run-make | -M )      RUNMAKE=1 ;;
 
     --rebuild | -R )       CLEAN=1   ;;
 
@@ -271,6 +272,10 @@ while test $# -gt 0 ; do
       test $# = 1 && eval "$exit_missing_arg"
       shift
       case $1 in
+        arm )
+          ARCH=arm
+          TARGET="arm-unknown-linux-gnu"
+          ;;
         x86 )
           ARCH=x86
           TARGET="i686-pc-linux-gnu"
@@ -345,7 +350,7 @@ while test $# -gt 0 ; do
           TARGET32="powerpc-unknown-linux-gnu"
           ;;
         * )
-          echo -e "\n$1 is an unknown or unsopported arch."
+          echo -e "\n$1 is an unknown or unsupported arch."
           exit 1
           ;;
       esac
@@ -410,7 +415,7 @@ BOOK=${BOOK:=$PROGNAME-$LFSVRS}
 #===================================================
 
 
-# Check for minumum gcc and kernel versions
+# Check for minimum gcc and kernel versions
 #check_requirements  1 # 0/1  0-do not display values.
 echo
 check_version "2.6.2" "`uname -r`"         "KERNEL"
@@ -493,7 +498,7 @@ if [[ "$PWD" != "$JHALFSDIR" ]]; then
   fi
   #
   if [[ -n "$FILES" ]]; then
-    # pushd/popd necessary to deal with mulitiple files
+    # pushd/popd necessary to deal with multiple files
     pushd $PACKAGE_DIR 1> /dev/null
       cp $FILES $JHALFSDIR/
     popd 1> /dev/null
@@ -501,12 +506,14 @@ if [[ "$PWD" != "$JHALFSDIR" ]]; then
   #
   if [[ "$REPORT" = "1" ]]; then
     cp $COMMON_DIR/create-sbu_du-report.sh  $JHALFSDIR/
-    # After be sure that all look sane, dump the settings to a file
+    # After being sure that all looks sane, dump the settings to a file
     # This file will be used to create the REPORT header
     validate_config > $JHALFSDIR/jhalfs.config
   fi
   #
   [[ "$GETPKG" = "1" ]] && cp $COMMON_DIR/urls.xsl  $JHALFSDIR/
+  #
+  cp $COMMON_DIR/packages.xsl  $JHALFSDIR/
   #
   sed 's,FAKEDIR,'$BOOK',' $PACKAGE_DIR/$XSL > $JHALFSDIR/${XSL}
   export XSL=$JHALFSDIR/${XSL}

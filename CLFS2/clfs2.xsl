@@ -24,7 +24,7 @@
        1 = only Glibc, GCC and Binutils testsuites
        2 = all testsuites
        3 = alias to 2 -->
-  <xsl:param name="testsuite" select="1"/>
+  <xsl:param name="testsuite" select="0"/>
 
   <!-- Install vim-lang package? -->
   <xsl:param name="vim-lang" select="1"/>
@@ -48,8 +48,6 @@
                       ../@id='chapter-getting-materials' or
                       ../@id='chapter-final-preps'"/>
       <xsl:when test="../@id='chapter-testsuite-tools' and $testsuite='0'"/>
-      <xsl:when test="../@id='chapter-boot' and $method='chroot'"/>
-      <xsl:when test="../@id='chapter-chroot' and $method='boot'"/>
       <xsl:otherwise>
         <xsl:if test="count(descendant::screen/userinput) &gt; 0 and
                       count(descendant::screen/userinput) &gt;

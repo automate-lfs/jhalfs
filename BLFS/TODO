@@ -19,13 +19,18 @@ What remains to do:
      c. Run the packages.sh script.
 
 2. - To develop the XSL code needed to create the build scripts.
-     Work in progress.
+     Almost done. A lot of book-versus-scripts and testing is needed.
+     We need yet to figure out how to handle Perl modules installation and
+     other pages that have commands to install more that one package
+     (e.g., Gnat in GCC Java-bin in Java, sane-backends and sane-frontends
+     in Sane, etc)
 
 3. - To develop the code to create the Makefile.
      Should be a separate script to be run manually after the user has
      review and edited the target build scripts.
      Must make the build scripts executables and set the SRC_ARCHIVE and
      FTP_SERVER envars.
+     Work in progress.
 
 4. - To find a way to track already installed packages by previous runs, to can
        skip them when creating the book/scripts/Makefile for a new target.

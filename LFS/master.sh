@@ -106,18 +106,12 @@ chapter5_Makefiles() {
 
     # Find the version of the command files, if it corresponds with the building of
     # a specific package
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+    pkg_tarball=$(get_package_tarball_name $name)
 
-    # If $vrs isn't empty, we've got a package...
-    if [ "$vrs" != "" ] ; then
-      if [ "$name" = "tcl" ] ; then
-        FILE="$name$vrs-src.tar.*"
-      else
-        FILE="$name-$vrs.tar.*"
-      fi
-
+    # If $pkg_tarball isn't empty, we've got a package...
+    if [ "$pkg_tarball" != "" ] ; then
       # Insert instructions for unpacking the package and to set the PKGDIR variable.
-      wrt_unpack "$FILE"
+      wrt_unpack "$pkg_tarball"
       # If the testsuites must be run, initialize the log file
       [[ "$TEST" = "3" ]] && wrt_test_log "${this_script}"
       # If using optimizations, write the instructions
@@ -134,7 +128,7 @@ chapter5_Makefiles() {
 
     # Remove the build directory(ies) except if the package build fails
     # (so we can review config.cache, config.log, etc.)
-    if [ "$vrs" != "" ] ; then
+    if [ "$pkg_tarball" != "" ] ; then
       wrt_remove_build_dirs "$name"
     fi
 
@@ -195,9 +189,9 @@ chapter6_Makefiles() {
     # Find the version of the command files, if it corresponds with the building of
     # a specific package. We need this here to can skip scripts not needed for
     # iterations rebuilds
-    vrs=`grep "^$name-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
+    pkg_tarball=$(get_package_tarball_name $name)
 
-    if [[ "$vrs" = "" ]] && [[ -n "$N" ]] ; then
+    if [[ "$pkg_tarball" = "" ]] && [[ -n "$N" ]] ; then
       case "${this_script}" in
         *stripping*) ;;
         *)  continue ;;
@@ -220,11 +214,10 @@ chapter6_Makefiles() {
     # as a dependency. Also call the echo_message function.
     wrt_target "${this_script}${N}" "$PREV"
 
-    # If $vrs isn't empty, we've got a package...
+    # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
-    if [ "$vrs" != "" ] ; then
-      FILE="$name-$vrs.tar.*"
-      wrt_unpack2 "$FILE"
+    if [ "$pkg_tarball" != "" ] ; then
+      wrt_unpack2 "$pkg_tarball"
       # If the testsuites must be run, initialize the log file
       case $name in
         binutils | gcc | glibc )
@@ -246,7 +239,7 @@ chapter6_Makefiles() {
     esac
 
     # Remove the build directory(ies) except if the package build fails.
-    if [ "$vrs" != "" ] ; then
+    if [ "$pkg_tarball" != "" ] ; then
       wrt_remove_build_dirs "$name"
     fi
 
@@ -304,14 +297,14 @@ chapter789_Makefiles() {
     # Find the bootscripts and kernel package names
     case "${this_script}" in
       *bootscripts)
-          vrs=`grep "^lfs-bootscripts-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
-          FILE="lfs-bootscripts-$vrs.tar.*"
-          wrt_unpack2 "$FILE"
+            name="lfs-bootscripts"
+            pkg_tarball=$(get_package_tarball_name $name)
+            wrt_unpack2 "$pkg_tarball"
         ;;
       *kernel)
-          vrs=`grep "^linux-version" $JHALFSDIR/packages | sed -e 's/.* //' -e 's/"//g'`
-          FILE="linux-$vrs.tar.*"
-          wrt_unpack2 "$FILE"
+            name="linux"
+            pkg_tarball=$(get_package_tarball_name $name)
+            wrt_unpack2 "$pkg_tarball"
        ;;
     esac
 
@@ -502,7 +495,7 @@ restart_code:
 	  if ! mount -l | grep "\$(MOUNT_PT)/proc" >/dev/null ; then \\
 	    mount -vt proc proc \$(MOUNT_PT)/proc;\\
 	  fi;\\
-	  if ! mount -l | grep "$\(MOUNT_PT)/sys" >/dev/null ; then \\
+	  if ! mount -l | grep "\$(MOUNT_PT)/sys" >/dev/null ; then \\
 	    mount -vt sysfs sysfs \$(MOUNT_PT)/sys;\\
 	  fi;\\
 	fi;
