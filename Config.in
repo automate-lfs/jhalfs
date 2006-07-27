@@ -41,15 +41,15 @@ mainmenu "JHALFS Build Script Configuration"
 	endchoice
 
 	config	BRANCH_ID
-		string	"Branch"
-		default	""
+		string	"Branch (manditory)"
+		default	"**EDIT ME**"
 		depends	BRANCH
 		help
 			#-- A list of valid branch ID's is available here.
 			#   http://wiki.linuxfromscratch.org/alfs/wiki/SupportedBooks
 
 	config	BOOK
-		string	"Loc of working copy"
+		string	"Loc of working copy (manditory)"
 		default	"**EDIT ME**"
 		depends	WORKING_COPY
 		help
