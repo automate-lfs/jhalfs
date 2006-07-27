@@ -1,5 +1,6 @@
 # From the Build Scripts Written By: Jim Gifford <lfs@jg555.com>
-# Modified By: Joe Ciccone <jciccone@linuxfromscratch.org>
+# Modified By: Joe Ciccone <jciccone@linuxfromscratch.org
+# Additional changes: George Boudreau <georgeb@linuxfromscratch.org>
 
 TOPDIR=$(shell pwd)
 CONFIG_CONFIG_IN = Config.in

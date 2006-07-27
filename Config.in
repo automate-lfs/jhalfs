@@ -41,7 +41,7 @@ mainmenu "JHALFS Build Script Configuration"
 	endchoice
 
 	config	BRANCH_ID
-		string	"Branch (manditory)"
+		string	"Branch (mandatory)"
 		default	"**EDIT ME**"
 		depends	BRANCH
 		help
@@ -49,7 +49,7 @@ mainmenu "JHALFS Build Script Configuration"
 			#   http://wiki.linuxfromscratch.org/alfs/wiki/SupportedBooks
 
 	config	BOOK
-		string	"Loc of working copy (manditory)"
+		string	"Loc of working copy (mandatory)"
 		default	"**EDIT ME**"
 		depends	WORKING_COPY
 		help
@@ -197,7 +197,7 @@ depends on BOOK_CLFS || BOOK_CLFS2
 		default "boot"		if BUILD_ROOT
 		
 	config	BOOT_CONFIG
-		string	"BOOT kernel config file (manditory)"
+		string	"BOOT kernel config file (mandatory)"
 		default ""
 		depends on BUILD_BOOT
 		help

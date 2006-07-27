@@ -7,24 +7,108 @@ set -e  # Enable error trapping
 ###          FUNCTIONS          ###
 ###################################
 
+#----------------------------------#
+wrt_ExecuteAsUser() {              # Execute the file ($3) under the users account ($1), log in $2
+#----------------------------------#
+  local this_user=$1
+  local this_script=$2
+  local file=$3
+ 
+(
+cat << EOF
+	@( time { su - ${this_user} -c "source /home/${this_user}/.bashrc && $JHALFSDIR/${PROGNAME}-commands/$file" >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
+	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >>logs/$this_script
+EOF
+) >> $MKFILE.tmp
+}
+
+
+#----------------------------------#
+wrt_Unpack_SetOwner() {            # Unpack and set owner. Assign 'ROOT' var
+#----------------------------------#
+  local USER_ACCT=$1
+  local FILE=$2
+  local optSAVE_PREVIOUS=$3
+
+  if [ "${optSAVE_PREVIOUS}" != "1" ]; then
+    wrt_remove_existing_dirs "$FILE"
+  fi
+(
+cat << EOF
+	@\$(call unpack,$FILE)
+	@ROOT=\`head -n1 \$(MOUNT_PT)\$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
+	echo "export PKGDIR=\$(MOUNT_PT)\$(SRC)/\$\$ROOT" > envars && \\
+	chown -R ${USER_ACCT} \$(MOUNT_PT)\$(SRC)/\$\$ROOT
+EOF
+) >> $MKFILE.tmp
+}
+
+#----------------------------#
+process_toolchain() {        # embryo,cocoon and butterfly need special handling
+#----------------------------#
+  local toolchain=$1
+  local this_script=$2
+  local  tc_phase
+
+  echo "${tab_}${tab_}${GREEN}toolchain ${L_arrow}${toolchain}${R_arrow}"
+
+  pkg_tarball=$(get_package_tarball_name "binutils")
+  wrt_Unpack_SetOwner "hlfs" "$pkg_tarball" 1
+  pkg_tarball=$(get_package_tarball_name "gcc-core")
+  wrt_Unpack_SetOwner "hlfs" "$pkg_tarball" 1
+  pkg_tarball=$(get_package_tarball_name "gcc-g++")
+  wrt_Unpack_SetOwner "hlfs" "$pkg_tarball" 1
+(
+cat << EOF
+	@echo "export PKGDIR=\$(MOUNT_PT)\$(SRC)" > envars
+EOF
+) >> $MKFILE.tmp
+  if [[ ${toolchain} = "butterfly-toolchain" ]]; then
+    [[ "$TEST" != "0" ]] && wrt_test_log2 "${this_script}"
+    wrt_run_as_chroot1 "$toolchain" "$this_script"
+  else
+    wrt_ExecuteAsUser "hlfs" "$toolchain" "$this_script"
+  fi
+
+  pkg_tarball=$(get_package_tarball_name "binutils")
+  wrt_remove_existing_dirs  "$pkg_tarball"
+  pkg_tarball=$(get_package_tarball_name "gcc-core")
+  wrt_remove_existing_dirs  "$pkg_tarball"
+
+  # Manually remove the toolchain directories..
+  tc_phase=`echo $toolchain | sed -e 's@[0-9]\{3\}-@@' -e 's@-toolchain@@'`
+  case $tc_phase in 
+    embryo | cocoon)  # toolchain phase
+(
+cat << EOF
+	@rm -r \$(MOUNT_PT)\$(SRC)/${tc_phase}-toolchain && \\
+	rm  -r \$(MOUNT_PT)\$(SRC)/${tc_phase}-build
+EOF
+) >> $MKFILE.tmp
+    ;;    
+    butterfly )	# system phase
+(
+cat << EOF
+	@rm -r \$(SRC)/butterfly-toolchain && \\
+	rm -r \$(SRC)/butterfly-build
+EOF
+) >> $MKFILE.tmp
+    ;;
+  esac
+
+}
+
 
 #----------------------------#
 chapter3_Makefiles() {       # Initialization of the system
 #----------------------------#
-  local TARGET LOADER
 
   echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter3${R_arrow}"
 
-  # Define a few model dependant variables
-  if [[ ${MODEL} = "uclibc" ]]; then
-    TARGET="tools-linux-uclibc"; LOADER="ld-uClibc.so.0"
-  else
-    TARGET="tools-linux-gnu";    LOADER="ld-linux.so.2"
-  fi
 
-  # NOTE: We use the lfs username and groupname also in HLFS
-  # If /home/lfs is already present in the host, we asume that the
-  # lfs user and group are also presents in the host, and a backup
+  # NOTE: We use the hlfs username and groupname also in HLFS
+  # If /home/hlfs is already present in the host, we asume that the
+  # hlfs user and group are also presents in the host, and a backup
   # of their bash init files is made.
 (
 cat << EOF
@@ -43,38 +127,35 @@ cat << EOF
 
 021-addinguser:  020-creatingtoolsdir
 	@\$(call echo_message, Building)
-	@if [ ! -d /home/lfs ]; then \\
-		groupadd lfs; \\
-		useradd -s /bin/bash -g lfs -m -k /dev/null lfs; \\
+	@if [ ! -d /home/hlfs ]; then \\
+		groupadd hlfs; \\
+		useradd -s /bin/bash -g hlfs -m -k /dev/null hlfs; \\
 	else \\
-		touch user-lfs-exist; \\
+		touch user-hlfs-exist; \\
 	fi;
-	@chown lfs \$(MOUNT_PT)/tools && \\
-	chown lfs \$(MOUNT_PT)/sources && \\
+	@chown hlfs \$(MOUNT_PT)/tools && \\
+	chown hlfs \$(MOUNT_PT)/sources && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
 
 022-settingenvironment:  021-addinguser
 	@\$(call echo_message, Building)
-	@if [ -f /home/lfs/.bashrc -a ! -f /home/lfs/.bashrc.XXX ]; then \\
-		mv /home/lfs/.bashrc /home/lfs/.bashrc.XXX; \\
+	@if [ -f /home/hlfs/.bashrc -a ! -f /home/hlfs/.bashrc.XXX ]; then \\
+		mv /home/hlfs/.bashrc /home/hlfs/.bashrc.XXX; \\
 	fi;
-	@if [ -f /home/lfs/.bash_profile  -a ! -f /home/lfs/.bash_profile.XXX ]; then \\
-		mv /home/lfs/.bash_profile /home/lfs/.bash_profile.XXX; \\
+	@if [ -f /home/hlfs/.bash_profile  -a ! -f /home/hlfs/.bash_profile.XXX ]; then \\
+		mv /home/hlfs/.bash_profile /home/hlfs/.bash_profile.XXX; \\
 	fi;
-	@echo "set +h" > /home/lfs/.bashrc && \\
-	echo "umask 022" >> /home/lfs/.bashrc && \\
-	echo "HLFS=\$(MOUNT_PT)" >> /home/lfs/.bashrc && \\
-	echo "LC_ALL=POSIX" >> /home/lfs/.bashrc && \\
-	echo "PATH=/tools/bin:/bin:/usr/bin" >> /home/lfs/.bashrc && \\
-	echo "export HLFS LC_ALL PATH" >> /home/lfs/.bashrc && \\
-	echo "" >> /home/lfs/.bashrc && \\
-	echo "target=$(uname -m)-${TARGET}" >> /home/lfs/.bashrc && \\
-	echo "ldso=/tools/lib/${LOADER}" >> /home/lfs/.bashrc && \\
-	echo "export target ldso" >> /home/lfs/.bashrc && \\
-	echo "source $JHALFSDIR/envars" >> /home/lfs/.bashrc && \\
-	chown lfs:lfs /home/lfs/.bashrc && \\
+	@echo "set +h" > /home/hlfs/.bashrc && \\
+	echo "umask 022" >> /home/hlfs/.bashrc && \\
+	echo "HLFS=\$(MOUNT_PT)" >> /home/hlfs/.bashrc && \\
+	echo "LC_ALL=POSIX" >> /home/hlfs/.bashrc && \\
+	echo "PATH=/tools/bin:/bin:/usr/bin" >> /home/hlfs/.bashrc && \\
+	echo "export HLFS LC_ALL PATH" >> /home/hlfs/.bashrc && \\
+	echo "" >> /home/hlfs/.bashrc && \\
+	echo "source $JHALFSDIR/envars" >> /home/hlfs/.bashrc && \\
+	chown hlfs:hlfs /home/hlfs/.bashrc && \\
 	touch envars && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
@@ -115,12 +196,10 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
 
     # Grab the name of the target (minus the -headers or -cross in the case of gcc
     # and binutils in chapter 5)
-    name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' -e 's@-cross@@' -e 's@-headers@@'`
+    name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' `
 
     # Adjust 'name'
     case $name in
-      linux-libc) name="linux-libc-headers" ;;
-      gcc)        name="gcc-core"  ;;
       uclibc)     name="uClibc"  ;;
     esac
 
@@ -133,65 +212,41 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
+    
+    # This is a very special script and requires manual processing
+    # NO Optimization allowed
+    if [[ ${name} = "embryo-toolchain" ]] || \
+       [[ ${name} = "cocoon-toolchain" ]]; then
+       wrt_target "$this_script" "$PREV"
+         process_toolchain "${this_script}" "${file}"
+       wrt_touch
+       PREV=$this_script
+       continue
+    fi
+    #
     wrt_target "$this_script" "$PREV"
-
     # Find the version of the command files, if it corresponds with the building of
     # a specific package
     pkg_tarball=$(get_package_tarball_name $name)
     # If $pkg_tarball isn't empty, we've got a package...
     if [ "$pkg_tarball" != "" ] ; then
       # Insert instructions for unpacking the package and to set the PKGDIR variable.
-      case $this_script in
-        *binutils* )  wrt_unpack "$pkg_tarball" 1 ;; # Do not delete an existing package directories
-        *)            wrt_unpack "$pkg_tarball" ;;
-      esac
+      wrt_Unpack_SetOwner "hlfs" "$pkg_tarball"
       # If the testsuites must be run, initialize the log file
       [[ "$TEST" = "3" ]] && wrt_test_log "${this_script}"
       # If using optimizations, write the instructions
       [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
-
-    case $this_script in
-      *binutils* )  # Dump the path to sources directory for later removal
-(
-cat << EOF
-	@ROOT=\`head -n1 \$(MOUNT_PT)\$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
-	echo "\$(MOUNT_PT)\$(SRC)/\$\$ROOT" >> sources-dir
-EOF
-) >> $MKFILE.tmp
-        ;;
-      *adjusting* )  # For the Adjusting phase we must to cd to the binutils-build directory.
-        echo -e '\t@echo "export PKGDIR=$(MOUNT_PT)$(SRC)/binutils-build" > envars' >> $MKFILE.tmp
-        ;;
-    esac
-
     # Insert date and disk usage at the top of the log file, the script run
     # and date and disk usage again at the bottom of the log file.
-    wrt_run_as_su "${this_script}" "${file}"
+    wrt_ExecuteAsUser "hlfs" "$this_script" "${file}"
 
     # Remove the build directory(ies) except if the package build fails
     # (so we can review config.cache, config.log, etc.)
     # For Binutils the sources must be retained for some time.
     if [ "$pkg_tarball" != "" ] ; then
-      case "${this_script}" in
-        *binutils*) : ;;   # do NOTHING
-	*gcc*) wrt_remove_build_dirs "gcc"    ;;
-        *)     wrt_remove_build_dirs "$name"    ;;
-      esac
+       wrt_remove_build_dirs "$name"
     fi
-
-    # Remove the Binutils pass 1 sources after a successful Adjusting phase.
-    case "${this_script}" in
-     *adjusting*)
-(
-cat << EOF
-	@rm -r \`cat sources-dir\` && \\
-	rm -r \$(MOUNT_PT)\$(SRC)/binutils-build && \\
-	rm sources-dir
-EOF
-) >> $MKFILE.tmp
-      ;;
-    esac
 
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -209,7 +264,6 @@ EOF
 #----------------------------#
 chapter6_Makefiles() {       # sysroot or chroot build phase
 #----------------------------#
-  local TARGET LOADER
   local file
   local this_script
   # Set envars and scripts for iteration targets
@@ -237,14 +291,6 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
   fi
 
   echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6$N${R_arrow}"
-  #
-  # Set these definitions early and only once
-  #
-  if [[ ${MODEL} = "uclibc" ]]; then
-    TARGET="pc-linux-uclibc"; LOADER="ld-uClibc.so.0"
-  else
-    TARGET="pc-linux-gnu";    LOADER="ld-linux.so.2"
-  fi
 
   for file in chapter06$N/* ; do
     # Keep the script file name
@@ -268,11 +314,9 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     #
     case $name in
       glibc)  sed 's/rm /rm -f /' -i chapter06$N/$this_script        ;;
-      gcc)    sed 's/rm /rm -f /' -i chapter06$N/$this_script        ;;
     esac
 
     case $name in
-      gcc)     name="gcc-core" ;;
       uclibc)  name="uClibc"   ;;
     esac
 
@@ -301,17 +345,24 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     #--------------------------------------------------------------------#
     #
     # Drop in the name of the target on a new line, and the previous target
-    # as a dependency. Also call the echo_message function.		
+    # as a dependency. Also call the echo_message function.
+    if [[ ${name} = "butterfly-toolchain" ]]; then
+       wrt_target "$this_script" "$PREV"
+         process_toolchain "${this_script}" "${file}"
+       wrt_touch
+       PREV=$this_script
+       continue
+    fi
+
     wrt_target "${this_script}${N}" "$PREV"
 
     # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     if [ "$pkg_tarball" != "" ] ; then
       wrt_unpack2 "$pkg_tarball"
-      wrt_target_vars
       # If the testsuites must be run, initialize the log file
       case $name in
-        binutils | gcc-core | glibc )
+        glibc )
           [[ "$TEST" != "0" ]] && wrt_test_log2 "${this_script}"
           ;;
         * )
@@ -321,12 +372,6 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
       # If using optimizations, write the instructions
       [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
-
-    case $this_script in
-      *readjusting*) # For the Re-Adjusting phase we must to cd to the binutils-build directory.
-        echo -e '\t@echo "export PKGDIR=$(SRC)/binutils-build" > envars' >> $MKFILE.tmp
-        ;;
-    esac
 
     # In the mount of kernel filesystems we need to set LFS and not to use chroot.
     case "${this_script}" in
@@ -343,19 +388,6 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
       wrt_remove_build_dirs "$name"
     fi
     #
-    # Remove the Binutils pass 2 sources after a successful Re-Adjusting phase.
-    case "${this_script}" in
-      *readjusting*)
-(
-cat << EOF
-	@rm -r \`cat sources-dir\` && \\
-	rm -r \$(MOUNT_PT)\$(SRC)/binutils-build && \\
-	rm sources-dir
-EOF
-) >> $MKFILE.tmp
-      ;;
-    esac
-
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
     #
@@ -519,7 +551,7 @@ all:  chapter3 chapter5 chapter6 chapter7 do-housekeeping
 
 chapter3:  020-creatingtoolsdir 021-addinguser 022-settingenvironment
 
-chapter5:  chapter3 $chapter5 restore-lfs-env
+chapter5:  chapter3 $chapter5 restore-hlfs-env
 
 chapter6:  chapter5 $chapter6
 
@@ -533,18 +565,18 @@ clean:  clean-chapter7 clean-chapter6 clean-chapter5 clean-chapter3
 restart: restart_code all
 
 clean-chapter3:
-	-if [ ! -f user-lfs-exist ]; then \\
-		userdel lfs; \\
-		rm -rf /home/lfs; \\
+	-if [ ! -f user-hlfs-exist ]; then \\
+		userdel hlfs; \\
+		rm -rf /home/hlfs; \\
 	fi;
 	rm -rf \$(MOUNT_PT)/tools
 	rm -f /tools
-	rm -f envars user-lfs-exist
+	rm -f envars user-hlfs-exist
 	rm -f 02* logs/02*.log
 
 clean-chapter5:
 	rm -rf \$(MOUNT_PT)/tools/*
-	rm -f $chapter5 restore-lfs-env sources-dir
+	rm -f $chapter5 restore-hlfs-env sources-dir
 	cd logs && rm -f $chapter5 && cd ..
 
 clean-chapter6:
@@ -561,15 +593,15 @@ clean-chapter7:
 	rm -f $chapter7
 	cd logs && rm -f $chapter7 && cd ..
 
-restore-lfs-env:
+restore-hlfs-env:
 	@\$(call echo_message, Building)
-	@if [ -f /home/lfs/.bashrc.XXX ]; then \\
-		mv -f /home/lfs/.bashrc.XXX /home/lfs/.bashrc; \\
+	@if [ -f /home/hlfs/.bashrc.XXX ]; then \\
+		mv -f /home/hlfs/.bashrc.XXX /home/hlfs/.bashrc; \\
 	fi;
-	@if [ -f /home/lfs/.bash_profile.XXX ]; then \\
-		mv /home/lfs/.bash_profile.XXX /home/lfs/.bash_profile; \\
+	@if [ -f /home/hlfs/.bash_profile.XXX ]; then \\
+		mv /home/hlfs/.bash_profile.XXX /home/hlfs/.bash_profile; \\
 	fi;
-	@chown lfs:lfs /home/lfs/.bash* && \\
+	@chown hlfs:hlfs /home/hlfs/.bash* && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
@@ -580,9 +612,9 @@ do-housekeeping:
 	@-umount \$(MOUNT_PT)/dev
 	@-umount \$(MOUNT_PT)/sys
 	@-umount \$(MOUNT_PT)/proc
-	@-if [ ! -f user-lfs-exist ]; then \\
-		userdel lfs; \\
-		rm -rf /home/lfs; \\
+	@-if [ ! -f user-hlfs-exist ]; then \\
+		userdel hlfs; \\
+		rm -rf /home/hlfs; \\
 	fi;
 
 restart_code:

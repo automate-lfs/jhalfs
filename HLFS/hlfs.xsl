@@ -94,9 +94,7 @@
           </xsl:otherwise>
         </xsl:choose>
         <xsl:if test="(sect2[@role='installation'] and
-                     not(@id='bootable-kernel')) or
-                     @id='ch-tools-adjusting' or
-                     @id='ch-system-readjusting'">
+                     not(@id='bootable-kernel'))">
           <xsl:text>cd $PKGDIR&#xA;</xsl:text>
           <xsl:if test="@id='ch-tools-uclibc' or @id='ch-system-uclibc'">
              <xsl:text>pushd ../; tar -xvf gettext-&gettext-version;.*; popd; &#xA;</xsl:text>
@@ -117,15 +115,18 @@
              <xsl:text>pushd ../; tar -xvf blfs-bootscripts-&blfs-bootscripts-version;.* ; popd; &#xA;</xsl:text>
           </xsl:if>
         </xsl:if>
-        <xsl:if test="@id='ch-system-kernfs'">
-          <xsl:text>export HLFS=$LFS&#xA;</xsl:text>
-        </xsl:if>
         <xsl:apply-templates select=".//para/userinput | .//screen"/>
         <xsl:text>exit</xsl:text>
       </exsl:document>
     </xsl:if>
   </xsl:template>
 
+  <xsl:template match="literal">
+    <xsl:if test="@condition=$model or not(@condition)">
+      <xsl:apply-templates/>
+    </xsl:if>
+  </xsl:template>
+  
   <xsl:template match="screen">
     <xsl:if test="(@condition=$model or not(@condition)) and
                   child::* = userinput and not(@role = 'nodump')">
