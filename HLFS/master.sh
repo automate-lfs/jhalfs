@@ -68,13 +68,6 @@ process_toolchain() {        # embryo,cocoon and butterfly need special handling
 
   echo "${tab_}${tab_}${GREEN}toolchain ${L_arrow}${toolchain}${R_arrow}"
 
-  pkg_tarball=$(get_package_tarball_name "binutils")
-  wrt_Unpack_SetOwner "hlfs" "$pkg_tarball" 1
-  pkg_tarball=$(get_package_tarball_name "gcc-core")
-  wrt_Unpack_SetOwner "hlfs" "$pkg_tarball" 1
-  pkg_tarball=$(get_package_tarball_name "gcc-g++")
-  wrt_Unpack_SetOwner "hlfs" "$pkg_tarball" 1
-
   case ${toolchain} in
     *butterfly*)
       [[ "$TEST" != "0" ]] && wrt_test_log2 "${this_script}"
@@ -85,6 +78,7 @@ EOF
 ) >> $MKFILE.tmp
       wrt_run_as_chroot1 "$toolchain" "$this_script"
       ;;
+
     *)
 (
 cat << EOF
@@ -94,7 +88,8 @@ EOF
       wrt_ExecuteAsUser "hlfs" "$toolchain" "$this_script"
       ;;
   esac
-
+  #
+  # Safe method to remove packages unpacked outside the toolchain
   pkg_tarball=$(get_package_tarball_name "binutils")
   wrt_remove_existing_dirs  "$pkg_tarball"
   pkg_tarball=$(get_package_tarball_name "gcc-core")

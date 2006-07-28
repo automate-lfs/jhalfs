@@ -94,23 +94,38 @@
           </xsl:otherwise>
         </xsl:choose>
         <xsl:if test="(sect2[@role='installation'] and
-                     not(@id='bootable-kernel'))">
+                           not(@id='bootable-kernel'))">
           <xsl:text>cd $PKGDIR&#xA;</xsl:text>
           <xsl:if test="@id='ch-tools-uclibc' or @id='ch-system-uclibc'">
              <xsl:text>pushd ../; tar -xvf gettext-&gettext-version;.*; popd; &#xA;</xsl:text>
           </xsl:if>
-          <xsl:if test="@id='ch-tools-glibc' or @id='ch-system-glibc'">
+          
+	  <xsl:if test="@id='ch-tools-glibc' or @id='ch-system-glibc'">
              <xsl:text>tar -xvf ../glibc-libidn-&glibc-version;.*&#xA;</xsl:text>
           </xsl:if>
-          <xsl:if test="@id='ch-tools-gcc' or @id='ch-system-gcc'">
-             <xsl:text>pushd ../; tar -xvf gcc-g++-&gcc-version;.*; popd; &#xA;</xsl:text>
+          
+          <!-- NEW toolchain format -->
+	  <xsl:if test="@id='ch-tools-embryo-toolchain'">
+             <xsl:text>tar -xvf gcc-core-&gcc-version;.*; &#xA;</xsl:text>
+             <xsl:text>tar -xvf gcc-g++-&gcc-version;.*; &#xA;</xsl:text>
+             <xsl:text>tar -xvf binutils-&binutils-version;.*; &#xA;</xsl:text>
           </xsl:if>
-          <xsl:if test="@id='ch-tools-gcc' and $testsuite = '3'">
+	  <xsl:if test="@id='ch-tools-cocoon-toolchain'">
+             <xsl:text>tar -xvf gcc-core-&gcc-version;.*; &#xA;</xsl:text>
+             <xsl:text>tar -xvf gcc-g++-&gcc-version;.*; &#xA;</xsl:text>
+             <xsl:text>tar -xvf binutils-&binutils-version;.*; &#xA;</xsl:text>
+          </xsl:if>
+	  <xsl:if test="@id='ch-system-butterfly-toolchain'">
+             <xsl:text>tar -xvf gcc-core-&gcc-version;.*; &#xA;</xsl:text>
+             <xsl:text>tar -xvf gcc-g++-&gcc-version;.*; &#xA;</xsl:text>
+             <xsl:text>tar -xvf binutils-&binutils-version;.*; &#xA;</xsl:text>
+          </xsl:if>
+          <!-- ONLY butterfly has a testsuite -->
+          <xsl:if test="@id='ch-tools-butterfly-toolchain' and $testsuite = '3'">
             <xsl:text>pushd ../; tar -xvf gcc-testsuite-&gcc-version;.*; popd; &#xA;</xsl:text>
           </xsl:if>
-          <xsl:if test="@id='ch-system-gcc' and $testsuite != '0'">
-            <xsl:text>pushd ../; tar -xvf gcc-testsuite-&gcc-version;.*; popd; &#xA;</xsl:text>
-          </xsl:if>
+          <!-- END new toolchain format -->
+	  
           <xsl:if test="@id='bootable-bootscripts'">
              <xsl:text>pushd ../; tar -xvf blfs-bootscripts-&blfs-bootscripts-version;.* ; popd; &#xA;</xsl:text>
           </xsl:if>
@@ -189,6 +204,8 @@
         <xsl:value-of select="substring-after(string(),'INPUTRC')"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
+
+
       <!-- Fixing bootscripts installation -->
       <xsl:when test="ancestor::sect1[@id='bootable-bootscripts'] and
                 string() = 'make install'">
