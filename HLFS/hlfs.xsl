@@ -100,10 +100,6 @@
              <xsl:text>pushd ../; tar -xvf gettext-&gettext-version;.*; popd; &#xA;</xsl:text>
           </xsl:if>
           
-	  <xsl:if test="@id='ch-tools-glibc' or @id='ch-system-glibc'">
-             <xsl:text>tar -xvf ../glibc-libidn-&glibc-version;.*&#xA;</xsl:text>
-          </xsl:if>
-          
           <!-- NEW toolchain format -->
 	  <xsl:if test="@id='ch-tools-embryo-toolchain'">
              <xsl:text>tar -xvf gcc-core-&gcc-version;.*; &#xA;</xsl:text>
