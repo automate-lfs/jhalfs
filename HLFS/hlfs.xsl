@@ -100,7 +100,7 @@
              <xsl:text>pushd ../; tar -xvf gettext-&gettext-version;.*; popd; &#xA;</xsl:text>
           </xsl:if>
           
-          <!-- NEW toolchain format -->
+          <!-- NEW toolchain format, from inside ./sources dir unpack binutils and gcc -->
 	  <xsl:if test="@id='ch-tools-embryo-toolchain'">
              <xsl:text>tar -xvf gcc-core-&gcc-version;.*; &#xA;</xsl:text>
              <xsl:text>tar -xvf gcc-g++-&gcc-version;.*; &#xA;</xsl:text>
@@ -118,7 +118,7 @@
           </xsl:if>
           <!-- ONLY butterfly has a testsuite -->
           <xsl:if test="@id='ch-tools-butterfly-toolchain' and $testsuite = '3'">
-            <xsl:text>pushd ../; tar -xvf gcc-testsuite-&gcc-version;.*; popd; &#xA;</xsl:text>
+            <xsl:text>tar -xvf gcc-testsuite-&gcc-version;.*; &#xA;</xsl:text>
           </xsl:if>
           <!-- END new toolchain format -->
 	  
@@ -241,6 +241,7 @@
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
+
       <!-- Fixing toolchain test suites run -->
       <xsl:when test="string() = 'make check' or
                 string() = 'make -k check'">
@@ -252,18 +253,12 @@
           </xsl:when>
         </xsl:choose>
       </xsl:when>
-      <xsl:when test="contains(string(),'make check') and
-                ancestor::sect1[@id='ch-system-binutils']">
-        <xsl:choose>
-          <xsl:when test="$testsuite != '0'">
-            <xsl:value-of select="substring-before(string(),'make check')"/>
-            <xsl:text>make -k check &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
-          </xsl:when>
-        </xsl:choose>
-      </xsl:when>
-      <xsl:when test="contains(string(),'hardened-specs') and
-                ancestor::sect1[@id='ch-system-binutils']
+
+      <!-- Disable any glibc checks  -->
+      <xsl:when test="contains(string(),'gcc -fno-stack-protector') and
+                ancestor::sect1[@id='ch-system-glibc']
                 and $testsuite = '0'"/>
+
       <!-- Don't stop on strip run and chapter05 GCC installation test-->
       <xsl:when test="contains(string(),'strip ') or
                 ancestor::sect2[@id='testing-gcc'] and
@@ -271,6 +266,7 @@
         <xsl:apply-templates/>
         <xsl:text> || true&#xA;</xsl:text>
       </xsl:when>
+
       <!-- The rest of commands -->
       <xsl:otherwise>
         <xsl:apply-templates/>

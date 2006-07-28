@@ -390,7 +390,7 @@ depends on BOOK_HLFS
 		config	TST_2
 			bool	"All chap06 testsuites"
 		config	TST_3
-			bool	"All chap05/06 testsuites"
+			bool	"All chap05/06 testsuites"	if !BOOK_HLFS
 	   endchoice
 	   config	TEST
 		int
