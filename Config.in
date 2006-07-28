@@ -276,10 +276,17 @@ depends on BOOK_HLFS
 			# has been supplied?
 
 	config	CONFIG_RUNMAKE
-		bool "Run the makefile"
+		bool	"Run the makefile"
 		default n
 		help
 			#--- Automatically run the makefile once it has been created
+
+	config	CONFIG_REBUILD
+		bool	"Rebuild files"
+		default	n
+		help
+			Clean the build directory before performing any other task. The directory
+			is cleaned only if it was populated by a previous JHALFS run.
 
 	config	CONFIG_STRIP
 		bool "Strip Installed Binaries/Libraries"
@@ -387,7 +394,7 @@ depends on BOOK_HLFS
 	   endchoice
 	   config	TEST
 		int
-		default	"0"	if !CONFIG_TEST
+		default	"0"	if !CONFIG_TESTS
 		default	"1"	if TST_1
 		default	"2"	if TST_2
 		default	"3"	if TST_3
@@ -431,9 +438,6 @@ depends on BOOK_HLFS
 		string
 		default	"letter"	if PAGE_LETTER
 		default	"A4"		if PAGE_A4
-
-
-
 
 	config BUILDDIR
 		string "Build Directory"
@@ -524,3 +528,7 @@ depends on BOOK_HLFS
 		default	0	if !CONFIG_FARCE
 		default	1	if  CONFIG_FARCE
 
+	config	CLEAN
+		int
+		default	0	if !CONFIG_REBUILD
+		default	1	if  CONFIG_REBUILD
