@@ -113,6 +113,12 @@ chapter3_Makefiles() {       # Initialization of the system
 
   echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter3${R_arrow}"
 
+  # Define a few model dependant variables
+  if [[ ${MODEL} = "uclibc" ]]; then
+    TARGET="pc-linux-gnu"; LOADER="ld-uClibc.so.0"
+  else
+    TARGET="pc-linux-gnu";    LOADER="ld-linux.so.2"
+  fi
 
   # NOTE: We use the hlfs username and groupname also in HLFS
   # If /home/hlfs is already present in the host, we asume that the
@@ -162,6 +168,9 @@ cat << EOF
 	echo "PATH=/tools/bin:/bin:/usr/bin" >> /home/hlfs/.bashrc && \\
 	echo "export HLFS LC_ALL PATH" >> /home/hlfs/.bashrc && \\
 	echo "" >> /home/hlfs/.bashrc && \\
+	echo "target=$(uname -m)-${TARGET}" >> /home/lfs/.bashrc && \\
+	echo "ldso=/tools/lib/${LOADER}" >> /home/lfs/.bashrc && \\
+	echo "export target ldso" >> /home/lfs/.bashrc && \\
 	echo "source $JHALFSDIR/envars" >> /home/hlfs/.bashrc && \\
 	chown hlfs:hlfs /home/hlfs/.bashrc && \\
 	touch envars && \\
