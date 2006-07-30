@@ -82,7 +82,7 @@ ${BOLD}  -T, --testsuites N ${OFF}
           1 = only final system Glibc, GCC and Binutils testsuites
           2 = all final system testsuites
           3 = all temporary tools and final system testsuites
-        In CLFS, 3 is an alias to 2
+        In CLFS and HLFS, 3 is an alias to 2
 
 ${BOLD}  -W, --working-copy DIR${OFF}
         use the local working copy placed in DIR as the $(echo $PROGNAME | tr [a-z] [A-Z]) book

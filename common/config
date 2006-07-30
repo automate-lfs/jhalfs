@@ -16,7 +16,7 @@ BUILDDIR=/mnt/build_dir
 REPORT=1
 
 #=== Getting packages ===
-#    Files will be retrieved from the local archive SRC_ARCHIVE 
+#    Files will be retrieved from the local archive SRC_ARCHIVE
 #    (if defined) or the 'net and will be stored in $BUILDDIR/sources
 #--- Download the source packages 0(no)/1(yes)
 GETPKG=0
@@ -48,7 +48,7 @@ OPTIMIZE=0
 #  1 = only chapter06 Glibc, GCC and Binutils testsuites
 #  2 = all chapter06 testsuites
 #  3 = all chapter05 and chapter06 testsuites
-#      (in CLFS, alias to 2)
+#      (in CLFS and HLFS, alias to 2)
 TEST=1
 
 #--- Run the stripping phases  0(no)/1(yes)
