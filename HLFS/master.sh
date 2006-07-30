@@ -13,7 +13,7 @@ wrt_ExecuteAsUser() {              # Execute the file ($3) under the users accou
   local this_user=$1
   local this_script=$2
   local file=$3
- 
+
 (
 cat << EOF
 	@( time { su - ${this_user} -c "source /home/${this_user}/.bashrc && $JHALFSDIR/${PROGNAME}-commands/$file" >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
@@ -120,7 +120,6 @@ chapter3_Makefiles() {       # Initialization of the system
     TARGET="pc-linux-gnu";    LOADER="ld-linux.so.2"
   fi
 
-  # NOTE: We use the hlfs username and groupname also in HLFS
   # If /home/hlfs is already present in the host, we asume that the
   # hlfs user and group are also presents in the host, and a backup
   # of their bash init files is made.
@@ -211,9 +210,8 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
     # the names of the targets in the Makefile
     chapter5="$chapter5 $this_script"
 
-    # Grab the name of the target (minus the -headers or -cross in the case of gcc
-    # and binutils in chapter 5)
-    name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' `
+    # Grab the name of the target
+    name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'`
 
     # Adjust 'name'
     case $name in
@@ -229,7 +227,7 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    
+
     # This is a very special script and requires manual processing
     # NO Optimization allowed
     if [[ ${name} = "embryo-toolchain" ]] || \
@@ -260,7 +258,6 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
 
     # Remove the build directory(ies) except if the package build fails
     # (so we can review config.cache, config.log, etc.)
-    # For Binutils the sources must be retained for some time.
     if [ "$pkg_tarball" != "" ] ; then
        wrt_remove_build_dirs "$name"
     fi
@@ -325,14 +322,6 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     # Grab the name of the target
     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'`
 
-    #
-    # Sed replacement to fix some rm command that could fail.
-    # That should be fixed in the book sources.
-    #
-    case $name in
-      glibc)  sed 's/rm /rm -f /' -i chapter06$N/$this_script        ;;
-    esac
-
     case $name in
       uclibc)  name="uClibc"   ;;
     esac
@@ -390,7 +379,7 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
       [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
 
-    # In the mount of kernel filesystems we need to set LFS and not to use chroot.
+    # In the mount of kernel filesystems we need to set HLFS and not to use chroot.
     case "${this_script}" in
       *kernfs*)
         wrt_RunAsRoot "hlfs" "${this_script}" "${file}"
@@ -634,19 +623,19 @@ do-housekeeping:
 	fi;
 
 restart_code:
-	@echo ">>> This feature is experimental, BUGS may exist"	
-	
+	@echo ">>> This feature is experimental, BUGS may exist"
+
 	@if [ ! -L /tools ]; then \\
 	  echo -e "\\nERROR::\\n /tools is NOT a symlink.. /tools must point to \$(MOUNT_PT)/tools\\n" && false;\\
 	fi;
-	
+
 	@if [ ! -e /tools ]; then \\
 	  echo -e "\\nERROR::\\nThe target /tools points to does not exist.\\nVerify the target.. \$(MOUNT_PT)/tools\\n" && false;\\
 	fi;
-	
+
 	@if ! stat -c %N /tools | grep "\$(MOUNT_PT)/tools" >/dev/null ; then \\
 	  echo -e "\\nERROR::\\nThe symlink \\"/tools\\" does not point to \\"\$(MOUNT_PT)/tools\\".\\nCorrect the problem and rerun\\n" && false;\\
-	fi;	
+	fi;
 
 	@if [ -f ???-kernfs ]; then \\
 	  mkdir -pv \$(MOUNT_PT)/{proc,sys};\\
