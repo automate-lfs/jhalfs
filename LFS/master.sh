@@ -165,9 +165,6 @@ chapter6_Makefiles() {
     done
     # Remove Bzip2 binaries before make install
     sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i chapter06$N/*-bzip2
-    # Let some Udev pre-installation commands to fail
-    sed -e 's@/lib/udev/devices/fd@& || true@' \
-        -e 's/mknod -m.*/& || true/' -i chapter06$N/*-udev
   fi
 
   echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6$N${R_arrow}"
