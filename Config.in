@@ -183,18 +183,15 @@ depends on BOOK_CLFS || BOOK_CLFS2
 		help
 			#--- What build method should be used: a chroot jail or minimal boot system
 			#    Review the Cross-LFS book chap6 "TO BOOT OR CHROOT" for a full explanation.
-
 		config	BUILD_CHROOT
 			bool	"chroot"
 		config	BUILD_BOOT
 			bool	"boot"		
 	endchoice
-
 	config	METHOD
 		string
-		default	""		if !BUILD_CHROOT && !BUILD_ROOT
 		default	"chroot"	if BUILD_CHROOT
-		default "boot"		if BUILD_ROOT
+		default	"boot"		if BUILD_BOOT
 		
 	config	BOOT_CONFIG
 		string	"BOOT kernel config file (mandatory)"
