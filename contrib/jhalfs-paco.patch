@@ -1,6 +1,6 @@
 Index: LFS/master.sh
 ===================================================================
---- LFS/master.sh	(revision 2861)
+--- LFS/master.sh	(revision 2864)
 +++ LFS/master.sh	(working copy)
 @@ -173,6 +173,11 @@
      # Keep the script file name
@@ -82,7 +82,7 @@ Index: LFS/master.sh
  
 Index: LFS/lfs.xsl
 ===================================================================
---- LFS/lfs.xsl	(revision 2861)
+--- LFS/lfs.xsl	(revision 2864)
 +++ LFS/lfs.xsl	(working copy)
 @@ -32,6 +32,9 @@
    <!-- Locale settings -->
@@ -147,9 +147,9 @@ Index: common/paco-build-hlfs.sh
 +make logme
 Index: common/config
 ===================================================================
---- common/config	(revision 2861)
+--- common/config	(revision 2864)
 +++ common/config	(working copy)
-@@ -86,6 +86,14 @@
+@@ -86,6 +86,23 @@
  #--- Run farce testing 0(no)/1(yes)
  RUN_FARCE=0
  
@@ -159,12 +159,21 @@ Index: common/config
 +PACO_VERSION=1.10.10
 +
 +#--- Name of the Paco source package
-+PACO_FILE=paco-$PACO_VERSION.tar.*
++PACO_FILE=paco-$PACO_VERSION.tar.bz2   # (use .tar.gz if preferred)
++
++#--- Sourceforge mirror to use for Paco source download
++# Europe: heanet, belnet, puzzle, surfnet, switch, kent
++# North America: superb-east, superb-west, umn, easynews
++# South America: ufpr
++# Asia: nchc, jaist
++# Australia: optusnet
++PACO_MIRROR1=heanet
++PACO_MIRROR2=kent
 +
  #==== INTERNAL VARIABLES ====
  # Don't edit it unless you know what you are doing
  
-@@ -103,3 +111,9 @@
+@@ -103,3 +120,9 @@
  
  #--- farce report log directory
  FARCELOGDIR=$LOGDIR/farce
@@ -176,7 +185,7 @@ Index: common/config
 +LD_PRELOAD=/usr/lib/libpaco-log.so
 Index: common/func_validate_configs.sh
 ===================================================================
---- common/func_validate_configs.sh	(revision 2861)
+--- common/func_validate_configs.sh	(revision 2864)
 +++ common/func_validate_configs.sh	(working copy)
 @@ -86,10 +86,10 @@
  inline_doc
@@ -205,7 +214,7 @@ Index: common/paco-functions
 ===================================================================
 --- common/paco-functions	(revision 0)
 +++ common/paco-functions	(revision 0)
-@@ -0,0 +1,209 @@
+@@ -0,0 +1,251 @@
 +#!/bin/bash
 +
 +#----------------------------#
@@ -415,6 +424,48 @@ Index: common/paco-functions
 +  *)                LOG_PACKAGE=1 ;;
 +esac
 +}
++
++#----------------------------------#
++get_paco_src() {                   #
++#----------------------------------#
++# Download the paco sources
++# We don't do any MD5SUM checking as of yet
++# http://jaist.dl.sourceforge.net/sourceforge/paco/paco-1.10.10.tar.bz2
++
++local PACO_URL1="http://$PACO_MIRROR1.dl.sourceforge.net/sourceforge/paco/$PACO_FILE"
++local PACO_URL2="http://$PACO_MIRROR2.dl.sourceforge.net/sourceforge/paco/$PACO_FILE"
++
++# Test if paco is to be used
++[ ! "$USE_PACO" = "1" ] && return
++
++# If the file exists in the archive copy it to the $BUILDDIR/sources dir.
++if [ ! -z ${SRC_ARCHIVE} ] &&
++   [   -d ${SRC_ARCHIVE} ] &&
++   [   -f ${SRC_ARCHIVE}/$PACO_FILE ]; then
++  cp ${SRC_ARCHIVE}/$PACO_FILE .
++  echo "$PACO_FILE: -- copied from $SRC_ARCHIVE"
++  fromARCHIVE=1
++else
++  echo "${BOLD}${YELLOW}$PACO_FILE: not found in ${SRC_ARCHIVE}${OFF}"
++  fromARCHIVE=0
++  # If the file does not exist yet in /sources download a fresh one
++  if [ ! -f $PACO_FILE ] ; then
++    if ! wget $PACO_URL1 && ! wget $PACO_URL2 ; then
++      gs_wrt_message "$PACO_FILE not found in the SRC_ARCHIVE or on any server..SKIPPING"
++      continue
++    fi
++  fi
++fi
++
++# Copy the freshly downloaded file to the source archive.
++if [ ! -z ${SRC_ARCHIVE}  ] &&
++   [   -d ${SRC_ARCHIVE}  ] &&
++   [   -w ${SRC_ARCHIVE}  ] &&
++   [ "$fromARCHIVE" = "0" ] ; then
++     echo "Storing file:<$PACO_FILE> in the package archive"
++     cp -f $PACO_FILE ${SRC_ARCHIVE}
++fi
++}
 Index: common/paco-build-lfs.sh
 ===================================================================
 --- common/paco-build-lfs.sh	(revision 0)
@@ -432,7 +483,7 @@ Index: common/paco-build-lfs.sh
 +make logme
 Index: common/common-functions
 ===================================================================
---- common/common-functions	(revision 2861)
+--- common/common-functions	(revision 2864)
 +++ common/common-functions	(working copy)
 @@ -69,6 +69,9 @@
          in the configuration file has the proper packages and patches for the
@@ -460,9 +511,19 @@ Index: common/common-functions
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
        ;;
      *) exit 1 ;;
+@@ -836,6 +841,9 @@
+     # Generate URLs file
+   create_urls
+ 
++    # If Paco is to be used, then download the sources
++  get_paco_src
++
+   IFS=$'\x0A'  # Modify the 'internal field separator' to break on 'LF' only
+   for line in `cat urls.lst`; do
+     IFS=$saveIFS  # Restore the system defaults
 Index: HLFS/hlfs.xsl
 ===================================================================
---- HLFS/hlfs.xsl	(revision 2861)
+--- HLFS/hlfs.xsl	(revision 2864)
 +++ HLFS/hlfs.xsl	(working copy)
 @@ -39,6 +39,9 @@
    <xsl:param name="lang" select="C"/>
@@ -515,7 +576,7 @@ Index: HLFS/hlfs.xsl
          <xsl:apply-templates/>
 Index: HLFS/master.sh
 ===================================================================
---- HLFS/master.sh	(revision 2861)
+--- HLFS/master.sh	(revision 2864)
 +++ HLFS/master.sh	(working copy)
 @@ -76,7 +76,9 @@
  	@echo "export PKGDIR=\$(SRC)" > envars
@@ -607,7 +668,7 @@ Index: HLFS/master.sh
  
 Index: master.sh
 ===================================================================
---- master.sh	(revision 2861)
+--- master.sh	(revision 2864)
 +++ master.sh	(working copy)
 @@ -149,6 +149,8 @@
  

@@ -24,12 +24,7 @@ At the moment only the LFS and HLFS-glibc parts are supported.
 3. Run the wanted script.
    (Only ./lfs or ./hlfs --model glibc if you want to use paco)
 
-4. Download the paco source package to the $BUILDDIR/sources dir.
-   paco-1.10.10 or later is recommended.
-   If using a newer paco version, remember to update also the
-   PACO_VERSION variable.
-
-5. Run make.
+4. Run make.
 
 
 ##### PREREQUISITES #####
@@ -41,6 +36,9 @@ http://www.linuxfromscratch.org/lfs and start from there.
 
 
 ##### NOTES #####
+
+Paco-1.10.10 is currently recommended.
+Remember to update the common/config file is using a newer version.
 
 Patch author: Tor Olav Stava (torstava@broadpark.no)
 Any comments directly regarding the patch should be directed to the author
@@ -67,3 +65,18 @@ http://www.linuxfromscratch.org/mail.html
 
 paco Mailing List:
 http://lists.sourceforge.net/lists/listinfo/paco-general
+
+
+##### TODO #####
+
+- Support for HLFS-uClibc
+- Support for CLFS
+- Support for BLFS (when it's ready)
+- Spread the Word
+
+
+##### HISTORY #####
+
+2006-07-30
+- Automatical download of Paco source package
+- Updated patch to support new HLFS layout
