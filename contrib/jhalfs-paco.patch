@@ -1,8 +1,8 @@
 Index: LFS/master.sh
 ===================================================================
---- LFS/master.sh	(revision 2829)
+--- LFS/master.sh	(revision 2861)
 +++ LFS/master.sh	(working copy)
-@@ -176,6 +176,11 @@
+@@ -173,6 +173,11 @@
      # Keep the script file name
      this_script=`basename $file`
  
@@ -14,7 +14,7 @@ Index: LFS/master.sh
      # We'll run the chroot commands differently than the others, so skip them in the
      # dependencies and target creation.
      case "${this_script}" in
-@@ -183,6 +188,18 @@
+@@ -180,6 +185,18 @@
        *stripping*) [[ "${STRIP}" = "0" ]] && continue ;;
      esac
  
@@ -33,7 +33,7 @@ Index: LFS/master.sh
      # Grab the name of the target
      name=`echo ${this_script} | sed -e 's@[0-9]\{3\}-@@'`
  
-@@ -235,7 +252,9 @@
+@@ -232,7 +249,9 @@
      # and not to use chroot.
      case "${this_script}" in
        *kernfs)  wrt_run_as_root    "${this_script}" "$file" ;;
@@ -44,7 +44,7 @@ Index: LFS/master.sh
      esac
  
      # Remove the build directory(ies) except if the package build fails.
-@@ -255,6 +274,16 @@
+@@ -252,6 +271,16 @@
      PREV=${this_script}${N}
      # Set system_build envar for iteration targets
      system_build=$chapter6
@@ -61,7 +61,7 @@ Index: LFS/master.sh
    done # end for file in chapter06/*
  }
  
-@@ -315,8 +344,18 @@
+@@ -312,8 +341,18 @@
                else
                  wrt_run_as_chroot2 "$this_script" "$file"
                fi
@@ -82,7 +82,7 @@ Index: LFS/master.sh
  
 Index: LFS/lfs.xsl
 ===================================================================
---- LFS/lfs.xsl	(revision 2829)
+--- LFS/lfs.xsl	(revision 2861)
 +++ LFS/lfs.xsl	(working copy)
 @@ -32,6 +32,9 @@
    <!-- Locale settings -->
@@ -94,7 +94,7 @@ Index: LFS/lfs.xsl
    <xsl:template match="/">
      <xsl:apply-templates select="//sect1"/>
    </xsl:template>
-@@ -200,6 +203,33 @@
+@@ -206,6 +209,33 @@
          <xsl:apply-templates/>
          <xsl:text> || true&#xA;</xsl:text>
        </xsl:when>
@@ -147,7 +147,7 @@ Index: common/paco-build-hlfs.sh
 +make logme
 Index: common/config
 ===================================================================
---- common/config	(revision 2829)
+--- common/config	(revision 2861)
 +++ common/config	(working copy)
 @@ -86,6 +86,14 @@
  #--- Run farce testing 0(no)/1(yes)
@@ -156,7 +156,7 @@ Index: common/config
 +#==== PACO VARIABLES ====
 +#--- Use paco? 0(no)/1(yes)
 +USE_PACO=1
-+PACO_VERSION=1.10.8
++PACO_VERSION=1.10.10
 +
 +#--- Name of the Paco source package
 +PACO_FILE=paco-$PACO_VERSION.tar.*
@@ -176,22 +176,24 @@ Index: common/config
 +LD_PRELOAD=/usr/lib/libpaco-log.so
 Index: common/func_validate_configs.sh
 ===================================================================
---- common/func_validate_configs.sh	(revision 2829)
+--- common/func_validate_configs.sh	(revision 2861)
 +++ common/func_validate_configs.sh	(working copy)
-@@ -84,9 +84,9 @@
+@@ -86,10 +86,10 @@
  inline_doc
  
    # First internal variables, then the ones that change the book's flavour, and lastly system configuration variables
--  local -r hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE MODEL GRSECURITY_HOST TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL KEYMAP         PAGE TIMEZONE LANG LC_ALL"
--  local -r clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE METHOD  ARCH  TARGET  TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG"
--  local -r  lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE                       TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL        VIMLANG PAGE TIMEZONE LANG"
-+  local -r hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE MODEL GRSECURITY_HOST TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL KEYMAP         PAGE TIMEZONE LANG LC_ALL"
-+  local -r clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE METHOD  ARCH  TARGET  TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG"
-+  local -r  lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE                       TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL        VIMLANG PAGE TIMEZONE LANG"
+-  local -r  hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE MODEL GRSECURITY_HOST TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL KEYMAP         PAGE TIMEZONE LANG LC_ALL"
+-  local -r  clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE METHOD  ARCH  TARGET  TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG"
+-  local -r clfs2_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE         ARCH  TARGET       OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG"
+-  local -r   lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE                       TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL        VIMLANG PAGE TIMEZONE LANG"
++  local -r  hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE MODEL GRSECURITY_HOST TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL KEYMAP         PAGE TIMEZONE LANG LC_ALL"
++  local -r  clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE METHOD  ARCH  TARGET  TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG"
++  local -r clfs2_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE         ARCH  TARGET       OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG"
++  local -r   lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE                       TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL        VIMLANG PAGE TIMEZONE LANG"
  
    local -r ERROR_MSG_pt1='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid,'
    local -r ERROR_MSG_pt2=' check the config file ${BOLD}${GREEN}\<$(echo $PROGNAME | tr [a-z] [A-Z])/config\> or \<common/config\>${OFF}'
-@@ -176,6 +176,7 @@
+@@ -179,6 +179,7 @@
                      [[ "$GETPKG" = "1" ]] && validate_against_str "x0x x1x"
                    fi ;;
        RUNMAKE)    validate_against_str "x0x x1x" ;;
@@ -430,7 +432,7 @@ Index: common/paco-build-lfs.sh
 +make logme
 Index: common/common-functions
 ===================================================================
---- common/common-functions	(revision 2829)
+--- common/common-functions	(revision 2861)
 +++ common/common-functions	(working copy)
 @@ -69,6 +69,9 @@
          in the configuration file has the proper packages and patches for the
@@ -442,7 +444,7 @@ Index: common/common-functions
  ${BOLD}  -O, --optimize${OFF}
          Optimize [0-2]
            0 = no optimization
-@@ -733,6 +736,7 @@
+@@ -759,6 +762,7 @@
                   --stringparam lc_all $LC_ALL \
                   --stringparam keymap $KEYMAP \
                   --stringparam grsecurity_host $GRSECURITY_HOST \
@@ -450,7 +452,7 @@ Index: common/common-functions
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
        ;;
      lfs)
-@@ -744,6 +748,7 @@
+@@ -770,6 +774,7 @@
                   --stringparam timezone $TIMEZONE \
                   --stringparam page $PAGE \
                   --stringparam lang $LANG \
@@ -460,7 +462,7 @@ Index: common/common-functions
      *) exit 1 ;;
 Index: HLFS/hlfs.xsl
 ===================================================================
---- HLFS/hlfs.xsl	(revision 2829)
+--- HLFS/hlfs.xsl	(revision 2861)
 +++ HLFS/hlfs.xsl	(working copy)
 @@ -39,6 +39,9 @@
    <xsl:param name="lang" select="C"/>
@@ -472,7 +474,7 @@ Index: HLFS/hlfs.xsl
    <xsl:template match="/">
      <xsl:apply-templates select="//sect1"/>
    </xsl:template>
-@@ -191,6 +194,10 @@
+@@ -177,6 +180,10 @@
        <!-- Fixing bootscripts installation -->
        <xsl:when test="ancestor::sect1[@id='bootable-bootscripts'] and
                  string() = 'make install'">
@@ -483,10 +485,11 @@ Index: HLFS/hlfs.xsl
          <xsl:text>make install&#xA;</xsl:text>
          <xsl:text>cd ../blfs-bootscripts-&blfs-bootscripts-version;&#xA;</xsl:text>
        </xsl:when>
-@@ -257,6 +264,25 @@
+@@ -237,6 +244,27 @@
          <xsl:apply-templates/>
          <xsl:text> || true&#xA;</xsl:text>
        </xsl:when>
++
 +      <!-- paco begin -->
 +      <!-- General rule -->
 +      <xsl:when test="$use_paco != '0' and $model != 'uclibc' and
@@ -494,26 +497,37 @@ Index: HLFS/hlfs.xsl
 +                contains(string(),'make') and
 +                contains(string(),'install')">
 +        <xsl:text>export LD_PRELOAD=/usr/lib/libpaco-log.so&#xA;</xsl:text>
-+        <xsl:apply-templates/>
++        <xsl:apply-templates/> 
 +        <xsl:text>&#xA;</xsl:text>
 +      </xsl:when>
 +      <!-- Linux-libc-headers -->
 +      <xsl:when test="$use_paco != '0' and $model != 'uclibc' and
-+                ancestor::sect1[@id='ch-system-linux-libc-headers'] and
++                ancestor::sect1[@id='ch-system-linux-headers'] and
 +                contains(string(),'install ')">
 +        <xsl:text>export LD_PRELOAD=/usr/lib/libpaco-log.so&#xA;</xsl:text>
-+        <xsl:apply-templates/>
++        <xsl:apply-templates/> 
 +        <xsl:text>&#xA;</xsl:text>
 +      </xsl:when>
 +      <!-- paco end -->
++
        <!-- The rest of commands -->
        <xsl:otherwise>
          <xsl:apply-templates/>
 Index: HLFS/master.sh
 ===================================================================
---- HLFS/master.sh	(revision 2829)
+--- HLFS/master.sh	(revision 2861)
 +++ HLFS/master.sh	(working copy)
-@@ -250,6 +250,11 @@
+@@ -76,7 +76,9 @@
+ 	@echo "export PKGDIR=\$(SRC)" > envars
+ EOF
+ ) >> $MKFILE.tmp
++      wrt_paco_prep
+       wrt_run_as_chroot1 "$toolchain" "$this_script"
++      wrt_paco_log "`echo $toolchain | sed -e 's@[0-9]\{3\}-@@'`"
+       ;;
+ 
+     *)
+@@ -310,6 +312,11 @@
      # Keep the script file name
      this_script=`basename $file`
  
@@ -525,7 +539,7 @@ Index: HLFS/master.sh
      # Skip this script depending on jhalfs.conf flags set.
      case $this_script in
          # We'll run the chroot commands differently than the others, so skip them in the
-@@ -259,6 +264,18 @@
+@@ -319,6 +326,18 @@
        *-stripping* )  [[ "$STRIP" = "0" ]] && continue ;;
      esac
  
@@ -533,9 +547,9 @@ Index: HLFS/master.sh
 +    # linux-libc-headers, except in iterartive builds
 +    if [[ -z "$N" ]]; then
 +      case $this_script in
-+        *linux-libc-headers)
++        *linux-headers)
 +          TMP_SCRIPT="$this_script"
-+          this_script=`echo $this_script | sed -e 's/linux-libc-headers/a-paco/'`
++          this_script=`echo $this_script | sed -e 's/linux-headers/a-paco/'`
 +          wrt_paco_inst "$this_script"
 +          this_script="$TMP_SCRIPT" ;;
 +      esac
@@ -544,8 +558,8 @@ Index: HLFS/master.sh
      # Grab the name of the target
      name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'`
  
-@@ -334,7 +351,9 @@
-         wrt_run_as_root "${this_script}" "${file}"
+@@ -385,7 +404,9 @@
+         wrt_RunAsRoot "hlfs" "${this_script}" "${file}"
          ;;
        *)   # The rest of Chapter06
 +        wrt_paco_prep
@@ -554,7 +568,7 @@ Index: HLFS/master.sh
         ;;
      esac
      #
-@@ -367,6 +386,16 @@
+@@ -405,6 +426,16 @@
      PREV=${this_script}${N}
      # Set system_build envar for iteration targets
      system_build=$chapter6
@@ -571,7 +585,7 @@ Index: HLFS/master.sh
    done # end for file in chapter06/*
  
  }
-@@ -426,9 +455,19 @@
+@@ -463,9 +494,19 @@
          else  # Initialize the log and run the script
            wrt_run_as_chroot2 "${this_script}" "${file}"
          fi
@@ -593,7 +607,7 @@ Index: HLFS/master.sh
  
 Index: master.sh
 ===================================================================
---- master.sh	(revision 2829)
+--- master.sh	(revision 2861)
 +++ master.sh	(working copy)
 @@ -149,6 +149,8 @@
  
@@ -604,7 +618,7 @@ Index: master.sh
      --optimize | -O )
        test $# = 1 && eval "$exit_missing_arg"
        shift
-@@ -440,6 +442,14 @@
+@@ -444,6 +446,14 @@
    [[ $VERBOSITY > 0 ]] && echo "OK"
  fi
  #
@@ -619,7 +633,7 @@ Index: master.sh
  # optimize module
  if [[ "$OPTIMIZE" != "0" ]]; then
    [[ $VERBOSITY > 0 ]] && echo -n "Loading optimization module..."
-@@ -486,6 +496,8 @@
+@@ -490,6 +500,8 @@
  if [[ "$PWD" != "$JHALFSDIR" ]]; then
    cp $COMMON_DIR/{makefile-functions,progress_bar.sh} $JHALFSDIR/
    #

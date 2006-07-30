@@ -1,33 +1,16 @@
 ###########################################
 #                                         #
 #   README FILE FOR JHALFS PACO PATCH     #
+#          By: Tor Olav Stava             #
+#        (torstava@broadpark.no           #
 #                                         #
 ###########################################
-
-
-##### NOTES #####
-
-Patch author: Tor Olav Stava (t-ol-sta@online.no)
-
-Any comments directly regarding the patch should be directed to the author
-or the ALFS mailing list.
-
-The patch author is not a member of the ALFS team, and all work is done
-on a voluntary basis.
 
 
 ##### GENERAL DESCRIPTION #####
 
 This patch will enable the paco pacKAGE oRGANIZER to be used with jhalfs.
-At the moment only the LFS, BLFS, and HLFS-glibc parts are supported.
-
-
-##### PREREQUISITES #####
-
-Before using jhalfs you should have some experience with LFS.
-
-If you don't know what LFS is about, then head over to
-http://www.linuxfromscratch.org/lfs and start from there.
+At the moment only the LFS and HLFS-glibc parts are supported.
 
 
 ##### QUICK START #####
@@ -39,14 +22,30 @@ http://www.linuxfromscratch.org/lfs and start from there.
    (common/config and LFS/config or HLFS/config)
 
 3. Run the wanted script.
-   (Only ./lfs ./hlfs --model glibc, and ./blfs if you want to use paco)
+   (Only ./lfs or ./hlfs --model glibc if you want to use paco)
 
 4. Download the paco source package to the $BUILDDIR/sources dir.
-   paco-1.10.8 or later is recommended.
+   paco-1.10.10 or later is recommended.
    If using a newer paco version, remember to update also the
    PACO_VERSION variable.
 
 5. Run make.
+
+
+##### PREREQUISITES #####
+
+Before using jhalfs you should have some experience with LFS.
+
+If you don't know what LFS is about, then head over to
+http://www.linuxfromscratch.org/lfs and start from there.
+
+
+##### NOTES #####
+
+Patch author: Tor Olav Stava (torstava@broadpark.no)
+Any comments directly regarding the patch should be directed to the author
+or the ALFS mailing list. The patch author is not a member of the ALFS team,
+and all work is done on a voluntary basis.
 
 
 ##### LINKS #####
