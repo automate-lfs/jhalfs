@@ -386,7 +386,9 @@ depends on BOOK_HLFS
 		default	TEST_1
 		
 		config	TST_1
-			bool	"Only chap06 Glibc/GCC/Binutils tests"
+			bool	"Only chap06 Glibc/GCC/Binutils tests" if !BOOK_HLFS
+		config	TST_1
+			bool	"Only chap06 Glibc/Butterfly-toolchain" if BOOK_HLFS
 		config	TST_2
 			bool	"All chap06 testsuites"
 		config	TST_3
