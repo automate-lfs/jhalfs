@@ -255,6 +255,21 @@ depends on BOOK_HLFS
 
 #-----------------------
 
+	config BUILDDIR
+		string "Build Directory"
+		default "/mnt/build_dir"
+		help
+			#--- The directory where the created system will be located.
+
+	config SRC_ARCHIVE
+		string "Package Archive Directory"
+		default "$SRC_ARCHIVE"
+		help
+			#--- A local archive for packages/file (not BUILDDIR/sources)
+			#    Used only if GETPKG = 1
+			#    Any missing file will be downloaded and archived here,
+			#    if the user has the right priviledges.
+
 
 	config	CONFIG_GETPKG
 		bool "Retrieve source files"
@@ -443,36 +458,35 @@ depends on BOOK_HLFS
 		default	"letter"	if PAGE_LETTER
 		default	"A4"		if PAGE_A4
 
-	config BUILDDIR
-		string "Build Directory"
-		default "/mnt/build_dir"
+	config	HAVE_FSTAB
+		bool	"Use this fstab file"
+		default	n
 		help
-			#--- The directory where the created system will be located.
-
-	config SRC_ARCHIVE
-		string "Package Archive Directory"
-		default "$SRC_ARCHIVE"
-		help
-			#--- A local archive for packages/file (not BUILDDIR/sources)
-			#    Used only if GETPKG = 1
-			#    Any missing file will be downloaded and archived here,
-			#    if the user has the right priviledges.
-
+			#--- The location of fstab file (if empty, a template is created)
 	config	FSTAB
 		string	"Fstab file (optional)"
-		default	""
+		default	"***EDIT ME***"
+		depends on HAVE_FSTAB
 		help
-			#--- Location of fstab file (if empty, a template is created)
+			#--- The location of fstab file (if empty, a template is created)
 
+	config	CONFIG_BUILD_KERNEL
+		bool	"Build the kernel"
+		default	n
+		help
+			#--- Select this option if you wish to build the kernel.
+			#
+			#    You will be prompted for the full path to the .config			
+			#    file. It will be copied to the 'sources' directory and
+			#    rename kernel-config
 	config	CONFIG
-		string	"Kernel config file (optional)"
-		default	""
+		string	"Kernel config file"
+		default	"***EDIT ME***"
+		depends on CONFIG_BUILD_KERNEL
 		help
 			#--- Fully qualified path to a kernel config file
 			#    The config file will be copied to ${BUILD_DIR}/sources
 			#    and renamed 'kernel-config'
-			#
-			# If no config file is specified the kernel is NOT compiled
 
 	config	KEYMAP
 		string "Keyboard map"
