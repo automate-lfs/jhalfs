@@ -45,7 +45,7 @@ inline_doc
           echo -e "\n\t$BLFS_XML is not a directory\n"
           exit 1
         fi
-        if [[ ! -f $BLFS_XML/use-unzip.xml ]] ; then
+        if [[ ! -f $BLFS_XML/x/x.xml ]] ; then
           echo -e "\n\tLooks like $BLFS_XML is not a BLFS book sources directory\n"
           exit 1
         fi
