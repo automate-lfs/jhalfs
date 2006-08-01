@@ -369,7 +369,7 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
       case $name in
         glibc ) [[ "$TEST" != "0" ]] && wrt_test_log2 "${this_script}"
           ;;
-	    * ) [[ "$TEST"  = "2" ]] && wrt_test_log2 "${this_script}"
+	    * ) [[ "$TEST"  = "2" ]] && [[ "$TEST"  = "3" ]] && wrt_test_log2 "${this_script}"
           ;;
       esac
       # If using optimizations, write the instructions
