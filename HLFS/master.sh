@@ -247,8 +247,6 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
     if [ "$pkg_tarball" != "" ] ; then
       # Insert instructions for unpacking the package and to set the PKGDIR variable.
       wrt_Unpack_SetOwner "hlfs" "$pkg_tarball"
-      # If the testsuites must be run, initialize the log file
-      [[ "$TEST" = "3" ]] && wrt_test_log "${this_script}"
       # If using optimizations, write the instructions
       [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
@@ -353,7 +351,7 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
     if [[ ${name} = "butterfly-toolchain" ]]; then
-       wrt_target "$this_script" "$PREV"
+       wrt_target "${this_script}${N}" "$PREV"
          process_toolchain "${this_script}" "${file}"
        wrt_touch
        PREV=$this_script
@@ -367,12 +365,11 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     if [ "$pkg_tarball" != "" ] ; then
       wrt_unpack2 "$pkg_tarball"
       # If the testsuites must be run, initialize the log file
+      # butterfly-toolchain tests are enabled in 'process_tookchain' function
       case $name in
-        glibc )
-          [[ "$TEST" != "0" ]] && wrt_test_log2 "${this_script}"
+        glibc ) [[ "$TEST" != "0" ]] && wrt_test_log2 "${this_script}"
           ;;
-        * )
-          [[ "$TEST" = "2" ]] || [[ "$TEST" = "3" ]] && wrt_test_log2 "${this_script}"
+	    * ) [[ "$TEST"  = "2" ]] && wrt_test_log2 "${this_script}"
           ;;
       esac
       # If using optimizations, write the instructions
