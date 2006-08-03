@@ -12,6 +12,10 @@
 This patch will enable the paco pacKAGE oRGANIZER to be used with jhalfs.
 At the moment only the LFS and HLFS-glibc parts are supported.
 
+NEWS:
+  Preliminary support for CLFS is ready. It's not fully tested, so if you
+discover any bugs please notify the patch author. Also, Paco may or may not work
+on your specific architecture. Check the Paco homepage for details.
 
 ##### QUICK START #####
 
@@ -19,10 +23,10 @@ At the moment only the LFS and HLFS-glibc parts are supported.
    (patch -Np0 -i contrib/jhalfs-paco.patch)
 
 2. Edit the configuration files to your preferences.
-   (common/config and LFS/config or HLFS/config)
+   (common/config and LFS/config or HLFS/config or CLFS/config)
 
 3. Run the wanted script.
-   (Only ./lfs or ./hlfs --model glibc if you want to use paco)
+   (Only ./lfs or ./clfs or ./hlfs --model glibc if you want to use paco)
 
 4. Run make.
 
@@ -69,14 +73,18 @@ http://lists.sourceforge.net/lists/listinfo/paco-general
 
 ##### TODO #####
 
+- Bughunting/testing CLFS part
 - Support for HLFS-uClibc
-- Support for CLFS
 - Support for BLFS (when it's ready)
 - Spread the Word
 
 
 ##### HISTORY #####
 
+2006-08-02
+- Preliminary support for CLFS done
+- Some code cleanup
+
 2006-07-30
-- Automatical download of Paco source package
+- Automatical download of Paco source package done
 - Updated patch to support new HLFS layout

@@ -1,6 +1,6 @@
 Index: LFS/master.sh
 ===================================================================
---- LFS/master.sh	(revision 2864)
+--- LFS/master.sh	(revision 2873)
 +++ LFS/master.sh	(working copy)
 @@ -173,6 +173,11 @@
      # Keep the script file name
@@ -61,19 +61,16 @@ Index: LFS/master.sh
    done # end for file in chapter06/*
  }
  
-@@ -312,8 +341,18 @@
+@@ -312,8 +341,15 @@
                else
                  wrt_run_as_chroot2 "$this_script" "$file"
                fi
 +              wrt_paco_log "lfs-sysconf"
          ;;
-+      *kernel)       wrt_paco_prep
-+                     wrt_run_as_chroot2 "$this_script" "$file"
-+                     wrt_paco_log "$pkg_tarball"
-+        ;;
-+      *bootscripts)  wrt_paco_prep
-+                     wrt_run_as_chroot2 "$this_script" "$file"
-+                     wrt_paco_log "$pkg_tarball"
++      *kernel | *bootscripts )
++              wrt_paco_prep
++              wrt_run_as_chroot2 "$this_script" "$file"
++              wrt_paco_log "$pkg_tarball"
 +        ;;
        *)        wrt_run_as_chroot2 "$this_script" "$file"
 +                wrt_paco_log "lfs-sysconf"
@@ -82,7 +79,7 @@ Index: LFS/master.sh
  
 Index: LFS/lfs.xsl
 ===================================================================
---- LFS/lfs.xsl	(revision 2864)
+--- LFS/lfs.xsl	(revision 2873)
 +++ LFS/lfs.xsl	(working copy)
 @@ -32,6 +32,9 @@
    <!-- Locale settings -->
@@ -128,6 +125,232 @@ Index: LFS/lfs.xsl
        <!-- The rest of commands -->
        <xsl:otherwise>
          <xsl:apply-templates/>
+Index: CLFS/master.sh
+===================================================================
+--- CLFS/master.sh	(revision 2873)
++++ CLFS/master.sh	(working copy)
+@@ -495,6 +495,11 @@
+     # Keep the script file name
+     this_script=`basename $file`
+ 
++    # If $this_script corresponds to a paco script, then skip it
++    case "${this_script}" in
++      *paco)       continue ;;
++    esac
++
+     # Test if the stripping phase must be skipped.
+     # Skip alsp temp-perl for iterative runs
+     case $this_script in
+@@ -502,6 +507,18 @@
+       *temp-perl*) [[ -n "$N" ]] && continue ;;
+     esac
+ 
++    # Install paco as the first package in ch6, before installing
++    # linux-libc-headers, except in iterartive builds
++    if [[ -z "$N" ]]; then
++      case $this_script in
++        *linux-headers)
++          TMP_SCRIPT="$this_script"
++          this_script=`echo $this_script | sed -e 's/linux-headers/a-paco/'`
++          wrt_paco_inst "$this_script"
++          this_script="$TMP_SCRIPT" ;;
++      esac
++    fi
++
+     # Grab the name of the target, strip id number, XXX-script
+     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' \
+                                   -e 's@temp-@@' \
+@@ -554,7 +571,9 @@
+       [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
+     fi
+     #
++    wrt_paco_prep
+     wrt_run_as_chroot1 "${this_script}" "${file}"
++    wrt_paco_log "$pkg_tarball"
+     #
+     [[ "$pkg_tarball" != "" ]] && wrt_remove_build_dirs "${name}"
+     #
+@@ -569,6 +588,16 @@
+     PREV=${this_script}${N}
+     # Set system_build envar for iteration targets
+     system_build=$basicsystem
++
++    # Reinstalling paco after readsjusting the toolchain.
++    case "${this_script}" in
++      *adjusting)
++        TMP_SCRIPT="$this_script"
++        this_script=`echo ${this_script} | sed -e 's/adjusting/x-paco/'`
++        wrt_paco_inst "$this_script"
++        this_script="$TMP_SCRIPT" ;;
++    esac
++
+   done  # for file in final-system/* ...
+ }
+ 
+@@ -605,6 +634,11 @@
+     # Keep the script file name
+     this_script=`basename $file`
+ 
++    # If $this_script corresponds to a paco script, then skip it
++    case "${this_script}" in
++      *paco)       continue ;;
++    esac
++
+     # Test if the stripping phase must be skipped
+     # Skip alsp temp-perl for iterative runs
+     case $this_script in
+@@ -612,6 +646,18 @@
+       *temp-perl*) [[ -n "$N" ]] && continue ;;
+     esac
+ 
++    # Install paco as the first package in ch6, before installing
++    # linux-libc-headers, except in iterartive builds
++    if [[ -z "$N" ]]; then
++      case $this_script in
++        *linux-headers)
++          TMP_SCRIPT="$this_script"
++          this_script=`echo $this_script | sed -e 's/linux-headers/a-paco/'`
++          wrt_paco_inst "$this_script"
++          this_script="$TMP_SCRIPT" ;;
++      esac
++    fi
++
+     # Grab the name of the target, strip id number, XXX-script
+     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' \
+                                   -e 's@temp-@@' \
+@@ -666,7 +712,9 @@
+       [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
+     fi
+     #
++    wrt_paco_prep
+     wrt_run_as_root2 "${this_script}" "${file}"
++    wrt_paco_log "$pkg_tarball"
+     #
+     [[ "$pkg_tarball" != "" ]] && wrt_remove_build_dirs2 "${name}"
+     #
+@@ -681,6 +729,16 @@
+     PREV=${this_script}${N}
+     # Set system_build envar for iteration targets
+     system_build=$basicsystem
++
++    # Reinstalling paco after readsjusting the toolchain.
++    case "${this_script}" in
++      *adjusting)
++        TMP_SCRIPT="$this_script"
++        this_script=`echo ${this_script} | sed -e 's/adjusting/x-paco/'`
++        wrt_paco_inst "$this_script"
++        this_script="$TMP_SCRIPT" ;;
++    esac
++
+   done  # for file in final-system/* ...
+ }
+ 
+@@ -729,7 +787,17 @@
+     #
+     [[ "$pkg_tarball" != "" ]] && wrt_unpack2 "$pkg_tarball"
+     #
++    case $this_script in
++      *bootscripts* | *udev-rules )
++        wrt_paco_prep ;;
++    esac
+     wrt_run_as_chroot1 "${this_script}" "${file}"
++    case $this_script in
++      *bootscripts* | *udev-rules )
++        wrt_paco_log "$pkg_tarball" ;;
++      *)
++        wrt_paco_log "clfs-sysconf" ;;
++    esac
+     #
+     [[ "$pkg_tarball" != "" ]] && wrt_remove_build_dirs "${name}"
+     #
+@@ -791,7 +859,17 @@
+     #
+     [[ "$pkg_tarball" != "" ]] && wrt_unpack3 "$pkg_tarball"
+     #
++    case $this_script in
++      *bootscripts* | *udev-rules )
++        wrt_paco_prep ;;
++    esac
+     wrt_run_as_root2 "${this_script}" "${file}"
++    case $this_script in
++      *bootscripts* | *udev-rules )
++        wrt_paco_log "$pkg_tarball" ;;
++      *)
++        wrt_paco_log "clfs-sysconf" ;;
++    esac
+     #
+     [[ "$pkg_tarball" != "" ]] && wrt_remove_build_dirs2 "${name}"
+     #
+@@ -863,8 +941,13 @@
+                 else
+                   wrt_run_as_chroot1  "${this_script}" "${file}"
+                 fi
++                wrt_paco_log "clfs-sysconf"
+           ;;
+-      *)  wrt_run_as_chroot1  "${this_script}" "${file}"   ;;
++      *kernel)  wrt_paco_prep
++                wrt_run_as_chroot1  "${this_script}" "${file}"
++                wrt_paco_log "$pkg_tarball" ;;
++      *)  wrt_run_as_chroot1  "${this_script}" "${file}"
++          wrt_paco_log "clfs-sysconf" ;;
+     esac
+     #
+     # Housekeeping...remove any build directory(ies) except if the package build fails.
+@@ -942,8 +1025,13 @@
+                 else
+                   wrt_run_as_root2  "${this_script}" "${file}"
+                 fi
++                wrt_paco_log "clfs-sysconf"
+           ;;
+-      *)  wrt_run_as_root2  "${this_script}" "${file}"   ;;
++      *kernel)  wrt_paco_prep
++                wrt_run_as_root2  "${this_script}" "${file}"
++                wrt_paco_log "$pkg_tarball"   ;;
++      *)  wrt_run_as_root2  "${this_script}" "${file}"
++          wrt_paco_log "clfs-sysconf"   ;;
+     esac
+     #
+     # Housekeeping...remove any build directory(ies) except if the package build fails.
+Index: CLFS/clfs.xsl
+===================================================================
+--- CLFS/clfs.xsl	(revision 2873)
++++ CLFS/clfs.xsl	(working copy)
+@@ -38,6 +38,9 @@
+   <!-- Locale settings -->
+   <xsl:param name="lang" select="C"/>
+ 
++  <!-- Use paco? -->
++  <xsl:param name="use_paco" select="1"/>
++
+   <xsl:template match="/">
+     <xsl:apply-templates select="//sect1"/>
+   </xsl:template>
+@@ -99,6 +102,25 @@
+                 <xsl:text>tar -xvf ../vim-&vim-version;-lang.* --strip-components=1&#xA;</xsl:text>
+               </xsl:if>
+             </xsl:if>
++            <!-- paco begin -->
++            <!-- General rule -->
++            <xsl:if test="$use_paco != '0' and 
++                    @id='ch-scripts-bootscripts' or
++                    @id='ch-scripts-udev-rules' or
++                    @id='ch-bootable-kernel' or
++                    (../@id='chapter-building-system' and
++                    @id!='ch-system-temp-perl' and
++                    contains(string(),'make') and
++                    contains(string(),'install'))">
++              <xsl:text>export LD_PRELOAD=/usr/lib/libpaco-log.so&#xA;</xsl:text>
++            </xsl:if>
++            <!-- Linux headers -->
++            <xsl:if test="$use_paco != '0' and
++                    @id='ch-system-linux-headers' and
++                    contains(string(),'install')">
++              <xsl:text>export LD_PRELOAD=/usr/lib/libpaco-log.so&#xA;</xsl:text>
++            </xsl:if>
++            <!-- paco end -->
+             <xsl:apply-templates select=".//para/userinput | .//screen"/>
+             <xsl:text>exit</xsl:text>
+           </exsl:document>
 Index: common/paco-build-hlfs.sh
 ===================================================================
 --- common/paco-build-hlfs.sh	(revision 0)
@@ -147,7 +370,7 @@ Index: common/paco-build-hlfs.sh
 +make logme
 Index: common/config
 ===================================================================
---- common/config	(revision 2864)
+--- common/config	(revision 2873)
 +++ common/config	(working copy)
 @@ -86,6 +86,23 @@
  #--- Run farce testing 0(no)/1(yes)
@@ -185,7 +408,7 @@ Index: common/config
 +LD_PRELOAD=/usr/lib/libpaco-log.so
 Index: common/func_validate_configs.sh
 ===================================================================
---- common/func_validate_configs.sh	(revision 2864)
+--- common/func_validate_configs.sh	(revision 2873)
 +++ common/func_validate_configs.sh	(working copy)
 @@ -86,10 +86,10 @@
  inline_doc
@@ -214,38 +437,44 @@ Index: common/paco-functions
 ===================================================================
 --- common/paco-functions	(revision 0)
 +++ common/paco-functions	(revision 0)
-@@ -0,0 +1,251 @@
+@@ -0,0 +1,311 @@
 +#!/bin/bash
 +
 +#----------------------------#
 +wrt_paco_inst() {            #
 +#----------------------------#
 +
-+# Not using Paco with uClibc, even if requested
-+if [ $PROGNAME = "hlfs" ]; then
-+  if [ $MODEL = "uclibc" ]; then
-+    USE_PACO=0
-+  fi
-+fi
++local paco_script="$1"
++
++check_build_model
 +
 +if [ $USE_PACO != 0 ]; then
-+  paco_script="$1"
-+  paco_file="chapter06/$paco_script"
-+  chapter6="$chapter6 $paco_script"
++  case $PROGNAME in 
++    clfs )
++      paco_file="final-system/$paco_script"
++      basicsystem="$basicsystem $paco_script" ;;
++    * )
++      paco_file="chapter06/$paco_script"
++      chapter6="$chapter6 $paco_script" ;;
++  esac
 +
 +  # Copy the paco build script to the correct directory and make it executable
 +  cp $JHALFSDIR/paco-build-$PROGNAME.sh $JHALFSDIR/${PROGNAME}-commands/$paco_file &&
 +  chmod +x $JHALFSDIR/${PROGNAME}-commands/$paco_file
 +
 +  # Write target, dependency and unpack
-+  wrt_target "$paco_script" "$PREV"
-+  wrt_unpack2 "$PACO_FILE"
++  if [ $CLFS_BOOT = 1 ]; then
++    wrt_target_boot "$paco_script" "$PREV"
++    wrt_unpack3 "$PACO_FILE"
++    wrt_run_as_root2 "${paco_script}" "${paco_file}"
++    wrt_remove_build_dirs2 "paco"
++  else 
++    wrt_target "$paco_script" "$PREV"
++    wrt_unpack2 "$PACO_FILE"
++    wrt_run_as_chroot1 "${paco_script}" "${paco_file}"
++    wrt_remove_build_dirs "paco"
++  fi
 +
-+  # Run the script
-+  wrt_run_as_chroot1 "${paco_script}" "${paco_file}"
-+
-+  # Clean up
-+  wrt_remove_build_dirs "paco"
 +  wrt_touch
 +
 +  # Override the PREV variable
@@ -258,22 +487,24 @@ Index: common/paco-functions
 +wrt_paco_prep() {                  # Export Paco variables
 +#----------------------------------# and remove tmpfile
 +
-+# Not using Paco with uClibc, even if requested
-+if [ $PROGNAME = "hlfs" ]; then
-+  if [ $MODEL = "uclibc" ]; then
-+    USE_PACO=0
-+  fi
-+fi
++local TMPFILEPATH
++
++check_build_model
 +
 +check_log_package
 +
 +if [ $USE_PACO != 0 ] && [ $LOG_PACKAGE != 0 ]; then
++  if [ $CLFS_BOOT = 1 ]; then
++    TMPFILEPATH="$PACO_TMPFILE"
++  else
++    TMPFILEPATH="\$(MOUNT_PT)$PACO_TMPFILE"
++  fi
 +(
 +cat  << EOF
 +	@echo "export PACO_INCLUDE=$PACO_INCLUDE" >> envars && \\
 +	echo "export PACO_EXCLUDE=\$(SRC):$PACO_EXCLUDE" >> envars && \\
 +	echo "export PACO_TMPFILE=$PACO_TMPFILE" >> envars && \\
-+	rm -f \$(MOUNT_PT)$PACO_TMPFILE
++	rm -f $TMPFILEPATH
 +EOF
 +) >> $MKFILE.tmp
 +fi
@@ -285,19 +516,29 @@ Index: common/paco-functions
 +#----------------------------------# and remove tempfile
 +local PACKAGE
 +
++# Extract package name and version from the tarball name
 +PACKAGE=`echo $1 | sed -e 's/.tar.*//'`
 +
-+# Not using Paco with uClibc, even if requested
-+if [ $PROGNAME = "hlfs" ]; then
-+  if [ $MODEL = "uclibc" ]; then
-+    USE_PACO=0
-+  fi
-+fi
++check_build_model
 +
++# Check if the package should be logged
 +check_log_package
++
 +
 +if [ $USE_PACO != 0 ]; then
 +  if [ $LOG_PACKAGE != 0 ]; then
++    # Only use this if doing CLFS boot build
++    if [ $CLFS_BOOT = 1 ]; then
++(
++cat << EOF
++	@if [ -e $PACO_TMPFILE ]; then \\
++		paco -lp+ $PACKAGE < $PACO_TMPFILE && \\
++		rm -f $PACO_TMPFILE; \\
++	fi;
++EOF
++) >> $MKFILE.tmp
++    # All else should use these commands
++    else
 +(
 +cat << EOF
 +	@if [ -e \$(MOUNT_PT)$PACO_TMPFILE ]; then \\
@@ -306,8 +547,24 @@ Index: common/paco-functions
 +	fi;
 +EOF
 +) >> $MKFILE.tmp
++    fi
 +  fi
++  # Add missing files to the logs if needed
 +  wrt_paco_add_log
++fi
++}
++
++
++#----------------------------------#
++fnc_add_log() {                    #
++#----------------------------------#
++
++MISSING_FILE=$1
++
++if [ $CLFS_BOOT = 1 ]; then
++  echo -e "\t@$MISSING_FILE | paco -lp+ $PACKAGE" >> $MKFILE.tmp
++else
++  echo -e "\t@\$(CHROOT1) '$MISSING_FILE | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
 +fi
 +}
 +
@@ -319,78 +576,77 @@ Index: common/paco-functions
 +# These rules will add the missing files to the proper logs.
 +# Most of these is not needed for HLFS, but they do no harm.
 +if [ $USE_PACO != 0 ]; then
-+  case $this_script in
++ case $this_script in
 +    *glibc)
-+      echo -e "\t@\$(CHROOT1) 'find /lib -type l | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
-+      echo -e "\t@\$(CHROOT1) 'find /etc/{nsswitch.conf,ld.so.conf} | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      fnc_add_log "find /lib -type l"
++      fnc_add_log "find /etc/{nsswitch.conf,ld.so.conf}"
 +    ;;
 +    *ncurses)
-+      LIBS="/usr/lib/{libcurses.so,libncurses.so,libform.so,libpanel.so,libmenu.so}"
-+      echo -e "\t@\$(CHROOT1) 'find $LIBS | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      fnc_add_log "find /usr/lib/{libcurses.so,libncurses.so,libform.so,libpanel.so,libmenu.so}"
 +    ;;
 +    *bash)
-+      echo -e "\t@\$(CHROOT1) 'echo /bin/sh | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      fnc_add_log "echo /bin/sh"
 +    ;;
 +    *flex)
-+      echo -e "\t@\$(CHROOT1) 'echo /usr/bin/lex | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      fnc_add_log "echo /usr/bin/lex"
 +    ;;
 +    *shadow)
-+      echo -e "\t@\$(CHROOT1) 'echo /etc/login.defs | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      fnc_add_log "echo /etc/login.defs"
 +    ;;
 +    *hotplug)
-+      echo -e "\t@\$(CHROOT1) 'echo /var/log/hotplug | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
-+      echo -e "\t@\$(CHROOT1) 'echo /var/run/usb | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      fnc_add_log "echo /var/log/hotplug"
++      fnc_add_log "echo /var/run/usb"
 +    ;;
 +    *sysklogd)
-+      echo -e "\t@\$(CHROOT1) 'echo /etc/syslog.conf | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      fnc_add_log "echo /etc/syslog.conf"
 +    ;;
 +    *sysvinit)
-+      echo -e "\t@\$(CHROOT1) 'echo /etc/inittab | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      fnc_add_log "echo /etc/inittab"
 +    ;;
 +    *udev)
-+      echo -e "\t@\$(CHROOT1) 'find /lib/udev/devices | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
-+      echo -e "\t@\$(CHROOT1) 'echo /lib/firmware | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
-+      echo -e "\t@\$(CHROOT1) 'find /etc/udev/rules.d -type f | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      fnc_add_log "find /lib/udev/devices"
++      fnc_add_log "echo /lib/firmware"
++      fnc_add_log "find /etc/udev/rules.d -type f"
 +    ;;
 +    *util-linux)
-+      echo -e "\t@\$(CHROOT1) 'echo /var/lib/hwclock | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
-+      echo -e "\t@\$(CHROOT1) 'echo /etc/nologin.txt | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      fnc_add_log "echo /var/lib/hwclock"
++      fnc_add_log "echo /etc/nologin.txt"
 +    ;;
 +    *vim)
-+      echo -e "\t@\$(CHROOT1) 'echo /etc/vimrc | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      fnc_add_log "echo /etc/vimrc"
 +    ;;
-+    # Rules below here will log configuration files created in LFS and HLFS
-+    # They will end up in a log named {h}lfs-sysconf
++    # Rules below here will log configuration files created in {C,H}LFS
++    # They will end up in a log named {c,h}lfs-sysconf
 +    *setclock)
-+      echo -e "\t@\$(CHROOT2) 'echo /etc/sysconfig/clock | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      fnc_add_log "echo /etc/sysconfig/clock"
 +    ;;
 +    *inputrc)
-+      echo -e "\t@\$(CHROOT2) 'echo /etc/inputrc | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      fnc_add_log "echo /etc/inputrc"
 +    ;;
 +    *profile)
-+      echo -e "\t@\$(CHROOT2) 'echo /etc/profile | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      fnc_add_log "echo /etc/profile"
 +    ;;
 +    *hostname)
-+      echo -e "\t@\$(CHROOT2) 'echo /etc/sysconfig/network | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      fnc_add_log "echo /etc/sysconfig/network"
 +    ;;
 +    *localnet)
-+      echo -e "\t@\$(CHROOT2) 'echo /etc/sysconfig/network | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      fnc_add_log "echo /etc/sysconfig/network"
 +    ;;
 +    *hosts)
-+      echo -e "\t@\$(CHROOT2) 'echo /etc/hosts | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      fnc_add_log "echo /etc/hosts"
 +    ;;
 +    *network)
-+      echo -e "\t@\$(CHROOT2) 'echo /etc/sysconfig/network-devices/ifconfig.eth0/ipv4 | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
-+      echo -e "\t@\$(CHROOT2) 'echo /etc/resolv.conf | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      fnc_add_log "echo /etc/sysconfig/network-devices/ifconfig.eth0/ipv4"
++      fnc_add_log "echo /etc/resolv.conf"
 +    ;;
 +    *fstab)
-+      echo -e "\t@\$(CHROOT2) 'echo /etc/fstab | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      fnc_add_log "echo /etc/fstab"
 +    ;;
-+    *theend) # LFS
-+      echo -e "\t@\$(CHROOT2) 'echo /etc/$PROGNAME-release | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++    *theend) # LFS and CLFS
++      fnc_add_log "echo /etc/$PROGNAME-release"
 +    ;;
 +    *finished) # HLFS
-+      echo -e "\t@\$(CHROOT2) 'echo /etc/$PROGNAME-release | paco -lp+ $PACKAGE'" >> $MKFILE.tmp
++      fnc_add_log "echo /etc/$PROGNAME-release"
 +    ;;
 +  esac
 +fi
@@ -409,7 +665,10 @@ Index: common/paco-functions
 +  *createfiles)     LOG_PACKAGE=0 ;;
 +  *pwdgroup)        LOG_PACKAGE=0 ;;
 +  *devices)         LOG_PACKAGE=0 ;;
++  *stripping)       LOG_PACKAGE=0 ;;
 +  *strippingagain)  LOG_PACKAGE=0 ;;
++  *adjusting)       LOG_PACKAGE=0 ;;
++  *temp-perl)       LOG_PACKAGE=0 ;;
 +  *readjusting)     LOG_PACKAGE=0 ;;
 +  *setclock)        LOG_PACKAGE=0 ;;
 +  *inputrc)         LOG_PACKAGE=0 ;;
@@ -436,7 +695,7 @@ Index: common/paco-functions
 +local PACO_URL2="http://$PACO_MIRROR2.dl.sourceforge.net/sourceforge/paco/$PACO_FILE"
 +
 +# Test if paco is to be used
-+[ ! "$USE_PACO" = "1" ] && return
++[[ ! "$USE_PACO" = "1" ]] && return
 +
 +# If the file exists in the archive copy it to the $BUILDDIR/sources dir.
 +if [ ! -z ${SRC_ARCHIVE} ] &&
@@ -466,6 +725,30 @@ Index: common/paco-functions
 +     cp -f $PACO_FILE ${SRC_ARCHIVE}
 +fi
 +}
++
++
++#----------------------------------#
++check_build_model() {              #
++#----------------------------------#
++# Check what script we're running, and set some switches accordingly
++
++CLFS_BOOT=0
++
++case $PROGNAME in
++  hlfs)
++    # Not using Paco with uClibc, even if requested
++    if [ "$MODEL" = "uclibc" ]; then
++      USE_PACO=0
++    fi
++  ;;
++  clfs)
++    # CLFS boot method require it's own commands
++    if [ "$METHOD" = "boot" ]; then
++      CLFS_BOOT=1
++    fi
++  ;;
++esac
++}
 Index: common/paco-build-lfs.sh
 ===================================================================
 --- common/paco-build-lfs.sh	(revision 0)
@@ -481,9 +764,24 @@ Index: common/paco-build-lfs.sh
 +make &&
 +make install &&
 +make logme
+Index: common/paco-build-clfs.sh
+===================================================================
+--- common/paco-build-clfs.sh	(revision 0)
++++ common/paco-build-clfs.sh	(revision 0)
+@@ -0,0 +1,10 @@
++#!/bin/sh
++set -e
++
++cd $PKGDIR
++./configure --sysconfdir=/etc \
++	--enable-scripts \
++	--disable-gpaco &&
++make &&
++make install &&
++make logme
 Index: common/common-functions
 ===================================================================
---- common/common-functions	(revision 2864)
+--- common/common-functions	(revision 2873)
 +++ common/common-functions	(working copy)
 @@ -69,6 +69,9 @@
          in the configuration file has the proper packages and patches for the
@@ -495,7 +793,15 @@ Index: common/common-functions
  ${BOLD}  -O, --optimize${OFF}
          Optimize [0-2]
            0 = no optimization
-@@ -759,6 +762,7 @@
+@@ -732,6 +735,7 @@
+                  --stringparam page $PAGE \
+                  --stringparam lang $LANG \
+                  --stringparam keymap $KEYMAP \
++                 --stringparam use_paco $USE_PACO \
+                  -o ./${PROGNAME}-commands/ $XSL $BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
+       ;;
+ 
+@@ -759,6 +763,7 @@
                   --stringparam lc_all $LC_ALL \
                   --stringparam keymap $KEYMAP \
                   --stringparam grsecurity_host $GRSECURITY_HOST \
@@ -503,7 +809,7 @@ Index: common/common-functions
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
        ;;
      lfs)
-@@ -770,6 +774,7 @@
+@@ -770,6 +775,7 @@
                   --stringparam timezone $TIMEZONE \
                   --stringparam page $PAGE \
                   --stringparam lang $LANG \
@@ -511,7 +817,7 @@ Index: common/common-functions
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
        ;;
      *) exit 1 ;;
-@@ -836,6 +841,9 @@
+@@ -836,6 +842,9 @@
      # Generate URLs file
    create_urls
  
@@ -523,7 +829,7 @@ Index: common/common-functions
      IFS=$saveIFS  # Restore the system defaults
 Index: HLFS/hlfs.xsl
 ===================================================================
---- HLFS/hlfs.xsl	(revision 2864)
+--- HLFS/hlfs.xsl	(revision 2873)
 +++ HLFS/hlfs.xsl	(working copy)
 @@ -39,6 +39,9 @@
    <xsl:param name="lang" select="C"/>
@@ -546,11 +852,10 @@ Index: HLFS/hlfs.xsl
          <xsl:text>make install&#xA;</xsl:text>
          <xsl:text>cd ../blfs-bootscripts-&blfs-bootscripts-version;&#xA;</xsl:text>
        </xsl:when>
-@@ -237,6 +244,27 @@
+@@ -237,6 +244,25 @@
          <xsl:apply-templates/>
          <xsl:text> || true&#xA;</xsl:text>
        </xsl:when>
-+
 +      <!-- paco begin -->
 +      <!-- General rule -->
 +      <xsl:when test="$use_paco != '0' and $model != 'uclibc' and
@@ -570,13 +875,12 @@ Index: HLFS/hlfs.xsl
 +        <xsl:text>&#xA;</xsl:text>
 +      </xsl:when>
 +      <!-- paco end -->
-+
        <!-- The rest of commands -->
        <xsl:otherwise>
          <xsl:apply-templates/>
 Index: HLFS/master.sh
 ===================================================================
---- HLFS/master.sh	(revision 2864)
+--- HLFS/master.sh	(revision 2873)
 +++ HLFS/master.sh	(working copy)
 @@ -76,7 +76,9 @@
  	@echo "export PKGDIR=\$(SRC)" > envars
@@ -588,7 +892,7 @@ Index: HLFS/master.sh
        ;;
  
      *)
-@@ -310,6 +312,11 @@
+@@ -308,6 +310,11 @@
      # Keep the script file name
      this_script=`basename $file`
  
@@ -600,7 +904,7 @@ Index: HLFS/master.sh
      # Skip this script depending on jhalfs.conf flags set.
      case $this_script in
          # We'll run the chroot commands differently than the others, so skip them in the
-@@ -319,6 +326,18 @@
+@@ -317,6 +324,18 @@
        *-stripping* )  [[ "$STRIP" = "0" ]] && continue ;;
      esac
  
@@ -619,7 +923,7 @@ Index: HLFS/master.sh
      # Grab the name of the target
      name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'`
  
-@@ -385,7 +404,9 @@
+@@ -382,7 +401,9 @@
          wrt_RunAsRoot "hlfs" "${this_script}" "${file}"
          ;;
        *)   # The rest of Chapter06
@@ -629,7 +933,7 @@ Index: HLFS/master.sh
         ;;
      esac
      #
-@@ -405,6 +426,16 @@
+@@ -402,6 +423,16 @@
      PREV=${this_script}${N}
      # Set system_build envar for iteration targets
      system_build=$chapter6
@@ -646,7 +950,7 @@ Index: HLFS/master.sh
    done # end for file in chapter06/*
  
  }
-@@ -463,9 +494,19 @@
+@@ -460,9 +491,19 @@
          else  # Initialize the log and run the script
            wrt_run_as_chroot2 "${this_script}" "${file}"
          fi
@@ -668,7 +972,7 @@ Index: HLFS/master.sh
  
 Index: master.sh
 ===================================================================
---- master.sh	(revision 2864)
+--- master.sh	(revision 2873)
 +++ master.sh	(working copy)
 @@ -149,6 +149,8 @@
  
