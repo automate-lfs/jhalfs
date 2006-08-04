@@ -6,6 +6,10 @@
 #
 #####
 
+#--- Unprivileged user and group name
+LUSER=lfs
+LGROUP=lfs
+
 #--- Location of fstab file (if empty, a template is created)
 FSTAB=
 

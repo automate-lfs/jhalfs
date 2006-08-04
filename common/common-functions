@@ -253,8 +253,9 @@ get_package_tarball_name() { #
    # hopefully this will not cause problems.
    #
    case $script_name in
-     tcl)   echo $(grep "^tcl" $JHALFSDIR/pkg_tarball_list | head -n1 ) ;;
-     *)     echo $(grep "^$script_name-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 ) ;;
+     tcl)           echo $(grep "^tcl" $JHALFSDIR/pkg_tarball_list | head -n1 ) ;;
+     linux-headers) echo $(grep "^linux-headers.*.bz2" $JHALFSDIR/pkg_tarball_list | head -n1 ) ;;
+     *)             echo $(grep "^$script_name-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 ) ;;
    esac
 
 }
@@ -309,27 +310,7 @@ cat << EOF
 	@\$(call unpack,$FILE)
 	@ROOT=\`head -n1 \$(MOUNT_PT)\$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
 	echo "export PKGDIR=\$(MOUNT_PT)\$(SRC)/\$\$ROOT" > envars && \\
-	chown -R lfs \$(MOUNT_PT)\$(SRC)/\$\$ROOT
-EOF
-) >> $MKFILE.tmp
-}
-
-
-#----------------------------------#
-wrt_unpack_clfs() {                # Unpack and set 'ROOT' var
-#----------------------------------#
-  local FILE=$1
-  local optSAVE_PREVIOUS=$2
-
-  if [ "${optSAVE_PREVIOUS}" != "1" ]; then
-    wrt_remove_existing_dirs "$FILE"
-  fi
-(
-cat << EOF
-	@\$(call unpack,$FILE)
-	@ROOT=\`head -n1 \$(MOUNT_PT)\$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
-	echo "export PKGDIR=\$(MOUNT_PT)\$(SRC)/\$\$ROOT" > envars && \\
-	chown -R clfs \$(MOUNT_PT)\$(SRC)/\$\$ROOT
+	chown -R \$(LUSER) \$(MOUNT_PT)\$(SRC)/\$\$ROOT
 EOF
 ) >> $MKFILE.tmp
 }
@@ -379,7 +360,7 @@ wrt_test_log() {                   # Initialize testsuite log file
 (
 cat  << EOF
 	@echo "export TEST_LOG=$TESTLOGDIR/$TESTLOGFILE" >> envars && \\
-	su - lfs -c "echo -e '\n\`date\`\n' >$TESTLOGDIR/$TESTLOGFILE"
+	su - \$(LUSER) -c "echo -e '\n\`date\`\n' >$TESTLOGDIR/$TESTLOGFILE"
 EOF
 ) >> $MKFILE.tmp
 }
@@ -410,13 +391,13 @@ EOF
 
 
 #----------------------------------#
-wrt_run_as_su() {                  # Execute script inside time { }, footer to log file
+wrt_RunAsUser() {                  # Execute script inside time { }, footer to log file
 #----------------------------------#
   local this_script=$1
   local file=$2
 (
 cat << EOF
-	@( time { su - lfs -c "source /home/lfs/.bashrc && $JHALFSDIR/${PROGNAME}-commands/$file" >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
+	@( time { su - \$(LUSER) -c "source /home/\$(LUSER)/.bashrc && $JHALFSDIR/${PROGNAME}-commands/$file" >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
 	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >>logs/$this_script
 EOF
 ) >> $MKFILE.tmp
@@ -424,41 +405,24 @@ EOF
 
 
 #----------------------------------#
-wrt_run_as_root() {                # Some scripts must be run as root..
+wrt_RunAsRoot() {                  # Some scripts must be run as root..
 #----------------------------------#
+  local ENV_MOUNT
   local this_script=$1
   local file=$2
+
+  case ${PROGNAME} in
+    lfs   ) MOUNT_ENV="LFS" ;;
+    blfs  ) MOUNT_ENV="BLFS" ;;
+    clfs  ) MOUNT_ENV="CLFS" ;;
+    clfs2 ) MOUNT_ENV="CLFS" ;;
+    hlfs  ) MOUNT_ENV="HLFS" ;;
+    *) echo "undefined progname $PROGNAME"; exit 1
+  esac
+  
 (
 cat << EOF
-	@( time { export LFS=\$(MOUNT_PT) && ${PROGNAME}-commands/$file >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
-	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >>logs/$this_script
-EOF
-) >> $MKFILE.tmp
-}
-
-
-#----------------------------------#
-wrt_run_as_clfs_su() {             # Execute script inside time { }, footer to log file
-#----------------------------------#
-  local this_script=$1
-  local file=$2
-(
-cat << EOF
-	@( time { su - clfs -c "source /home/clfs/.bashrc && $JHALFSDIR/${PROGNAME}-commands/$file" >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
-	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >>logs/$this_script
-EOF
-) >> $MKFILE.tmp
-}
-
-
-#----------------------------------#
-wrt_run_as_clfs_root() {           # Some scripts must be run as root..
-#----------------------------------#
-  local this_script=$1
-  local file=$2
-(
-cat << EOF
-	@( time { export CLFS=\$(MOUNT_PT) && ${PROGNAME}-commands/$file >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
+	@( time { export ${MOUNT_ENV}=\$(MOUNT_PT) && ${PROGNAME}-commands/$file >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
 	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >>logs/$this_script
 EOF
 ) >> $MKFILE.tmp
@@ -477,7 +441,6 @@ cat << EOF
 EOF
 ) >> $MKFILE.tmp
 }
-
 
 
 #----------------------------------#
@@ -538,9 +501,9 @@ wrt_remove_build_dirs() {          #
 (
 cat << EOF
 	@ROOT=\`head -n1 \$(MOUNT_PT)\$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
-	rm -r \$(MOUNT_PT)\$(SRC)/\$\$ROOT && \\
+	rm -rf \$(MOUNT_PT)\$(SRC)/\$\$ROOT && \\
 	if [ -e \$(MOUNT_PT)\$(SRC)/$name-build ]; then \\
-		rm -r \$(MOUNT_PT)\$(SRC)/$name-build; \\
+		rm -rf \$(MOUNT_PT)\$(SRC)/$name-build; \\
 	fi;
 EOF
 ) >> $MKFILE.tmp
@@ -554,9 +517,9 @@ wrt_remove_build_dirs2() {         #
 (
 cat << EOF
 	@ROOT=\`head -n1 \$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
-	rm -r \$(SRC)/\$\$ROOT && \\
+	rm -rf \$(SRC)/\$\$ROOT && \\
 	if [ -e \$(SRC)/$name-build ]; then \\
-		rm -r \$(SRC)/$name-build; \\
+		rm -rf \$(SRC)/$name-build; \\
 	fi;
 EOF
 ) >> $MKFILE.tmp

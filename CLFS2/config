@@ -5,6 +5,10 @@
 # $Id$
 #
 #####
+#--- Unprivileged user and group name
+LUSER=clfs
+LGROUP=clfs
+
 
 #--- Which target architecture you want to build for,
 #    used to select proper book and set TARGETS
@@ -20,6 +24,10 @@ TARGET32=
 # >>>> 64-64 BUILD <<<<
 #--------------------------------
 # >>>> MULTILIB 32/64 <<<<
+
+#--- Unprivileged user and group name
+LUSER=clfs
+LGROUP=clfs
 
 #--- Location of fstab file (if empty, a template is created)
 FSTAB=

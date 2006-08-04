@@ -41,43 +41,43 @@ cat << EOF
 
 025-addinguser:  024-creatingcrossdir
 	@\$(call echo_message, Building)
-	@if [ ! -d /home/clfs ]; then \\
-		groupadd clfs; \\
-		useradd -s /bin/bash -g clfs -m -k /dev/null clfs; \\
+	@if [ ! -d /home/\$(LUSER) ]; then \\
+		groupadd \$(LGROUP); \\
+		useradd -s /bin/bash -g \$(LGROUP) -m -k /dev/null \$(LUSER); \\
 	else \\
 		touch user-clfs-exist; \\
 	fi;
-	@chown clfs \$(MOUNT_PT) && \\
-	chown clfs \$(MOUNT_PT)/tools && \\
-	chown clfs \$(MOUNT_PT)/cross-tools && \\
-	chown clfs \$(MOUNT_PT)/sources && \\
+	@chown \$(LUSER) \$(MOUNT_PT) && \\
+	chown \$(LUSER) \$(MOUNT_PT)/tools && \\
+	chown \$(LUSER) \$(MOUNT_PT)/cross-tools && \\
+	chown \$(LUSER) \$(MOUNT_PT)/sources && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
 
 026-settingenvironment:  025-addinguser
 	@\$(call echo_message, Building)
-	@if [ -f /home/clfs/.bashrc -a ! -f /home/clfs/.bashrc.XXX ]; then \\
-		mv /home/clfs/.bashrc /home/clfs/.bashrc.XXX; \\
+	@if [ -f /home/\$(LUSER)/.bashrc -a ! -f /home/\$(LUSER)/.bashrc.XXX ]; then \\
+		mv /home/\$(LUSER)/.bashrc /home/\$(LUSER)/.bashrc.XXX; \\
 	fi;
-	@if [ -f /home/clfs/.bash_profile  -a ! -f /home/clfs/.bash_profile.XXX ]; then \\
-		mv /home/clfs/.bash_profile /home/clfs/.bash_profile.XXX; \\
+	@if [ -f /home/\$(LUSER)/.bash_profile  -a ! -f /home/\$(LUSER)/.bash_profile.XXX ]; then \\
+		mv /home/\$(LUSER)/.bash_profile /home/\$(LUSER)/.bash_profile.XXX; \\
 	fi;
-	@echo "set +h" > /home/clfs/.bashrc && \\
-	echo "umask 022" >> /home/clfs/.bashrc && \\
-	echo "CLFS=\$(MOUNT_PT)" >> /home/clfs/.bashrc && \\
-	echo "LC_ALL=POSIX" >> /home/clfs/.bashrc && \\
-	echo "PATH=/cross-tools/bin:/bin:/usr/bin" >> /home/clfs/.bashrc && \\
-	echo "export CLFS LC_ALL PATH" >> /home/clfs/.bashrc && \\
-	echo "" >> /home/clfs/.bashrc && \\
-	echo "unset CFLAGS" >> /home/clfs/.bashrc && \\
-	echo "unset CXXFLAGS" >> /home/clfs/.bashrc && \\
-	echo "" >> /home/clfs/.bashrc && \\
-	echo "export CLFS_HOST=\"${CLFS_HOST}\"" >> /home/clfs/.bashrc && \\
-	echo "export CLFS_TARGET=\"${TARGET}\"" >> /home/clfs/.bashrc && \\
-	echo "export CLFS_TARGET32=\"${TARGET32}\"" >> /home/clfs/.bashrc && \\
-	echo "source $JHALFSDIR/envars" >> /home/clfs/.bashrc
-	@chown clfs:clfs /home/clfs/.bashrc && \\
+	@echo "set +h" > /home/\$(LUSER)/.bashrc && \\
+	echo "umask 022" >> /home/\$(LUSER)/.bashrc && \\
+	echo "CLFS=\$(MOUNT_PT)" >> /home/\$(LUSER)/.bashrc && \\
+	echo "LC_ALL=POSIX" >> /home/\$(LUSER)/.bashrc && \\
+	echo "PATH=/cross-tools/bin:/bin:/usr/bin" >> /home/\$(LUSER)/.bashrc && \\
+	echo "export CLFS LC_ALL PATH" >> /home/\$(LUSER)/.bashrc && \\
+	echo "" >> /home/\$(LUSER)/.bashrc && \\
+	echo "unset CFLAGS" >> /home/\$(LUSER)/.bashrc && \\
+	echo "unset CXXFLAGS" >> /home/\$(LUSER)/.bashrc && \\
+	echo "" >> /home/\$(LUSER)/.bashrc && \\
+	echo "export CLFS_HOST=\"${CLFS_HOST}\"" >> /home/\$(LUSER)/.bashrc && \\
+	echo "export CLFS_TARGET=\"${TARGET}\"" >> /home/\$(LUSER)/.bashrc && \\
+	echo "export CLFS_TARGET32=\"${TARGET32}\"" >> /home/\$(LUSER)/.bashrc && \\
+	echo "source $JHALFSDIR/envars" >> /home/\$(LUSER)/.bashrc
+	@chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bashrc && \\
 	touch envars && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
@@ -131,9 +131,9 @@ cross_tools_Makefiles() {     #
     #
     # If $pkg_tarball isn't empty, we've got a package...
     #
-    [[ "$pkg_tarball" != "" ]] && wrt_unpack_clfs "$pkg_tarball"
+    [[ "$pkg_tarball" != "" ]] && wrt_unpack "$pkg_tarball"
     #
-    wrt_run_as_clfs_su "${this_script}" "${file}"
+    wrt_RunAsUser "${this_script}" "${file}"
     #
     [[ "$pkg_tarball" != "" ]] && wrt_remove_build_dirs "${name}"
     #
@@ -190,10 +190,10 @@ temptools_Makefiles() {       #
     # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and to set the PKGDIR variable.
     #
-    [[ "$pkg_tarball" != "" ]] && wrt_unpack_clfs "$pkg_tarball"
+    [[ "$pkg_tarball" != "" ]] && wrt_unpack "$pkg_tarball"
     [[ "$pkg_tarball" != "" ]] && [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     #
-    wrt_run_as_clfs_su "${this_script}" "${file}"
+    wrt_RunAsUser "${this_script}" "${file}"
     #
     [[ "$pkg_tarball" != "" ]] && wrt_remove_build_dirs "${name}"
     #
@@ -262,20 +262,20 @@ boot_Makefiles() {            #
     # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     #
-    [[ "$pkg_tarball" != "" ]] && wrt_unpack_clfs "$pkg_tarball"
+    [[ "$pkg_tarball" != "" ]] && wrt_unpack "$pkg_tarball"
     [[ "$pkg_tarball" != "" ]] && [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     #
     # Select a script execution method
     case $this_script in
-      *changingowner*)  wrt_run_as_clfs_root "${this_script}" "${file}"    ;;
-      *devices*)        wrt_run_as_clfs_root "${this_script}" "${file}"    ;;
+      *changingowner*)  wrt_RunAsRoot "${this_script}" "${file}"    ;;
+      *devices*)        wrt_RunAsRoot "${this_script}" "${file}"    ;;
       *fstab*)   if [[ -n "$FSTAB" ]]; then
                    wrt_copy_fstab "${this_script}"
                  else
-                   wrt_run_as_clfs_su  "${this_script}" "${file}"
+                   wrt_RunAsUser  "${this_script}" "${file}"
                  fi
          ;;
-      *)         wrt_run_as_clfs_su  "${this_script}" "${file}"       ;;
+      *)         wrt_RunAsUser  "${this_script}" "${file}"       ;;
     esac
     #
     # Housekeeping...remove any build directory(ies) except if the package build fails.
@@ -332,7 +332,7 @@ chroot_Makefiles() {          #
     #
     if [ "$pkg_tarball" != "" ] ; then
       case $this_script in
-        *util-linux)    wrt_unpack_clfs  "$pkg_tarball"  ;;
+        *util-linux)    wrt_unpack  "$pkg_tarball"  ;;
         *)              wrt_unpack2 "$pkg_tarball"  ;;
       esac
       [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
@@ -340,9 +340,9 @@ chroot_Makefiles() {          #
     #
     # Select a script execution method
     case $this_script in
-      *kernfs)        wrt_run_as_clfs_root "${this_script}" "${file}"  ;;
-      *util-linux)    wrt_run_as_clfs_su   "${this_script}" "${file}"  ;;
-      *)              wrt_run_as_chroot1   "${this_script}" "${file}"  ;;
+      *kernfs)      wrt_RunAsRoot "${this_script}" "${file}"  ;;
+      *util-linux)  wrt_RunAsUser "${this_script}" "${file}"  ;;
+      *)            wrt_run_as_chroot1  "${this_script}" "${file}"  ;;
     esac
     #
     # Housekeeping...remove the build directory(ies), except if the package build fails.
@@ -757,7 +757,7 @@ bm_bootscripts_Makefiles() {  #
     this_script=`basename $file`
 
     case $this_script in
-      *udev*) continue    ;;  # This is not a script but a commentary
+      *udev) continue    ;;  # This is not a script but a commentary
       *console*) continue ;; # Use the files that came with the bootscripts
       *)  ;;
     esac
@@ -773,8 +773,8 @@ bm_bootscripts_Makefiles() {  #
                                   -e 's@64@@' \
                                   -e 's@n32@@'`
     case $name in
-      *bootscripts*) name=bootscripts-cross-lfs
-       ;;
+      *bootscripts*) name=bootscripts-cross-lfs ;;
+      *udev-rules)   name=udev-cross-lfs ;;
     esac
 
     pkg_tarball=$(get_package_tarball_name $name)
@@ -1012,6 +1012,8 @@ $HEADER
 SRC= /sources
 MOUNT_PT= $BUILDDIR
 PKG_LST= $PKG_LST
+LUSER= $LUSER
+LGROUP= $LGROUP
 
 include makefile-functions
 
@@ -1064,8 +1066,8 @@ restart:
 
 clean-chapter2:
 	-if [ ! -f user-clfs-exist ]; then \\
-		userdel clfs; \\
-		rm -rf /home/clfs; \\
+		userdel \$(LUSER); \\
+		rm -rf /home/\$(LUSER); \\
 	fi;
 	rm -rf \$(MOUNT_PT)/tools
 	rm -f /tools
@@ -1092,13 +1094,13 @@ clean-chapter4:
 
 restore-clfs-env:
 	@\$(call echo_message, Building)
-	@if [ -f /home/clfs/.bashrc.XXX ]; then \\
-		mv -f /home/clfs/.bashrc.XXX /home/clfs/.bashrc; \\
+	@if [ -f /home/\$(LUSER)/.bashrc.XXX ]; then \\
+		mv -f /home/\$(LUSER)/.bashrc.XXX /home/\$(LUSER)/.bashrc; \\
 	fi;
-	@if [ -f /home/clfs/.bash_profile.XXX ]; then \\
-		mv /home/clfs/.bash_profile.XXX /home/clfs/.bash_profile; \\
+	@if [ -f /home/\$(LUSER)/.bash_profile.XXX ]; then \\
+		mv /home/\$(LUSER)/.bash_profile.XXX /home/\$(LUSER)/.bash_profile; \\
 	fi;
-	@chown clfs:clfs /home/clfs/.bash* && \\
+	@chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bash* && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
@@ -1110,8 +1112,8 @@ do-housekeeping:
 	@-umount \$(MOUNT_PT)/sys
 	@-umount \$(MOUNT_PT)/proc
 	@-if [ ! -f user-clfs-exist ]; then \\
-		userdel clfs; \\
-		rm -rf /home/clfs; \\
+		userdel \$(LUSER); \\
+		rm -rf /home/\$(LUSER); \\
 	fi;
 
 EOF
@@ -1146,8 +1148,8 @@ restart:
 
 clean-jhalfs:
 	-if [ ! -f user-clfs-exist ]; then \\
-		userdel clfs; \\
-		rm -rf /home/clfs; \\
+		userdel \$(LUSER); \\
+		rm -rf /home/\$(LUSER); \\
 	fi;
 	rm -rf \$(MOUNT_PT)/tools
 	rm -f /tools
@@ -1177,13 +1179,13 @@ clean-makesys:
 
 restore-clfs-env:
 	@\$(call echo_message, Building)
-	@if [ -f /home/clfs/.bashrc.XXX ]; then \\
-		mv -fv /home/clfs/.bashrc.XXX /home/clfs/.bashrc; \\
+	@if [ -f /home/\$(LUSER)/.bashrc.XXX ]; then \\
+		mv -fv /home/\$(LUSER)/.bashrc.XXX /home/\$(LUSER)/.bashrc; \\
 	fi;
-	@if [ -f /home/clfs/.bash_profile.XXX ]; then \\
-		mv -v /home/clfs/.bash_profile.XXX /home/clfs/.bash_profile; \\
+	@if [ -f /home/\$(LUSER)/.bash_profile.XXX ]; then \\
+		mv -v /home/\$(LUSER)/.bash_profile.XXX /home/\$(LUSER)/.bash_profile; \\
 	fi;
-	@chown clfs:clfs /home/clfs/.bash* && \\
+	@chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bash* && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)

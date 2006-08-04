@@ -70,6 +70,8 @@ source $MODULE
 
 if [[ -e using_menuconfig ]]; then
   source configuration
+
+
 	#--- Working directories
   SCRIPT_ROOT=jhalfs
     JHALFSDIR=$BUILDDIR/$SCRIPT_ROOT

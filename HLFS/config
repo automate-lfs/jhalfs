@@ -6,11 +6,19 @@
 #
 #####
 
+#--- Unprivileged user and group name
+LUSER=hlfs
+LGROUP=hlfs
+
 #--- Which library model to use uclibc/glibc
 MODEL=glibc
 
 #--- The host system has grsecurity options enabled? 0(no)/1(yes)
 GRSECURITY_HOST=0
+
+#--- Unprivileged user and group name
+LUSER=hlfs
+LGROUP=hlfs
 
 #--- Location of fstab file (if empty, a template is created)
 FSTAB=
