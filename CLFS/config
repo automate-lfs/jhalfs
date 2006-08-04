@@ -6,10 +6,6 @@
 #
 #####
 
-#--- Unprivileged user and group name
-LUSER=clfs
-LGROUP=clfs
-
 #--- Which target architecture you want to build for,
 #    used to select proper book and set TARGETS
 #--------------------------------

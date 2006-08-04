@@ -6,10 +6,6 @@
 #
 #####
 
-#--- Unprivileged user and group name
-LUSER=hlfs
-LGROUP=hlfs
-
 #--- Which library model to use uclibc/glibc
 MODEL=glibc
 
