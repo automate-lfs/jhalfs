@@ -1,6 +1,6 @@
 Index: LFS/master.sh
 ===================================================================
---- LFS/master.sh	(revision 2873)
+--- LFS/master.sh	(revision 2884)
 +++ LFS/master.sh	(working copy)
 @@ -173,6 +173,11 @@
      # Keep the script file name
@@ -79,9 +79,9 @@ Index: LFS/master.sh
  
 Index: LFS/lfs.xsl
 ===================================================================
---- LFS/lfs.xsl	(revision 2873)
+--- LFS/lfs.xsl	(revision 2884)
 +++ LFS/lfs.xsl	(working copy)
-@@ -32,6 +32,9 @@
+@@ -39,6 +39,9 @@
    <!-- Locale settings -->
    <xsl:param name="lang" select="C"/>
  
@@ -91,7 +91,7 @@ Index: LFS/lfs.xsl
    <xsl:template match="/">
      <xsl:apply-templates select="//sect1"/>
    </xsl:template>
-@@ -206,6 +209,33 @@
+@@ -239,6 +242,33 @@
          <xsl:apply-templates/>
          <xsl:text> || true&#xA;</xsl:text>
        </xsl:when>
@@ -127,7 +127,7 @@ Index: LFS/lfs.xsl
          <xsl:apply-templates/>
 Index: CLFS/master.sh
 ===================================================================
---- CLFS/master.sh	(revision 2873)
+--- CLFS/master.sh	(revision 2884)
 +++ CLFS/master.sh	(working copy)
 @@ -495,6 +495,11 @@
      # Keep the script file name
@@ -313,9 +313,9 @@ Index: CLFS/master.sh
      # Housekeeping...remove any build directory(ies) except if the package build fails.
 Index: CLFS/clfs.xsl
 ===================================================================
---- CLFS/clfs.xsl	(revision 2873)
+--- CLFS/clfs.xsl	(revision 2884)
 +++ CLFS/clfs.xsl	(working copy)
-@@ -38,6 +38,9 @@
+@@ -45,6 +45,9 @@
    <!-- Locale settings -->
    <xsl:param name="lang" select="C"/>
  
@@ -325,7 +325,7 @@ Index: CLFS/clfs.xsl
    <xsl:template match="/">
      <xsl:apply-templates select="//sect1"/>
    </xsl:template>
-@@ -99,6 +102,25 @@
+@@ -106,6 +109,25 @@
                  <xsl:text>tar -xvf ../vim-&vim-version;-lang.* --strip-components=1&#xA;</xsl:text>
                </xsl:if>
              </xsl:if>
@@ -370,9 +370,9 @@ Index: common/paco-build-hlfs.sh
 +make logme
 Index: common/config
 ===================================================================
---- common/config	(revision 2873)
+--- common/config	(revision 2884)
 +++ common/config	(working copy)
-@@ -86,6 +86,23 @@
+@@ -91,6 +91,23 @@
  #--- Run farce testing 0(no)/1(yes)
  RUN_FARCE=0
  
@@ -396,7 +396,7 @@ Index: common/config
  #==== INTERNAL VARIABLES ====
  # Don't edit it unless you know what you are doing
  
-@@ -103,3 +120,9 @@
+@@ -108,3 +125,9 @@
  
  #--- farce report log directory
  FARCELOGDIR=$LOGDIR/farce
@@ -408,20 +408,20 @@ Index: common/config
 +LD_PRELOAD=/usr/lib/libpaco-log.so
 Index: common/func_validate_configs.sh
 ===================================================================
---- common/func_validate_configs.sh	(revision 2873)
+--- common/func_validate_configs.sh	(revision 2884)
 +++ common/func_validate_configs.sh	(working copy)
 @@ -86,10 +86,10 @@
  inline_doc
  
    # First internal variables, then the ones that change the book's flavour, and lastly system configuration variables
--  local -r  hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE MODEL GRSECURITY_HOST TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL KEYMAP         PAGE TIMEZONE LANG LC_ALL"
--  local -r  clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE METHOD  ARCH  TARGET  TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG"
--  local -r clfs2_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE         ARCH  TARGET       OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG"
--  local -r   lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE                       TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL        VIMLANG PAGE TIMEZONE LANG"
-+  local -r  hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE MODEL GRSECURITY_HOST TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL KEYMAP         PAGE TIMEZONE LANG LC_ALL"
-+  local -r  clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE METHOD  ARCH  TARGET  TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG"
-+  local -r clfs2_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE         ARCH  TARGET       OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG"
-+  local -r   lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE                       TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL        VIMLANG PAGE TIMEZONE LANG"
+-  local -r  hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE MODEL GRSECURITY_HOST TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL KEYMAP         PAGE TIMEZONE LANG LC_ALL"
+-  local -r  clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE METHOD  ARCH  TARGET  TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG"
+-  local -r clfs2_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE         ARCH  TARGET                 OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG"
+-  local -r   lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE                       TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL        VIMLANG PAGE TIMEZONE LANG"
++  local -r  hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE MODEL GRSECURITY_HOST TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL KEYMAP         PAGE TIMEZONE LANG LC_ALL"
++  local -r  clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE METHOD  ARCH  TARGET  TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG"
++  local -r clfs2_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE         ARCH  TARGET                 OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG"
++  local -r   lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE                       TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL        VIMLANG PAGE TIMEZONE LANG"
  
    local -r ERROR_MSG_pt1='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid,'
    local -r ERROR_MSG_pt2=' check the config file ${BOLD}${GREEN}\<$(echo $PROGNAME | tr [a-z] [A-Z])/config\> or \<common/config\>${OFF}'
@@ -781,7 +781,7 @@ Index: common/paco-build-clfs.sh
 +make logme
 Index: common/common-functions
 ===================================================================
---- common/common-functions	(revision 2873)
+--- common/common-functions	(revision 2884)
 +++ common/common-functions	(working copy)
 @@ -69,6 +69,9 @@
          in the configuration file has the proper packages and patches for the
@@ -793,7 +793,7 @@ Index: common/common-functions
  ${BOLD}  -O, --optimize${OFF}
          Optimize [0-2]
            0 = no optimization
-@@ -732,6 +735,7 @@
+@@ -733,6 +736,7 @@
                   --stringparam page $PAGE \
                   --stringparam lang $LANG \
                   --stringparam keymap $KEYMAP \
@@ -801,7 +801,7 @@ Index: common/common-functions
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
        ;;
  
-@@ -759,6 +763,7 @@
+@@ -762,6 +766,7 @@
                   --stringparam lc_all $LC_ALL \
                   --stringparam keymap $KEYMAP \
                   --stringparam grsecurity_host $GRSECURITY_HOST \
@@ -809,7 +809,7 @@ Index: common/common-functions
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
        ;;
      lfs)
-@@ -770,6 +775,7 @@
+@@ -774,6 +779,7 @@
                   --stringparam timezone $TIMEZONE \
                   --stringparam page $PAGE \
                   --stringparam lang $LANG \
@@ -817,7 +817,7 @@ Index: common/common-functions
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
        ;;
      *) exit 1 ;;
-@@ -836,6 +842,9 @@
+@@ -840,6 +846,9 @@
      # Generate URLs file
    create_urls
  
@@ -829,9 +829,9 @@ Index: common/common-functions
      IFS=$saveIFS  # Restore the system defaults
 Index: HLFS/hlfs.xsl
 ===================================================================
---- HLFS/hlfs.xsl	(revision 2873)
+--- HLFS/hlfs.xsl	(revision 2884)
 +++ HLFS/hlfs.xsl	(working copy)
-@@ -39,6 +39,9 @@
+@@ -46,6 +46,9 @@
    <xsl:param name="lang" select="C"/>
    <xsl:param name="lc_all" select="C"/>
  
@@ -841,7 +841,7 @@ Index: HLFS/hlfs.xsl
    <xsl:template match="/">
      <xsl:apply-templates select="//sect1"/>
    </xsl:template>
-@@ -177,6 +180,10 @@
+@@ -192,6 +195,10 @@
        <!-- Fixing bootscripts installation -->
        <xsl:when test="ancestor::sect1[@id='bootable-bootscripts'] and
                  string() = 'make install'">
@@ -852,7 +852,7 @@ Index: HLFS/hlfs.xsl
          <xsl:text>make install&#xA;</xsl:text>
          <xsl:text>cd ../blfs-bootscripts-&blfs-bootscripts-version;&#xA;</xsl:text>
        </xsl:when>
-@@ -237,6 +244,25 @@
+@@ -280,6 +287,25 @@
          <xsl:apply-templates/>
          <xsl:text> || true&#xA;</xsl:text>
        </xsl:when>
@@ -880,19 +880,19 @@ Index: HLFS/hlfs.xsl
          <xsl:apply-templates/>
 Index: HLFS/master.sh
 ===================================================================
---- HLFS/master.sh	(revision 2873)
+--- HLFS/master.sh	(revision 2884)
 +++ HLFS/master.sh	(working copy)
-@@ -76,7 +76,9 @@
- 	@echo "export PKGDIR=\$(SRC)" > envars
+@@ -92,7 +92,9 @@
  EOF
  ) >> $MKFILE.tmp
+       [[ "$TEST" != "0" ]] && wrt_test_log2 "${this_script}"
 +      wrt_paco_prep
        wrt_run_as_chroot1 "$toolchain" "$this_script"
 +      wrt_paco_log "`echo $toolchain | sed -e 's@[0-9]\{3\}-@@'`"
        ;;
  
      *)
-@@ -308,6 +310,11 @@
+@@ -324,6 +326,11 @@
      # Keep the script file name
      this_script=`basename $file`
  
@@ -904,7 +904,7 @@ Index: HLFS/master.sh
      # Skip this script depending on jhalfs.conf flags set.
      case $this_script in
          # We'll run the chroot commands differently than the others, so skip them in the
-@@ -317,6 +324,18 @@
+@@ -333,6 +340,18 @@
        *-stripping* )  [[ "$STRIP" = "0" ]] && continue ;;
      esac
  
@@ -923,7 +923,7 @@ Index: HLFS/master.sh
      # Grab the name of the target
      name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'`
  
-@@ -382,7 +401,9 @@
+@@ -398,7 +417,9 @@
          wrt_RunAsRoot "hlfs" "${this_script}" "${file}"
          ;;
        *)   # The rest of Chapter06
@@ -933,7 +933,7 @@ Index: HLFS/master.sh
         ;;
      esac
      #
-@@ -402,6 +423,16 @@
+@@ -418,6 +439,16 @@
      PREV=${this_script}${N}
      # Set system_build envar for iteration targets
      system_build=$chapter6
@@ -950,7 +950,7 @@ Index: HLFS/master.sh
    done # end for file in chapter06/*
  
  }
-@@ -460,9 +491,19 @@
+@@ -476,9 +507,19 @@
          else  # Initialize the log and run the script
            wrt_run_as_chroot2 "${this_script}" "${file}"
          fi
@@ -972,7 +972,7 @@ Index: HLFS/master.sh
  
 Index: master.sh
 ===================================================================
---- master.sh	(revision 2873)
+--- master.sh	(revision 2884)
 +++ master.sh	(working copy)
 @@ -149,6 +149,8 @@
  
