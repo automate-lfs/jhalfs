@@ -727,6 +727,7 @@ extract_commands() {         #
                  --xinclude \
                  --stringparam method $METHOD \
                  --stringparam testsuite $TEST \
+                 --stringparam bomb-testsuite $BOMB_TEST \
                  --stringparam vim-lang $VIMLANG \
                  --stringparam timezone $TIMEZONE \
                  --stringparam page $PAGE \
@@ -740,6 +741,7 @@ extract_commands() {         #
         xsltproc --nonet \
                  --xinclude \
                  --stringparam testsuite $TEST \
+                 --stringparam bomb-testsuite $BOMB_TEST \
                  --stringparam vim-lang $VIMLANG \
                  --stringparam timezone $TIMEZONE \
                  --stringparam page $PAGE \
@@ -753,6 +755,7 @@ extract_commands() {         #
                  --xinclude \
                  --stringparam model $MODEL \
                  --stringparam testsuite $TEST \
+                 --stringparam bomb-testsuite $BOMB_TEST \
                  --stringparam timezone $TIMEZONE \
                  --stringparam page $PAGE \
                  --stringparam lang $LANG \
@@ -766,6 +769,7 @@ extract_commands() {         #
         xsltproc --nonet \
                  --xinclude \
                  --stringparam testsuite $TEST \
+                 --stringparam bomb-testsuite $BOMB_TEST \
                  --stringparam vim-lang $VIMLANG \
                  --stringparam timezone $TIMEZONE \
                  --stringparam page $PAGE \

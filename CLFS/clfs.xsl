@@ -23,8 +23,15 @@
        0 = none
        1 = only Glibc, GCC and Binutils testsuites
        2 = all testsuites
-       3 = alias to 2 -->
+       3 = alias to 2
+  -->
   <xsl:param name="testsuite" select="1"/>
+
+  <!-- Bomb on test suites failures?
+       0 = no, I want to build the full system and review the logs
+       1 = yes, bomb at the first test suite failure to can review the build dir
+  -->
+  <xsl:param name="bomb-testsuite" select="0"/>
 
   <!-- Install vim-lang package? -->
   <xsl:param name="vim-lang" select="1"/>
@@ -117,10 +124,18 @@
     <xsl:if test="(contains(string(),'test') or
             contains(string(),'check')) and
             ($testsuite = '2' or $testsuite = '3')">
-      <xsl:value-of select="substring-before(string(),'make')"/>
-      <xsl:text>make -k</xsl:text>
-      <xsl:value-of select="substring-after(string(),'make')"/>
-      <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
+      <xsl:choose>
+        <xsl:when test="$bomb-testsuite = '0'">
+          <xsl:value-of select="substring-before(string(),'make')"/>
+          <xsl:text>make -k</xsl:text>
+          <xsl:value-of select="substring-after(string(),'make')"/>
+          <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates/>
+          <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1&#xA;</xsl:text>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:if>
   </xsl:template>
 
@@ -172,11 +187,24 @@
         <xsl:choose>
           <xsl:when test="$testsuite = '0' or $testsuite = '1'"/>
           <xsl:otherwise>
-            <xsl:apply-templates/>
-            <xsl:if test="contains(string(),'check')">
-              <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true</xsl:text>
+            <xsl:if test="not(contains(string(),'check'))">
+              <xsl:apply-templates/>
+              <xsl:text>&#xA;</xsl:text>
             </xsl:if>
-            <xsl:text>&#xA;</xsl:text>
+            <xsl:if test="contains(string(),'check')">
+              <xsl:choose>
+                <xsl:when test="$bomb-testsuite = '0'">
+                  <xsl:value-of select="substring-before(string(),'check')"/>
+                  <xsl:text>-k check</xsl:text>
+                  <xsl:value-of select="substring-after(string(),'check')"/>
+                  <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:apply-templates/>
+                  <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1&#xA;</xsl:text>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:if>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
@@ -185,7 +213,15 @@
                 string() = 'make -k check'">
         <xsl:choose>
           <xsl:when test="$testsuite != '0'">
-            <xsl:text>make -k check &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
+            <xsl:choose>
+              <xsl:when test="$bomb-testsuite = '0'">
+                <xsl:text>make -k check &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:apply-templates/>
+                <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1&#xA;</xsl:text>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:when>
         </xsl:choose>
       </xsl:when>
@@ -193,7 +229,14 @@
         <xsl:choose>
           <xsl:when test="$testsuite != '0'">
             <xsl:value-of select="substring-before(string(),'&gt;g')"/>
-            <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
+            <xsl:choose>
+              <xsl:when test="$bomb-testsuite = '0'">
+                <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1&#xA;</xsl:text>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:when>
         </xsl:choose>
       </xsl:when>
@@ -202,10 +245,7 @@
         <xsl:choose>
           <xsl:when test="$testsuite != '0'">
             <xsl:apply-templates/>
-            <xsl:if test="contains(string(),'test_summary')">
-              <xsl:text> &gt;&gt; $TEST_LOG</xsl:text>
-            </xsl:if>
-            <xsl:text>&#xA;</xsl:text>
+            <xsl:text> &gt;&gt; $TEST_LOG&#xA;</xsl:text>
           </xsl:when>
         </xsl:choose>
       </xsl:when>
