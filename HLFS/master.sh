@@ -68,14 +68,30 @@ process_toolchain() {        # embryo,cocoon and butterfly need special handling
 
   echo "${tab_}${tab_}${GREEN}toolchain ${L_arrow}${toolchain}${R_arrow}"
 
+  #
+  # Safe method to remove existing toolchain dirs
+  pkg_tarball=$(get_package_tarball_name "binutils")
+  wrt_remove_existing_dirs  "$pkg_tarball"
+  pkg_tarball=$(get_package_tarball_name "gcc-core")
+  wrt_remove_existing_dirs  "$pkg_tarball"
+  #
+  # Manually remove the toolchain directories..
+  tc_phase=`echo $toolchain | sed -e 's@[0-9]\{3\}-@@' -e 's@-toolchain@@'`
+(
+cat << EOF
+	@rm -rf \$(MOUNT_PT)\$(SRC)/${tc_phase}-toolchain && \\
+	rm  -rf \$(MOUNT_PT)\$(SRC)/${tc_phase}-build
+EOF
+) >> $MKFILE.tmp
+
   case ${toolchain} in
     *butterfly*)
-      [[ "$TEST" != "0" ]] && wrt_test_log2 "${this_script}"
 (
 cat << EOF
 	@echo "export PKGDIR=\$(SRC)" > envars
 EOF
 ) >> $MKFILE.tmp
+      [[ "$TEST" != "0" ]] && wrt_test_log2 "${this_script}"
       wrt_run_as_chroot1 "$toolchain" "$this_script"
       ;;
 
@@ -369,7 +385,7 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
       case $name in
         glibc ) [[ "$TEST" != "0" ]] && wrt_test_log2 "${this_script}"
           ;;
-	    * ) [[ "$TEST"  = "2" ]] && [[ "$TEST"  = "3" ]] && wrt_test_log2 "${this_script}"
+	    * ) [[ "$TEST" > "1" ]] && wrt_test_log2 "${this_script}"
           ;;
       esac
       # If using optimizations, write the instructions
