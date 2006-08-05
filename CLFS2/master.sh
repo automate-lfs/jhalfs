@@ -147,7 +147,7 @@ cross_tools_Makefiles() {     #
     esac
     #
     # Set the dependency for the first target.
-    if [ -z $PREV ] ; then PREV=026-settingenvironment ; fi
+    if [ -z $PREV ] ; then PREV=028-creating-sysfile ; fi
 
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
