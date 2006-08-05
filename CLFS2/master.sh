@@ -201,30 +201,9 @@ cross_tools_Makefiles() {     #
 #-----------------------------#
 final_system_Makefiles() {    #
 #-----------------------------#
-  # Set envars and scripts for iteration targets
-  LOGS="" # Start with an empty global LOGS envar
-  if [[ -z "$1" ]] ; then
-    local N=""
-  else
-    local N=-build_$1
-    local basicsystem=""
-    mkdir final-system$N
-    cp final-system/* final-system$N
-    for script in final-system$N/* ; do
-      # Overwrite existing symlinks, files, and dirs
-      sed -e 's/ln -sv/&f/g' \
-          -e 's/mv -v/&f/g' \
-          -e 's/mkdir -v/&p/g' -i ${script}
-    done
-    # Remove Bzip2 binaries before make install
-    sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i final-system$N/*-bzip2
-    # Delete *old Readline libraries just after make install
-    sed -e 's@make install@&\nrm -v /lib/lib{history,readline}*old@' -i final-system$N/*-readline
-  fi
+  echo "${tab_}${GREEN}Processing... ${L_arrow}final system${R_arrow}"
 
-  echo "${tab_}${GREEN}Processing... ${L_arrow}final system$N${R_arrow}"
-
-  for file in final-system$N/* ; do
+  for file in final-system/* ; do
     # Keep the script file name
     this_script=`basename $file`
 
@@ -243,24 +222,12 @@ final_system_Makefiles() {    #
                                   -e 's@n32@@'`
 
     # Find the version of the command files, if it corresponds with the building of
-    # a specific package. We need this here to can skip scripts not needed for
-    # iterations rebuilds
+    # a specific package.
     pkg_tarball=$(get_package_tarball_name $name)
-
-    if [[ "$pkg_tarball" = "" ]] && [[ -n "$N" ]] ; then
-      case "${this_script}" in
-        *stripping*) ;;
-        *)  continue ;;
-      esac
-    fi
 
     # Append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
-    basicsystem="$basicsystem ${this_script}${N}"
-
-    # Append each name of the script files to a list (this will become
-    # the names of the logs to be moved for each iteration)
-    LOGS="$LOGS ${this_script}"
+    basicsystem="$basicsystem ${this_script}"
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
@@ -268,7 +235,7 @@ final_system_Makefiles() {    #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    wrt_target "${this_script}${N}" "$PREV"
+    wrt_target "${this_script}" "$PREV"
     #
     # If $pkg_tarball isn't empty, we've got a package...
     if [ "$pkg_tarball" != "" ] ; then
@@ -289,9 +256,7 @@ final_system_Makefiles() {    #
     #--------------------------------------------------------------------#
     #
     # Keep the script file name for Makefile dependencies.
-    PREV=${this_script}${N}
-    # Set system_build envar for iteration targets
-    system_build=$basicsystem
+    PREV=${this_script}
   done  # for file in final-system/* ...
 }
 
@@ -410,9 +375,9 @@ bootable_Makefiles() {        #
                   wrt_RunAsUser "${this_script}" "${file}"
                 fi
           ;;
-      *chowning)  wrt_RunAsRoot "${this_script}" "${file}" 
+      *chowning)  wrt_RunAsRoot "${this_script}" "${file}"
           ;;
-              *)  wrt_RunAsUser "${this_script}" "${file}" 
+              *)  wrt_RunAsUser "${this_script}" "${file}"
 	  ;;
     esac
     #
@@ -489,7 +454,7 @@ chapter6:  chapter5 $bootable
 clean-all:  clean
 	rm -rf ./{clfs2-commands,logs,Makefile,*.xsl,makefile-functions,packages,patches}
 
-clean:  
+clean:
 
 restart:
 	@echo "This feature does not exist for the CLFS makefile. (yet)"
