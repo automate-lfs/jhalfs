@@ -51,6 +51,11 @@ OPTIMIZE=0
 #      (in CLFS and HLFS, alias to 2)
 TEST=1
 
+#--- Bomb on test suites failures?
+#  0 = no, I want to build the full system and review the logs
+#  1 = yes, bomb at the first test suite failure to can review the build dir
+BOMB_TEST=0
+
 #--- Run the stripping phases  0(no)/1(yes)
 STRIP=1
 

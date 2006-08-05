@@ -17,7 +17,7 @@ mainmenu "JHALFS Build Script Configuration"
 		config	BOOK_HLFS
 			bool "hlfs"
 		config	BOOK_BLFS
-			bool "blfs"		
+			bool "blfs"
 	endchoice
 	config	RUN_ME
 		string
@@ -31,7 +31,7 @@ mainmenu "JHALFS Build Script Configuration"
 
 
 #--- Book version
-#menu	"Book Version"		
+#menu	"Book Version"
 	choice
 		prompt	"Release"
 		default	relSVN
@@ -82,7 +82,7 @@ mainmenu "JHALFS Build Script Configuration"
 		default	"clfs"	if BOOK_CLFS || BOOK_CLFS2
 		default "hlfs"	if BOOK_HLFS
 
-	config	SET_USER		
+	config	SET_USER
 		string	"User account"
 		depends	CONFIG_USER
 		default	DEF_USER
@@ -92,8 +92,8 @@ mainmenu "JHALFS Build Script Configuration"
 		bool	"Set Group?"
 		default	n
 		depends	CONFIG_USER
-		
-	config	SET_GROUP		
+
+	config	SET_GROUP
 		string	"GROUP account"
 		depends	CONFIG_GROUP
 		default	DEF_USER
@@ -108,7 +108,7 @@ mainmenu "JHALFS Build Script Configuration"
 		default	LUSER		if !CONFIG_GROUP
 		default	SET_GROUP	if  CONFIG_GROUP
 ------------------------
-	
+
 comment	"--------CLFS specific params---------"
 depends on BOOK_CLFS || BOOK_CLFS2
 
@@ -119,7 +119,7 @@ depends on BOOK_CLFS || BOOK_CLFS2
 		help
 			Choose a base architecture
 		config	ARCH_X86
-			bool	"x86"					
+			bool	"x86"
 		config	ARCH_MIPS
 			bool	"mips"	if !BOOK_CLFS2
 		config	ARCH_PPC
@@ -165,7 +165,7 @@ depends on BOOK_CLFS || BOOK_CLFS2
 		string
 		depends	DATA_32
 		default "i486-pc-linux-gnu"		if ARCH_X86 && PROC_i486
-		default "i586-pc-linux-gnu"		if ARCH_X86 && PROC_i586 
+		default "i586-pc-linux-gnu"		if ARCH_X86 && PROC_i586
 		default "i686-pc-linux-gnu"		if ARCH_X86 && PROC_i686
 		default "mipsel-unknown-linux-gnu"	if ARCH_MIPS && PROC_mipsel
 		default "mips-unknown-linux-gnu"	if ARCH_MIPS && PROC_mips
@@ -176,7 +176,7 @@ depends on BOOK_CLFS || BOOK_CLFS2
 	config TARGET
 		string
 		depends	DATA_64
-		default	"x86_64-unknown-linux-gnu"	if ARCH_X86 
+		default	"x86_64-unknown-linux-gnu"	if ARCH_X86
 		default	"mips64el-unknown-linux-gnu"	if ARCH_MIPS && PROC_mipsel
 		default	"mips64-unknown-linux-gnu"	if ARCH_MIPS && PROC_mips
 		default "sparc64-unknown-linux-gnu"	if ARCH_SPARC
@@ -190,7 +190,7 @@ depends on BOOK_CLFS || BOOK_CLFS2
 		default	"mips64-unknown-linux-gnu"	if ARCH_MIPS && PROC_mips
 		default "sparc64-unknown-linux-gnu"	if ARCH_SPARC
 		default "powerpc64-unknown-linux-gnu"	if ARCH_PPC
-		
+
 
 	config TARGET32
 		string
@@ -199,7 +199,7 @@ depends on BOOK_CLFS || BOOK_CLFS2
 		default "mipsel-unknown-linux-gnu"	if ARCH_MIPS && PROC_mipsel
 		default "mips-unknown-linux-gnu"	if ARCH_MIPS && PROC_mips
 		default "sparc-unknown-linux-gnu"	if ARCH_SPARC
-		default "powerpc-unknown-linux-gnu"	if ARCH_PPC 
+		default "powerpc-unknown-linux-gnu"	if ARCH_PPC
 
 	config	ARCH
 		string
@@ -209,7 +209,7 @@ depends on BOOK_CLFS || BOOK_CLFS2
 		default	"mips"	if ARCH_MIPS
 		default	"sparc"	if ARCH_SPARC
 		default	"arm"	if ARCH_ARM
-		
+
 	config	ARCH
 		string
 		depends	DATA_64
@@ -217,7 +217,7 @@ depends on BOOK_CLFS || BOOK_CLFS2
 		default	"mips64-64"	if ARCH_MIPS
 		default	"sparc64-64"	if ARCH_SPARC
 		default	"alpha"		if ARCH_ALPHA
-		
+
 	config	ARCH
 		string
 		depends	DATA_MULTI
@@ -236,13 +236,13 @@ depends on BOOK_CLFS || BOOK_CLFS2
 		config	BUILD_CHROOT
 			bool	"chroot"
 		config	BUILD_BOOT
-			bool	"boot"		
+			bool	"boot"
 	endchoice
 	config	METHOD
 		string
 		default	"chroot"	if BUILD_CHROOT
 		default	"boot"		if BUILD_BOOT
-		
+
 	config	BOOT_CONFIG
 		string	"BOOT kernel config file (mandatory)"
 		default "***EDIT ME***"
@@ -262,10 +262,10 @@ depends on BOOK_CLFS || BOOK_CLFS2
 			#    keymap file relative to /usr/share/kbd/keymaps/
 			#    (e.g., i386/qwerty/us.map.gz) or "none" if you do not want
 			#    a keymap included in the kernel
-			
+
 			=== Note about CLFS ===
 			If building the SVN or 1.0.0rc3 version using the boot method and
-			compiling the keymap into the kernel, you MUST manually edit the 
+			compiling the keymap into the kernel, you MUST manually edit the
 			"loadkeys" command found in $JHALFSDIR/clfs-commands/boot/066-kernel
 			to set the full path in your host to the keymap file.
 
@@ -282,7 +282,7 @@ depends on BOOK_HLFS
 		depends on BOOK_HLFS
 		help
 			#--- If your build system has grsecurity patches applied
-			#    you MUST enable this switch. 
+			#    you MUST enable this switch.
 
 	choice
 		prompt "Library"
@@ -328,7 +328,7 @@ depends on BOOK_HLFS
 			#--- Download all packages and patches required by the book selected
 			#    NOTE: Looks for files in the local archive defined by SRC_ARCHIVE
 			#    first and if necessary retrieve them from the 'net.
-			#    Files will be transfered to $BUILDDIR/sources. 
+			#    Files will be transfered to $BUILDDIR/sources.
 
 	config	CONFIG_GETKERNEL
 		bool	"Always retrieve kernel package"
@@ -376,19 +376,19 @@ depends on BOOK_HLFS
 			#   There are build issues or the system doesn't work as
 			#   expected, please rebuild without optimizations before
 			#   asking for support.
-		
-	choice	
+
+	choice
 		prompt "OPT level "
 		default OPT_1
 		depends	CONFIG_OPTIMIZE
 		help
 			***Optimization values are set in optimize/* files
-		
+
 		config	OPT_1
 			bool	"Final system only"
 		config	OPT_2
 			bool	"Both temp tools and final system"
-	endchoice	
+	endchoice
 	config	OPTIMIZE
 		int
 		default	"0"	if !CONFIG_OPTIMIZE
@@ -403,21 +403,21 @@ depends on BOOK_HLFS
 			#--- Should some iterative comparison analysis by made?
 			# Unless you are familiar with ICA and/or FARCE do not select this option
 			#
-			# ICA and FARCE are analysis tools for comparing one 
+			# ICA and FARCE are analysis tools for comparing one
 			#  build to the next. Builds mays differ from one iteration
 			#  to another due to the build order and these tools try
 			#  to ferret out those differences by examining the stored
 			#  build logs and binary files.
 			#
 			#  The scripts are well commented and can be found here ./extras/*
-			#  
+			#
 
 	config	ITERATIONS
 		int	"Number of test runs (2,3,4,5)"
 		depends on CONFIG_COMPARE
 		range	2 5
 		default	3
-				
+
 	config	CONFIG_ICA
 		bool	"ICA testing"
 		depends on CONFIG_COMPARE
@@ -428,7 +428,7 @@ depends on BOOK_HLFS
 	config	CONFIG_FARCE
 		bool	"farce testing"
 		depends on CONFIG_COMPARE
-		default n		
+		default n
 		help
 			#--- Run farce testing
 #------------------
@@ -442,17 +442,17 @@ depends on BOOK_HLFS
 			#  2 = all chapter06 testsuites
 			#  3 = all chapter05 and chapter06 testsuites
 			#      (in CLFS, alias to 2)
-			
+
                         HLFS has no testsuites available in the toolchain phase
 			#  1 = only chapter06 Glibc, Butterfly-tookchain
 			#  2 = all chapter06 testsuites
-			#   
-		
+			#
+
 	   choice
 		prompt	"Tests ->"
 		depends	!BOOK_CLFS2 && CONFIG_TESTS
 		default	TEST_1
-		
+
 		config	TST_1
 			bool	"Only chap06 Glibc/GCC/Binutils tests" if !BOOK_HLFS
 		config	TST_1
@@ -468,6 +468,20 @@ depends on BOOK_HLFS
 		default	"1"	if TST_1
 		default	"2"	if TST_2
 		default	"3"	if TST_3
+	   choice
+		prompt	"Flavour ->"
+		depends	!BOOK_CLFS2 && CONFIG_TESTS
+		default	NO_BOMB
+
+		config	NO_BOMB
+			bool	"Don't stop on test suite failures"
+		config	BOMB
+			bool	"Abort the build at the first test suite failure"
+	   endchoice
+	   config	BOMB_TEST
+		int
+		default	"0"	if NO_BOMB
+		default	"1"	if BOMB
 
 	config	CONFIG_REPORT
 		bool "Create SBU and disk usage report"
@@ -498,7 +512,7 @@ depends on BOOK_HLFS
 		default	PAGE_LETTER
 		help
 			#--- page definition for groff letter/A4
-		
+
 		config	PAGE_LETTER
 			bool	"letter"
 		config	PAGE_A4
@@ -527,7 +541,7 @@ depends on BOOK_HLFS
 		help
 			#--- Select this option if you wish to build the kernel.
 			#
-			#    You will be prompted for the full path to the .config			
+			#    You will be prompted for the full path to the .config
 			#    file. It will be copied to the 'sources' directory and
 			#    rename kernel-config
 	config	CONFIG
@@ -560,10 +574,10 @@ depends on BOOK_HLFS
 	config	BLFS_CMDLINE
 		string	"BLFS packages"
 		default	"none"
-		depends	CONFIG_BLFS_CMDS 
-		
-		
-# convert CONFIG_XXXX n/y to XXXX 0/1 
+		depends	CONFIG_BLFS_CMDS
+
+
+# convert CONFIG_XXXX n/y to XXXX 0/1
 
 	config	COMPARE
 		int
@@ -575,7 +589,7 @@ depends on BOOK_HLFS
 		default 0	if !CONFIG_GETPKG
 		default 1	if  CONFIG_GETPKG
 
-	config	GETKERNEL		
+	config	GETKERNEL
 		int
 		default	0	if !CONFIG_GETKERNEL
 		default	1	if  CONFIG_GETKERNEL
