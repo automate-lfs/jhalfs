@@ -24,7 +24,7 @@ BOOK_Source() {              #
     externals:  none
     modifies:   $BLFS_XML directory tree
     returns:    nothing
-    output:     
+    output:
     on error:   exit
     on success: text messages
 inline_doc
@@ -32,7 +32,7 @@ inline_doc
     # Redundant definitions but this function may be reused
   local BLFS_XML=$1
   local DOC_MODE=$2
-  
+
   if [[ -z "$BLFS_XML" ]] ; then
     echo -e "\n\tYou must to provide the name of the BLFS book sources directory.\n"
     exit 1
@@ -45,7 +45,7 @@ inline_doc
           echo -e "\n\t$BLFS_XML is not a directory\n"
           exit 1
         fi
-        if [[ ! -f $BLFS_XML/use-unzip.xml ]] ; then
+        if [[ ! -f $BLFS_XML/x/x.xml ]] ; then
           echo -e "\n\tLooks like $BLFS_XML is not a BLFS book sources directory\n"
           exit 1
         fi
@@ -61,7 +61,7 @@ inline_doc
           echo -e "\tSkipping BLFS sources update.\n"
         fi
         ;;
-      
+
       get )
         [[ ! -d $BLFS_XML ]] && mkdir -pv $BLFS_XML
         svn co $SVN/BLFS/trunk/BOOK $BLFS_XML 2>&1
