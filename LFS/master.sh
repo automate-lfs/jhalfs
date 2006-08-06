@@ -378,11 +378,20 @@ EOF
 
 
   # Add chroot commands
+  CHROOT_LOC="`whereis -b chroot | cut -d " " -f2`"
   i=1
   for file in chapter06/*chroot* ; do
-    chroot=`cat $file | sed -e '/#!\/bin\/sh/d' -e 's@ \\\@ @g' | tr -d '\n' | sed \
-      -e 's/  */ /g' -e 's|\\$|&&|g' -e 's|exit||g' -e 's|$| -c|' \
-      -e 's|"$$LFS"|$(MOUNT_PT)|' -e 's|set -e||'`
+    chroot=`cat $file | \
+            sed -e "s@chroot@$CHROOT_LOC@" \
+                -e '/#!\/bin\/sh/d' \
+                -e 's@ \\\@ @g' | \
+            tr -d '\n' | \
+            sed -e 's/  */ /g' \
+                -e 's|\\$|&&|g' \
+                -e 's|exit||g' \
+                -e 's|$| -c|' \
+                -e 's|"$$LFS"|$(MOUNT_PT)|' \
+                -e 's|set -e||'`
     echo -e "CHROOT$i= $chroot\n" >> $MKFILE
     i=`expr $i + 1`
   done

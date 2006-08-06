@@ -1022,15 +1022,20 @@ EOF
 
   # Add chroot commands
   if [ "$METHOD" = "chroot" ] ; then
-    chroot=`cat chroot/*chroot* | sed -e '/#!\/tools\/bin\/bash/d' \
-                            -e '/^export/d' \
-                            -e '/^logout/d' \
-                            -e 's@ \\\@ @g' | tr -d '\n' |  sed -e 's/  */ /g' \
-                                                                -e 's|\\$|&&|g' \
-                                                                -e 's|exit||g' \
-                                                                -e 's|$| -c|' \
-                                                                -e 's|"$$CLFS"|$(MOUNT_PT)|'\
-                                                                -e 's|set -e||'`
+    CHROOT_LOC="`whereis -b chroot | cut -d " " -f2`"
+    chroot=`cat chroot/*chroot* | \
+            sed  -e "s@chroot@$CHROOT_LOC@" \
+                 -e '/#!\/tools\/bin\/bash/d' \
+                 -e '/^export/d' \
+                 -e '/^logout/d' \
+                 -e 's@ \\\@ @g' | \
+            tr -d '\n' |  \
+            sed -e 's/  */ /g' \
+                -e 's|\\$|&&|g' \
+                -e 's|exit||g' \
+                -e 's|$| -c|' \
+                -e 's|"$$CLFS"|$(MOUNT_PT)|'\
+                -e 's|set -e||'`
     echo -e "CHROOT1= $chroot\n" >> $MKFILE
   fi
 
