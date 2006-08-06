@@ -141,7 +141,8 @@
       <xsl:when test="ancestor::sect1[@id='ch-cross-tools-glibc']">
         <xsl:value-of select="$timezone"/>
       </xsl:when>
-      <xsl:when test="ancestor::sect1[@id='ch-cross-tools-groff']">
+      <xsl:when test="ancestor::sect1[@id='ch-cross-tools-groff'] or
+                      ancestor::sect1[@id='ch-system-groff']">
         <xsl:value-of select="$page"/>
       </xsl:when>
       <xsl:when test="ancestor::sect1[@id='ch-bootable-kernel']">
