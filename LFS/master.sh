@@ -13,7 +13,7 @@ chapter4_Makefiles() {
 #----------------------------#
   echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter4${R_arrow}"
 
-# If /home/lfs is already present in the host, we asume that the
+# If /home/$LUSER is already present in the host, we asume that the
 # lfs user and group are also presents in the host, and a backup
 # of their bash init files is made.
 (
@@ -33,7 +33,7 @@ chapter4_Makefiles() {
 		groupadd \$(LGROUP); \\
 		useradd -s /bin/bash -g \$(LGROUP) -m -k /dev/null \$(LUSER); \\
 	else \\
-		touch user-lfs-exist; \\
+		touch luser-exist; \\
 	fi;
 	@chown \$(LUSER) \$(MOUNT_PT)/tools && \\
 	chmod a+wt \$(MOUNT_PT)/sources && \\
@@ -402,7 +402,7 @@ all:  chapter4 chapter5 chapter6 chapter789 do_housekeeping
 
 chapter4:  020-creatingtoolsdir 021-addinguser 022-settingenvironment
 
-chapter5:  chapter4 $chapter5 restore-lfs-env
+chapter5:  chapter4 $chapter5 restore-luser-env
 
 chapter6:  chapter5 $chapter6
 
@@ -416,18 +416,18 @@ clean:  clean-chapter789 clean-chapter6 clean-chapter5 clean-chapter4
 restart: restart_code all
 
 clean-chapter4:
-	-if [ ! -f user-lfs-exist ]; then \\
+	-if [ ! -f luser-exist ]; then \\
 		userdel \$(LUSER); \\
 		rm -rf /home/\$(LUSER); \\
 	fi;
 	rm -rf \$(MOUNT_PT)/tools
 	rm -f /tools
-	rm -f envars user-lfs-exist
+	rm -f envars luser-exist
 	rm -f 02* logs/02*.log
 
 clean-chapter5:
 	rm -rf \$(MOUNT_PT)/tools/*
-	rm -f $chapter5 restore-lfs-env sources-dir
+	rm -f $chapter5 restore-luser-env sources-dir
 	cd logs && rm -f $chapter5 && cd ..
 
 clean-chapter6:
@@ -444,7 +444,7 @@ clean-chapter789:
 	rm -f $chapter789
 	cd logs && rm -f $chapter789 && cd ..
 
-restore-lfs-env:
+restore-luser-env:
 	@\$(call echo_message, Building)
 	@if [ -f /home/\$(LUSER)/.bashrc.XXX ]; then \\
 		mv -f /home/\$(LUSER)/.bashrc.XXX /home/\$(LUSER)/.bashrc; \\
@@ -463,7 +463,7 @@ do_housekeeping:
 	@-umount \$(MOUNT_PT)/dev/shm
 	@-umount \$(MOUNT_PT)/dev/pts
 	@-umount \$(MOUNT_PT)/dev
-	@-if [ ! -f user-lfs-exist ]; then \\
+	@-if [ ! -f luser-exist ]; then \\
 		userdel \$(LUSER); \\
 		rm -rf /home/\$(LUSER); \\
 	fi;

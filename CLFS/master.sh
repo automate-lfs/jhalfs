@@ -45,7 +45,7 @@ cat << EOF
 		groupadd \$(LGROUP); \\
 		useradd -s /bin/bash -g \$(LGROUP) -m -k /dev/null \$(LUSER); \\
 	else \\
-		touch user-clfs-exist; \\
+		touch luser-exist; \\
 	fi;
 	@chown \$(LUSER) \$(MOUNT_PT) && \\
 	chown \$(LUSER) \$(MOUNT_PT)/tools && \\
@@ -1053,7 +1053,7 @@ chapter3:  chapter2 $cross_tools
 
 chapter4:  chapter3 $temptools
 
-chapter5:  chapter4 $chroottools $testsuitetools
+chapter5:  chapter4 $chroottools restore-luser-env $testsuitetools
 
 chapter6:  chapter5 $basicsystem
 
@@ -1070,7 +1070,7 @@ restart:
 	@echo "This feature does not exist for the CLFS makefile. (yet)"
 
 clean-chapter2:
-	-if [ ! -f user-clfs-exist ]; then \\
+	-if [ ! -f luser-exist ]; then \\
 		userdel \$(LUSER); \\
 		rm -rf /home/\$(LUSER); \\
 	fi;
@@ -1078,12 +1078,12 @@ clean-chapter2:
 	rm -f /tools
 	rm -rf \$(MOUNT_PT)/cross-tools
 	rm -f /cross-tools
-	rm -f envars user-clfs-exist
+	rm -f envars luser-exist
 	rm -f 02* logs/02*.log
 
 clean-chapter3:
 	rm -rf \$(MOUNT_PT)/tools/*
-	rm -f $cross_tools restore-clfs-env sources-dir
+	rm -f $cross_tools sources-dir
 	cd logs && rm -f $cross_tools && cd ..
 
 clean-chapter4:
@@ -1097,7 +1097,7 @@ clean-chapter4:
 	cd logs && rm -f $temptools && cd ..
 
 
-restore-clfs-env:
+restore-luser-env:
 	@\$(call echo_message, Building)
 	@if [ -f /home/\$(LUSER)/.bashrc.XXX ]; then \\
 		mv -f /home/\$(LUSER)/.bashrc.XXX /home/\$(LUSER)/.bashrc; \\
@@ -1116,7 +1116,7 @@ do-housekeeping:
 	@-umount \$(MOUNT_PT)/dev
 	@-umount \$(MOUNT_PT)/sys
 	@-umount \$(MOUNT_PT)/proc
-	@-if [ ! -f user-clfs-exist ]; then \\
+	@-if [ ! -f luser-exist ]; then \\
 		userdel \$(LUSER); \\
 		rm -rf /home/\$(LUSER); \\
 	fi;
@@ -1136,7 +1136,7 @@ makeboot: 023-creatingtoolsdir 024-creatingcrossdir 025-addinguser 026-settingen
 	$cross_tools\
 	$temptools \
 	$chroottools \
-	$boottools
+	$boottools restore-luser-env
 	@\$(call echo_boot_finished,$VERSION)
 
 makesys:  $testsuitetools $basicsystem $bootscripttools $bootabletools
@@ -1152,7 +1152,7 @@ restart:
 	@echo "This feature does not exist for the CLFS makefile. (yet)"
 
 clean-jhalfs:
-	-if [ ! -f user-clfs-exist ]; then \\
+	-if [ ! -f luser-exist ]; then \\
 		userdel \$(LUSER); \\
 		rm -rf /home/\$(LUSER); \\
 	fi;
@@ -1160,13 +1160,13 @@ clean-jhalfs:
 	rm -f /tools
 	rm -rf \$(MOUNT_PT)/cross-tools
 	rm -f /cross-tools
-	rm -f envars user-clfs-exist
+	rm -f envars luser-exist
 	rm -f 02* logs/02*.log
 
 clean-makeboot:
 	rm -rf /tools/*
 	rm -f $cross_tools && rm -f $temptools && rm -f $chroottools && rm -f $boottools
-	rm -f restore-clfs-env sources-dir
+	rm -f restore-luser-env sources-dir
 	cd logs && rm -f $cross_tools && rm -f $temptools && rm -f $chroottools && rm -f $boottools && cd ..
 
 clean-makesys:
@@ -1182,7 +1182,7 @@ clean-makesys:
 	cd logs && rm -f $basicsystem && rm -f $bootscripttools && rm -f $bootabletools && cd ..
 
 
-restore-clfs-env:
+restore-luser-env:
 	@\$(call echo_message, Building)
 	@if [ -f /home/\$(LUSER)/.bashrc.XXX ]; then \\
 		mv -fv /home/\$(LUSER)/.bashrc.XXX /home/\$(LUSER)/.bashrc; \\

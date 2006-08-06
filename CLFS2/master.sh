@@ -36,7 +36,7 @@ cat << EOF
 		groupadd \$(LGROUP); \\
 		useradd -s /bin/bash -g \$(LGROUP) -m -k /dev/null \$(LUSER); \\
 	else \\
-		touch user-clfs-exist; \\
+		touch luser-exist; \\
 	fi;
 	@chown \$(LUSER) \$(MOUNT_PT) && \\
 	chown \$(LUSER) \$(MOUNT_PT)/tools && \\
@@ -438,7 +438,7 @@ EOF
   # as a dependency.
 (
 	cat << EOF
-all:  chapter2 chapter3 chapter4 chapter5 chapter6 do-housekeeping
+all:  chapter2 chapter3 chapter4 chapter5 chapter6 restore-luser-env do-housekeeping
 	@\$(call echo_finished,$VERSION)
 
 chapter2:  023-creatingtoolsdir 025-addinguser 026-settingenvironment 027-create-directories 028-creating-sysfile
@@ -459,7 +459,7 @@ clean:
 restart:
 	@echo "This feature does not exist for the CLFS makefile. (yet)"
 
-restore-clfs-env:
+restore-luser-env:
 	@\$(call echo_message, Building)
 	@if [ -f /home/\$(LUSER)/.bashrc.XXX ]; then \\
 		mv -f /home/\$(LUSER)/.bashrc.XXX /home/\$(LUSER)/.bashrc; \\
@@ -473,7 +473,7 @@ restore-clfs-env:
 	echo --------------------------------------------------------------------------------\$(WHITE)
 
 do-housekeeping:
-	@-if [ ! -f user-clfs-exist ]; then \\
+	@-if [ ! -f luser-exist ]; then \\
 		userdel \$(LUSER); \\
 		rm -rf /home/\$(LUSER); \\
 	fi;

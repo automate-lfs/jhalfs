@@ -84,7 +84,7 @@ chapter3_Makefiles() {       # Initialization of the system
     TARGET="pc-linux-gnu";    LOADER="ld-linux.so.2"
   fi
 
-  # If /home/hlfs is already present in the host, we asume that the
+  # If /home/$LUSER is already present in the host, we asume that the
   # hlfs user and group are also presents in the host, and a backup
   # of their bash init files is made.
 (
@@ -108,7 +108,7 @@ cat << EOF
 		groupadd \$(LGROUP); \\
 		useradd -s /bin/bash -g \$(LGROUP) -m -k /dev/null \$(LUSER); \\
 	else \\
-		touch user-hlfs-exist; \\
+		touch luser-exist; \\
 	fi;
 	@chown \$(LUSER) \$(MOUNT_PT)/tools && \\
 	chown \$(LUSER) \$(MOUNT_PT)/sources && \\
@@ -524,7 +524,7 @@ all:  chapter3 chapter5 chapter6 chapter7 do-housekeeping
 
 chapter3:  020-creatingtoolsdir 021-addinguser 022-settingenvironment
 
-chapter5:  chapter3 $chapter5 restore-hlfs-env
+chapter5:  chapter3 $chapter5 restore-luser-env
 
 chapter6:  chapter5 $chapter6
 
@@ -538,18 +538,18 @@ clean:  clean-chapter7 clean-chapter6 clean-chapter5 clean-chapter3
 restart: restart_code all
 
 clean-chapter3:
-	-if [ ! -f user-hlfs-exist ]; then \\
+	-if [ ! -f luser-exist ]; then \\
 		userdel \$(LUSER); \\
 		rm -rf /home/\$(LUSER); \\
 	fi;
 	rm -rf \$(MOUNT_PT)/tools
 	rm -f /tools
-	rm -f envars user-hlfs-exist
+	rm -f envars luser-exist
 	rm -f 02* logs/02*.log
 
 clean-chapter5:
 	rm -rf \$(MOUNT_PT)/tools/*
-	rm -f $chapter5 restore-hlfs-env sources-dir
+	rm -f $chapter5 restore-luser-env sources-dir
 	cd logs && rm -f $chapter5 && cd ..
 
 clean-chapter6:
@@ -566,7 +566,7 @@ clean-chapter7:
 	rm -f $chapter7
 	cd logs && rm -f $chapter7 && cd ..
 
-restore-hlfs-env:
+restore-luser-env:
 	@\$(call echo_message, Building)
 	@if [ -f /home/\$(LUSER)/.bashrc.XXX ]; then \\
 		mv -f /home/\$(LUSER)/.bashrc.XXX /home/\$(LUSER)/.bashrc; \\
@@ -585,7 +585,7 @@ do-housekeeping:
 	@-umount \$(MOUNT_PT)/dev
 	@-umount \$(MOUNT_PT)/sys
 	@-umount \$(MOUNT_PT)/proc
-	@-if [ ! -f user-hlfs-exist ]; then \\
+	@-if [ ! -f luser-exist ]; then \\
 		userdel \$(LUSER); \\
 		rm -rf /home/\$(LUSER); \\
 	fi;
