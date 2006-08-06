@@ -147,6 +147,12 @@
         <xsl:value-of select="substring-after(string(),'patch')"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
+      <!-- Fix Udev reinstallation after a build failure -->
+      <xsl:when test="contains(string(),'firmware,udev')">
+        <xsl:text>if [[ ! -d /lib/udev/devices ]] ; then&#xA;</xsl:text>
+        <xsl:apply-templates/>
+        <xsl:text>&#xA;fi&#xA;</xsl:text>
+      </xsl:when>
       <!-- Setting $LANG for /etc/profile -->
       <xsl:when test="ancestor::sect1[@id='ch-scripts-profile'] and
                 contains(string(),'export LANG=')">
