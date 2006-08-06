@@ -254,6 +254,7 @@ get_package_tarball_name() { #
    #
    case $script_name in
      tcl)   echo $(grep "^tcl" $JHALFSDIR/pkg_tarball_list | head -n1 ) ;;
+     linux-headers) echo $(grep "^linux-headers.*.bz2" $JHALFSDIR/pkg_tarball_list | head -n1 ) ;;
      *)     echo $(grep "^$script_name-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 ) ;;
    esac
 
