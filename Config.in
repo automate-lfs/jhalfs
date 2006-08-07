@@ -398,6 +398,7 @@ depends on BOOK_HLFS
 #------------------
 	config	CONFIG_COMPARE
 		bool "Run comparison analysis on final stage"
+		depends	!BOOK_CLFS2
 		default n
 		help
 			#--- Should some iterative comparison analysis by made?
@@ -409,7 +410,7 @@ depends on BOOK_HLFS
 			#  to ferret out those differences by examining the stored
 			#  build logs and binary files.
 			#
-			#  The scripts are well commented and can be found here ./extras/*
+			#  The scripts are well commented and can be found in ./extras/*
 			#
 
 	config	ITERATIONS
@@ -435,32 +436,38 @@ depends on BOOK_HLFS
 
 	config	CONFIG_TESTS
 		bool	"Run testsuites"
+		depends	!BOOK_CLFS2
 		default	n
 		help
-			#--- Run test suites  [1-3]
-			#  1 = only chapter06 Glibc, GCC and Binutils testsuites
-			#  2 = all chapter06 testsuites
-			#  3 = all chapter05 and chapter06 testsuites
-			#      (in CLFS, alias to 2)
+			#--- Run test suites
+			#
+			#  You will can to select between:
+			#
+			#  - Only final system Glibc, GCC and Binutils testsuites
+			#  - All final system testsuites
+			#  - Both temporary tools and final system testsuites
+			#
+			#  HLFS and CLFS has no testsuites available in the
+			#  toolchain phase
 
-                        HLFS has no testsuites available in the toolchain phase
-			#  1 = only chapter06 Glibc, Butterfly-tookchain
-			#  2 = all chapter06 testsuites
+			#  You will be promt also about the "flavour" of the
+			#  testsuites run:
+			#
+			#  - Don't stop on test suite failures
+			#  - Abort the build at the first test suite failure
 			#
 
 	   choice
 		prompt	"Tests ->"
-		depends	!BOOK_CLFS2 && CONFIG_TESTS
+		depends	 CONFIG_TESTS
 		default	TEST_1
 
 		config	TST_1
-			bool	"Only chap06 Glibc/GCC/Binutils tests" if !BOOK_HLFS
-		config	TST_1
-			bool	"Only chap06 Glibc/Butterfly-toolchain" if BOOK_HLFS
+			bool	"Only final system Glibc, GCC and Binutils testsuites"
 		config	TST_2
-			bool	"All chap06 testsuites"
+			bool	"All final system testsuites"
 		config	TST_3
-			bool	"All chap05/06 testsuites"	if !BOOK_HLFS
+			bool	"Both temporary tools and final system testsuites" if !BOOK_HLFS && !BOOK_CLFS
 	   endchoice
 	   config	TEST
 		int
@@ -470,7 +477,7 @@ depends on BOOK_HLFS
 		default	"3"	if TST_3
 	   choice
 		prompt	"Flavour ->"
-		depends	!BOOK_CLFS2 && CONFIG_TESTS
+		depends	CONFIG_TESTS
 		default	NO_BOMB
 
 		config	NO_BOMB
