@@ -40,7 +40,7 @@ mainmenu "JHALFS Build Script Configuration"
 		config	WORKING_COPY
 			bool	"Working Copy"
 		config	BRANCH
-			bool	"Branch"	if !BOOK_HLFS && !BOOK_CLFS2 && !BOOK_BLFS
+			bool	"Branch or stable book"	if !BOOK_HLFS && !BOOK_CLFS2 && !BOOK_BLFS
 	endchoice
 
 	config	BRANCH_ID
@@ -48,7 +48,7 @@ mainmenu "JHALFS Build Script Configuration"
 		default	"**EDIT ME**"
 		depends	BRANCH
 		help
-			#-- A list of valid branch ID's is available here.
+			#-- A list of valid branches and stable books ID's is available here.
 			#   http://wiki.linuxfromscratch.org/alfs/wiki/SupportedBooks
 
 	config	BOOK
