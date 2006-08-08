@@ -129,7 +129,6 @@ EOF
 }
 
 
-
 #-----------------------------#
 cross_tools_Makefiles() {     #
 #-----------------------------#
@@ -140,11 +139,21 @@ cross_tools_Makefiles() {     #
     this_script=`basename $file`
     #
     # Skip this script...
+    # NOTE.. the book indicated you only needed to install groff or file if the host
+    #   had older versions. The packages would be installed in the target directory
+    #   and not the host.
     case $this_script in
       *cflags* | *variables* )  # work done in host_prep_Makefiles
-         continue; ;;
+        ;;
+      *file ) FileVer=`file --version | head -n1 | cut -d " " -f1`
+              [[ "$FileVer" = "file-4.17" ]] && continue
+        ;;
+      *groff) GroffVer=`groff --version | head -n1 | cut -d " " -f4`
+              [[ "$GroffVer" = "1.19.2" ]] && continue
+        ;;
       *) ;;
     esac
+    
     #
     # Set the dependency for the first target.
     if [ -z $PREV ] ; then PREV=028-creating-sysfile ; fi
