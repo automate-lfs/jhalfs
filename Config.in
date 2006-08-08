@@ -16,17 +16,17 @@ mainmenu "JHALFS Build Script Configuration"
 #			bool "clfs3 (Embedded LFS)"
 		config	BOOK_HLFS
 			bool "hlfs"
-		config	BOOK_BLFS
-			bool "blfs"
+#		config	BOOK_BLFS
+#			bool "blfs"
 	endchoice
 	config	RUN_ME
 		string
 		default	"./lfs"		if BOOK_LFS
 		default	"./clfs"	if BOOK_CLFS
 		default	"./clfs2"	if BOOK_CLFS2
-		default	"./clfs3"	if BOOK_CLFS3
+#		default	"./clfs3"	if BOOK_CLFS3
 		default	"./hlfs"	if BOOK_HLFS
-		default	"./blfs"	if BOOK_BLFS
+#		default	"./blfs"	if BOOK_BLFS
 
 
 
@@ -40,7 +40,7 @@ mainmenu "JHALFS Build Script Configuration"
 		config	WORKING_COPY
 			bool	"Working Copy"
 		config	BRANCH
-			bool	"Branch or stable book"	if !BOOK_HLFS && !BOOK_CLFS2 && !BOOK_BLFS
+			bool	"Branch or stable book"	if !BOOK_HLFS && !BOOK_CLFS2
 	endchoice
 
 	config	BRANCH_ID
@@ -78,7 +78,6 @@ mainmenu "JHALFS Build Script Configuration"
 	config	DEF_USER
 		string
 		default	"lfs"	if BOOK_LFS
-		default	"blfs"	if BOOK_BLFS
 		default	"clfs"	if BOOK_CLFS || BOOK_CLFS2
 		default "hlfs"	if BOOK_HLFS
 
@@ -570,18 +569,18 @@ depends on BOOK_HLFS
 			#    (e.g., i386/qwerty/us.map.gz) or "none" if you do not want
 			#    a keymap included in the kernel
 
-	config	CONFIG_BLFS_CMDS
-		bool	"Add BLFS packages to current build"
-		default	n
-		depends	!BOOK_HLFS && XXX
-		help
-			#--- Select this option if you wish to install any BLFS packages
-			#    as part of your {c,h}lfs build.
-			#    Any needed packages will be downloaded to the /sources dir
-	config	BLFS_CMDLINE
-		string	"BLFS packages"
-		default	"none"
-		depends	CONFIG_BLFS_CMDS
+#	config	CONFIG_BLFS_CMDS
+#		bool	"Add BLFS packages to current build"
+#		default	n
+#		depends	!BOOK_HLFS && XXX
+#		help
+#			#--- Select this option if you wish to install any BLFS packages
+#			#    as part of your {c,h}lfs build.
+#			#    Any needed packages will be downloaded to the /sources dir
+#	config	BLFS_CMDLINE
+#		string	"BLFS packages"
+#		default	"none"
+#		depends	CONFIG_BLFS_CMDS
 
 
 # convert CONFIG_XXXX n/y to XXXX 0/1
