@@ -142,9 +142,10 @@ $Id$
     A. Yes, it is. This tool, jhalfs, is for those who understand the LFS books
        and wish to automate the build. 99% of any problems that arise can be
        solved by reading the book(s).
-   
+
     Q. "It doesn't work!"
     A. Yes it does, try ./lfs --help
+       Remember you must either be 'root' to run this script or have 'sudo' privileges.
 
     Q. "It still doesn't work"
     A. jhalfs was designed to work against the developement versions of the LFS
@@ -186,6 +187,14 @@ $Id$
     A. The package files must be visible during the chroot phase and this is a
        simple and reliable method of doing so. This method also handles the CLFS
        build method where the final build may be done on a separate machine.
+
+    Q. "What is the function of LUSER and LGROUP? There is no cmd line switch"
+    A. If you are running jhalfs from a low or non-priveledged account you may not
+       have the priv to create/delete accounts. These variables are adjustable
+       when invoking make.
+         make LUSER=myaccount LGROUP=mygroup
+       Then only changes to your account will be the creation of a NEW .bashrc after
+       saving your original to .bashrc.XXX
 
     Q. "When I try to build 'xxx' with clfs the makefile fails at the mid-point"
     A. There could be numerous reasons for the failure but the most likely reason

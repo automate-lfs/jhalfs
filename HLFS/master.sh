@@ -7,58 +7,6 @@ set -e  # Enable error trapping
 ###          FUNCTIONS          ###
 ###################################
 
-#----------------------------------#
-wrt_ExecuteAsUser() {              # Execute the file ($3) under the users account ($1), log in $2
-#----------------------------------#
-  local this_user=$1
-  local this_script=$2
-  local file=$3
-
-(
-cat << EOF
-	@( time { su - ${this_user} -c "source /home/${this_user}/.bashrc && $JHALFSDIR/${PROGNAME}-commands/$file" >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
-	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >>logs/$this_script
-EOF
-) >> $MKFILE.tmp
-}
-
-
-#----------------------------------#
-wrt_Unpack_SetOwner() {            # Unpack and set owner. Assign 'ROOT' var
-#----------------------------------#
-  local USER_ACCT=$1
-  local FILE=$2
-  local optSAVE_PREVIOUS=$3
-
-  if [ "${optSAVE_PREVIOUS}" != "1" ]; then
-    wrt_remove_existing_dirs "$FILE"
-  fi
-(
-cat << EOF
-	@\$(call unpack,$FILE)
-	@ROOT=\`head -n1 \$(MOUNT_PT)\$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
-	echo "export PKGDIR=\$(MOUNT_PT)\$(SRC)/\$\$ROOT" > envars && \\
-	chown -R ${USER_ACCT} \$(MOUNT_PT)\$(SRC)/\$\$ROOT
-EOF
-) >> $MKFILE.tmp
-}
-
-#----------------------------------#
-wrt_RunAsRoot() {                  # Some scripts must be run as root..
-#----------------------------------#
-  local user_ACCT=$(echo $1 | tr [a-z] [A-Z])
-  local this_script=$2
-  local file=$3
-
-(
-cat << EOF
-	@( time { export ${user_ACCT}=\$(MOUNT_PT) && ${PROGNAME}-commands/$file >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
-	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >>logs/$this_script
-EOF
-) >> $MKFILE.tmp
-}
-
-
 #----------------------------#
 process_toolchain() {        # embryo,cocoon and butterfly need special handling
 #----------------------------#
@@ -101,11 +49,11 @@ cat << EOF
 	@echo "export PKGDIR=\$(MOUNT_PT)\$(SRC)" > envars
 EOF
 ) >> $MKFILE.tmp
-      wrt_ExecuteAsUser "hlfs" "$toolchain" "$this_script"
+      wrt_RunAsUser "$toolchain" "$this_script"
       ;;
   esac
   #
-  # Safe method to remove packages unpacked outside the toolchain
+  # Safe method to remove packages unpacked while inside the toolchain script
   pkg_tarball=$(get_package_tarball_name "binutils")
   wrt_remove_existing_dirs  "$pkg_tarball"
   pkg_tarball=$(get_package_tarball_name "gcc-core")
@@ -136,7 +84,7 @@ chapter3_Makefiles() {       # Initialization of the system
     TARGET="pc-linux-gnu";    LOADER="ld-linux.so.2"
   fi
 
-  # If /home/hlfs is already present in the host, we asume that the
+  # If /home/$LUSER is already present in the host, we asume that the
   # hlfs user and group are also presents in the host, and a backup
   # of their bash init files is made.
 (
@@ -156,38 +104,38 @@ cat << EOF
 
 021-addinguser:  020-creatingtoolsdir
 	@\$(call echo_message, Building)
-	@if [ ! -d /home/hlfs ]; then \\
-		groupadd hlfs; \\
-		useradd -s /bin/bash -g hlfs -m -k /dev/null hlfs; \\
+	@if [ ! -d /home/\$(LUSER) ]; then \\
+		groupadd \$(LGROUP); \\
+		useradd -s /bin/bash -g \$(LGROUP) -m -k /dev/null \$(LUSER); \\
 	else \\
-		touch user-hlfs-exist; \\
+		touch luser-exist; \\
 	fi;
-	@chown hlfs \$(MOUNT_PT)/tools && \\
-	chown hlfs \$(MOUNT_PT)/sources && \\
+	@chown \$(LUSER) \$(MOUNT_PT)/tools && \\
+	chown \$(LUSER) \$(MOUNT_PT)/sources && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
 
 022-settingenvironment:  021-addinguser
 	@\$(call echo_message, Building)
-	@if [ -f /home/hlfs/.bashrc -a ! -f /home/hlfs/.bashrc.XXX ]; then \\
-		mv /home/hlfs/.bashrc /home/hlfs/.bashrc.XXX; \\
+	@if [ -f /home/\$(LUSER)/.bashrc -a ! -f /home/\$(LUSER)/.bashrc.XXX ]; then \\
+		mv /home/\$(LUSER)/.bashrc /home/\$(LUSER)/.bashrc.XXX; \\
 	fi;
-	@if [ -f /home/hlfs/.bash_profile  -a ! -f /home/hlfs/.bash_profile.XXX ]; then \\
-		mv /home/hlfs/.bash_profile /home/hlfs/.bash_profile.XXX; \\
+	@if [ -f /home/\$(LUSER)/.bash_profile  -a ! -f /home/\$(LUSER)/.bash_profile.XXX ]; then \\
+		mv /home/\$(LUSER)/.bash_profile /home/\$(LUSER)/.bash_profile.XXX; \\
 	fi;
-	@echo "set +h" > /home/hlfs/.bashrc && \\
-	echo "umask 022" >> /home/hlfs/.bashrc && \\
-	echo "HLFS=\$(MOUNT_PT)" >> /home/hlfs/.bashrc && \\
-	echo "LC_ALL=POSIX" >> /home/hlfs/.bashrc && \\
-	echo "PATH=/tools/bin:/bin:/usr/bin" >> /home/hlfs/.bashrc && \\
-	echo "export HLFS LC_ALL PATH" >> /home/hlfs/.bashrc && \\
-	echo "" >> /home/hlfs/.bashrc && \\
-	echo "target=$(uname -m)-${TARGET}" >> /home/lfs/.bashrc && \\
-	echo "ldso=/tools/lib/${LOADER}" >> /home/lfs/.bashrc && \\
-	echo "export target ldso" >> /home/lfs/.bashrc && \\
-	echo "source $JHALFSDIR/envars" >> /home/hlfs/.bashrc && \\
-	chown hlfs:hlfs /home/hlfs/.bashrc && \\
+	@echo "set +h" > /home/\$(LUSER)/.bashrc && \\
+	echo "umask 022" >> /home/\$(LUSER)/.bashrc && \\
+	echo "HLFS=\$(MOUNT_PT)" >> /home/\$(LUSER)/.bashrc && \\
+	echo "LC_ALL=POSIX" >> /home/\$(LUSER)/.bashrc && \\
+	echo "PATH=/tools/bin:/bin:/usr/bin" >> /home/\$(LUSER)/.bashrc && \\
+	echo "export HLFS LC_ALL PATH" >> /home/\$(LUSER)/.bashrc && \\
+	echo "" >> /home/\$(LUSER)/.bashrc && \\
+	echo "target=$(uname -m)-${TARGET}" >> /home/\$(LUSER)/.bashrc && \\
+	echo "ldso=/tools/lib/${LOADER}" >> /home/\$(LUSER)/.bashrc && \\
+	echo "export target ldso" >> /home/\$(LUSER)/.bashrc && \\
+	echo "source $JHALFSDIR/envars" >> /home/\$(LUSER)/.bashrc && \\
+	chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bashrc && \\
 	touch envars && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
@@ -262,13 +210,13 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
     # If $pkg_tarball isn't empty, we've got a package...
     if [ "$pkg_tarball" != "" ] ; then
       # Insert instructions for unpacking the package and to set the PKGDIR variable.
-      wrt_Unpack_SetOwner "hlfs" "$pkg_tarball"
+      wrt_unpack "$pkg_tarball"
       # If using optimizations, write the instructions
       [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
     # Insert date and disk usage at the top of the log file, the script run
     # and date and disk usage again at the bottom of the log file.
-    wrt_ExecuteAsUser "hlfs" "$this_script" "${file}"
+    wrt_RunAsUser "$this_script" "${file}"
 
     # Remove the build directory(ies) except if the package build fails
     # (so we can review config.cache, config.log, etc.)
@@ -395,7 +343,7 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     # In the mount of kernel filesystems we need to set HLFS and not to use chroot.
     case "${this_script}" in
       *kernfs*)
-        wrt_RunAsRoot "hlfs" "${this_script}" "${file}"
+        wrt_RunAsRoot "${this_script}" "${file}"
         ;;
       *)   # The rest of Chapter06
         wrt_run_as_chroot1 "${this_script}" "${file}"
@@ -537,6 +485,8 @@ $HEADER
 SRC= /sources
 MOUNT_PT= $BUILDDIR
 PKG_LST= $PKG_LST
+LUSER= $LUSER
+LGROUP= $LGROUP
 
 include makefile-functions
 
@@ -545,17 +495,22 @@ EOF
 
 
   # Add chroot commands
+  CHROOT_LOC="`whereis -b chroot | cut -d " " -f2`"
   i=1
   for file in chapter06/*chroot* ; do
-    chroot=`cat $file | sed -e '/#!\/bin\/sh/d' \
-          -e '/^export/d' \
-          -e '/^logout/d' \
-          -e 's@ \\\@ @g' | tr -d '\n' |  sed -e 's/  */ /g' \
-                                              -e 's|\\$|&&|g' \
-                                              -e 's|exit||g' \
-                                              -e 's|$| -c|' \
-                                              -e 's|"$$HLFS"|$(MOUNT_PT)|'\
-                                              -e 's|set -e||'`
+    chroot=`cat $file | \
+            sed -e "s@chroot@$CHROOT_LOC@" \
+                -e '/#!\/bin\/sh/d' \
+                -e '/^export/d' \
+                -e '/^logout/d' \
+                -e 's@ \\\@ @g' | \
+            tr -d '\n' |  \
+            sed -e 's/  */ /g' \
+                -e 's|\\$|&&|g' \
+                -e 's|exit||g' \
+                -e 's|$| -c|' \
+                -e 's|"$$HLFS"|$(MOUNT_PT)|'\
+                -e 's|set -e||'`
     echo -e "CHROOT$i= $chroot\n" >> $MKFILE
     i=`expr $i + 1`
   done
@@ -569,7 +524,7 @@ all:  chapter3 chapter5 chapter6 chapter7 do-housekeeping
 
 chapter3:  020-creatingtoolsdir 021-addinguser 022-settingenvironment
 
-chapter5:  chapter3 $chapter5 restore-hlfs-env
+chapter5:  chapter3 $chapter5 restore-luser-env
 
 chapter6:  chapter5 $chapter6
 
@@ -583,18 +538,18 @@ clean:  clean-chapter7 clean-chapter6 clean-chapter5 clean-chapter3
 restart: restart_code all
 
 clean-chapter3:
-	-if [ ! -f user-hlfs-exist ]; then \\
-		userdel hlfs; \\
-		rm -rf /home/hlfs; \\
+	-if [ ! -f luser-exist ]; then \\
+		userdel \$(LUSER); \\
+		rm -rf /home/\$(LUSER); \\
 	fi;
 	rm -rf \$(MOUNT_PT)/tools
 	rm -f /tools
-	rm -f envars user-hlfs-exist
+	rm -f envars luser-exist
 	rm -f 02* logs/02*.log
 
 clean-chapter5:
 	rm -rf \$(MOUNT_PT)/tools/*
-	rm -f $chapter5 restore-hlfs-env sources-dir
+	rm -f $chapter5 restore-luser-env sources-dir
 	cd logs && rm -f $chapter5 && cd ..
 
 clean-chapter6:
@@ -611,15 +566,15 @@ clean-chapter7:
 	rm -f $chapter7
 	cd logs && rm -f $chapter7 && cd ..
 
-restore-hlfs-env:
+restore-luser-env:
 	@\$(call echo_message, Building)
-	@if [ -f /home/hlfs/.bashrc.XXX ]; then \\
-		mv -f /home/hlfs/.bashrc.XXX /home/hlfs/.bashrc; \\
+	@if [ -f /home/\$(LUSER)/.bashrc.XXX ]; then \\
+		mv -f /home/\$(LUSER)/.bashrc.XXX /home/\$(LUSER)/.bashrc; \\
 	fi;
-	@if [ -f /home/hlfs/.bash_profile.XXX ]; then \\
-		mv /home/hlfs/.bash_profile.XXX /home/hlfs/.bash_profile; \\
+	@if [ -f /home/\$(LUSER)/.bash_profile.XXX ]; then \\
+		mv /home/\$(LUSER)/.bash_profile.XXX /home/\$(LUSER)/.bash_profile; \\
 	fi;
-	@chown hlfs:hlfs /home/hlfs/.bash* && \\
+	@chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bash* && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
@@ -630,9 +585,9 @@ do-housekeeping:
 	@-umount \$(MOUNT_PT)/dev
 	@-umount \$(MOUNT_PT)/sys
 	@-umount \$(MOUNT_PT)/proc
-	@-if [ ! -f user-hlfs-exist ]; then \\
-		userdel hlfs; \\
-		rm -rf /home/hlfs; \\
+	@-if [ ! -f luser-exist ]; then \\
+		userdel \$(LUSER); \\
+		rm -rf /home/\$(LUSER); \\
 	fi;
 
 restart_code:

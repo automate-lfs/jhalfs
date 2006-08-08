@@ -13,7 +13,7 @@ chapter4_Makefiles() {
 #----------------------------#
   echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter4${R_arrow}"
 
-# If /home/lfs is already present in the host, we asume that the
+# If /home/$LUSER is already present in the host, we asume that the
 # lfs user and group are also presents in the host, and a backup
 # of their bash init files is made.
 (
@@ -29,13 +29,13 @@ chapter4_Makefiles() {
 
 021-addinguser:  020-creatingtoolsdir
 	@\$(call echo_message, Building)
-	@if [ ! -d /home/lfs ]; then \\
-		groupadd lfs; \\
-		useradd -s /bin/bash -g lfs -m -k /dev/null lfs; \\
+	@if [ ! -d /home/\$(LUSER) ]; then \\
+		groupadd \$(LGROUP); \\
+		useradd -s /bin/bash -g \$(LGROUP) -m -k /dev/null \$(LUSER); \\
 	else \\
-		touch user-lfs-exist; \\
+		touch luser-exist; \\
 	fi;
-	@chown lfs \$(MOUNT_PT)/tools && \\
+	@chown \$(LUSER) \$(MOUNT_PT)/tools && \\
 	chmod a+wt \$(MOUNT_PT)/sources && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
@@ -43,20 +43,20 @@ chapter4_Makefiles() {
 
 022-settingenvironment:  021-addinguser
 	@\$(call echo_message, Building)
-	@if [ -f /home/lfs/.bashrc -a ! -f /home/lfs/.bashrc.XXX ]; then \\
-		mv /home/lfs/.bashrc /home/lfs/.bashrc.XXX; \\
+	@if [ -f /home/\$(LUSER)/.bashrc -a ! -f /home/\$(LUSER)/.bashrc.XXX ]; then \\
+		mv /home/\$(LUSER)/.bashrc /home/\$(LUSER)/.bashrc.XXX; \\
 	fi;
-	@if [ -f /home/lfs/.bash_profile  -a ! -f /home/lfs/.bash_profile.XXX ]; then \\
-		mv /home/lfs/.bash_profile /home/lfs/.bash_profile.XXX; \\
+	@if [ -f /home/\$(LUSER)/.bash_profile  -a ! -f /home/\$(LUSER)/.bash_profile.XXX ]; then \\
+		mv /home/\$(LUSER)/.bash_profile /home/\$(LUSER)/.bash_profile.XXX; \\
 	fi;
-	@echo "set +h" > /home/lfs/.bashrc && \\
-	echo "umask 022" >> /home/lfs/.bashrc && \\
-	echo "LFS=\$(MOUNT_PT)" >> /home/lfs/.bashrc && \\
-	echo "LC_ALL=POSIX" >> /home/lfs/.bashrc && \\
-	echo "PATH=/tools/bin:/bin:/usr/bin" >> /home/lfs/.bashrc && \\
-	echo "export LFS LC_ALL PATH" >> /home/lfs/.bashrc && \\
-	echo "source $JHALFSDIR/envars" >> /home/lfs/.bashrc && \\
-	chown lfs:lfs /home/lfs/.bashrc && \\
+	@echo "set +h" > /home/\$(LUSER)/.bashrc && \\
+	echo "umask 022" >> /home/\$(LUSER)/.bashrc && \\
+	echo "LFS=\$(MOUNT_PT)" >> /home/\$(LUSER)/.bashrc && \\
+	echo "LC_ALL=POSIX" >> /home/\$(LUSER)/.bashrc && \\
+	echo "PATH=/tools/bin:/bin:/usr/bin" >> /home/\$(LUSER)/.bashrc && \\
+	echo "export LFS LC_ALL PATH" >> /home/\$(LUSER)/.bashrc && \\
+	echo "source $JHALFSDIR/envars" >> /home/\$(LUSER)/.bashrc && \\
+	chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bashrc && \\
 	touch envars && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
@@ -122,8 +122,8 @@ chapter5_Makefiles() {
     # and date and disk usage again at the bottom of the log file.
     # The changingowner script must be run as root.
     case "${this_script}" in
-      *changingowner)  wrt_run_as_root    "${this_script}" "$file" ;;
-      *)               wrt_run_as_su      "${this_script}" "$file" ;;
+      *changingowner)  wrt_RunAsRoot "${this_script}" "$file" ;;
+      *)               wrt_RunAsUser "${this_script}" "$file" ;;
     esac
 
     # Remove the build directory(ies) except if the package build fails
@@ -231,7 +231,7 @@ chapter6_Makefiles() {
     # In the mount of kernel filesystems we need to set LFS
     # and not to use chroot.
     case "${this_script}" in
-      *kernfs)  wrt_run_as_root    "${this_script}" "$file" ;;
+      *kernfs)  wrt_RunAsRoot    "${this_script}" "$file" ;;
       *)        wrt_run_as_chroot1 "${this_script}" "$file" ;;
     esac
 
@@ -365,6 +365,8 @@ $HEADER
 SRC= /sources
 MOUNT_PT= $BUILDDIR
 PKG_LST= $PKG_LST
+LUSER= $LUSER
+LGROUP= $LGROUP
 
 include makefile-functions
 
@@ -373,11 +375,20 @@ EOF
 
 
   # Add chroot commands
+  CHROOT_LOC="`whereis -b chroot | cut -d " " -f2`"
   i=1
   for file in chapter06/*chroot* ; do
-    chroot=`cat $file | sed -e '/#!\/bin\/sh/d' -e 's@ \\\@ @g' | tr -d '\n' | sed \
-      -e 's/  */ /g' -e 's|\\$|&&|g' -e 's|exit||g' -e 's|$| -c|' \
-      -e 's|"$$LFS"|$(MOUNT_PT)|' -e 's|set -e||'`
+    chroot=`cat $file | \
+            sed -e "s@chroot@$CHROOT_LOC@" \
+                -e '/#!\/bin\/sh/d' \
+                -e 's@ \\\@ @g' | \
+            tr -d '\n' | \
+            sed -e 's/  */ /g' \
+                -e 's|\\$|&&|g' \
+                -e 's|exit||g' \
+                -e 's|$| -c|' \
+                -e 's|"$$LFS"|$(MOUNT_PT)|' \
+                -e 's|set -e||'`
     echo -e "CHROOT$i= $chroot\n" >> $MKFILE
     i=`expr $i + 1`
   done
@@ -391,7 +402,7 @@ all:  chapter4 chapter5 chapter6 chapter789 do_housekeeping
 
 chapter4:  020-creatingtoolsdir 021-addinguser 022-settingenvironment
 
-chapter5:  chapter4 $chapter5 restore-lfs-env
+chapter5:  chapter4 $chapter5 restore-luser-env
 
 chapter6:  chapter5 $chapter6
 
@@ -405,18 +416,18 @@ clean:  clean-chapter789 clean-chapter6 clean-chapter5 clean-chapter4
 restart: restart_code all
 
 clean-chapter4:
-	-if [ ! -f user-lfs-exist ]; then \\
-		userdel lfs; \\
-		rm -rf /home/lfs; \\
+	-if [ ! -f luser-exist ]; then \\
+		userdel \$(LUSER); \\
+		rm -rf /home/\$(LUSER); \\
 	fi;
 	rm -rf \$(MOUNT_PT)/tools
 	rm -f /tools
-	rm -f envars user-lfs-exist
+	rm -f envars luser-exist
 	rm -f 02* logs/02*.log
 
 clean-chapter5:
 	rm -rf \$(MOUNT_PT)/tools/*
-	rm -f $chapter5 restore-lfs-env sources-dir
+	rm -f $chapter5 restore-luser-env sources-dir
 	cd logs && rm -f $chapter5 && cd ..
 
 clean-chapter6:
@@ -433,15 +444,15 @@ clean-chapter789:
 	rm -f $chapter789
 	cd logs && rm -f $chapter789 && cd ..
 
-restore-lfs-env:
+restore-luser-env:
 	@\$(call echo_message, Building)
-	@if [ -f /home/lfs/.bashrc.XXX ]; then \\
-		mv -f /home/lfs/.bashrc.XXX /home/lfs/.bashrc; \\
+	@if [ -f /home/\$(LUSER)/.bashrc.XXX ]; then \\
+		mv -f /home/\$(LUSER)/.bashrc.XXX /home/\$(LUSER)/.bashrc; \\
 	fi;
-	@if [ -f /home/lfs/.bash_profile.XXX ]; then \\
-		mv /home/lfs/.bash_profile.XXX /home/lfs/.bash_profile; \\
+	@if [ -f /home/\$(LUSER)/.bash_profile.XXX ]; then \\
+		mv /home/\$(LUSER)/.bash_profile.XXX /home/\$(LUSER)/.bash_profile; \\
 	fi;
-	@chown lfs:lfs /home/lfs/.bash* && \\
+	@chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bash* && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
@@ -452,9 +463,9 @@ do_housekeeping:
 	@-umount \$(MOUNT_PT)/dev/shm
 	@-umount \$(MOUNT_PT)/dev/pts
 	@-umount \$(MOUNT_PT)/dev
-	@-if [ ! -f user-lfs-exist ]; then \\
-		userdel lfs; \\
-		rm -rf /home/lfs; \\
+	@-if [ ! -f luser-exist ]; then \\
+		userdel \$(LUSER); \\
+		rm -rf /home/\$(LUSER); \\
 	fi;
 
 restart_code:

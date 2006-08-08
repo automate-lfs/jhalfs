@@ -38,6 +38,10 @@ TARGET=
 #    NOTE: not all combinations are 'bootable' yet.
 METHOD=chroot
 
+#--- Unprivileged user and group name
+LUSER=clfs
+LGROUP=clfs
+
 #--- Location of fstab file (if empty, a template is created)
 FSTAB=
 
