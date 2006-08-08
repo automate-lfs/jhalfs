@@ -144,7 +144,7 @@ cross_tools_Makefiles() {     #
     #   and not the host.
     case $this_script in
       *cflags* | *variables* )  # work done in host_prep_Makefiles
-        ;;
+              continue ;;
       *file ) FileVer=`file --version | head -n1 | cut -d " " -f1`
               [[ "$FileVer" = "file-4.17" ]] && continue
         ;;
