@@ -1,23 +1,23 @@
 mainmenu "JHALFS Build Script Configuration"
-
+comment	"---------- BOOK Settings ----------"
 	choice
 		prompt "Use BOOK"
 		default BOOK_LFS
 		help
-			Select the BOOK/Build style you wish to configure.
+			#-- Select the BOOK/Build style you wish to configure.
 
 		config	BOOK_LFS
-			bool "lfs"
+			bool "Linux From Scratch"
 		config	BOOK_CLFS
-			bool "clfs"
+			bool "Cross-Compiled Linux From Scratch"
 		config	BOOK_CLFS2
-			bool "clfs2"
+			bool "Cross-Compiled Linux From Scratch (Version 2)"
 #		config	BOOK_CLFS3
-#			bool "clfs3 (Embedded LFS)"
+#			bool "Cross-Compiled Linux From Scratch (Embedded Systems)"
 		config	BOOK_HLFS
-			bool "hlfs"
+			bool "Hardened Linux From Scratch"
 #		config	BOOK_BLFS
-#			bool "blfs"
+#			bool "Beyond Linux From Scratch"
 	endchoice
 	config	RUN_ME
 		string
@@ -37,10 +37,16 @@ mainmenu "JHALFS Build Script Configuration"
 		default	relSVN
 		config	relSVN
 			bool	"SVN"
+			help
+				#-- Current development version as in trunk
 		config	WORKING_COPY
 			bool	"Working Copy"
+			help
+				#-- A local working copy
 		config	BRANCH
-			bool	"Branch or stable book"	if !BOOK_HLFS && !BOOK_CLFS2
+			bool	"Branch or stable book" if !BOOK_HLFS && !BOOK_CLFS2
+			help
+				#-- A supported SVN branch or stable released book
 	endchoice
 
 	config	BRANCH_ID
@@ -56,7 +62,7 @@ mainmenu "JHALFS Build Script Configuration"
 		default	"**EDIT ME**"
 		depends	WORKING_COPY
 		help
-			#--- The full path to a local copy of the book
+			#--- The full path to a local copy of the book XML sources
 			#
 #endmenu
 #-----------------------
@@ -69,6 +75,7 @@ mainmenu "JHALFS Build Script Configuration"
 			#    If you do not have the priv to create/delete
 			#    users and groups you can specifiy your own
 			#    user id for the build
+			#
 			# default values for each book
 			# LFS   lfs
 			# CLFS  clfs
@@ -116,7 +123,7 @@ depends on BOOK_CLFS || BOOK_CLFS2
 		default	ARCH_X86
 		depends	BOOK_CLFS || BOOK_CLFS2
 		help
-			Choose a base architecture
+			#-- Choose a base architecture
 		config	ARCH_X86
 			bool	"x86"
 		config	ARCH_MIPS
@@ -314,7 +321,7 @@ depends on BOOK_HLFS
 		string "Package Archive Directory"
 		default "$SRC_ARCHIVE"
 		help
-			#--- A local archive for packages/file (not BUILDDIR/sources)
+			#--- A local archive for packages/file (not $BUILDDIR/sources)
 			#    Used only if GETPKG = 1
 			#    Any missing file will be downloaded and archived here,
 			#    if the user has the right priviledges.
@@ -334,7 +341,7 @@ depends on BOOK_HLFS
 		default	n
 		help
 			# Get the kernel package and patches even if no configuration file
-			# has been supplied?
+			# has been supplied.
 
 	config	CONFIG_RUNMAKE
 		bool	"Run the makefile"
@@ -367,17 +374,18 @@ depends on BOOK_HLFS
 		bool	"Use optimization "
 		default	n
 		help
-			# Actual optimzation flags are defined in ./optimize/*
+			# Actual optimzation flags MUST be defined in ./optimize/*
+			# files before activate this option.
 			#
 			# WARNING: The use of build optimizations may be dangerous.
 			#   You should know what you are doing and be sure that the
 			#   optimization settings listed below are what you want.
-			#   There are build issues or the system doesn't work as
+			#   It there are build issues or the system doesn't work as
 			#   expected, please rebuild without optimizations before
 			#   asking for support.
 
 	choice
-		prompt "OPT level "
+		prompt "Optimization level "
 		default OPT_1
 		depends	CONFIG_OPTIMIZE
 		help
@@ -447,7 +455,7 @@ depends on BOOK_HLFS
 			#  - Both temporary tools and final system testsuites
 			#
 			#  HLFS and CLFS has no testsuites available in the
-			#  toolchain phase
+			#  temporary tools phase
 
 			#  You will be promt also about the "flavour" of the
 			#  testsuites run:
@@ -495,9 +503,10 @@ depends on BOOK_HLFS
 
 	config	TIMEZONE
 		string "TimeZone"
-		default "America/Toronto"
+		default "GMT"
 		help
-			This will be copied to /etc/localtime
+			#-- The timezone as output by tzselect
+			#   This will be copied to /etc/localtime
 
 
 	config	LANG
@@ -517,7 +526,7 @@ depends on BOOK_HLFS
 		prompt	"Groff page size"
 		default	PAGE_LETTER
 		help
-			#--- page definition for groff letter/A4
+			#--- Page definition for groff: letter or A4
 
 		config	PAGE_LETTER
 			bool	"letter"
@@ -530,7 +539,7 @@ depends on BOOK_HLFS
 		default	"A4"		if PAGE_A4
 
 	config	HAVE_FSTAB
-		bool	"Use this fstab file"
+		bool	"Use a cunstom fstab file"
 		default	n
 		help
 			#--- The location of fstab file (if empty, a template is created)
