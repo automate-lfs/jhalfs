@@ -1,5 +1,4 @@
 mainmenu "JHALFS Build Script Configuration"
-comment	"---------- BOOK Settings ----------"
 	choice
 		prompt "Use BOOK"
 		default BOOK_LFS
