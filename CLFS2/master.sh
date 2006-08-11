@@ -19,9 +19,6 @@ host_prep_Makefiles() {      # Initialization of the system
 cat << EOF
 023-creatingtoolsdir:
 	@\$(call echo_message, Building)
-	@mkdir \$(MOUNT_PT)/tools && \\
-	rm -f /tools && \\
-	ln -s \$(MOUNT_PT)/tools /
 	@if [ ! -d \$(MOUNT_PT)/sources ]; then \\
 		mkdir \$(MOUNT_PT)/sources; \\
 	fi;
@@ -39,7 +36,6 @@ cat << EOF
 		touch luser-exist; \\
 	fi;
 	@chown \$(LUSER) \$(MOUNT_PT) && \\
-	chown \$(LUSER) \$(MOUNT_PT)/tools && \\
 	chown \$(LUSER) \$(MOUNT_PT)/sources
 	@touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
