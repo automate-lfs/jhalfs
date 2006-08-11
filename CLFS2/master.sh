@@ -279,6 +279,7 @@ bootscripts_Makefiles() {     #
     case $this_script in
       *udev)     continue ;; # This is not a script but a commentary, we want udev-rules
       *console*) continue ;; # Use the files that came with the bootscripts
+      *network*) continue ;; # Manually create these files
       *)  ;;
     esac
 
