@@ -1,6 +1,6 @@
 Index: LFS/master.sh
 ===================================================================
---- LFS/master.sh	(revision 2905)
+--- LFS/master.sh	(revision 2916)
 +++ LFS/master.sh	(working copy)
 @@ -173,6 +173,11 @@
      # Keep the script file name
@@ -79,7 +79,7 @@ Index: LFS/master.sh
  
 Index: LFS/lfs.xsl
 ===================================================================
---- LFS/lfs.xsl	(revision 2905)
+--- LFS/lfs.xsl	(revision 2916)
 +++ LFS/lfs.xsl	(working copy)
 @@ -39,6 +39,9 @@
    <!-- Locale settings -->
@@ -127,7 +127,7 @@ Index: LFS/lfs.xsl
          <xsl:apply-templates/>
 Index: CLFS/master.sh
 ===================================================================
---- CLFS/master.sh	(revision 2905)
+--- CLFS/master.sh	(revision 2916)
 +++ CLFS/master.sh	(working copy)
 @@ -495,6 +495,11 @@
      # Keep the script file name
@@ -313,7 +313,7 @@ Index: CLFS/master.sh
      # Housekeeping...remove any build directory(ies) except if the package build fails.
 Index: CLFS/clfs.xsl
 ===================================================================
---- CLFS/clfs.xsl	(revision 2905)
+--- CLFS/clfs.xsl	(revision 2916)
 +++ CLFS/clfs.xsl	(working copy)
 @@ -45,6 +45,9 @@
    <!-- Locale settings -->
@@ -370,7 +370,7 @@ Index: common/paco-build-hlfs.sh
 +make logme
 Index: common/config
 ===================================================================
---- common/config	(revision 2905)
+--- common/config	(revision 2916)
 +++ common/config	(working copy)
 @@ -91,6 +91,23 @@
  #--- Run farce testing 0(no)/1(yes)
@@ -408,7 +408,7 @@ Index: common/config
 +LD_PRELOAD=/usr/lib/libpaco-log.so
 Index: common/func_validate_configs.sh
 ===================================================================
---- common/func_validate_configs.sh	(revision 2905)
+--- common/func_validate_configs.sh	(revision 2916)
 +++ common/func_validate_configs.sh	(working copy)
 @@ -86,10 +86,10 @@
  inline_doc
@@ -781,7 +781,7 @@ Index: common/paco-build-clfs.sh
 +make logme
 Index: common/common-functions
 ===================================================================
---- common/common-functions	(revision 2905)
+--- common/common-functions	(revision 2916)
 +++ common/common-functions	(working copy)
 @@ -69,6 +69,9 @@
          in the configuration file has the proper packages and patches for the
@@ -796,14 +796,14 @@ Index: common/common-functions
 @@ -696,6 +699,7 @@
                   --stringparam page $PAGE \
                   --stringparam lang $LANG \
-                  --stringparam keymap $KEYMAP \
+                  --stringparam keymap ${KEYMAP:-"none"} \
 +                 --stringparam use_paco $USE_PACO \
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
        ;;
  
 @@ -723,6 +727,7 @@
                   --stringparam lc_all $LC_ALL \
-                  --stringparam keymap $KEYMAP \
+                  --stringparam keymap ${KEYMAP:-"none"} \
                   --stringparam grsecurity_host $GRSECURITY_HOST \
 +                 --stringparam use_paco $USE_PACO \
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
@@ -829,7 +829,7 @@ Index: common/common-functions
      IFS=$saveIFS  # Restore the system defaults
 Index: HLFS/hlfs.xsl
 ===================================================================
---- HLFS/hlfs.xsl	(revision 2905)
+--- HLFS/hlfs.xsl	(revision 2916)
 +++ HLFS/hlfs.xsl	(working copy)
 @@ -46,6 +46,9 @@
    <xsl:param name="lang" select="C"/>
@@ -880,7 +880,7 @@ Index: HLFS/hlfs.xsl
          <xsl:apply-templates/>
 Index: HLFS/master.sh
 ===================================================================
---- HLFS/master.sh	(revision 2905)
+--- HLFS/master.sh	(revision 2916)
 +++ HLFS/master.sh	(working copy)
 @@ -40,7 +40,9 @@
  EOF
@@ -972,9 +972,9 @@ Index: HLFS/master.sh
  
 Index: master.sh
 ===================================================================
---- master.sh	(revision 2905)
+--- master.sh	(revision 2916)
 +++ master.sh	(working copy)
-@@ -149,6 +149,8 @@
+@@ -194,6 +194,8 @@
  
      --help | -h )  usage | more && exit  ;;
  
@@ -983,7 +983,7 @@ Index: master.sh
      --optimize | -O )
        test $# = 1 && eval "$exit_missing_arg"
        shift
-@@ -444,6 +446,14 @@
+@@ -489,6 +491,14 @@
    [[ $VERBOSITY > 0 ]] && echo "OK"
  fi
  #
@@ -998,7 +998,7 @@ Index: master.sh
  # optimize module
  if [[ "$OPTIMIZE" != "0" ]]; then
    [[ $VERBOSITY > 0 ]] && echo -n "Loading optimization module..."
-@@ -490,6 +500,8 @@
+@@ -535,6 +545,8 @@
  if [[ "$PWD" != "$JHALFSDIR" ]]; then
    cp $COMMON_DIR/{makefile-functions,progress_bar.sh} $JHALFSDIR/
    #
