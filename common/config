@@ -80,7 +80,7 @@ KEYMAP=none
 
 #=== Variables needed by iterative comparison analysis ===
 #--- Should some iterative comparison analysis by made? 0(no)/1(yes)
-COMPARE=0
+COMPARE=1
 
 #--- The number of final stage builds to create and compare, min. 2, max. 5
 ITERATIONS=3

@@ -1,13 +1,15 @@
 # $Id$
 
+declare -r dotSTR=".................."
+
 #----------------------------#
 validate_target() {          #
 #----------------------------#
   local -r ERROR_MSG_pt1='The variable \"${L_arrow}TARGET${R_arrow}\" value ${L_arrow}${BOLD}${TARGET}${R_arrow} is invalid for the ${L_arrow}${BOLD}${ARCH}${R_arrow} architecture'
   local -r ERROR_MSG_pt2='  check the config file ${BOLD}${GREEN}\<$(echo $PROGNAME | tr [a-z] [A-Z])/config\> or \<common/config\>${OFF}'
 
-  local -r PARAM_VALS='TARGET: ${L_arrow}${BOLD}${TARGET}${OFF}${R_arrow}'
-  local -r PARAM_VALS2='TARGET32: ${L_arrow}${BOLD}${TARGET32}${OFF}${R_arrow}'
+  local -r PARAM_VALS='TARGET${dotSTR:6} ${L_arrow}${BOLD}${TARGET}${OFF}${R_arrow}'
+  local -r PARAM_VALS2='TARGET32${dotSTR:8} ${L_arrow}${BOLD}${TARGET32}${OFF}${R_arrow}'
 
   write_error_and_die() {
     echo -e "\n${DD_BORDER}"
@@ -93,7 +95,7 @@ inline_doc
 
   local -r ERROR_MSG_pt1='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid,'
   local -r ERROR_MSG_pt2=' check the config file ${BOLD}${GREEN}\<$(echo $PROGNAME | tr [a-z] [A-Z])/config\> or \<common/config\>${OFF}'
-  local -r PARAM_VALS='${config_param}: ${L_arrow}${BOLD}${!config_param}${OFF}${R_arrow}'
+  local -r PARAM_VALS='${config_param}${dotSTR:${#config_param}} ${L_arrow}${BOLD}${!config_param}${OFF}${R_arrow}'
 
   local    PARAM_LIST=
   local config_param
