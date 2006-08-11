@@ -260,98 +260,6 @@ get_package_tarball_name() { #
 
 }
 
-#----------------------------------#
-wrt_remove_existing_dirs() {       #
-#----------------------------------#
-  local PKG_NAME=$1
-(
-cat << EOF
-	@PKG_PATH=\`ls -t \$(MOUNT_PT)\$(SRC)/${PKG_NAME} | head -n1\` && \\
-	ROOT=\`tar -tf \$\$PKG_PATH | head -n1 | sed -e 's@^./@@;s@/.*@@'\` && \\
-	[[ -n \$\$ROOT ]] && \\
-	rm -rf \$(MOUNT_PT)\$(SRC)/\$\$ROOT && \\
-	if [ -e \$(MOUNT_PT)\$(SRC)/${PKG_NAME%-*}-build ]; then \\
-		rm -rf \$(MOUNT_PT)\$(SRC)/${PKG_NAME%-*}-build; \\
-	fi;
-EOF
-) >> $MKFILE.tmp
-}
-
-#----------------------------------#
-wrt_remove_existing_dirs2() {      #
-#----------------------------------#
-  local PKG_NAME=$1
-(
-cat << EOF
-	@PKG_PATH=\`ls -t \$(SRC)/${PKG_NAME} | head -n1\` && \\
-	ROOT=\`tar -tf \$\$PKG_PATH | head -n1 | sed -e 's@^./@@;s@/.*@@'\` && \\
-	[[ -n \$\$ROOT ]] && \\
-	rm -rf \$(SRC)/\$\$ROOT && \\
-	if [ -e \$(SRC)/${PKG_NAME%-*}-build ]; then \\
-		rm -rf \$(SRC)/${PKG_NAME%-*}-build; \\
-	fi;
-EOF
-) >> $MKFILE.tmp
-}
-
-
-
-#----------------------------------#
-wrt_unpack() {                     # Unpack and set 'ROOT' var
-#----------------------------------#
-  local FILE=$1
-  local optSAVE_PREVIOUS=$2
-
-  if [ "${optSAVE_PREVIOUS}" != "1" ]; then
-    wrt_remove_existing_dirs "$FILE"
-  fi
-(
-cat << EOF
-	@\$(call unpack,$FILE)
-	@ROOT=\`head -n1 \$(MOUNT_PT)\$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
-	echo "export PKGDIR=\$(MOUNT_PT)\$(SRC)/\$\$ROOT" > envars && \\
-	chown -R \$(LUSER) \$(MOUNT_PT)\$(SRC)/\$\$ROOT
-EOF
-) >> $MKFILE.tmp
-}
-
-
-#----------------------------------#
-wrt_unpack2() {                    #
-#----------------------------------#
-  local FILE=$1
-  local optSAVE_PREVIOUS=$2
-
-  if [ "${optSAVE_PREVIOUS}" != "1" ]; then
-    wrt_remove_existing_dirs "$FILE"
-  fi
-(
-cat  << EOF
-	@\$(call unpack2,$FILE)
-	@ROOT=\`head -n1 \$(MOUNT_PT)\$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
-	echo "export PKGDIR=\$(SRC)/\$\$ROOT" > envars
-EOF
-) >> $MKFILE.tmp
-}
-
-
-#----------------------------------#
-wrt_unpack3() {                    #
-#----------------------------------#
-  local FILE=$1
-  local optSAVE_PREVIOUS=$2
-
-  if [ "${optSAVE_PREVIOUS}" != "1" ]; then
-    wrt_remove_existing_dirs2 "$FILE"
-  fi
-(
-cat  << EOF
-	@\$(call unpack3,$FILE)
-	@ROOT=\`head -n1 \$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
-	echo "export PKGDIR=\$(SRC)/\$\$ROOT" > envars
-EOF
-) >> $MKFILE.tmp
-}
 
 #----------------------------------#
 wrt_test_log() {                   # Initialize testsuite log file
@@ -391,14 +299,161 @@ EOF
 
 
 #----------------------------------#
+wrt_copy_fstab() {                 #
+#----------------------------------#
+  local i=$1
+(
+    cat << EOF
+	@cp -v $FSTAB \$(MOUNT_PT)/etc/fstab >>logs/$i 2>&1
+EOF
+) >> $MKFILE.tmp
+}
+
+
+#----------------------------------#
+wrt_copy_fstab2() {                #
+#----------------------------------#
+  local i=$1
+(
+    cat << EOF
+	@cp -v /sources/fstab /etc/fstab >>logs/$i 2>&1
+EOF
+) >> $MKFILE.tmp
+}
+
+
+#----------------------------------#
+wrt_report() {                     #
+#----------------------------------#
+(
+cat << EOF
+
+create-sbu_du-report:  $PREV
+	@\$(call echo_message, Building)
+	@./create-sbu_du-report.sh logs $VERSION
+	@\$(call echo_report,$VERSION-SBU_DU-$(date --iso-8601).report)
+	@touch  \$@
+EOF
+) >> $MKFILE.tmp
+
+chapter789="$chapter789 create-sbu_du-report"
+}
+
+unset wrt_unpack
+#----------------------------------#
+wrt_unpack() {                     # Unpack and set 'ROOT' var
+#----------------------------------#
+  local FILE=$1
+  local optSAVE_PREVIOUS=$2
+
+  if [[ "${optSAVE_PREVIOUS}" != "1" ]]; then
+(
+cat << EOF
+	@\$(call remove_existing_dirs,$FILE)
+EOF
+) >> $MKFILE.tmp
+  fi
+
+(
+cat << EOF
+	@\$(call unpack,$FILE)
+	@\$(call get_pkg_root)
+EOF
+) >> $MKFILE.tmp
+
+}
+
+unset wrt_unpack2
+#----------------------------------#
+wrt_unpack2() {                    #
+#----------------------------------#
+  local FILE=$1
+  local optSAVE_PREVIOUS=$2
+
+  if [ "${optSAVE_PREVIOUS}" != "1" ]; then
+(
+cat << EOF
+	@\$(call remove_existing_dirs,$FILE)
+EOF
+) >> $MKFILE.tmp
+  fi
+(
+cat  << EOF
+	@\$(call unpack2,$FILE)
+	@\$(call get_pkg_root,nouser)
+EOF
+) >> $MKFILE.tmp
+}
+
+#----------------------------------#
+wrt_unpack3() {                    #
+#----------------------------------#
+  local FILE=$1
+  local optSAVE_PREVIOUS=$2
+
+  if [ "${optSAVE_PREVIOUS}" != "1" ]; then
+(
+cat << EOF
+	@\$(call remove_existing_dirs2,$FILE)
+EOF
+) >> $MKFILE.tmp
+  fi
+(
+cat  << EOF
+	@\$(call unpack3,$FILE)
+	@\$(call get_pkg_root2)
+EOF
+) >> $MKFILE.tmp
+}
+
+
+unset wrt_remove_build_dirs
+#----------------------------------#
+wrt_remove_build_dirs() {          #
+#----------------------------------#
+  local name=$1
+(
+cat << EOF
+	@\$(call remove_build_dirs,$name)
+EOF
+) >> $MKFILE.tmp
+}
+
+#----------------------------------#
+wrt_remove_build_dirs2() {         #
+#----------------------------------#
+  local name=$1
+(
+cat << EOF
+	@\$(call remove_build_dirs2,$name)
+EOF
+) >> $MKFILE.tmp
+}
+
+
+
+unset wrt_touch
+#----------------------------------#
+wrt_touch() {                      #
+#----------------------------------#
+(
+cat << EOF
+	@\$(call housekeeping)
+EOF
+) >> $MKFILE.tmp
+}
+
+unset wrt_RunAsUser
+#----------------------------------#
 wrt_RunAsUser() {                  # Execute script inside time { }, footer to log file
 #----------------------------------#
   local this_script=$1
   local file=$2
+
 (
 cat << EOF
-	@( time { su - \$(LUSER) -c "source /home/\$(LUSER)/.bashrc && $JHALFSDIR/${PROGNAME}-commands/$file" >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
-	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >>logs/$this_script
+	@( time { \$(SU_LUSER) "source \$(LUSER_HOME)/.bashrc && \$(CMDSDIR)/`dirname $file`/\$@" >> logs/\$@ 2>&1; } ) 2>> logs/\$@ && \\
+	\$(PRT_DU) >> logs/\$@
 EOF
 ) >> $MKFILE.tmp
 }
@@ -422,12 +477,11 @@ wrt_RunAsRoot() {                  # Some scripts must be run as root..
   
 (
 cat << EOF
-	@( time { export ${MOUNT_ENV}=\$(MOUNT_PT) && ${PROGNAME}-commands/$file >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
-	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >>logs/$this_script
+	@( time { export ${MOUNT_ENV}=\$(MOUNT_PT) && ${PROGNAME}-commands/`dirname $file`/\$@ >>logs/\$@ 2>&1 ; } ) 2>>logs/\$@ && \\
+	\$(PRT_DU_CR) >>logs/\$@
 EOF
 ) >> $MKFILE.tmp
 }
-
 
 #----------------------------------#
 wrt_run_as_root2() {               #
@@ -436,27 +490,28 @@ wrt_run_as_root2() {               #
   local file=$2
 (
 cat << EOF
-	@( time { source envars && ${PROGNAME}-commands/$file >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
-	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \`\n" >>logs/$this_script
+	@( time { source envars && ${PROGNAME}-commands/`dirname $file`/\$@ >>logs/\$@ 2>&1 ; } ) 2>>logs/\$@ && \\
+	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \`\n" >>logs/\$@
 EOF
 ) >> $MKFILE.tmp
 }
 
 
+unset wrt_run_as_chroot1
 #----------------------------------#
 wrt_run_as_chroot1() {             #
 #----------------------------------#
   local this_script=$1
   local file=$2
 (
-    cat << EOF
-	@( time { \$(CHROOT1) 'cd /${SCRIPT_ROOT} && source envars && /${SCRIPT_ROOT}/${PROGNAME}-commands/$file >>/${SCRIPT_ROOT}/logs/${this_script} 2>&1' ; } ) 2>>logs/$this_script && \\
-	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >>logs/${this_script}
+cat << EOF
+	@( time { \$(CHROOT1) 'cd \$(SCRIPT_ROOT) && source envars && \$(crCMDSDIR)/`dirname $file`/\$@ >>logs/\$@ 2>&1' ; } ) 2>>logs/\$@ && \\
+	\$(PRT_DU_CR) >> logs/\$@
 EOF
 ) >> $MKFILE.tmp
 }
 
-
+unset wrt_run_as_chroot2
 #----------------------------------#
 wrt_run_as_chroot2() {             #
 #----------------------------------#
@@ -464,98 +519,53 @@ wrt_run_as_chroot2() {             #
   local file=$2
 (
 cat << EOF
-	@( time { \$(CHROOT2) 'cd /${SCRIPT_ROOT} && source envars && /${SCRIPT_ROOT}/${PROGNAME}-commands/$file >>/${SCRIPT_ROOT}/logs/${this_script} 2>&1' ; } ) 2>>logs/$this_script && \\
-	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >>logs/${this_script}
+	@( time { \$(CHROOT2) 'cd \$(SCRIPT_ROOT) && source envars && \$(crCMDSDIR)/`dirname $file`/\$@ >>logs/\@ 2>&1' ; } ) 2>>logs/\@ && \\
+	\$(PRT_DU_CR) >> logs/\$@
 EOF
 ) >> $MKFILE.tmp
 }
 
-
+unset wrt_target
 #----------------------------------#
-wrt_copy_fstab() {                 #
+wrt_target() {                     # Create target and initialize log file
 #----------------------------------#
   local i=$1
-(
-    cat << EOF
-	@cp -v $FSTAB \$(MOUNT_PT)/etc/fstab >>logs/$i 2>&1
-EOF
-) >> $MKFILE.tmp
-}
-
-#----------------------------------#
-wrt_copy_fstab2() {                #
-#----------------------------------#
-  local i=$1
-(
-    cat << EOF
-	@cp -v /sources/fstab /etc/fstab >>logs/$i 2>&1
-EOF
-) >> $MKFILE.tmp
-}
-
-
-#----------------------------------#
-wrt_remove_build_dirs() {          #
-#----------------------------------#
-  local name=$1
-(
-cat << EOF
-	@ROOT=\`head -n1 \$(MOUNT_PT)\$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
-	rm -rf \$(MOUNT_PT)\$(SRC)/\$\$ROOT && \\
-	if [ -e \$(MOUNT_PT)\$(SRC)/$name-build ]; then \\
-		rm -rf \$(MOUNT_PT)\$(SRC)/$name-build; \\
-	fi;
-EOF
-) >> $MKFILE.tmp
-}
-
-
-#----------------------------------#
-wrt_remove_build_dirs2() {         #
-#----------------------------------#
-  local name=$1
-(
-cat << EOF
-	@ROOT=\`head -n1 \$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
-	rm -rf \$(SRC)/\$\$ROOT && \\
-	if [ -e \$(SRC)/$name-build ]; then \\
-		rm -rf \$(SRC)/$name-build; \\
-	fi;
-EOF
-) >> $MKFILE.tmp
-}
-
-
-#----------------------------------#
-wrt_touch() {                      #
-#----------------------------------#
-(
-cat << EOF
-	@touch  \$@ && \\
-	sleep .25 && \\
-	echo -e "\n\n "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
-	echo --------------------------------------------------------------------------------\$(WHITE)
-EOF
-) >> $MKFILE.tmp
-}
-
-
-#----------------------------------#
-wrt_report() {                     #
-#----------------------------------#
+  local PREV=$2
+  case $i in
+    iteration* ) local LOGFILE="\$@.log" ;;
+             * ) local LOGFILE="\$@"     ;;
+  esac
 (
 cat << EOF
 
-create-sbu_du-report:  $PREV
+$i:  $PREV
 	@\$(call echo_message, Building)
-	@./create-sbu_du-report.sh logs $VERSION
-	@\$(call echo_report,$VERSION-SBU_DU-$(date --iso-8601).report)
-	@touch  \$@
+	@./progress_bar.sh \$@ &
+	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \$(MOUNT_PT)\`\n" >logs/$LOGFILE
 EOF
 ) >> $MKFILE.tmp
-
-chapter789="$chapter789 create-sbu_du-report"
 }
+
+#----------------------------------#
+wrt_target_boot() {                # Create target and initialize log file
+#----------------------------------#
+  local i=$1
+  local PREV=$2
+  case $i in
+    iteration* ) local LOGFILE="\$@.log" ;;
+             * ) local LOGFILE="\$@" ;;
+  esac
+(
+cat << EOF
+
+$i:  $PREV
+	@\$(call echo_message, Building)
+	@./progress_bar.sh \$@ &
+	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=${SCRIPT_ROOT}\`\n" >logs/$LOGFILE
+EOF
+) >> $MKFILE.tmp
+}
+
 
 
 #----------------------------#

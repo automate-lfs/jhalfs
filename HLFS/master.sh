@@ -13,15 +13,22 @@ process_toolchain() {        # embryo,cocoon and butterfly need special handling
   local toolchain=$1
   local this_script=$2
   local  tc_phase
-
+  local binutil_tarball
+  local gcc_core_tarball
+  
   echo "${tab_}${tab_}${GREEN}toolchain ${L_arrow}${toolchain}${R_arrow}"
 
   #
   # Safe method to remove existing toolchain dirs
-  pkg_tarball=$(get_package_tarball_name "binutils")
-  wrt_remove_existing_dirs  "$pkg_tarball"
-  pkg_tarball=$(get_package_tarball_name "gcc-core")
-  wrt_remove_existing_dirs  "$pkg_tarball"
+  binutil_tarball=$(get_package_tarball_name "binutils")
+  gcc_core_tarball=$(get_package_tarball_name "gcc-core")
+(
+cat << EOF
+	@\$(call remove_existing_dirs,$binutil_tarball)
+	@\$(call remove_existing_dirs,$gcc_core_tarball)
+EOF
+) >> $MKFILE.tmp
+
   #
   # Manually remove the toolchain directories..
   tc_phase=`echo $toolchain | sed -e 's@[0-9]\{3\}-@@' -e 's@-toolchain@@'`
@@ -54,10 +61,17 @@ EOF
   esac
   #
   # Safe method to remove packages unpacked while inside the toolchain script
-  pkg_tarball=$(get_package_tarball_name "binutils")
-  wrt_remove_existing_dirs  "$pkg_tarball"
-  pkg_tarball=$(get_package_tarball_name "gcc-core")
-  wrt_remove_existing_dirs  "$pkg_tarball"
+#  pkg_tarball=$(get_package_tarball_name "binutils")
+#  wrt_remove_existing_dirs  "$pkg_tarball"
+#  pkg_tarball=$(get_package_tarball_name "gcc-core")
+#  wrt_remove_existing_dirs  "$pkg_tarball"
+(
+cat << EOF
+	@\$(call remove_existing_dirs,$binutil_tarball)
+	@\$(call remove_existing_dirs,$gcc_core_tarball)
+EOF
+) >> $MKFILE.tmp
+
   #
   # Manually remove the toolchain directories..
   tc_phase=`echo $toolchain | sed -e 's@[0-9]\{3\}-@@' -e 's@-toolchain@@'`
@@ -482,11 +496,28 @@ build_Makefile() {           # Construct a Makefile from the book scripts
     cat << EOF
 $HEADER
 
-SRC= /sources
-MOUNT_PT= $BUILDDIR
-PKG_LST= $PKG_LST
-LUSER= $LUSER
-LGROUP= $LGROUP
+SRC          = /sources
+MOUNT_PT     = $BUILDDIR
+PKG_LST      = $PKG_LST
+LUSER        = $LUSER
+LGROUP       = $LGROUP
+SCRIPT_ROOT  = $SCRIPT_ROOT
+
+BASEDIR      = \$(MOUNT_PT)
+SRCSDIR      = \$(BASEDIR)/sources
+CMDSDIR      = \$(BASEDIR)/\$(SCRIPT_ROOT)/$PROGNAME-commands
+LOGDIR       = \$(BASEDIR)/\$(SCRIPT_ROOT)/logs
+TESTLOGDIR   = \$(BASEDIR)/\$(SCRIPT_ROOT)/test-logs
+
+crSRCSDIR    = /sources
+crCMDSDIR    = /\$(SCRIPT_ROOT)/$PROGNAME-commands
+crLOGDIR     = /\$(SCRIPT_ROOT)/logs
+crTESTLOGDIR = /\$(SCRIPT_ROOT)/test-logs
+
+SU_LUSER     = su - \$(LUSER) -c
+LUSER_HOME   = /home/\$(LUSER)
+PRT_DU       = echo -e "\nKB: \`du -skx --exclude=jhalfs \$(MOUNT_PT)\`\n"
+PRT_DU_CR    = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) \$(MOUNT_PT)\`\n"
 
 include makefile-functions
 

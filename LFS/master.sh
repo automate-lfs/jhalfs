@@ -7,7 +7,6 @@
 ###################################
 
 
-
 #----------------------------#
 chapter4_Makefiles() {
 #----------------------------#
@@ -362,11 +361,29 @@ build_Makefile() {
     cat << EOF
 $HEADER
 
-SRC= /sources
-MOUNT_PT= $BUILDDIR
-PKG_LST= $PKG_LST
-LUSER= $LUSER
-LGROUP= $LGROUP
+SRC          = /sources
+MOUNT_PT     = $BUILDDIR
+PKG_LST      = $PKG_LST
+LUSER        = $LUSER
+LGROUP       = $LGROUP
+SCRIPT_ROOT  = $SCRIPT_ROOT
+
+BASEDIR      = \$(MOUNT_PT)
+SRCSDIR      = \$(BASEDIR)/sources
+CMDSDIR      = \$(BASEDIR)/\$(SCRIPT_ROOT)/$PROGNAME-commands
+LOGDIR       = \$(BASEDIR)/\$(SCRIPT_ROOT)/logs
+TESTLOGDIR   = \$(BASEDIR)/\$(SCRIPT_ROOT)/test-logs
+
+crSRCSDIR    = /sources
+crCMDSDIR    = /\$(SCRIPT_ROOT)/$PROGNAME-commands
+crLOGDIR     = /\$(SCRIPT_ROOT)/logs
+crTESTLOGDIR = /\$(SCRIPT_ROOT)/test-logs
+
+SU_LUSER     = su - \$(LUSER) -c
+LUSER_HOME   = /home/\$(LUSER)
+PRT_DU       = echo -e "\nKB: \`du -skx --exclude=jhalfs \$(MOUNT_PT)\`\n"
+PRT_DU_CR    = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) \$(MOUNT_PT)\`\n"
+
 
 include makefile-functions
 

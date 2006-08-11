@@ -283,6 +283,7 @@ bootscripts_Makefiles() {     #
     case $this_script in
       *udev)     continue ;; # This is not a script but a commentary, we want udev-rules
       *console*) continue ;; # Use the files that came with the bootscripts
+      *network*) continue ;; # Manually create these files
       *)  ;;
     esac
 
@@ -432,11 +433,22 @@ build_Makefile() {            # Construct a Makefile from the book scripts
     cat << EOF
 $HEADER
 
-SRC= /sources
-MOUNT_PT= $BUILDDIR
-PKG_LST= $PKG_LST
-LUSER= $LUSER
-LGROUP= $LGROUP
+SRC         = /sources
+MOUNT_PT    = $BUILDDIR
+PKG_LST     = $PKG_LST
+LUSER       = $LUSER
+LGROUP      = $LGROUP
+SCRIPT_ROOT = $SCRIPT_ROOT
+
+BASEDIR    = \$(MOUNT_PT)
+SRCSDIR    = \$(BASEDIR)/sources
+CMDSDIR    = \$(BASEDIR)/\$(SCRIPT_ROOT)/$PROGNAME-commands
+LOGDIR     = \$(BASEDIR)/\$(SCRIPT_ROOT)/logs
+TESTLOGDIR = \$(BASEDIR)/\$(SCRIPT_ROOT)/test-logs
+
+SU_LUSER   = su - \$(LUSER) -c
+PRT_DU     = echo -e "\nKB: \`du -skx --exclude=jhalfs \$(MOUNT_PT)\`\n"
+LUSER_HOME = /home/\$(LUSER)
 
 include makefile-functions
 

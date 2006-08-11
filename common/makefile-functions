@@ -15,13 +15,62 @@ define echo_message
   @echo $(WHITE)
 endef
 
+define remove_existing_dirs
+  @PKG_PATH=`ls -t $(SRCSDIR)/$(1) | head -n1` && \
+  ROOT=`tar -tf $$PKG_PATH | head -n1 | sed -e 's@^./@@;s@/.*@@'` && \
+  rm -rf $(SRCSDIR)/$$ROOT && \
+  rm -rf $(SRCSDIR)/$${ROOT%-*}-build
+endef
+
+define remove_existing_dirs2
+  @PKG_PATH=\`ls -t $(SRC)/$(1) | head -n1\` && \
+  ROOT=`tar -tf $$PKG_PATH | head -n1 | sed -e 's@^./@@;s@/.*@@'` && \
+  rm -rf $(SRC)/$$ROOT && \
+  rm -rf $(SRC)/$${ROOT-*}-build
+endef
+
+define remove_build_dirs
+  @ROOT=`head -n1 $(SRCSDIR)/$(PKG_LST) | sed 's@^./@@;s@/.*@@'` && \
+  rm -rf $(SRCSDIR)/$$ROOT && \
+  rm -rf $(SRCSDIR)/$(1)-build
+endef
+
+define remove_build_dirs2
+  @ROOT=`head -n1 $(SRC)/$(PKG_LST) | sed 's@^./@@;s@/.*@@'` && \
+  rm -rf $(SRC)/$$ROOT && \
+  rm -rf $(SRC)/$(1)-build
+endef
+
+define housekeeping
+  @touch  $@ && \
+  sleep .25 && \
+  echo -e "\n\n "$(BOLD)Target $(BLUE)$@ $(BOLD)OK && \
+  echo --------------------------------------------------------------------------------$(WHITE)
+
+endef
+
+define get_pkg_root
+  @ROOT=`head -n1 $(SRCSDIR)/$(PKG_LST) | sed 's@^./@@;s@/.*@@'` && \
+  if [ "$(1)" != "nouser" ]; then \
+    echo "export PKGDIR=$(SRCSDIR)/$$ROOT" > envars; \
+    chown -R $(LUSER) $(SRCSDIR)/$$ROOT; \
+  else \
+    echo "export PKGDIR=$(crSRCSDIR)/$$ROOT" > envars; \
+  fi;
+endef
+
+define get_pkg_root2
+  @ROOT=`head -n1 $(SRC)/$(PKG_LST) | sed 's@^./@@;s@/.*@@'` && \
+  echo "export PKGDIR=$(SRC)/$$ROOT" > envars
+endef
+
 define unpack
-  @cd $(MOUNT_PT)$(SRC) && \
+  @cd $(SRCSDIR) && \
   tar -xvf `ls -t $(1) | head -n1` > $(PKG_LST)
 endef
 
 define unpack2
-  @cd $(MOUNT_PT)$(SRC) && \
+  @cd $(SRCSDIR) && \
   /tools/bin/tar -xvf `ls -t $(1) | head -n1` > $(PKG_LST)
 endef
 
