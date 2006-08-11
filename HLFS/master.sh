@@ -60,11 +60,6 @@ EOF
       ;;
   esac
   #
-  # Safe method to remove packages unpacked while inside the toolchain script
-#  pkg_tarball=$(get_package_tarball_name "binutils")
-#  wrt_remove_existing_dirs  "$pkg_tarball"
-#  pkg_tarball=$(get_package_tarball_name "gcc-core")
-#  wrt_remove_existing_dirs  "$pkg_tarball"
 (
 cat << EOF
 	@\$(call remove_existing_dirs,$binutil_tarball)
