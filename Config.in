@@ -249,7 +249,7 @@ menu "--- BOOK Settings"
 	#--- End CLFS specific params
 
 	#--- HLFS specific params
-	config	GRSECURITY_HOST
+	config	CONFIG_GRSECURITY_HOST
 		bool	"Building on grsecurity enabled host?"
 		default	n
 		depends on BOOK_HLFS
@@ -648,6 +648,11 @@ endmenu
 
 
 # convert CONFIG_XXXX n/y to XXXX 0/1
+
+	config	GRSECURITY_HOST
+		int
+		default 0	if !CONFIG_GRSECURITY_HOST
+		default 1	if  CONFIG_GRSECURITY_HOST
 
 	config	COMPARE
 		int
