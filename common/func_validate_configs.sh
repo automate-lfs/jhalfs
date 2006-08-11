@@ -232,7 +232,7 @@ inline_doc
       # Validate directories, testable states:
       #  fatal   -z -d -w,
       #  warning -z+   -w+
-      SRC_ARCHIVE) validate_dir -z+ -d -w+ ;;
+      SRC_ARCHIVE) [[ "$GETPKG" = "1" ]] && validate_dir -z+ -d -w+ ;;
       BUILDDIR)   # The build directory/partition MUST exist and be writable by the user
                   validate_dir -z -d -w
                   [[ "xx x/x" =~ "x${!config_param}x" ]] &&
