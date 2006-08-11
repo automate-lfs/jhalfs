@@ -68,6 +68,51 @@ source $MODULE
 #
 [[ $VERBOSITY > 0 ]] && echo "${SD_BORDER}${nl_}"
 
+if [[ -e using_menuconfig ]]; then
+  [[ $VERBOSITY > 0 ]] && echo -n "Loading config params from <configuration>..."
+  source configuration
+  [[ $? > 0 ]] && echo "file:configuration did not load.." && exit 1
+  [[ $VERBOSITY > 0 ]] && echo "OK"
+
+	#--- Working directories
+  SCRIPT_ROOT=jhalfs
+    JHALFSDIR=$BUILDDIR/$SCRIPT_ROOT
+       LOGDIR=$JHALFSDIR/logs
+   TESTLOGDIR=$JHALFSDIR/test-logs
+       MKFILE=$JHALFSDIR/Makefile
+	#--- ICA report log directory
+    ICALOGDIR=$LOGDIR/ICA
+	#--- farce report log directory
+  FARCELOGDIR=$LOGDIR/farce
+
+  if [[ ! -z ${BRANCH_ID} ]]; then
+    case $BRANCH_ID in
+     dev* | SVN | trunk )
+      case $PROGNAME in
+        clfs2 ) TREE=branches/clfs-2.0/BOOK ;;
+             *) TREE=trunk/BOOK ;;
+      esac
+      LFSVRS=development
+      ;;
+    branch-* )
+       LFSVRS=${BRANCH_ID}
+       TREE=branches/${BRANCH_ID#branch-}/BOOK
+      ;;
+    * )
+      case $PROGNAME in
+        lfs | hlfs )
+           LFSVRS=${BRANCH_ID}
+          TREE=tags/${BRANCH_ID}/BOOK
+         ;;
+        clfs | clfs2 )
+           LFSVRS=${BRANCH_ID}
+           TREE=tags/${BRANCH_ID}
+         ;;
+      esac
+      ;;
+    esac
+  fi
+fi
 
 #===========================================================
 # If the var BOOK contains something then, maybe, it points

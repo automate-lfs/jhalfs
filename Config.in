@@ -1,0 +1,700 @@
+menu "--- BOOK Settings"
+
+	#--- BOOK/script
+	choice
+		prompt "Use BOOK"
+		default BOOK_LFS
+		help
+			#-- Select the BOOK/Build style you wish to configure.
+
+		config	BOOK_LFS
+			bool "Linux From Scratch"
+
+		config	BOOK_CLFS
+			bool "Cross-Compiled Linux From Scratch"
+
+		config	BOOK_CLFS2
+			bool "Cross-Compiled Linux From Scratch (Version 2)"
+
+#		config	BOOK_CLFS3
+#			bool "Cross-Compiled Linux From Scratch (Embedded Systems)"
+
+		config	BOOK_HLFS
+			bool "Hardened Linux From Scratch"
+
+#		config	BOOK_BLFS
+#			bool "Beyond Linux From Scratch"
+	endchoice
+
+	config	RUN_ME
+		string
+		default	"./lfs"		if BOOK_LFS
+		default	"./clfs"	if BOOK_CLFS
+		default	"./clfs2"	if BOOK_CLFS2
+#		default	"./clfs3"	if BOOK_CLFS3
+		default	"./hlfs"	if BOOK_HLFS
+#		default	"./blfs"	if BOOK_BLFS
+	#--- End BOOK/script
+
+	#--- Book version
+	choice
+		prompt	"Release"
+		default	relSVN
+		config	relSVN
+			bool	"SVN"
+			help
+				#-- Current development version as in trunk
+
+		config	WORKING_COPY
+			bool	"Working Copy"
+			help
+				#-- A local working copy
+
+		config	BRANCH
+			bool	"Branch or stable book" if !BOOK_HLFS && !BOOK_CLFS2
+			help
+				#-- A supported SVN branch or stable released book
+	endchoice
+
+	config	BRANCH_ID
+		string	"Branch (mandatory)"
+		default	"**EDIT ME**"
+		depends	BRANCH
+		help
+			#-- A list of valid branches and stable books ID's is available here.
+			#   http://wiki.linuxfromscratch.org/alfs/wiki/SupportedBooks
+
+	config	BOOK
+		string	"Loc of working copy (mandatory)"
+		default	"**EDIT ME**"
+		depends	WORKING_COPY
+		help
+			#-- The full path to a local copy of the book XML sources
+			#
+	#--- End BOOK version
+
+	#--- CLFS specific params
+	choice
+		prompt	"Target architecture"
+		default	ARCH_X86
+		depends	BOOK_CLFS || BOOK_CLFS2
+		help
+			#-- Choose a base architecture
+
+		config	ARCH_X86
+			bool	"x86"
+
+		config	ARCH_MIPS
+			bool	"mips"	if !BOOK_CLFS2
+
+		config	ARCH_PPC
+			bool	"ppc"	if !BOOK_CLFS2
+
+		config	ARCH_SPARC
+			bool	"sparc"	if !BOOK_CLFS2
+
+		config	ARCH_ALPHA
+			bool	"alpha"	if !BOOK_CLFS2
+
+		config	ARCH_ARM
+			bool	"arm"	if !BOOK_CLFS
+	endchoice
+
+	choice
+		prompt	"Library"
+		depends	(BOOK_CLFS || BOOK_CLFS2)
+		default	DATA_32		if !ARCH_ALPHA
+		default	DATA_64		if ARCH_ALPHA
+
+		config	DATA_32
+			bool	"32-bit"	if !ARCH_ALPHA
+
+		config	DATA_64
+			bool	"64-bit"	if !ARCH_PPC && !ARCH_ARM && !(BOOK_CLFS2 && ARCH_X86)
+
+		config	DATA_MULTI
+			bool	"multilib"	if !ARCH_ALPHA && !ARCH_ARM && !(BOOK_CLFS2 && ARCH_X86)
+	endchoice
+
+	choice
+		prompt	"Target"
+		depends	(BOOK_CLFS || BOOK_CLFS2) && ((ARCH_X86 && DATA_32) || ARCH_MIPS)
+
+		config	PROC_i486
+			bool	"i486"			if ARCH_X86 && DATA_32
+
+		config	PROC_i586
+			bool	"i586"			if ARCH_X86 && DATA_32
+
+		config	PROC_i686
+			bool	"i686"			if ARCH_X86 && DATA_32
+
+		config	PROC_mipsel
+			bool	"mips -little endian"	if ARCH_MIPS
+
+		config	PROC_mips
+			bool	"mips"			if ARCH_MIPS
+	endchoice
+
+	config TARGET
+		string
+		depends	DATA_32
+		default "i486-pc-linux-gnu"		if ARCH_X86 && PROC_i486
+		default "i586-pc-linux-gnu"		if ARCH_X86 && PROC_i586
+		default "i686-pc-linux-gnu"		if ARCH_X86 && PROC_i686
+		default "mipsel-unknown-linux-gnu"	if ARCH_MIPS && PROC_mipsel
+		default "mips-unknown-linux-gnu"	if ARCH_MIPS && PROC_mips
+		default	"powerpc-unknown-linux-gnu"	if ARCH_PPC
+		default "sparc-unknown-linux-gnu"	if ARCH_SPARC
+		default	"arm-unknown-linux-gnu"		if ARCH_ARM
+
+	config TARGET
+		string
+		depends	DATA_64
+		default	"x86_64-unknown-linux-gnu"	if ARCH_X86
+		default	"mips64el-unknown-linux-gnu"	if ARCH_MIPS && PROC_mipsel
+		default	"mips64-unknown-linux-gnu"	if ARCH_MIPS && PROC_mips
+		default "sparc64-unknown-linux-gnu"	if ARCH_SPARC
+		default "alpha-unknown-linux-gnu"	if ARCH_ALPHA
+
+	config TARGET
+		string
+		depends	DATA_MULTI
+		default	"x86_64-unknown-linux-gnu"	if ARCH_X86
+		default	"mips64el-unknown-linux-gnu"	if ARCH_MIPS && PROC_mipsel
+		default	"mips64-unknown-linux-gnu"	if ARCH_MIPS && PROC_mips
+		default "sparc64-unknown-linux-gnu"	if ARCH_SPARC
+		default "powerpc64-unknown-linux-gnu"	if ARCH_PPC
+
+
+	config TARGET32
+		string
+		depends	DATA_MULTI
+		default "i686-pc-linux-gnu"		if ARCH_X86
+		default "mipsel-unknown-linux-gnu"	if ARCH_MIPS && PROC_mipsel
+		default "mips-unknown-linux-gnu"	if ARCH_MIPS && PROC_mips
+		default "sparc-unknown-linux-gnu"	if ARCH_SPARC
+		default "powerpc-unknown-linux-gnu"	if ARCH_PPC
+
+	config	ARCH
+		string
+		depends	DATA_32
+		default	"x86"	if ARCH_X86
+		default	"ppc"	if ARCH_PPC
+		default	"mips"	if ARCH_MIPS
+		default	"sparc"	if ARCH_SPARC
+		default	"arm"	if ARCH_ARM
+
+	config	ARCH
+		string
+		depends	DATA_64
+		default	"x86_64-64"	if ARCH_X86
+		default	"mips64-64"	if ARCH_MIPS
+		default	"sparc64-64"	if ARCH_SPARC
+		default	"alpha"		if ARCH_ALPHA
+
+	config	ARCH
+		string
+		depends	DATA_MULTI
+		default	"x86_64"	if ARCH_X86
+		default	"mips64"	if ARCH_MIPS
+		default	"sparc64"	if ARCH_SPARC
+		default	"ppc64"		if ARCH_PPC
+
+	choice
+		prompt	"Build method"
+		depends	BOOK_CLFS
+		help
+			#-- What build method should be used: a chroot jail or minimal boot system
+			#   Review the Cross-LFS book chap6 "TO BOOT OR CHROOT" for a full explanation.
+
+		config	BUILD_CHROOT
+			bool	"chroot"
+
+		config	BUILD_BOOT
+			bool	"boot"
+	endchoice
+
+	config	METHOD
+		string
+		default	"chroot"	if BUILD_CHROOT
+		default	"boot"		if BUILD_BOOT
+
+	config	BOOT_CONFIG
+		string	"BOOT kernel config file (mandatory)"
+		default "***EDIT ME***"
+		depends on BUILD_BOOT
+		help
+			#-- If METHOD=boot, location of boot-kernel config file
+			#   The config file will be copied to ${BUILD_DIR}/sources
+			#   and renamed 'bootkernel-config'
+			#
+			# NOTE: this setting is required
+
+	config	BOOT_KEYMAP
+		string "BOOT kernel keyboard map (see help)"
+		default "none"
+		depends on BUILD_BOOT
+		help
+			#-- Include the keymap in the kernel if defined. Path to the
+			#   keymap file relative to /usr/share/kbd/keymaps/
+			#   (e.g., i386/qwerty/us.map.gz) or "none" if you do not want
+			#   a keymap included in the kernel
+
+			           === Note about CLFS ===
+			If building the SVN or 1.0.0rc3 version using the boot method and
+			compiling the keymap into the kernel, you MUST manually edit the
+			"loadkeys" command found in $JHALFSDIR/clfs-commands/boot/066-kernel
+			to set the full path in your host to the keymap file.
+	#--- End CLFS specific params
+
+	#--- HLFS specific params
+	config	GRSECURITY_HOST
+		bool	"Building on grsecurity enabled host?"
+		default	n
+		depends on BOOK_HLFS
+		help
+			#-- If your build system has grsecurity patches applied
+			#   you MUST enable this switch.
+
+	choice
+		prompt "Library"
+		depends on BOOK_HLFS
+		help
+			#-- Which library model to use: uClibc/glibc
+
+		config	LIB_GLIBC
+			bool "glibc"
+
+		config	LIB_UCLIBC
+			bool "uClibc"
+	endchoice
+
+	config	MODEL
+		depends on BOOK_HLFS
+		string
+		default	"glibc"		if LIB_GLIBC
+		default "uclibc"	if LIB_UCLIBC
+	#--- End HLFS specific params
+
+#--- End BOOK Settings
+endmenu
+
+menu "--- General Settings"
+
+	#--- Set User Account
+	config	CONFIG_USER
+		bool	"Change the default user/group for this build"
+		default	n
+		help	#-- Unprivileged user and group name
+			#   If you do not have the priv to create/delete
+			#   users and groups you can specifiy your own
+			#   user id for the build
+			#
+			# default values for each book
+			# LFS   lfs
+			# CLFS  clfs
+			# CLFS2 clfs
+			# HLFS  hlfs
+
+	config	DEF_USER
+		string
+		default	"lfs"	if BOOK_LFS
+		default	"clfs"	if BOOK_CLFS || BOOK_CLFS2
+		default "hlfs"	if BOOK_HLFS
+
+	config	SET_USER
+		string	"User account"
+		depends	CONFIG_USER
+		default	DEF_USER
+
+
+	config	CONFIG_GROUP
+		bool	"Set Group?"
+		default	n
+		depends	CONFIG_USER
+
+	config	SET_GROUP
+		string	"GROUP account"
+		depends	CONFIG_GROUP
+		default	DEF_USER
+
+	config	LUSER
+		string
+		default	DEF_USER	if !CONFIG_USER
+		default	SET_USER	if  CONFIG_USER
+
+	config	LGROUP
+		string
+		default	LUSER		if !CONFIG_GROUP
+		default	SET_GROUP	if  CONFIG_GROUP
+	#--- End Set User Account
+
+	config BUILDDIR
+		string "Build Directory"
+		default "/mnt/build_dir"
+		help
+			#-- The directory where the created system will be located.
+
+	config	CONFIG_GETPKG
+		bool "Retrieve source files"
+		default n
+		help
+			#-- Download all packages and patches required by the book selected
+			#   NOTE: Looks for files in the local archive defined by SRC_ARCHIVE
+			#   first and if necessary retrieve them from the 'net.
+			#   Files will be transfered to $BUILDDIR/sources.
+
+	config SRC_ARCHIVE
+		string "Package Archive Directory"
+		default "$SRC_ARCHIVE"
+		depends CONFIG_GETPKG
+		help
+			#-- A local archive for packages/file (not $BUILDDIR/sources)
+			#   Used only if GETPKG = 1
+			#   Any missing file will be downloaded and archived here,
+			#   if the user has the right priviledges.
+
+	config	CONFIG_GETKERNEL
+		bool	"Always retrieve kernel package"
+		default	n
+		depends CONFIG_GETPKG
+		help
+			#-- Get the kernel package and patches even if no configuration
+			#   file has been supplied.
+
+	config	CONFIG_RUNMAKE
+		bool	"Run the makefile"
+		default n
+		help
+			#-- Automatically run the makefile once it has been created
+
+	config	CONFIG_REBUILD
+		bool	"Rebuild files"
+		default	n
+		help
+			#-- Clean the build directory before performing any other task.
+			#   The directory is cleaned only if it was populated by a
+			#   previous JHALFS run.
+			#
+			# NOTE::You must be 'root' for this function to work
+
+#--- End General Settings
+endmenu
+
+menu "--- Build Settings"
+
+	#--- Test Suites
+	config	CONFIG_TESTS
+		bool	"Run testsuites"
+		depends	!BOOK_CLFS2
+		default	n
+		help
+			#-- Run test suites
+			#
+			#  You will can to select between:
+			#
+			#  - Only final system Glibc, GCC and Binutils testsuites
+			#  - All final system testsuites
+			#  - Both temporary tools and final system testsuites
+			#
+			#  HLFS and CLFS has no testsuites available in the
+			#  temporary tools phase
+
+			#  You will be promt also about the "flavour" of the
+			#  testsuites run:
+			#
+			#  - Don't stop on test suite failures
+			#  - Abort the build at the first test suite failure
+			#
+
+	choice
+		prompt	"Tests ->"
+		depends	 CONFIG_TESTS
+		default	TEST_1
+
+		config	TST_1
+			bool	"Only final system Glibc, GCC and Binutils testsuites"
+
+		config	TST_2
+			bool	"All final system testsuites"
+
+		config	TST_3
+			bool	"Both temporary tools and final system testsuites" if !BOOK_HLFS && !BOOK_CLFS
+	endchoice
+
+	config	TEST
+		int
+		default	"0"	if !CONFIG_TESTS
+		default	"1"	if TST_1
+		default	"2"	if TST_2
+		default	"3"	if TST_3
+
+	choice
+		prompt	"Flavour ->"
+		depends	CONFIG_TESTS
+		default	NO_BOMB
+
+		config	NO_BOMB
+			bool	"Don't stop on test suite failures"
+
+		config	BOMB
+			bool	"Abort the build at the first test suite failure"
+	endchoice
+
+	config	BOMB_TEST
+		int
+		default	"0"	if NO_BOMB
+		default	"1"	if BOMB
+	#--- End Test Suites
+
+	#--- FSTAB
+	config	HAVE_FSTAB
+		bool	"Use a custom fstab file"
+		default	n
+		help
+			#-- Select this if you have ready a proper fstab file
+
+	config	FSTAB
+		string	"Fstab file (optional)"
+		default	"***EDIT ME***"
+		depends on HAVE_FSTAB
+		help
+			#-- The location of fstab file (if empty, a template is created)
+	#--- End FSTAB
+
+	#--- Kernel
+	config	CONFIG_BUILD_KERNEL
+		bool	"Build the kernel"
+		default	n
+		help
+			#-- Select this option if you wish to build the kernel.
+			#
+			#   You will be prompted for the full path to the .config
+			#   file. It will be copied to the 'sources' directory and
+			#   rename kernel-config
+
+	config	CONFIG
+		string	"Kernel config file"
+		default	"***EDIT ME***"
+		depends on CONFIG_BUILD_KERNEL
+		help
+			#-- Fully qualified path to a kernel config file
+			#   The config file will be copied to ${BUILD_DIR}/sources
+			#   and renamed 'kernel-config'
+
+	config	KEYMAP
+		string "Keyboard map"
+		default "none"
+		depends on !BOOK_LFS && CONFIG_BUILD_KERNEL
+		help
+			#-- Include the keymap in the kernel if defined. Path to the
+			#   keymap file relative to /usr/share/kbd/keymaps/
+			#   (e.g., i386/qwerty/us.map.gz) or "none" if you do not want
+			#   a keymap included in the kernel
+	#--- End Kernel
+
+	config	CONFIG_STRIP
+		bool "Strip Installed Binaries/Libraries"
+		default y
+
+	config	CONFIG_VIMLANG
+		bool "Install vim-lang package"
+		default y
+		help
+			#-- install the optional vim-lang package
+
+	config	TIMEZONE
+		string "TimeZone"
+		default "GMT"
+		help
+			#-- The timezone as output by tzselect
+			#   This will be copied to /etc/localtime
+
+	config	LANG
+		string "Language"
+		default "$LANG"
+		help
+			#-- Language information in /etc/profile  See <locale -a> for values
+
+	config	LC_ALL
+		string "Language"
+		default "$LC_ALL"
+		depends on !BOOK_LFS
+		help
+			#-- Language information in /etc/profile  See <locale -a> for values
+
+	#--- Groff page
+	choice
+		prompt	"Groff page size"
+		default	PAGE_LETTER
+		help
+			#-- Page definition for groff: letter or A4
+
+		config	PAGE_LETTER
+			bool	"letter"
+
+		config	PAGE_A4
+			bool	"A4"
+	endchoice
+
+	config	PAGE
+		string
+		default	"letter"	if PAGE_LETTER
+		default	"A4"		if PAGE_A4
+	#--- End Groff page
+
+#--- End Build Settings
+endmenu
+
+menu "--- Advanced Features"
+
+	config	CONFIG_REPORT
+		bool "Create SBU and disk usage report"
+		default y
+
+	#--- ICA/farce
+	config	CONFIG_COMPARE
+		bool "Run comparison analysis on final stage"
+		depends	!BOOK_CLFS2
+		default n
+		help
+			#-- Should some iterative comparison analysis by made?
+			#
+			#   Unless you are familiar with ICA and/or FARCE do not
+			#   select this option
+			#
+			#  ICA and FARCE are analysis tools for comparing one
+			#  build to the next. Builds mays differ from one iteration
+			#  to another due to the build order and these tools try
+			#  to ferret out those differences by examining the stored
+			#  build logs and binary files.
+			#
+			#  The scripts are well commented and can be found in ./extras/*
+			#
+
+	config	ITERATIONS
+		int	"Number of test runs (2,3,4,5)"
+		depends on CONFIG_COMPARE
+		range	2 5
+		default	3
+
+	config	CONFIG_ICA
+		bool	"ICA testing"
+		depends on CONFIG_COMPARE
+		default y
+		help
+			#-- Run ICA testing
+
+	config	CONFIG_FARCE
+		bool	"farce testing"
+		depends on CONFIG_COMPARE
+		default n
+		help
+			#-- Run farce testing
+	#--- End ICA/farce
+
+	#-- Optimizations
+	config	CONFIG_OPTIMIZE
+		bool	"Use optimization "
+		default	n
+		help
+			#-- Actual optimzation flags MUST be defined in ./optimize/*
+			#   files before activate this option.
+			#
+			# WARNING: The use of build optimizations may be dangerous.
+			#   You should know what you are doing and be sure that the
+			#   optimization settings listed below are what you want.
+			#   It there are build issues or the system doesn't work as
+			#   expected, please rebuild without optimizations before
+			#   asking for support.
+
+	choice
+		prompt "Optimization level "
+		default OPT_1
+		depends	CONFIG_OPTIMIZE
+		help
+			#-- Optimization values are set in optimize/* files
+
+		config	OPT_1
+			bool	"Final system only"
+
+		config	OPT_2
+			bool	"Both temp tools and final system"
+	endchoice
+
+	config	OPTIMIZE
+		int
+		default	"0"	if !CONFIG_OPTIMIZE
+		default	"1"	if OPT_1
+		default	"2"	if OPT_2
+	#--- End Optimizations
+
+#--- End Advanced Features
+endmenu
+
+#	config	CONFIG_BLFS_CMDS
+#		bool	"Add BLFS packages to current build"
+#		default	n
+#		depends	!BOOK_HLFS && XXX
+#		help
+#			#--- Select this option if you wish to install any BLFS packages
+#			#    as part of your {c,h}lfs build.
+#			#    Any needed packages will be downloaded to the /sources dir
+#	config	BLFS_CMDLINE
+#		string	"BLFS packages"
+#		default	"none"
+#		depends	CONFIG_BLFS_CMDS
+
+
+# convert CONFIG_XXXX n/y to XXXX 0/1
+
+	config	COMPARE
+		int
+		default 0	if !CONFIG_COMPARE
+		default 1	if  CONFIG_COMPARE
+
+	config	GETPKG
+		int
+		default 0	if !CONFIG_GETPKG
+		default 1	if  CONFIG_GETPKG
+
+	config	GETKERNEL
+		int
+		default	0	if !CONFIG_GETKERNEL
+		default	1	if  CONFIG_GETKERNEL
+
+	config	RUNMAKE
+		int
+		default	0	if !CONFIG_RUNMAKE
+		default 1	if  CONFIG_RUNMAKE
+
+	config	STRIP
+		int
+		default	0	if !CONFIG_STRIP
+		default	1	if  CONFIG_STRIP
+
+	config	REPORT
+		int
+		default	0	if !CONFIG_REPORT
+		default 1	if  CONFIG_REPORT
+
+	config	VIMLANG
+		int
+		default	0	if !CONFIG_VIMLANG
+		default	1	if  CONFIG_VIMLANG
+
+	config	RUN_ICA
+		int
+		default	0	if !CONFIG_ICA
+		default	1	if  CONFIG_ICA
+
+	config	RUN_FARCE
+		int
+		default	0	if !CONFIG_FARCE
+		default	1	if  CONFIG_FARCE
+
+	config	CLEAN
+		int
+		default	0	if !CONFIG_REBUILD
+		default	1	if  CONFIG_REBUILD

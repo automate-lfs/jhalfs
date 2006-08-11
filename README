@@ -29,6 +29,25 @@ $Id$
      Each book in the LFS series has its own set of configurable parameters
   as well as the common parameters file.
 
+     ::NEWS:: There is new configuration method for jhalfs.
+
+     We have installed the familiar menu based configuration tool driven by
+     make. If you type the command
+       make
+     you will be presented with a list of configurable parameters (starting
+     with the book you wish to use). All the parameters found in the individual
+     config files are available. Once you have finished setting the parameters
+     and exit the make file will launch the chosen book version of jhalfs.
+     JHALFS will import your created file and overider the values found in normal
+     "config" files.
+     ..note.. The generated file <configuration> is only used by jhalfs if you
+     run jhalfs via make otherwise it is ignored.
+
+     If you want to try out the new configuration system without running jhalfs
+     issue the following.
+       make menuconfig
+     This will create a new file named configuration but will not launch jhalfs.
+
 4. RUNNING::
      The script master.sh cannot be invoked directly but only via the
   supplied symlinks. After editing the config file for the project you wish
