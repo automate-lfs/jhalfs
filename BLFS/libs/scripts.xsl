@@ -102,7 +102,7 @@
             </xsl:apply-templates>
             <!-- Clean-up -->
             <xsl:text>cd ~/sources/$PKG_DIR&#xA;</xsl:text>
-            <xsl:text>rm -rf $UNPACKDIR&#xA;&#xA;</xsl:text>
+            <xsl:text>rm -rf $UNPACKDIR unpacked&#xA;&#xA;</xsl:text>
           </xsl:when>
           <!-- Non-package page -->
           <xsl:otherwise>
@@ -131,9 +131,15 @@
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
       <xsl:when test="@role = 'installation'">
-        <xsl:text>tar -xvf $PACKAGE > unpacked&#xA;</xsl:text>
-        <xsl:text>UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`&#xA;</xsl:text>
-        <xsl:text>cd $UNPACKDIR&#xA;</xsl:text>
+        <xsl:text>
+if [[ -e unpacked ]] ; then
+  UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
+  rm -rf $UNPACKDIR
+fi
+tar -xvf $PACKAGE > unpacked
+UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
+cd $UNPACKDIR
+          </xsl:text>
         <xsl:apply-templates select=".//screen | .//para/command"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
