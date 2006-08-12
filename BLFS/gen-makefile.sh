@@ -52,7 +52,7 @@ __wrt_touch() {                    #
 (
 cat << EOF
 	@touch  \$@ && \\
-	touch \$(TRACKING_DIR)/${pkg_name#*-} && \\
+	touch \$(TRACKING_DIR)/${pkg_name#*-?-} && \\
 	sleep .25 && \\
 	echo -e "\n\n "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
