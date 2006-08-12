@@ -304,7 +304,7 @@
         <xsl:text>  elif [[ -f $SRC_ARCHIVE/$PACKAGE ]] ; then&#xA;</xsl:text>
         <xsl:text>    cp $SRC_ARCHIVE/$PACKAGE $PACKAGE&#xA;  else&#xA;</xsl:text>
         <!-- The FTP_SERVER mirror -->
-        <xsl:text>    wget $FTP_SERVER/BLFS/conglomeration/$PKG_DIR/$PACKAGE</xsl:text>
+        <xsl:text>    wget ${FTP_SERVER}conglomeration/$PKG_DIR/$PACKAGE</xsl:text>
         <!-- Upstream HTTP URL -->
         <xsl:if test="string-length(ulink/@url) &gt; '10' and
                       not(contains(string(ulink/@url),'sourceforge'))">
