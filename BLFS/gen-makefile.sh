@@ -38,11 +38,9 @@ EOF
 #----------------------------------#
 __write_build_cmd() {              #
 #----------------------------------#
-  local this_script=$1
-  local file=$2
 (
 cat << EOF
-	@( time { source ../makefile.conf && ${BUILD_SCRIPTS}/${file} >>logs/${this_script} 2>&1 ; } ) 2>>logs/${this_script}
+	@source ../makefile.conf && ${BUILD_SCRIPTS}/\$@ >logs/\$@ 2>&1
 EOF
 ) >> $MKFILE.tmp
 }
@@ -77,7 +75,7 @@ __write_entry() {            #
   # Drop in the name of the target on a new line, and the previous target
   # as a dependency. Also call the echo_message function.
   __wrt_target "${script_name}" "$PREV_PACKAGE"
-  __write_build_cmd "${script_name}" "${script_name}"
+  __write_build_cmd
 
   # Include a touch of the target name so make can check
   # if it's already been made.
