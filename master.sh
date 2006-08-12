@@ -328,9 +328,9 @@ while test $# -gt 0 ; do
       fi
       ;;
 
-    --run-make | -M )      RUNMAKE=1 ;;
+    --run-make | -M )      RUNMAKE=y ;;
 
-    --rebuild | -R )       CLEAN=1   ;;
+    --rebuild | -R )       CLEAN=y   ;;
 
     # CLFS options
     --arch | -A )
