@@ -79,7 +79,7 @@ chapter5_Makefiles() {
       *tcl)       [[ "${TEST}" = "0" ]] && continue ;;
       *expect)    [[ "${TEST}" = "0" ]] && continue ;;
       *dejagnu)   [[ "${TEST}" = "0" ]] && continue ;;
-      *stripping) [[ "${STRIP}" = "0" ]] && continue ;;
+      *stripping) [[ "${STRIP}" = "n" ]] && continue ;;
       *glibc)     [[ "${TEST}" = "3" ]] && \
                   sed -i 's@/usr/lib/locale@/tools/lib/locale@' $file ;;
     esac
@@ -176,7 +176,7 @@ chapter6_Makefiles() {
     # dependencies and target creation.
     case "${this_script}" in
       *chroot)      continue ;;
-      *stripping*) [[ "${STRIP}" = "0" ]] && continue ;;
+      *stripping*) [[ "${STRIP}" = "n" ]] && continue ;;
     esac
 
     # Grab the name of the target
@@ -334,7 +334,7 @@ chapter789_Makefiles() {
   done  # for file in chapter0{7,8,9}/*
 
   # Add SBU-disk_usage report target if required
-  if [[ "$REPORT" = "1" ]] ; then wrt_report ; fi
+  if [[ "$REPORT" = "y" ]] ; then wrt_report ; fi
 }
 
 
@@ -351,7 +351,7 @@ build_Makefile() {
   chapter5_Makefiles
   chapter6_Makefiles
   # Add the iterations targets, if needed
-  [[ "$COMPARE" != "0" ]] && wrt_compare_targets
+  [[ "$COMPARE" = "y" ]] && wrt_compare_targets
   chapter789_Makefiles
 
 

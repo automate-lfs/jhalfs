@@ -175,7 +175,7 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
         # Nothing interestin in this script
       *introduction* ) continue ;;
         # Test if the stripping phase must be skipped
-      *stripping* ) [[ "$STRIP" = "0" ]] && continue ;;
+      *stripping* ) [[ "$STRIP" = "n" ]] && continue ;;
       *) ;;
     esac
 
@@ -287,7 +287,7 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
         # dependencies and target creation.
       *chroot* )  continue ;;
         # Test if the stripping phase must be skipped
-      *-stripping* )  [[ "$STRIP" = "0" ]] && continue ;;
+      *-stripping* )  [[ "$STRIP" = "n" ]] && continue ;;
     esac
 
     # Grab the name of the target
@@ -465,7 +465,7 @@ EOF
   done  # for file in chapter07/*
 
   # Add SBU-disk_usage report target if required
-  if [[ "$REPORT" = "1" ]] ; then wrt_report ; fi
+  if [[ "$REPORT" = "y" ]] ; then wrt_report ; fi
 }
 
 
@@ -482,7 +482,7 @@ build_Makefile() {           # Construct a Makefile from the book scripts
   chapter5_Makefiles
   chapter6_Makefiles
   # Add the iterations targets, if needed
-  [[ "$COMPARE" != "0" ]] && wrt_compare_targets
+  [[ "$COMPARE" = "y" ]] && wrt_compare_targets
   chapter7_Makefiles
 
   # Add a header, some variables and include the function file

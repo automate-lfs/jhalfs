@@ -572,7 +572,7 @@ EOF
 run_make() {                 #
 #----------------------------#
   # Test if make must be run.
-  if [ "$RUNMAKE" = "1" ] ; then
+  if [ "$RUNMAKE" = "y" ] ; then
     # Test to make sure we're running the build as root
     if [ "$UID" != "0" ] ; then
       echo "You must be logged in as root to successfully build the system."
@@ -592,7 +592,7 @@ run_make() {                 #
 clean_builddir() {           #
 #----------------------------#
   # Test if the clean must be done.
-  if [ "$CLEAN" = "1" ] ; then
+  if [ "${CLEAN}" = "y" ]; then
     # Test to make sure we're running the clean as root
     if [ "$UID" != "0" ] ; then
       echo "You must be logged in as root to clean the build directory."
@@ -705,7 +705,7 @@ extract_commands() {         #
                  --stringparam timezone $TIMEZONE \
                  --stringparam page $PAGE \
                  --stringparam lang $LANG \
-                 --stringparam keymap ${KEYMAP:-"none"} \
+                 --stringparam keymap $KEYMAP \
                  -o ./${PROGNAME}-commands/ $XSL $BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
       ;;
 
@@ -717,7 +717,7 @@ extract_commands() {         #
                  --stringparam timezone $TIMEZONE \
                  --stringparam page $PAGE \
                  --stringparam lang $LANG \
-                 --stringparam keymap ${KEYMAP:-"none"} \
+                 --stringparam keymap $KEYMAP \
                  -o ./${PROGNAME}-commands/ $XSL $BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
       ;;
     hlfs)
@@ -731,7 +731,7 @@ extract_commands() {         #
                  --stringparam page $PAGE \
                  --stringparam lang $LANG \
                  --stringparam lc_all $LC_ALL \
-                 --stringparam keymap ${KEYMAP:-"none"} \
+                 --stringparam keymap $KEYMAP \
                  --stringparam grsecurity_host $GRSECURITY_HOST \
                  -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
       ;;
@@ -795,7 +795,7 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
   local IFS line URL1 URL2 FILE BOOKMD5 MD5 HAVEMD5 fromARCHIVE
 
     # Test if the packages must be downloaded
-  [ ! "$GETPKG" = "1" ] && return
+  [ ! "$GETPKG" = "y" ] && return
 
   gs_wrt_message(){
     echo "${RED}$1${OFF}"
@@ -825,7 +825,7 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
           ;;
         *linux/linux-* )
             [[ -z "$CONFIG" ]] && [[ -z "$BOOT_CONFIG" ]] && \
-            [[ "$GETKERNEL" = "0" ]] && continue
+            [[ "$GETKERNEL" = "n" ]] && continue
           ;;
     esac
 
@@ -907,7 +907,7 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
     echo  -e "\n\n${tab_}${RED} One or more files were not retrieved or have bad MD5SUMS.\n${tab_} Check ${L_arrow}$BUILDDIR/sources/MISSING_FILES.DMP${R_arrow} for names ${OFF}\n"
       # Do not allow the automatic execution of the Makefile.
     echo "${tab_}${BOLD}${RED}*** ${YELLOW}Automatic execution of the generated makefile has been inhibited. ${RED}***${OFF}${nl_}"
-    RUNMAKE=0
+    RUNMAKE="n"
   fi
 }
 

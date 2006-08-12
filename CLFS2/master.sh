@@ -215,7 +215,7 @@ final_system_Makefiles() {    #
     # Test if the stripping phase must be skipped.
     # Skip alsp temp-perl for iterative runs
     case $this_script in
-      *stripping*) [[ "$STRIP" = "0" ]] && continue ;;
+      *stripping*) [[ "$STRIP" = "n" ]] && continue ;;
     esac
 
     # Grab the name of the target, strip id number, XXX-script
@@ -403,7 +403,7 @@ bootable_Makefiles() {        #
   done
 
   # Add SBU-disk_usage report target if required
-  if [[ "$REPORT" = "1" ]] ; then wrt_report ; fi
+  if [[ "$REPORT" = "y" ]] ; then wrt_report ; fi
 
 }
 

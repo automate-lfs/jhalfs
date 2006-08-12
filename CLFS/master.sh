@@ -497,7 +497,7 @@ final_system_Makefiles() {    #
     # Test if the stripping phase must be skipped.
     # Skip alsp temp-perl for iterative runs
     case $this_script in
-      *stripping*) [[ "$STRIP" = "0" ]] && continue ;;
+      *stripping*) [[ "$STRIP" = "n" ]] && continue ;;
       *temp-perl*) [[ -n "$N" ]] && continue ;;
     esac
 
@@ -607,7 +607,7 @@ bm_final_system_Makefiles() { #
     # Test if the stripping phase must be skipped
     # Skip alsp temp-perl for iterative runs
     case $this_script in
-      *stripping*) [[ "$STRIP" = "0" ]] && continue ;;
+      *stripping*) [[ "$STRIP" = "n" ]] && continue ;;
       *temp-perl*) [[ -n "$N" ]] && continue ;;
     esac
 
@@ -882,7 +882,7 @@ bootable_Makefiles() {        #
   done
 
   # Add SBU-disk_usage report target if required
-  if [[ "$REPORT" = "1" ]] ; then wrt_report ; fi
+  if [[ "$REPORT" = "y" ]] ; then wrt_report ; fi
 
 }
 
@@ -961,7 +961,7 @@ bm_bootable_Makefiles() {     #
   done
 
   # Add SBU-disk_usage report target if required
-  if [[ "$REPORT" = "1" ]] ; then wrt_report ; fi
+  if [[ "$REPORT" = "y" ]] ; then wrt_report ; fi
 
 }
 
@@ -985,7 +985,7 @@ build_Makefile() {            # Construct a Makefile from the book scripts
     fi
     final_system_Makefiles         # $basicsystem
     # Add the iterations targets, if needed
-    [[ "$COMPARE" != "0" ]] && wrt_compare_targets
+    [[ "$COMPARE" = "y" ]] && wrt_compare_targets
     bootscripts_Makefiles          # $bootscripttools
     bootable_Makefiles             # $bootabletools
   else
@@ -995,7 +995,7 @@ build_Makefile() {            # Construct a Makefile from the book scripts
     fi
     bm_final_system_Makefiles      # $basicsystem
     # Add the iterations targets, if needed
-    [[ "$COMPARE" != "0" ]] && wrt_compare_targets
+    [[ "$COMPARE" = "y" ]] && wrt_compare_targets
     bm_bootscripts_Makefiles       # $bootscipttools
     bm_bootable_Makefiles          # $bootabletoosl
   fi

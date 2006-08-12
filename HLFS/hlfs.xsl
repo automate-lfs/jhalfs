@@ -17,7 +17,7 @@
   <xsl:param name="model" select="glibc"/>
 
   <!-- Is the host kernel using grsecurity? -->
-  <xsl:param name="grsecurity_host" select="0"/>
+  <xsl:param name="grsecurity_host" select="n"/>
 
   <!-- Compile the keymap into the kernel? -->
   <xsl:param name="keymap" select="none"/>
@@ -31,10 +31,10 @@
   <xsl:param name="testsuite" select="1"/>
 
   <!-- Bomb on test suites failures?
-       0 = no, I want to build the full system and review the logs
-       1 = yes, bomb at the first test suite failure to can review the build dir
+       n = no, I want to build the full system and review the logs
+       y = yes, bomb at the first test suite failure to can review the build dir
   -->
-  <xsl:param name="bomb-testsuite" select="0"/>
+  <xsl:param name="bomb-testsuite" select="n"/>
 
   <!-- Time zone -->
   <xsl:param name="timezone" select="GMT"/>
@@ -143,7 +143,7 @@
                   contains(string(),'check')) and
                   ($testsuite = '2' or $testsuite = '3')">
       <xsl:choose>
-        <xsl:when test="$bomb-testsuite = '0'">
+        <xsl:when test="$bomb-testsuite = 'n'">
           <xsl:value-of select="substring-before(string(),'make')"/>
           <xsl:text>make -k</xsl:text>
           <xsl:value-of select="substring-after(string(),'make')"/>
@@ -176,7 +176,7 @@
       <!-- grsecurity kernel in the host? -->
       <xsl:when test="ancestor::sect1[@id='ch-system-kernfs'] and
                 contains(string(),'sysctl')
-                and $grsecurity_host ='0'"/>
+                and $grsecurity_host ='n'"/>
       <!-- Setting $LC_ALL and $LANG for /etc/profile -->
       <xsl:when test="ancestor::sect1[@id='bootable-profile'] and
                 contains(string(),'export LANG=')">
@@ -226,7 +226,7 @@
             </xsl:if>
             <xsl:if test="contains(string(),'check')">
               <xsl:choose>
-                <xsl:when test="$bomb-testsuite = '0'">
+                <xsl:when test="$bomb-testsuite = 'n'">
                   <xsl:value-of select="substring-before(string(),'check')"/>
                   <xsl:text>-k check</xsl:text>
                   <xsl:value-of select="substring-after(string(),'check')"/>
@@ -247,7 +247,7 @@
           <xsl:when test="$testsuite != '0'">
             <xsl:apply-templates/>
             <xsl:choose>
-              <xsl:when test="$bomb-testsuite = '0'">
+              <xsl:when test="$bomb-testsuite = 'n'">
                 <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
               </xsl:when>
               <xsl:otherwise>
@@ -263,7 +263,7 @@
           <xsl:when test="$testsuite != '0'">
             <xsl:value-of select="substring-before(string(),'&gt; glibc-')"/>
             <xsl:choose>
-              <xsl:when test="$bomb-testsuite = '0'">
+              <xsl:when test="$bomb-testsuite = 'n'">
                 <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
               </xsl:when>
               <xsl:otherwise>

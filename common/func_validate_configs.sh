@@ -1,13 +1,15 @@
 # $Id$
 
+declare -r dotSTR=".................."
+
 #----------------------------#
 validate_target() {          #
 #----------------------------#
   local -r ERROR_MSG_pt1='The variable \"${L_arrow}TARGET${R_arrow}\" value ${L_arrow}${BOLD}${TARGET}${R_arrow} is invalid for the ${L_arrow}${BOLD}${ARCH}${R_arrow} architecture'
   local -r ERROR_MSG_pt2='  check the config file ${BOLD}${GREEN}\<$(echo $PROGNAME | tr [a-z] [A-Z])/config\> or \<common/config\>${OFF}'
 
-  local -r PARAM_VALS='TARGET: ${L_arrow}${BOLD}${TARGET}${OFF}${R_arrow}'
-  local -r PARAM_VALS2='TARGET32: ${L_arrow}${BOLD}${TARGET32}${OFF}${R_arrow}'
+  local -r PARAM_VALS='TARGET${dotSTR:6} ${L_arrow}${BOLD}${TARGET}${OFF}${R_arrow}'
+  local -r PARAM_VALS2='TARGET32${dotSTR:8} ${L_arrow}${BOLD}${TARGET32}${OFF}${R_arrow}'
 
   write_error_and_die() {
     echo -e "\n${DD_BORDER}"
@@ -93,7 +95,7 @@ inline_doc
 
   local -r ERROR_MSG_pt1='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid,'
   local -r ERROR_MSG_pt2=' check the config file ${BOLD}${GREEN}\<$(echo $PROGNAME | tr [a-z] [A-Z])/config\> or \<common/config\>${OFF}'
-  local -r PARAM_VALS='${config_param}: ${L_arrow}${BOLD}${!config_param}${OFF}${R_arrow}'
+  local -r PARAM_VALS='${config_param}${dotSTR:${#config_param}} ${L_arrow}${BOLD}${!config_param}${OFF}${R_arrow}'
 
   local    PARAM_LIST=
   local config_param
@@ -174,26 +176,26 @@ inline_doc
       TIMEZONE)   echo -e "`eval echo $PARAM_VALS`" ;;
 
       # Validate general parameters..
-      GETPKG)     validate_against_str "x0x x1x" ;;
+      GETPKG)     validate_against_str "xnx xyx" ;;
       GETKERNEL ) if [[ -z "$CONFIG" ]] && [[ -z "$BOOT_CONFIG" ]] ; then
-                    [[ "$GETPKG" = "1" ]] && validate_against_str "x0x x1x"
+                    [[ "$GETPKG" = "y" ]] && validate_against_str "xnx xyx"
                   fi ;;
-      RUNMAKE)    validate_against_str "x0x x1x" ;;
-      REPORT)     validate_against_str "x0x x1x"
-                  if [[ "${!config_param}" = "1" ]]; then
+      RUNMAKE)    validate_against_str "xnx xyx" ;;
+      REPORT)     validate_against_str "xnx xyx"
+                  if [[ "${!config_param}" = "y" ]]; then
                     if [[ `type -p bc` ]]; then
                       continue
                     else
                       echo -e "  ${BOLD}The bc binary was not found${OFF}"
                       echo -e "  The SBU and disk usage report creation will be skiped"
-                      REPORT=0
+                      REPORT=n
                       continue
                     fi
                   fi ;;
-      COMPARE)    if [[ ! "$COMPARE" = "1" ]]; then
-                    validate_against_str "x0x x1x"
+      COMPARE)    if [[ ! "$COMPARE" = "y" ]]; then
+                    validate_against_str "xnx xyx"
                   else
-                    if [[ ! "${RUN_ICA}" = "1" ]] && [[ ! "${RUN_FARCE}" = "1" ]]; then
+                    if [[ ! "${RUN_ICA}" = "y" ]] && [[ ! "${RUN_FARCE}" = "y" ]]; then
                        echo  "${nl_}${DD_BORDER}"
                        echo  "You have elected to analyse your build but have failed to select a tool." >&2
                        echo  "Edit /common/config and set ${L_arrow}${BOLD}RUN_ICA${R_arrow} and/or ${L_arrow}${BOLD}RUN_FARCE${R_arrow} to the required values" >&2
@@ -201,14 +203,14 @@ inline_doc
                        exit 1
                     fi
                   fi ;;
-      RUN_ICA)    [[ "$COMPARE" = "1" ]] && validate_against_str "x0x x1x" ;;
-      RUN_FARCE)  [[ "$COMPARE" = "1" ]] && validate_against_str "x0x x1x" ;;
-      ITERATIONS) [[ "$COMPARE" = "1" ]] && validate_against_str "x2x x3x x4x x5x" ;;
+      RUN_ICA)    [[ "$COMPARE" = "y" ]] && validate_against_str "xnx xyx" ;;
+      RUN_FARCE)  [[ "$COMPARE" = "y" ]] && validate_against_str "xnx xyx" ;;
+      ITERATIONS) [[ "$COMPARE" = "y" ]] && validate_against_str "x2x x3x x4x x5x" ;;
       TEST)       validate_against_str "x0x x1x x2x x3x" ;;
-      BOMB_TEST)  [[ ! "$TEST" = "0" ]] && validate_against_str "x0x x1x" ;;
+      BOMB_TEST)  [[ ! "$TEST" = "0" ]] && validate_against_str "xnx xyx" ;;
       OPTIMIZE)   validate_against_str "x0x x1x x2x" ;;
-      STRIP)      validate_against_str "x0x x1x" ;;
-      VIMLANG)    validate_against_str "x0x x1x" ;;
+      STRIP)      validate_against_str "xnx xyx" ;;
+      VIMLANG)    validate_against_str "xnx xyx" ;;
       MODEL)      validate_against_str "xglibcx xuclibcx" ;;
       PAGE)       validate_against_str "xletterx xA4x" ;;
       METHOD)     validate_against_str "xchrootx xbootx" ;;
@@ -220,7 +222,7 @@ inline_doc
       LGROUP)     echo -e "`eval echo $PARAM_VALS`"
                   [[ "${!config_param}" = "**EDIT ME**" ]] && write_error_and_die
                   ;;
-      GRSECURITY_HOST)  validate_against_str "x0x x1x" ;;
+      GRSECURITY_HOST)  validate_against_str "xnx xyx" ;;
 
       # BOOK validation. Very ugly, need be fixed
       BOOK)        if [[ "${WC}" = "1" ]] ; then
@@ -232,7 +234,7 @@ inline_doc
       # Validate directories, testable states:
       #  fatal   -z -d -w,
       #  warning -z+   -w+
-      SRC_ARCHIVE) [[ "$GETPKG" = "1" ]] && validate_dir -z+ -d -w+ ;;
+      SRC_ARCHIVE) [[ "$GETPKG" = "y" ]] && validate_dir -z+ -d -w+ ;;
       BUILDDIR)   # The build directory/partition MUST exist and be writable by the user
                   validate_dir -z -d -w
                   [[ "xx x/x" =~ "x${!config_param}x" ]] &&

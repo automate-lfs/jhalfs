@@ -54,7 +54,7 @@ wrt_compare_work() {               #
     local DEST_TOPDIR=$BUILDDIR/${SCRIPT_ROOT}
   fi
 
-  if [[ "$RUN_ICA" = "1" ]] ; then
+  if [[ "$RUN_ICA" = "y" ]] ; then
     local DEST_ICA=$DEST_TOPDIR/ICA && \
 (
     cat << EOF
@@ -67,7 +67,7 @@ EOF
     fi
   fi
 
-  if [[ "$RUN_FARCE" = "1" ]] ; then
+  if [[ "$RUN_FARCE" = "y" ]] ; then
     local DEST_FARCE=$DEST_TOPDIR/farce && \
 (
     cat << EOF

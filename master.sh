@@ -46,27 +46,6 @@ fi
 MODULE_CONFIG=$PACKAGE_DIR/config
     VERBOSITY=0
 
-[[ $VERBOSITY > 0 ]] && echo -n "Loading common-functions module..."
-source $COMMON_DIR/common-functions
-[[ $? > 0 ]] && echo " $COMMON_DIR/common-functions did not load.." && exit
-[[ $VERBOSITY > 0 ]] && echo "OK"
-#
-[[ $VERBOSITY > 0 ]] && echo -n "Loading masterscript conf..."
-source $COMMON_DIR/config
-[[ $? > 0 ]] && echo "$COMMON_DIR/conf did not load.." && exit
-[[ $VERBOSITY > 0 ]] && echo "OK"
-#
-[[ $VERBOSITY > 0 ]] && echo -n "Loading config module <$MODULE_CONFIG>..."
-source $MODULE_CONFIG
-[[ $? > 0 ]] && echo "$MODULE_CONFIG did not load.." && exit 1
-[[ $VERBOSITY > 0 ]] && echo "OK"
-#
-[[ $VERBOSITY > 0 ]] && echo -n "Loading code module <$MODULE>..."
-source $MODULE
-[[ $? > 0 ]] && echo "$MODULE did not load.." && exit 2
-[[ $VERBOSITY > 0 ]] && echo "OK"
-#
-[[ $VERBOSITY > 0 ]] && echo "${SD_BORDER}${nl_}"
 
 if [[ -e using_menuconfig ]]; then
   [[ $VERBOSITY > 0 ]] && echo -n "Loading config params from <configuration>..."
@@ -84,7 +63,13 @@ if [[ -e using_menuconfig ]]; then
     ICALOGDIR=$LOGDIR/ICA
 	#--- farce report log directory
   FARCELOGDIR=$LOGDIR/farce
+          XSL=$PROGNAME.xsl
 
+  case $PROGNAME in
+    clfs2) LFSVRS=development; TREE=branches/clfs-2.0/BOOK ;;  
+        *) LFSVRS=development; TREE=trunk/BOOK             ;;
+  esac
+	  
   if [[ ! -z ${BRANCH_ID} ]]; then
     case $BRANCH_ID in
      dev* | SVN | trunk )
@@ -112,7 +97,51 @@ if [[ -e using_menuconfig ]]; then
       ;;
     esac
   fi
+  # These are boolean vars generated from Config.in.
+  # ISSUE: If a boolean parameter is not set <true> that  
+  # variable is not defined by the menu app. This can 
+  # cause a headache if you are not careful.
+  #  The following parameters MUST be created and have a 
+  #  default value.
+  RUNMAKE=${RUNMAKE:-n}
+  GETPKG=${GETPKG:-n}
+  GETKERNEL=${GETKERNEL:-n}
+  COMPARE=${COMPARE:-n}
+  RUN_FARCE=${RUN_FARCE:-n}
+  RUN_ICA=${RUN_ICA:-n}
+  BOMB_TEST=${BOMB_TEST:-n}
+  STRIP=${STRIP:=n}
+  REPORT=${REPORT:=n}
+  VIMLANG=${VIMLANG:-n}
+  KEYMAP=${KEYMAP:=none}
+  GRSECURITY_HOST=${GRSECURITY_HOST:-n}
+  
+else
+  #
+  [[ $VERBOSITY > 0 ]] && echo -n "Loading masterscript conf..."
+  source $COMMON_DIR/config
+  [[ $? > 0 ]] && echo "$COMMON_DIR/conf did not load.." && exit
+  [[ $VERBOSITY > 0 ]] && echo "OK"
+  #
+  [[ $VERBOSITY > 0 ]] && echo -n "Loading config module <$MODULE_CONFIG>..."
+  source $MODULE_CONFIG
+  [[ $? > 0 ]] && echo "$MODULE_CONFIG did not load.." && exit 1
+  [[ $VERBOSITY > 0 ]] && echo "OK"
+  #
 fi
+
+
+[[ $VERBOSITY > 0 ]] && echo -n "Loading common-functions module..."
+source $COMMON_DIR/common-functions
+[[ $? > 0 ]] && echo " $COMMON_DIR/common-functions did not load.." && exit
+[[ $VERBOSITY > 0 ]] && echo "OK"
+[[ $VERBOSITY > 0 ]] && echo -n "Loading code module <$MODULE>..."
+source $MODULE
+[[ $? > 0 ]] && echo "$MODULE did not load.." && exit 2
+[[ $VERBOSITY > 0 ]] && echo "OK"
+#
+[[ $VERBOSITY > 0 ]] && echo "${SD_BORDER}${nl_}"
+
 
 #===========================================================
 # If the var BOOK contains something then, maybe, it points
@@ -190,7 +219,7 @@ while test $# -gt 0 ; do
       esac
       ;;
 
-    --get-packages | -G )      GETPKG=1    ;;
+    --get-packages | -G )      GETPKG=y    ;;
 
     --help | -h )  usage | more && exit  ;;
 
@@ -267,18 +296,9 @@ while test $# -gt 0 ; do
       test $# = 1 && eval "$exit_missing_arg"
       shift
       case $1 in
-        ICA)              RUN_ICA=1
-                        RUN_FARCE=0
-                          COMPARE=1
-        ;;
-        farce)            RUN_ICA=0
-                        RUN_FARCE=1
-                          COMPARE=1
-        ;;
-        both)             RUN_ICA=1
-                        RUN_FARCE=1
-                          COMPARE=1
-        ;;
+        ICA)    RUN_ICA=y; RUN_FARCE=n; COMPARE=y  ;;
+        farce)  RUN_ICA=n; RUN_FARCE=y; COMPARE=y  ;;
+        both)   RUN_ICA=y; RUN_FARCE=y; COMPARE=y  ;;
         *)
           echo -e "\n$1 is an unknown analysis method."
           exit 1
@@ -316,88 +336,40 @@ while test $# -gt 0 ; do
     --arch | -A )
       test $# = 1 && eval "$exit_missing_arg"
       shift
-      case $1 in
-        arm )
-          ARCH=arm
-          TARGET="arm-unknown-linux-gnu"
-          ;;
-        x86 )
-          ARCH=x86
-          TARGET="i686-pc-linux-gnu"
-          ;;
-        i486 )
-          ARCH=x86
-          TARGET="i486-pc-linux-gnu"
-          ;;
-        i586 )
-          ARCH=x86
-          TARGET="i586-pc-linux-gnu"
-          ;;
-        ppc )
-          ARCH=ppc
-          TARGET="powerpc-unknown-linux-gnu"
-          ;;
-        mips )
-          ARCH=mips
-          TARGET="mips-unknown-linux-gnu"
-          ;;
-        mipsel )
-          ARCH=mips
-          TARGET="mipsel-unknown-linux-gnu"
-          ;;
-        sparc )
-          ARCH=sparc
-          TARGET="sparcv9-unknown-linux-gnu"
-          ;;
-        x86_64-64 )
-          ARCH=x86_64-64
-          TARGET="x86_64-unknown-linux-gnu"
-          ;;
-        mips64-64 )
-          ARCH=mips64-64
-          TARGET="mips-unknown-linux-gnu"
-          ;;
-        mipsel64-64 )
-          ARCH=mips64-64
-          TARGET="mipsel-unknown-linux-gnu"
-          ;;
-        sparc64-64 )
-          ARCH=sparc64-64
-          TARGET="sparc64-unknown-linux-gnu"
-          ;;
-        alpha )
-          ARCH=alpha
-          TARGET="alpha-unknown-linux-gnu"
-          ;;
-        x86_64 )
-          ARCH=x86_64
-          TARGET="x86_64-unknown-linux-gnu"
-          TARGET32="i686-pc-linux-gnu"
-          ;;
-        mips64 )
-          ARCH=mips64
-          TARGET="mips-unknown-linux-gnu"
-          TARGET32="mips-unknown-linux-gnu"
-          ;;
-        mipsel64 )
-          ARCH=mips64
-          TARGET="mipsel-unknown-linux-gnu"
-          TARGET32="mipsel-unknown-linux-gnu"
-          ;;
-        sparc64 )
-          ARCH=sparc64
-          TARGET="sparc64-unknown-linux-gnu"
-          TARGET32="sparcv9-unknown-linux-gnu"
-          ;;
-        ppc64 )
-          ARCH=ppc64
-          TARGET="powerpc64-unknown-linux-gnu"
-          TARGET32="powerpc-unknown-linux-gnu"
-          ;;
-        * )
-          echo -e "\n$1 is an unknown or unsupported arch."
-          exit 1
-          ;;
+      case $PROGNAME in
+        CLFS2)
+	  case $1 in
+            arm) ARCH=arm; TARGET="arm-unknown-linux-gnu" ;;
+            x86) ARCH=x86; TARGET="i686-pc-linux-gnu"     ;;
+	      *) echo -e "\n$1 is an unknown or unsupported arch.";  exit 1
+          esac
+	  ;;
+        CLFS)
+          case $1 in
+            arm )   ARCH=arm;   TARGET="arm-unknown-linux-gnu" ;;
+            x86 )   ARCH=x86;   TARGET="i686-pc-linux-gnu"     ;;
+           i486 )   ARCH=x86;   TARGET="i486-pc-linux-gnu"     ;;
+           i586 )   ARCH=x86;   TARGET="i586-pc-linux-gnu"     ;;
+            ppc )   ARCH=ppc;   TARGET="powerpc-unknown-linux-gnu"   ;;
+           mips )   ARCH=mips;  TARGET="mips-unknown-linux-gnu"      ;;
+           mipsel ) ARCH=mips;  TARGET="mipsel-unknown-linux-gnu"    ;;
+            sparc ) ARCH=sparc; TARGET="sparcv9-unknown-linux-gnu"   ;;
+	    
+           x86_64-64 )   ARCH=x86_64-64;  TARGET="x86_64-unknown-linux-gnu"   ;;
+           mips64-64 )   ARCH=mips64-64;  TARGET="mips-unknown-linux-gnu"     ;;
+           mipsel64-64 ) ARCH=mips64-64;  TARGET="mipsel-unknown-linux-gnu" ;;
+           sparc64-64 )  ARCH=sparc64-64; TARGET="sparc64-unknown-linux-gnu" ;;
+           alpha )       ARCH=alpha;      TARGET="alpha-unknown-linux-gnu"   ;;
+	   
+           x86_64 )   ARCH=x86_64;  TARGET="x86_64-unknown-linux-gnu";    TARGET32="i686-pc-linux-gnu"        ;;
+           mips64 )   ARCH=mips64;  TARGET="mips-unknown-linux-gnu";      TARGET32="mips-unknown-linux-gnu"   ;;
+           mipsel64 ) ARCH=mips64;  TARGET="mipsel-unknown-linux-gnu";    TARGET32="mipsel-unknown-linux-gnu"  ;;
+           sparc64 )  ARCH=sparc64; TARGET="sparc64-unknown-linux-gnu";   TARGET32="sparcv9-unknown-linux-gnu"  ;;
+            ppc64 )   ARCH=ppc64;   TARGET="powerpc64-unknown-linux-gnu"; TARGET32="powerpc-unknown-linux-gnu"  ;;
+  
+            * )  echo -e "\n$1 is an unknown or unsupported arch.";   exit 1  ;;
+          esac
+	  ;;
       esac
       ;;
 
@@ -447,6 +419,7 @@ while test $# -gt 0 ; do
   shift
 done
 
+
 #===================================================
 # Set the document location...
 # BOOK is either defined in
@@ -460,8 +433,7 @@ BOOK=${BOOK:=$PROGNAME-$LFSVRS}
 #===================================================
 
 
-# Check for minimum gcc and kernel versions
-#check_requirements  1 # 0/1  0-do not display values.
+# Check for minimum bash,tar,gcc and kernel versions
 echo
 check_version "2.6.2" "`uname -r`"         "KERNEL"
 check_version "3.0"   "$BASH_VERSION"      "BASH"
@@ -482,7 +454,7 @@ echo "${nl_}${SD_BORDER}${nl_}"
 
 # Load additional modules or configuration files based on global settings
 # compare module
-if [[ "$COMPARE" = "1" ]]; then
+if [[ "$COMPARE" = "y" ]]; then
   [[ $VERBOSITY > 0 ]] && echo -n "Loading compare module..."
   source $COMMON_DIR/func_compare.sh
   [[ $? > 0 ]] && echo "$COMMON_DIR/func_compare.sh did not load.." && exit
@@ -537,7 +509,7 @@ if [[ "$PWD" != "$JHALFSDIR" ]]; then
   #
   [[ "$OPTIMIZE" != "0" ]] && cp optimize/opt_override $JHALFSDIR/
   #
-  if [[ "$COMPARE" != "0" ]] ; then
+  if [[ "$COMPARE" = "y" ]]; then
     mkdir -p $JHALFSDIR/extras
     cp extras/* $JHALFSDIR/extras
   fi
@@ -549,14 +521,14 @@ if [[ "$PWD" != "$JHALFSDIR" ]]; then
     popd 1> /dev/null
   fi
   #
-  if [[ "$REPORT" = "1" ]]; then
+  if [[ "$REPORT" = "y" ]]; then
     cp $COMMON_DIR/create-sbu_du-report.sh  $JHALFSDIR/
     # After being sure that all looks sane, dump the settings to a file
     # This file will be used to create the REPORT header
     validate_config > $JHALFSDIR/jhalfs.config
   fi
   #
-  [[ "$GETPKG" = "1" ]] && cp $COMMON_DIR/urls.xsl  $JHALFSDIR/
+  [[ "$GETPKG" = "y" ]] && cp $COMMON_DIR/urls.xsl  $JHALFSDIR/
   #
   cp $COMMON_DIR/packages.xsl  $JHALFSDIR/
   #

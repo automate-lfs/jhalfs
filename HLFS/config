@@ -9,8 +9,8 @@
 #--- Which library model to use uclibc/glibc
 MODEL=glibc
 
-#--- The host system has grsecurity options enabled? 0(no)/1(yes)
-GRSECURITY_HOST=0
+#--- The host system has grsecurity options enabled? n0(no)/y(yes)
+GRSECURITY_HOST=n
 
 #--- Unprivileged user and group name
 LUSER=hlfs
@@ -24,8 +24,8 @@ FSTAB=
 CONFIG=
 
 # Get the kernel package and patches even if no configutation file
-# has been supplied? 0(no)/1(yes)
-GETKERNEL=0
+# has been supplied? n(no)/y(yes)
+GETKERNEL=n
 
 #--- Book's sources directory
 # If you have previously checked out the book from the repository
