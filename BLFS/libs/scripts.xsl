@@ -83,7 +83,7 @@
       </xsl:message>
 
         <!-- Creating the scripts -->
-      <exsl:document href="{$order}-{$filename}" method="text">
+      <exsl:document href="{$order}-z-{$filename}" method="text">
         <xsl:text>#!/bin/sh&#xA;set -e&#xA;&#xA;</xsl:text>
         <xsl:choose>
           <!-- Package page -->
