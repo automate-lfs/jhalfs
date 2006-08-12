@@ -127,7 +127,6 @@ inline_doc
   #---------------------
   # If have dependencies, write its XInclude and find sub-dependencies
   if [[ -f dependencies/$TARGET.dep ]]; then
-    echo -e "Start loop for PKG $TARGET\n" >> depure.txt
     mkdir xincludes && do_dependencies $TARGET
   fi
 
@@ -166,13 +165,10 @@ inline_doc
   local saveIFS=$IFS
   local DEP_LV=$DEP_LEVEL
   local line line2 DEP
-  echo -e "\tPKG is $PKG" >> depure.txt
-  echo -e "\tDEP_LEVEL for $PKG is $DEP_LV\n" >> depure.txt
 
   #------------------
   #  If a premade xinclude file exists, use it. If not, create one
   if [[ -f xincludes/$PKG.xinc ]] ; then
-    echo -e "\tReusing xinclude file for PKG $PKG" >> depure.txt
     IFS=$'\x0A'
     for line in `cat xincludes/$PKG.xinc` ; do
       IFS=$saveIFS
@@ -218,7 +214,6 @@ inline_doc
     esac
 
     #------------------
-    echo -e "\tDEP for $PKG is $DEP" >> depure.txt
     # Prevent circular dependencies
     # If all dependencies are circular, the creation of the *.dep file
     # must be skipped, not placed here, to avoid that the script will bomb
@@ -259,10 +254,8 @@ inline_doc
     esac
 
     #------------------
-    echo -e "\tDEP_LEVEL for $DEP is $DEP_LV" >> depure.txt
     # XML file of dependency package
     DEP_XML=`grep "^$DEP[[:space:]]" ../packages | cut -f2`
-    echo -e "\t\tDEP_XML is $DEP_XML\n" >> depure.txt
     case $DEP in
       x-window-system | alsa ) ;; # No page for that (proper link must be created when generating the book)
       xorg7 ) ;; # This page will be dump in the xorg7.xinc file
@@ -309,7 +302,6 @@ inline_doc
     if [[ -f dependencies/$DEP.dep ]] ; then
       # If a premade xinclude file esist, include it
       if [[ -f xincludes/$DEP.xinc ]] ; then
-        echo -e "\tReusing xinclude file for PKG $DEP (to solve $PKG)\n" >> depure.txt
         IFS=$'\x0A'
         for line2 in `cat xincludes/$DEP.xinc` ; do
           IFS=$saveIFS
@@ -321,7 +313,6 @@ inline_doc
       #------------------
       # Create the xinclude file
       else
-        echo -e "\nStart new loop for PKG $DEP (to solve $PKG)\n" >> depure.txt
 	#
 	# >>>>>> THIS IS A RECURSIVE FUNCTION CALL.. BEWARE OF GREMLINS. <<<<<<
 	#
@@ -335,7 +326,6 @@ inline_doc
         set -e
 
         # Include it when done
-        echo -e "\tUsing the new xinclude file for PKG $DEP (to solve $PKG)\n" >> depure.txt
         IFS=$'\x0A'
         for line2 in `cat xincludes/$DEP.xinc` ; do
           IFS=$saveIFS
@@ -357,7 +347,6 @@ inline_doc
 
   #------------------
   mv xincludes/$PKG.xinc.tmp xincludes/$PKG.xinc
-  echo -e "Using the new xinclude file for PKG $PKG" >> depure.txt
   IFS=$'\x0A'
   for line in `cat xincludes/$PKG.xinc` ; do
     IFS=$saveIFS
@@ -366,6 +355,4 @@ inline_doc
     # Write the XInclude
     echo -e "$line" >> $TARGET-index.xml.tmp
   done
-
-  echo -e "\nEnd loop for PKG $PKG\n" >> depure.txt
 }
