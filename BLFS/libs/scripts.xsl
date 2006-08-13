@@ -83,7 +83,7 @@
       </xsl:message>
 
         <!-- Creating the scripts -->
-      <exsl:document href="{$order}-{$filename}" method="text">
+      <exsl:document href="{$order}-z-{$filename}" method="text">
         <xsl:text>#!/bin/sh&#xA;set -e&#xA;&#xA;</xsl:text>
         <xsl:choose>
           <!-- Package page -->
@@ -102,7 +102,7 @@
             </xsl:apply-templates>
             <!-- Clean-up -->
             <xsl:text>cd ~/sources/$PKG_DIR&#xA;</xsl:text>
-            <xsl:text>rm -rf $UNPACKDIR&#xA;&#xA;</xsl:text>
+            <xsl:text>rm -rf $UNPACKDIR unpacked&#xA;&#xA;</xsl:text>
           </xsl:when>
           <!-- Non-package page -->
           <xsl:otherwise>
@@ -131,9 +131,15 @@
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
       <xsl:when test="@role = 'installation'">
-        <xsl:text>tar -xvf $PACKAGE > unpacked&#xA;</xsl:text>
-        <xsl:text>UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`&#xA;</xsl:text>
-        <xsl:text>cd $UNPACKDIR&#xA;</xsl:text>
+        <xsl:text>
+if [[ -e unpacked ]] ; then
+  UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
+  rm -rf $UNPACKDIR
+fi
+tar -xvf $PACKAGE > unpacked
+UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
+cd $UNPACKDIR
+          </xsl:text>
         <xsl:apply-templates select=".//screen | .//para/command"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
@@ -304,7 +310,7 @@
         <xsl:text>  elif [[ -f $SRC_ARCHIVE/$PACKAGE ]] ; then&#xA;</xsl:text>
         <xsl:text>    cp $SRC_ARCHIVE/$PACKAGE $PACKAGE&#xA;  else&#xA;</xsl:text>
         <!-- The FTP_SERVER mirror -->
-        <xsl:text>    wget $FTP_SERVER/BLFS/conglomeration/$PKG_DIR/$PACKAGE</xsl:text>
+        <xsl:text>    wget ${FTP_SERVER}conglomeration/$PKG_DIR/$PACKAGE</xsl:text>
         <!-- Upstream HTTP URL -->
         <xsl:if test="string-length(ulink/@url) &gt; '10' and
                       not(contains(string(ulink/@url),'sourceforge'))">
