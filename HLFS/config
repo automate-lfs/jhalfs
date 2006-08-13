@@ -9,7 +9,7 @@
 #--- Which library model to use uclibc/glibc
 MODEL=glibc
 
-#--- The host system has grsecurity options enabled? n0(no)/y(yes)
+#--- The host system has grsecurity options enabled? n(no)/y(yes)
 GRSECURITY_HOST=n
 
 #--- Unprivileged user and group name

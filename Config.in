@@ -57,7 +57,7 @@ menu "--- BOOK Settings"
 	endchoice
 
 	config	BRANCH_ID
-		string	"Branch (mandatory)"
+		string	"Book Version (mandatory)"
 		default	"**EDIT ME**"
 		depends	BRANCH
 		help
@@ -388,7 +388,7 @@ menu "--- Build Settings"
 	config	CONFIG_TESTS
 		bool	"Run testsuites"
 		depends	!BOOK_CLFS2
-		default	n
+		default	y
 		help
 			#-- Run test suites
 			#
@@ -430,7 +430,7 @@ menu "--- Build Settings"
 		default	"2"	if TST_2
 		default	"3"	if TST_3
 
-	choice  
+	choice
 		prompt	"Flavour ->"
 		depends	CONFIG_TESTS
 
@@ -503,7 +503,7 @@ menu "--- Build Settings"
 		bool "Install vim-lang package"
 		default y
 		help
-			#-- install the optional vim-lang package
+			#-- Install the optional vim-lang package
 
 	config	TIMEZONE
 		string "TimeZone"
