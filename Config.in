@@ -22,8 +22,8 @@ menu "--- BOOK Settings"
 		config	BOOK_HLFS
 			bool "Hardened Linux From Scratch"
 
-#		config	BOOK_BLFS
-#			bool "Beyond Linux From Scratch"
+		config	BOOK_BLFS
+			bool "Beyond Linux From Scratch"
 	endchoice
 
 	config	RUN_ME
@@ -33,7 +33,7 @@ menu "--- BOOK Settings"
 		default	"./clfs2"	if BOOK_CLFS2
 #		default	"./clfs3"	if BOOK_CLFS3
 		default	"./hlfs"	if BOOK_HLFS
-#		default	"./blfs"	if BOOK_BLFS
+		default	"./blfs"	if BOOK_BLFS
 	#--- End BOOK/script
 
 	#--- Book version
@@ -47,6 +47,7 @@ menu "--- BOOK Settings"
 
 		config	WORKING_COPY
 			bool	"Working Copy"
+			depends on !BOOK_BLFS
 			help
 				#-- A local working copy
 
@@ -277,10 +278,29 @@ menu "--- BOOK Settings"
 		default "uclibc"	if LIB_UCLIBC
 	#--- End HLFS specific params
 
+	#--- BLFS specific params
+	config	BLFS_ROOT
+		string "Directory root"
+		default "$HOME/blfs_root"
+		depends on BOOK_BLFS
+		help
+			#-- Full path to the directory where all required
+			#   files and scripts will be stored.
+
+	config	BLFS_XML
+		string "BLFS sources directory"
+		default "blfs-xml"
+		depends on BOOK_BLFS
+		help
+			#-- The directory name where BLFS book sources
+			#   will be checkout.
+	#--- End BLFS specific params
+
 #--- End BOOK Settings
 endmenu
 
 menu "--- General Settings"
+	depends on !BOOK_BLFS
 
 	#--- Set User Account
 	config	CONFIG_USER
@@ -383,6 +403,7 @@ menu "--- General Settings"
 endmenu
 
 menu "--- Build Settings"
+	depends on !BOOK_BLFS
 
 	#--- Test Suites
 	config	CONFIG_TESTS
@@ -548,6 +569,7 @@ menu "--- Build Settings"
 endmenu
 
 menu "--- Advanced Features"
+	depends on !BOOK_BLFS
 
 	config	CONFIG_REPORT
 		bool "Create SBU and disk usage report"

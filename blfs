@@ -1,6 +1,69 @@
 #!/bin/bash
+# $Id$
+
 set -e
 
-echo -e "\n  BLFS support has been dissabled for now.\n"
 
-exit 0
+#>>>>>>>>>>>>>>>ERROR TRAPPING >>>>>>>>>>>>>>>>>>>>
+#-----------------------#
+simple_error() {        # Basic error trap.... JUST DIE
+#-----------------------#
+  # If +e then disable text output
+  if [[ "$-" =~ "e" ]]; then
+    echo -e "\n${RED}ERROR:${GREEN} basic error trapped!${OFF}\n" >&2
+  fi
+}
+
+see_ya() {
+    echo -e "\n\t${BOLD}Goodbye and thank you for choosing ${L_arrow}jhalfs${R_arrow}\n"
+}
+##### Simple error TRAPS
+# ctrl-c   SIGINT
+# ctrl-y
+# ctrl-z   SIGTSTP
+# SIGHUP   1 HANGUP
+# SIGINT   2 INTRERRUPT FROM KEYBOARD Ctrl-C
+# SIGQUIT  3
+# SIGKILL  9 KILL
+# SIGTERM 15 TERMINATION
+# SIGSTOP 17,18,23 STOP THE PROCESS
+#####
+set -e
+trap see_ya 0
+trap simple_error ERR
+trap 'echo -e "\n\n${RED}INTERRUPT${OFF} trapped\n" &&  exit 2'  1 2 3 15 17 18 23
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+VERBOSITY=1
+
+[[ $VERBOSITY > 0 ]] && echo -n "Loading config params from <configuration>..."
+source configuration
+[[ $? > 0 ]] && echo "file:configuration did not load.." && exit 1
+[[ $VERBOSITY > 0 ]] && echo "OK"
+
+[[ -z $BOOK_BLFS ]] && echo -e "\nNo BLFS configuration found. Please configure it." && exit 1
+
+TREE=trunk/BOOK
+
+if [[ ! -z ${BRANCH_ID} ]]; then
+  case $BRANCH_ID in
+    dev* | SVN | trunk )  TREE=trunk/BOOK ;;
+              branch-* )  TREE=branches/${BRANCH_ID#branch-}/BOOK ;;
+                     * )  TREE=tags/${BRANCH_ID}/BOOK ;;
+  esac
+fi
+
+[[ ! -d $BLFS_ROOT ]] && mkdir -p $BLFS_ROOT
+
+cp -r BLFS/* $BLFS_ROOT
+cp common/progress_bar.sh $BLFS_ROOT
+# cp -r menu $BLFS_ROOT
+
+cd $BLFS_ROOT
+
+sed -i 's,blfs-xml,'$BLFS_XML',' update_book.sh
+sed -i 's,blfs-xml,'$BLFS_XML',' libs/book.xsl
+
+./update_book.sh $BLFS_XML get $TREE
+# make
+

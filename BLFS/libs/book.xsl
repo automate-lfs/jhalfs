@@ -6,8 +6,8 @@
 
 <!-- $Id$ -->
 
-  <!-- NOTE: the base dir (blfs-xml) must be changed to FAKEDIR on the
-  final version and set it to the proper dir via a sed in ./blfs -->
+  <!-- NOTE: the base dir (blfs-xml) is set to the proper dir
+  via a sed in ./blfs -->
   <xsl:import href="../blfs-xml/stylesheets/blfs-chunked.xsl"/>
 
   <xsl:param name="mail_server" select="sendmail"/>
