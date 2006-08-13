@@ -1,0 +1,94 @@
+$Id$
+
+1. INTRODUCTION::
+
+     To automatize packages build from the BLFS book instructions is a huge
+  task. The BLFS book isn't linear, some package pages need to use a non
+  defaul layout, there are circular dependencies, several packages can be
+  installed on a non default prifix, build commands can change based on what
+  dependencies will be used, etc.
+
+     Said that, the goal of jhalfs is try to help you solving packages
+  dependencies and creating your own build scripts/Makefile. Some of the
+  auto-generated build scripts and Makefile could work "as is", but as a
+  general rule you will need to review and edit the scripts while reading
+  the book.
+
+  NOTE:: The code is yet under development a may contains several bugs
+
+
+2. USAGE::
+
+     Due the complexity of the BLFS book, the scripts/Mafile generation is
+  done in several steps:
+
+  2.1  INSTALLATION::
+       Run "make" to launch the menuconfig interface. Select the BLFS book
+    and it version. Then set the installation directory (default
+    $HOME/blfs_root) and the BLFS sources directory (default blfs-xml).
+
+       All required files will be placed in the installation directory and
+    BLFS XML sources will be checkout to the named sub-directory.
+
+       Installed files:
+
+    lib/*              functions, xsl, and auto-generates dependencies tree files
+    README.BLFS        this file
+    TODO               developers notes
+    packages           auto-generated file with packages info
+    alternatives.conf  configuration files for alternative packages
+    makefile.conf      envars needed when running the generated Makefile
+    update_book.sh     update the XML book sources and regenerate packages file
+                       and GNOME and KDE dependencies tree
+    blfs-parser.sh     generates linear BLFS books and build scripts
+    gen-makefile.sh    generates Makefile
+    progress_bar.sh    the Makefile progress bar
+
+       From now on, all the work must be done from inside the installation
+    root directory.
+
+  2.2  UPDATING BOOK SOURCES::
+       If using the SVN book version, from time to time you may want to update
+    the XML sources. To do that run "./update_book.sh"
+
+  2.3  PARSING THE BOOK::
+       Next step is to create a book and build scripts in dependencies build order
+    for a target package. A target package can be any of the ones listed in the
+    packages file. That is done using the blfs-parser.sh script, but we are triying
+    to make a menuconfig based system.
+
+       The script need three arguments:
+
+    package name         as listed in packages file
+    dependencies level   1 for required, 2 for required an recommendedand,
+                         3 for required, recommended, and optional
+    sudo usage           y if sudo will be used (you will build as normal user)
+                         n if sudo isn't needed (you will build as root)
+
+       For example:
+
+       ./blfs-parser galeon 3 y
+
+    will create a directory named "galeon". Inside that directory you find a
+    directory named "HTML" that contains a galeon-based HTML book with all
+    dependencies in build order and a "scripts" directory with build scripts
+    that uses sudo for commands that need root priviledges.
+
+    There is also two other directories that contains files generated while
+    resolving dependencies trees.
+
+    Now is the time to review the generated book and scripts, making in the
+    scripts any changes you want to fit your needs. Scripts for aditional
+    packages (i.e., for non-BLFS packages) can be inserted in an easy way.
+
+  2.4  CREATING THE MAKEFILE
+       When the build scripts will be ready to be run, the Makefile can be
+  created. Be sure that you are into the "package" directory and run
+
+      ../gen_makefile.sh
+
+  Review the Makefile and if all look sane, start the build.
+
+
+(Text is needed for the installed packages tracking system and like)
+
