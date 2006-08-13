@@ -126,7 +126,7 @@ create_build_scripts() {  #
 #-------------------------#
 : <<inline_doc
     function:   Create shell scripts of the requested TARGET.
-    input vars: nothing
+    input vars: $1 use sudo n/y
     externals:  TARGET
     modifies:   nothing
     returns:    nothing
@@ -140,6 +140,7 @@ inline_doc
 
   echo -en "\n\tGenerating the build scripts ..."
   xsltproc --xinclude --nonet \
+           --stringparam sudo $SUDO \
            -o ./scripts/ ../libs/scripts.xsl \
            $TARGET-index.xml >> xsltproc.log 2>&1
   echo -e "done\n"

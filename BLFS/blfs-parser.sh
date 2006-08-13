@@ -10,8 +10,11 @@ declare BLFS_XML
 declare VERBOSITY=1
 
 # Grab and name the command line options
-    optTARGET=$1
-optDEPENDENCY=$2
+    optTARGET=$1  # Package target
+optDEPENDENCY=$2  # Dependencies level, 1/2/3
+         SUDO=$3  # Build as user (y) or as root (n)
+
+[[ -z $SUDO ]] && SUDO=y
 
 
 #---------------------
@@ -113,4 +116,4 @@ validate_dependency "${optDEPENDENCY}"
 generate_dependency_tree
 generate_TARGET_xml
 generate_target_book
-create_build_scripts
+create_build_scripts "${SUDO}"

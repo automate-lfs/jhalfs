@@ -9,6 +9,9 @@
 
 <!-- XSLT stylesheet to create shell scripts from "linear build" BLFS books. -->
 
+  <!-- Build as user (y) or as root (n)? -->
+  <xsl:param name="sudo" select="y"/>
+
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
   </xsl:template>
@@ -344,11 +347,11 @@ cd $UNPACKDIR
 
   <xsl:template match="screen">
     <xsl:if test="child::* = userinput and not(@role = 'nodump')">
-      <xsl:if test="@role = 'root'">
+      <xsl:if test="@role = 'root' and $sudo = 'y'">
         <xsl:text>sudo sh -c "</xsl:text>
       </xsl:if>
       <xsl:apply-templates select="userinput"/>
-      <xsl:if test="@role = 'root'">
+      <xsl:if test="@role = 'root' and $sudo = 'y'">
         <xsl:text>"</xsl:text>
       </xsl:if>
       <xsl:text>&#xA;</xsl:text>
