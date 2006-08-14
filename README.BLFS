@@ -37,7 +37,7 @@ $Id$
     TODO               developers notes
     packages           auto-generated file with packages info
     alternatives.conf  configuration files for alternative packages
-    makefile.conf      envars needed when running the generated Makefile
+    envars.conf        envars needed when running the build scripts
     update_book.sh     update the XML book sources and regenerate packages file
                        and GNOME and KDE dependencies tree
     blfs-parser.sh     generates linear BLFS books and build scripts
