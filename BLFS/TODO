@@ -11,27 +11,21 @@ Makefiles similars to the current ones for {C,H}LFS.
 
 What remains to do:
 
-1. - To make the top-level blfs script functional. That script should to create
-       the working directory (selected at command line)
-     a. Copy all BLFS/* files to it,
-     b. Fetch the BLFS sources (output directory selected at command line or
-          based on the book version),
-     c. Run the packages.sh script.
-
-2. - To develop the XSL code needed to create the build scripts.
-     Almost done. A lot of book-versus-scripts and testing is needed.
-     We need yet to figure out how to handle Perl modules installation and
-     other pages that have commands to install more that one package
+--   To review the XSL code needed to create the build scripts.
+     A lot of book-versus-scripts and testing is needed.
+     We need yet to figure out if we can to to handle Perl modules installation
+     and other pages that have commands to install more that one package
      (e.g., Gnat in GCC Java-bin in Java, sane-backends and sane-frontends
-     in Sane, etc)
+     in Sane, etc) or not-estandart installations, like Xorg7
 
-3. - To develop the code to create the Makefile.
-     Should be a separate script to be run manually after the user has
-     review and edited the target build scripts.
-     Must make the build scripts executables and set the SRC_ARCHIVE and
-     FTP_SERVER envars.
-     Work in progress.
+--   Test the method used to track already installed packages by previous runs.
+     See if the packages version can be watched also.
 
-4. - To find a way to track already installed packages by previous runs, to can
-       skip them when creating the book/scripts/Makefile for a new target.
+--   Integrate the menuconfig based package selection, trying to make use of the
+     installed packages traking system.
 
+--   Bugs hunting.
+
+--   Improve README.BLFS.
+
+--   Develop a script to make cofee.
