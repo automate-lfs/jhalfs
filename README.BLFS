@@ -60,11 +60,11 @@ $Id$
        The script need three arguments:
 
     package name         as listed in packages file
-    dependencies level   1 for required, 
-                         2 for required an recommendedand,
+    dependencies level   1 for required,
+                         2 for required an recommended
                          3 for required, recommended, and optional
-    sudo usage           y if sudo will be used (you will build as normal user)
-                         n if sudo isn't needed (you will build as root)
+    sudo usage           y if sudo will be used (you want build as a normal user)
+                         n if sudo isn't needed (you want build as root)
 
        For example:
 
@@ -84,11 +84,11 @@ $Id$
 
   2.4  CREATING THE MAKEFILE
        When the build scripts are ready to be run, the Makefile can be
-  created. Be sure that you cd into the "package" directory and run
+    created. Be sure that you cd into the "package" directory and run
 
-      ../gen_makefile.sh
+       ../gen_makefile.sh
 
-  Review the Makefile and if all look sane, start the build.
+    Review the Makefile and if all look sane, start the build.
 
 
 (Text is needed for the installed packages tracking system and like)
