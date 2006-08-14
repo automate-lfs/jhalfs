@@ -97,14 +97,14 @@
             <xsl:value-of select="$package"/>
             <xsl:text>&#xA;PKG_DIR=</xsl:text>
             <xsl:value-of select="$ftpdir"/>
-            <xsl:text>&#xA;&#xA;</xsl:text>
+            <xsl:text>&#xA;SRC_DIR=$SRC_DIR&#xA;&#xA;</xsl:text>
             <!-- Download code and build commands -->
             <xsl:apply-templates select="sect2">
               <xsl:with-param name="package" select="$package"/>
               <xsl:with-param name="ftpdir" select="$ftpdir"/>
             </xsl:apply-templates>
             <!-- Clean-up -->
-            <xsl:text>cd ~/sources/$PKG_DIR&#xA;</xsl:text>
+            <xsl:text>cd $SRC_DIR/$PKG_DIR&#xA;</xsl:text>
             <xsl:text>rm -rf $UNPACKDIR unpacked&#xA;&#xA;</xsl:text>
           </xsl:when>
           <!-- Non-package page -->
@@ -125,8 +125,8 @@
     <xsl:param name="ftpdir" select="foo"/>
     <xsl:choose>
       <xsl:when test="@role = 'package'">
-        <xsl:text>mkdir -p ~/sources/$PKG_DIR&#xA;</xsl:text>
-        <xsl:text>cd ~/sources/$PKG_DIR&#xA;</xsl:text>
+        <xsl:text>mkdir -p $SRC_DIR/$PKG_DIR&#xA;</xsl:text>
+        <xsl:text>cd $SRC_DIR/$PKG_DIR&#xA;</xsl:text>
         <xsl:apply-templates select="itemizedlist/listitem/para">
           <xsl:with-param name="package" select="$package"/>
           <xsl:with-param name="ftpdir" select="$ftpdir"/>

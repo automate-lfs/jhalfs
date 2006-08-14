@@ -14,7 +14,7 @@ $Id$
   general rule you will need to review and edit the scripts while reading
   the book.
 
-  NOTE:: The code is yet under development a may contains several bugs
+  NOTE:: The code is still under development and may contains several bugs
 
 
 2. USAGE::
@@ -37,7 +37,7 @@ $Id$
     TODO               developers notes
     packages           auto-generated file with packages info
     alternatives.conf  configuration files for alternative packages
-    makefile.conf      envars needed when running the generated Makefile
+    envars.conf        envars needed when running the build scripts
     update_book.sh     update the XML book sources and regenerate packages file
                        and GNOME and KDE dependencies tree
     blfs-parser.sh     generates linear BLFS books and build scripts
@@ -54,16 +54,17 @@ $Id$
   2.3  PARSING THE BOOK::
        Next step is to create a book and build scripts in dependencies build order
     for a target package. A target package can be any of the ones listed in the
-    packages file. That is done using the blfs-parser.sh script, but we are triying
+    packages file. That is done using the blfs-parser.sh script, but we are trying
     to make a menuconfig based system.
 
        The script need three arguments:
 
     package name         as listed in packages file
-    dependencies level   1 for required, 2 for required an recommendedand,
+    dependencies level   1 for required,
+                         2 for required an recommended
                          3 for required, recommended, and optional
-    sudo usage           y if sudo will be used (you will build as normal user)
-                         n if sudo isn't needed (you will build as root)
+    sudo usage           y if sudo will be used (you want build as a normal user)
+                         n if sudo isn't needed (you want build as root)
 
        For example:
 
@@ -82,12 +83,12 @@ $Id$
     packages (i.e., for non-BLFS packages) can be inserted in an easy way.
 
   2.4  CREATING THE MAKEFILE
-       When the build scripts will be ready to be run, the Makefile can be
-  created. Be sure that you are into the "package" directory and run
+       When the build scripts are ready to be run, the Makefile can be
+    created. Be sure that you cd into the "package" directory and run
 
-      ../gen_makefile.sh
+       ../gen_makefile.sh
 
-  Review the Makefile and if all look sane, start the build.
+    Review the Makefile and if all look sane, start the build.
 
 
 (Text is needed for the installed packages tracking system and like)

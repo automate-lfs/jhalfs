@@ -40,7 +40,7 @@ __write_build_cmd() {              #
 #----------------------------------#
 (
 cat << EOF
-	@source ../makefile.conf && ${BUILD_SCRIPTS}/\$@ >logs/\$@ 2>&1
+	@source ../envars.conf && ${BUILD_SCRIPTS}/\$@ >logs/\$@ 2>&1
 EOF
 ) >> $MKFILE.tmp
 }
