@@ -3,6 +3,35 @@
 
 set -e
 
+# From common/common-functions
+# VT100 colors
+declare -r  BLACK=$'\e[1;30m'
+declare -r  DK_GRAY=$'\e[0;30m'
+
+declare -r  RED=$'\e[31m'
+declare -r  GREEN=$'\e[32m'
+declare -r  YELLOW=$'\e[33m'
+declare -r  BLUE=$'\e[34m'
+declare -r  MAGENTA=$'\e[35m'
+declare -r  CYAN=$'\e[36m'
+declare -r  WHITE=$'\e[37m'
+
+declare -r  OFF=$'\e[0m'
+declare -r  BOLD=$'\e[1m'
+declare -r  REVERSE=$'\e[7m'
+declare -r  HIDDEN=$'\e[8m'
+
+declare -r  tab_=$'\t'
+declare -r  nl_=$'\n'
+
+declare -r   DD_BORDER="${BOLD}==============================================================================${OFF}"
+declare -r   SD_BORDER="${BOLD}------------------------------------------------------------------------------${OFF}"
+declare -r STAR_BORDER="${BOLD}******************************************************************************${OFF}"
+
+# bold yellow > <  pair
+declare -r R_arrow=$'\e[1;33m>\e[0m'
+declare -r L_arrow=$'\e[1;33m<\e[0m'
+
 
 #>>>>>>>>>>>>>>>ERROR TRAPPING >>>>>>>>>>>>>>>>>>>>
 #-----------------------#
@@ -34,36 +63,75 @@ trap simple_error ERR
 trap 'echo -e "\n\n${RED}INTERRUPT${OFF} trapped\n" &&  exit 2'  1 2 3 15 17 18 23
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-VERBOSITY=1
+# envars not sourced from configuration file
+  PROGNAME=$(basename $0)
+COMMON_DIR="common"
+ VERBOSITY=1
 
 [[ $VERBOSITY > 0 ]] && echo -n "Loading config params from <configuration>..."
 source configuration
 [[ $? > 0 ]] && echo "file:configuration did not load.." && exit 1
 [[ $VERBOSITY > 0 ]] && echo "OK"
 
+[[ $VERBOSITY > 0 ]] && echo -n "Loading function <func_validate_configs.sh>..."
+source $COMMON_DIR/func_validate_configs.sh
+[[ $? > 0 ]] && echo " function module did not load.." && exit 2
+[[ $VERBOSITY > 0 ]] && echo "OK"
+[[ $VERBOSITY > 0 ]] && echo "${SD_BORDER}${nl_}"
+
+# Be sure that we have a configuration file
 [[ -z $BOOK_BLFS ]] && echo -e "\nNo BLFS configuration found. Please configure it." && exit 1
 
-TREE=trunk/BOOK
+# Set default book version
+BRANCH_ID=${BRANCH_ID:=development}
 
-if [[ ! -z ${BRANCH_ID} ]]; then
-  case $BRANCH_ID in
-    dev* | SVN | trunk )  TREE=trunk/BOOK ;;
-              branch-* )  TREE=branches/${BRANCH_ID#branch-}/BOOK ;;
-                     * )  TREE=tags/${BRANCH_ID}/BOOK ;;
-  esac
+# Set the SVN tree
+case $BRANCH_ID in
+  dev* | SVN | trunk )  TREE=trunk/BOOK ;;
+              *EDIT* )  echo " You forgot to set the branch or stable book version."
+                        echo " Please rerun make and fix the configuration."
+                        exit 2
+                        ;;
+            branch-* )  TREE=branches/${BRANCH_ID#branch-}/BOOK ;;
+                   * )  TREE=tags/${BRANCH_ID}/BOOK ;;
+esac
+
+# For consistency with other books
+validate_config
+echo "${SD_BORDER}${nl_}"
+echo -n "Are you happy with these settings? yes/no (no): "
+read ANSWER
+if [ x$ANSWER != "xyes" ] ; then
+  echo "${nl_}Fix the configuration options and rerun the script.${nl_}"
+  exit 1
 fi
+echo "${nl_}${SD_BORDER}${nl_}"
 
+# Install the files
 [[ ! -d $BLFS_ROOT ]] && mkdir -p $BLFS_ROOT
 
 cp -r BLFS/* $BLFS_ROOT
-cp common/progress_bar.sh $BLFS_ROOT
+cp $COMMON_DIR/progress_bar.sh $BLFS_ROOT
 # cp -r menu $BLFS_ROOT
 
+# Start the work
 cd $BLFS_ROOT
 
+# Clean-up
+rm -rf libs/.svn
+
+# Fix BLFS_XML harcoded values
 sed -i 's,blfs-xml,'$BLFS_XML',' update_book.sh
 sed -i 's,blfs-xml,'$BLFS_XML',' libs/book.xsl
 
-./update_book.sh $BLFS_XML get $TREE
+# Fetch book sources and create packages and GNOME/KDE dependencies files
+if [[ -d $BLFS_XML ]] ; then
+  ./update_book.sh
+else
+  ./update_book.sh $BLFS_XML get $TREE
+fi
+
+# Generate Config.in and run the menuconfig interfaz
+# ./gen_config.sh
 # make
 
