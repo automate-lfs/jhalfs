@@ -97,7 +97,7 @@
             <xsl:value-of select="$package"/>
             <xsl:text>&#xA;PKG_DIR=</xsl:text>
             <xsl:value-of select="$ftpdir"/>
-            <xsl:text>SRC_DIR=$SRC_DIR&#xA;&#xA;</xsl:text>
+            <xsl:text>&#xA;SRC_DIR=$SRC_DIR&#xA;&#xA;</xsl:text>
             <!-- Download code and build commands -->
             <xsl:apply-templates select="sect2">
               <xsl:with-param name="package" select="$package"/>
