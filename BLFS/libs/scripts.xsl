@@ -173,6 +173,8 @@ cd $UNPACKDIR&#xA;</xsl:text>
       <xsl:when test="@role = 'package'"/>
       <xsl:when test="not(@role)">
         <xsl:apply-templates select=".//screen"/>
+        <xsl:apply-templates select="../sect2[@role='package']/itemizedlist/listitem/para"
+                             mode="xorg7"/>
         <xsl:text>WGET_LST=</xsl:text>
         <xsl:apply-templates select=".//screen" mode="wget_lst"/>
         <xsl:text>&#xA;</xsl:text>
@@ -183,7 +185,7 @@ cd $UNPACKDIR&#xA;</xsl:text>
   tar -xf $package
   cd $packagedir&#xA;</xsl:text>
         <xsl:apply-templates select=".//screen | .//para/command"/>
-        <xsl:text>cd ..
+        <xsl:text>  cd ..
   rm -rf $packagedir
 done&#xA;</xsl:text>
         <xsl:if test="$sudo = 'y'">
@@ -382,6 +384,14 @@ done&#xA;</xsl:text>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
     </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="itemizedlist/listitem/para" mode="xorg7">
+    <xsl:if test="contains(string(ulink/@url),'.patch')">
+      <xsl:text>wget </xsl:text>
+      <xsl:value-of select="ulink/@url"/>
+      <xsl:text>&#xA;</xsl:text>
+    </xsl:if>
   </xsl:template>
 
 <!--======================== Commands code ==========================-->
