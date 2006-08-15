@@ -49,10 +49,11 @@ EOF
 __wrt_touch() {                    #
 #----------------------------------#
   local pkg_name=$1
+  local pkg_ver=$2
 (
 cat << EOF
 	@touch  \$@ && \\
-	touch \$(TRACKING_DIR)/${pkg_name#*-?-} && \\
+	touch \$(TRACKING_DIR)/${pkg_name#*-?-}-${pkg_ver} && \\
 	sleep .25 && \\
 	echo -e "\n\n "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
@@ -65,7 +66,8 @@ EOF
 __write_entry() {            #
 #----------------------------#
   local script_name=$1
-
+  local pkg_ver=$2
+  
   echo -n "${tab_}${tab_} entry for <$script_name>"
 
   #--------------------------------------------------------------------#
@@ -79,7 +81,7 @@ __write_entry() {            #
 
   # Include a touch of the target name so make can check
   # if it's already been made.
-  __wrt_touch "${script_name}"
+  __wrt_touch "${script_name}" "${pkg_ver}"
   #
   #--------------------------------------------------------------------#
   #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
@@ -101,9 +103,13 @@ generate_Makefile () {       #
 
   for package_script in scripts/* ; do
     this_script=`basename $package_script`
-    if [ ! -e $TRACKING_DIR/${this_script#*-} ]; then
+    script_ver=$(xmllint --noent ../blfs-xml/book/bookinfo.xml 2>/dev/null | \
+    		grep -i " ${this_script#*-?-}-version " | \
+		cut -d "\"" -f2 )
+    echo "${this_script} ... ${this_script#*-?-} .. ver ${script_ver}"
+    if [ ! -e $TRACKING_DIR/${this_script#*-?-}-$script_ver ]; then
       pkg_list="$pkg_list ${this_script}"
-      __write_entry $this_script
+     __write_entry "${this_script}" "${script_ver}"
       PREV_PACKAGE=${this_script}
     fi
   done
