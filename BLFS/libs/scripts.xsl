@@ -141,8 +141,7 @@ if [[ -e unpacked ]] ; then
 fi
 tar -xvf $PACKAGE > unpacked
 UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
-cd $UNPACKDIR
-          </xsl:text>
+cd $UNPACKDIR&#xA;</xsl:text>
         <xsl:apply-templates select=".//screen | .//para/command"/>
         <xsl:if test="$sudo = 'y'">
           <xsl:text>sudo </xsl:text>
