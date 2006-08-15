@@ -144,7 +144,10 @@ UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
 cd $UNPACKDIR
           </xsl:text>
         <xsl:apply-templates select=".//screen | .//para/command"/>
-        <xsl:text>&#xA;</xsl:text>
+        <xsl:if test="$sudo = 'y'">
+          <xsl:text>sudo </xsl:text>
+        </xsl:if>
+        <xsl:text>ldconfig&#xA;&#xA;</xsl:text>
       </xsl:when>
       <xsl:when test="@role = 'configuration'">
         <xsl:apply-templates select=".//screen"/>
