@@ -19,10 +19,11 @@
 <!--=================== Master chunks code ======================-->
 
   <xsl:template match="sect1">
-    <xsl:if test="@id != 'locale-issues' and
-                  (count(descendant::screen/userinput) &gt; 0 and
+    <xsl:if test="(count(descendant::screen/userinput) &gt; 0 and
                   count(descendant::screen/userinput) &gt;
-                  count(descendant::screen[@role='nodump']))">
+                  count(descendant::screen[@role='nodump'])) and
+                  @id != 'locale-issues' and @id != 'xorg7' and
+                  @id != 'x-setup'">
 
         <!-- The file names -->
       <xsl:variable name="pi-file" select="processing-instruction('dbhtml')"/>
@@ -90,7 +91,10 @@
         <xsl:text>#!/bin/sh&#xA;set -e&#xA;&#xA;</xsl:text>
         <xsl:choose>
           <!-- Package page -->
-          <xsl:when test="sect2[@role='package']">
+          <xsl:when test="sect2[@role='package'] and not(@id = 'xorg7-app' or
+                          @id = 'xorg7-data' or @id = 'xorg7-driver' or
+                          @id = 'xorg7-font' or @id = 'xorg7-lib' or
+                          @id = 'xorg7-proto' or @id = 'xorg7-util')">
             <!-- Variables -->
             <xsl:text>SRC_ARCHIVE=$SRC_ARCHIVE&#xA;</xsl:text>
             <xsl:text>FTP_SERVER=$FTP_SERVER&#xA;&#xA;PACKAGE=</xsl:text>
@@ -106,6 +110,15 @@
             <!-- Clean-up -->
             <xsl:text>cd $SRC_DIR/$PKG_DIR&#xA;</xsl:text>
             <xsl:text>rm -rf $UNPACKDIR unpacked&#xA;&#xA;</xsl:text>
+          </xsl:when>
+          <!-- Xorg7 pseudo-packages -->
+          <xsl:when test="contains(@id,'xorg7') and not(@id = 'xorg7-server')">
+            <xsl:text>SRC_DIR=$SRC_DIR
+
+cd $SRC_DIR
+mkdir -p xc
+cd xc&#xA;</xsl:text>
+            <xsl:apply-templates select="sect2" mode="xorg7"/>
           </xsl:when>
           <!-- Non-package page -->
           <xsl:otherwise>
@@ -151,6 +164,34 @@ cd $UNPACKDIR&#xA;</xsl:text>
       <xsl:when test="@role = 'configuration'">
         <xsl:apply-templates select=".//screen"/>
         <xsl:text>&#xA;</xsl:text>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="sect2" mode="xorg7">
+    <xsl:choose>
+      <xsl:when test="@role = 'package'"/>
+      <xsl:when test="not(@role)">
+        <xsl:apply-templates select=".//screen"/>
+        <xsl:apply-templates select="../sect2[@role='package']/itemizedlist/listitem/para"
+                             mode="xorg7"/>
+        <xsl:text>WGET_LST=</xsl:text>
+        <xsl:apply-templates select=".//screen" mode="wget_lst"/>
+        <xsl:text>&#xA;</xsl:text>
+      </xsl:when>
+      <xsl:when test="@role = 'installation'">
+        <xsl:text>for package in $(cat $WGET_LST) ; do
+  packagedir=$(echo $package | sed 's/.tar.bz2//')
+  tar -xf $package
+  cd $packagedir&#xA;</xsl:text>
+        <xsl:apply-templates select=".//screen | .//para/command"/>
+        <xsl:text>  cd ..
+  rm -rf $packagedir
+done&#xA;</xsl:text>
+        <xsl:if test="$sudo = 'y'">
+          <xsl:text>sudo </xsl:text>
+        </xsl:if>
+        <xsl:text>ldconfig&#xA;&#xA;</xsl:text>
       </xsl:when>
     </xsl:choose>
   </xsl:template>
@@ -345,6 +386,14 @@ cd $UNPACKDIR&#xA;</xsl:text>
     </xsl:choose>
   </xsl:template>
 
+  <xsl:template match="itemizedlist/listitem/para" mode="xorg7">
+    <xsl:if test="contains(string(ulink/@url),'.patch')">
+      <xsl:text>wget </xsl:text>
+      <xsl:value-of select="ulink/@url"/>
+      <xsl:text>&#xA;</xsl:text>
+    </xsl:if>
+  </xsl:template>
+
 <!--======================== Commands code ==========================-->
 
   <xsl:template match="screen">
@@ -358,6 +407,10 @@ cd $UNPACKDIR&#xA;</xsl:text>
       </xsl:if>
       <xsl:text>&#xA;</xsl:text>
     </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="screen" mode="wget_lst">
+    <xsl:value-of select="substring-after(string(),' -i ')"/>
   </xsl:template>
 
   <xsl:template match="para/command">
