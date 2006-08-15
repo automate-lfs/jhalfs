@@ -151,7 +151,11 @@
         </xsl:when>
         <xsl:otherwise>
           <xsl:apply-templates/>
-          <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1&#xA;</xsl:text>
+          <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
+          <xsl:if test="contains(string(),' -k ')">
+            <xsl:text> || true</xsl:text>
+          </xsl:if>
+          <xsl:text>&#xA;</xsl:text>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:if>
@@ -234,7 +238,11 @@
                 </xsl:when>
                 <xsl:otherwise>
                   <xsl:apply-templates/>
-                  <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1&#xA;</xsl:text>
+                  <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
+                  <xsl:if test="contains(string(),' -k ')">
+                    <xsl:text> || true</xsl:text>
+                  </xsl:if>
+                  <xsl:text>&#xA;</xsl:text>
                 </xsl:otherwise>
               </xsl:choose>
             </xsl:if>
@@ -242,7 +250,7 @@
         </xsl:choose>
       </xsl:when>
       <!-- Fixing butterfly toolchain test suites run -->
-      <xsl:when test="string() = 'make -k check'">
+      <xsl:when test="string() = 'make -k check' or string() = 'make check'">
         <xsl:choose>
           <xsl:when test="$testsuite != '0'">
             <xsl:apply-templates/>
@@ -252,6 +260,10 @@
               </xsl:when>
               <xsl:otherwise>
                 <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1&#xA;</xsl:text>
+                <xsl:if test="contains(string(),' -k ')">
+                  <xsl:text> || true</xsl:text>
+                </xsl:if>
+                <xsl:text></xsl:text>
               </xsl:otherwise>
             </xsl:choose>
           </xsl:when>
@@ -267,7 +279,11 @@
                 <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
               </xsl:when>
               <xsl:otherwise>
-                <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1&#xA;</xsl:text>
+                <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
+                <xsl:if test="contains(string(),' -k ')">
+                  <xsl:text> || true</xsl:text>
+                </xsl:if>
+                <xsl:text>&#xA;</xsl:text>
               </xsl:otherwise>
             </xsl:choose>
           </xsl:when>
