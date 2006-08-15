@@ -106,7 +106,6 @@ generate_Makefile () {       #
     script_ver=$(xmllint --noent ../blfs-xml/book/bookinfo.xml 2>/dev/null | \
     		grep -i " ${this_script#*-?-}-version " | \
 		cut -d "\"" -f2 )
-    echo "${this_script} ... ${this_script#*-?-} .. ver ${script_ver}"
     if [ ! -e $TRACKING_DIR/${this_script#*-?-}-$script_ver ]; then
       pkg_list="$pkg_list ${this_script}"
      __write_entry "${this_script}" "${script_ver}"
