@@ -215,7 +215,7 @@ final_system_Makefiles() {    #
     # Test if the stripping phase must be skipped.
     # Skip alsp temp-perl for iterative runs
     case $this_script in
-      *stripping*) [[ "$STRIP" = "0" ]] && continue ;;
+      *stripping*) [[ "$STRIP" = "n" ]] && continue ;;
     esac
 
     # Grab the name of the target, strip id number, XXX-script
@@ -403,7 +403,7 @@ bootable_Makefiles() {        #
   done
 
   # Add SBU-disk_usage report target if required
-  if [[ "$REPORT" = "1" ]] ; then wrt_report ; fi
+  if [[ "$REPORT" = "y" ]] ; then wrt_report ; fi
 
 }
 
@@ -429,11 +429,22 @@ build_Makefile() {            # Construct a Makefile from the book scripts
     cat << EOF
 $HEADER
 
-SRC= /sources
-MOUNT_PT= $BUILDDIR
-PKG_LST= $PKG_LST
-LUSER= $LUSER
-LGROUP= $LGROUP
+SRC         = /sources
+MOUNT_PT    = $BUILDDIR
+PKG_LST     = $PKG_LST
+LUSER       = $LUSER
+LGROUP      = $LGROUP
+SCRIPT_ROOT = $SCRIPT_ROOT
+
+BASEDIR    = \$(MOUNT_PT)
+SRCSDIR    = \$(BASEDIR)/sources
+CMDSDIR    = \$(BASEDIR)/\$(SCRIPT_ROOT)/$PROGNAME-commands
+LOGDIR     = \$(BASEDIR)/\$(SCRIPT_ROOT)/logs
+TESTLOGDIR = \$(BASEDIR)/\$(SCRIPT_ROOT)/test-logs
+
+SU_LUSER   = su - \$(LUSER) -c
+PRT_DU     = echo -e "\nKB: \`du -skx --exclude=jhalfs \$(MOUNT_PT)\`\n"
+LUSER_HOME = /home/\$(LUSER)
 
 include makefile-functions
 

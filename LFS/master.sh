@@ -7,7 +7,6 @@
 ###################################
 
 
-
 #----------------------------#
 chapter4_Makefiles() {
 #----------------------------#
@@ -80,7 +79,7 @@ chapter5_Makefiles() {
       *tcl)       [[ "${TEST}" = "0" ]] && continue ;;
       *expect)    [[ "${TEST}" = "0" ]] && continue ;;
       *dejagnu)   [[ "${TEST}" = "0" ]] && continue ;;
-      *stripping) [[ "${STRIP}" = "0" ]] && continue ;;
+      *stripping) [[ "${STRIP}" = "n" ]] && continue ;;
       *glibc)     [[ "${TEST}" = "3" ]] && \
                   sed -i 's@/usr/lib/locale@/tools/lib/locale@' $file ;;
     esac
@@ -177,7 +176,7 @@ chapter6_Makefiles() {
     # dependencies and target creation.
     case "${this_script}" in
       *chroot)      continue ;;
-      *stripping*) [[ "${STRIP}" = "0" ]] && continue ;;
+      *stripping*) [[ "${STRIP}" = "n" ]] && continue ;;
     esac
 
     # Grab the name of the target
@@ -335,7 +334,7 @@ chapter789_Makefiles() {
   done  # for file in chapter0{7,8,9}/*
 
   # Add SBU-disk_usage report target if required
-  if [[ "$REPORT" = "1" ]] ; then wrt_report ; fi
+  if [[ "$REPORT" = "y" ]] ; then wrt_report ; fi
 }
 
 
@@ -352,7 +351,7 @@ build_Makefile() {
   chapter5_Makefiles
   chapter6_Makefiles
   # Add the iterations targets, if needed
-  [[ "$COMPARE" != "0" ]] && wrt_compare_targets
+  [[ "$COMPARE" = "y" ]] && wrt_compare_targets
   chapter789_Makefiles
 
 
@@ -362,11 +361,29 @@ build_Makefile() {
     cat << EOF
 $HEADER
 
-SRC= /sources
-MOUNT_PT= $BUILDDIR
-PKG_LST= $PKG_LST
-LUSER= $LUSER
-LGROUP= $LGROUP
+SRC          = /sources
+MOUNT_PT     = $BUILDDIR
+PKG_LST      = $PKG_LST
+LUSER        = $LUSER
+LGROUP       = $LGROUP
+SCRIPT_ROOT  = $SCRIPT_ROOT
+
+BASEDIR      = \$(MOUNT_PT)
+SRCSDIR      = \$(BASEDIR)/sources
+CMDSDIR      = \$(BASEDIR)/\$(SCRIPT_ROOT)/$PROGNAME-commands
+LOGDIR       = \$(BASEDIR)/\$(SCRIPT_ROOT)/logs
+TESTLOGDIR   = \$(BASEDIR)/\$(SCRIPT_ROOT)/test-logs
+
+crSRCSDIR    = /sources
+crCMDSDIR    = /\$(SCRIPT_ROOT)/$PROGNAME-commands
+crLOGDIR     = /\$(SCRIPT_ROOT)/logs
+crTESTLOGDIR = /\$(SCRIPT_ROOT)/test-logs
+
+SU_LUSER     = su - \$(LUSER) -c
+LUSER_HOME   = /home/\$(LUSER)
+PRT_DU       = echo -e "\nKB: \`du -skx --exclude=jhalfs \$(MOUNT_PT)\`\n"
+PRT_DU_CR    = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) \$(MOUNT_PT)\`\n"
+
 
 include makefile-functions
 

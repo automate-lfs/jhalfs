@@ -6,7 +6,6 @@
 ###################################
 
 
-
 #----------------------------#
 host_prep_Makefiles() {      # Initialization of the system
 #----------------------------#
@@ -498,7 +497,7 @@ final_system_Makefiles() {    #
     # Test if the stripping phase must be skipped.
     # Skip alsp temp-perl for iterative runs
     case $this_script in
-      *stripping*) [[ "$STRIP" = "0" ]] && continue ;;
+      *stripping*) [[ "$STRIP" = "n" ]] && continue ;;
       *temp-perl*) [[ -n "$N" ]] && continue ;;
     esac
 
@@ -608,7 +607,7 @@ bm_final_system_Makefiles() { #
     # Test if the stripping phase must be skipped
     # Skip alsp temp-perl for iterative runs
     case $this_script in
-      *stripping*) [[ "$STRIP" = "0" ]] && continue ;;
+      *stripping*) [[ "$STRIP" = "n" ]] && continue ;;
       *temp-perl*) [[ -n "$N" ]] && continue ;;
     esac
 
@@ -883,7 +882,7 @@ bootable_Makefiles() {        #
   done
 
   # Add SBU-disk_usage report target if required
-  if [[ "$REPORT" = "1" ]] ; then wrt_report ; fi
+  if [[ "$REPORT" = "y" ]] ; then wrt_report ; fi
 
 }
 
@@ -962,7 +961,7 @@ bm_bootable_Makefiles() {     #
   done
 
   # Add SBU-disk_usage report target if required
-  if [[ "$REPORT" = "1" ]] ; then wrt_report ; fi
+  if [[ "$REPORT" = "y" ]] ; then wrt_report ; fi
 
 }
 
@@ -986,7 +985,7 @@ build_Makefile() {            # Construct a Makefile from the book scripts
     fi
     final_system_Makefiles         # $basicsystem
     # Add the iterations targets, if needed
-    [[ "$COMPARE" != "0" ]] && wrt_compare_targets
+    [[ "$COMPARE" = "y" ]] && wrt_compare_targets
     bootscripts_Makefiles          # $bootscripttools
     bootable_Makefiles             # $bootabletools
   else
@@ -996,7 +995,7 @@ build_Makefile() {            # Construct a Makefile from the book scripts
     fi
     bm_final_system_Makefiles      # $basicsystem
     # Add the iterations targets, if needed
-    [[ "$COMPARE" != "0" ]] && wrt_compare_targets
+    [[ "$COMPARE" = "y" ]] && wrt_compare_targets
     bm_bootscripts_Makefiles       # $bootscipttools
     bm_bootable_Makefiles          # $bootabletoosl
   fi
@@ -1009,11 +1008,29 @@ build_Makefile() {            # Construct a Makefile from the book scripts
     cat << EOF
 $HEADER
 
-SRC= /sources
-MOUNT_PT= $BUILDDIR
-PKG_LST= $PKG_LST
-LUSER= $LUSER
-LGROUP= $LGROUP
+SRC          = /sources
+MOUNT_PT     = $BUILDDIR
+PKG_LST      = $PKG_LST
+LUSER        = $LUSER
+LGROUP       = $LGROUP
+SCRIPT_ROOT  = $SCRIPT_ROOT
+
+BASEDIR      = \$(MOUNT_PT)
+SRCSDIR      = \$(BASEDIR)/sources
+CMDSDIR      = \$(BASEDIR)/\$(SCRIPT_ROOT)/$PROGNAME-commands
+LOGDIR       = \$(BASEDIR)/\$(SCRIPT_ROOT)/logs
+TESTLOGDIR   = \$(BASEDIR)/\$(SCRIPT_ROOT)/test-logs
+
+crSRCSDIR    = /sources
+crCMDSDIR    = /\$(SCRIPT_ROOT)/$PROGNAME-commands
+crLOGDIR     = /\$(SCRIPT_ROOT)/logs
+crTESTLOGDIR = /\$(SCRIPT_ROOT)/test-logs
+
+SU_LUSER     = su - \$(LUSER) -c
+LUSER_HOME   = /home/\$(LUSER)
+PRT_DU       = echo -e "\nKB: \`du -skx --exclude=jhalfs \$(MOUNT_PT)\`\n"
+PRT_DU_CR    = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) \$(MOUNT_PT)\`\n"
+
 
 include makefile-functions
 

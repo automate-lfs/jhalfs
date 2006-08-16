@@ -33,8 +33,8 @@ FSTAB=
 CONFIG=
 
 # Get the kernel package and patches even if no configutation file
-# has been supplied? 0(no)/1(yes)
-GETKERNEL=0
+# has been supplied? n(no)/y(yes)
+GETKERNEL=n
 
 #--- Book's sources directory
 # If you have previously checked out the book from the repository

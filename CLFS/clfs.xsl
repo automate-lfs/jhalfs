@@ -28,13 +28,13 @@
   <xsl:param name="testsuite" select="1"/>
 
   <!-- Bomb on test suites failures?
-       0 = no, I want to build the full system and review the logs
-       1 = yes, bomb at the first test suite failure to can review the build dir
+       n = no, I want to build the full system and review the logs
+       y = yes, bomb at the first test suite failure to can review the build dir
   -->
-  <xsl:param name="bomb-testsuite" select="0"/>
+  <xsl:param name="bomb-testsuite" select="n"/>
 
   <!-- Install vim-lang package? -->
-  <xsl:param name="vim-lang" select="1"/>
+  <xsl:param name="vim-lang" select="y"/>
 
   <!-- Time zone -->
   <xsl:param name="timezone" select="GMT"/>
@@ -102,7 +102,7 @@
             </xsl:choose>
             <xsl:if test="sect2[@role='installation']">
               <xsl:text>cd $PKGDIR&#xA;</xsl:text>
-              <xsl:if test="@id='ch-system-vim' and $vim-lang = '1'">
+              <xsl:if test="@id='ch-system-vim' and $vim-lang = 'y'">
                 <xsl:text>tar -xvf ../vim-&vim-version;-lang.* --strip-components=1&#xA;</xsl:text>
               </xsl:if>
             </xsl:if>
@@ -125,7 +125,7 @@
             contains(string(),'check')) and
             ($testsuite = '2' or $testsuite = '3')">
       <xsl:choose>
-        <xsl:when test="$bomb-testsuite = '0'">
+        <xsl:when test="$bomb-testsuite = 'n'">
           <xsl:value-of select="substring-before(string(),'make')"/>
           <xsl:text>make -k</xsl:text>
           <xsl:value-of select="substring-after(string(),'make')"/>
@@ -197,7 +197,7 @@
             </xsl:if>
             <xsl:if test="contains(string(),'check')">
               <xsl:choose>
-                <xsl:when test="$bomb-testsuite = '0'">
+                <xsl:when test="$bomb-testsuite = 'n'">
                   <xsl:value-of select="substring-before(string(),'check')"/>
                   <xsl:text>-k check</xsl:text>
                   <xsl:value-of select="substring-after(string(),'check')"/>
@@ -222,7 +222,7 @@
         <xsl:choose>
           <xsl:when test="$testsuite != '0'">
             <xsl:choose>
-              <xsl:when test="$bomb-testsuite = '0'">
+              <xsl:when test="$bomb-testsuite = 'n'">
                 <xsl:text>make -k check &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
               </xsl:when>
               <xsl:otherwise>
@@ -242,7 +242,7 @@
           <xsl:when test="$testsuite != '0'">
             <xsl:value-of select="substring-before(string(),'&gt;g')"/>
             <xsl:choose>
-              <xsl:when test="$bomb-testsuite = '0'">
+              <xsl:when test="$bomb-testsuite = 'n'">
                 <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
               </xsl:when>
               <xsl:otherwise>

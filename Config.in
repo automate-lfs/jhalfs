@@ -58,7 +58,7 @@ menu "--- BOOK Settings"
 	endchoice
 
 	config	BRANCH_ID
-		string	"Branch (mandatory)"
+		string	"Book Version (mandatory)"
 		default	"**EDIT ME**"
 		depends	BRANCH
 		help
@@ -250,7 +250,7 @@ menu "--- BOOK Settings"
 	#--- End CLFS specific params
 
 	#--- HLFS specific params
-	config	CONFIG_GRSECURITY_HOST
+	config	GRSECURITY_HOST
 		bool	"Building on grsecurity enabled host?"
 		default	n
 		depends on BOOK_HLFS
@@ -356,7 +356,7 @@ menu "--- General Settings"
 		help
 			#-- The directory where the created system will be located.
 
-	config	CONFIG_GETPKG
+	config	GETPKG
 		bool "Retrieve source files"
 		default n
 		help
@@ -368,28 +368,28 @@ menu "--- General Settings"
 	config SRC_ARCHIVE
 		string "Package Archive Directory"
 		default "$SRC_ARCHIVE"
-		depends CONFIG_GETPKG
+		depends GETPKG
 		help
 			#-- A local archive for packages/file (not $BUILDDIR/sources)
 			#   Used only if GETPKG = 1
 			#   Any missing file will be downloaded and archived here,
 			#   if the user has the right priviledges.
 
-	config	CONFIG_GETKERNEL
+	config	GETKERNEL
 		bool	"Always retrieve kernel package"
 		default	n
-		depends CONFIG_GETPKG
+		depends GETPKG
 		help
 			#-- Get the kernel package and patches even if no configuration
 			#   file has been supplied.
 
-	config	CONFIG_RUNMAKE
+	config	RUNMAKE
 		bool	"Run the makefile"
 		default n
 		help
 			#-- Automatically run the makefile once it has been created
 
-	config	CONFIG_REBUILD
+	config	CLEAN
 		bool	"Rebuild files"
 		default	n
 		help
@@ -409,7 +409,7 @@ menu "--- Build Settings"
 	config	CONFIG_TESTS
 		bool	"Run testsuites"
 		depends	!BOOK_CLFS2
-		default	n
+		default	y
 		help
 			#-- Run test suites
 			#
@@ -454,19 +454,20 @@ menu "--- Build Settings"
 	choice
 		prompt	"Flavour ->"
 		depends	CONFIG_TESTS
-		default	NO_BOMB
 
 		config	NO_BOMB
 			bool	"Don't stop on test suite failures"
+			default n
 
 		config	BOMB
 			bool	"Abort the build at the first test suite failure"
+			default n
 	endchoice
 
 	config	BOMB_TEST
-		int
-		default	"0"	if NO_BOMB
-		default	"1"	if BOMB
+		bool
+		default	BOMB
+
 	#--- End Test Suites
 
 	#--- FSTAB
@@ -515,15 +516,15 @@ menu "--- Build Settings"
 			#   a keymap included in the kernel
 	#--- End Kernel
 
-	config	CONFIG_STRIP
+	config	STRIP
 		bool "Strip Installed Binaries/Libraries"
 		default y
 
-	config	CONFIG_VIMLANG
+	config	VIMLANG
 		bool "Install vim-lang package"
 		default y
 		help
-			#-- install the optional vim-lang package
+			#-- Install the optional vim-lang package
 
 	config	TIMEZONE
 		string "TimeZone"
@@ -571,12 +572,12 @@ endmenu
 menu "--- Advanced Features"
 	depends on !BOOK_BLFS
 
-	config	CONFIG_REPORT
+	config	REPORT
 		bool "Create SBU and disk usage report"
 		default y
 
 	#--- ICA/farce
-	config	CONFIG_COMPARE
+	config	COMPARE
 		bool "Run comparison analysis on final stage"
 		depends	!BOOK_CLFS2
 		default n
@@ -596,21 +597,21 @@ menu "--- Advanced Features"
 			#
 
 	config	ITERATIONS
-		int	"Number of test runs (2,3,4,5)"
-		depends on CONFIG_COMPARE
+		int	"Number of test runs (2,3,4,5)"	if COMPARE
+		depends on COMPARE
 		range	2 5
 		default	3
 
-	config	CONFIG_ICA
+	config	RUN_ICA
 		bool	"ICA testing"
-		depends on CONFIG_COMPARE
+		depends on COMPARE
 		default y
 		help
 			#-- Run ICA testing
 
-	config	CONFIG_FARCE
+	config	RUN_FARCE
 		bool	"farce testing"
-		depends on CONFIG_COMPARE
+		depends on COMPARE
 		default n
 		help
 			#-- Run farce testing
@@ -667,61 +668,3 @@ endmenu
 #		string	"BLFS packages"
 #		default	"none"
 #		depends	CONFIG_BLFS_CMDS
-
-
-# convert CONFIG_XXXX n/y to XXXX 0/1
-
-	config	GRSECURITY_HOST
-		int
-		default 0	if !CONFIG_GRSECURITY_HOST
-		default 1	if  CONFIG_GRSECURITY_HOST
-
-	config	COMPARE
-		int
-		default 0	if !CONFIG_COMPARE
-		default 1	if  CONFIG_COMPARE
-
-	config	GETPKG
-		int
-		default 0	if !CONFIG_GETPKG
-		default 1	if  CONFIG_GETPKG
-
-	config	GETKERNEL
-		int
-		default	0	if !CONFIG_GETKERNEL
-		default	1	if  CONFIG_GETKERNEL
-
-	config	RUNMAKE
-		int
-		default	0	if !CONFIG_RUNMAKE
-		default 1	if  CONFIG_RUNMAKE
-
-	config	STRIP
-		int
-		default	0	if !CONFIG_STRIP
-		default	1	if  CONFIG_STRIP
-
-	config	REPORT
-		int
-		default	0	if !CONFIG_REPORT
-		default 1	if  CONFIG_REPORT
-
-	config	VIMLANG
-		int
-		default	0	if !CONFIG_VIMLANG
-		default	1	if  CONFIG_VIMLANG
-
-	config	RUN_ICA
-		int
-		default	0	if !CONFIG_ICA
-		default	1	if  CONFIG_ICA
-
-	config	RUN_FARCE
-		int
-		default	0	if !CONFIG_FARCE
-		default	1	if  CONFIG_FARCE
-
-	config	CLEAN
-		int
-		default	0	if !CONFIG_REBUILD
-		default	1	if  CONFIG_REBUILD
