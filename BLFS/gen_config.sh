@@ -128,17 +128,98 @@ if [ $MENU_SET1 = "y" ]; then echo "endmenu" >> $outFile; fi
 
 (
 cat << EOF
-config optDependency
-	int "Dependency level 1/2/3"
-	default 2
-	range 1 3
-	help
-		1 for required
-		2 for required and recommended
-		3 for required, recommended, and optional
+comment	"Default packages for resolving dependencies"
 
+choice
+	prompt	"Default print server"
+	config	PS_cups
+		bool	"cups"
+	config	PS_LPRng
+		bool	"LPRng"
+endchoice
+config	PRINT_SERVER
+	string
+	default	cups	if PS_cups
+	default	LPRng	if PS_LPRng	
+choice
+	prompt	"Mail server"
+	config	MS_sendmail
+		bool	"sendmail'
+	config	MS_postfix
+		bool	"postfix"
+	config	MS_exim"
+		bool	"exim"
+endchoice
+config	MAIL_SERVER
+	string
+	default	sendmail	if MS_sendmail
+	default	postfix		if MS_postfix
+	default	exim		if MS_exim
 
-config SUDO
+choice
+	prompt	"Postscript package"
+	config	GS_espgs
+		bool	"espgs"
+	config	GS_ghostscript
+		bool	"ghostscript"
+endchoice
+config	GHOSTSCRIPT
+	string
+	default	espgs       if GS_espgs
+	default ghostscript if GS_ghostscript
+
+choice
+	prompt	"Kerberos 5"
+	config	KER_mitkrv
+		bool	"mitkrb"
+	config	KER_heimdal
+		bool	"heimdal"	
+endchoice
+config	KBR5
+	string
+	default	heimdal	if KER_heimdal
+	default mitkrb	if KER_mitkrb
+
+choice
+	prompt	"Window package
+	config	WIN_xorg7
+	bool	"Xorg7"
+	config	WIN_xorg
+	bool	"Xorg"
+	config	WIN_xfree86
+	bool	"xfree86"
+endchoice	
+config	X11
+	string
+	default	xorg7	if WIN_xorg7
+	default	xorg	if WIN_xorg
+	default xfree86	if WIN_xfree86
+
+comment	"--"
+
+choice	
+	prompt	"Select dependency level"
+	default DEP_2
+	
+	config	DEP_1
+	bool	"Required dependencies only"
+	
+	config	DEP_2
+	bool	"Required and recommended dependencies"
+	
+	config	DEP_3
+	bool	"Required, recommended and optional dependencies"
+	
+endchoice
+
+config	optDependency
+	int
+	default	1	if DEP_1
+	default	2	if DEP_2
+	default	3	if DEP_3
+	
+	
+config	SUDO
 	bool "Build as User"
 	default	y
 	help
@@ -147,7 +228,6 @@ config SUDO
 
 EOF
 ) >> $outFile
-
 
 
 
