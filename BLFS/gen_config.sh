@@ -56,15 +56,38 @@ do
   PKG_NAME=$1 
   PKG_XML_FILE=$(basename $2)
   PKG_DIR=$(dirname $2)
+    # These are the META packages. for gnome and kde (soon ALSA and Xorg7)
   if [ $PKG_DIR = "." ]; then
+    SET_COMMENT=y
     if [ -e $TRACKING_DIR/${PKG_NAME} ]; then continue; fi
-    PKG_NAME=$(echo ${PKG_NAME} | tr [a-z] [A-Z])
-    echo -e "config CONFIG_$PKG_NAME" >> $outFile
-    echo -e "\tbool \"$PKG_NAME\"" >> $outFile
-    echo -e "\tdefault n" >> $outFile
+    META_PKG=$(echo ${PKG_NAME} | tr [a-z] [A-Z])
+#(
+#cat << EOF
+#	config	META_$META_PKG
+#		bool	"$(echo ${PKG_NAME} | tr [a-z] [A-Z]) components"
+#EOF
+#) >> $outFile
+     echo -e "menu \"$(echo ${PKG_NAME} | tr [a-z] [A-Z]) components\"" >> $outFile
+       # Include the dependency data for this meta package
+       while [ 0 ]; do
+         read || break 1
+	 PKG_NAME=${REPLY}
+	 get_pkg_ver "${PKG_NAME}"
+(
+cat << EOF
+	config	DEP_${META_PKG}_${PKG_NAME}
+#		depends	META_${META_PKG}
+		bool	"$PKG_NAME ${PKG_VER}"
+		default	y
+
+EOF
+) >> $outFile	 
+       done <./libs/${PKG_NAME}.dep
+     echo -e "endmenu" >> $outFile
     continue
   fi
-
+  [[ "${SET_COMMENT}" = "y" ]] && echo "comment \"--\"" >>$outFile; unset SET_COMMENT 
+  
     # Deal with a few unusable chapter names
   case ${PKG_NAME} in
      other-* | others-* ) continue
@@ -86,6 +109,9 @@ do
 
 	# Define a top level menu  
   if [ "$PREV_DIR1" != "${DIR_TREE[1]}" ]; then
+    [[ "${DIR_TREE[1]}" = "kde" ]] && continue
+    [[ "${DIR_TREE[1]}" = "gnome" ]] && continue
+    
     if [ $MENU_SET1 = "y" ]; then 
       # Close out any open secondary menu
       if [ $MENU_SET2 = "y" ]; then 
