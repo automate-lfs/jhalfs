@@ -14,7 +14,7 @@ simple_error() {        # Basic error trap.... JUST DIE
 }
 
 see_ya() {
-    echo -e "\n\t${BOLD}Goodbye and thank you for choosing ${L_arrow}jhalfs${R_arrow}\n"
+    echo -e "\n${L_arrow}${BOLD}jhalfs${R_arrow} exit${OFF}\n"
 }
 ##### Simple error TRAPS
 # ctrl-c   SIGINT
