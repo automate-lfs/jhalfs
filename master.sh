@@ -14,7 +14,7 @@ simple_error() {        # Basic error trap.... JUST DIE
 }
 
 see_ya() {
-    echo -e "\n\t${BOLD}Goodbye and thank you for choosing ${L_arrow}jhalfs-X${R_arrow}\n"
+    echo -e "\n${L_arrow}${BOLD}jhalfs-X${R_arrow} exit${OFF}\n"
 }
 ##### Simple error TRAPS
 # ctrl-c   SIGINT
@@ -66,10 +66,10 @@ if [[ -e using_menuconfig ]]; then
           XSL=$PROGNAME.xsl
 
   case $PROGNAME in
-    clfs2) LFSVRS=development; TREE=branches/clfs-2.0/BOOK ;;  
+    clfs2) LFSVRS=development; TREE=branches/clfs-2.0/BOOK ;;
         *) LFSVRS=development; TREE=trunk/BOOK             ;;
   esac
-	  
+
   if [[ ! -z ${BRANCH_ID} ]]; then
     case $BRANCH_ID in
      dev* | SVN | trunk )
@@ -98,10 +98,10 @@ if [[ -e using_menuconfig ]]; then
     esac
   fi
   # These are boolean vars generated from Config.in.
-  # ISSUE: If a boolean parameter is not set <true> that  
-  # variable is not defined by the menu app. This can 
+  # ISSUE: If a boolean parameter is not set <true> that
+  # variable is not defined by the menu app. This can
   # cause a headache if you are not careful.
-  #  The following parameters MUST be created and have a 
+  #  The following parameters MUST be created and have a
   #  default value.
   RUNMAKE=${RUNMAKE:-n}
   GETPKG=${GETPKG:-n}
@@ -115,7 +115,7 @@ if [[ -e using_menuconfig ]]; then
   VIMLANG=${VIMLANG:-n}
   KEYMAP=${KEYMAP:=none}
   GRSECURITY_HOST=${GRSECURITY_HOST:-n}
-  
+
 else
   #
   [[ $VERBOSITY > 0 ]] && echo -n "Loading masterscript conf..."
@@ -354,19 +354,19 @@ while test $# -gt 0 ; do
            mips )   ARCH=mips;  TARGET="mips-unknown-linux-gnu"      ;;
            mipsel ) ARCH=mips;  TARGET="mipsel-unknown-linux-gnu"    ;;
             sparc ) ARCH=sparc; TARGET="sparcv9-unknown-linux-gnu"   ;;
-	    
+
            x86_64-64 )   ARCH=x86_64-64;  TARGET="x86_64-unknown-linux-gnu"   ;;
            mips64-64 )   ARCH=mips64-64;  TARGET="mips-unknown-linux-gnu"     ;;
            mipsel64-64 ) ARCH=mips64-64;  TARGET="mipsel-unknown-linux-gnu" ;;
            sparc64-64 )  ARCH=sparc64-64; TARGET="sparc64-unknown-linux-gnu" ;;
            alpha )       ARCH=alpha;      TARGET="alpha-unknown-linux-gnu"   ;;
-	   
+
            x86_64 )   ARCH=x86_64;  TARGET="x86_64-unknown-linux-gnu";    TARGET32="i686-pc-linux-gnu"        ;;
            mips64 )   ARCH=mips64;  TARGET="mips-unknown-linux-gnu";      TARGET32="mips-unknown-linux-gnu"   ;;
            mipsel64 ) ARCH=mips64;  TARGET="mipsel-unknown-linux-gnu";    TARGET32="mipsel-unknown-linux-gnu"  ;;
            sparc64 )  ARCH=sparc64; TARGET="sparc64-unknown-linux-gnu";   TARGET32="sparcv9-unknown-linux-gnu"  ;;
             ppc64 )   ARCH=ppc64;   TARGET="powerpc64-unknown-linux-gnu"; TARGET32="powerpc-unknown-linux-gnu"  ;;
-  
+
             * )  echo -e "\n$1 is an unknown or unsupported arch.";   exit 1  ;;
           esac
 	  ;;

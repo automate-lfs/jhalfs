@@ -4,8 +4,8 @@ $Id$
 
      To automatize packages build from the BLFS book instructions is a huge
   task. The BLFS book isn't linear, some package pages need to use a non
-  defaul layout, there are circular dependencies, several packages can be
-  installed on a non default prifix, build commands can change based on what
+  default layout, there are circular dependencies, several packages can be
+  installed on a non default prefix, build commands can change based on what
   dependencies will be used, etc.
 
      Said that, the goal of jhalfs is try to help you solving packages
@@ -19,7 +19,7 @@ $Id$
 
 2. USAGE::
 
-     Due the complexity of the BLFS book, the scripts/Mafile generation is
+     Due the complexity of the BLFS book, the scripts/Makefile generation is
   done in several steps:
 
   2.1  INSTALLATION::
@@ -73,13 +73,13 @@ $Id$
     will create a directory named "galeon". Inside that directory you find a
     directory named "HTML" that contains a galeon-based HTML book with all
     dependencies in build order and a "scripts" directory with build scripts
-    that uses sudo for commands that need root priviledges.
+    that uses sudo for commands that need root privileges.
 
     There is also two other directories that contains files generated while
     resolving dependencies trees.
 
     Now is the time to review the generated book and scripts, making in the
-    scripts any changes you want to fit your needs. Scripts for aditional
+    scripts any changes you want to fit your needs. Scripts for additional
     packages (i.e., for non-BLFS packages) can be inserted in an easy way.
 
   2.4  CREATING THE MAKEFILE
@@ -92,4 +92,42 @@ $Id$
 
 
 (Text is needed for the installed packages tracking system and like)
+
+3. GENERATED BUILD SCRIPTS ISSUES::
+
+      In this section known issues with the generated build scripts are
+   discussed. They are due build procedures and BLFS layout particularities
+   than we can't handle. In some cases editing the build scripts is mandatory.
+   You may need also to insert some build script created by you to resolve
+   unhandled dependencies and/or to remove some script and install the
+   affected package by hand.
+
+   3.1  BLFS BOOTSCRIPTS
+
+        For now, bootscripts installation will fail. You will need to edit the
+     scripts for packages that install bootscripts and fix their installation
+     command. That could be fixed in the future, but not sure.
+
+   3.2  PACKAGES CONFIGURATION
+
+        For that packages that have a "Configuration" section, you should to
+     edit it build script to fit the configuration to your needs.
+
+   3.4  PDL and Perl modules.
+
+        The generated scripts for that packages are plainly broken and can't
+     be fixed. You must to replace it by your own ones or install that
+     packages by hand.
+
+   3.4  GCC, JDK, Sane, and KDE-multimedia
+
+        On the pages for that packages, the BLFS book actually have instructions
+     to install two packages. You must to edit the scripts to fix it. We will
+     try to fix some of them, but may not be possible.
+
+   3.5  OTHERS
+
+        May have other issues that we are not aware on them yet. If you find
+     someone, please report it to <alfs-discuss@linuxfromscratch.org>.
+
 
