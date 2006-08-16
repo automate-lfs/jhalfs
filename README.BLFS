@@ -93,7 +93,7 @@ $Id$
 
 (Text is needed for the installed packages tracking system and like)
 
-3. PACKAGES INSTALLATION ISSUES::
+3. GENERATED BUILD SCRIPTS ISSUES::
 
       In this section known issues with the generated build scripts are
    discussed. They are due build procedures and BLFS layout particularities
