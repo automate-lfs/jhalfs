@@ -170,7 +170,7 @@ config	GHOSTSCRIPT
 
 choice
 	prompt	"Kerberos 5"
-	config	KER_mitkrv
+	config	KER_mitkrb
 		bool	"mitkrb"
 	config	KER_heimdal
 		bool	"heimdal"	
