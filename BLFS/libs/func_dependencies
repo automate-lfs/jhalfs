@@ -91,7 +91,7 @@ inline_doc
     kde-koffice )
       cp ../libs/kde-{core,full,koffice}.dep dependencies/
       ;;
-    xorg7 ) # At atarget level, add also x-config and x-setup
+    xorg7 )
       cp ../libs/xorg7.dep dependencies/
       ;;
     * ) # Default
