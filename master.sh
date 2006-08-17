@@ -70,6 +70,7 @@ if [[ -e using_menuconfig ]]; then
 	#--- farce report log directory
   FARCELOGDIR=$LOGDIR/farce
           XSL=$PROGNAME.xsl
+      PKG_LST=unpacked
 
   case $PROGNAME in
     clfs2) LFSVRS=development; TREE=branches/clfs-2.0/BOOK ;;
