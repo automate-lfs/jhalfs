@@ -211,7 +211,7 @@ config	KBR5
 	default mitkrb	if KER_mitkrb
 
 choice
-	prompt	"Window package
+	prompt	"Window package"
 	config	WIN_xorg7
 	bool	"Xorg7"
 	config	WIN_xorg
