@@ -44,7 +44,7 @@ fi
   PACKAGE_DIR=$(echo $PROGNAME | tr [a-z] [A-Z])
        MODULE=$PACKAGE_DIR/master.sh
 MODULE_CONFIG=$PACKAGE_DIR/config
-    VERBOSITY=1
+    VERBOSITY=0
 
 
 if [[ -e using_menuconfig ]]; then
@@ -56,6 +56,9 @@ if [[ -e using_menuconfig ]]; then
         #--- CONSTANTS
   declare -r SVN="svn://svn.linuxfromscratch.org"
   declare -r LOG=000-masterscript.log
+        # --- Server used if the file isn't found in SRC_ARCHIVE.
+        # As a last resort, the file will dowloaded from upstream, if possible.
+       SERVER=ftp://ftp.lfs-matrix.net
 	#--- Working directories
   SCRIPT_ROOT=jhalfs
     JHALFSDIR=$BUILDDIR/$SCRIPT_ROOT
@@ -67,6 +70,7 @@ if [[ -e using_menuconfig ]]; then
 	#--- farce report log directory
   FARCELOGDIR=$LOGDIR/farce
           XSL=$PROGNAME.xsl
+      PKG_LST=unpacked
 
   case $PROGNAME in
     clfs2) LFSVRS=development; TREE=branches/clfs-2.0/BOOK ;;
