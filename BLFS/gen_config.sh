@@ -4,7 +4,7 @@
 #
 
 export outFile=aConfig.in	# file for reading and writing to.
-export inFile=packages.sorted	# file for reading and writing to.
+export inFile=packages		# file for reading and writing to.
 
 declare TRACKING_DIR=/var/lib/jhalfs/BLFS
 
@@ -22,13 +22,11 @@ declare PKG_VER
 
 get_pkg_ver() {
   local this_script=$1
-  
+
   PKG_VER=$(xmllint --noent ./blfs-xml/book/bookinfo.xml 2>/dev/null | \
             grep -i " ${this_script#*-?-}-version " | cut -d "\"" -f2 )
 
 }
-
-sort packages -b --key=2 --field-separator=/ --output=packages.sorted
 
 > $outFile
 
@@ -51,9 +49,9 @@ do
      [[ "${REPLY:0:1}" = "#" ]]; then
     continue
   fi
-  
+
   set -- $REPLY
-  PKG_NAME=$1 
+  PKG_NAME=$1
   PKG_XML_FILE=$(basename $2)
   PKG_DIR=$(dirname $2)
     # These are the META packages. for gnome and kde (soon ALSA and Xorg7)
@@ -81,18 +79,18 @@ cat << EOF
 		default	y
 
 EOF
-) >> $outFile	 
+) >> $outFile
        done <./libs/${PKG_NAME}.dep
      echo -e "endmenu" >> $outFile
     continue
   fi
-  [[ "${SET_COMMENT}" = "y" ]] && echo "comment \"\"" >>$outFile; unset SET_COMMENT 
-  
+  [[ "${SET_COMMENT}" = "y" ]] && echo "comment \"\"" >>$outFile; unset SET_COMMENT
+
     # Deal with a few unusable chapter names
   case ${PKG_NAME} in
      other-* | others-* ) continue
       ;;
-     xorg7-* ) # Deal with sub-elements of Xorg7, mandatory for build. 
+     xorg7-* ) # Deal with sub-elements of Xorg7, mandatory for build.
                # No need to (even possible?) to build separately
          continue
       ;;
@@ -102,19 +100,19 @@ EOF
     # do not add this package to the list of installable pkgs.
   get_pkg_ver "${PKG_NAME}"
   if [ -e $TRACKING_DIR/${PKG_NAME}-${PKG_VER} ]; then continue; fi
-  
+
   IFS="/"
   DIR_TREE=(${PKG_DIR})
   IFS="$SAVE_IFS"
 
-	# Define a top level menu  
+	# Define a top level menu
   if [ "$PREV_DIR1" != "${DIR_TREE[1]}" ]; then
     [[ "${DIR_TREE[1]}" = "kde" ]] && continue
     [[ "${DIR_TREE[1]}" = "gnome" ]] && continue
-    
-    if [ $MENU_SET1 = "y" ]; then 
+
+    if [ $MENU_SET1 = "y" ]; then
       # Close out any open secondary menu
-      if [ $MENU_SET2 = "y" ]; then 
+      if [ $MENU_SET2 = "y" ]; then
         echo -e "\tendmenu" >> $outFile
         # Reset 'menu open' flag
         MENU_SET2="n"
@@ -124,24 +122,24 @@ EOF
     fi
     # Open a new top level menu
     echo -e "menu "$(echo ${DIR_TREE[1]:0:1} | tr [a-z] [A-Z])${DIR_TREE[1]:1}"" >> $outFile
-    MENU_SET1="y"    
+    MENU_SET1="y"
   fi
 
 	# Define a secondary menu
   if [ "$PREV_DIR2" != "${DIR_TREE[2]}" ]; then
       # Close out the previous open menu structure
-    if [ $MENU_SET2 = "y" ]; then 
+    if [ $MENU_SET2 = "y" ]; then
       echo -e "\tendmenu\n"  >> $outFile
     fi
-      # Initialize a new 2nd level menu structure. 
+      # Initialize a new 2nd level menu structure.
     echo -e "\tmenu "$(echo ${DIR_TREE[2]:0:1} | tr [a-z] [A-Z])${DIR_TREE[2]:1}"" >> $outFile
-    MENU_SET2="y"    
+    MENU_SET2="y"
   fi
 (
 cat << EOF
 	config CONFIG_$PKG_NAME
 		bool "$PKG_NAME ${PKG_VER}"
-		default n		
+		default n
 EOF
 ) >> $outFile
 
@@ -169,7 +167,7 @@ endchoice
 config	PRINT_SERVER
 	string
 	default	cups	if PS_cups
-	default	LPRng	if PS_LPRng	
+	default	LPRng	if PS_LPRng
 
 choice
 	prompt	"Mail server"
@@ -203,7 +201,7 @@ choice
 	config	KER_mitkrb
 		bool	"mitkrb"
 	config	KER_heimdal
-		bool	"heimdal"	
+		bool	"heimdal"
 endchoice
 config	KBR5
 	string
@@ -218,7 +216,7 @@ choice
 	bool	"Xorg"
 	config	WIN_xfree86
 	bool	"xfree86"
-endchoice	
+endchoice
 config	X11
 	string
 	default	xorg7	if WIN_xorg7
@@ -226,27 +224,27 @@ config	X11
 	default xfree86	if WIN_xfree86
 endmenu
 
-choice	
+choice
 	prompt	"Dependency level"
 	default DEPLVL_2
-	
+
 	config	DEPLVL_1
 	bool	"Required dependencies only"
-	
+
 	config	DEPLVL_2
 	bool	"Required and recommended dependencies"
-	
+
 	config	DEPLVL_3
 	bool	"Required, recommended and optional dependencies"
-	
+
 endchoice
 config	optDependency
 	int
 	default	1	if DEPLVL_1
 	default	2	if DEPLVL_2
 	default	3	if DEPLVL_3
-	
-	
+
+
 config	SUDO
 	bool "Build as User"
 	default	y

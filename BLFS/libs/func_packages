@@ -34,10 +34,10 @@ kde-full	$BLFS_XML
 kde-koffice	$BLFS_XML
 xorg7	$BLFS_XML
 EOF
-} > packages
+} >> packages.tmp
 
   # Dump packages list
-  sort packages.tmp >> packages
+  sort packages.tmp -b --key=2 --field-separator=/ --output=packages
 
   # Clean up
   rm packages.tmp
