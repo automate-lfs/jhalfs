@@ -14,7 +14,7 @@ MAKEFLAGS="-j3"
 
 #--- List of packages that don't support well MAKEFLAGS.
 #    This list may be different for you.
-BLACK_LIST="dejagnu gettext groff"
+BLACK_LIST="autoconf dejagnu gettext groff"
 
 #--- Default optimization mode
 #    This mode is overridden by definitions in opt_override;
