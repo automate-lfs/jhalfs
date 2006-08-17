@@ -53,6 +53,9 @@ if [[ -e using_menuconfig ]]; then
   [[ $? > 0 ]] && echo "file:configuration did not load.." && exit 1
   [[ $VERBOSITY > 0 ]] && echo "OK"
 
+        #--- CONSTANTS
+  declare -r SVN="svn://svn.linuxfromscratch.org"
+  declare -r LOG=000-masterscript.log
 	#--- Working directories
   SCRIPT_ROOT=jhalfs
     JHALFSDIR=$BUILDDIR/$SCRIPT_ROOT

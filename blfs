@@ -119,6 +119,9 @@ cd $BLFS_ROOT
 
 # Clean-up
 rm -rf libs/.svn
+#rm -rf menu/.svn
+#rm -rf lxdialog/.svn
+
 
 # Fix BLFS_XML harcoded values
 sed -i 's,blfs-xml,'$BLFS_XML',' update_book.sh
