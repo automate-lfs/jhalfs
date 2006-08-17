@@ -79,7 +79,7 @@ EOF
      echo -e "endmenu" >> $outFile
     continue
   fi
-  [[ "${SET_COMMENT}" = "y" ]] && echo "comment \"--\"" >>$outFile; unset SET_COMMENT 
+  [[ "${SET_COMMENT}" = "y" ]] && echo "comment \"\"" >>$outFile; unset SET_COMMENT 
   
     # Deal with a few unusable chapter names
   case ${PKG_NAME} in
@@ -147,7 +147,10 @@ if [ $MENU_SET1 = "y" ]; then echo "endmenu" >> $outFile; fi
 
 (
 cat << EOF
-comment	"Default packages for resolving dependencies"
+
+comment	""
+
+menu	"Default packages for resolving dependencies"
 
 choice
 	prompt	"Default print server"
@@ -213,8 +216,7 @@ config	X11
 	default	xorg7	if WIN_xorg7
 	default	xorg	if WIN_xorg
 	default xfree86	if WIN_xfree86
-
-comment	"--"
+endmenu
 
 choice	
 	prompt	"Select dependency level"
