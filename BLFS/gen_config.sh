@@ -177,7 +177,7 @@ choice
 		bool	"sendmail"
 	config	MS_postfix
 		bool	"postfix"
-	config	MS_exim"
+	config	MS_exim
 		bool	"exim"
 endchoice
 config	MAIL_SERVER
