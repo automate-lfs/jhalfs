@@ -61,12 +61,6 @@ do
     SET_COMMENT=y
     if [ -e $TRACKING_DIR/${PKG_NAME} ]; then continue; fi
     META_PKG=$(echo ${PKG_NAME} | tr [a-z] [A-Z])
-#(
-#cat << EOF
-#	config	META_$META_PKG
-#		bool	"$(echo ${PKG_NAME} | tr [a-z] [A-Z]) components"
-#EOF
-#) >> $outFile
      echo -e "menu \"$(echo ${PKG_NAME} | tr [a-z] [A-Z]) components\"" >> $outFile
        # Include the dependency data for this meta package
        while [ 0 ]; do
@@ -76,7 +70,6 @@ do
 (
 cat << EOF
 	config	DEP_${META_PKG}_${PKG_NAME}
-#		depends	META_${META_PKG}
 		bool	"$PKG_NAME ${PKG_VER}"
 		default	y
 
@@ -225,24 +218,24 @@ comment	"--"
 
 choice	
 	prompt	"Select dependency level"
-	default DEP_2
+	default DEPLVL_2
 	
-	config	DEP_1
+	config	DEPLVL_1
 	bool	"Required dependencies only"
 	
-	config	DEP_2
+	config	DEPLVL_2
 	bool	"Required and recommended dependencies"
 	
-	config	DEP_3
+	config	DEPLVL_3
 	bool	"Required, recommended and optional dependencies"
 	
 endchoice
 
 config	optDependency
 	int
-	default	1	if DEP_1
-	default	2	if DEP_2
-	default	3	if DEP_3
+	default	1	if DEPLVL_1
+	default	2	if DEPLVL_2
+	default	3	if DEPLVL_3
 	
 	
 config	SUDO
