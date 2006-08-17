@@ -259,11 +259,11 @@
                 <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
               </xsl:when>
               <xsl:otherwise>
-                <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1&#xA;</xsl:text>
+                <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
                 <xsl:if test="contains(string(),' -k ')">
                   <xsl:text> || true</xsl:text>
                 </xsl:if>
-                <xsl:text></xsl:text>
+                <xsl:text>&#xA;</xsl:text>
               </xsl:otherwise>
             </xsl:choose>
           </xsl:when>
