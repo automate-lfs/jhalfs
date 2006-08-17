@@ -18,19 +18,21 @@ generate_packages()  {  # Master packages file
   done
 
   # IDs clean-up (unuseful pages or commented-out packages, could be more)
-  sed -i '/template/d;/ntroduction/d;/preface/d' packages.tmp
-  sed -i '/obsolete/d;/postlfs-/d;/-client.xml/d' packages.tmp
+  sed -i '/template/d;/ntroduction/d;/preface/d;/alsa.xml/d' packages.tmp
+  sed -i '/obsolete/d;/postlfs-/d;/-client.xml/d;/xorg7.xml/d' packages.tmp
   sed -i '/courier.xml/d;/-other\t/d;/others-/d;/other-/d' packages.tmp
   sed -i '/fw-firewall/d;/gcc2/d;/cvsserver/d;/svnserver/d' packages.tmp
 
   # Add header with meta-packages pseudo Id
 {
   cat << EOF
+alsa	$BLFS_XML
 gnome-core	$BLFS_XML
 gnome-full	$BLFS_XML
 kde-core	$BLFS_XML
 kde-full	$BLFS_XML
 kde-koffice	$BLFS_XML
+xorg7	$BLFS_XML
 EOF
 } > packages
 
@@ -115,4 +117,25 @@ generate_kde_full()  {     # KDE full
 
   tac kde-full.dep.tmp > libs/kde-full.dep
   rm kde-full.dep.tmp
+}
+
+#--------------------------#
+generate_kde_koffice()  {  # KDE full + Koffice
+#--------------------------#
+  echo -e "koffice\nkde-full\nkde-core" > libs/kde-koffice.dep
+}
+
+#--------------------------#
+generate_alsa()  {         # ALSA packages
+#--------------------------#
+  echo -e "alsa-oss\nalsa-firmware\nalsa-tools\nalsa-utils\n \
+alsa-plugins\nalsa-lib" > libs/alsa.dep
+}
+
+#--------------------------#
+generate_xorg7()  {        # Xorg7 packages
+#--------------------------#
+  echo -e "x-config\nx-setup\nrman\nxterm2\nxorg7-driver\nxorg7-server\nluit\n \
+xorg7-font\nxorg7-data\nxorg7-app\nxbitmaps\nmesalib\nlibdrm\n \
+xorg7-lib\nxorg7-util\nxorg7-proto" > libs/xorg7.dep
 }

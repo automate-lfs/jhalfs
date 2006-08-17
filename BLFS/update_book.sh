@@ -74,6 +74,10 @@ echo -en "\n\tGenerating packages file ..."
 generate_packages
 echo "done."
 
+echo -en "\tGenerating alsa dependencies list ..."
+generate_alsa
+echo "done."
+
 echo -en "\tGenerating gnome-core dependencies list ..."
 generate_gnome_core
 echo "done."
@@ -88,5 +92,13 @@ echo "done."
 
 echo -en "\tGenerating kde-full dependencies list ..."
 generate_kde_full
-echo -e "done.\n"
+echo -e "done."
+
+echo -en "\tGenerating kde-koffice dependencies list ..."
+generate_kde_koffice
+echo -e "done."
+
+echo -en "\tGenerating xorg7 dependencies list ..."
+generate_xorg7
+echo "done."
 

@@ -73,10 +73,8 @@ inline_doc
     alsa-lib | cracklib | libexif | unixodbc ) ;;
 
     # Meta-packages at target level
-    # KDE and Gnome-{core,full} could be made via packages.sh, but not sure yet how.
     alsa )
-      echo -e "alsa-oss\nalsa-firmware\nalsa-tools\nalsa-utils\n \
-               alsa-plugins\nalsa-lib" > dependencies/alsa.dep
+      cp ../libs/alsa.dep dependencies/
       ;;
     gnome-core )
       cp ../libs/gnome-core.dep dependencies/
@@ -91,13 +89,10 @@ inline_doc
       cp ../libs/kde-{core,full}.dep dependencies/
       ;;
     kde-koffice )
-      cp ../libs/kde-{core,full}.dep dependencies/
-      echo -e "koffice\nkde-full\nkde-core" > dependencies/kde-koffice.dep
+      cp ../libs/kde-{core,full,koffice}.dep dependencies/
       ;;
     xorg7 ) # At atarget level, add also x-config and x-setup
-      echo -e "x-config\nx-setup\nrman\nxterm2\nxorg7-driver\nxorg7-server\nluit\n \
-               xorg7-font\nxorg7-data\nxorg7-app\nxbitmaps\nmesalib\nlibdrm\n \
-               xorg7-lib\nxorg7-util\nxorg7-proto" > dependencies/xorg7.dep
+      cp ../libs/xorg7.dep dependencies/
       ;;
     * ) # Default
       xsltproc --stringparam dependencies $DEP_LEVEL \
@@ -272,9 +267,8 @@ inline_doc
         # Skip the creation when all dependencies are circular.
         alsa-lib | cracklib | libexif | unixodbc ) ;;
         # Meta-packages at dependency level (ugly *.dep files, but work for now)
-        alsa ) # When dependency "alsa", use all alsa-* packages
-          echo -e "alsa-oss\nalsa-firmware\nalsa-tools\nalsa-utils\n \
-                   alsa-plugins\nalsa-lib" > dependencies/alsa.dep
+        alsa )
+          cp ../libs/alsa.dep dependencies/
           ;;
         kde-core )
           cp ../libs/kde-core.dep dependencies/
@@ -282,10 +276,9 @@ inline_doc
         x-window-system ) # X11 alternatives
           echo -e "x-config\nx-setup\n$X11" > dependencies/x-window-system.dep
           ;;
-        xorg7 )
-          echo -e "rman\nxterm2\nxorg7-driver\nxorg7-server\nluit\nxorg7-font\n \
-                   xorg7-data\nxorg7-app\nxbitmaps\nmesalib\nlibdrm\n \
-                   xorg7-lib\nxorg7-util\nxorg7-proto" > dependencies/xorg7.dep
+        xorg7 ) # At dependencies level, remove x-config and x-setup
+          cp ../libs/xorg7.dep dependencies/
+          sed -i '/x-config/d;/x-setup/d' dependencies/xorg7.dep
           ;;
         * ) xsltproc --stringparam dependencies $DEP_LV \
                -o dependencies/$DEP.dep ../libs/dependencies.xsl ../$DEP_XML
@@ -337,7 +330,7 @@ inline_doc
   #------------------
   if [[ "$PKG" = "xorg7" ]] ; then
     # Add their XInclude
-    PKG_XML=`grep "^$PKG[[:space:]]" ../packages | cut -f2`
+    PKG_XML=blfs-xml/x/installing/xorg7.xml
     echo -e "    $ENTRY_START$PKG_XML$ENTRY_END" >> xincludes/$PKG.xinc.tmp
   fi
 
