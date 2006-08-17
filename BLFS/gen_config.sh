@@ -39,6 +39,7 @@ get_pkg_ver() {
   Packages previously installed will not be included.
 enddoc
 
+echo -en "\tGenerating Config.in from package data ..."
 while [ 0 ]
 do
 
@@ -94,6 +95,7 @@ EOF
                # No need to (even possible?) to build separately
          continue
       ;;
+     alsa-* ) continue ;;
   esac
 
     # IF this package name-version exists in the tracking dir
@@ -254,6 +256,6 @@ config	SUDO
 
 EOF
 ) >> $outFile
-
+echo "done"
 
 
