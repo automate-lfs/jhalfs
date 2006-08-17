@@ -19,29 +19,18 @@ generate_packages()  {  # Master packages file
 
   # IDs clean-up (unuseful pages or commented-out packages, could be more)
   sed -i '/template/d;/ntroduction/d;/preface/d' packages.tmp
-  sed -i '/courier.xml/d' packages.tmp
-  sed -i '/nautilus-media.xml/d;/gal.xml/d;/gpdf.xml/d;/gv.xml/d' packages.tmp
+  sed -i '/obsolete/d;/postlfs-/d;/-client.xml/d' packages.tmp
+  sed -i '/courier.xml/d;/-other\t/d;/others-/d;/other-/d' packages.tmp
+  sed -i '/fw-firewall/d;/gcc2/d;/cvsserver/d;/svnserver/d' packages.tmp
 
   # Add header with meta-packages pseudo Id
 {
   cat << EOF
-
-=== GNOME META-PACKAGES ===
-# GNOME base packages
 gnome-core	$BLFS_XML
-# All GNOME packages
 gnome-full	$BLFS_XML
-
-=== KDE META-PACKAGES ===
-# KDE base packages
 kde-core	$BLFS_XML
-# All KDE packages
 kde-full	$BLFS_XML
-# All KDE packages plus Koffice
 kde-koffice	$BLFS_XML
-
-=== INDIVIDUAL PACKAGES ===
-
 EOF
 } > packages
 
