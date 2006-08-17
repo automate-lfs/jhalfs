@@ -128,14 +128,14 @@ generate_kde_koffice()  {  # KDE full + Koffice
 #--------------------------#
 generate_alsa()  {         # ALSA packages
 #--------------------------#
-  echo -e "alsa-oss\nalsa-firmware\nalsa-tools\nalsa-utils\n \
+  echo -e "alsa-oss\nalsa-firmware\nalsa-tools\nalsa-utils\n\
 alsa-plugins\nalsa-lib" > libs/alsa.dep
 }
 
 #--------------------------#
 generate_xorg7()  {        # Xorg7 packages
 #--------------------------#
-  echo -e "x-config\nx-setup\nrman\nxterm2\nxorg7-driver\nxorg7-server\nluit\n \
-xorg7-font\nxorg7-data\nxorg7-app\nxbitmaps\nmesalib\nlibdrm\n \
+  echo -e "x-config\nx-setup\nrman\nxterm2\nxorg7-driver\nxorg7-server\nluit\n\
+xorg7-font\nxorg7-data\nxorg7-app\nxbitmaps\nmesalib\nlibdrm\n\
 xorg7-lib\nxorg7-util\nxorg7-proto" > libs/xorg7.dep
 }
