@@ -266,7 +266,7 @@ inline_doc
       case $DEP in
         # Skip the creation when all dependencies are circular.
         alsa-lib | cracklib | libexif | unixodbc ) ;;
-        # Meta-packages at dependency level (ugly *.dep files, but work for now)
+        # Meta-packages at dependency level
         alsa )
           cp ../libs/alsa.dep dependencies/
           ;;
@@ -330,7 +330,7 @@ inline_doc
   #------------------
   if [[ "$PKG" = "xorg7" ]] ; then
     # Add their XInclude
-    PKG_XML=blfs-xml/x/installing/xorg7.xml
+    PKG_XML=${BLFS_XML}/x/installing/xorg7.xml
     echo -e "    $ENTRY_START$PKG_XML$ENTRY_END" >> xincludes/$PKG.xinc.tmp
   fi
 
