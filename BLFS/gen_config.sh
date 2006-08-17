@@ -59,7 +59,7 @@ do
     SET_COMMENT=y
       # Do not include previously installed packages....
     if [ -e $TRACKING_DIR/${PKG_NAME} ]; then continue; fi
-    
+
     META_PKG=$(echo ${PKG_NAME} | tr [a-z] [A-Z])
     echo -e "config CONFIG_$META_PKG" >> $outFile
     echo -e "\tbool \"$META_PKG\"" >> $outFile
@@ -172,7 +172,7 @@ config	PRINT_SERVER
 choice
 	prompt	"Mail server"
 	config	MS_sendmail
-		bool	"sendmail'
+		bool	"sendmail"
 	config	MS_postfix
 		bool	"postfix"
 	config	MS_exim"
