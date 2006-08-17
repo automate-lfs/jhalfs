@@ -56,6 +56,9 @@ if [[ -e using_menuconfig ]]; then
         #--- CONSTANTS
   declare -r SVN="svn://svn.linuxfromscratch.org"
   declare -r LOG=000-masterscript.log
+        # --- Server used if the file isn't found in SRC_ARCHIVE.
+        # As a last resort, the file will dowloaded from upstream, if possible.
+       SERVER=ftp://ftp.lfs-matrix.net
 	#--- Working directories
   SCRIPT_ROOT=jhalfs
     JHALFSDIR=$BUILDDIR/$SCRIPT_ROOT

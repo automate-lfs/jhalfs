@@ -807,7 +807,7 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
   [[ -f MD5SUMS ]] && rm MD5SUMS
   [[ -f MISSING_FILES.DMP ]] && rm MISSING_FILES.DMP
   [[ -f urls.lst ]] && rm urls.lst
-
+echo "getting sources"
     # Generate URLs file
   create_urls
 
