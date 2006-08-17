@@ -67,7 +67,7 @@ do
     echo -e "\tdefault n" >> $outFile
 
     echo -e "menu \"$(echo ${PKG_NAME} | tr [a-z] [A-Z]) components\"" >> $outFile
-    echo -e "\tdepends\tCONFIG_$META_PKG\"" >> $outFile
+    echo -e "\tdepends\tCONFIG_$META_PKG" >> $outFile
        # Include the dependency data for this meta package
        while [ 0 ]; do
          read || break 1
