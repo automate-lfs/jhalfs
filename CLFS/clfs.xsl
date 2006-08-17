@@ -209,7 +209,7 @@
                   <xsl:if test="contains(string(),' -k ')">
                     <xsl:text> || true</xsl:text>
                   </xsl:if>
-                  <xsl:text>#xA;</xsl:text>
+                  <xsl:text>&#xA;</xsl:text>
                 </xsl:otherwise>
               </xsl:choose>
             </xsl:if>
