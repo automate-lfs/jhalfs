@@ -59,9 +59,16 @@ do
     # These are the META packages. for gnome and kde (soon ALSA and Xorg7)
   if [ $PKG_DIR = "." ]; then
     SET_COMMENT=y
+      # Do not include previously installed packages....
     if [ -e $TRACKING_DIR/${PKG_NAME} ]; then continue; fi
+    
     META_PKG=$(echo ${PKG_NAME} | tr [a-z] [A-Z])
-     echo -e "menu \"$(echo ${PKG_NAME} | tr [a-z] [A-Z]) components\"" >> $outFile
+    echo -e "config CONFIG_$META_PKG" >> $outFile
+    echo -e "\tbool \"$META_PKG\"" >> $outFile
+    echo -e "\tdefault n" >> $outFile
+
+    echo -e "menu \"$(echo ${PKG_NAME} | tr [a-z] [A-Z]) components\"" >> $outFile
+    echo -e "\tdepends\tCONFIG_$META_PKG\"" >> $outFile
        # Include the dependency data for this meta package
        while [ 0 ]; do
          read || break 1
@@ -163,6 +170,7 @@ config	PRINT_SERVER
 	string
 	default	cups	if PS_cups
 	default	LPRng	if PS_LPRng	
+
 choice
 	prompt	"Mail server"
 	config	MS_sendmail
@@ -219,7 +227,7 @@ config	X11
 endmenu
 
 choice	
-	prompt	"Select dependency level"
+	prompt	"Dependency level"
 	default DEPLVL_2
 	
 	config	DEPLVL_1
@@ -232,7 +240,6 @@ choice
 	bool	"Required, recommended and optional dependencies"
 	
 endchoice
-
 config	optDependency
 	int
 	default	1	if DEPLVL_1
