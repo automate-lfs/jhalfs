@@ -112,15 +112,14 @@ echo "${nl_}${SD_BORDER}${nl_}"
 
 cp -r BLFS/* $BLFS_ROOT
 cp $COMMON_DIR/progress_bar.sh $BLFS_ROOT
-# cp -r menu $BLFS_ROOT
 
 # Start the work
 cd $BLFS_ROOT
 
 # Clean-up
 rm -rf libs/.svn
-#rm -rf menu/.svn
-#rm -rf lxdialog/.svn
+rm -rf menu/.svn
+rm -rf lxdialog/.svn
 
 
 # Fix BLFS_XML harcoded values
@@ -134,7 +133,7 @@ else
   ./update_book.sh $BLFS_XML get $TREE
 fi
 
-# Generate Config.in and run the menuconfig interfaz
-# ./gen_config.sh
+# Generate Config.in and run the menuconfig interface
+ ./gen_config.sh
 # make
 
