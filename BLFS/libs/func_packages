@@ -58,6 +58,9 @@ generate_gnome_core()  {   # GNOME core
     [[ -n "$package" ]] && echo $package >> gnome-core.dep.tmp
   done
 
+  # Replace dummy packages with the proper ones
+  sed -i 's/GNOME-//g' gnome-core.dep.tmp
+
   tac gnome-core.dep.tmp > libs/gnome-core.dep
   rm gnome-core.dep.tmp
 }
