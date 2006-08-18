@@ -24,6 +24,8 @@ get_pkg_ver() {
   local this_script=$1
 
   [[ ${this_script:0:4} = "alsa" ]] && this_script=alsa
+  [[ ${this_script:0:3} = "kde" ]] && [[ ! ${this_script} = "kdevelop" ]] && \
+  [[ ! ${this_script: -6} = "config" ]] && this_script=kde
 
   PKG_VER=$(xmllint --noent ./blfs-xml/book/bookinfo.xml 2>/dev/null | \
             grep -i " ${this_script}-version " | cut -d "\"" -f2 )
