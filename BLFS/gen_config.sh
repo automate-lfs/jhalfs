@@ -93,8 +93,6 @@ EOF
 
     # Deal with a few unusable chapter names
   case ${PKG_NAME} in
-     other-* | others-* ) continue
-      ;;
      xorg7-* ) # Deal with sub-elements of Xorg7, mandatory for build.
                # No need to (even possible?) to build separately
          continue
