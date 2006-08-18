@@ -430,7 +430,7 @@ menu "--- Build Settings"
 			#
 
 	choice
-		prompt	"Tests ->"
+		prompt	"Tests level"
 		depends	 CONFIG_TESTS
 		default	TEST_1
 
@@ -452,21 +452,20 @@ menu "--- Build Settings"
 		default	"3"	if TST_3
 
 	choice
-		prompt	"Flavour ->"
+		prompt	"Flavour"
 		depends	CONFIG_TESTS
 
 		config	NO_BOMB
 			bool	"Don't stop on test suite failures"
-			default n
 
 		config	BOMB
 			bool	"Abort the build at the first test suite failure"
-			default n
 	endchoice
 
 	config	BOMB_TEST
 		bool
-		default	BOMB
+		default	n if NO_BOMB
+		default	y if BOMB
 
 	#--- End Test Suites
 
