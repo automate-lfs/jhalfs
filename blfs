@@ -119,7 +119,7 @@ cd $BLFS_ROOT
 # Clean-up
 rm -rf libs/.svn
 rm -rf menu/.svn
-rm -rf lxdialog/.svn
+rm -rf menu/lxdialog/.svn
 
 
 # Fix BLFS_XML harcoded values
