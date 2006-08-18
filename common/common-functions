@@ -519,7 +519,7 @@ wrt_run_as_chroot2() {             #
   local file=$2
 (
 cat << EOF
-	@( time { \$(CHROOT2) 'cd \$(SCRIPT_ROOT) && source envars && \$(crCMDSDIR)/`dirname $file`/\$@ >>logs/\@ 2>&1' ; } ) 2>>logs/\@ && \\
+	@( time { \$(CHROOT2) 'cd \$(SCRIPT_ROOT) && source envars && \$(crCMDSDIR)/`dirname $file`/\$@ >>logs/\$@ 2>&1' ; } ) 2>>logs/\$@ && \\
 	\$(PRT_DU_CR) >> logs/\$@
 EOF
 ) >> $MKFILE.tmp
