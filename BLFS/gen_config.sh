@@ -23,9 +23,15 @@ declare PKG_VER
 get_pkg_ver() {
   local this_script=$1
 
+  # ALSA packages version
   [[ ${this_script:0:4} = "alsa" ]] && this_script=alsa
+  # KDE packages version
   [[ ${this_script:0:3} = "kde" ]] && [[ ! ${this_script} = "kdevelop" ]] && \
   [[ ! ${this_script: -6} = "config" ]] && this_script=kde
+  # Xorg7 packages version
+  [[ ${this_script} = "xorg7-server" ]] && this_script=xorg-server
+  [[ ${this_script} = "xterm2" ]] && this_script=xterm
+  [[ ${this_script:0:5} = "xorg7" ]] && this_script=xorg7
 
   PKG_VER=$(xmllint --noent ./blfs-xml/book/bookinfo.xml 2>/dev/null | \
             grep -i " ${this_script}-version " | cut -d "\"" -f2 )
