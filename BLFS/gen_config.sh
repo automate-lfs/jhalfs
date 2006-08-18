@@ -23,15 +23,28 @@ declare PKG_VER
 get_pkg_ver() {
   local this_script=$1
 
-  # ALSA packages version
-  [[ ${this_script:0:4} = "alsa" ]] && this_script=alsa
-  # KDE packages version
-  [[ ${this_script:0:3} = "kde" ]] && [[ ! ${this_script} = "kdevelop" ]] && \
-  [[ ! ${this_script: -6} = "config" ]] && this_script=kde
-  # Xorg7 packages version
-  [[ ${this_script} = "xorg7-server" ]] && this_script=xorg-server
-  [[ ${this_script} = "xterm2" ]] && this_script=xterm
-  [[ ${this_script:0:5} = "xorg7" ]] && this_script=xorg7
+  case ${this_script} in
+                  # ALSA packages version
+            alsa* ) this_script=alsa ;;
+
+                  # KDE packages version
+          kdevelop ) : ;;
+        kde*config ) : ;;
+              kde* ) this_script=kde ;;
+
+                  # Xorg7 packages version
+      xorg7-server ) this_script=xorg-server ;;
+            xterm2 ) this_script=xterm ;;
+            xorg7* ) this_script=xorg7 ;;
+
+                   # Others (ID value don't match entity name)
+    wireless_tools ) this_script=wireless-tools ;;
+        bind-utils ) this_script=bind ;;
+         html-tidy ) this_script=tidy ;;
+               jdk ) this_script=jdk-src ;;
+          reiserfs ) this_script=reiser ;;
+               xfs ) this_script=xfsprogs ;;
+  esac
 
   PKG_VER=$(xmllint --noent ./blfs-xml/book/bookinfo.xml 2>/dev/null | \
             grep -i " ${this_script}-version " | cut -d "\"" -f2 )
@@ -97,13 +110,11 @@ EOF
   fi
   [[ "${SET_COMMENT}" = "y" ]] && echo "comment \"\"" >>$outFile; unset SET_COMMENT
 
-    # Deal with a few unusable chapter names
+    # Deal with a few unusable (at target level) package names
   case ${PKG_NAME} in
-     xorg7-* ) # Deal with sub-elements of Xorg7, mandatory for build.
-               # No need to (even possible?) to build separately
-         continue
-      ;;
+     xorg7-* ) continue ;;
      alsa-* ) continue ;;
+     x-config | x-setup ) continue ;;
   esac
 
     # IF this package name-version exists in the tracking dir

@@ -22,8 +22,8 @@ generate_packages()  {  # Master packages file
   sed -i '/obsolete/d;/postlfs-/d;/-client.xml/d;/xorg7.xml/d' packages.tmp
   sed -i '/courier.xml/d;/-other\t/d;/others-/d;/other-/d' packages.tmp
   sed -i '/fw-firewall/d;/gcc2/d;/cvsserver/d;/svnserver/d' packages.tmp
-  sed -i '/fam\t/d;/libungif\t/d;/ncpfs\t/d;/slrn\t/d' packages.tmp
-  sed -i '/gst-plugins\t/d;/openquicktime\t/d' packages.tmp
+  sed -i '/fam\t/d;/libungif\t/d;/ncpfs\t/d;/slrn\t/d;/konq\t/d' packages.tmp
+  sed -i '/gst-plugins\t/d;/openquicktime\t/d;/compressdoc\t/d' packages.tmp
 
   # Add header with meta-packages pseudo Id
 {
