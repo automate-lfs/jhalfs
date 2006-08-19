@@ -70,7 +70,7 @@ inline_doc
 
 BOOK_Source
 
-echo -en "\n\tGenerating packages file ..."
+echo -en "\n\tGenerating packages database file ..."
 generate_packages
 echo "done."
 
