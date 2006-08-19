@@ -26,9 +26,7 @@
                   @id != 'x-setup'">
 
         <!-- The file names -->
-      <xsl:variable name="pi-file" select="processing-instruction('dbhtml')"/>
-      <xsl:variable name="pi-file-value" select="substring-after($pi-file,'filename=')"/>
-      <xsl:variable name="filename" select="substring-before(substring($pi-file-value,2),'.html')"/>
+      <xsl:variable name="filename" select="@id"/>
 
         <!-- Package name (use "Download FTP" by default. If empty, use "Download HTTP" -->
       <xsl:param name="package">
