@@ -11,45 +11,13 @@ declare TRACKING_DIR=/var/lib/jhalfs/BLFS
 declare PKG_NAME
 declare PKG_XML_FILE
 declare PKG_DIR
+declare PKG_VER
 declare SAVE_IFS=${IFS}
 declare -a DIR_TREE
 declare PREV_DIR1="none"
 declare PREV_DIR2="none"
 declare MENU_SET1="n"
 declare MENU_SET2="n"
-
-declare PKG_VER
-
-get_pkg_ver() {
-  local this_script=$1
-
-  case ${this_script} in
-                  # ALSA packages version
-            alsa* ) this_script=alsa ;;
-
-                  # KDE packages version
-          kdevelop ) : ;;
-        kde*config ) : ;;
-              kde* ) this_script=kde ;;
-
-                  # Xorg7 packages version
-      xorg7-server ) this_script=xorg-server ;;
-            xterm2 ) this_script=xterm ;;
-            xorg7* ) this_script=xorg7 ;;
-
-                   # Others (ID value don't match entity name)
-    wireless_tools ) this_script=wireless-tools ;;
-        bind-utils ) this_script=bind ;;
-         html-tidy ) this_script=tidy ;;
-               jdk ) this_script=jdk-src ;;
-          reiserfs ) this_script=reiser ;;
-               xfs ) this_script=xfsprogs ;;
-  esac
-
-  PKG_VER=$(xmllint --noent ./blfs-xml/book/bookinfo.xml 2>/dev/null | \
-            grep -i " ${this_script}-version " | cut -d "\"" -f2 )
-
-}
 
 > $outFile
 
@@ -78,15 +46,16 @@ do
   PKG_NAME=$1
   PKG_XML_FILE=$(basename $2)
   PKG_DIR=$(dirname $2)
-    # These are the META packages. for gnome and kde (soon ALSA and Xorg7)
+  PKG_VER=$3
+    # These are the META packages.
   if [ $PKG_DIR = "." ]; then
     SET_COMMENT=y
       # Do not include previously installed packages....
-    if [ -e $TRACKING_DIR/${PKG_NAME} ]; then continue; fi
+    if [ -e $TRACKING_DIR/${PKG_NAME}-${PKG_VER} ]; then continue; fi
 
     META_PKG=$(echo ${PKG_NAME} | tr [a-z] [A-Z])
     echo -e "config CONFIG_$META_PKG" >> $outFile
-    echo -e "\tbool \"$META_PKG\"" >> $outFile
+    echo -e "\tbool \"$META_PKG $PKG_VER\"" >> $outFile
     echo -e "\tdefault n" >> $outFile
 
     echo -e "menu \"$(echo ${PKG_NAME} | tr [a-z] [A-Z]) components\"" >> $outFile
@@ -94,8 +63,8 @@ do
        # Include the dependency data for this meta package
        while [ 0 ]; do
          read || break 1
-	 PKG_NAME=${REPLY}
-	 get_pkg_ver "${PKG_NAME}"
+         PKG_NAME=${REPLY}
+         PKG_VER=$(grep "^$PKG_NAME[[:space:]]" $inFile | cut -f3)
 (
 cat << EOF
 	config	DEP_${META_PKG}_${PKG_NAME}
@@ -119,14 +88,13 @@ EOF
 
     # IF this package name-version exists in the tracking dir
     # do not add this package to the list of installable pkgs.
-  get_pkg_ver "${PKG_NAME}"
   if [ -e $TRACKING_DIR/${PKG_NAME}-${PKG_VER} ]; then continue; fi
 
   IFS="/"
   DIR_TREE=(${PKG_DIR})
   IFS="$SAVE_IFS"
 
-	# Define a top level menu
+    # Define a top level menu
   if [ "$PREV_DIR1" != "${DIR_TREE[1]}" ]; then
     [[ "${DIR_TREE[1]}" = "kde" ]] && continue
     [[ "${DIR_TREE[1]}" = "gnome" ]] && continue
@@ -146,7 +114,7 @@ EOF
     MENU_SET1="y"
   fi
 
-	# Define a secondary menu
+    # Define a secondary menu
   if [ "$PREV_DIR2" != "${DIR_TREE[2]}" ]; then
       # Close out the previous open menu structure
     if [ $MENU_SET2 = "y" ]; then
