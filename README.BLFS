@@ -153,11 +153,56 @@ and like)
 
    3.5  XORG7
 
-        The generated script for Xorg7 pseudo-packages don't have support for
+        The generated scripts for Xorg7 pseudo-packages don't have support for
      $SRC_ARCHIVE nor MD5 checking.
 
         If you has downloaded previously the packages, you must to edit the scripts
      to make it to use your local packages.
+
+        Also, you will need to edit the scripts to fix the commands that must
+     be applied only to a concret individual sub-package. For example the "for"
+     loop to install xotg7-util packages may read like:
+
+for package in $(cat $WGET_LST) ; do
+  packagedir=$(echo $package | sed 's/.tar.bz2//')
+  tar -xf $package
+  cd $packagedir
+  sed -i "s@/usr/X11R6@$XORG_PREFIX@" X11.tmpl &&
+  ./configure $XORG_CONFIG --with-config-dir=$XORG_PREFIX/lib/X11/config
+  sudo sh -c "make install"
+  ./configure $XORG_CONFIG --with-config-dir=$XORG_PREFIX/lib/X11/config &&
+  make
+  sudo sh -c "make install"
+  ./configure $XORG_CONFIG &&
+  make
+  sudo sh -c "make install"
+  cd ..
+  rm -rf $packagedir
+done
+
+        After reading the HTML page to know what commands is for what package,
+     the loop can be changed to read something like:
+
+for package in $(cat $WGET_LST) ; do
+  packagedir=$(echo $package | sed 's/.tar.bz2//')
+  tar -xf $package
+  cd $packagedir
+  if [ ${packagedir} = "xorg-cf-files" ] ; then
+    sed -i "s@/usr/X11R6@$XORG_PREFIX@" X11.tmpl &&
+    ./configure $XORG_CONFIG --with-config-dir=$XORG_PREFIX/lib/X11/config
+    sudo sh -c "make install"
+  elif [ ${packagedir} = "Imake" ] ; then
+    ./configure $XORG_CONFIG --with-config-dir=$XORG_PREFIX/lib/X11/config &&
+    make
+    sudo sh -c "make install"
+  else
+    ./configure $XORG_CONFIG &&
+    make
+    sudo sh -c "make install"
+  fi
+  cd ..
+  rm -rf $packagedir
+done
 
    3.6  PATCHES
 
