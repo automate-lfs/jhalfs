@@ -49,7 +49,7 @@ $Id$
     Makefile           (not created yet) run gen_config.sh to update Config.in,
                        then launch the menuconfig interface, and lastly run
                        blfs-parser.sh based on configuration settings
-    Config.in          menuconfig interface imput file
+    Config.in          menuconfig interface input file
     packages           auto-generated packages database
     alternatives.conf  (to be removed) configuration file for alternative packages
     envars.conf        envars needed when running the target build scripts
@@ -104,7 +104,7 @@ $Id$
     "foo" script is named "064-z-foo", you need to create a "064-y-bar" build
     script.
 
-      Note that the packages tracking system isn't a packages manegament tool
+      Note that the packages tracking system isn't a packages management tool
     and know nothing about packages not in the BLFS book.
 
   2.5  CREATING THE MAKEFILE
@@ -151,7 +151,32 @@ and like)
      to install two packages. You must to edit the scripts to fix it. We will
      try to fix some of them, but may not be possible.
 
-   3.5  OTHERS
+   3.5  XORG7
+
+        The generated script for Xorg7 pseudo-packages don't have support for
+     $SRC_ARCHIVE nor MD5 checking.
+
+        If you has downloaded previously the packages, you must to edit the scripts
+     to make it to use your local packages.
+
+   3.6  PATCHES
+
+        By default all required patches will be downloaded from the NET.
+
+        If you has downloaded previously the patches, you must to edit the scripts
+     to make it to use your local patches.
+
+        Also, be sure that all scripts have the commands to download/apply the
+     required patches. Due book layout issues some patches may be missing.
+
+   3.7  ROOT COMMANDS
+
+        If building as a normal user (the default setting) be sure that all
+     commands that need root privileges are run using sudo.
+
+        Due book layout issues some sudo command may be missing.
+
+   3.8  OTHERS
 
         May have other issues that we are not aware on them yet. If you find
      someone, please report it to <alfs-discuss@linuxfromscratch.org>.
