@@ -111,7 +111,9 @@ echo "${nl_}${SD_BORDER}${nl_}"
 [[ ! -d $BLFS_ROOT ]] && mkdir -p $BLFS_ROOT
 
 cp -r BLFS/* $BLFS_ROOT
+cp -r menu $BLFS_ROOT
 cp $COMMON_DIR/progress_bar.sh $BLFS_ROOT
+cp README.BLFS $BLFS_ROOT
 
 # Start the work
 cd $BLFS_ROOT
