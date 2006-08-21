@@ -32,7 +32,7 @@ get_pkg_ver() {         # Find package version for a given package ID
                xfs ) pkg_id=xfsprogs ;;
   esac
 
-  xmllint --noent ./blfs-xml/book/bookinfo.xml 2>/dev/null | \
+  xmllint --noent ./${BLFS_XML}/book/bookinfo.xml 2>/dev/null | \
   grep -i " ${pkg_id}-version " | cut -d "\"" -f2
 
 }
