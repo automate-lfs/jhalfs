@@ -14,6 +14,8 @@ TREE=$3      # SVN tree for the BLFS book version
 [[ -z $DOC_MODE ]] && DOC_MODE=update
 [[ -z $TREE ]] && TREE=trunk/BOOK
 
+TRACKING_DIR=tracking-dir
+
 #---------------------
 # packages module
 source libs/func_packages

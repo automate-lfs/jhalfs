@@ -38,6 +38,15 @@ get_pkg_ver() {         # Find package version for a given package ID
 }
 
 #-----------------------#
+get_installed_ver() {   # Find installed package version for a given package ID
+#-----------------------#
+  local pkg_id=$1
+
+  find $TRACKING_DIR -name "${pkg_id}-[[:digit:]]*" | sed "s/.*${pkg_id}-//"
+
+}
+
+#-----------------------#
 generate_packages()  {  # Master packages file
 #-----------------------#
   local pkg_id file pkg_ver
@@ -49,7 +58,8 @@ generate_packages()  {  # Master packages file
   for file in `find $BLFS_XML -name "*.xml"` ; do
     pkg_id=$(grep "sect1 id" $file | sed -e 's/<sect1 id="//;s/".*//')
     pkg_ver=$(get_pkg_ver $pkg_id)
-    [[ ! -z "$pkg_id" ]] && echo -e "$pkg_id\t$file\t$pkg_ver" >> packages.tmp
+    installed_ver=$(get_installed_ver $pkg_id)
+    [[ ! -z "$pkg_id" ]] && echo -e "$pkg_id\t$file\t$pkg_ver\t$installed_ver" >> packages.tmp
   done
 
   # IDs clean-up (unuseful pages or commented-out packages, could be more)
@@ -65,19 +75,27 @@ generate_packages()  {  # Master packages file
   GNOME_VER=$(get_pkg_ver gnome)
   GNOME_MINOR_VER=$(get_pkg_ver gnome-minor)
   KDE_VER=$(get_pkg_ver kde)
+  KDE_INST_VER=$(get_installed_ver kde)
   KDE_KOFFICE_VER=$(get_pkg_ver koffice)
   XORG7_VER=$(get_pkg_ver xorg7)
+
+  # Meta-packages installed version
+  ALSA_INST_VER=$(get_installed_ver alsa)
+  GNOME_INST_VER=$(get_installed_ver gnome)
+  KDE_INST_VER=$(get_installed_ver kde)
+  KDE_KOFFICE_INST_VER=$(get_installed_ver koffice)
+  XORG7_INST_VER=$(get_installed_ver xorg7)
 
   # Add header with meta-packages pseudo Id
 {
   cat << EOF
-alsa	$BLFS_XML	$ALSA_VER
-gnome-core	$BLFS_XML	$GNOME_VER$GNOME_MINOR_VER
-gnome-full	$BLFS_XML	$GNOME_VER$GNOME_MINOR_VER
-kde-core	$BLFS_XML	$KDE_VER
-kde-full	$BLFS_XML	$KDE_VER
-kde-koffice	$BLFS_XML	$KDE_KOFFICE_VER
-xorg7	$BLFS_XML	$XORG7_VER
+alsa	$BLFS_XML	$ALSA_VER	$ALSA_INST_VER
+gnome-core	$BLFS_XML	$GNOME_VER$GNOME_MINOR_VER	$GNOME_INST_VER
+gnome-full	$BLFS_XML	$GNOME_VER$GNOME_MINOR_VER	$GNOME_INST_VER
+kde-core	$BLFS_XML	$KDE_VER	$KDE_INST_VER
+kde-full	$BLFS_XML	$KDE_VER	$KDE_INST_VER
+kde-koffice	$BLFS_XML	$KDE_KOFFICE_VER	$KDE_KOFFICE_INST
+xorg7	$BLFS_XML	$XORG7_VER	$XORG7_INST_VER
 EOF
 } >> packages.tmp
 
