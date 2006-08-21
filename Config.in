@@ -294,6 +294,17 @@ menu "--- BOOK Settings"
 		help
 			#-- The directory name where BLFS book sources
 			#   will be checkout.
+
+	config	TRACKING_DIR
+		string "Installed packages database directory"
+		default "/var/lib/jhalfs/BLFS"
+		depends on BOOK_BLFS
+		help
+			#-- Full path to the directory where the installed
+			#   packages database will be created.
+			#
+			#   Note that the user that will build the packages must
+			#   have read and write privileges on that directory.
 	#--- End BLFS specific params
 
 #--- End BOOK Settings

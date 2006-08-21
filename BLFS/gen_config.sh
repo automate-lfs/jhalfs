@@ -6,7 +6,7 @@
 export outFile=aConfig.in	# file for reading and writing to.
 export inFile=packages		# file for reading and writing to.
 
-declare TRACKING_DIR=/var/lib/jhalfs/BLFS
+declare TRACKING_DIR=tracking-dir
 
 declare PKG_NAME
 declare PKG_XML_FILE
@@ -235,6 +235,10 @@ config	SUDO
 	help
 		Select if sudo will be used (you want build as a normal user)
 		        otherwise sudo is not needed (you want build as root)
+
+config	TRACKING_DIR
+	string
+	default	$TRACKING_DIR
 
 EOF
 ) >> $outFile
