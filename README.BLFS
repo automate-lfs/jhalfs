@@ -17,6 +17,19 @@ $Id$
   NOTE:: The code is still under development and may contains several bugs
 
 
+2. PREREQUISITES::
+
+     To use this tool you MUST to:
+
+     - have experience building BLFS packages
+     - know how to edit and write shell scripts
+     - know how a Makefile works
+     - be able to trace build failures and to find what is causing it
+       (user error, package bug, BLFS command bug, or jhalfs code bug)
+
+     If you don't have the above skill, please don't use this tool.
+
+
 2. USAGE::
 
      Due the complexity of the BLFS book, the scripts/Makefile generation is
@@ -118,6 +131,10 @@ $Id$
 
 (Text is needed about meta-packages, the installed packages tracking system
 and like)
+
+(The TRACKING_DIR directory must be created before using this tool running as root
+
+install -d -m1777 /var/lib/jhalfs/BLFS )
 
 3. GENERATED BUILD SCRIPTS ISSUES::
 
