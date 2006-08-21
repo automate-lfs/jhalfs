@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id:$
+# $Id:
 #
 
 export outFile=aConfig.in	# file for reading and writing to.
@@ -36,11 +36,6 @@ do
 
 #  read -r || break 1
   read || break 1
-  if [[ "${REPLY}" = "" ]] || \
-     [[ "${REPLY:0:1}" = "=" ]] || \
-     [[ "${REPLY:0:1}" = "#" ]]; then
-    continue
-  fi
 
   set -- $REPLY
   PKG_NAME=$1
