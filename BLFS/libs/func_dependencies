@@ -136,7 +136,6 @@ do_dependencies()  {    #  Loop to find sub-dependencies  :::WARNING::: THIS IS 
                        $KBR5
                        $GHOSTSCRIPT
                        $MAILSERVER
-                       $TRACKING_DIR
                 file:  depure.txt
                        $TARGET-index.xml.tmp
                        $PKG.dep
@@ -154,9 +153,7 @@ inline_doc
   local PKG=$1
   local saveIFS=$IFS
   local DEP_LV=$DEP_LEVEL
-  local line line2 DEP pkg_ver
-  # Remove this when we can use configuration file
-  local TRACKING_DIR=/var/lib/jhalfs/BLFS
+  local line line2 DEP pkg_ver inst_ver
 
   #------------------
   #  If a premade xinclude file exists, use it. If not, create one
@@ -182,7 +179,9 @@ inline_doc
   for DEP in `cat dependencies/$PKG.dep`; do
     # If DEP has been previouly installed, skip it
     pkg_ver=$(grep "^${DEP}[[:space:]]" ../packages | cut -f3)
-    [ -e $TRACKING_DIR/${DEP}-$pkg_ver ] && continue
+    inst_ver=$(grep "^${DEP}[[:space:]]" ../packages | cut -f4)
+    [ -n "${pkg_ver}" ] && [ "x${pkg_ver}" = "x${inst_ver}" ] && continue
+
     # Special packages (a lot of hacks)
     case $DEP in
 

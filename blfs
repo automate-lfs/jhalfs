@@ -126,9 +126,9 @@ rm -rf menu/lxdialog/.svn
 
 # Set some harcoded envars to their proper values
 sed -i 's,blfs-xml,'$BLFS_XML',' update_book.sh libs/book.xsl
-sed -i 's,tracking-dir,'$TRACKING_DIR',' update_book.sh gen_config.sh
+sed -i 's,tracking-dir,'$TRACKING_DIR',' update_book.sh gen-makefile.sh
 
-# Fetch book sources and create packages and GNOME/KDE dependencies files
+# Fetch book sources and create packages and meta-packages dependencies files
 if [[ -d $BLFS_XML ]] ; then
   ./update_book.sh
 else

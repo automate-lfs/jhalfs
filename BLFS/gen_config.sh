@@ -6,12 +6,11 @@
 export outFile=aConfig.in	# file for reading and writing to.
 export inFile=packages		# file for reading and writing to.
 
-declare TRACKING_DIR=tracking-dir
-
 declare PKG_NAME
 declare PKG_XML_FILE
 declare PKG_DIR
 declare PKG_VER
+declare INST_VER
 declare SAVE_IFS=${IFS}
 declare -a DIR_TREE
 declare PREV_DIR1="none"
@@ -42,15 +41,18 @@ do
   PKG_XML_FILE=$(basename $2)
   PKG_DIR=$(dirname $2)
   PKG_VER=$3
+  INST_VER=$4
     # These are the META packages.
   if [ $PKG_DIR = "." ]; then
     SET_COMMENT=y
       # Do not include previously installed packages....
-    if [ -e $TRACKING_DIR/${PKG_NAME}-${PKG_VER} ]; then continue; fi
+    if [ -n "${PKG_VER}" ] && [ "x${PKG_VER}" = "x${INST_VER}" ]; then
+      continue
+    fi
 
     META_PKG=$(echo ${PKG_NAME} | tr [a-z] [A-Z])
     echo -e "config CONFIG_$META_PKG" >> $outFile
-    echo -e "\tbool \"$META_PKG $PKG_VER\"" >> $outFile
+    echo -e "\tbool \"$META_PKG $PKG_VER $INST_VER\"" >> $outFile
     echo -e "\tdefault n" >> $outFile
 
     echo -e "menu \"$(echo ${PKG_NAME} | tr [a-z] [A-Z]) components\"" >> $outFile
@@ -59,11 +61,15 @@ do
        while [ 0 ]; do
          read || break 1
          PKG_NAME=${REPLY}
-         PKG_VER=$(grep "^$PKG_NAME[[:space:]]" $inFile | cut -f3)
+         PKG_VER=$(grep "^${PKG_NAME}[[:space:]]" $inFile | cut -f3)
+         INST_VER=$(grep "^${PKG_NAME}[[:space:]]" $inFile | cut -f4)
+         if [ -n "${PKG_VER}" ] && [ "x${PKG_VER}" = "x${INST_VER}" ]; then
+           continue
+         fi
 (
 cat << EOF
 	config	DEP_${META_PKG}_${PKG_NAME}
-		bool	"$PKG_NAME ${PKG_VER}"
+		bool	"$PKG_NAME ${PKG_VER} ${INST_VER}"
 		default	y
 
 EOF
@@ -83,7 +89,9 @@ EOF
 
     # IF this package name-version exists in the tracking dir
     # do not add this package to the list of installable pkgs.
-  if [ -e $TRACKING_DIR/${PKG_NAME}-${PKG_VER} ]; then continue; fi
+  if [ -n "${PKG_VER}" ] && [ "x${PKG_VER}" = "x${INST_VER}" ]; then
+    continue
+  fi
 
   IFS="/"
   DIR_TREE=(${PKG_DIR})
@@ -122,7 +130,7 @@ EOF
 (
 cat << EOF
 	config CONFIG_$PKG_NAME
-		bool "$PKG_NAME ${PKG_VER}"
+		bool "$PKG_NAME ${PKG_VER} ${INST_VER}"
 		default n
 EOF
 ) >> $outFile
@@ -235,11 +243,6 @@ config	SUDO
 	help
 		Select if sudo will be used (you want build as a normal user)
 		        otherwise sudo is not needed (you want build as root)
-
-config	TRACKING_DIR
-	string
-	default	$TRACKING_DIR
-
 EOF
 ) >> $outFile
 echo "done"
