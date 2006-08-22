@@ -135,7 +135,6 @@ else
   ./update_book.sh get $BLFS_XML $TREE
 fi
 
-# Generate Config.in and run the menuconfig interface
- ./gen_config.sh
-# make
+# Run the menuconfig interface
+make
 

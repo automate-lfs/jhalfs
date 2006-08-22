@@ -3,7 +3,7 @@
 # $Id:
 #
 
-export outFile=aConfig.in	# file for reading and writing to.
+export outFile=Config.in	# file for reading and writing to.
 export inFile=packages		# file for reading and writing to.
 
 declare PKG_NAME

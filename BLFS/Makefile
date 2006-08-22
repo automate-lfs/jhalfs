@@ -3,7 +3,7 @@
 # Additional changes: George Boudreau <georgeb@linuxfromscratch.org>
 
 TOPDIR=$(shell pwd)
-CONFIG_CONFIG_IN = aConfig.in
+CONFIG_CONFIG_IN = Config.in
 CONFIG = menu
 
 all: 	menuconfig
@@ -15,9 +15,10 @@ $(CONFIG)/mconf:
 	$(MAKE) -C $(CONFIG) ncurses conf mconf
 
 menuconfig: $(CONFIG)/mconf
-	./gen_config.sh
+	@./update_book.sh none
+	@./gen_config.sh
 	@$(CONFIG)/mconf $(CONFIG_CONFIG_IN)
-	./gen_pkg_book.sh
+	@./gen_pkg_book.sh
 
 config: $(CONFIG)/conf
 	@$(CONFIG)/conf $(CONFIG_CONFIG_IN)

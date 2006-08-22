@@ -72,35 +72,37 @@ inline_doc
 
 [ "${DOC_MODE}" != "none" ] && BOOK_Source
 
-echo -en "\n\tGenerating packages database file ..."
-generate_packages
-echo "done."
+if [ "${DOC_MODE}" = "none" ] ; then
+  echo -en "\n\tGenerating packages database file ..."
+  generate_packages
+  echo "done."
 
-echo -en "\tGenerating alsa dependencies list ..."
-generate_alsa
-echo "done."
+  echo -en "\tGenerating alsa dependencies list ..."
+  generate_alsa
+  echo "done."
 
-echo -en "\tGenerating gnome-core dependencies list ..."
-generate_gnome_core
-echo "done."
+  echo -en "\tGenerating gnome-core dependencies list ..."
+  generate_gnome_core
+  echo "done."
 
-echo -en "\tGenerating gnome-full dependencies list ..."
-generate_gnome_full
-echo "done."
+  echo -en "\tGenerating gnome-full dependencies list ..."
+  generate_gnome_full
+  echo "done."
 
-echo -en "\tGenerating kde-core dependencies list ..."
-generate_kde_core
-echo "done."
+  echo -en "\tGenerating kde-core dependencies list ..."
+  generate_kde_core
+  echo "done."
 
-echo -en "\tGenerating kde-full dependencies list ..."
-generate_kde_full
-echo -e "done."
+  echo -en "\tGenerating kde-full dependencies list ..."
+  generate_kde_full
+  echo -e "done."
 
-echo -en "\tGenerating kde-koffice dependencies list ..."
-generate_kde_koffice
-echo -e "done."
+  echo -en "\tGenerating kde-koffice dependencies list ..."
+  generate_kde_koffice
+  echo -e "done."
 
-echo -en "\tGenerating xorg7 dependencies list ..."
-generate_xorg7
-echo "done."
+  echo -en "\tGenerating xorg7 dependencies list ..."
+  generate_xorg7
+  echo "done."
+fi
 
