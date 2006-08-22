@@ -19,7 +19,7 @@ parse_configuration() {    #
 #--------------------------#
   local	cntr
   local	optTARGET
-  
+
   while [ 0 ]; do
     read || break 1
 
@@ -66,7 +66,7 @@ parse_configuration() {    #
       fi
     fi
   done <$ConfigFile
-  
+
   if [[ $optTARGET = "" ]]; then
     echo -e "\n>>> NO TARGET SELECTED.. applicaton terminated"
     echo -e "    Run <make> again and select a package to build\n"
@@ -75,7 +75,7 @@ parse_configuration() {    #
 
   TARGET=$optTARGET
   DEP_LEVEL=$optDependency
-  SUDO=${SUDO:-y}
+  SUDO=${SUDO:-n}
 }
 
 
