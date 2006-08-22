@@ -6,7 +6,7 @@ TOPDIR=$(shell pwd)
 CONFIG_CONFIG_IN = aConfig.in
 CONFIG = menu
 
-all: menuconfig
+all: 	menuconfig
 
 $(CONFIG)/conf:
 	$(MAKE) -C $(CONFIG) conf
@@ -15,7 +15,9 @@ $(CONFIG)/mconf:
 	$(MAKE) -C $(CONFIG) ncurses conf mconf
 
 menuconfig: $(CONFIG)/mconf
+	./gen_config.sh
 	@$(CONFIG)/mconf $(CONFIG_CONFIG_IN)
+	./gen_pkg_book.sh
 
 config: $(CONFIG)/conf
 	@$(CONFIG)/conf $(CONFIG_CONFIG_IN)

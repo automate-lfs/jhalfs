@@ -74,8 +74,8 @@ done <$ConfigFile
 #
 # Replace to 'old' dependency file with a new one.
 #
-for dst in libs/*.dep-MOD; do
-    cp -f $dst ${dst%-MOD}
+for dst in `ls ./libs/*.dep-MOD 2>/dev/null`; do
+    cp -vf $dst ${dst%-MOD}
 done
 
 
