@@ -2,6 +2,8 @@
 # Modified By: Joe Ciccone <jciccone@linuxfromscratch.org
 # Additional changes: George Boudreau <georgeb@linuxfromscratch.org>
 
+# $Id$
+
 TOPDIR=$(shell pwd)
 CONFIG_CONFIG_IN = Config.in
 CONFIG = menu

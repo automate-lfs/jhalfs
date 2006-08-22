@@ -1,5 +1,6 @@
 #!/bin/bash
-
+#
+# $Id$
 #
 #  Read and parse the configuration parameters..
 #
