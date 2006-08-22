@@ -132,7 +132,7 @@ sed -i 's,tracking-dir,'$TRACKING_DIR',' update_book.sh gen-makefile.sh
 if [[ -d $BLFS_XML ]] ; then
   ./update_book.sh
 else
-  ./update_book.sh $BLFS_XML get $TREE
+  ./update_book.sh get $BLFS_XML $TREE
 fi
 
 # Generate Config.in and run the menuconfig interface

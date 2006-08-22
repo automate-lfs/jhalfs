@@ -6,8 +6,8 @@ set -e
 
 declare -r SVN="svn://svn.linuxfromscratch.org"
 
-BLFS_XML=$1  # Book directory
-DOC_MODE=$2  # Action to take, update or get
+DOC_MODE=$1  # Action to take, update, get or none
+BLFS_XML=$2  # Book directory
 TREE=$3      # SVN tree for the BLFS book version
 
 [[ -z $BLFS_XML ]] && BLFS_XML=blfs-xml
@@ -70,7 +70,7 @@ inline_doc
   esac
 }
 
-BOOK_Source
+[ "${DOC_MODE}" != "none" ] && BOOK_Source
 
 echo -en "\n\tGenerating packages database file ..."
 generate_packages
