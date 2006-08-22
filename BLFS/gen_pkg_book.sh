@@ -51,6 +51,11 @@ while [ 0 ]; do
     fi    
   fi
 done <$ConfigFile
+if [[ $optTARGET = "" ]]; then
+  echo -e "\n>>> NO TARGET SELECTED.. applicaton terminated"
+  echo -e "    Run <make> again and select a package to build\n"
+  exit 0
+fi
 
 #
 # Regenerate the META-package dependencies from the configuration file
@@ -86,7 +91,6 @@ declare PKGXML
 declare BLFS_XML
 declare VERBOSITY=1
 [[ -z $SUDO ]] && SUDO=y
-
 
 #---------------------
 # Constants
