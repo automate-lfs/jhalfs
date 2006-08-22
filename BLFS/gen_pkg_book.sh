@@ -6,12 +6,12 @@
 ConfigFile="configuration"
 while [ 0 ]; do
   read || break 1
-  
+
   # Garbage collection
   case ${REPLY} in
     \#* | '') continue ;;
   esac
-  
+
   case "${REPLY}" in
     CONFIG_ALSA=* | \
     CONFIG_GNOME-CORE=* | \
@@ -21,14 +21,14 @@ while [ 0 ]; do
     CONFIG_KDE-KOFFICE=* | \
     CONFIG_XORG7=* ) REPLY=${REPLY%=*}  # Strip the trailing '=y' test.. unecessary
                      echo -n "${REPLY}"
-		     if [[ $((++cntr)) > 1 ]]; then 
+		     if [[ $((++cntr)) > 1 ]]; then
                        echo "  <<-- ERROR:: SELECT ONLY 1 PACKAGE AT A TIME, META-PACKAGE NOT SELECTED"
                      else
                        echo ""
                        optTARGET=$(echo $REPLY | cut -d "_" -f2 | tr [A-Z] [a-z])
                      fi
                      continue ;;
-    
+
     # Create global variables for these parameters.
     optDependency=* | \
     PRINT_SERVER=*  | \
@@ -36,19 +36,18 @@ while [ 0 ]; do
     GHOSTSCRIPT=*   | \
     KBR5=*  | \
     X11=*   | \
-    SUDO=*  | \
-    TRACKING_DIR=* )  eval ${REPLY} # Define/set a global variable..
+    SUDO=*  )  eval ${REPLY} # Define/set a global variable..
                       continue ;;
   esac
 
-  if [[ "${REPLY}" =~ "^CONFIG_" ]]; then  
+  if [[ "${REPLY}" =~ "^CONFIG_" ]]; then
     echo -n "$REPLY"
-    if [[ $((++cntr)) > 1 ]]; then 
+    if [[ $((++cntr)) > 1 ]]; then
       echo "  <<-- ERROR SELECT ONLY 1 PACKAGE AT A TIME, WILL NOT BUILD"
     else
       echo ""
       optTARGET=$( echo $REPLY | sed -e 's@CONFIG_@@' -e 's@=y@@' )
-    fi    
+    fi
   fi
 done <$ConfigFile
 if [[ $optTARGET = "" ]]; then
@@ -66,7 +65,7 @@ while [ 0 ]; do
   case ${REPLY} in
   \#* | '') continue ;;
   esac
-  
+
     # Drop the "=y"
   REPLY=${REPLY%=*}
   if [[ "${REPLY}" =~ "^DEP_" ]]; then
