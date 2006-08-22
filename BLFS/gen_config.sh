@@ -60,7 +60,7 @@ cat << EOF
 		bool	"$META_PKG $PKG_VER $INST_STRING"
 		default	n
 
-		menu	$(echo ${PKG_NAME} | tr [a-z] [A-Z]) components"
+		menu	"$(echo ${PKG_NAME} | tr [a-z] [A-Z]) components"
 			depends	CONFIG_$META_PKG
 
 EOF
