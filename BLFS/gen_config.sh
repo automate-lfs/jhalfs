@@ -11,6 +11,7 @@ declare PKG_XML_FILE
 declare PKG_DIR
 declare PKG_VER
 declare INST_VER
+declare INST_STRING
 declare SAVE_IFS=${IFS}
 declare -a DIR_TREE
 declare PREV_DIR1="none"
@@ -45,35 +46,49 @@ do
     # These are the META packages.
   if [ $PKG_DIR = "." ]; then
     SET_COMMENT=y
-      # Do not include previously installed packages....
+      # Do not include previously installed packages
     if [ -n "${PKG_VER}" ] && [ "x${PKG_VER}" = "x${INST_VER}" ]; then
       continue
     fi
+      # Set installed version for updated meta-packages
+    [ -n "${INST_VER}" ] && INST_STRING="[installed ${INST_VER}]"
 
     META_PKG=$(echo ${PKG_NAME} | tr [a-z] [A-Z])
-    echo -e "config CONFIG_$META_PKG" >> $outFile
-    echo -e "\tbool \"$META_PKG $PKG_VER $INST_VER\"" >> $outFile
-    echo -e "\tdefault n" >> $outFile
+(
+cat << EOF
+	config	CONFIG_$META_PKG
+		bool	"$META_PKG $PKG_VER $INST_STRING"
+		default	n
 
-    echo -e "menu \"$(echo ${PKG_NAME} | tr [a-z] [A-Z]) components\"" >> $outFile
-    echo -e "\tdepends\tCONFIG_$META_PKG" >> $outFile
-       # Include the dependency data for this meta package
+		menu	$(echo ${PKG_NAME} | tr [a-z] [A-Z]) components"
+			depends	CONFIG_$META_PKG
+
+EOF
+) >> $outFile
+
+    unset INST_STRING
+
+         # Include the dependency data for this meta package
        while [ 0 ]; do
          read || break 1
          PKG_NAME=${REPLY}
          PKG_VER=$(grep "^${PKG_NAME}[[:space:]]" $inFile | cut -f3)
          INST_VER=$(grep "^${PKG_NAME}[[:space:]]" $inFile | cut -f4)
+           # Skip installed meta-package components
          if [ -n "${PKG_VER}" ] && [ "x${PKG_VER}" = "x${INST_VER}" ]; then
            continue
          fi
+           # Set installed version for updated meta-packages components
+         [ -n "${INST_VER}" ] && INST_STRING="[installed ${INST_VER}]"
 (
 cat << EOF
 	config	DEP_${META_PKG}_${PKG_NAME}
-		bool	"$PKG_NAME ${PKG_VER} ${INST_VER}"
+		bool	"$PKG_NAME ${PKG_VER} ${INST_STRING}"
 		default	y
 
 EOF
 ) >> $outFile
+         unset INST_STRING
        done <./libs/${PKG_NAME}.dep
      echo -e "endmenu" >> $outFile
     continue
@@ -87,11 +102,12 @@ EOF
      x-config | x-setup ) continue ;;
   esac
 
-    # IF this package name-version exists in the tracking dir
-    # do not add this package to the list of installable pkgs.
+    # Skip installed packages
   if [ -n "${PKG_VER}" ] && [ "x${PKG_VER}" = "x${INST_VER}" ]; then
     continue
   fi
+    # Set installed version for updated packages
+  [ -n "${INST_VER}" ] && INST_STRING="[installed ${INST_VER}]"
 
   IFS="/"
   DIR_TREE=(${PKG_DIR})
@@ -130,10 +146,12 @@ EOF
 (
 cat << EOF
 	config CONFIG_$PKG_NAME
-		bool "$PKG_NAME ${PKG_VER} ${INST_VER}"
+		bool "$PKG_NAME ${PKG_VER} ${INST_STRING}"
 		default n
 EOF
 ) >> $outFile
+
+  unset INST_STRING
 
   PREV_DIR1=${DIR_TREE[1]}
   PREV_DIR2=${DIR_TREE[2]}
