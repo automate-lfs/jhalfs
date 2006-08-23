@@ -112,8 +112,8 @@ regenerate_deps() {        #
 
 #
 # Clean configuration file keeping only global default settings.
-# Than prevent "trying to assign nonexistent symbol" messages
-# and assures that there is no TARGET selected from a pevious run
+# That prevent "trying to assign nonexistent symbol" messages
+# and assures that there is no TARGET selected from a previous run
 #
 #--------------------------#
 clean_configuration() {    #
