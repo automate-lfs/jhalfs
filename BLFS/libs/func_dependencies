@@ -177,12 +177,8 @@ inline_doc
   # Start with a clean $PKG.xinc.tmp file
   > xincludes/$PKG.xinc.tmp
   for DEP in `cat dependencies/$PKG.dep`; do
-    # If DEP has been previouly installed, skip it
-    pkg_ver=$(grep "^${DEP}[[:space:]]" ../packages | cut -f3)
-    inst_ver=$(grep "^${DEP}[[:space:]]" ../packages | cut -f4)
-    [ -n "${pkg_ver}" ] && [ "x${pkg_ver}" = "x${inst_ver}" ] && continue
 
-    # Special packages (a lot of hacks)
+    # Special packages that need be remaped
     case $DEP in
 
       db ) continue ;; # The proper version of DB is installed in LFS
@@ -196,12 +192,26 @@ inline_doc
       kde )                      DEP=kde-core ;;
 
         # Set values for alternative packages
-        # X is a meta-package, thus handled in another way.
       LPRng | cups )             DEP=$PRINT_SERVER ;;
       mitkrb | heimdal )         DEP=$KBR5 ;;
       gs | espgs )               DEP=$GHOSTSCRIPT ;;
       server-mail )              DEP=$MAIL_SERVER ;;
+      x-window-system )
+        case $X11 in
+          xorg7 ) DEP=xorg7 ;;
+              * )
+                  pkg_ver=$(grep "^${X11}[[:space:]]" ../packages | cut -f3)
+                  inst_ver=$(grep "^${X11}[[:space:]]" ../packages | cut -f4)
+                  [ -n "${pkg_ver}" ] && [ "x${pkg_ver}" = "x${inst_ver}" ] && continue
+                  ;;
+        esac
+        ;;
     esac
+
+    # If DEP has been previouly installed, skip it
+    pkg_ver=$(grep "^${DEP}[[:space:]]" ../packages | cut -f3)
+    inst_ver=$(grep "^${DEP}[[:space:]]" ../packages | cut -f4)
+    [ -n "${pkg_ver}" ] && [ "x${pkg_ver}" = "x${inst_ver}" ] && continue
 
     #------------------
     # Prevent circular dependencies
@@ -272,12 +282,11 @@ inline_doc
         kde-core )
           cp ../libs/kde-core.dep dependencies/
           ;;
-        x-window-system ) # X11 alternatives
+        x-window-system ) # When X11 is not Xorg7
           echo -e "x-config\nx-setup\n$X11" > dependencies/x-window-system.dep
           ;;
-        xorg7 ) # At dependencies level, remove x-config and x-setup
+        xorg7 )
           cp ../libs/xorg7.dep dependencies/
-          sed -i '/x-config/d;/x-setup/d' dependencies/xorg7.dep
           ;;
         * ) xsltproc --stringparam dependencies $DEP_LV \
                -o dependencies/$DEP.dep ../libs/dependencies.xsl ../$DEP_XML
