@@ -110,6 +110,19 @@ regenerate_deps() {        #
   done
 }
 
+#
+# Clean configuration file keeping only global default settings.
+# Than prevent "trying to assign nonexistent symbol" messages
+# and assures that there is no TARGET selected from a pevious run
+#
+#--------------------------#
+clean_configuration() {    #
+#--------------------------#
+
+tail -n 30 configuration > configuration.tmp
+mv configuration.tmp configuration
+
+}
 
 #---------------------
 # Constants
@@ -141,3 +154,4 @@ generate_dependency_tree
 generate_TARGET_xml
 generate_target_book
 create_build_scripts "${SUDO}"
+clean_configuration

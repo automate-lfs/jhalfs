@@ -143,8 +143,9 @@ inline_doc
            --stringparam sudo $SUDO \
            -o ./scripts/ ../libs/scripts.xsl \
            $TARGET-index.xml >> xsltproc.log 2>&1
-  echo -e "done\n"
     # Make the scripts executable.
   chmod -R +x scripts
+  cd ..
+  echo -e "done\n"
 
 }
