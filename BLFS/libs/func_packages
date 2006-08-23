@@ -81,19 +81,21 @@ generate_packages()  {  # Master packages file
 
   # Meta-packages installed version
   ALSA_INST_VER=$(get_installed_ver alsa)
-  GNOME_INST_VER=$(get_installed_ver gnome)
-  KDE_INST_VER=$(get_installed_ver kde)
-  KDE_KOFFICE_INST_VER=$(get_installed_ver koffice)
+  GNOME_CORE_INST_VER=$(get_installed_ver gnome-core)
+  GNOME_FULL_INST_VER=$(get_installed_ver gnome-full)
+  KDE_CORE_INST_VER=$(get_installed_ver kde-core)
+  KDE_FULL_INST_VER=$(get_installed_ver kde-full)
+  KDE_KOFFICE_INST_VER=$(get_installed_ver kde-koffice)
   XORG7_INST_VER=$(get_installed_ver xorg7)
 
   # Add header with meta-packages pseudo Id
 {
   cat << EOF
 alsa	$BLFS_XML	$ALSA_VER	$ALSA_INST_VER
-gnome-core	$BLFS_XML	$GNOME_VER$GNOME_MINOR_VER	$GNOME_INST_VER
-gnome-full	$BLFS_XML	$GNOME_VER$GNOME_MINOR_VER	$GNOME_INST_VER
-kde-core	$BLFS_XML	$KDE_VER	$KDE_INST_VER
-kde-full	$BLFS_XML	$KDE_VER	$KDE_INST_VER
+gnome-core	$BLFS_XML	$GNOME_VER$GNOME_MINOR_VER	$GNOME_CORE_INST_VER
+gnome-full	$BLFS_XML	$GNOME_VER$GNOME_MINOR_VER	$GNOME_FULL_INST_VER
+kde-core	$BLFS_XML	$KDE_VER	$KDE_CORE_INST_VER
+kde-full	$BLFS_XML	$KDE_VER	$KDE_FULL_INST_VER
 kde-koffice	$BLFS_XML	$KDE_KOFFICE_VER	$KDE_KOFFICE_INST
 xorg7	$BLFS_XML	$XORG7_VER	$XORG7_INST_VER
 EOF
