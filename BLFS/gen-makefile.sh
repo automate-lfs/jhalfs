@@ -106,7 +106,8 @@ __write_meta_pkg_touch() {   #
 
 (
 cat << EOF
-999-z-$meta_pkg:  $PREV
+
+999-z-$meta_pkg:  $PREV_PACKAGE
 	@touch \$(TRACKING_DIR)/${meta_pkg}-${pkg_ver}
 EOF
 ) >> $MKFILE.tmp
@@ -173,7 +174,9 @@ generate_Makefile () {       #
     kde-core | \
     kde-full | \
     kde-koffice | \
-    xorg7 )  __write_meta_pkg_touch "${PACKAGE}" ;;
+    xorg7 )  pkg_list="$pkg_list 999-z-${PACKAGE}"
+             __write_meta_pkg_touch "${PACKAGE}"
+             ;;
   esac
 
 
