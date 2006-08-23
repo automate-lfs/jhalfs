@@ -96,6 +96,55 @@ __write_entry() {            #
 }
 
 #----------------------------#
+__write_meta_pkg_touch() {   #
+#----------------------------#
+  local meta_pkg=$1
+  local pkg_ver=$(grep "^${meta_pkg}[[:space:]]" ../packages | cut -f3)
+  local gnome_core_ver=$(grep "^gnome-core[[:space:]]" ../packages | cut -f3)
+  local kde_core_ver=$(grep "^kde-core[[:space:]]" ../packages | cut -f3)
+  local kde_full_ver=$(grep "^kde-full[[:space:]]" ../packages | cut -f3)
+
+(
+cat << EOF
+999-z-$meta_pkg:  $PREV
+	@touch \$(TRACKING_DIR)/${meta_pkg}-${pkg_ver}
+EOF
+) >> $MKFILE.tmp
+
+  case $meta_pkg in
+    gnome-full )
+(
+cat << EOF
+	@touch \$(TRACKING_DIR)/gnome-core-${gnome_core_ver}
+EOF
+) >> $MKFILE.tmp
+      ;;
+    kde-full )
+(
+cat << EOF
+	@touch \$(TRACKING_DIR)/kde-core-${kde_core_ver}
+EOF
+) >> $MKFILE.tmp
+      ;;
+    kde-koffice )
+(
+cat << EOF
+	@touch \$(TRACKING_DIR)/kde-core-${kde_core_ver}
+	@touch \$(TRACKING_DIR)/kde-full-${kde_full_ver}
+EOF
+) >> $MKFILE.tmp
+      ;;
+  esac
+
+(
+cat << EOF
+	@touch  \$@
+EOF
+) >> $MKFILE.tmp
+
+}
+
+#----------------------------#
 generate_Makefile () {       #
 #----------------------------#
 
@@ -115,6 +164,18 @@ generate_Makefile () {       #
     PREV_PACKAGE=${this_script}
   done
 
+  PACKAGE=$(basename $PWD)
+
+  case $PACKAGE in
+    alsa | \
+    gnome-core | \
+    gnome-full | \
+    kde-core | \
+    kde-full | \
+    kde-koffice | \
+    xorg7 )  __write_meta_pkg_touch "${PACKAGE}" ;;
+  esac
+
 
   # Add a header, some variables and include the function file
   # to the top of the real Makefile.
@@ -122,7 +183,7 @@ generate_Makefile () {       #
     cat << EOF
 $HEADER
 
-PACKAGE= "`basename $PWD`"
+PACKAGE= $PACKAGE
 TRACKING_DIR= $TRACKING_DIR
 
 BOLD= "[0;1m"
