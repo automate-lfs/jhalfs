@@ -30,12 +30,12 @@ $Id$
      If you don't have the above skill, please don't use this tool.
 
 
-2. USAGE::
+3. USAGE::
 
      Due the complexity of the BLFS book, the scripts/Makefile generation is
   done in several steps:
 
-  2.1  INSTALLATION::
+  3.1  INSTALLATION::
 
        Run "make" to launch the jhalfs menuconfig interface. Select the BLFS
     book and it version. Then set the installation directory (default
@@ -70,7 +70,7 @@ $Id$
        From now on, all the work must be done from inside the installation
     root directory.
 
-  2.2  UPDATING BOOK SOURCES::
+  3.2  UPDATING BOOK SOURCES::
 
        If using the development book version, and if you want to update already
     installed packages to the new version found in that book, you need to update
@@ -78,7 +78,7 @@ $Id$
 
     To do that run "./update_book.sh"
 
-  2.3  CONFIGURING AND PARSING THE BOOK:: (to be rewritten when ready menuconfig)
+  3.3  CONFIGURING AND PARSING THE BOOK:: (to be rewritten when ready menuconfig)
 
        Next step is to create a book and build scripts in dependencies build order
     for a target package. A target package can be any of the ones listed in the
@@ -106,7 +106,7 @@ $Id$
        There is also two other directories, dependencies and xincludes, that
     contains files generated while resolving dependencies trees.
 
-  2.4  EDITING BUILD SCRIPTS
+  3.4  EDITING BUILD SCRIPTS
 
        Now is the time to review the generated book and scripts, making in the
     scripts any changes required to fix generation bugs or to fit your needs.
@@ -120,7 +120,7 @@ $Id$
       Note that the packages tracking system isn't a packages management tool
     and know nothing about packages not in the BLFS book.
 
-  2.5  CREATING THE MAKEFILE
+  3.5  CREATING THE MAKEFILE
        When the build scripts are ready to be run, the Makefile can be
     created. Be sure that you cd into the "package" directory and run
 
@@ -136,7 +136,7 @@ and like)
 
 install -d -m1777 /var/lib/jhalfs/BLFS )
 
-3. GENERATED BUILD SCRIPTS ISSUES::
+4. GENERATED BUILD SCRIPTS ISSUES::
 
       In this section known issues with the generated build scripts are
    discussed. They are due build procedures and/or BLFS layout particularities
@@ -145,30 +145,30 @@ install -d -m1777 /var/lib/jhalfs/BLFS )
    unhandled dependencies and/or to remove some script installing the affected
    package by hand.
 
-   3.1  BLFS BOOTSCRIPTS
+   4.1  BLFS BOOTSCRIPTS
 
         For now, bootscripts installation will fail. You will need to edit the
      scripts for packages that install bootscripts and fix their installation
      command. That could be fixed in the future, but not sure.
 
-   3.2  PACKAGES CONFIGURATION
+   4.2  PACKAGES CONFIGURATION
 
         For that packages that have a "Configuration" section, you should to
      edit it build script to fit the configuration to your needs.
 
-   3.4  PDL and Perl modules.
+   4.4  PDL and Perl modules.
 
         The generated scripts for that packages are plainly broken and can't
      be fixed. You must to replace it by your own ones or install that
      packages by hand.
 
-   3.4  GCC, JDK, Sane, and KDE-multimedia
+   4.4  GCC, JDK, Sane, and KDE-multimedia
 
         On the pages for that packages, the BLFS book actually have instructions
      to install two packages. You must to edit the scripts to fix it. We will
      try to fix some of them, but may not be possible.
 
-   3.5  XORG7
+   4.5  XORG7
 
         The generated scripts for Xorg7 pseudo-packages don't have support for
      $SRC_ARCHIVE nor MD5 checking.
@@ -221,7 +221,7 @@ for package in $(cat $WGET_LST) ; do
   rm -rf $packagedir
 done
 
-   3.6  PATCHES
+   4.6  PATCHES
 
         By default all required patches will be downloaded from the NET.
 
@@ -231,14 +231,14 @@ done
         Also, be sure that all scripts have the commands to download/apply the
      required patches. Due book layout issues some patches may be missing.
 
-   3.7  ROOT COMMANDS
+   4.7  ROOT COMMANDS
 
         If building as a normal user (the default setting) be sure that all
      commands that need root privileges are run using sudo.
 
         Due book layout issues some sudo command may be missing.
 
-   3.8  OTHERS
+   4.8  OTHERS
 
         May have other issues that we are not aware on them yet. If you find
      someone, please report it to <alfs-discuss@linuxfromscratch.org>.
