@@ -243,8 +243,8 @@ menu "--- BOOK Settings"
 			#   a keymap included in the kernel
 
 			           === Note about CLFS ===
-			If building the SVN or 1.0.0rc3 version using the boot method and
-			compiling the keymap into the kernel, you MUST manually edit the
+			If building the SVN, Branch 1.0, or 1.0.0rc4 version using the boot method
+			and compiling the keymap into the kernel, you MUST manually edit the
 			"loadkeys" command found in $JHALFSDIR/clfs-commands/boot/066-kernel
 			to set the full path in your host to the keymap file.
 	#--- End CLFS specific params
@@ -678,5 +678,3 @@ endmenu
 #		string	"BLFS packages"
 #		default	"none"
 #		depends	CONFIG_BLFS_CMDS
-
-
