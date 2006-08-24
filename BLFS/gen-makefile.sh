@@ -48,6 +48,9 @@ __wrt_touch() {                    #
 #----------------------------------#
   local pkg_name=$1
   local pkg_ver=$2
+  local alsa_ver=$(grep "^alsa[[:space:]]" ../packages | cut -f3)
+  local kde_core_ver=$(grep "^kde-core[[:space:]]" ../packages | cut -f3)
+  local xorg7_ver=$(grep "^xorg7[[:space:]]" ../packages | cut -f3)
 
   if [[ -n "$pkg_ver" ]] ; then
 (
@@ -56,6 +59,30 @@ cat << EOF
 EOF
 ) >> $MKFILE.tmp
   fi
+
+  case $pkg_name in
+    *-alsa-lib ) #this the unique mandatory package for ALSA support.
+(
+cat << EOF
+	@touch \$(TRACKING_DIR)/alsa-${alsa_ver}
+EOF
+) >> $MKFILE.tmp
+      ;;
+    *-kdebase )
+(
+cat << EOF
+	@touch \$(TRACKING_DIR)/kde-core-${kde_core_ver}
+EOF
+) >> $MKFILE.tmp
+      ;;
+    *-xorg7-driver ) # xtrerm2 and rman are optional
+(
+cat << EOF
+	@touch \$(TRACKING_DIR)/xorg7-${xorg7_ver}
+EOF
+) >> $MKFILE.tmp
+      ;;
+  esac
 
 (
 cat << EOF
@@ -101,7 +128,6 @@ __write_meta_pkg_touch() {   #
   local meta_pkg=$1
   local pkg_ver=$(grep "^${meta_pkg}[[:space:]]" ../packages | cut -f3)
   local gnome_core_ver=$(grep "^gnome-core[[:space:]]" ../packages | cut -f3)
-  local kde_core_ver=$(grep "^kde-core[[:space:]]" ../packages | cut -f3)
   local kde_full_ver=$(grep "^kde-full[[:space:]]" ../packages | cut -f3)
 
 (
@@ -120,17 +146,9 @@ cat << EOF
 EOF
 ) >> $MKFILE.tmp
       ;;
-    kde-full )
-(
-cat << EOF
-	@touch \$(TRACKING_DIR)/kde-core-${kde_core_ver}
-EOF
-) >> $MKFILE.tmp
-      ;;
     kde-koffice )
 (
 cat << EOF
-	@touch \$(TRACKING_DIR)/kde-core-${kde_core_ver}
 	@touch \$(TRACKING_DIR)/kde-full-${kde_full_ver}
 EOF
 ) >> $MKFILE.tmp
@@ -167,16 +185,15 @@ generate_Makefile () {       #
 
   PACKAGE=$(basename $PWD)
 
+   # alsa, kde-core and xorg7 are also available dependencies, thus handled
+   # in another way.
   case $PACKAGE in
-    alsa | \
     gnome-core | \
     gnome-full | \
-    kde-core | \
     kde-full | \
-    kde-koffice | \
-    xorg7 )  pkg_list="$pkg_list 999-z-${PACKAGE}"
-             __write_meta_pkg_touch "${PACKAGE}"
-             ;;
+    kde-koffice )  pkg_list="$pkg_list 999-z-${PACKAGE}"
+                  __write_meta_pkg_touch "${PACKAGE}"
+                  ;;
   esac
 
 
