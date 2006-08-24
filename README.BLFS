@@ -55,16 +55,15 @@ $Id$
     update_book.sh     update the XML book sources and regenerates packages
                        database and meta-packages dependencies tree
     gen_config.sh      regenerates Config.in
-    blfs-parser.sh     solve dependencies and generates linear BLFS books
+    gen_pkg_book.sh    solve dependencies and generates linear BLFS books
                        and build scripts
     gen-makefile.sh    generates target Makefile
     progress_bar.sh    the target Makefile progress bar
-    Makefile           (not created yet) run gen_config.sh to update Config.in,
+    Makefile           run gen_config.sh to update Config.in,
                        then launch the menuconfig interface, and lastly run
-                       blfs-parser.sh based on configuration settings
+                       gen_pkg_book.sh based on configuration settings
     Config.in          menuconfig interface input file
     packages           auto-generated packages database
-    alternatives.conf  (to be removed) configuration file for alternative packages
     envars.conf        envars needed when running the target build scripts
 
        From now on, all the work must be done from inside the installation
@@ -78,7 +77,7 @@ $Id$
 
     To do that run "./update_book.sh"
 
-  3.3  CONFIGURING AND PARSING THE BOOK:: (to be rewritten when ready menuconfig)
+  3.3  CONFIGURING AND PARSING THE BOOK:: (obsolete, to be rewritten)
 
        Next step is to create a book and build scripts in dependencies build order
     for a target package. A target package can be any of the ones listed in the
