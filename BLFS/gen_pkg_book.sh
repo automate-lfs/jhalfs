@@ -78,6 +78,18 @@ parse_configuration() {    #
   SUDO=${SUDO:-n}
 }
 
+#--------------------------#
+validate_configuration() { #
+#--------------------------#
+  local -r dotSTR=".................."
+  local -r PARAM_LIST="TARGET DEP_LEVEL SUDO PRINT_SERVER MAIL_SERVER GHOSTSCRIPT KBR5 X11"
+  local -r PARAM_VALS='${config_param}${dotSTR:${#config_param}} ${L_arrow}${BOLD}${!config_param}${OFF}${R_arrow}'
+  local config_param
+
+  for config_param in ${PARAM_LIST}; do
+    echo -e "`eval echo $PARAM_VALS`"
+  done
+}
 
 #
 # Regenerate the META-package dependencies from the configuration file
@@ -149,6 +161,15 @@ fi
 
 
 parse_configuration
+validate_configuration
+echo "${SD_BORDER}${nl_}"
+echo -n "Are you happy with these settings? yes/no (no): "
+read ANSWER
+if [ x$ANSWER != "xyes" ] ; then
+  echo "${nl_}Rerun make and fix your settings.${nl_}"
+  exit 1
+fi
+echo "${nl_}${SD_BORDER}${nl_}"
 regenerate_deps
 generate_dependency_tree
 generate_TARGET_xml
