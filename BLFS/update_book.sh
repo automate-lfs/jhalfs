@@ -6,13 +6,15 @@ set -e
 
 declare -r SVN="svn://svn.linuxfromscratch.org"
 
-BLFS_XML=$1  # Book directory
-DOC_MODE=$2  # Action to take, update or get
+DOC_MODE=$1  # Action to take, update, get or none
+BLFS_XML=$2  # Book directory
 TREE=$3      # SVN tree for the BLFS book version
 
 [[ -z $BLFS_XML ]] && BLFS_XML=blfs-xml
 [[ -z $DOC_MODE ]] && DOC_MODE=update
 [[ -z $TREE ]] && TREE=trunk/BOOK
+
+TRACKING_DIR=tracking-dir
 
 #---------------------
 # packages module
@@ -68,25 +70,39 @@ inline_doc
   esac
 }
 
-BOOK_Source
+[ "${DOC_MODE}" != "none" ] && BOOK_Source
 
-echo -en "\n\tGenerating packages file ..."
-generate_packages
-echo "done."
+if [ "${DOC_MODE}" = "none" ] ; then
+  echo -en "\n\tGenerating packages database file ..."
+  generate_packages
+  echo "done."
 
-echo -en "\tGenerating gnome-core dependencies list ..."
-generate_gnome_core
-echo "done."
+  echo -en "\tGenerating alsa dependencies list ..."
+  generate_alsa
+  echo "done."
 
-echo -en "\tGenerating gnome-full dependencies list ..."
-generate_gnome_full
-echo "done."
+  echo -en "\tGenerating gnome-core dependencies list ..."
+  generate_gnome_core
+  echo "done."
 
-echo -en "\tGenerating kde-core dependencies list ..."
-generate_kde_core
-echo "done."
+  echo -en "\tGenerating gnome-full dependencies list ..."
+  generate_gnome_full
+  echo "done."
 
-echo -en "\tGenerating kde-full dependencies list ..."
-generate_kde_full
-echo -e "done.\n"
+  echo -en "\tGenerating kde-core dependencies list ..."
+  generate_kde_core
+  echo "done."
+
+  echo -en "\tGenerating kde-full dependencies list ..."
+  generate_kde_full
+  echo -e "done."
+
+  echo -en "\tGenerating kde-koffice dependencies list ..."
+  generate_kde_koffice
+  echo -e "done."
+
+  echo -en "\tGenerating xorg7 dependencies list ..."
+  generate_xorg7
+  echo "done."
+fi
 

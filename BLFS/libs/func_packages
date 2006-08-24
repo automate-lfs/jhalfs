@@ -5,48 +5,104 @@
 set -e
 
 #-----------------------#
+get_pkg_ver() {         # Find package version for a given package ID
+#-----------------------#
+  local pkg_id=$1
+
+  case ${pkg_id} in
+                  # ALSA packages version
+            alsa* ) pkg_id=alsa ;;
+
+                  # KDE packages version
+          kdevelop ) : ;;
+        kde*config ) : ;;
+              kde* ) pkg_id=kde ;;
+
+                  # Xorg7 packages version
+      xorg7-server ) pkg_id=xorg-server ;;
+            xterm2 ) pkg_id=xterm ;;
+            xorg7* ) pkg_id=xorg7 ;;
+
+                   # Others (ID value don't match entity name)
+    wireless_tools ) pkg_id=wireless-tools ;;
+        bind-utils ) pkg_id=bind ;;
+         html-tidy ) pkg_id=tidy ;;
+               jdk ) pkg_id=jdk-src ;;
+          reiserfs ) pkg_id=reiser ;;
+               xfs ) pkg_id=xfsprogs ;;
+  esac
+
+  xmllint --noent ./${BLFS_XML}/book/bookinfo.xml 2>/dev/null | \
+  grep -i " ${pkg_id}-version " | cut -d "\"" -f2
+
+}
+
+#-----------------------#
+get_installed_ver() {   # Find installed package version for a given package ID
+#-----------------------#
+  local pkg_id=$1
+
+  find $TRACKING_DIR -name "${pkg_id}-[[:digit:]]*" | sed "s/.*${pkg_id}-//"
+
+}
+
+#-----------------------#
 generate_packages()  {  # Master packages file
 #-----------------------#
-  local pkg_id file
+  local pkg_id file pkg_ver
+  local ALSA_VER GNOME_VER GNOME_MINOR_VER KDE_VER KDE_KOFFICE_VER XORG7_VER
 
   > packages.tmp
 
   # Extract Id and path for sect1 files
   for file in `find $BLFS_XML -name "*.xml"` ; do
-    pkg_id=`grep "sect1 id" $file | sed -e 's/<sect1 id="//;s/".*//'`
-    [[ ! -z "$pkg_id" ]] && echo -e "$pkg_id\t$file" >> packages.tmp
+    pkg_id=$(grep "sect1 id" $file | sed -e 's/<sect1 id="//;s/".*//')
+    pkg_ver=$(get_pkg_ver $pkg_id)
+    installed_ver=$(get_installed_ver $pkg_id)
+    [[ ! -z "$pkg_id" ]] && echo -e "$pkg_id\t$file\t$pkg_ver\t$installed_ver" >> packages.tmp
   done
 
   # IDs clean-up (unuseful pages or commented-out packages, could be more)
-  sed -i '/template/d;/ntroduction/d;/preface/d' packages.tmp
-  sed -i '/courier.xml/d' packages.tmp
-  sed -i '/nautilus-media.xml/d;/gal.xml/d;/gpdf.xml/d;/gv.xml/d' packages.tmp
+  sed -i '/template/d;/ntroduction/d;/preface/d;/alsa.xml/d' packages.tmp
+  sed -i '/obsolete/d;/postlfs-/d;/-client.xml/d;/xorg7.xml/d' packages.tmp
+  sed -i '/courier.xml/d;/-other\t/d;/others-/d;/other-/d' packages.tmp
+  sed -i '/fw-firewall\t/d;/gcc2\t/d;/cvsserver\t/d;/svnserver\t/d' packages.tmp
+  sed -i '/fam\t/d;/libungif\t/d;/ncpfs\t/d;/slrn\t/d;/konq\t/d' packages.tmp
+  sed -i '/gst-plugins\t/d;/openquicktime\t/d;/compressdoc\t/d' packages.tmp
+
+  # Meta-packages version
+  ALSA_VER=$(get_pkg_ver alsa)
+  GNOME_VER=$(get_pkg_ver gnome)
+  GNOME_MINOR_VER=$(get_pkg_ver gnome-minor)
+  KDE_VER=$(get_pkg_ver kde)
+  KDE_INST_VER=$(get_installed_ver kde)
+  KDE_KOFFICE_VER=$(get_pkg_ver koffice)
+  XORG7_VER=$(get_pkg_ver xorg7)
+
+  # Meta-packages installed version
+  ALSA_INST_VER=$(get_installed_ver alsa)
+  GNOME_CORE_INST_VER=$(get_installed_ver gnome-core)
+  GNOME_FULL_INST_VER=$(get_installed_ver gnome-full)
+  KDE_CORE_INST_VER=$(get_installed_ver kde-core)
+  KDE_FULL_INST_VER=$(get_installed_ver kde-full)
+  KDE_KOFFICE_INST_VER=$(get_installed_ver kde-koffice)
+  XORG7_INST_VER=$(get_installed_ver xorg7)
 
   # Add header with meta-packages pseudo Id
 {
   cat << EOF
-
-=== GNOME META-PACKAGES ===
-# GNOME base packages
-gnome-core	$BLFS_XML
-# All GNOME packages
-gnome-full	$BLFS_XML
-
-=== KDE META-PACKAGES ===
-# KDE base packages
-kde-core	$BLFS_XML
-# All KDE packages
-kde-full	$BLFS_XML
-# All KDE packages plus Koffice
-kde-koffice	$BLFS_XML
-
-=== INDIVIDUAL PACKAGES ===
-
+alsa	$BLFS_XML	$ALSA_VER	$ALSA_INST_VER
+gnome-core	$BLFS_XML	$GNOME_VER$GNOME_MINOR_VER	$GNOME_CORE_INST_VER
+gnome-full	$BLFS_XML	$GNOME_VER$GNOME_MINOR_VER	$GNOME_FULL_INST_VER
+kde-core	$BLFS_XML	$KDE_VER	$KDE_CORE_INST_VER
+kde-full	$BLFS_XML	$KDE_VER	$KDE_FULL_INST_VER
+kde-koffice	$BLFS_XML	$KDE_KOFFICE_VER	$KDE_KOFFICE_INST_VER
+xorg7	$BLFS_XML	$XORG7_VER	$XORG7_INST_VER
 EOF
-} > packages
+} >> packages.tmp
 
   # Dump packages list
-  sort packages.tmp >> packages
+  sort packages.tmp -b --key=2 --field-separator=/ --output=packages
 
   # Clean up
   rm packages.tmp
@@ -66,6 +122,9 @@ generate_gnome_core()  {   # GNOME core
     package=`grep "gnome/core/$base_xml" packages | cut -f1`
     [[ -n "$package" ]] && echo $package >> gnome-core.dep.tmp
   done
+
+  # Replace dummy packages with the proper ones
+  sed -i 's/GNOME-//g' gnome-core.dep.tmp
 
   tac gnome-core.dep.tmp > libs/gnome-core.dep
   rm gnome-core.dep.tmp
@@ -126,4 +185,25 @@ generate_kde_full()  {     # KDE full
 
   tac kde-full.dep.tmp > libs/kde-full.dep
   rm kde-full.dep.tmp
+}
+
+#--------------------------#
+generate_kde_koffice()  {  # KDE full + Koffice
+#--------------------------#
+  echo -e "koffice\nkde-full\nkde-core" > libs/kde-koffice.dep
+}
+
+#--------------------------#
+generate_alsa()  {         # ALSA packages
+#--------------------------#
+  echo -e "alsa-oss\nalsa-firmware\nalsa-tools\nalsa-utils\n\
+alsa-plugins\nalsa-lib" > libs/alsa.dep
+}
+
+#--------------------------#
+generate_xorg7()  {        # Xorg7 packages
+#--------------------------#
+  echo -e "x-config\nx-setup\nrman\nxterm2\nxorg7-driver\nxorg7-server\nluit\n\
+xorg7-font\nxorg7-data\nxorg7-app\nxbitmaps\nmesalib\nlibdrm\n\
+xorg7-lib\nxorg7-util\nxorg7-proto" > libs/xorg7.dep
 }

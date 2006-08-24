@@ -46,8 +46,6 @@ inline_doc
 
   #---------------------
   # The BLFS sources directory.
-  # Note: for book.xsl this value must be set via a sed in ./blfs.
-  # For consistency, we should to do the same here.
   BLFS_XML=`echo $PKGXML | sed -e 's,/.*,,'`
 
   if [[ ! -d ../$BLFS_XML ]] ; then
@@ -73,10 +71,8 @@ inline_doc
     alsa-lib | cracklib | libexif | unixodbc ) ;;
 
     # Meta-packages at target level
-    # KDE and Gnome-{core,full} could be made via packages.sh, but not sure yet how.
     alsa )
-      echo -e "alsa-oss\nalsa-firmware\nalsa-tools\nalsa-utils\n \
-               alsa-plugins\nalsa-lib" > dependencies/alsa.dep
+      cp ../libs/alsa.dep dependencies/
       ;;
     gnome-core )
       cp ../libs/gnome-core.dep dependencies/
@@ -91,13 +87,10 @@ inline_doc
       cp ../libs/kde-{core,full}.dep dependencies/
       ;;
     kde-koffice )
-      cp ../libs/kde-{core,full}.dep dependencies/
-      echo -e "koffice\nkde-full\nkde-core" > dependencies/kde-koffice.dep
+      cp ../libs/kde-{core,full,koffice}.dep dependencies/
       ;;
-    xorg7 ) # At atarget level, add also x-config and x-setup
-      echo -e "x-config\nx-setup\nrman\nxterm2\nxorg7-driver\nxorg7-server\nluit\n \
-               xorg7-font\nxorg7-data\nxorg7-app\nxbitmaps\nmesalib\nlibdrm\n \
-               xorg7-lib\nxorg7-util\nxorg7-proto" > dependencies/xorg7.dep
+    xorg7 )
+      cp ../libs/xorg7.dep dependencies/
       ;;
     * ) # Default
       xsltproc --stringparam dependencies $DEP_LEVEL \
@@ -114,7 +107,7 @@ inline_doc
   # Write the XInclude
   case $TARGET in
     # If there is no usefull XML page, skip it.
-    alsa | gnome-core | gnome-full | kde-core | kde-full | kde-koffice ) ;;
+    alsa | gnome-core | gnome-full | kde-core | kde-full | kde-koffice | xorg7) ;;
     * )
       echo -e "    $ENTRY_START$PKGXML$ENTRY_END" >> $TARGET-index.xml.tmp
       ;;
@@ -160,7 +153,7 @@ inline_doc
   local PKG=$1
   local saveIFS=$IFS
   local DEP_LV=$DEP_LEVEL
-  local line line2 DEP
+  local line line2 DEP pkg_ver inst_ver
 
   #------------------
   #  If a premade xinclude file exists, use it. If not, create one
@@ -184,7 +177,8 @@ inline_doc
   # Start with a clean $PKG.xinc.tmp file
   > xincludes/$PKG.xinc.tmp
   for DEP in `cat dependencies/$PKG.dep`; do
-    # Special packages (a lot of hacks)
+
+    # Special packages that need be remaped
     case $DEP in
 
       db ) continue ;; # The proper version of DB is installed in LFS
@@ -197,17 +191,27 @@ inline_doc
       arts )                     DEP=aRts ;;
       kde )                      DEP=kde-core ;;
 
-       # Dummy gnome-core pages
-      GNOME-desktop-file-utils ) DEP=desktop-file-utils ;;
-      GNOME-shared-mime-info )   DEP=shared-mime-info ;;
-
         # Set values for alternative packages
-        # X is a meta-package, thus handled in another way.
       LPRng | cups )             DEP=$PRINT_SERVER ;;
       mitkrb | heimdal )         DEP=$KBR5 ;;
       gs | espgs )               DEP=$GHOSTSCRIPT ;;
       server-mail )              DEP=$MAIL_SERVER ;;
+      x-window-system )
+        case $X11 in
+          xorg7 ) DEP=xorg7 ;;
+              * )
+                  pkg_ver=$(grep "^${X11}[[:space:]]" ../packages | cut -f3)
+                  inst_ver=$(grep "^${X11}[[:space:]]" ../packages | cut -f4)
+                  [ -n "${pkg_ver}" ] && [ "x${pkg_ver}" = "x${inst_ver}" ] && continue
+                  ;;
+        esac
+        ;;
     esac
+
+    # If DEP has been previouly installed, skip it
+    pkg_ver=$(grep "^${DEP}[[:space:]]" ../packages | cut -f3)
+    inst_ver=$(grep "^${DEP}[[:space:]]" ../packages | cut -f4)
+    [ -n "${pkg_ver}" ] && [ "x${pkg_ver}" = "x${inst_ver}" ] && continue
 
     #------------------
     # Prevent circular dependencies
@@ -271,21 +275,18 @@ inline_doc
       case $DEP in
         # Skip the creation when all dependencies are circular.
         alsa-lib | cracklib | libexif | unixodbc ) ;;
-        # Meta-packages at dependency level (ugly *.dep files, but work for now)
-        alsa ) # When dependency "alsa", use all alsa-* packages
-          echo -e "alsa-oss\nalsa-firmware\nalsa-tools\nalsa-utils\n \
-                   alsa-plugins\nalsa-lib" > dependencies/alsa.dep
+        # Meta-packages at dependency level
+        alsa )
+          cp ../libs/alsa.dep dependencies/
           ;;
         kde-core )
           cp ../libs/kde-core.dep dependencies/
           ;;
-        x-window-system ) # X11 alternatives
+        x-window-system ) # When X11 is not Xorg7
           echo -e "x-config\nx-setup\n$X11" > dependencies/x-window-system.dep
           ;;
         xorg7 )
-          echo -e "rman\nxterm2\nxorg7-driver\nxorg7-server\nluit\nxorg7-font\n \
-                   xorg7-data\nxorg7-app\nxbitmaps\nmesalib\nlibdrm\n \
-                   xorg7-lib\nxorg7-util\nxorg7-proto" > dependencies/xorg7.dep
+          cp ../libs/xorg7.dep dependencies/
           ;;
         * ) xsltproc --stringparam dependencies $DEP_LV \
                -o dependencies/$DEP.dep ../libs/dependencies.xsl ../$DEP_XML
@@ -337,7 +338,7 @@ inline_doc
   #------------------
   if [[ "$PKG" = "xorg7" ]] ; then
     # Add their XInclude
-    PKG_XML=`grep "^$PKG[[:space:]]" ../packages | cut -f2`
+    PKG_XML=${BLFS_XML}/x/installing/xorg7.xml
     echo -e "    $ENTRY_START$PKG_XML$ENTRY_END" >> xincludes/$PKG.xinc.tmp
   fi
 

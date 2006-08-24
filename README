@@ -21,11 +21,24 @@ $Id$
   configuration of the uClibc package when building a HLFS system using
   uClibc rather than glibc.
 
-2. INSTALLATION::
+2. PREREQUISITES::
+
+     To use this tool you MUST:
+
+     - have experience building {c,h,b}LFS packages
+     - know how to edit and write shell scripts
+     - know how a Makefile works
+     - be able to trace build failures and to find what is causing it
+       (user error, package bug, {c,h,b}LFS command bug, or jhalfs code bug)
+
+     If you don't have the above skill, please don't use this tool.
+
+
+3. INSTALLATION::
      No installation is required. System-wide installation is not allowed
   for now.
 
-3. CONFIGURATION FILES::
+4. CONFIGURATION FILES::
      Each book in the LFS series has its own set of configurable parameters
   as well as the common parameters file.
 
@@ -48,7 +61,7 @@ $Id$
        make menuconfig
      This will create a new file named configuration but will not launch jhalfs.
 
-4. RUNNING::
+5. RUNNING::
      The script master.sh cannot be invoked directly but only via the
   supplied symlinks. After editing the config file for the project you wish
   to build, run the script.
@@ -114,7 +127,7 @@ $Id$
    -M   # automatically run make against Makefile once jhalfs finishes its work.
 
 
-5. LAYOUT::
+6. LAYOUT::
 
         /CLFS/config
              /master.sh
@@ -156,7 +169,7 @@ $Id$
 	 ./lfs   ---|
 
 
-6. FAQ::
+7. FAQ::
     Q. "This 'help' file is very sparse"
     A. Yes, it is. This tool, jhalfs, is for those who understand the LFS books
        and wish to automate the build. 99% of any problems that arise can be

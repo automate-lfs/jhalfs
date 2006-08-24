@@ -111,27 +111,30 @@ echo "${nl_}${SD_BORDER}${nl_}"
 [[ ! -d $BLFS_ROOT ]] && mkdir -p $BLFS_ROOT
 
 cp -r BLFS/* $BLFS_ROOT
+cp -r menu $BLFS_ROOT
 cp $COMMON_DIR/progress_bar.sh $BLFS_ROOT
-# cp -r menu $BLFS_ROOT
+cp README.BLFS $BLFS_ROOT
 
 # Start the work
 cd $BLFS_ROOT
 
 # Clean-up
 rm -rf libs/.svn
+rm -rf menu/.svn
+rm -rf menu/lxdialog/.svn
 
-# Fix BLFS_XML harcoded values
-sed -i 's,blfs-xml,'$BLFS_XML',' update_book.sh
-sed -i 's,blfs-xml,'$BLFS_XML',' libs/book.xsl
 
-# Fetch book sources and create packages and GNOME/KDE dependencies files
+# Set some harcoded envars to their proper values
+sed -i 's,blfs-xml,'$BLFS_XML',' update_book.sh libs/book.xsl
+sed -i 's,tracking-dir,'$TRACKING_DIR',' update_book.sh gen-makefile.sh
+
+# Fetch book sources and create packages and meta-packages dependencies files
 if [[ -d $BLFS_XML ]] ; then
   ./update_book.sh
 else
-  ./update_book.sh $BLFS_XML get $TREE
+  ./update_book.sh get $BLFS_XML $TREE
 fi
 
-# Generate Config.in and run the menuconfig interfaz
-# ./gen_config.sh
-# make
+# Run the menuconfig interface
+make
 

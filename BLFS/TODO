@@ -5,24 +5,15 @@
 # $Id$
 #####
 
-For now the code is able to do the first step for the new approach: to create
-LFS-like books from BLFS sources, allowing to create linear build scrips and
-Makefiles similars to the current ones for {C,H}LFS.
 
-What remains to do:
+--   Review generated scripts for bugs trying to figure out if are due fails
+     in the BLFS book XML tagging (that will implied that the book need be
+     fixed) or are required variations due book layout. If the latter, try
+     to fix it via XSL, documenting in README.BLFS that issues that can't be
+     fixed.
 
---   To review the XSL code needed to create the build scripts.
-     A lot of book-versus-scripts and testing is needed.
-     We need yet to figure out if we can to to handle Perl modules installation
-     and other pages that have commands to install more that one package
-     (e.g., Gnat in GCC Java-bin in Java, sane-backends and sane-frontends
-     in Sane, etc) or not-estandart installations, like Xorg7
-
---   Test the method used to track already installed packages by previous runs.
-     See if the packages version can be watched also.
-
---   Integrate the menuconfig based package selection, trying to make use of the
-     installed packages traking system.
+     This is an on-going and never-end task due that, ideally, each commit to
+     the BLFS book should be revised and validated, but our time is limited.
 
 --   Bugs hunting.
 

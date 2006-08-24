@@ -17,14 +17,28 @@ $Id$
   NOTE:: The code is still under development and may contains several bugs
 
 
-2. USAGE::
+2. PREREQUISITES::
+
+     To use this tool you MUST to:
+
+     - have experience building BLFS packages
+     - know how to edit and write shell scripts
+     - know how a Makefile works
+     - be able to trace build failures and to find what is causing it
+       (user error, package bug, BLFS command bug, or jhalfs code bug)
+
+     If you don't have the above skill, please don't use this tool.
+
+
+3. USAGE::
 
      Due the complexity of the BLFS book, the scripts/Makefile generation is
   done in several steps:
 
-  2.1  INSTALLATION::
-       Run "make" to launch the menuconfig interface. Select the BLFS book
-    and it version. Then set the installation directory (default
+  3.1  INSTALLATION::
+
+       Run "make" to launch the jhalfs menuconfig interface. Select the BLFS
+    book and it version. Then set the installation directory (default
     $HOME/blfs_root) and the BLFS sources directory (default blfs-xml).
 
        All required files will be placed in the installation directory and
@@ -32,26 +46,39 @@ $Id$
 
        Installed files:
 
-    lib/*              functions, xsl, and auto-generates dependencies tree files
+    blfs-xml/*         SVN tree of the selected BLFS book version
+    lib/*              functions libraries, xsl stylesheets, and auto-generated
+                       meta-packages dependencies tree files
+    menu/*             lxdialog and menuconfig source code
     README.BLFS        this file
     TODO               developers notes
-    packages           auto-generated file with packages info
-    alternatives.conf  configuration files for alternative packages
-    envars.conf        envars needed when running the build scripts
-    update_book.sh     update the XML book sources and regenerate packages file
-                       and GNOME and KDE dependencies tree
-    blfs-parser.sh     generates linear BLFS books and build scripts
-    gen-makefile.sh    generates Makefile
-    progress_bar.sh    the Makefile progress bar
+    update_book.sh     update the XML book sources and regenerates packages
+                       database and meta-packages dependencies tree
+    gen_config.sh      regenerates Config.in
+    gen_pkg_book.sh    solve dependencies and generates linear BLFS books
+                       and build scripts
+    gen-makefile.sh    generates target Makefile
+    progress_bar.sh    the target Makefile progress bar
+    Makefile           run gen_config.sh to update Config.in,
+                       then launch the menuconfig interface, and lastly run
+                       gen_pkg_book.sh based on configuration settings
+    Config.in          menuconfig interface input file
+    packages           auto-generated packages database
+    envars.conf        envars needed when running the target build scripts
 
        From now on, all the work must be done from inside the installation
     root directory.
 
-  2.2  UPDATING BOOK SOURCES::
-       If using the SVN book version, from time to time you may want to update
-    the XML sources. To do that run "./update_book.sh"
+  3.2  UPDATING BOOK SOURCES::
 
-  2.3  PARSING THE BOOK::
+       If using the development book version, and if you want to update already
+    installed packages to the new version found in that book, you need to update
+    the XML sources and packages database.
+
+    To do that run "./update_book.sh"
+
+  3.3  CONFIGURING AND PARSING THE BOOK:: (obsolete, to be rewritten)
+
        Next step is to create a book and build scripts in dependencies build order
     for a target package. A target package can be any of the ones listed in the
     packages file. That is done using the blfs-parser.sh script, but we are trying
@@ -75,14 +102,24 @@ $Id$
     dependencies in build order and a "scripts" directory with build scripts
     that uses sudo for commands that need root privileges.
 
-    There is also two other directories that contains files generated while
-    resolving dependencies trees.
+       There is also two other directories, dependencies and xincludes, that
+    contains files generated while resolving dependencies trees.
 
-    Now is the time to review the generated book and scripts, making in the
-    scripts any changes you want to fit your needs. Scripts for additional
-    packages (i.e., for non-BLFS packages) can be inserted in an easy way.
+  3.4  EDITING BUILD SCRIPTS
 
-  2.4  CREATING THE MAKEFILE
+       Now is the time to review the generated book and scripts, making in the
+    scripts any changes required to fix generation bugs or to fit your needs.
+
+       Scripts for additional packages (i.e., for non-BLFS packages) can be
+    inserted in an easy way due how the scripts are named. For example, if you
+    want to install the external dependency "bar" before "foo" package and the
+    "foo" script is named "064-z-foo", you need to create a "064-y-bar" build
+    script.
+
+      Note that the packages tracking system isn't a packages management tool
+    and know nothing about packages not in the BLFS book.
+
+  3.5  CREATING THE MAKEFILE
        When the build scripts are ready to be run, the Makefile can be
     created. Be sure that you cd into the "package" directory and run
 
@@ -91,41 +128,116 @@ $Id$
     Review the Makefile and if all look sane, start the build.
 
 
-(Text is needed for the installed packages tracking system and like)
+(Text is needed about meta-packages, the installed packages tracking system
+and like)
 
-3. GENERATED BUILD SCRIPTS ISSUES::
+(The TRACKING_DIR directory must be created before using this tool running as root
+
+install -d -m1777 /var/lib/jhalfs/BLFS )
+
+4. GENERATED BUILD SCRIPTS ISSUES::
 
       In this section known issues with the generated build scripts are
-   discussed. They are due build procedures and BLFS layout particularities
-   than we can't handle. In some cases editing the build scripts is mandatory.
+   discussed. They are due build procedures and/or BLFS layout particularities
+   than we can't handle. In several cases editing the build scripts is mandatory.
    You may need also to insert some build script created by you to resolve
-   unhandled dependencies and/or to remove some script and install the
-   affected package by hand.
+   unhandled dependencies and/or to remove some script installing the affected
+   package by hand.
 
-   3.1  BLFS BOOTSCRIPTS
+   4.1  BLFS BOOTSCRIPTS
 
         For now, bootscripts installation will fail. You will need to edit the
      scripts for packages that install bootscripts and fix their installation
      command. That could be fixed in the future, but not sure.
 
-   3.2  PACKAGES CONFIGURATION
+   4.2  PACKAGES CONFIGURATION
 
         For that packages that have a "Configuration" section, you should to
      edit it build script to fit the configuration to your needs.
 
-   3.4  PDL and Perl modules.
+   4.4  PDL and Perl modules.
 
         The generated scripts for that packages are plainly broken and can't
      be fixed. You must to replace it by your own ones or install that
      packages by hand.
 
-   3.4  GCC, JDK, Sane, and KDE-multimedia
+   4.4  GCC, JDK, Sane, and KDE-multimedia
 
         On the pages for that packages, the BLFS book actually have instructions
      to install two packages. You must to edit the scripts to fix it. We will
      try to fix some of them, but may not be possible.
 
-   3.5  OTHERS
+   4.5  XORG7
+
+        The generated scripts for Xorg7 pseudo-packages don't have support for
+     $SRC_ARCHIVE nor MD5 checking.
+
+        If you has downloaded previously the packages, you must to edit the scripts
+     to make it to use your local packages.
+
+        Also, you will need to edit the scripts to fix the commands that must
+     be applied only to a concret individual sub-package. For example the "for"
+     loop to install xotg7-util packages may read like:
+
+for package in $(cat $WGET_LST) ; do
+  packagedir=$(echo $package | sed 's/.tar.bz2//')
+  tar -xf $package
+  cd $packagedir
+  sed -i "s@/usr/X11R6@$XORG_PREFIX@" X11.tmpl &&
+  ./configure $XORG_CONFIG --with-config-dir=$XORG_PREFIX/lib/X11/config
+  sudo sh -c "make install"
+  ./configure $XORG_CONFIG --with-config-dir=$XORG_PREFIX/lib/X11/config &&
+  make
+  sudo sh -c "make install"
+  ./configure $XORG_CONFIG &&
+  make
+  sudo sh -c "make install"
+  cd ..
+  rm -rf $packagedir
+done
+
+        After reading the HTML page to know what commands is for what package,
+     the loop can be changed to read something like:
+
+for package in $(cat $WGET_LST) ; do
+  packagedir=$(echo $package | sed 's/.tar.bz2//')
+  tar -xf $package
+  cd $packagedir
+  if [ ${packagedir} = "xorg-cf-files" ] ; then
+    sed -i "s@/usr/X11R6@$XORG_PREFIX@" X11.tmpl &&
+    ./configure $XORG_CONFIG --with-config-dir=$XORG_PREFIX/lib/X11/config
+    sudo sh -c "make install"
+  elif [ ${packagedir} = "Imake" ] ; then
+    ./configure $XORG_CONFIG --with-config-dir=$XORG_PREFIX/lib/X11/config &&
+    make
+    sudo sh -c "make install"
+  else
+    ./configure $XORG_CONFIG &&
+    make
+    sudo sh -c "make install"
+  fi
+  cd ..
+  rm -rf $packagedir
+done
+
+   4.6  PATCHES
+
+        By default all required patches will be downloaded from the NET.
+
+        If you has downloaded previously the patches, you must to edit the scripts
+     to make it to use your local patches.
+
+        Also, be sure that all scripts have the commands to download/apply the
+     required patches. Due book layout issues some patches may be missing.
+
+   4.7  ROOT COMMANDS
+
+        If building as a normal user (the default setting) be sure that all
+     commands that need root privileges are run using sudo.
+
+        Due book layout issues some sudo command may be missing.
+
+   4.8  OTHERS
 
         May have other issues that we are not aware on them yet. If you find
      someone, please report it to <alfs-discuss@linuxfromscratch.org>.
