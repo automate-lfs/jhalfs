@@ -2,74 +2,6 @@
 
 declare -r dotSTR=".................."
 
-#----------------------------#
-validate_target() {          #
-#----------------------------#
-  local -r ERROR_MSG_pt1='The variable \"${L_arrow}TARGET${R_arrow}\" value ${L_arrow}${BOLD}${TARGET}${R_arrow} is invalid for the ${L_arrow}${BOLD}${ARCH}${R_arrow} architecture'
-  local -r ERROR_MSG_pt2='  check the config file ${BOLD}${GREEN}\<$(echo $PROGNAME | tr [a-z] [A-Z])/config\> or \<common/config\>${OFF}'
-
-  local -r PARAM_VALS='TARGET${dotSTR:6} ${L_arrow}${BOLD}${TARGET}${OFF}${R_arrow}'
-  local -r PARAM_VALS2='TARGET32${dotSTR:8} ${L_arrow}${BOLD}${TARGET32}${OFF}${R_arrow}'
-
-  write_error_and_die() {
-    echo -e "\n${DD_BORDER}"
-    echo -e "`eval echo ${ERROR_MSG_pt1}`" >&2
-    echo -e "`eval echo ${ERROR_MSG_pt2}`" >&2
-    echo -e "${DD_BORDER}\n"
-    exit 1
-  }
-
- if [[ ! "${TARGET32}" = "" ]]; then
-    echo -e "`eval echo $PARAM_VALS2`"
- fi
- echo -e "`eval echo $PARAM_VALS`"
-
- case "${ARCH}" in
-   "x86")        [[ "${TARGET}" = "i486-pc-linux-gnu" ]] && return
-                 [[ "${TARGET}" = "i586-pc-linux-gnu" ]] && return
-                 [[ "${TARGET}" = "i686-pc-linux-gnu" ]] && return
-    ;;
-   "ppc")        [[ "${TARGET}" = "powerpc-unknown-linux-gnu" ]] && return
-    ;;
-   "mips")       [[ "${TARGET}" = "mipsel-unknown-linux-gnu" ]] && return
-                 [[ "${TARGET}" = "mips-unknown-linux-gnu"   ]] && return
-    ;;
-   "sparc")      [[ "${TARGET}" = "sparcv9-unknown-linux-gnu" ]] && return
-    ;;
-   "x86_64-64")  [[ "${TARGET}" = "x86_64-unknown-linux-gnu" ]] && return
-    ;;
-   "mips64-64")  [[ "${TARGET}" = "mips64el-unknown-linux-gnu" ]] && return
-                 [[ "${TARGET}" = "mips64-unknown-linux-gnu"   ]] && return
-    ;;
-   "sparc64-64") [[ "${TARGET}" = "sparc64-unknown-linux-gnu" ]] && return
-    ;;
-   "alpha")      [[ "${TARGET}" = "alpha-unknown-linux-gnu" ]] && return
-    ;;
-   "x86_64")     [[ "${TARGET}"   = "x86_64-unknown-linux-gnu" ]] &&
-                 [[ "${TARGET32}" = "i686-pc-linux-gnu" ]] && return
-    ;;
-   "mips64")     [[ "${TARGET}"   = "mips64el-unknown-linux-gnu" ]] &&
-                 [[ "${TARGET32}" = "mipsel-unknown-linux-gnu" ]] && return
-
-                 [[ "${TARGET}"   = "mips64-unknown-linux-gnu" ]] &&
-                 [[ "${TARGET32}" = "mips-unknown-linux-gnu" ]] && return
-    ;;
-   "sparc64")    [[ "${TARGET}"   = "sparc64-unknown-linux-gnu" ]] &&
-                 [[ "${TARGET32}" = "sparc-unknown-linux-gnu" ]] && return
-    ;;
-   "ppc64")      [[ "${TARGET}"   = "powerpc64-unknown-linux-gnu" ]] &&
-                 [[ "${TARGET32}" = "powerpc-unknown-linux-gnu"   ]] && return
-    ;;
-   "arm")        [[ "${TARGET}"   = "arm-unknown-linux-gnu" ]] && return
-    ;;
-   *)  write_error_and_die
-   ;;
- esac
-
-   # If you end up here then there was an error SO...
-   write_error_and_die
-}
-
 
 #----------------------------#
 validate_config() {          # Are the config values sane (within reason)
@@ -88,10 +20,10 @@ validate_config() {          # Are the config values sane (within reason)
 inline_doc
 
   # First internal variables, then the ones that change the book's flavour, and lastly system configuration variables
-  local -r  hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE MODEL GRSECURITY_HOST TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL KEYMAP         PAGE TIMEZONE LANG LC_ALL LUSER LGROUP"
-  local -r  clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE METHOD  ARCH  TARGET  TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP"
-  local -r clfs2_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE         ARCH  TARGET                 OPTIMIZE REPORT                                      STRIP FSTAB             CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP"
-  local -r   lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE                       TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL        VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP"
+  local -r  hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE MODEL  GRSECURITY_HOST      TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL KEYMAP         PAGE TIMEZONE LANG LC_ALL LUSER LGROUP"
+  local -r  clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE METHOD ARCH TARGET TARGET32 TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP"
+  local -r clfs2_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE        ARCH TARGET                         OPTIMIZE REPORT                                      STRIP FSTAB             CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP"
+  local -r   lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE                             TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL        VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP"
   local -r  blfs_PARAM_LIST="BRANCH_ID BLFS_ROOT BLFS_XML TRACKING_DIR"
 
   local -r ERROR_MSG_pt1='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid,'
@@ -109,16 +41,6 @@ inline_doc
     echo -e "`eval echo ${ERROR_MSG_pt2}`" >&2
     echo -e "${DD_BORDER}\n"
     exit 1
-  }
-
-  validate_against_str() {
-     # This is the 'regexp' test available in bash-3.0..
-     # using it as a poor man's test for substring
-     echo -e "`eval echo $PARAM_VALS`"
-     if [[ ! "$1" =~ "x${!config_param}x" ]] ; then
-       # parameter value entered is no good
-       write_error_and_die
-     fi
   }
 
   validate_file() {
@@ -172,17 +94,41 @@ inline_doc
   set +e
   PARAM_GROUP=${PROGNAME}_PARAM_LIST
   for config_param in ${!PARAM_GROUP}; do
-    # This is a tricky little piece of code.. executes a cmd string.
     case $config_param in
-      TIMEZONE)   echo -e "`eval echo $PARAM_VALS`" ;;
+      # Allways display this, if found in ${PROGNAME}_PARAM_LIST
+      GETPKG          | \
+      RUNMAKE         | \
+      TEST            | \
+      OPTIMIZE        | \
+      STRIP           | \
+      VIMLANG         | \
+      MODEL           | \
+      METHOD          | \
+      ARCH            | \
+      TARGET          | \
+      GRSECURITY_HOST | \
+      TIMEZONE        | \
+      PAGE)   echo -e "`eval echo $PARAM_VALS`" ;;
 
-      # Validate general parameters..
-      GETPKG)     validate_against_str "xnx xyx" ;;
+      # Envvars that depend on other settings to be displayed
       GETKERNEL ) if [[ -z "$CONFIG" ]] && [[ -z "$BOOT_CONFIG" ]] ; then
-                    [[ "$GETPKG" = "y" ]] && validate_against_str "xnx xyx"
+                    [[ "$GETPKG" = "y" ]] && echo -e "`eval echo $PARAM_VALS`"
                   fi ;;
-      RUNMAKE)    validate_against_str "xnx xyx" ;;
-      REPORT)     validate_against_str "xnx xyx"
+      COMPARE)    [[ ! "$COMPARE" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
+      RUN_ICA)    [[ "$COMPARE" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
+      RUN_FARCE)  [[ "$COMPARE" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
+      ITERATIONS) [[ "$COMPARE" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
+      BOMB_TEST)  [[ ! "$TEST" = "0" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
+      TARGET32)   [[ -n "${TARGET32}" ]] &&  echo -e "`eval echo $PARAM_VALS`" ;;
+
+      # Envars that requires some validation
+      LUSER)      echo -e "`eval echo $PARAM_VALS`"
+                  [[ "${!config_param}" = "**EDIT ME**" ]] && write_error_and_die
+                  ;;
+      LGROUP)     echo -e "`eval echo $PARAM_VALS`"
+                  [[ "${!config_param}" = "**EDIT ME**" ]] && write_error_and_die
+                  ;;
+      REPORT)     echo -e "`eval echo $PARAM_VALS`"
                   if [[ "${!config_param}" = "y" ]]; then
                     if [[ `type -p bc` ]]; then
                       continue
@@ -193,63 +139,30 @@ inline_doc
                       continue
                     fi
                   fi ;;
-      COMPARE)    if [[ ! "$COMPARE" = "y" ]]; then
-                    validate_against_str "xnx xyx"
-                  else
-                    if [[ ! "${RUN_ICA}" = "y" ]] && [[ ! "${RUN_FARCE}" = "y" ]]; then
-                       echo  "${nl_}${DD_BORDER}"
-                       echo  "You have elected to analyse your build but have failed to select a tool." >&2
-                       echo  "Edit /common/config and set ${L_arrow}${BOLD}RUN_ICA${R_arrow} and/or ${L_arrow}${BOLD}RUN_FARCE${R_arrow} to the required values" >&2
-                       echo  "${DD_BORDER}${nl_}"
-                       exit 1
-                    fi
-                  fi ;;
-      RUN_ICA)    [[ "$COMPARE" = "y" ]] && validate_against_str "xnx xyx" ;;
-      RUN_FARCE)  [[ "$COMPARE" = "y" ]] && validate_against_str "xnx xyx" ;;
-      ITERATIONS) [[ "$COMPARE" = "y" ]] && validate_against_str "x2x x3x x4x x5x" ;;
-      TEST)       validate_against_str "x0x x1x x2x x3x" ;;
-      BOMB_TEST)  [[ ! "$TEST" = "0" ]] && validate_against_str "xnx xyx" ;;
-      OPTIMIZE)   validate_against_str "x0x x1x x2x" ;;
-      STRIP)      validate_against_str "xnx xyx" ;;
-      VIMLANG)    validate_against_str "xnx xyx" ;;
-      MODEL)      validate_against_str "xglibcx xuclibcx" ;;
-      PAGE)       validate_against_str "xletterx xA4x" ;;
-      METHOD)     validate_against_str "xchrootx xbootx" ;;
-      ARCH)       validate_against_str "xx86x xx86_64x xx86_64-64x xsparcx xsparc64x xsparc64-64x xmipsx xmips64x xmips64-64x xppcx xppc64x xalphax xarmx" ;;
-      TARGET)     validate_target ;;
-      LUSER)      echo -e "`eval echo $PARAM_VALS`"
-                  [[ "${!config_param}" = "**EDIT ME**" ]] && write_error_and_die
-		  ;;
-      LGROUP)     echo -e "`eval echo $PARAM_VALS`"
-                  [[ "${!config_param}" = "**EDIT ME**" ]] && write_error_and_die
-                  ;;
-      GRSECURITY_HOST)  validate_against_str "xnx xyx" ;;
 
-      # BOOK validation. Very ugly, need be fixed
+        # BOOK validation. Very ugly, need be fixed
       BOOK)        if [[ "${WC}" = "1" ]] ; then
                      validate_dir -z -d
                    else
-                     validate_against_str "x${PROGNAME}-${LFSVRS}x"
+                     echo -e "`eval echo $PARAM_VALS`"
                    fi ;;
 
-      # Validate directories, testable states:
-      #  fatal   -z -d -w,
-      #  warning -z+   -w+
+        # Validate directories, testable states:
+        #  fatal   -z -d -w,
+        #  warning -z+   -w+
       SRC_ARCHIVE) [[ "$GETPKG" = "y" ]] && validate_dir -z+ -d -w+ ;;
-      BUILDDIR)   # The build directory/partition MUST exist and be writable by the user
-                  validate_dir -z -d -w
-                  [[ "xx x/x" =~ "x${!config_param}x" ]] &&
-                       write_error_and_die
-                  ;;
+        # The build directory/partition MUST exist and be writable by the user
+      BUILDDIR)   validate_dir -z -d -w
+                  [[ "xx x/x" =~ "x${!config_param}x" ]] && write_error_and_die ;;
 
-      # Validate files, testable states:
-      #  fatal   -z -e -s -w -x -r,
-      #  warning -z+
+        # Validate files, testable states:
+        #  fatal   -z -e -s -w -x -r,
+        #  warning -z+
       FSTAB)       validate_file -z+ -e -s ;;
       CONFIG)      validate_file -z+ -e -s ;;
       BOOT_CONFIG) [[ "${METHOD}" = "boot" ]] && validate_file -z -e -s ;;
 
-      # Treatment of 'special' parameters
+        # Treatment of 'special' parameters
       LANG | \
       LC_ALL)  # See it the locale values exist on this machine
                echo -n "`eval echo $PARAM_VALS`"
@@ -266,7 +179,7 @@ inline_doc
                KEYMAP=${save_param}
                ;;
 
-      # BLFS params. No validation is required/allowed, IMHO
+      # BLFS params.
       BRANCH_ID | BLFS_ROOT | BLFS_XML )  echo "`eval echo $PARAM_VALS`" ;;
       TRACKING_DIR ) validate_dir -z -d -w ;;
 
