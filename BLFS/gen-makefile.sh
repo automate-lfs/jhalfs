@@ -55,7 +55,8 @@ __wrt_touch() {                    #
   if [[ -n "$pkg_ver" ]] ; then
 (
 cat << EOF
-	@touch \$(TRACKING_DIR)/${pkg_name#*-?-}-${pkg_ver}
+	@rm -f \$(TRACKING_DIR)/${pkg_name#*-?-}-{0..9}* && \\
+	touch \$(TRACKING_DIR)/${pkg_name#*-?-}-${pkg_ver}
 EOF
 ) >> $MKFILE.tmp
   fi
@@ -64,21 +65,24 @@ EOF
     *-alsa-lib ) #this the unique mandatory package for ALSA support.
 (
 cat << EOF
-	@touch \$(TRACKING_DIR)/alsa-${alsa_ver}
+	@rm -f \$(TRACKING_DIR)/alsa-{0..9}* && \\
+	touch \$(TRACKING_DIR)/alsa-${alsa_ver}
 EOF
 ) >> $MKFILE.tmp
       ;;
     *-kdebase )
 (
 cat << EOF
-	@touch \$(TRACKING_DIR)/kde-core-${kde_core_ver}
+	@rm -f \$(TRACKING_DIR)/kde-core-{0..9}* && \\
+	touch \$(TRACKING_DIR)/kde-core-${kde_core_ver}
 EOF
 ) >> $MKFILE.tmp
       ;;
     *-xorg7-driver ) # xtrerm2 and rman are optional
 (
 cat << EOF
-	@touch \$(TRACKING_DIR)/xorg7-${xorg7_ver}
+	@rm -f \$(TRACKING_DIR)/xorg7-{0..9}* && \\
+	touch \$(TRACKING_DIR)/xorg7-${xorg7_ver}
 EOF
 ) >> $MKFILE.tmp
       ;;
@@ -134,7 +138,8 @@ __write_meta_pkg_touch() {   #
 cat << EOF
 
 999-z-$meta_pkg:  $PREV_PACKAGE
-	@touch \$(TRACKING_DIR)/${meta_pkg}-${pkg_ver}
+	@rm -f \$(TRACKING_DIR)/${meta_pkg}-{0..9}* && \\
+	touch \$(TRACKING_DIR)/${meta_pkg}-${pkg_ver}
 EOF
 ) >> $MKFILE.tmp
 
@@ -142,14 +147,16 @@ EOF
     gnome-full )
 (
 cat << EOF
-	@touch \$(TRACKING_DIR)/gnome-core-${gnome_core_ver}
+	@rm -f \$(TRACKING_DIR)/gnome-core-{0..9}* && \\
+	touch \$(TRACKING_DIR)/gnome-core-${gnome_core_ver}
 EOF
 ) >> $MKFILE.tmp
       ;;
     kde-koffice )
 (
 cat << EOF
-	@touch \$(TRACKING_DIR)/kde-full-${kde_full_ver}
+	@rm -f \$(TRACKING_DIR)/kde-full-{0..9}* && \\
+	touch \$(TRACKING_DIR)/kde-full-${kde_full_ver}
 EOF
 ) >> $MKFILE.tmp
       ;;
