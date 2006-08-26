@@ -2,6 +2,34 @@
 # $Id$
 set -e
 
+# VT100 colors
+declare -r  BLACK=$'\e[1;30m'
+declare -r  DK_GRAY=$'\e[0;30m'
+
+declare -r  RED=$'\e[31m'
+declare -r  GREEN=$'\e[32m'
+declare -r  YELLOW=$'\e[33m'
+declare -r  BLUE=$'\e[34m'
+declare -r  MAGENTA=$'\e[35m'
+declare -r  CYAN=$'\e[36m'
+declare -r  WHITE=$'\e[37m'
+
+declare -r  OFF=$'\e[0m'
+declare -r  BOLD=$'\e[1m'
+declare -r  REVERSE=$'\e[7m'
+declare -r  HIDDEN=$'\e[8m'
+
+declare -r  tab_=$'\t'
+declare -r  nl_=$'\n'
+
+declare -r   DD_BORDER="${BOLD}==============================================================================${OFF}"
+declare -r   SD_BORDER="${BOLD}------------------------------------------------------------------------------${OFF}"
+declare -r STAR_BORDER="${BOLD}******************************************************************************${OFF}"
+
+# bold yellow > <  pair
+declare -r R_arrow=$'\e[1;33m>\e[0m'
+declare -r L_arrow=$'\e[1;33m<\e[0m'
+
 
 #>>>>>>>>>>>>>>>ERROR TRAPPING >>>>>>>>>>>>>>>>>>>>
 #-----------------------#
@@ -33,8 +61,21 @@ trap simple_error ERR
 trap 'echo -e "\n\n${RED}INTERRUPT${OFF} trapped\n" &&  exit 2'  1 2 3 15 17 18 23
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+version="
+${BOLD}  \"jhalfs-X\"${OFF} builder tool (experimental) \$Rev$
+  \$Date$
+
+  Written by George Boudreau and Manuel Canales Esparcia,
+  plus several contributions.
+
+  Based on an idea from Jeremy Huntwork
+
+  This set of files are published under the
+  ${BOLD}Gnu General Public License, Version 2.${OFF}
+"
 
 if [ ! -L $0 ] ; then
+  echo "$version"
   echo "${nl_}${tab_}${BOLD}${RED}This script cannot be called directly: EXITING ${OFF}${nl_}"
   exit 1
 fi
