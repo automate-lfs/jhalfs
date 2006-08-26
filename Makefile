@@ -7,7 +7,7 @@ CONFIG_CONFIG_IN = Config.in
 CONFIG = menu
 
 all: menuconfig
-	@clear
+#	@clear
 	@`grep RUN_ME configuration | sed -e 's@RUN_ME=\"@@' -e 's@\"@@' `
 
 $(CONFIG)/conf:

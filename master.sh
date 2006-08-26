@@ -51,24 +51,9 @@ source configuration
 [[ $? > 0 ]] && echo "file:configuration did not load.." && exit 1
 [[ $VERBOSITY > 0 ]] && echo "OK"
 
-      #--- CONSTANTS
+      #--- Envars not sourced from configuration (yet)
 declare -r SVN="svn://svn.linuxfromscratch.org"
 declare -r LOG=000-masterscript.log
-      # --- Server used if the file isn't found in SRC_ARCHIVE.
-      # As a last resort, the file will dowloaded from upstream, if possible.
-     SERVER=ftp://ftp.lfs-matrix.net
-      #--- Working directories
-SCRIPT_ROOT=jhalfs
-  JHALFSDIR=$BUILDDIR/$SCRIPT_ROOT
-     LOGDIR=$JHALFSDIR/logs
- TESTLOGDIR=$JHALFSDIR/test-logs
-     MKFILE=$JHALFSDIR/Makefile
-      #--- ICA report log directory
-  ICALOGDIR=$LOGDIR/ICA
-      #--- farce report log directory
-FARCELOGDIR=$LOGDIR/farce
-        XSL=$PROGNAME.xsl
-    PKG_LST=unpacked
 
 case $PROGNAME in
   clfs2) LFSVRS=development; TREE=branches/clfs-2.0/BOOK ;;
