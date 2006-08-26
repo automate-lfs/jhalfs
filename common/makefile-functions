@@ -26,7 +26,7 @@ define remove_existing_dirs2
   @PKG_PATH=\`ls -t $(SRC)/$(1) | head -n1\` && \
   ROOT=`tar -tf $$PKG_PATH | head -n1 | sed -e 's@^./@@;s@/.*@@'` && \
   rm -rf $(SRC)/$$ROOT && \
-  rm -rf $(SRC)/$${ROOT-*}-build
+  rm -rf $(SRC)/$${ROOT%-*}-build
 endef
 
 define remove_build_dirs
