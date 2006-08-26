@@ -26,14 +26,19 @@ menu "--- BOOK Settings"
 			bool "Beyond Linux From Scratch"
 	endchoice
 
+	config	PROGNAME
+		string
+		default	"lfs"		if BOOK_LFS
+		default	"clfs"		if BOOK_CLFS
+		default	"clfs2"		if BOOK_CLFS2
+#		default	"clfs3"		if BOOK_CLFS3
+		default	"hlfs"		if BOOK_HLFS
+		default	"blfs"		if BOOK_BLFS
+
 	config	RUN_ME
 		string
-		default	"./lfs"		if BOOK_LFS
-		default	"./clfs"	if BOOK_CLFS
-		default	"./clfs2"	if BOOK_CLFS2
-#		default	"./clfs3"	if BOOK_CLFS3
-		default	"./hlfs"	if BOOK_HLFS
-		default	"./blfs"	if BOOK_BLFS
+		default	"./jhalfs run"	if !BOOK_BLFS
+		default	"./blfs-tool"	if BOOK_BLFS
 	#--- End BOOK/script
 
 	#--- Book version

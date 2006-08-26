@@ -447,7 +447,7 @@ get_book() {                 #
 #----------------------------#
   cd $JHALFSDIR
 
-  if [ -z $WC ] ; then
+  if [ -z $WORKING_COPY ] ; then
     # Check for Subversion instead of just letting the script hit 'svn' and fail.
     test `type -p svn` || eval "echo \"This feature requires Subversion.\"
     exit 1"

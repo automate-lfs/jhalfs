@@ -64,9 +64,8 @@ trap 'echo -e "\n\n${RED}INTERRUPT${OFF} trapped\n" &&  exit 2'  1 2 3 15 17 18 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 # envars not sourced from configuration file
-  PROGNAME=$(basename $0)
 COMMON_DIR="common"
- VERBOSITY=1
+VERBOSITY=1
 
 [[ $VERBOSITY > 0 ]] && echo -n "Loading config params from <configuration>..."
 source configuration

@@ -74,18 +74,16 @@ ${BOLD}  \"jhalfs-X\"${OFF} builder tool (experimental) \$Rev$
   ${BOLD}Gnu General Public License, Version 2.${OFF}
 "
 
-if [ ! -L $0 ] ; then
-  echo "$version"
-  echo "${nl_}${tab_}${BOLD}${RED}This script cannot be called directly: EXITING ${OFF}${nl_}"
-  exit 1
-fi
+case $1 in
+  -v ) echo "$version" && exit 1 ;;
+  run ) : ;;
+  * )
+    echo "${nl_}${tab_}${BOLD}${RED}This script cannot be called directly: EXITING ${OFF}${nl_}"
+    exit 1
+    ;;
+esac
 
-    PROGNAME=$(basename $0)
-  COMMON_DIR="common"
-PACKAGE_DIR=$(echo $PROGNAME | tr [a-z] [A-Z])
-      MODULE=$PACKAGE_DIR/master.sh
-   VERBOSITY=1
-
+VERBOSITY=1
 
 [[ $VERBOSITY > 0 ]] && echo -n "Loading config params from <configuration>..."
 source configuration
@@ -128,6 +126,7 @@ if [[ ! -z ${BRANCH_ID} ]]; then
       ;;
   esac
 fi
+
 # These are boolean vars generated from Config.in.
 # ISSUE: If a boolean parameter is not set <true> that
 # variable is not defined by the menu app. This can
@@ -147,6 +146,14 @@ VIMLANG=${VIMLANG:-n}
 KEYMAP=${KEYMAP:=none}
 GRSECURITY_HOST=${GRSECURITY_HOST:-n}
 
+# Set the document location...
+BOOK=${BOOK:=$PROGNAME-$LFSVRS}
+
+# Set true internal variables
+COMMON_DIR="common"
+PACKAGE_DIR=$(echo $PROGNAME | tr [a-z] [A-Z])
+MODULE=$PACKAGE_DIR/master.sh
+
 
 [[ $VERBOSITY > 0 ]] && echo -n "Loading common-functions module..."
 source $COMMON_DIR/common-functions
@@ -158,20 +165,6 @@ source $MODULE
 [[ $VERBOSITY > 0 ]] && echo "OK"
 #
 [[ $VERBOSITY > 0 ]] && echo "${SD_BORDER}${nl_}"
-
-
-#===========================================================
-# If the var BOOK contains something then, maybe, it points
-# to a working doc.. set WC=1, else 'null'
-#===========================================================
-WC=${BOOK:+y}
-#===========================================================
-
-#===================================================
-# Set the document location...
-#===================================================
-BOOK=${BOOK:=$PROGNAME-$LFSVRS}
-#===================================================
 
 
 #*******************************************************************#
