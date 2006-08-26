@@ -8,10 +8,7 @@ CONFIG = menu
 
 all: menuconfig
 	@clear
-	@touch using_menuconfig
-	@`grep RUN_ME configuration | sed -e 's@RUN_ME=\"@@' -e 's@\"@@' ` || rm -f using_menuconfig
-	@rm -f using_menuconfig
-	
+	@`grep RUN_ME configuration | sed -e 's@RUN_ME=\"@@' -e 's@\"@@' `
 
 $(CONFIG)/conf:
 	$(MAKE) -C $(CONFIG) conf
