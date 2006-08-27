@@ -90,42 +90,9 @@ source configuration
 [[ $? > 0 ]] && echo "file:configuration did not load.." && exit 1
 [[ $VERBOSITY > 0 ]] && echo "OK"
 
-      #--- Envars not sourced from configuration (yet)
+      #--- Envars not sourced from configuration
 declare -r SVN="svn://svn.linuxfromscratch.org"
 declare -r LOG=000-masterscript.log
-
-case $PROGNAME in
-  clfs2) LFSVRS=development; TREE=branches/clfs-2.0/BOOK ;;
-      *) LFSVRS=development; TREE=trunk/BOOK             ;;
-esac
-
-if [[ ! -z ${BRANCH_ID} ]]; then
-  case $BRANCH_ID in
-    dev* | SVN | trunk )
-      case $PROGNAME in
-        clfs2 ) TREE=branches/clfs-2.0/BOOK ;;
-             *) TREE=trunk/BOOK ;;
-      esac
-      LFSVRS=development
-      ;;
-    branch-* )
-      LFSVRS=${BRANCH_ID}
-      TREE=branches/${BRANCH_ID#branch-}/BOOK
-      ;;
-    * )
-      case $PROGNAME in
-        lfs | hlfs )
-          LFSVRS=${BRANCH_ID}
-          TREE=tags/${BRANCH_ID}/BOOK
-          ;;
-        clfs | clfs2 )
-          LFSVRS=${BRANCH_ID}
-          TREE=tags/${BRANCH_ID}
-          ;;
-      esac
-      ;;
-  esac
-fi
 
 # These are boolean vars generated from Config.in.
 # ISSUE: If a boolean parameter is not set <true> that
@@ -146,8 +113,54 @@ VIMLANG=${VIMLANG:-n}
 KEYMAP=${KEYMAP:=none}
 GRSECURITY_HOST=${GRSECURITY_HOST:-n}
 
+# Book surces envars
+BRANCH_ID=${BRANCH_ID:=development}
+
+case $BRANCH_ID in
+  development )
+    case $PROGNAME in
+      clfs2 ) TREE=branches/clfs-2.0/BOOK ;;
+           *) TREE=trunk/BOOK ;;
+    esac
+    LFSVRS=development
+    ;;
+  *EDIT* )  echo " You forgot to set the branch or stable book version."
+            echo " Please rerun make and fix the configuration."
+            exit 2 ;;
+  branch-* )
+    LFSVRS=${BRANCH_ID}
+    TREE=branches/${BRANCH_ID#branch-}/BOOK
+    ;;
+  * )
+    case $PROGNAME in
+      lfs | hlfs )
+        LFSVRS=${BRANCH_ID}
+        TREE=tags/${BRANCH_ID}/BOOK
+        ;;
+      clfs | clfs2 )
+        LFSVRS=${BRANCH_ID}
+        TREE=tags/${BRANCH_ID}
+        ;;
+    esac
+    ;;
+esac
+
 # Set the document location...
 BOOK=${BOOK:=$PROGNAME-$LFSVRS}
+
+# blfs-tool envars
+BLFS_TOOL=${BLFS_TOOL:-n}
+if [[ "${BLFS_TOOL}" = "y" ]] ; then
+  BLFS_BRANCH_ID=${BLFS_BRANCH_ID:=development}
+  case $BLFS_BRANCH_ID in
+    development )  BLFS_TREE=trunk/BOOK ;;
+         *EDIT* )  echo " You forgot to set the BLFS branch or stable book version."
+                   echo " Please rerun make and fix the configuration."
+                   exit 2 ;;
+       branch-* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-}/BOOK ;;
+              * )  BLFS_TREE=tags/${BLFS_BRANCH_ID}/BOOK ;;
+  esac
+fi
 
 # Set true internal variables
 COMMON_DIR="common"

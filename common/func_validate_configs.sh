@@ -20,14 +20,16 @@ validate_config() {          # Are the config values sane (within reason)
 inline_doc
 
   # First internal variables, then the ones that change the book's flavour, and lastly system configuration variables
-  local -r  hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE MODEL  GRSECURITY_HOST      TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL KEYMAP         PAGE TIMEZONE LANG LC_ALL LUSER LGROUP"
-  local -r  clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE METHOD ARCH TARGET TARGET32 TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP"
-  local -r clfs2_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE        ARCH TARGET                         OPTIMIZE REPORT                                      STRIP FSTAB             CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP"
-  local -r   lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE                             TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL        VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP"
+  local -r  hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE MODEL  GRSECURITY_HOST      TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL KEYMAP         PAGE TIMEZONE LANG LC_ALL LUSER LGROUP BLFS_TOOL"
+  local -r  clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE METHOD ARCH TARGET TARGET32 TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP BLFS_TOOL"
+  local -r clfs2_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE        ARCH TARGET                         OPTIMIZE REPORT                                      STRIP FSTAB             CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP BLFS_TOOL"
+  local -r   lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE                             TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL        VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP BLFS_TOOL"
   local -r  blfs_PARAM_LIST="BRANCH_ID BLFS_ROOT BLFS_XML TRACKING_DIR"
 
+  local -r  blfs_tool_PARAM_LIST="BLFS_BRANCH_ID BLFS_ROOT BLFS_XML TRACKING_DIR DEP_LIBXML DEP_LIBXSLT DEP_DBXSL DEP_LINKS DEP_SUDO DEP_WGET DEP_SVN DEP_GPM"
+
   local -r ERROR_MSG_pt1='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid,'
-  local -r ERROR_MSG_pt2=' check the config file ${BOLD}${GREEN}\<$(echo $PROGNAME | tr [a-z] [A-Z])/config\> or \<common/config\>${OFF}'
+  local -r ERROR_MSG_pt2='rerun make and fix your configuration settings${OFF}'
   local -r PARAM_VALS='${config_param}${dotSTR:${#config_param}} ${L_arrow}${BOLD}${!config_param}${OFF}${R_arrow}'
 
   local    PARAM_LIST=
@@ -107,6 +109,7 @@ inline_doc
       ARCH            | \
       TARGET          | \
       GRSECURITY_HOST | \
+      BLFS_TOOL       | \
       TIMEZONE        | \
       PAGE)   echo -e "`eval echo $PARAM_VALS`" ;;
 
@@ -141,7 +144,7 @@ inline_doc
                   fi ;;
 
         # BOOK validation. Very ugly, need be fixed
-      BOOK)        if [[ "${WC}" = "1" ]] ; then
+      BOOK)        if [[ "${WORKING_COPY}" = "y" ]] ; then
                      validate_dir -z -d
                    else
                      echo -e "`eval echo $PARAM_VALS`"
@@ -185,6 +188,14 @@ inline_doc
 
     esac
   done
+
+  if [[ "${BLFS_TOOL}" = "y" ]] ; then
+    echo "${nl_}    ${BLUE}blfs-tool settings${OFF}"
+    for config_param in ${blfs_tool_PARAM_LIST}; do
+      echo -e "`eval echo $PARAM_VALS`"
+    done
+  fi
+
   set -e
   echo "${nl_}***${BOLD}${GREEN} ${PARAM_GROUP%%_*T} config parameters look good${OFF} ***${nl_}"
 }
