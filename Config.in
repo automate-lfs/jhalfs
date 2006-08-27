@@ -374,7 +374,7 @@ menu "--- BOOK Settings"
 	config	BLFS_ROOT
 		string "Directory root"
 		default "$HOME/blfs_root" if BOOK_BLFS
-		default "$BUILD_DIR/blfs_root" if BLFS_TOOL
+		default "/blfs_root" if BLFS_TOOL
 		depends on BOOK_BLFS || BLFS_TOOL
 		help
 			#-- Full path to the directory where all required
