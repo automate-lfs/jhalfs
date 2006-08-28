@@ -318,6 +318,21 @@ fi
 get_book
 echo "${SD_BORDER}${nl_}"
 
+# Get the BLFS book, if requested.
+if [[ "${BLFS_TOOL}" = "y" ]] ; then
+  echo -n "Downloading the BLFS document, $BLFS_BRANCH_ID version... "
+  if [[ ! -d ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} ]] ; then
+    mkdir -p ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML}
+    svn co $SVN/BLFS/$TREE ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} >>$LOGDIR/$LOG 2>&1
+  else
+    pushd ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} 1> /dev/null
+      svn up >>$LOGDIR/$LOG 2>&1
+    popd 1> /dev/null
+  fi
+  echo -ne "done\n"
+  echo "${SD_BORDER}${nl_}"
+fi
+
 build_Makefile
 echo "${SD_BORDER}${nl_}"
 
