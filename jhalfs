@@ -298,6 +298,23 @@ cp $COMMON_DIR/packages.xsl  $JHALFSDIR/
 sed 's,FAKEDIR,'$BOOK',' $PACKAGE_DIR/$XSL > $JHALFSDIR/${XSL}
 export XSL=$JHALFSDIR/${XSL}
 
+# Install blfs-tool, if requested.
+if [[ "${BLFS_TOOL}" = "y" ]] ; then
+  # Install the files
+  [[ ! -d ${BUILDDIR}${BLFS_ROOT} ]] && mkdir -p ${BUILDDIR}${BLFS_ROOT}
+  cp -r BLFS/* ${BUILDDIR}${BLFS_ROOT}
+  cp -r menu ${BUILDDIR}${BLFS_ROOT}
+  cp $COMMON_DIR/progress_bar.sh ${BUILDDIR}${BLFS_ROOT}
+  cp README.BLFS ${BUILDDIR}${BLFS_ROOT}
+  # Clean-up
+  rm -rf ${BUILDDIR}${BLFS_ROOT}/libs/.svn
+  rm -rf ${BUILDDIR}${BLFS_ROOT}/menu/.svn
+  rm -rf ${BUILDDIR}${BLFS_ROOT}/menu/lxdialog/.svn
+  # Set some harcoded envars to their proper values
+  sed -i 's,blfs-xml,'$BLFS_XML',' ${BUILDDIR}${BLFS_ROOT}/{update_book.sh,libs/book.xsl}
+  sed -i 's,tracking-dir,'$TRACKING_DIR',' ${BUILDDIR}${BLFS_ROOT}/{update_book.sh,gen-makefile.sh}
+fi
+
 get_book
 echo "${SD_BORDER}${nl_}"
 
