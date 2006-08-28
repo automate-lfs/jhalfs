@@ -577,6 +577,8 @@ extract_commands() {         #
     *) exit 1 ;;
   esac
 
+  [[ "${BLFS_TOOL}" = "y" ]] && copy_blfs_deps_scripts
+
   echo " ...OK"
 
   # Make the scripts executable.
@@ -824,6 +826,7 @@ add_blfs_deps_urls() {       # No easy way to extract it.
 
   if [[ "${DEP_SUDO}" = "y" ]] ; then
     echo "${SUDO_URL} ${BLFS_SERVER}sudo/${SUDO_PKG} ${SUDO_MD5}" >> urls.lst
+    echo "${SUDO_PATCH_URL} ${BLFS_SERVER}sudo/${SUDO_PATCH} ${SUDO_PATCH_MD5}" >> urls.lst
   fi
 
   if [[ "${DEP_WGET}" = "y" ]] ; then
@@ -836,6 +839,50 @@ add_blfs_deps_urls() {       # No easy way to extract it.
 
   if [[ "${DEP_GPM}" = "y" ]] ; then
     echo "${GPM_URL} ${BLFS_SERVER}gpm/${GPM_PKG} ${GPM_MD5}" >> urls.lst
+    echo "${GPM_PATCH_1_URL} ${BLFS_SERVER}gpm/${GPM_PATCH_1} ${GPM_PATCH_1_MD5}" >> urls.lst
+    echo "${GPM_PATCH_2_URL} ${BLFS_SERVER}gpm/${GPM_PATCH_2} ${GPM_PATCH_2_MD5}" >> urls.lst
   fi
+
+}
+
+#----------------------------# Maybe there is a better way to do this, but this
+copy_blfs_deps_scripts() {   # method avoid to place the test on all
+#----------------------------# $PROGNAME/master.sh scripts.
+
+  mkdir -p ${PROGNAME}-commands/blfs-tool-deps
+
+  if [[ "${DEP_LIBXML}" = "y" ]] ; then
+    mv blfs-tool-deps/901-libxml2 ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_LIBXSLT}" = "y" ]] ; then
+    mv blfs-tool-deps/902-libxslt ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_DBXSL}" = "y" ]] ; then
+    mv blfs-tool-deps/903-docbook-xsl ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_LINKS}" = "y" ]] ; then
+    mv blfs-tool-deps/905-links ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_SUDO}" = "y" ]] ; then
+    mv blfs-tool-deps/906-sudo ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_WGET}" = "y" ]] ; then
+    mv blfs-tool-deps/907-wget ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_SVN}" = "y" ]] ; then
+    mv blfs-tool-deps/908-subversion ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_GPM}" = "y" ]] ; then
+    mv blfs-tool-deps/904-gpm ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  rm -rf blfs-tool-deps
 
 }

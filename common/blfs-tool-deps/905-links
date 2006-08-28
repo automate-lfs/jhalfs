@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# $Id$
+
+set -e
+
+./configure --prefix=/usr
+make CFLAGS="-O2 -Wno-sign-compare -Wno-pointer-sign"
+make install
+
+exit

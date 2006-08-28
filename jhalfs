@@ -181,6 +181,10 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
   SUDO_PKG="sudo-1.6.8p12.tar.gz"
   SUDO_URL="http://www.courtesan.com/sudo/dist/${SUDO_PKG}"
   SUDO_MD5="b29893c06192df6230dd5f340f3badf5"
+    # sudo envar fix patch
+  SUDO_PATCH="sudo-1.6.8p12-envvar_fix-1.patch"
+  SUDO_PATCH_URL="http://www.linuxfromscratch.org/patches/blfs/svn/${SUDO_PATCH}"
+  SUDO_PATCH_MD5="454925aedfe054dff8fe0d03b209f986"
     # wget
   WGET_PKG="wget-1.10.2.tar.gz"
   WGET_URL="ftp://ftp.gnu.org/gnu/wget/${WGET_PKG}"
@@ -193,6 +197,14 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
   GPM_PKG="gpm-1.20.1.tar.bz2"
   GPM_URL="ftp://arcana.linux.it/pub/gpm/${GPM_PKG}"
   GPM_MD5="2c63e827d755527950d9d13fe3d87692"
+    # GPM segfaul patch
+  GPM_PATCH_1="gpm-1.20.1-segfault-1.patch"
+  GPM_PATCH_1_URL="http://www.linuxfromscratch.org/patches/blfs/svn/${GPM_PATCH_1}"
+  GPM_PATCH_1_MD5="8c88f92990ba7613014fcd1db14ca7ac"
+    # GPM silent patch
+  GPM_PATCH_2="gpm-1.20.1-silent-1.patch"
+  GPM_PATCH_2_URL="http://www.linuxfromscratch.org/patches/blfs/svn/${GPM_PATCH_2}"
+  GPM_PATCH_2_MD5="bf6cbefe20c6f15b587f19ebc1c8a37a"
 fi
 
 # Set true internal variables
@@ -346,6 +358,8 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
   # Set some harcoded envars to their proper values
   sed -i 's,blfs-xml,'$BLFS_XML',' ${BUILDDIR}${BLFS_ROOT}/{update_book.sh,libs/book.xsl}
   sed -i 's,tracking-dir,'$TRACKING_DIR',' ${BUILDDIR}${BLFS_ROOT}/{update_book.sh,gen-makefile.sh}
+  # Copy the dependencies build scripts
+  cp -r $COMMON_DIR/blfs-tool-deps $JHALFSDIR/
 fi
 
 get_book
