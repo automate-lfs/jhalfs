@@ -614,14 +614,14 @@ create_package_list() {      #
   if [[ "${BLFS_TOOL}" = "y" ]] ; then
 (
 cat << EOF
-libxml2-2.6.26.tar.gz
-libxslt-1.1.17.tar.gz
-docbook-xsl-1.69.1.tar.bz2
-links-2.1pre21.tar.bz2
-sudo-1.6.8p12.tar.gz
-wget-1.10.2.tar.gz
-subversion-1.3.1.tar.bz2
-gpm-1.20.1.tar.bz2
+$LIBXML_PKG
+$LIBXSLT_PKG
+$DBXSL_PKG
+$LINKS_PKG
+$SUDO_PKG
+$WGET_PKG
+$SVN_PKG
+$GPM_PKG
 EOF
 ) >> pkg_tarball_list
   fi
@@ -807,35 +807,35 @@ add_blfs_deps_urls() {       # No easy way to extract it.
   local BLFS_SERVER="${SERVER}/pub/blfs/conglomeration/"
 
   if [[ "${DEP_LIBXML}" = "y" ]] ; then
-    echo "ftp://xmlsoft.org/libxml2/libxml2-2.6.26.tar.gz ${BLFS_SERVER}libxml2/libxml2-2.6.26.tar.gz 2d8d3805041edab967368b497642f981" >> urls.lst
+    echo "${LIBXML_URL} ${BLFS_SERVER}libxml2/${LIBXML_PKG} ${LIBXML_MD5}" >> urls.lst
   fi
 
   if [[ "${DEP_LIBXSLT}" = "y" ]] ; then
-    echo "ftp://xmlsoft.org/libxslt/libxslt-1.1.17.tar.gz ${BLFS_SERVER}libxslt/libxslt-1.1.17.tar.gz fde6a7a93c0eb14cba628692fa3a1000" >> urls.lst
+    echo "${LIBXSLT_URL} ${BLFS_SERVER}libxslt/${LIBXSLT_PKG} ${LIBXSLT_MD5}" >> urls.lst
   fi
 
   if [[ "${DEP_DBXSL}" = "y" ]] ; then
-    echo "http://prdownloads.sourceforge.net/docbook/docbook-xsl-1.69.1.tar.bz2 ${BLFS_SERVER}docbook-xsl/docbook-xsl-1.69.1.tar.bz2 6ebd29a67f2dcc3f2220f475ee6f6552" >> urls.lst
+    echo "${DBXSL_URL} ${BLFS_SERVER}docbook-xsl/${DBXSL_PKG} ${DBXSL_MD5}" >> urls.lst
   fi
 
-  if [[ "${DEP_LIKS}" = "y" ]] ; then
-    echo "http://links.twibright.com/download/links-2.1pre21.tar.bz2 ${BLFS_SERVER}links/links-2.1pre21.tar.bz2 7687e2c32e337e11c6e9d8cd8c5202c9" >> urls.lst
+  if [[ "${DEP_LINKS}" = "y" ]] ; then
+    echo "${LINKS_URL} ${BLFS_SERVER}links/${LINKS_PKG} ${LINKS_MD5}" >> urls.lst
   fi
 
   if [[ "${DEP_SUDO}" = "y" ]] ; then
-    echo "http://www.courtesan.com/sudo/dist/sudo-1.6.8p12.tar.gz ${BLFS_SERVER}sudo/sudo-1.6.8p12.tar.gz b29893c06192df6230dd5f340f3badf5" >> urls.lst
+    echo "${SUDO_URL} ${BLFS_SERVER}sudo/${SUDO_PKG} ${SUDO_MD5}" >> urls.lst
   fi
 
   if [[ "${DEP_WGET}" = "y" ]] ; then
-    echo "ftp://ftp.gnu.org/gnu/wget/wget-1.10.2.tar.gz ${BLFS_SERVER}wget/wget-1.10.2.tar.gz 795fefbb7099f93e2d346b026785c4b8" >> urls.lst
+    echo "${WGET_URL} ${BLFS_SERVER}wget/${WGET_PKG} ${WGET_MD5}" >> urls.lst
   fi
 
   if [[ "${DEP_SVN}" = "y" ]] ; then
-    echo "http://subversion.tigris.org/tarballs/subversion-1.3.1.tar.bz2 ${BLFS_SERVER}subversion/subversion-1.3.1.tar.bz2 07b95963968ae345541ca99d0e7bf082" >> urls.lst
+    echo "${SVN_URL} ${BLFS_SERVER}subversion/${SVN_PKG} ${SVN_MD5}" >> urls.lst
   fi
 
   if [[ "${DEP_GPM}" = "y" ]] ; then
-    echo "ftp://arcana.linux.it/pub/gpm/gpm-1.20.1.tar.bz2 ${BLFS_SERVER}gpm/gpm-1.20.1.tar.bz2 2c63e827d755527950d9d13fe3d87692" >> urls.lst
+    echo "${GPM_URL} ${BLFS_SERVER}gpm/${GPM_PKG} ${GPM_MD5}" >> urls.lst
   fi
 
 }
