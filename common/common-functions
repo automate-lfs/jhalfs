@@ -799,7 +799,9 @@ create_urls() {              #
 
   cd $BUILDDIR/sources
 
-  [[ "${BLFS_TOOL}" = "y" ]] && add_blfs_deps_urls
+  if [[ "${BLFS_TOOL}" = "y" ]]; then
+    add_blfs_deps_urls
+  fi
 }
 
 #----------------------------# Hardcoded URLs and MD5.
