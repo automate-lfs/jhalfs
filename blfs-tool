@@ -44,7 +44,7 @@ simple_error() {        # Basic error trap.... JUST DIE
 }
 
 see_ya() {
-    echo -e "\n${L_arrow}${BOLD}jhalfs-X${R_arrow} exit${OFF}\n"
+    echo -e "\n${L_arrow}${BOLD}jhalfs-trunk${R_arrow} exit${OFF}\n"
 }
 ##### Simple error TRAPS
 # ctrl-c   SIGINT

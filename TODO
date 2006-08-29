@@ -5,20 +5,19 @@
 MASTER SCRIPT
 -------------
 
-  - The BLFS module should be called in conjunction with any of
-    LFS, CLFS or HLFS modules.
-    Before working on that we need to fix the BLFS support.
+  - Nothing to be done at code level, for now.
+
+  - Update README to reflect the new work-flow.
 
 
-LFS MODULE (Applicable also to CLFS and HLFS modules)
-----------
+xLFS MODULES
+------------
 
-  - To add a switch to build the BLFS module dependencies at the end of
-    the LFS build, that is, wget and sudo. SVN and libxslt aren't needed
-    at this stage due that the BLFS book could be downloaded and parser
-    at the same time that the LFS book. Plus links or lynx to read the
-    (to be) generated BLFS HTML pages and, maybe, gpm.
-    Before working on that we need to fix the BLFS support.
+  - Rework Makefile creation to build the system more "by the book".
+    Work in progress
+
+  - To create Makefile entries to build blfs-tool dependencies.
+    Waiting the Makefile rework.
 
   - To add support for copying to the final system pre-generated
     configuration files created by the user.
