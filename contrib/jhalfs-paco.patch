@@ -1,6 +1,6 @@
 Index: LFS/master.sh
 ===================================================================
---- LFS/master.sh	(revision 3007)
+--- LFS/master.sh	(revision 3089)
 +++ LFS/master.sh	(working copy)
 @@ -172,6 +172,11 @@
      # Keep the script file name
@@ -79,7 +79,7 @@ Index: LFS/master.sh
  
 Index: LFS/lfs.xsl
 ===================================================================
---- LFS/lfs.xsl	(revision 3007)
+--- LFS/lfs.xsl	(revision 3089)
 +++ LFS/lfs.xsl	(working copy)
 @@ -39,6 +39,9 @@
    <!-- Locale settings -->
@@ -127,7 +127,7 @@ Index: LFS/lfs.xsl
          <xsl:apply-templates/>
 Index: CLFS/master.sh
 ===================================================================
---- CLFS/master.sh	(revision 3007)
+--- CLFS/master.sh	(revision 3089)
 +++ CLFS/master.sh	(working copy)
 @@ -494,6 +494,11 @@
      # Keep the script file name
@@ -313,7 +313,7 @@ Index: CLFS/master.sh
      # Housekeeping...remove any build directory(ies) except if the package build fails.
 Index: CLFS/clfs.xsl
 ===================================================================
---- CLFS/clfs.xsl	(revision 3007)
+--- CLFS/clfs.xsl	(revision 3089)
 +++ CLFS/clfs.xsl	(working copy)
 @@ -45,6 +45,9 @@
    <!-- Locale settings -->
@@ -368,70 +368,33 @@ Index: common/paco-build-hlfs.sh
 +make &&
 +make install &&
 +make logme
-Index: common/config
-===================================================================
---- common/config	(revision 3007)
-+++ common/config	(working copy)
-@@ -91,6 +91,23 @@
- #--- Run farce testing n(no)/y(yes)
- RUN_FARCE=n
- 
-+#==== PACO VARIABLES ====
-+#--- Use paco? n(no)/y(yes)
-+USE_PACO=y
-+PACO_VERSION=1.10.10
-+
-+#--- Name of the Paco source package
-+PACO_FILE=paco-$PACO_VERSION.tar.bz2   # (use .tar.gz if preferred)
-+
-+#--- Sourceforge mirror to use for Paco source download
-+# Europe: heanet, belnet, puzzle, surfnet, switch, kent
-+# North America: superb-east, superb-west, umn, easynews
-+# South America: ufpr
-+# Asia: nchc, jaist
-+# Australia: optusnet
-+PACO_MIRROR1=heanet
-+PACO_MIRROR2=kent
-+
- #==== INTERNAL VARIABLES ====
- # Don't edit it unless you know what you are doing
- 
-@@ -108,3 +125,9 @@
- 
- #--- farce report log directory
- FARCELOGDIR=$LOGDIR/farce
-+
-+#--- Variables needed by paco
-+PACO_INCLUDE=/
-+PACO_EXCLUDE=/${SCRIPT_ROOT}
-+PACO_TMPFILE=/tmp/paco.tmp
-+LD_PRELOAD=/usr/lib/libpaco-log.so
 Index: common/func_validate_configs.sh
 ===================================================================
---- common/func_validate_configs.sh	(revision 3007)
+--- common/func_validate_configs.sh	(revision 3089)
 +++ common/func_validate_configs.sh	(working copy)
-@@ -88,10 +88,10 @@
+@@ -20,10 +20,10 @@
  inline_doc
  
    # First internal variables, then the ones that change the book's flavour, and lastly system configuration variables
--  local -r  hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE MODEL GRSECURITY_HOST TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL KEYMAP         PAGE TIMEZONE LANG LC_ALL LUSER LGROUP"
--  local -r  clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE METHOD  ARCH  TARGET  TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP"
-+  local -r  hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE MODEL GRSECURITY_HOST TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL KEYMAP         PAGE TIMEZONE LANG LC_ALL LUSER LGROUP"
-+  local -r  clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE METHOD  ARCH  TARGET  TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP"
-   local -r clfs2_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE         ARCH  TARGET                 OPTIMIZE REPORT                                      STRIP FSTAB             CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP"
--  local -r   lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE                       TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL        VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP"
-+  local -r   lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE                       TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL        VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP"
-   local -r  blfs_PARAM_LIST="BRANCH_ID BLFS_ROOT BLFS_XML"
+-  local -r  hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE MODEL  GRSECURITY_HOST      TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL KEYMAP         PAGE TIMEZONE LANG LC_ALL LUSER LGROUP BLFS_TOOL"
+-  local -r  clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE METHOD ARCH TARGET TARGET32 TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP BLFS_TOOL"
+-  local -r clfs2_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE        ARCH TARGET                         OPTIMIZE REPORT                                      STRIP FSTAB             CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP BLFS_TOOL"
+-  local -r   lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE                             TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL        VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP BLFS_TOOL"
++  local -r  hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE MODEL  GRSECURITY_HOST      TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL KEYMAP         PAGE TIMEZONE LANG LC_ALL LUSER LGROUP BLFS_TOOL"
++  local -r  clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE METHOD ARCH TARGET TARGET32 TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP BLFS_TOOL"
++  local -r clfs2_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE          GETPKG RUNMAKE        ARCH TARGET                         OPTIMIZE REPORT                                      STRIP FSTAB             CONFIG GETKERNEL KEYMAP VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP BLFS_TOOL"
++  local -r   lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE USE_PACO GETPKG RUNMAKE                             TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL        VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP BLFS_TOOL"
+   local -r  blfs_PARAM_LIST="BRANCH_ID BLFS_ROOT BLFS_XML TRACKING_DIR"
  
-   local -r ERROR_MSG_pt1='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid,'
-@@ -182,6 +182,7 @@
-                     [[ "$GETPKG" = "y" ]] && validate_against_str "xnx xyx"
-                   fi ;;
-       RUNMAKE)    validate_against_str "xnx xyx" ;;
-+      USE_PACO)   validate_against_str "xnx xyx" ;;
-       REPORT)     validate_against_str "xnx xyx"
-                   if [[ "${!config_param}" = "y" ]]; then
-                     if [[ `type -p bc` ]]; then
+   local -r  blfs_tool_PARAM_LIST="BLFS_BRANCH_ID BLFS_ROOT BLFS_XML TRACKING_DIR DEP_LIBXML DEP_LIBXSLT DEP_DBXSL DEP_LINKS DEP_SUDO DEP_WGET DEP_SVN DEP_GPM"
+@@ -99,6 +99,7 @@
+     case $config_param in
+       # Allways display this, if found in ${PROGNAME}_PARAM_LIST
+       GETPKG          | \
++      USE_PACO        | \
+       RUNMAKE         | \
+       TEST            | \
+       OPTIMIZE        | \
 Index: common/paco-functions
 ===================================================================
 --- common/paco-functions	(revision 0)
@@ -797,19 +760,9 @@ Index: common/paco-build-clfs.sh
 +make logme
 Index: common/common-functions
 ===================================================================
---- common/common-functions	(revision 3007)
+--- common/common-functions	(revision 3089)
 +++ common/common-functions	(working copy)
-@@ -69,6 +69,9 @@
-         in the configuration file has the proper packages and patches for the
-         book version being processed.
- 
-+${BOLD}  --no-paco${OFF}
-+        dissables paco logging feature.
-+
- ${BOLD}  -O, --optimize${OFF}
-         Optimize [0-2]
-           0 = no optimization
-@@ -706,6 +709,7 @@
+@@ -533,6 +533,7 @@
                   --stringparam page $PAGE \
                   --stringparam lang $LANG \
                   --stringparam keymap $KEYMAP \
@@ -817,7 +770,7 @@ Index: common/common-functions
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
        ;;
  
-@@ -733,6 +737,7 @@
+@@ -560,6 +561,7 @@
                   --stringparam lc_all $LC_ALL \
                   --stringparam keymap $KEYMAP \
                   --stringparam grsecurity_host $GRSECURITY_HOST \
@@ -825,7 +778,7 @@ Index: common/common-functions
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
        ;;
      lfs)
-@@ -745,6 +750,7 @@
+@@ -572,6 +574,7 @@
                   --stringparam timezone $TIMEZONE \
                   --stringparam page $PAGE \
                   --stringparam lang $LANG \
@@ -833,7 +786,7 @@ Index: common/common-functions
                   -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
        ;;
      *) exit 1 ;;
-@@ -811,6 +817,9 @@
+@@ -656,6 +659,9 @@
      # Generate URLs file
    create_urls
  
@@ -845,7 +798,7 @@ Index: common/common-functions
      IFS=$saveIFS  # Restore the system defaults
 Index: HLFS/hlfs.xsl
 ===================================================================
---- HLFS/hlfs.xsl	(revision 3007)
+--- HLFS/hlfs.xsl	(revision 3089)
 +++ HLFS/hlfs.xsl	(working copy)
 @@ -46,6 +46,9 @@
    <xsl:param name="lang" select="C"/>
@@ -896,7 +849,7 @@ Index: HLFS/hlfs.xsl
          <xsl:apply-templates/>
 Index: HLFS/master.sh
 ===================================================================
---- HLFS/master.sh	(revision 3007)
+--- HLFS/master.sh	(revision 3089)
 +++ HLFS/master.sh	(working copy)
 @@ -47,7 +47,9 @@
  EOF
@@ -986,40 +939,19 @@ Index: HLFS/master.sh
          ;;
      esac
  
-Index: master.sh
+Index: jhalfs
 ===================================================================
---- master.sh	(revision 3007)
-+++ master.sh	(working copy)
-@@ -71,6 +71,11 @@
-   FARCELOGDIR=$LOGDIR/farce
-           XSL=$PROGNAME.xsl
-       PKG_LST=unpacked
-+        #--- PACO variables
-+ PACO_INCLUDE=/
-+ PACO_EXCLUDE=/${SCRIPT_ROOT}
-+ PACO_TMPFILE=/tmp/paco.tmp
-+   LD_PRELOAD=/usr/lib/libpaco-log.so
+--- jhalfs	(revision 3089)
++++ jhalfs	(working copy)
+@@ -112,6 +112,7 @@
+ VIMLANG=${VIMLANG:-n}
+ KEYMAP=${KEYMAP:=none}
+ GRSECURITY_HOST=${GRSECURITY_HOST:-n}
++USE_PACO=${USE_PACO:-n}
  
-   case $PROGNAME in
-     clfs2) LFSVRS=development; TREE=branches/clfs-2.0/BOOK ;;
-@@ -122,6 +127,7 @@
-   VIMLANG=${VIMLANG:-n}
-   KEYMAP=${KEYMAP:=none}
-   GRSECURITY_HOST=${GRSECURITY_HOST:-n}
-+  USE_PACO=${USE_PACO:-n}
- 
- else
-   #
-@@ -230,6 +236,8 @@
- 
-     --help | -h )  usage | more && exit  ;;
- 
-+    --no-paco )            USE_PACO=n    ;;
-+
-     --optimize | -O )
-       test $# = 1 && eval "$exit_missing_arg"
-       shift
-@@ -468,6 +476,14 @@
+ # Book surces envars
+ BRANCH_ID=${BRANCH_ID:=development}
+@@ -270,6 +271,14 @@
    [[ $VERBOSITY > 0 ]] && echo "OK"
  fi
  #
@@ -1034,23 +966,24 @@ Index: master.sh
  # optimize module
  if [[ "$OPTIMIZE" != "0" ]]; then
    [[ $VERBOSITY > 0 ]] && echo -n "Loading optimization module..."
-@@ -514,6 +530,8 @@
- if [[ "$PWD" != "$JHALFSDIR" ]]; then
-   cp $COMMON_DIR/{makefile-functions,progress_bar.sh} $JHALFSDIR/
-   #
-+  [[ $USE_PACO != "n" ]] && cp $COMMON_DIR/paco-build-$PROGNAME.sh $JHALFSDIR/
-+  #
-   [[ "$OPTIMIZE" != "0" ]] && cp optimize/opt_override $JHALFSDIR/
-   #
-   if [[ "$COMPARE" = "y" ]]; then
+@@ -315,6 +324,8 @@
+ #
+ cp $COMMON_DIR/{makefile-functions,progress_bar.sh} $JHALFSDIR/
+ #
++[[ $USE_PACO != "n" ]] && cp $COMMON_DIR/paco-build-$PROGNAME.sh $JHALFSDIR/
++#
+ [[ "$OPTIMIZE" != "0" ]] && cp optimize/opt_override $JHALFSDIR/
+ #
+ if [[ "$COMPARE" = "y" ]]; then
 Index: Config.in
 ===================================================================
---- Config.in	(revision 3007)
+--- Config.in	(revision 3089)
 +++ Config.in	(working copy)
-@@ -655,6 +655,52 @@
+@@ -812,3 +812,72 @@
+ 
  #--- End Advanced Features
  endmenu
- 
++
 +#--- PACO
 +config	USE_PACO
 +	bool	"Use PACO"
@@ -1094,9 +1027,28 @@ Index: Config.in
 +			# South America: ufpr
 +			# Asia: nchc, jaist
 +			# Australia: optusnet
++
++	#-- Internal Settings
++	menu "--- Internal Settings (WARNING: for paco developers only)"
++		depends USE_PACO
++
++		config	PACO_INCLUDE
++			string	"Include dirs"
++			default "/"
++
++		config	PACO_EXCLUDE
++			string	"Exclude dirs"
++			default "/${SCRIPT_ROOT}"
++
++		config	PACO_TMPFILE
++			string	"Temp file"
++			default "/tmp/paco.tmp"
++
++		config	LD_PRELOAD
++			string	"LD_PRELOAD"
++			default "/usr/lib/libpaco-log.so"
++
++	#--- End Internal Settings
++	endmenu
 +#--- End PACO
 +
-+
- #	config	CONFIG_BLFS_CMDS
- #		bool	"Add BLFS packages to current build"
- #		default	n
