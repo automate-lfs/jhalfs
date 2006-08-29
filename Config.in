@@ -26,14 +26,19 @@ menu "--- BOOK Settings"
 			bool "Beyond Linux From Scratch"
 	endchoice
 
+	config	PROGNAME
+		string
+		default	"lfs"		if BOOK_LFS
+		default	"clfs"		if BOOK_CLFS
+		default	"clfs2"		if BOOK_CLFS2
+#		default	"clfs3"		if BOOK_CLFS3
+		default	"hlfs"		if BOOK_HLFS
+		default	"blfs"		if BOOK_BLFS
+
 	config	RUN_ME
 		string
-		default	"./lfs"		if BOOK_LFS
-		default	"./clfs"	if BOOK_CLFS
-		default	"./clfs2"	if BOOK_CLFS2
-#		default	"./clfs3"	if BOOK_CLFS3
-		default	"./hlfs"	if BOOK_HLFS
-		default	"./blfs"	if BOOK_BLFS
+		default	"./jhalfs run"	if !BOOK_BLFS
+		default	"./blfs-tool"	if BOOK_BLFS
 	#--- End BOOK/script
 
 	#--- Book version
@@ -386,6 +391,16 @@ menu "--- General Settings"
 			#   Any missing file will be downloaded and archived here,
 			#   if the user has the right priviledges.
 
+	config SERVER
+		string "FTP mirror"
+		default "ftp://ftp.lfs-matrix.net"
+		depends GETPKG
+		help
+			#-- FTP mirror to download packages and patches if not found
+			#   in $SRC_ARCHIVE
+			#   As a last resort, the files will dowloaded from upstream,
+                        #   if possible.
+
 	config	GETKERNEL
 		bool	"Always retrieve kernel package"
 		default	n
@@ -627,9 +642,9 @@ menu "--- Advanced Features"
 			#-- Run farce testing
 	#--- End ICA/farce
 
-	#-- Optimizations
+	#--- Optimizations
 	config	CONFIG_OPTIMIZE
-		bool	"Use optimization "
+		bool	"Use optimization (see help)"
 		default	n
 		help
 			#-- Actual optimzation flags MUST be defined in ./optimize/*
@@ -663,18 +678,47 @@ menu "--- Advanced Features"
 		default	"2"	if OPT_2
 	#--- End Optimizations
 
+	#-- Internal Settings
+	menu "--- Internal Settings (WARNING: for jhalfs developers only)"
+
+		config	SCRIPT_ROOT
+			string	"Scripts root"
+			default "jhalfs"
+
+		config	JHALFSDIR
+			string "jhalfs directory"
+			default "$BUILDDIR/$SCRIPT_ROOT"
+
+		config	LOGDIR
+			string "Build logs directory"
+			default "$JHALFSDIR/logs"
+
+		config	TESTLOGDIR
+			string "Test suites logs directory"
+			default "$JHALFSDIR/test-logs"
+
+		config	ICALOGDIR
+			string "ICA logs directory"
+			default "$LOGDIR/ICA"
+
+		config	FARCELOGDIR
+			string "farce logs directory"
+			default "$LOGDIR/farce"
+
+		config	MKFILE
+			string "Makefile"
+			default "$JHALFSDIR/Makefile"
+
+		config	XSL
+			string "XSL stylesheet"
+			default "$PROGNAME.xsl"
+
+		config	PKG_LST
+			string "Package contents list"
+			default "unpacked"
+
+	#--- End Internal Settings
+	endmenu
+
 #--- End Advanced Features
 endmenu
-
-#	config	CONFIG_BLFS_CMDS
-#		bool	"Add BLFS packages to current build"
-#		default	n
-#		depends	!BOOK_HLFS && XXX
-#		help
-#			#--- Select this option if you wish to install any BLFS packages
-#			#    as part of your {c,h}lfs build.
-#			#    Any needed packages will be downloaded to the /sources dir
-#	config	BLFS_CMDLINE
-#		string	"BLFS packages"
-#		default	"none"
-#		depends	CONFIG_BLFS_CMDS
