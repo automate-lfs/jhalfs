@@ -90,42 +90,9 @@ source configuration
 [[ $? > 0 ]] && echo "file:configuration did not load.." && exit 1
 [[ $VERBOSITY > 0 ]] && echo "OK"
 
-      #--- Envars not sourced from configuration (yet)
+      #--- Envars not sourced from configuration
 declare -r SVN="svn://svn.linuxfromscratch.org"
 declare -r LOG=000-masterscript.log
-
-case $PROGNAME in
-  clfs2) LFSVRS=development; TREE=branches/clfs-2.0/BOOK ;;
-      *) LFSVRS=development; TREE=trunk/BOOK             ;;
-esac
-
-if [[ ! -z ${BRANCH_ID} ]]; then
-  case $BRANCH_ID in
-    dev* | SVN | trunk )
-      case $PROGNAME in
-        clfs2 ) TREE=branches/clfs-2.0/BOOK ;;
-             *) TREE=trunk/BOOK ;;
-      esac
-      LFSVRS=development
-      ;;
-    branch-* )
-      LFSVRS=${BRANCH_ID}
-      TREE=branches/${BRANCH_ID#branch-}/BOOK
-      ;;
-    * )
-      case $PROGNAME in
-        lfs | hlfs )
-          LFSVRS=${BRANCH_ID}
-          TREE=tags/${BRANCH_ID}/BOOK
-          ;;
-        clfs | clfs2 )
-          LFSVRS=${BRANCH_ID}
-          TREE=tags/${BRANCH_ID}
-          ;;
-      esac
-      ;;
-  esac
-fi
 
 # These are boolean vars generated from Config.in.
 # ISSUE: If a boolean parameter is not set <true> that
@@ -146,8 +113,99 @@ VIMLANG=${VIMLANG:-n}
 KEYMAP=${KEYMAP:=none}
 GRSECURITY_HOST=${GRSECURITY_HOST:-n}
 
+# Book surces envars
+BRANCH_ID=${BRANCH_ID:=development}
+
+case $BRANCH_ID in
+  development )
+    case $PROGNAME in
+      clfs2 ) TREE=branches/clfs-2.0/BOOK ;;
+           *) TREE=trunk/BOOK ;;
+    esac
+    LFSVRS=development
+    ;;
+  *EDIT* )  echo " You forgot to set the branch or stable book version."
+            echo " Please rerun make and fix the configuration."
+            exit 2 ;;
+  branch-* )
+    LFSVRS=${BRANCH_ID}
+    TREE=branches/${BRANCH_ID#branch-}/BOOK
+    ;;
+  * )
+    case $PROGNAME in
+      lfs | hlfs )
+        LFSVRS=${BRANCH_ID}
+        TREE=tags/${BRANCH_ID}/BOOK
+        ;;
+      clfs | clfs2 )
+        LFSVRS=${BRANCH_ID}
+        TREE=tags/${BRANCH_ID}
+        ;;
+    esac
+    ;;
+esac
+
 # Set the document location...
 BOOK=${BOOK:=$PROGNAME-$LFSVRS}
+
+# blfs-tool envars
+BLFS_TOOL=${BLFS_TOOL:-n}
+if [[ "${BLFS_TOOL}" = "y" ]] ; then
+  BLFS_BRANCH_ID=${BLFS_BRANCH_ID:=development}
+  case $BLFS_BRANCH_ID in
+    development )  BLFS_TREE=trunk/BOOK ;;
+         *EDIT* )  echo " You forgot to set the BLFS branch or stable book version."
+                   echo " Please rerun make and fix the configuration."
+                   exit 2 ;;
+       branch-* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-}/BOOK ;;
+              * )  BLFS_TREE=tags/${BLFS_BRANCH_ID}/BOOK ;;
+  esac
+  # dependencies envars, to can update it more easy.
+    # libxml2
+  LIBXML_PKG="libxml2-2.6.26.tar.gz"
+  LIBXML_URL="ftp://xmlsoft.org/libxml2/${LIBXML_PKG}"
+  LIBXML_MD5="2d8d3805041edab967368b497642f981"
+    # libxslt
+  LIBXSLT_PKG="libxslt-1.1.17.tar.gz"
+  LIBXSLT_URL="ftp://xmlsoft.org/libxslt/${LIBXSLT_PKG}"
+  LIBXSLT_MD5="fde6a7a93c0eb14cba628692fa3a1000"
+    # DocBook XSL
+  DBXSL_PKG="docbook-xsl-1.69.1.tar.bz2"
+  DBXSL_URL="http://prdownloads.sourceforge.net/docbook/${DBXSL_PKG}"
+  DBXSL_MD5="6ebd29a67f2dcc3f2220f475ee6f6552"
+    # Links
+  LINKS_PKG="links-2.1pre21.tar.bz2"
+  LINKS_URL="http://links.twibright.com/download/${LINKS_PKG}"
+  LINKS_MD5="7687e2c32e337e11c6e9d8cd8c5202c9"
+    # sudo
+  SUDO_PKG="sudo-1.6.8p12.tar.gz"
+  SUDO_URL="http://www.courtesan.com/sudo/dist/${SUDO_PKG}"
+  SUDO_MD5="b29893c06192df6230dd5f340f3badf5"
+    # sudo envar fix patch
+  SUDO_PATCH="sudo-1.6.8p12-envvar_fix-1.patch"
+  SUDO_PATCH_URL="http://www.linuxfromscratch.org/patches/blfs/svn/${SUDO_PATCH}"
+  SUDO_PATCH_MD5="454925aedfe054dff8fe0d03b209f986"
+    # wget
+  WGET_PKG="wget-1.10.2.tar.gz"
+  WGET_URL="ftp://ftp.gnu.org/gnu/wget/${WGET_PKG}"
+  WGET_MD5="795fefbb7099f93e2d346b026785c4b8"
+    # Subversion
+  SVN_PKG="subversion-1.3.1.tar.bz2"
+  SVN_URL="http://subversion.tigris.org/tarballs/${SVN_PKG}"
+  SVN_MD5="07b95963968ae345541ca99d0e7bf082"
+    # GPM
+  GPM_PKG="gpm-1.20.1.tar.bz2"
+  GPM_URL="ftp://arcana.linux.it/pub/gpm/${GPM_PKG}"
+  GPM_MD5="2c63e827d755527950d9d13fe3d87692"
+    # GPM segfaul patch
+  GPM_PATCH_1="gpm-1.20.1-segfault-1.patch"
+  GPM_PATCH_1_URL="http://www.linuxfromscratch.org/patches/blfs/svn/${GPM_PATCH_1}"
+  GPM_PATCH_1_MD5="8c88f92990ba7613014fcd1db14ca7ac"
+    # GPM silent patch
+  GPM_PATCH_2="gpm-1.20.1-silent-1.patch"
+  GPM_PATCH_2_URL="http://www.linuxfromscratch.org/patches/blfs/svn/${GPM_PATCH_2}"
+  GPM_PATCH_2_MD5="bf6cbefe20c6f15b587f19ebc1c8a37a"
+fi
 
 # Set true internal variables
 COMMON_DIR="common"
@@ -285,8 +343,42 @@ cp $COMMON_DIR/packages.xsl  $JHALFSDIR/
 sed 's,FAKEDIR,'$BOOK',' $PACKAGE_DIR/$XSL > $JHALFSDIR/${XSL}
 export XSL=$JHALFSDIR/${XSL}
 
+# Install blfs-tool, if requested.
+if [[ "${BLFS_TOOL}" = "y" ]] ; then
+  # Install the files
+  [[ ! -d ${BUILDDIR}${BLFS_ROOT} ]] && mkdir -p ${BUILDDIR}${BLFS_ROOT}
+  cp -r BLFS/* ${BUILDDIR}${BLFS_ROOT}
+  cp -r menu ${BUILDDIR}${BLFS_ROOT}
+  cp $COMMON_DIR/progress_bar.sh ${BUILDDIR}${BLFS_ROOT}
+  cp README.BLFS ${BUILDDIR}${BLFS_ROOT}
+  # Clean-up
+  rm -rf ${BUILDDIR}${BLFS_ROOT}/libs/.svn
+  rm -rf ${BUILDDIR}${BLFS_ROOT}/menu/.svn
+  rm -rf ${BUILDDIR}${BLFS_ROOT}/menu/lxdialog/.svn
+  # Set some harcoded envars to their proper values
+  sed -i 's,blfs-xml,'$BLFS_XML',' ${BUILDDIR}${BLFS_ROOT}/{update_book.sh,libs/book.xsl}
+  sed -i 's,tracking-dir,'$TRACKING_DIR',' ${BUILDDIR}${BLFS_ROOT}/{update_book.sh,gen-makefile.sh}
+  # Copy the dependencies build scripts
+  cp -r $COMMON_DIR/blfs-tool-deps $JHALFSDIR/
+fi
+
 get_book
 echo "${SD_BORDER}${nl_}"
+
+# Get the BLFS book, if requested.
+if [[ "${BLFS_TOOL}" = "y" ]] ; then
+  echo -n "Downloading the BLFS document, $BLFS_BRANCH_ID version... "
+  if [[ ! -d ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} ]] ; then
+    mkdir -p ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML}
+    svn co $SVN/BLFS/$TREE ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} >>$LOGDIR/$LOG 2>&1
+  else
+    pushd ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} 1> /dev/null
+      svn up >>$LOGDIR/$LOG 2>&1
+    popd 1> /dev/null
+  fi
+  echo -ne "done\n"
+  echo "${SD_BORDER}${nl_}"
+fi
 
 build_Makefile
 echo "${SD_BORDER}${nl_}"

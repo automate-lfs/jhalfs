@@ -577,6 +577,8 @@ extract_commands() {         #
     *) exit 1 ;;
   esac
 
+  [[ "${BLFS_TOOL}" = "y" ]] && copy_blfs_deps_scripts
+
   echo " ...OK"
 
   # Make the scripts executable.
@@ -610,6 +612,22 @@ create_package_list() {      #
                  $BOOK/chapter03/chapter03.xml >>$LOGDIR/$LOG 2>&1
       ;;
   esac
+
+  if [[ "${BLFS_TOOL}" = "y" ]] ; then
+(
+cat << EOF
+$LIBXML_PKG
+$LIBXSLT_PKG
+$DBXSL_PKG
+$LINKS_PKG
+$SUDO_PKG
+$WGET_PKG
+$SVN_PKG
+$GPM_PKG
+EOF
+) >> pkg_tarball_list
+  fi
+
   echo " ...OK"
 
 }
@@ -780,4 +798,91 @@ create_urls() {              #
   esac
 
   cd $BUILDDIR/sources
+
+  [[ "${BLFS_TOOL}" = "y" ]] && add_blfs_deps_urls
+}
+
+#----------------------------# Hardcoded URLs and MD5.
+add_blfs_deps_urls() {       # No easy way to extract it.
+#----------------------------# Some FTP mirrors may not work
+
+  local BLFS_SERVER="${SERVER}/pub/blfs/conglomeration/"
+
+  if [[ "${DEP_LIBXML}" = "y" ]] ; then
+    echo "${LIBXML_URL} ${BLFS_SERVER}libxml2/${LIBXML_PKG} ${LIBXML_MD5}" >> urls.lst
+  fi
+
+  if [[ "${DEP_LIBXSLT}" = "y" ]] ; then
+    echo "${LIBXSLT_URL} ${BLFS_SERVER}libxslt/${LIBXSLT_PKG} ${LIBXSLT_MD5}" >> urls.lst
+  fi
+
+  if [[ "${DEP_DBXSL}" = "y" ]] ; then
+    echo "${DBXSL_URL} ${BLFS_SERVER}docbook-xsl/${DBXSL_PKG} ${DBXSL_MD5}" >> urls.lst
+  fi
+
+  if [[ "${DEP_LINKS}" = "y" ]] ; then
+    echo "${LINKS_URL} ${BLFS_SERVER}links/${LINKS_PKG} ${LINKS_MD5}" >> urls.lst
+  fi
+
+  if [[ "${DEP_SUDO}" = "y" ]] ; then
+    echo "${SUDO_URL} ${BLFS_SERVER}sudo/${SUDO_PKG} ${SUDO_MD5}" >> urls.lst
+    echo "${SUDO_PATCH_URL} ${BLFS_SERVER}sudo/${SUDO_PATCH} ${SUDO_PATCH_MD5}" >> urls.lst
+  fi
+
+  if [[ "${DEP_WGET}" = "y" ]] ; then
+    echo "${WGET_URL} ${BLFS_SERVER}wget/${WGET_PKG} ${WGET_MD5}" >> urls.lst
+  fi
+
+  if [[ "${DEP_SVN}" = "y" ]] ; then
+    echo "${SVN_URL} ${BLFS_SERVER}subversion/${SVN_PKG} ${SVN_MD5}" >> urls.lst
+  fi
+
+  if [[ "${DEP_GPM}" = "y" ]] ; then
+    echo "${GPM_URL} ${BLFS_SERVER}gpm/${GPM_PKG} ${GPM_MD5}" >> urls.lst
+    echo "${GPM_PATCH_1_URL} ${BLFS_SERVER}gpm/${GPM_PATCH_1} ${GPM_PATCH_1_MD5}" >> urls.lst
+    echo "${GPM_PATCH_2_URL} ${BLFS_SERVER}gpm/${GPM_PATCH_2} ${GPM_PATCH_2_MD5}" >> urls.lst
+  fi
+
+}
+
+#----------------------------# Maybe there is a better way to do this, but this
+copy_blfs_deps_scripts() {   # method avoid to place the test on all
+#----------------------------# $PROGNAME/master.sh scripts.
+
+  mkdir -p ${PROGNAME}-commands/blfs-tool-deps
+
+  if [[ "${DEP_LIBXML}" = "y" ]] ; then
+    mv blfs-tool-deps/901-libxml2 ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_LIBXSLT}" = "y" ]] ; then
+    mv blfs-tool-deps/902-libxslt ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_DBXSL}" = "y" ]] ; then
+    mv blfs-tool-deps/903-docbook-xsl ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_LINKS}" = "y" ]] ; then
+    mv blfs-tool-deps/905-links ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_SUDO}" = "y" ]] ; then
+    mv blfs-tool-deps/906-sudo ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_WGET}" = "y" ]] ; then
+    mv blfs-tool-deps/907-wget ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_SVN}" = "y" ]] ; then
+    mv blfs-tool-deps/908-subversion ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_GPM}" = "y" ]] ; then
+    mv blfs-tool-deps/904-gpm ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  rm -rf blfs-tool-deps
+
 }

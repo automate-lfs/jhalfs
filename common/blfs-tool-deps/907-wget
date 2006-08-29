@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# $Id$
+
+set -e
+
+./configure --prefix=/usr --sysconfdir=/etc
+make
+make install
+
+exit

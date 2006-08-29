@@ -86,13 +86,12 @@ BRANCH_ID=${BRANCH_ID:=development}
 
 # Set the SVN tree
 case $BRANCH_ID in
-  dev* | SVN | trunk )  TREE=trunk/BOOK ;;
-              *EDIT* )  echo " You forgot to set the branch or stable book version."
-                        echo " Please rerun make and fix the configuration."
-                        exit 2
-                        ;;
-            branch-* )  TREE=branches/${BRANCH_ID#branch-}/BOOK ;;
-                   * )  TREE=tags/${BRANCH_ID}/BOOK ;;
+  development )  TREE=trunk/BOOK ;;
+       *EDIT* )  echo " You forgot to set the branch or stable book version."
+                 echo " Please rerun make and fix the configuration."
+                 exit 2 ;;
+     branch-* )  TREE=branches/${BRANCH_ID#branch-}/BOOK ;;
+            * )  TREE=tags/${BRANCH_ID}/BOOK ;;
 esac
 
 # For consistency with other books
