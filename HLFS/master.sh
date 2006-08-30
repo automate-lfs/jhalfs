@@ -593,41 +593,7 @@ CHROOT:	$chapter6
 BOOT:	$chapter7
 
 
-clean-all:  clean
-	rm -rf ./{hlfs-commands,logs,Makefile,*.xsl,makefile-functions,packages,patches}
-
-clean:  clean-chapter7 clean-chapter6 clean-chapter5 clean-chapter3
-
 restart: restart_code all
-
-clean-chapter3:
-	-if [ ! -f luser-exist ]; then \\
-		userdel \$(LUSER); \\
-		rm -rf /home/\$(LUSER); \\
-	fi;
-	rm -rf \$(MOUNT_PT)/tools
-	rm -f /tools
-	rm -f envars luser-exist
-	rm -f 02* logs/02*.log
-
-clean-chapter5:
-	rm -rf \$(MOUNT_PT)/tools/*
-	rm -f $chapter5 restore-luser-env sources-dir
-	cd logs && rm -f $chapter5 && cd ..
-
-clean-chapter6:
-	-umount \$(MOUNT_PT)/sys
-	-umount \$(MOUNT_PT)/proc
-	-umount \$(MOUNT_PT)/dev/shm
-	-umount \$(MOUNT_PT)/dev/pts
-	-umount \$(MOUNT_PT)/dev
-	rm -rf \$(MOUNT_PT)/{bin,boot,dev,etc,home,lib,media,mnt,opt,proc,root,sbin,srv,sys,tmp,usr,var}
-	rm -f $chapter6
-	cd logs && rm -f $chapter6 && cd ..
-
-clean-chapter7:
-	rm -f $chapter7
-	cd logs && rm -f $chapter7 && cd ..
 
 restore-luser-env:
 	@\$(call echo_message, Building)
