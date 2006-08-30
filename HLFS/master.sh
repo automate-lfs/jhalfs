@@ -12,13 +12,13 @@ set -e  # Enable error trapping
 process_toolchain() {        # embryo,cocoon and butterfly need special handling
 #----------------------------#
   local toolchain=$1
-  local this_script=$2
+  local this_file=$2
   local tc_phase
   local binutil_tarball
   local gcc_core_tarball
   local TC_MountPT
   local remove_existing
-  
+
   tc_phase=`echo $toolchain | sed -e 's@[0-9]\{3\}-@@' -e 's@-toolchain@@'`
   case $tc_phase in
     embryo | \
@@ -61,10 +61,10 @@ EOF
 
   case ${tc_phase} in
     butterfly)
-        [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}"
-        CHROOT_wrt_RunAsRoot "$toolchain" "$this_script"
+        [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${toolchain}"
+        CHROOT_wrt_RunAsRoot "$this_file"
       ;;
-    *)  LUSER_wrt_RunAsUser "$toolchain" "$this_script"
+    *)  LUSER_wrt_RunAsUser  "$this_file"
       ;;
   esac
   #
@@ -127,6 +127,7 @@ cat << EOF
 		touch luser-exist; \\
 	fi;
 	@chown \$(LUSER) \$(MOUNT_PT)/tools && \\
+	chown -R \$(LUSER) \$(MOUNT_PT)/\$(SCRIPT_ROOT) && \\
 	chown \$(LUSER) \$(MOUNT_PT)/sources && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
@@ -153,6 +154,7 @@ cat << EOF
 	echo "source $JHALFSDIR/envars" >> /home/\$(LUSER)/.bashrc && \\
 	chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bashrc && \\
 	touch envars && \\
+	chown \$(LUSER) envars && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
@@ -553,7 +555,7 @@ EOF
 (
   cat << EOF
 
-all:	mk_SETUP mk_LUSER mk_CHROOT mk_BOOT
+all:	mk_SETUP mk_LUSER mk_CHROOT mk_BOOT do-housekeeping
 	@\$(call echo_finished,$VERSION)
 
 
@@ -590,19 +592,6 @@ CHROOT:	$chapter6
 
 BOOT:	$chapter7
 
-
-
-  
-all:  chapter3 chapter5 chapter6 chapter7 do-housekeeping
-	@\$(call echo_finished,$VERSION)
-
-chapter3:  020-creatingtoolsdir 021-addinguser 022-settingenvironment
-
-chapter5:  chapter3 $chapter5 restore-luser-env
-
-chapter6:  chapter5 $chapter6
-
-chapter7:  chapter6 $chapter7
 
 clean-all:  clean
 	rm -rf ./{hlfs-commands,logs,Makefile,*.xsl,makefile-functions,packages,patches}
