@@ -7,16 +7,30 @@ set -e  # Enable error trapping
 ###          FUNCTIONS          ###
 ###################################
 
+
 #----------------------------#
 process_toolchain() {        # embryo,cocoon and butterfly need special handling
 #----------------------------#
   local toolchain=$1
   local this_script=$2
-  local  tc_phase
+  local tc_phase
   local binutil_tarball
   local gcc_core_tarball
+  local TC_MountPT
+  local remove_existing
   
-  echo "${tab_}${tab_}${GREEN}toolchain ${L_arrow}${toolchain}${R_arrow}"
+  tc_phase=`echo $toolchain | sed -e 's@[0-9]\{3\}-@@' -e 's@-toolchain@@'`
+  case $tc_phase in
+    embryo | \
+    cocoon)    # Vars for LUSER phase
+       remove_existing="remove_existing_dirs"
+            TC_MountPT="\$(MOUNT_PT)\$(SRC)"
+       ;;
+    butterfly) # Vars for CHROOT phase
+       remove_existing="remove_existing_dirs2"
+            TC_MountPT="\$(SRC)"
+       ;;
+  esac
 
   #
   # Safe method to remove existing toolchain dirs
@@ -24,56 +38,49 @@ process_toolchain() {        # embryo,cocoon and butterfly need special handling
   gcc_core_tarball=$(get_package_tarball_name "gcc-core")
 (
 cat << EOF
-	@\$(call remove_existing_dirs,$binutil_tarball)
-	@\$(call remove_existing_dirs,$gcc_core_tarball)
+	@\$(call ${remove_existing},$binutil_tarball)
+	@\$(call ${remove_existing},$gcc_core_tarball)
 EOF
 ) >> $MKFILE.tmp
 
   #
   # Manually remove the toolchain directories..
-  tc_phase=`echo $toolchain | sed -e 's@[0-9]\{3\}-@@' -e 's@-toolchain@@'`
 (
 cat << EOF
-	@rm -rf \$(MOUNT_PT)\$(SRC)/${tc_phase}-toolchain && \\
-	rm  -rf \$(MOUNT_PT)\$(SRC)/${tc_phase}-build
+	@rm -rf ${TC_MountPT}/${tc_phase}-toolchain && \\
+	rm  -rf ${TC_MountPT}/${tc_phase}-build
 EOF
 ) >> $MKFILE.tmp
 
-  case ${toolchain} in
-    *butterfly*)
+
 (
 cat << EOF
-	@echo "export PKGDIR=\$(SRC)" > envars
+	@echo "export PKGDIR=${TC_MountPT}" > envars
 EOF
 ) >> $MKFILE.tmp
-      [[ "$TEST" != "0" ]] && wrt_test_log2 "${this_script}"
-      wrt_run_as_chroot1 "$toolchain" "$this_script"
+
+  case ${tc_phase} in
+    butterfly)
+        [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}"
+        CHROOT_wrt_RunAsRoot "$toolchain" "$this_script"
       ;;
-
-    *)
-(
-cat << EOF
-	@echo "export PKGDIR=\$(MOUNT_PT)\$(SRC)" > envars
-EOF
-) >> $MKFILE.tmp
-      wrt_RunAsUser "$toolchain" "$this_script"
+    *)  LUSER_wrt_RunAsUser "$toolchain" "$this_script"
       ;;
   esac
   #
 (
 cat << EOF
-	@\$(call remove_existing_dirs,$binutil_tarball)
-	@\$(call remove_existing_dirs,$gcc_core_tarball)
+	@\$(call ${remove_existing},$binutil_tarball)
+	@\$(call ${remove_existing},$gcc_core_tarball)
 EOF
 ) >> $MKFILE.tmp
 
   #
   # Manually remove the toolchain directories..
-  tc_phase=`echo $toolchain | sed -e 's@[0-9]\{3\}-@@' -e 's@-toolchain@@'`
 (
 cat << EOF
-	@rm -r \$(MOUNT_PT)\$(SRC)/${tc_phase}-toolchain && \\
-	rm  -r \$(MOUNT_PT)\$(SRC)/${tc_phase}-build
+	@rm -rf ${TC_MountPT}/${tc_phase}-toolchain && \\
+	rm  -rf ${TC_MountPT}/${tc_phase}-build
 EOF
 ) >> $MKFILE.tmp
 
@@ -84,13 +91,13 @@ EOF
 chapter3_Makefiles() {       # Initialization of the system
 #----------------------------#
 
-  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter3${R_arrow}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter3     ( SETUP ) ${R_arrow}"
 
   # Define a few model dependant variables
   if [[ ${MODEL} = "uclibc" ]]; then
     TARGET="pc-linux-gnu"; LOADER="ld-uClibc.so.0"
   else
-    TARGET="pc-linux-gnu";    LOADER="ld-linux.so.2"
+    TARGET="pc-linux-gnu"; LOADER="ld-linux.so.2"
   fi
 
   # If /home/$LUSER is already present in the host, we asume that the
@@ -151,7 +158,7 @@ cat << EOF
 	echo --------------------------------------------------------------------------------\$(WHITE)
 EOF
 ) >> $MKFILE.tmp
-
+  chapter3=" 020-creatingtoolsdir 021-addinguser 022-settingenvironment"
 }
 
 #----------------------------#
@@ -160,7 +167,7 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
   local file
   local this_script
 
-  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter5${R_arrow}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter5     ( LUSER ) ${R_arrow}"
 
   for file in chapter05/* ; do
     # Keep the script file name
@@ -205,32 +212,32 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
     # NO Optimization allowed
     if [[ ${name} = "embryo-toolchain" ]] || \
        [[ ${name} = "cocoon-toolchain" ]]; then
-       wrt_target "$this_script" "$PREV"
+       LUSER_wrt_target "$this_script" "$PREV"
          process_toolchain "${this_script}" "${file}"
        wrt_touch
        PREV=$this_script
        continue
     fi
     #
-    wrt_target "$this_script" "$PREV"
+    LUSER_wrt_target "$this_script" "$PREV"
     # Find the version of the command files, if it corresponds with the building of
     # a specific package
     pkg_tarball=$(get_package_tarball_name $name)
     # If $pkg_tarball isn't empty, we've got a package...
     if [ "$pkg_tarball" != "" ] ; then
       # Insert instructions for unpacking the package and to set the PKGDIR variable.
-      wrt_unpack "$pkg_tarball"
+      LUSER_wrt_unpack "$pkg_tarball"
       # If using optimizations, write the instructions
       [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
     # Insert date and disk usage at the top of the log file, the script run
     # and date and disk usage again at the bottom of the log file.
-    wrt_RunAsUser "$this_script" "${file}"
+    LUSER_wrt_RunAsUser "${file}"
 
     # Remove the build directory(ies) except if the package build fails
     # (so we can review config.cache, config.log, etc.)
     if [ "$pkg_tarball" != "" ] ; then
-       wrt_remove_build_dirs "$name"
+      LUSER_RemoveBuildDirs "$name"
     fi
 
     # Include a touch of the target name so make can check if it's already been made.
@@ -275,7 +282,7 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     sed -e '/groupadd/d' -i chapter06$N/*-udev
   fi
 
-  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6$N${R_arrow}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6$N     ( CHROOT ) ${R_arrow}"
 
   for file in chapter06$N/* ; do
     # Keep the script file name
@@ -324,25 +331,25 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
     if [[ ${name} = "butterfly-toolchain" ]]; then
-       wrt_target "${this_script}${N}" "$PREV"
+       CHROOT_wrt_target "${this_script}${N}" "$PREV"
          process_toolchain "${this_script}" "${file}"
        wrt_touch
        PREV=$this_script
        continue
     fi
 
-    wrt_target "${this_script}${N}" "$PREV"
+    CHROOT_wrt_target "${this_script}${N}" "$PREV"
 
     # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     if [ "$pkg_tarball" != "" ] ; then
-      wrt_unpack2 "$pkg_tarball"
+      CHROOT_Unpack "$pkg_tarball"
       # If the testsuites must be run, initialize the log file
       # butterfly-toolchain tests are enabled in 'process_tookchain' function
       case $name in
-        glibc ) [[ "$TEST" != "0" ]] && wrt_test_log2 "${this_script}"
+        glibc ) [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}"
           ;;
-	    * ) [[ "$TEST" > "1" ]] && wrt_test_log2 "${this_script}"
+	    * ) [[ "$TEST" > "1" ]]  && CHROOT_wrt_test_log "${this_script}"
           ;;
       esac
       # If using optimizations, write the instructions
@@ -355,13 +362,13 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
         wrt_RunAsRoot "${this_script}" "${file}"
         ;;
       *)   # The rest of Chapter06
-        wrt_run_as_chroot1 "${this_script}" "${file}"
+        CHROOT_wrt_RunAsRoot "${file}"
        ;;
     esac
     #
     # Remove the build directory(ies) except if the package build fails.
     if [ "$pkg_tarball" != "" ] ; then
-      wrt_remove_build_dirs "$name"
+      CHROOT_wrt_RemoveBuildDirs "$name"
     fi
     #
     # Include a touch of the target name so make can check if it's already been made.
@@ -385,7 +392,7 @@ chapter7_Makefiles() {       # Create a bootable system.. kernel, bootscripts..e
   local file
   local this_script
 
-  echo  "${tab_}${GREEN}Processing... ${L_arrow}Chapter7${R_arrow}"
+  echo  "${tab_}${GREEN}Processing... ${L_arrow}Chapter7     ( BOOT ) ${R_arrow}"
   for file in chapter07/*; do
     # Keep the script file name
     this_script=`basename $file`
@@ -398,12 +405,12 @@ chapter7_Makefiles() {       # Create a bootable system.. kernel, bootscripts..e
       *usage)   continue  ;; # Contains example commands
       *grub)    continue  ;;
       *console) continue  ;; # Use the file generated by lfs-bootscripts
-
-      *kernel)
-          # If no .config file is supplied, the kernel build is skipped
-        [[ -z $CONFIG ]] && continue
-	cp $CONFIG $BUILDDIR/sources/kernel-config
-         ;;
+      *fstab)   [[ ! -z ${FSTAB} ]] && cp ${FSTAB} $BUILDDIR/sources/fstab
+        ;;
+      *kernel)  # If no .config file is supplied, the kernel build is skipped
+                [[ -z $CONFIG ]] && continue
+                cp $CONFIG $BUILDDIR/sources/kernel-config
+        ;;
     esac
 
     # First append then name of the script file to a list (this will become
@@ -416,11 +423,11 @@ chapter7_Makefiles() {       # Create a bootable system.. kernel, bootscripts..e
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    wrt_target "$this_script" "$PREV"
+    CHROOT_wrt_target "$this_script" "$PREV"
 
     case "${this_script}" in
       *bootscripts*)
-        wrt_unpack2 $(get_package_tarball_name "lfs-bootscripts")
+        CHROOT_Unpack $(get_package_tarball_name "lfs-bootscripts")
         blfs_bootscripts=$(get_package_tarball_name "blfs-bootscripts" | sed -e 's/.tar.*//' )
         echo -e "\t@echo \"\$(MOUNT_PT)\$(SRC)/$blfs_bootscripts\" >> sources-dir" >> $MKFILE.tmp
         ;;
@@ -429,13 +436,13 @@ chapter7_Makefiles() {       # Create a bootable system.. kernel, bootscripts..e
     case "${this_script}" in
       *fstab*) # Check if we have a real /etc/fstab file
         if [[ -n "$FSTAB" ]] ; then
-          wrt_copy_fstab "$this_script"
-        else  # Initialize the log and run the script
-          wrt_run_as_chroot2 "${this_script}" "${file}"
+           CHROOT_wrt_CopyFstab
+        else
+           CHROOT_wrt_RunAsRoot "$file"
         fi
         ;;
       *)  # All other scripts
-        wrt_run_as_chroot2 "${this_script}" "${file}"
+        CHROOT_wrt_RunAsRoot "${file}"
         ;;
     esac
 
@@ -444,8 +451,8 @@ chapter7_Makefiles() {       # Create a bootable system.. kernel, bootscripts..e
       *bootscripts*)
 (
 cat << EOF
-	@ROOT=\`head -n1 \$(MOUNT_PT)\$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
-	rm -r \$(MOUNT_PT)\$(SRC)/\$\$ROOT
+	@ROOT=\`head -n1 \$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
+	rm -r \$(SRC)/\$\$ROOT
 	@rm -r \`cat sources-dir\` && \\
 	rm sources-dir
 EOF
@@ -545,6 +552,47 @@ EOF
   # as a dependency.
 (
   cat << EOF
+
+all:	mk_SETUP mk_LUSER mk_CHROOT mk_BOOT
+	@\$(call echo_finished,$VERSION)
+
+
+mk_SETUP:
+	@\$(call echo_SU_request)
+	@sudo make SETUP
+	@touch \$@
+	
+mk_LUSER: mk_SETUP
+	@\$(call echo_SULUSER_request)
+	@( \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make LUSER" )
+	@touch \$@
+
+mk_CHROOT: mk_LUSER 057-changingowner 059-kernfs
+	@mkdir \$(MOUNT_PT)/bin && \
+	cd \$(MOUNT_PT)/bin && \
+	ln -sf /tools/bin/bash bash; ln -sf bash sh
+	@sed -e 's|^ln -sv|ln -svf|' -i \$(CMDSDIR)/chapter06/064-createfiles
+	@\$(call echo_CHROOT_request)
+	@( sudo \$(CHROOT1) "env && cd \$(SCRIPT_ROOT) && make CHROOT")
+	@touch \$@
+
+mk_BOOT: mk_CHROOT 
+	@\$(call echo_CHROOT_request)
+	@( sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BOOT")
+	@touch \$@
+	
+
+SETUP:	$chapter3
+
+LUSER:	$chapter5
+
+CHROOT:	$chapter6
+
+BOOT:	$chapter7
+
+
+
+  
 all:  chapter3 chapter5 chapter6 chapter7 do-housekeeping
 	@\$(call echo_finished,$VERSION)
 

@@ -11,7 +11,7 @@ wrt_compare_targets() {            #
       wrt_system_build "$N" "$PREV_IT"
     fi
     this_script=$ITERATION
-    wrt_target "$ITERATION" "$PREV"
+    CHROOT_wrt_target "$ITERATION" "$PREV"
     wrt_compare_work "$ITERATION" "$PREV_IT"
     wrt_logs "$N"
     PREV_IT=$ITERATION

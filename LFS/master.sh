@@ -7,10 +7,13 @@
 ###################################
 
 
+#############################################################
+
+
 #----------------------------#
-chapter4_Makefiles() {
+chapter4_Makefiles() {       #
 #----------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter4${R_arrow}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter4     ( SETUP ) ${R_arrow}"
 
 # If /home/$LUSER is already present in the host, we asume that the
 # lfs user and group are also presents in the host, and a backup
@@ -35,6 +38,7 @@ chapter4_Makefiles() {
 		touch luser-exist; \\
 	fi;
 	@chown \$(LUSER) \$(MOUNT_PT)/tools && \\
+	chown -R \$(LUSER) \$(MOUNT_PT)/\$(SCRIPT_ROOT) && \\
 	chmod a+wt \$(MOUNT_PT)/sources && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
@@ -57,17 +61,22 @@ chapter4_Makefiles() {
 	echo "source $JHALFSDIR/envars" >> /home/\$(LUSER)/.bashrc && \\
 	chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bashrc && \\
 	touch envars && \\
+	chown \$(LUSER) envars && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
 EOF
-) >> $MKFILE.tmp
+) > $MKFILE.tmp
+
+  chapter4=" 020-creatingtoolsdir 021-addinguser 022-settingenvironment"
 }
+
+
 
 #----------------------------#
 chapter5_Makefiles() {
 #----------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter5${R_arrow}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter5     ( LUSER ) ${R_arrow}"
 
   for file in chapter05/* ; do
     # Keep the script file name
@@ -86,7 +95,13 @@ chapter5_Makefiles() {
 
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
-    chapter5="$chapter5 ${this_script}"
+    # DO NOT append the changingowner script.
+    # A hack is necessary: create script in chap5 BUT run as a dependency for
+    #  chap6 CHROOT 
+    case "${this_script}" in
+      *changingowner) : ;;
+                   *) chapter5="$chapter5 ${this_script}" ;;
+    esac
 
     # Grab the name of the target (minus the -pass1 or -pass2 in the case of gcc
     # and binutils in chapter 5)
@@ -101,7 +116,7 @@ chapter5_Makefiles() {
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    wrt_target "${this_script}" "$PREV"
+    LUSER_wrt_target "${this_script}" "$PREV"
 
     # Find the version of the command files, if it corresponds with the building of
     # a specific package
@@ -110,9 +125,9 @@ chapter5_Makefiles() {
     # If $pkg_tarball isn't empty, we've got a package...
     if [ "$pkg_tarball" != "" ] ; then
       # Insert instructions for unpacking the package and to set the PKGDIR variable.
-      wrt_unpack "$pkg_tarball"
+      LUSER_wrt_unpack "$pkg_tarball"
       # If the testsuites must be run, initialize the log file
-      [[ "$TEST" = "3" ]] && wrt_test_log "${this_script}"
+      [[ "$TEST" = "3" ]] && LUSER_wrt_test_log "${this_script}"
       # If using optimizations, write the instructions
       [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
@@ -122,13 +137,13 @@ chapter5_Makefiles() {
     # The changingowner script must be run as root.
     case "${this_script}" in
       *changingowner)  wrt_RunAsRoot "${this_script}" "$file" ;;
-      *)               wrt_RunAsUser "${this_script}" "$file" ;;
+      *)               LUSER_wrt_RunAsUser "$file" ;;
     esac
 
     # Remove the build directory(ies) except if the package build fails
     # (so we can review config.cache, config.log, etc.)
     if [ "$pkg_tarball" != "" ] ; then
-      wrt_remove_build_dirs "$name"
+      LUSER_RemoveBuildDirs "$name"
     fi
 
     # Include a touch of the target name so make can check
@@ -144,9 +159,11 @@ chapter5_Makefiles() {
   done  # end for file in chapter05/*
 }
 
+
 #----------------------------#
 chapter6_Makefiles() {
 #----------------------------#
+
   # Set envars and scripts for iteration targets
   LOGS="" # Start with an empty global LOGS envar
   if [[ -z "$1" ]] ; then
@@ -166,7 +183,7 @@ chapter6_Makefiles() {
     sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i chapter06$N/*-bzip2
   fi
 
-  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6$N${R_arrow}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6$N     ( CHROOT ) ${R_arrow}"
 
   for file in chapter06$N/* ; do
     # Keep the script file name
@@ -208,19 +225,19 @@ chapter6_Makefiles() {
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    wrt_target "${this_script}${N}" "$PREV"
+    CHROOT_wrt_target "${this_script}${N}" "$PREV"
 
     # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     if [ "$pkg_tarball" != "" ] ; then
-      wrt_unpack2 "$pkg_tarball"
+      CHROOT_Unpack "$pkg_tarball"
       # If the testsuites must be run, initialize the log file
       case $name in
         binutils | gcc | glibc )
-          [[ "$TEST" != "0" ]] && wrt_test_log2 "${this_script}"
+          [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}"
           ;;
         * )
-          [[ "$TEST" = "2" ]] || [[ "$TEST" = "3" ]] && wrt_test_log2 "${this_script}"
+          [[ "$TEST" = "2" ]] || [[ "$TEST" = "3" ]] && CHROOT_wrt_test_log "${this_script}"
           ;;
       esac
       # If using optimizations, write the instructions
@@ -231,12 +248,12 @@ chapter6_Makefiles() {
     # and not to use chroot.
     case "${this_script}" in
       *kernfs)  wrt_RunAsRoot    "${this_script}" "$file" ;;
-      *)        wrt_run_as_chroot1 "${this_script}" "$file" ;;
+      *)        CHROOT_wrt_RunAsRoot "$file" ;;
     esac
 
     # Remove the build directory(ies) except if the package build fails.
     if [ "$pkg_tarball" != "" ] ; then
-      wrt_remove_build_dirs "$name"
+      CHROOT_wrt_RemoveBuildDirs "$name"
     fi
 
     # Include a touch of the target name so make can check
@@ -257,7 +274,7 @@ chapter6_Makefiles() {
 #----------------------------#
 chapter789_Makefiles() {
 #----------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter7/8/9${R_arrow}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter7/8/9 ( BOOT ) ${R_arrow}"
 
   for file in chapter0{7,8,9}/* ; do
     # Keep the script file name
@@ -274,6 +291,7 @@ chapter789_Makefiles() {
       *grub)    continue ;;
       *reboot)  continue ;;
       *console) continue  ;; # Use the file generated by lfs-bootscripts
+      *fstab)   [[ ! -z ${FSTAB} ]] && cp ${FSTAB} $BUILDDIR/sources/fstab ;;
       *kernel)  [[ -z ${CONFIG} ]] && continue
                 cp ${CONFIG} $BUILDDIR/sources/kernel-config  ;;
     esac
@@ -288,37 +306,37 @@ chapter789_Makefiles() {
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    wrt_target "${this_script}" "$PREV"
+    CHROOT_wrt_target "${this_script}" "$PREV"
 
     # Find the bootscripts and kernel package names
     case "${this_script}" in
       *bootscripts)
             name="lfs-bootscripts"
             pkg_tarball=$(get_package_tarball_name $name)
-            wrt_unpack2 "$pkg_tarball"
+            CHROOT_Unpack "$pkg_tarball"
         ;;
       *kernel)
             name="linux"
             pkg_tarball=$(get_package_tarball_name $name)
-            wrt_unpack2 "$pkg_tarball"
+            CHROOT_Unpack "$pkg_tarball"
        ;;
     esac
 
       # Check if we have a real /etc/fstab file
     case "${this_script}" in
       *fstab) if [[ -n $FSTAB ]]; then
-                wrt_copy_fstab "${this_script}"
+                CHROOT_wrt_CopyFstab
               else
-                wrt_run_as_chroot2 "$this_script" "$file"
+                CHROOT_wrt_RunAsRoot "$file"
               fi
         ;;
-      *)        wrt_run_as_chroot2 "$this_script" "$file"
+      *)        CHROOT_wrt_RunAsRoot "$file"
         ;;
     esac
 
     case "${this_script}" in
-      *bootscripts)  wrt_remove_build_dirs "dummy" ;;
-      *kernel)       wrt_remove_build_dirs "dummy" ;;
+      *bootscripts)  CHROOT_wrt_RemoveBuildDirs "dummy" ;;
+      *kernel)       CHROOT_wrt_RemoveBuildDirs "dummy" ;;
     esac
 
     # Include a touch of the target name so make can check
@@ -338,15 +356,18 @@ chapter789_Makefiles() {
 }
 
 
+
 #----------------------------#
-build_Makefile() {
+build_Makefile() {           #
 #----------------------------#
+
   echo "Creating Makefile... ${BOLD}START${OFF}"
+  
   cd $JHALFSDIR/${PROGNAME}-commands
 
   # Start with a clean Makefile.tmp file
-  >$MKFILE.tmp
-
+  >$MKFILE
+  
   chapter4_Makefiles
   chapter5_Makefiles
   chapter6_Makefiles
@@ -354,12 +375,12 @@ build_Makefile() {
   [[ "$COMPARE" = "y" ]] && wrt_compare_targets
   chapter789_Makefiles
 
-
   # Add a header, some variables and include the function file
   # to the top of the real Makefile.
 (
     cat << EOF
 $HEADER
+
 
 SRC          = /sources
 MOUNT_PT     = $BUILDDIR
@@ -381,15 +402,14 @@ crTESTLOGDIR = /\$(SCRIPT_ROOT)/test-logs
 
 SU_LUSER     = su - \$(LUSER) -c
 LUSER_HOME   = /home/\$(LUSER)
-PRT_DU       = echo -e "\nKB: \`du -skx --exclude=jhalfs \$(MOUNT_PT)\`\n"
-PRT_DU_CR    = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) \$(MOUNT_PT)\`\n"
+PRT_DU       = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) \$(MOUNT_PT) \`\n"
+PRT_DU_CR    = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) / \`\n"
 
 
 include makefile-functions
 
 EOF
 ) > $MKFILE
-
 
   # Add chroot commands
   CHROOT_LOC="`whereis -b chroot | cut -d " " -f2`"
@@ -414,16 +434,51 @@ EOF
   # as a dependency.
 (
     cat << EOF
-all:  chapter4 chapter5 chapter6 chapter789 do_housekeeping
+
+all:	mk_SETUP mk_LUSER mk_CHROOT mk_BOOT
 	@\$(call echo_finished,$VERSION)
 
-chapter4:  020-creatingtoolsdir 021-addinguser 022-settingenvironment
 
-chapter5:  chapter4 $chapter5 restore-luser-env
+mk_SETUP:
+	@\$(call echo_SU_request)
+	@sudo make SETUP
+	@touch \$@
+	
+mk_LUSER: mk_SETUP
+	@\$(call echo_SULUSER_request)
+	@( \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make LUSER" )
+	@touch \$@
+#
+# The convoluted piece of code below is necessary to provide 'make' with a valid shell in the
+# chroot environment. (Unless someone knows a different way)
+# Manually create the /bin directory and provide link to the /tools dir.
+# Also change the original symlink creation to include (f)orce to prevent failure due to 
+#  pre-existing links.
+#
+mk_CHROOT: mk_LUSER 057-changingowner 059-kernfs
+	@mkdir \$(MOUNT_PT)/bin && \\
+	cd \$(MOUNT_PT)/bin && \\
+	ln -sf /tools/bin/bash bash; ln -sf bash sh
+	@sed -e 's|^ln -sv|ln -svf|' -i \$(CMDSDIR)/chapter06/063-createfiles
+	@\$(call echo_CHROOT_request)
+	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make CHROOT")
+	@touch \$@
 
-chapter6:  chapter5 $chapter6
+mk_BOOT: mk_CHROOT 
+	@\$(call echo_CHROOT_request)
+	@( sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BOOT")
+	@touch \$@
+	
 
-chapter789:  chapter6 $chapter789
+SETUP:	$chapter4
+
+LUSER:	$chapter5
+
+CHROOT:	$chapter6
+
+BOOT:	$chapter789
+
+
 
 clean-all:  clean
 	rm -rf ./{lfs-commands,logs,Makefile,*.xsl,makefile-functions,packages,patches}
@@ -525,13 +580,16 @@ restart_code:
 	  fi;\\
 	fi;
 
+
+
 EOF
 ) >> $MKFILE
+
+
 
   # Bring over the items from the Makefile.tmp
   cat $MKFILE.tmp >> $MKFILE
   rm $MKFILE.tmp
   echo "Creating Makefile... ${BOLD}DONE${OFF}"
-
 }
 

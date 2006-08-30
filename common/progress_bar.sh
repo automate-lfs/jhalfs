@@ -7,6 +7,7 @@ set -e
 # Be sure that we know the taget name
 [[ -z $1 ]] && exit
 TARGET=$1  # Remember the target build we are looking for
+MAKE_PPID=$2
 
 declare -r  CSI=$'\e['  # DEC terminology, Control Sequence Introducer
 declare -r  CURSOR_OFF=${CSI}$'?25l'
@@ -21,12 +22,9 @@ declare -a  GRAPHIC_STR="| / - \\ + "
 declare -i  SEC=0  # Seconds accumulator
 declare -i  PREV_SEC=0
 
-makePID=$(fuser -v . 2>&1 | grep make)
-makePID=$(echo $makePID | cut -d" " -f2)
-
 write_or_exit() {
     # make has been killed or failed or run to completion, leave
-  [[ ! -e /proc/$makePID ]] && echo -n "${CURSOR_ON}" && exit
+  [[ ! -e /proc/${MAKE_PPID} ]] && echo -n "${CURSOR_ON}" && exit
 
     # Target build complete, leave.
   [[ -f ${TARGET} ]] && echo -n "${CURSOR_ON}" && exit

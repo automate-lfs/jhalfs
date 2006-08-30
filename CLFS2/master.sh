@@ -11,7 +11,7 @@ host_prep_Makefiles() {      # Initialization of the system
 #----------------------------#
   local   CLFS_HOST
 
-  echo "${tab_}${GREEN}Processing... ${L_arrow}host prep files${R_arrow}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}host prep files ( SETUP ) ${R_arrow}"
 
   # defined here, only for ease of reading
   CLFS_HOST="$(echo $MACHTYPE | sed "s/$(echo $MACHTYPE | cut -d- -f2)/cross/")"
@@ -35,7 +35,7 @@ cat << EOF
 	else \\
 		touch luser-exist; \\
 	fi;
-	@chown \$(LUSER) \$(MOUNT_PT) && \\
+	@chown -R \$(LUSER) \$(MOUNT_PT) && \\
 	chown \$(LUSER) \$(MOUNT_PT)/sources
 	@touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
@@ -64,7 +64,8 @@ cat << EOF
 	echo "export CLFS_TARGET32=\"${TARGET32}\"" >> /home/\$(LUSER)/.bashrc && \\
 	echo "source $JHALFSDIR/envars" >> /home/\$(LUSER)/.bashrc
 	@chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bashrc && \\
-	touch envars
+	touch envars && \\
+	chown \$(LUSER):\$(LGROUP) envars
 	@touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
@@ -122,13 +123,15 @@ cat << EOF
 
 EOF
 ) >> $MKFILE.tmp
+
+  host_prep=" 023-creatingtoolsdir 025-addinguser 026-settingenvironment 027-create-directories 028-creating-sysfile"
 }
 
 
 #-----------------------------#
 cross_tools_Makefiles() {     #
 #-----------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}cross tools${R_arrow}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}cross tools     ( LUSER ) ${R_arrow}"
 
   for file in cross-tools/* ; do
     # Keep the script file name
@@ -175,18 +178,18 @@ cross_tools_Makefiles() {     #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    wrt_target "${this_script}" "$PREV"
+    LUSER_wrt_target "${this_script}" "$PREV"
     #
     # If $pkg_tarball isn't empty, we've got a package...
     if [ "$pkg_tarball" != "" ] ; then
-       wrt_unpack "$pkg_tarball"
+       LUSER_wrt_unpack "$pkg_tarball"
        # If using optimizations, write the instructions
        [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
     #
-    wrt_RunAsUser "${this_script}" "${file}"
+    LUSER_wrt_RunAsUser "${file}"
     #
-    [[ "$pkg_tarball" != "" ]] && wrt_remove_build_dirs "${name}"
+    [[ "$pkg_tarball" != "" ]] && LUSER_RemoveBuildDirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -206,7 +209,7 @@ cross_tools_Makefiles() {     #
 #-----------------------------#
 final_system_Makefiles() {    #
 #-----------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}final system${R_arrow}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}final system    ( LUSER ) ${R_arrow}"
 
   for file in final-system/* ; do
     # Keep the script file name
@@ -240,18 +243,18 @@ final_system_Makefiles() {    #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    wrt_target "${this_script}" "$PREV"
+    LUSER_wrt_target "${this_script}" "$PREV"
     #
     # If $pkg_tarball isn't empty, we've got a package...
     if [ "$pkg_tarball" != "" ] ; then
-      wrt_unpack "$pkg_tarball"
+      LUSER_wrt_unpack "$pkg_tarball"
       # If using optimizations, write the instructions
       [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
     #
-    wrt_RunAsUser "${this_script}" "${file}"
+    LUSER_wrt_RunAsUser "${file}"
     #
-    [[ "$pkg_tarball" != "" ]] && wrt_remove_build_dirs "${name}"
+    [[ "$pkg_tarball" != "" ]] && LUSER_RemoveBuildDirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -270,7 +273,7 @@ final_system_Makefiles() {    #
 #-----------------------------#
 bootscripts_Makefiles() {     #
 #-----------------------------#
-    echo "${tab_}${GREEN}Processing... ${L_arrow}bootscripts${R_arrow}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}bootscripts     ( LUSER ) ${R_arrow}"
 
   for file in bootscripts/* ; do
     # Keep the script file name
@@ -306,14 +309,14 @@ bootscripts_Makefiles() {     #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    wrt_target "${this_script}" "$PREV"
+    LUSER_wrt_target "${this_script}" "$PREV"
     #
     # If $pkg_tarball isn't empty, we've got a package...
-    [[ "$pkg_tarball" != "" ]] && wrt_unpack "$pkg_tarball"
+    [[ "$pkg_tarball" != "" ]] && LUSER_wrt_unpack "$pkg_tarball"
     #
-    wrt_RunAsUser "${this_script}" "${file}"
+    LUSER_wrt_RunAsUser "${file}"
     #
-    [[ "$pkg_tarball" != "" ]] && wrt_remove_build_dirs "${name}"
+    [[ "$pkg_tarball" != "" ]] && LUSER_RemoveBuildDirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -333,7 +336,7 @@ bootscripts_Makefiles() {     #
 #-----------------------------#
 bootable_Makefiles() {        #
 #-----------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}make bootable${R_arrow}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}make bootable   ( LUSER ) ${R_arrow}"
 
   for file in bootable/* ; do
     # Keep the script file name
@@ -342,6 +345,7 @@ bootable_Makefiles() {        #
     # A little housekeeping on the scripts
     case $this_script in
       *grub | *aboot | *colo | *silo | *arcload | *lilo | *reboot* )  continue ;;
+      *fstab)  [[ ! -z ${FSTAB} ]] && cp ${FSTAB} $BUILDDIR/sources/fstab ;;
       *kernel) # if there is no kernel config file do not build the kernel
                [[ -z $CONFIG ]] && continue
                  # Copy the config file to /sources with a standardized name
@@ -351,7 +355,12 @@ bootable_Makefiles() {        #
     #
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
-    bootable="$bootable $this_script"
+    # NOTE: new makfile format forces the last script, *chowning, into a separate
+    #  phase.
+    case ${this_script} in
+      *chowning) chowning=${this_script}   ;;
+              *) bootable="$bootable $this_script"  ;;      
+    esac
     #
     # Grab the name of the target, strip id number and misc words.
     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' -e 's@-build@@' `
@@ -368,27 +377,27 @@ bootable_Makefiles() {        #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    wrt_target "${this_script}" "$PREV"
+    LUSER_wrt_target "${this_script}" "$PREV"
     #
     # If $pkg_tarball isn't empty, we've got a package...
-    [[ "$pkg_tarball" != "" ]] && wrt_unpack "$pkg_tarball"
+    [[ "$pkg_tarball" != "" ]] && LUSER_wrt_unpack "$pkg_tarball"
     #
     # Select a script execution method
     case $this_script in
       *fstab*)  if [[ -n "$FSTAB" ]]; then
-                  wrt_copy_fstab "${this_script}"
+                  LUSER_wrt_CopyFstab
                 else
-                  wrt_RunAsUser "${this_script}" "${file}"
+                  LUSER_wrt_RunAsUser "${file}"
                 fi
           ;;
       *chowning)  wrt_RunAsRoot "${this_script}" "${file}"
           ;;
-              *)  wrt_RunAsUser "${this_script}" "${file}"
+              *)  LUSER_wrt_RunAsUser "${file}"
 	  ;;
     esac
     #
     # Housekeeping...remove any build directory(ies) except if the package build fails.
-    [[ "$pkg_tarball" != "" ]] && wrt_remove_build_dirs "${name}"
+    [[ "$pkg_tarball" != "" ]] && LUSER_RemoveBuildDirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -454,19 +463,30 @@ EOF
   # Drop in the main target 'all:' and the chapter targets with each sub-target
   # as a dependency.
 (
-	cat << EOF
-all:  chapter2 chapter3 chapter4 chapter5 chapter6 restore-luser-env do-housekeeping
+cat << EOF
+
+all:	mk_SETUP mk_LUSER mk_ROOT
 	@\$(call echo_finished,$VERSION)
 
-chapter2:  023-creatingtoolsdir 025-addinguser 026-settingenvironment 027-create-directories 028-creating-sysfile
+mk_SETUP:
+	@\$(call echo_SU_request)
+	@sudo make SETUP
+	@touch \$@
+	
+mk_LUSER: mk_SETUP
+	@\$(call echo_SULUSER_request)
+	@( \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make LUSER" )
+	@touch \$@
 
-chapter3:  chapter2 $cross_tools
+mk_ROOT:
+	@sudo make ROOT
+	@touch \$@
 
-chapter4:  chapter3 $basicsystem
+SETUP:  $host_prep
 
-chapter5:  chapter4 $bootscripttools
+LUSER:	$cross_tools $basicsystem $bootscripttools $bootable
 
-chapter6:  chapter5 $bootable
+ROOT:	$chowning
 
 clean-all:  clean
 	rm -rf ./{clfs2-commands,logs,Makefile,*.xsl,makefile-functions,packages,patches}
