@@ -360,7 +360,7 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
 
     # In the mount of kernel filesystems we need to set HLFS and not to use chroot.
     case "${this_script}" in
-      *kernfs*)
+      *kernfs* | *changingowner*)
         wrt_RunAsRoot "${this_script}" "${file}"
         ;;
       *)   # The rest of Chapter06
@@ -521,7 +521,7 @@ crTESTLOGDIR = /\$(SCRIPT_ROOT)/test-logs
 SU_LUSER     = su - \$(LUSER) -c
 LUSER_HOME   = /home/\$(LUSER)
 PRT_DU       = echo -e "\nKB: \`du -skx --exclude=jhalfs \$(MOUNT_PT)\`\n"
-PRT_DU_CR    = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) \$(MOUNT_PT)\`\n"
+PRT_DU_CR    = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) / \`\n"
 
 include makefile-functions
 
@@ -569,13 +569,13 @@ mk_LUSER: mk_SETUP
 	@( \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make LUSER" )
 	@touch \$@
 
-mk_CHROOT: mk_LUSER 057-changingowner 059-kernfs
+mk_CHROOT: mk_LUSER 060-kernfs 062-changingowner
 	@mkdir \$(MOUNT_PT)/bin && \
 	cd \$(MOUNT_PT)/bin && \
 	ln -sf /tools/bin/bash bash; ln -sf bash sh
-	@sed -e 's|^ln -sv|ln -svf|' -i \$(CMDSDIR)/chapter06/064-createfiles
+	@sed -e 's|^ln -vs|ln -svf|' -i \$(CMDSDIR)/chapter06/064-createfiles
 	@\$(call echo_CHROOT_request)
-	@( sudo \$(CHROOT1) "env && cd \$(SCRIPT_ROOT) && make CHROOT")
+	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make CHROOT")
 	@touch \$@
 
 mk_BOOT: mk_CHROOT 
