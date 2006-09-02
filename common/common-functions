@@ -102,6 +102,42 @@ EOF
 #------------------------------------------------------#
 #------------------------------------------------------#
 
+#----------------------------------#
+ROOT_RunAsRoot() {                 # 
+#----------------------------------#
+  local file=$1
+(
+cat << EOF
+	@( time { source envars && \$(CMDSDIR)/$file >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
+	\$(PRT_DU_CR) >>logs/$this_script
+EOF
+) >> $MKFILE.tmp
+}
+
+#----------------------------------#
+ROOT_Unpack() {                    #  An alias, for clairity
+#----------------------------------#
+  local FILE=$1
+  local optSAVE_PREVIOUS=$2
+
+  if [[ "${optSAVE_PREVIOUS}" != "1" ]]; then
+(
+cat << EOF
+	@\$(call remove_existing_dirs,$FILE)
+EOF
+) >> $MKFILE.tmp
+  fi
+
+(
+cat << EOF
+	@\$(call unpack,$FILE)
+	@\$(call get_pkg_root_LUSER)
+EOF
+) >> $MKFILE.tmp
+}
+
+#------------------------------------------------------#
+#------------------------------------------------------#
 
 #----------------------------------#
 LUSER_wrt_target() {               # Create target and initialize log file
