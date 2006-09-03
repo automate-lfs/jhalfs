@@ -329,13 +329,13 @@ chroot_Makefiles() {                   #
 
     pkg_tarball=$(get_package_tarball_name $name)
     
-    # This is very ugly:: util-linux is in /chroot but should be run under LUSER
-    # A custom collection of routines.
+    # This is very ugly:: util-linux is in /chroot but must be run under LUSER
+    # .. Customized makefile entry 
     case "${this_script}" in
       *util-linux) 
          LUSER_wrt_target "${this_script}" "$PREV"
-         [[ "$pkg_tarball" != "" ]] && LUSER_wrt_unpack "$pkg_tarball"
-         [[ "$pkg_tarball" != "" ]] && [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
+         LUSER_wrt_unpack "$pkg_tarball"
+         [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
          LUSER_wrt_RunAsUser "${file}"
          LUSER_RemoveBuildDirs "${name}"
          wrt_touch
@@ -1181,7 +1181,7 @@ if [[ "${METHOD}" = "chroot" ]]; then
 (
 cat << EOF
 
-all: mk_SETUP mk_CROSS mk_TEMP mk_SYSTOOLS mk_FINAL mk_BOOTSCRIPT mk_BOOTABLE do-housekeeping
+all: mk_SETUP mk_CROSS mk_TEMP restore_luser_env mk_SYSTOOLS mk_FINAL mk_BOOTSCRIPT mk_BOOTABLE do-housekeeping
 	@\$(call echo_finished,$VERSION)
 
 #---------------AS ROOT
