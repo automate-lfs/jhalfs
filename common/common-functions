@@ -474,7 +474,6 @@ extract_commands() {         #
                  --stringparam timezone $TIMEZONE \
                  --stringparam page $PAGE \
                  --stringparam lang $LANG \
-                 --stringparam keymap $KEYMAP \
                  -o ./${PROGNAME}-commands/ $XSL $BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
       ;;
 
@@ -486,7 +485,6 @@ extract_commands() {         #
                  --stringparam timezone $TIMEZONE \
                  --stringparam page $PAGE \
                  --stringparam lang $LANG \
-                 --stringparam keymap $KEYMAP \
                  -o ./${PROGNAME}-commands/ $XSL $BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
       ;;
     hlfs)
@@ -500,7 +498,6 @@ extract_commands() {         #
                  --stringparam page $PAGE \
                  --stringparam lang $LANG \
                  --stringparam lc_all $LC_ALL \
-                 --stringparam keymap $KEYMAP \
                  --stringparam grsecurity_host $GRSECURITY_HOST \
                  -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
       ;;

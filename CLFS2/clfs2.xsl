@@ -13,9 +13,6 @@
 
 <!-- XSLT stylesheet to create shell scripts from CLFS2 books. -->
 
-  <!-- Compile the keymap into the kernel? -->
-  <xsl:param name="keymap" select="none"/>
-
   <!-- Install vim-lang package? -->
   <xsl:param name="vim-lang" select="y"/>
 
@@ -113,9 +110,8 @@
         <xsl:value-of select="substring-after(string(),'charmap]')"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
-      <!-- Compile the keymap into the kernel? -->
-      <xsl:when test="contains(string(),'defkeymap') and
-                $keymap = 'none'"/>
+      <!-- Compile the keymap into the kernel has been disabled -->
+      <xsl:when test="contains(string(),'defkeymap')"/>
       <!-- Copying the kernel config file -->
       <xsl:when test="string() = 'make mrproper'">
         <xsl:text>make mrproper&#xA;</xsl:text>
@@ -144,9 +140,6 @@
       <xsl:when test="ancestor::sect1[@id='ch-cross-tools-groff'] or
                       ancestor::sect1[@id='ch-system-groff']">
         <xsl:value-of select="$page"/>
-      </xsl:when>
-      <xsl:when test="ancestor::sect1[@id='ch-bootable-kernel']">
-        <xsl:value-of select="$keymap"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:text>**EDITME</xsl:text>

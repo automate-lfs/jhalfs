@@ -16,9 +16,6 @@
   <!-- Build method used -->
   <xsl:param name="method" select="chroot"/>
 
-  <!-- Compile the keymap into the kernel? -->
-  <xsl:param name="keymap" select="none"/>
-
   <!-- Run test suites?
        0 = none
        1 = only Glibc, GCC and Binutils testsuites
@@ -168,9 +165,8 @@
         <xsl:value-of select="substring-after(string(),'charmap]')"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
-      <!-- Compile the keymap into the kernel? -->
-      <xsl:when test="contains(string(),'defkeymap') and
-                $keymap = 'none'"/>
+      <!-- Compile the keymap into the kernel has been disabled for 1.0 -->
+      <xsl:when test="contains(string(),'defkeymap')"/>
       <!-- Copying the kernel config file -->
       <xsl:when test="string() = 'make mrproper'">
         <xsl:text>make mrproper&#xA;</xsl:text>
@@ -285,10 +281,6 @@
       </xsl:when>
       <xsl:when test="ancestor::sect1[@id='ch-system-groff']">
         <xsl:value-of select="$page"/>
-      </xsl:when>
-      <xsl:when test="ancestor::sect1[@id='ch-boot-kernel'] or
-                      ancestor::sect1[@id='ch-bootable-kernel']">
-        <xsl:value-of select="$keymap"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:text>**EDITME</xsl:text>
