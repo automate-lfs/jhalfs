@@ -236,22 +236,6 @@ menu "--- BOOK Settings"
 			#   and renamed 'bootkernel-config'
 			#
 			# NOTE: this setting is required
-
-	config	BOOT_KEYMAP
-		string "BOOT kernel keyboard map (see help)"
-		default "none"
-		depends on BUILD_BOOT
-		help
-			#-- Include the keymap in the kernel if defined. Path to the
-			#   keymap file relative to /usr/share/kbd/keymaps/
-			#   (e.g., i386/qwerty/us.map.gz) or "none" if you do not want
-			#   a keymap included in the kernel
-
-			           === Note about CLFS ===
-			If building the SVN, Branch 1.0, or 1.0.0rc4 version using the boot method
-			and compiling the keymap into the kernel, you MUST manually edit the
-			"loadkeys" command found in $JHALFSDIR/clfs-commands/boot/066-kernel
-			to set the full path in your host to the keymap file.
 	#--- End CLFS specific params
 
 	#--- HLFS specific params
@@ -619,16 +603,6 @@ menu "--- Build Settings"
 			#-- Fully qualified path to a kernel config file
 			#   The config file will be copied to ${BUILD_DIR}/sources
 			#   and renamed 'kernel-config'
-
-	config	KEYMAP
-		string "Keyboard map"
-		default "none"
-		depends on !BOOK_LFS && CONFIG_BUILD_KERNEL
-		help
-			#-- Include the keymap in the kernel if defined. Path to the
-			#   keymap file relative to /usr/share/kbd/keymaps/
-			#   (e.g., i386/qwerty/us.map.gz) or "none" if you do not want
-			#   a keymap included in the kernel
 	#--- End Kernel
 
 	config	STRIP

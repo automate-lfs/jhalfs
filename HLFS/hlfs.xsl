@@ -19,9 +19,6 @@
   <!-- Is the host kernel using grsecurity? -->
   <xsl:param name="grsecurity_host" select="n"/>
 
-  <!-- Compile the keymap into the kernel? -->
-  <xsl:param name="keymap" select="none"/>
-
   <!-- Run test suites?
        0 = none
        1 = only chapter06 Glibc, GCC and Binutils testsuites
@@ -199,9 +196,8 @@
         <xsl:text>make install&#xA;</xsl:text>
         <xsl:text>cd ../blfs-bootscripts-&blfs-bootscripts-version;&#xA;</xsl:text>
       </xsl:when>
-      <!-- Compile the keymap into the kernel? -->
-      <xsl:when test="contains(string(),'defkeymap') and
-                $keymap = 'none'"/>
+      <!-- Compile the keymap into the kernel has been dissabled -->
+      <xsl:when test="contains(string(),'defkeymap')"/>
       <!-- Copying the kernel config file -->
       <xsl:when test="string() = 'make mrproper'">
         <xsl:text>make mrproper&#xA;</xsl:text>
@@ -318,9 +314,6 @@
       </xsl:when>
       <xsl:when test="ancestor::sect1[@id='ch-system-groff']">
         <xsl:value-of select="$page"/>
-      </xsl:when>
-      <xsl:when test="ancestor::sect1[@id='bootable-kernel']">
-        <xsl:value-of select="$keymap"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:text>**EDITME</xsl:text>
