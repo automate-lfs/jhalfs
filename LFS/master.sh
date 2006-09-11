@@ -97,7 +97,7 @@ chapter5_Makefiles() {
     # the names of the targets in the Makefile
     # DO NOT append the changingowner script.
     # A hack is necessary: create script in chap5 BUT run as a dependency for
-    #  chap6 CHROOT 
+    #  chap6 CHROOT
     case "${this_script}" in
       *changingowner) : ;;
                    *) chapter5="$chapter5 ${this_script}" ;;
@@ -362,12 +362,12 @@ build_Makefile() {           #
 #----------------------------#
 
   echo "Creating Makefile... ${BOLD}START${OFF}"
-  
+
   cd $JHALFSDIR/${PROGNAME}-commands
 
   # Start with a clean Makefile.tmp file
   >$MKFILE
-  
+
   chapter4_Makefiles
   chapter5_Makefiles
   chapter6_Makefiles
@@ -443,7 +443,7 @@ mk_SETUP:
 	@\$(call echo_SU_request)
 	@sudo make SETUP
 	@touch \$@
-	
+
 mk_LUSER: mk_SETUP
 	@\$(call echo_SULUSER_request)
 	@( \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make LUSER" )
@@ -452,7 +452,7 @@ mk_LUSER: mk_SETUP
 # The convoluted piece of code below is necessary to provide 'make' with a valid shell in the
 # chroot environment. (Unless someone knows a different way)
 # Manually create the /bin directory and provide link to the /tools dir.
-# Also change the original symlink creation to include (f)orce to prevent failure due to 
+# Also change the original symlink creation to include (f)orce to prevent failure due to
 #  pre-existing links.
 #
 mk_CHROOT: mk_LUSER 057-changingowner 059-kernfs
@@ -464,11 +464,11 @@ mk_CHROOT: mk_LUSER 057-changingowner 059-kernfs
 	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make CHROOT")
 	@touch \$@
 
-mk_BOOT: mk_CHROOT 
+mk_BOOT: mk_CHROOT
 	@\$(call echo_CHROOT_request)
 	@( sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BOOT")
 	@touch \$@
-	
+
 
 SETUP:	$chapter4
 
@@ -479,42 +479,7 @@ CHROOT:	$chapter6
 BOOT:	$chapter789
 
 
-
-clean-all:  clean
-	rm -rf ./{lfs-commands,logs,Makefile,*.xsl,makefile-functions,packages,patches}
-
-clean:  clean-chapter789 clean-chapter6 clean-chapter5 clean-chapter4
-
 restart: restart_code all
-
-clean-chapter4:
-	-if [ ! -f luser-exist ]; then \\
-		userdel \$(LUSER); \\
-		rm -rf /home/\$(LUSER); \\
-	fi;
-	rm -rf \$(MOUNT_PT)/tools
-	rm -f /tools
-	rm -f envars luser-exist
-	rm -f 02* logs/02*.log
-
-clean-chapter5:
-	rm -rf \$(MOUNT_PT)/tools/*
-	rm -f $chapter5 restore-luser-env sources-dir
-	cd logs && rm -f $chapter5 && cd ..
-
-clean-chapter6:
-	-umount \$(MOUNT_PT)/sys
-	-umount \$(MOUNT_PT)/proc
-	-umount \$(MOUNT_PT)/dev/shm
-	-umount \$(MOUNT_PT)/dev/pts
-	-umount \$(MOUNT_PT)/dev
-	rm -rf \$(MOUNT_PT)/{bin,boot,dev,etc,home,lib,media,mnt,opt,proc,root,sbin,srv,sys,tmp,usr,var}
-	rm -f $chapter6
-	cd logs && rm -f $chapter6 && cd ..
-
-clean-chapter789:
-	rm -f $chapter789
-	cd logs && rm -f $chapter789 && cd ..
 
 restore-luser-env:
 	@\$(call echo_message, Building)

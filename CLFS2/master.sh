@@ -152,7 +152,7 @@ cross_tools_Makefiles() {     #
         ;;
       *) ;;
     esac
-    
+
     #
     # Set the dependency for the first target.
     if [ -z $PREV ] ; then PREV=028-creating-sysfile ; fi
@@ -359,7 +359,7 @@ bootable_Makefiles() {        #
     #  phase.
     case ${this_script} in
       *chowning) chowning=${this_script}   ;;
-              *) bootable="$bootable $this_script"  ;;      
+              *) bootable="$bootable $this_script"  ;;
     esac
     #
     # Grab the name of the target, strip id number and misc words.
@@ -472,7 +472,7 @@ mk_SETUP:
 	@\$(call echo_SU_request)
 	@sudo make SETUP
 	@touch \$@
-	
+
 mk_LUSER: mk_SETUP
 	@\$(call echo_SULUSER_request)
 	@( \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make LUSER" )
@@ -488,13 +488,9 @@ LUSER:	$cross_tools $basicsystem $bootscripttools $bootable
 
 ROOT:	$chowning
 
-clean-all:  clean
-	rm -rf ./{clfs2-commands,logs,Makefile,*.xsl,makefile-functions,packages,patches}
-
-clean:
 
 restart:
-	@echo "This feature does not exist for the CLFS makefile. (yet)"
+	@echo "This feature does not exist for the CLFS-2 makefile. (yet)"
 
 restore-luser-env:
 	@\$(call echo_message, Building)
