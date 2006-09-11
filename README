@@ -31,100 +31,41 @@ $Id$
      - be able to trace build failures and to find what is causing it
        (user error, package bug, {c,h,b}LFS command bug, or jhalfs code bug)
 
-     If you don't have the above skill, please don't use this tool.
+     If you do not have the above skills, please don't use this tool.
 
 
 3. INSTALLATION::
+
      No installation is required. System-wide installation is not allowed
   for now.
 
 4. CONFIGURATION FILES::
-     Each book in the LFS series has its own set of configurable parameters
-  as well as the common parameters file.
 
      ::NEWS:: There is new configuration method for jhalfs.
 
      We have installed the familiar menu based configuration tool driven by
-     make. If you type the command
-       make
-     you will be presented with a list of configurable parameters (starting
-     with the book you wish to use). All the parameters found in the individual
-     config files are available. Once you have finished setting the parameters
-     and exit the make file will launch the chosen book version of jhalfs.
-     JHALFS will import your created file and overider the values found in normal
-     "config" files.
-     ..note.. The generated file <configuration> is only used by jhalfs if you
-     run jhalfs via make otherwise it is ignored.
-
-     If you want to try out the new configuration system without running jhalfs
-     issue the following.
-       make menuconfig
-     This will create a new file named configuration but will not launch jhalfs.
+     by GNU make. see the section RUNNING, for details
 
 5. RUNNING::
-     The script master.sh cannot be invoked directly but only via the
-  supplied symlinks. After editing the config file for the project you wish
-  to build, run the script.
 
-     IMPORTANT:
-       If you use the switch -M (automatically run the generated makefile) you
-       must be 'root' or you can run the scripts using 'sudo'
-        i.e.  sudo ./lfs -G -M
+     ::NEWS:: jhalfs is now launched via GNU make instead of individual symlinks.
+     The command <make> will launch a menu based configuration program. You will
+     recognize the layout from bulding the kernel or uClibc/Busybox. The
+     underlying menu code was borrowed from BusyBox and slightly modified for 
+     our use.
 
-       If you want to run make manually you can only do so if you are 'root' or
-       via 'sudo'
-        i.e  (from within the jhalfs directory) sudo make
+     Help on parameter function is available from the online help.
+     
+     Once you have set the parameters you wish and have saved your work the 
+     makefile will proceed to launch the jhalfs script. The script validate and
+     present you with your selections which you may accept or reject.
+     
+     If you accepted the displayed settings jhalfs will proceed to create the
+     makefile, optionally download packages.
 
-     The term <symlink> refers to the 1 of 3 package symlinks, lfs,hlfs,clfs.
-     Replace <symlink> with your choice of packages; i.e.: ./lfs
-
-     ./<symlink>		eg: ./lfs or ./hlfs
-     Create a makefile based on the settings found in the config files.
-     You must enter the build partition/jhalfs directory and manually run <make>
-
-     ./<symlink> -G		eg: ./lfs -G
-     Download the packages and patches necessary to build <symlink>
-
-     ./<symlink> -G -M		eg: ./lfs -G -M
-     Download the packages, create and automatically run the Makefile
-
-     ./<symlink> --help		eg: ./lfs --help
-     will give you a context sensitive list of command line switches.
-
-   >>>> an expanded example
-
-   export SRC_ARCHIVE=/mnt/SourceFiles
-
-   ./lfs -D /mnt/partition4 \
-         -K ~/jhalfs_configs/linux-2.6.16.19-LFS.config \
-	 -F ~/jhalfs-configs/fstab-sda3 \
-	 -G -T 0 -M
-
-   explanation:::
-
-   export SRC_ARCHIVE=/mnt/SourceFiles
-      # This points to a local archive of existing packages. If the version in
-        the archive is incorrect jhalfs will access the net and download the
-	necessary version and store it here for later use. DO NOT set this to
-	$BUILDDIR/sources. If you do not set this variable to a valid directory
-	ALL package tarballs will be downloaded from the 'net.
-
-   -D /mnt/partition4
-      # where everything takes place.  ..NOTE it must already exist and be mounted
-
-   -K ~/jhalfs_configs/linux-2.6.16.19-LFS.config
-      # If you want to automatically build a the kernel you MUST supply a valid
-        kernel configuration file. The file you supply will be copied and renamed.
-
-   -F ~/jhalfs-configs/fstab-sda3
-      # If you have a fstab file you wish to use it will be copied and renamed
-
-   -G   # Retrieve the package files. You MUST enable this flag at least once if you
-          wish to do a build or whenever you update the book.
-
-   -T 0 # don't run any testsuites
-
-   -M   # automatically run make against Makefile once jhalfs finishes its work.
+     NOTE::    
+     If you run the jhalfs script directly the only funcion you can select is to
+     display the version number
 
 
 6. LAYOUT::
@@ -159,15 +100,15 @@ $Id$
                /farce
                /filelist
 
-         README
-	 README.PACO
-	 TODO
+        README
+	README.BLFS
+	README.PACO
+	TODO
 
-	 ./clfs  ---|
-	 ./clfs2 ---|
-	 ./hlfs  ---|+---> master.sh
-	 ./lfs   ---|
-
+	Config.in
+	makefile
+	jhalfs
+	blfs-tool
 
 7. FAQ::
     Q. "This 'help' file is very sparse"
@@ -176,7 +117,7 @@ $Id$
        solved by reading the book(s).
 
     Q. "It doesn't work!"
-    A. Yes it does, try ./lfs --help
+    A. Yes it does, try >> make
        Remember you must either be 'root' to run this script or have 'sudo' privileges.
 
     Q. "It still doesn't work"
@@ -224,7 +165,7 @@ $Id$
     A. If you are running jhalfs from a low or non-priveledged account you may not
        have the priv to create/delete accounts. These variables are adjustable
        when invoking make.
-         make LUSER=myaccount LGROUP=mygroup
+         $BUILDDIR make LUSER=myaccount LGROUP=mygroup
        Then only changes to your account will be the creation of a NEW .bashrc after
        saving your original to .bashrc.XXX
 
@@ -237,9 +178,9 @@ $Id$
        it means the host and target are not compatible an you should use the
        'boot' method to create your target code.
        As an extreme example: You can build a sparc target on a x86 platform but
-       only the temptools phase. You must run ./clfs using the 'boot' method and
-       not the 'chroot.' You must transfer the toolchain to a sparc platform, reboot
-       the sparc box and continue the build.
+       only the temptools phase. You must select the 'boot' method and not the 
+       'chroot.' You must transfer the toolchain to a sparc platform, reboot the
+       sparc box and continue the build.
        Of all the LFS series of books Cross-LFS requires the greatest
        understanding of host/target hardware combination. Please read the book
        carefully and don't skip the easy parts (there are none..)
