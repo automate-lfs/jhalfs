@@ -26,7 +26,7 @@ cat << EOF
 
 $i:  $PREV
 	@\$(call echo_message, Building)
-	@./progress_bar.sh \$@ &
+	@./progress_bar.sh \$@ \$\$PPID &
 EOF
 ) >> $MKFILE.tmp
 }
