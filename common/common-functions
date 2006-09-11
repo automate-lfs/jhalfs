@@ -68,7 +68,7 @@ wrt_RunAsRoot() {                  # Some scripts must be run as root..
     hlfs  ) MOUNT_ENV="HLFS" ;;
     *) echo "undefined progname $PROGNAME"; exit 1
   esac
-  
+
 (
 cat << EOF
 	@( time { export ${MOUNT_ENV}=\$(MOUNT_PT) && ${PROGNAME}-commands/`dirname $file`/\$@ >>logs/\$@ 2>&1 ; } ) 2>>logs/\$@ && \\
@@ -94,32 +94,11 @@ EOF
 }
 
 
-#----------------------------------#
-wrt_target_boot() {                # Create target and initialize log file
-#----------------------------------#
-  local i=$1
-  local PREV=$2
-  case $i in
-    iteration* ) local LOGFILE="\$@.log" ;;
-             * ) local LOGFILE="\$@" ;;
-  esac
-(
-cat << EOF
-
-$i:  $PREV
-	@\$(call echo_message, Building)
-	@./progress_bar.sh \$@ &
-	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=${SCRIPT_ROOT}\`\n" >logs/$LOGFILE
-EOF
-) >> $MKFILE.tmp
-}
-
-
 #------------------------------------------------------#
 #------------------------------------------------------#
 
 #----------------------------------#
-ROOT_RunAsRoot() {                 # 
+ROOT_RunAsRoot() {                 #
 #----------------------------------#
   local file=$1
 (
@@ -764,7 +743,7 @@ create_urls() {              #
   cd $BUILDDIR/sources
 
   if [[ "${BLFS_TOOL}" = "y" ]]; then
-    add_blfs_deps_urls 
+    add_blfs_deps_urls
   fi
 
 }
