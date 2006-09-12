@@ -247,7 +247,16 @@ check_version "2.6.2" "`uname -r`"         "KERNEL"
 check_version "3.0"   "$BASH_VERSION"      "BASH"
 check_version "3.0"   "`gcc -dumpversion`" "GCC"
 tarVer=`tar --version | head -n1 | cut -d " " -f4`
-check_version "1.15.0" "${tarVer}"      "TAR"
+check_version "1.15.0"  "${tarVer}"      "TAR"
+
+SUDO_LOC="`whereis -b sudo | cut -d " " -f2`"
+if [ -x $SUDO_LOC ]; then
+  sudoVer=`sudo -V | head -n1 | cut -d " " -f3`
+  echo "SUDO    ${L_arrow}${BOLD}${sudoVer}${R_arrow}${OFF} ..OK"
+else
+  echo "${nl_}\"${RED}sudo${OFF}\" ${BOLD}must be installed on your system for jhalfs to run"
+  exit 1
+fi
 echo "${SD_BORDER}${nl_}"
 
 validate_config
