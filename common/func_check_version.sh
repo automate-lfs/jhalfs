@@ -30,12 +30,6 @@ inline_doc
   # This saves us the save/restore hassle of the system IFS value
   local IFS
 
-#  if  echo $ref_version | grep [[:alpha:]] 2>&1 >/dev/null || 
-#      echo $tst_version | grep [[:alpha:]] 2>&1 >/dev/null ;then
-#    echo "Cannot test for text, 0.0.0a, version types, assuming 'success' " 
-#    return    
-#  fi
-    
   write_error_and_die() {
      echo -e "\n\t\t$TXT version -->${tst_version}<-- is too old.
 		    This script requires ${ref_version} or greater\n"
@@ -43,7 +37,7 @@ inline_doc
   }
 
   echo -ne "$TXT:\t${L_arrow}${BOLD}${tst_version}${OFF}${R_arrow}"
-  IFS=".-("   # Split up w.x.y.z as well as w.x.y-rc  (catch release candidates)
+  IFS=".-(p"   # Split up w.x.y.z as well as w.x.y-rc  (catch release candidates)
   set -- $ref_version # set postional parameters to minimum ver values
   ref_major=$1; ref_minor=$2; ref_revision=$3
   #
