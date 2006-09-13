@@ -343,8 +343,8 @@ run_make() {                 #
   # Test if make must be run.
   if [ "$RUNMAKE" = "y" ] ; then
     # Test to make sure we're running the build as root
-    if [ "$UID" != "0" ] ; then
-      echo "You must be logged in as root to successfully build the system."
+    if [ "$UID" = "0" ] ; then    
+      echo "You must not be logged in as root to build the system."
       exit 1
     fi
     # Build the system

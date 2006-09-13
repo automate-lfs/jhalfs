@@ -65,7 +65,8 @@ cat << EOF
 	echo "source $JHALFSDIR/envars" >> /home/\$(LUSER)/.bashrc
 	@chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bashrc && \\
 	touch envars && \\
-	chown \$(LUSER):\$(LGROUP) envars
+	chown \$(LUSER):\$(LGROUP) envars && \\
+	chmod -R a+wt \$(MOUNT_PT)
 	@touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
@@ -465,8 +466,17 @@ EOF
 (
 cat << EOF
 
-all:	mk_SETUP mk_LUSER mk_ROOT
+all:	ck_UID mk_SETUP mk_LUSER mk_ROOT
+	@sudo do_housekeeping
 	@\$(call echo_finished,$VERSION)
+
+ck_UID:
+	@if [ \`id -u\` = "0" ]; then \\
+	  echo "--------------------------------------------------"; \\
+	  echo "You cannot run this makefile from the root account"; \\
+	  echo "--------------------------------------------------"; \\
+	  exit 1; \\
+	fi
 
 mk_SETUP:
 	@\$(call echo_SU_request)
@@ -475,7 +485,8 @@ mk_SETUP:
 
 mk_LUSER: mk_SETUP
 	@\$(call echo_SULUSER_request)
-	@( \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make LUSER" )
+	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make LUSER" )
+	@sudo restore-luser-env
 	@touch \$@
 
 mk_ROOT:

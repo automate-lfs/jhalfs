@@ -171,6 +171,7 @@ cat << EOF
 	echo "source $JHALFSDIR/envars" >> /home/\$(LUSER)/.bashrc
 	@chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bashrc && \\
 	touch envars && \\
+	chmod -R a+wt \$(MOUNT_PT) && \\
 	chown -R \$(LUSER) \$(MOUNT_PT)/\$(SCRIPT_ROOT) && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
@@ -319,9 +320,9 @@ chroot_Makefiles() {                   #
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
     case "${this_script}" in
-      *util-linux) : ;;
-      *kernfs) orphan_scripts="${orphan_scripts} ${this_script}"  ;;
-      *)          chroottools="$chroottools $this_script"         ;;
+      *util-linux) orphan_scripts="${orphan_scripts} ${this_script}"  ;;
+      *kernfs)     orphan_scripts="${orphan_scripts} ${this_script}"  ;;
+      *)           chroottools="$chroottools $this_script"            ;;
     esac    
 
     # Grab the name of the target, strip id number, XXX-script
@@ -1181,8 +1182,17 @@ if [[ "${METHOD}" = "chroot" ]]; then
 (
 cat << EOF
 
-all: mk_SETUP mk_CROSS mk_TEMP restore_luser_env mk_SYSTOOLS mk_FINAL mk_BOOTSCRIPT mk_BOOTABLE do-housekeeping
+all: ck_UID mk_SETUP mk_CROSS mk_TEMP mk_SUDO mk_SYSTOOLS mk_FINAL mk_BOOTSCRIPT mk_BOOTABLE
+	@sudo make do-housekeeping
 	@\$(call echo_finished,$VERSION)
+
+ck_UID:
+	@if [ \`id -u\` = "0" ]; then \\
+	  echo "--------------------------------------------------"; \\
+	  echo "You cannot run this makefile from the root account"; \\
+	  echo "--------------------------------------------------"; \\
+	  exit 1; \\
+	fi
 
 #---------------AS ROOT
 mk_SETUP:
@@ -1193,14 +1203,18 @@ mk_SETUP:
 #---------------AS LUSER
 mk_CROSS: mk_SETUP
 	@\$(call echo_PHASE,Cross Tool)
-	@( \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make CROSS" )
+	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make CROSS" )
 	@touch \$@
 
 mk_TEMP: mk_CROSS
 	@\$(call echo_PHASE,Temporary Tools)
-	@( \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make TEMP" )
+	@(sudo  \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make TEMP" )
+	@sudo make restore-luser-env
 	@touch \$@
 
+mk_SUDO: mk_TEMP
+	@sudo make SUDO
+	@touch \$@
 #
 # The convoluted piece of code below is necessary to provide 'make' with a valid shell in the
 # chroot environment. (Unless someone knows a different way)
@@ -1209,7 +1223,7 @@ mk_TEMP: mk_CROSS
 #  pre-existing links.
 
 #---------------CHROOT JAIL
-mk_SYSTOOLS: mk_TEMP $orphan_scripts
+mk_SYSTOOLS: mk_SUDO 
 	@mkdir \$(MOUNT_PT)/bin && \\
 	cd \$(MOUNT_PT)/bin && \\
 	ln -sf /tools/bin/bash bash; ln -sf bash sh
@@ -1245,11 +1259,21 @@ if [[ "${METHOD}" = "boot" ]]; then
 (
 cat << EOF
 
-all:	mk_SETUP mk_CROSS mk_TEMP mk_SYSTOOLS $orphan_scripts restore-luser-env
+all:	ck_UID mk_SETUP mk_CROSS mk_TEMP mk_SYSTOOLS mk_SUDO
+	@sudo make restore-luser-env
 	@\$(call echo_boot_finished,$VERSION)
 
 makesys: mk_FINAL mk_BOOTSCRIPT mk_BOOTABLE
 	@\$(call echo_finished,$VERSION)
+
+
+ck_UID:
+	@if [ \`id -u\` = "0" ]; then \\
+	  echo "--------------------------------------------------"; \\
+	  echo "You cannot run this makefile from the root account"; \\
+	  echo "--------------------------------------------------"; \\
+	  exit 1; \\
+	fi
 
 #---------------AS ROOT
 
@@ -1262,17 +1286,21 @@ mk_SETUP:
 	
 mk_CROSS: mk_SETUP
 	@\$(call echo_PHASE,Cross Tool)
-	@( \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make CROSS" )
+	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make CROSS" )
 	@touch \$@
 
 mk_TEMP: mk_CROSS
 	@\$(call echo_PHASE,Temporary Tools)
-	@( \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make TEMP" )
+	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make TEMP" )
 	@touch \$@
 
 mk_SYSTOOLS: mk_TEMP
 	@\$(call echo_PHASE,Minimal Boot system)
-	@( \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make SYSTOOLS" )
+	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make SYSTOOLS" )
+	@touch \$@
+
+mk_SUDO: mk_SYSTOOLS
+	@sudo make SUDO
 	@touch \$@
 
 #---------------AS ROOT
@@ -1302,6 +1330,7 @@ fi
 SETUP:      $host_prep
 CROSS:      $cross_tools
 TEMP:       $temptools
+SUDO:	    $orphan_scripts
 SYSTOOLS:   ${chroottools}${boottools}
 FINAL:      $testsuitetools $basicsystem
 BOOTSCRIPT: $bootscripttools

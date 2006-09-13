@@ -707,6 +707,7 @@ menu "--- Advanced Features"
 	#--- End ICA/farce
 
 	#--- Optimizations
+if !BOOK_CLFS2
 	config	CONFIG_OPTIMIZE
 		bool	"Use optimization (see help)"
 		default	n
@@ -740,6 +741,7 @@ menu "--- Advanced Features"
 		default	"0"	if !CONFIG_OPTIMIZE
 		default	"1"	if OPT_1
 		default	"2"	if OPT_2
+endif
 	#--- End Optimizations
 
 	#-- Internal Settings

@@ -153,6 +153,7 @@ cat << EOF
 	echo "export target ldso" >> /home/\$(LUSER)/.bashrc && \\
 	echo "source $JHALFSDIR/envars" >> /home/\$(LUSER)/.bashrc && \\
 	chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bashrc && \\
+	chmod -R a+wt \$(MOUNT_PT) && \\
 	touch envars && \\
 	chown \$(LUSER) envars && \\
 	touch \$@ && \\
@@ -555,9 +556,17 @@ EOF
 (
   cat << EOF
 
-all:	mk_SETUP mk_LUSER mk_CHROOT mk_BOOT do-housekeeping
+all:	ck_UID mk_SETUP mk_LUSER mk_SUDO mk_CHROOT mk_BOOT
+	@sudo make do-housekeeping
 	@\$(call echo_finished,$VERSION)
 
+ck_UID:
+	@if [ \`id -u\` = "0" ]; then \\
+	  echo "--------------------------------------------------"; \\
+	  echo "You cannot run this makefile from the root account"; \\
+	  echo "--------------------------------------------------"; \\
+	  exit 1; \\
+	fi
 
 mk_SETUP:
 	@\$(call echo_SU_request)
@@ -566,10 +575,15 @@ mk_SETUP:
 	
 mk_LUSER: mk_SETUP
 	@\$(call echo_SULUSER_request)
-	@( \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make LUSER" )
+	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make LUSER" )
+	@sudo make restore-luser-env
 	@touch \$@
 
-mk_CHROOT: mk_LUSER 060-kernfs 062-changingowner
+mk_SUDO: mk_LUSER
+	@sudo make SUDO
+	@touch \$@
+	
+mk_CHROOT: mk_SUDO 
 	@mkdir \$(MOUNT_PT)/bin && \
 	cd \$(MOUNT_PT)/bin && \
 	ln -sf /tools/bin/bash bash; ln -sf bash sh
@@ -587,6 +601,8 @@ mk_BOOT: mk_CHROOT
 SETUP:	$chapter3
 
 LUSER:	$chapter5
+
+SUDO:	060-kernfs 062-changingowner
 
 CHROOT:	$chapter6
 

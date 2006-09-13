@@ -39,7 +39,7 @@ chapter4_Makefiles() {       #
 	fi;
 	@chown \$(LUSER) \$(MOUNT_PT)/tools && \\
 	chown -R \$(LUSER) \$(MOUNT_PT)/\$(SCRIPT_ROOT) && \\
-	chmod a+wt \$(MOUNT_PT)/sources && \\
+	chmod -R a+wt \$(MOUNT_PT) && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
@@ -435,10 +435,18 @@ EOF
 (
     cat << EOF
 
-all:	mk_SETUP mk_LUSER mk_CHROOT mk_BOOT
+all:	ck_UID mk_SETUP mk_LUSER mk_SUDO mk_CHROOT mk_BOOT
+	@sudo housekeeping
 	@\$(call echo_finished,$VERSION)
 
-
+ck_UID:
+	@if [ \`id -u\` = "0" ]; then \\
+	  echo "--------------------------------------------------"; \\
+	  echo "You cannot run this makefile from the root account"; \\
+	  echo "--------------------------------------------------"; \\
+	  exit 1; \\
+	fi
+	
 mk_SETUP:
 	@\$(call echo_SU_request)
 	@sudo make SETUP
@@ -446,8 +454,12 @@ mk_SETUP:
 
 mk_LUSER: mk_SETUP
 	@\$(call echo_SULUSER_request)
-	@( \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make LUSER" )
+	@( sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make LUSER" )
 	@touch \$@
+
+mk_SUDO: mk_LUSER
+	@sudo make SUDO
+	touch \$@
 #
 # The convoluted piece of code below is necessary to provide 'make' with a valid shell in the
 # chroot environment. (Unless someone knows a different way)
@@ -455,13 +467,14 @@ mk_LUSER: mk_SETUP
 # Also change the original symlink creation to include (f)orce to prevent failure due to
 #  pre-existing links.
 #
-mk_CHROOT: mk_LUSER 057-changingowner 059-kernfs
+mk_CHROOT: mk_LUSER
 	@mkdir \$(MOUNT_PT)/bin && \\
 	cd \$(MOUNT_PT)/bin && \\
 	ln -sf /tools/bin/bash bash; ln -sf bash sh
 	@sed -e 's|^ln -sv|ln -svf|' -i \$(CMDSDIR)/chapter06/063-createfiles
 	@\$(call echo_CHROOT_request)
 	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make CHROOT")
+	@sudo restore-luser-env
 	@touch \$@
 
 mk_BOOT: mk_CHROOT
@@ -473,6 +486,8 @@ mk_BOOT: mk_CHROOT
 SETUP:	$chapter4
 
 LUSER:	$chapter5
+
+SUDO:	057-changingowner 059-kernfs
 
 CHROOT:	$chapter6
 
