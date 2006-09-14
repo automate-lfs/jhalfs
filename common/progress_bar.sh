@@ -16,6 +16,8 @@ declare -r  ERASE_LINE=${CSI}$'2K'
 declare -r  FRAME_OPEN=${CSI}$'2G['
 declare -r  FRAME_CLOSE=${CSI}$'63G]'
 declare -r  TS_POSITION=${CSI}$'65G'
+declare -r  LINE_WRAP_OFF=${CSI}$'?7l'
+declare -r  LINE_WRAP_ON=${CSI}$'?7h'
 declare -a  RESET_LINE=${CURSOR_OFF}${ERASE_LINE}${FRAME_OPEN}${FRAME_CLOSE}
 
 declare -a  GRAPHIC_STR="| / - \\ + "
@@ -54,7 +56,7 @@ while true ; do
     (( PREV_SEC = SEC ))
 
       # Display the accumulated time. div minutes.. modulo seconds.
-    write_or_exit "${TS_POSITION}$(($SECONDS / 60)) min. $SEC sec. "
+    write_or_exit "${TS_POSITION}$(($SECONDS / 60)) min. $SEC sec"
 done
 
 exit
