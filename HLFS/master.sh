@@ -584,10 +584,12 @@ mk_SUDO: mk_LUSER
 	@touch \$@
 	
 mk_CHROOT: mk_SUDO 
-	@mkdir \$(MOUNT_PT)/bin && \
-	cd \$(MOUNT_PT)/bin && \
-	ln -sf /tools/bin/bash bash; ln -sf bash sh
-	@sed -e 's|^ln -vs|ln -svf|' -i \$(CMDSDIR)/chapter06/064-createfiles
+	@if [ ! -e \$(MOUNT_PT)/bin ]; then \\
+	  mkdir \$(MOUNT_PT)/bin; \\
+	  cd \$(MOUNT_PT)/bin && \\
+	  ln -sf /tools/bin/bash bash; ln -sf bash sh; \\
+	fi;
+	@sudo sed -e 's|^ln -sv|ln -svf|' -i $(CMDSDIR)/chapter06/064-createfiles
 	@\$(call echo_CHROOT_request)
 	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make CHROOT")
 	@touch \$@

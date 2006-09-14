@@ -1224,10 +1224,12 @@ mk_SUDO: mk_TEMP
 
 #---------------CHROOT JAIL
 mk_SYSTOOLS: mk_SUDO 
-	@mkdir \$(MOUNT_PT)/bin && \\
-	cd \$(MOUNT_PT)/bin && \\
-	ln -sf /tools/bin/bash bash; ln -sf bash sh
-	@sed -e 's|^ln -sv|ln -svf|' -i \$(CMDSDIR)/chroot/082-createfiles
+	@if [ ! -e \$(MOUNT_PT)/bin ]; then \\
+	  mkdir \$(MOUNT_PT)/bin; \\
+	  cd \$(MOUNT_PT)/bin && \\
+	  ln -svf /tools/bin/bash bash; ln -sf bash sh; \\
+	fi;
+	@sudo sed -e 's|^ln -sv|ln -svf|' -i \$(CMDSDIR)/chroot/082-createfiles
 	@\$(call echo_CHROOT_request)
 	@\$(call echo_PHASE, Chroot systools)
 	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make SYSTOOLS")

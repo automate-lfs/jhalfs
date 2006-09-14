@@ -467,11 +467,13 @@ mk_SUDO: mk_LUSER
 # Also change the original symlink creation to include (f)orce to prevent failure due to
 #  pre-existing links.
 #
-mk_CHROOT: mk_LUSER
-	@mkdir \$(MOUNT_PT)/bin && \\
-	cd \$(MOUNT_PT)/bin && \\
-	ln -sf /tools/bin/bash bash; ln -sf bash sh
-	@sed -e 's|^ln -sv|ln -svf|' -i \$(CMDSDIR)/chapter06/063-createfiles
+mk_CHROOT: mk_SUDO
+	@if [ ! -e \$(MOUNT_PT)/bin ]; then \\
+	  mkdir \$(MOUNT_PT)/bin; \\
+	  cd \$(MOUNT_PT)/bin && \\
+	  ln -sf /tools/bin/bash bash; ln -sf bash sh; \\
+	fi;
+	@sudo sed -e 's|^ln -sv|ln -svf|' -i \$(CMDSDIR)/chapter06/063-createfiles
 	@\$(call echo_CHROOT_request)
 	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make CHROOT")
 	@sudo restore-luser-env
