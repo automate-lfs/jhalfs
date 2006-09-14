@@ -436,7 +436,7 @@ EOF
     cat << EOF
 
 all:	ck_UID mk_SETUP mk_LUSER mk_SUDO mk_CHROOT mk_BOOT
-	@sudo housekeeping
+	@sudo make do_housekeeping
 	@\$(call echo_finished,$VERSION)
 
 ck_UID:
@@ -476,7 +476,7 @@ mk_CHROOT: mk_SUDO
 	@sudo sed -e 's|^ln -sv |ln -svf |' -i \$(CMDSDIR)/chapter06/063-createfiles
 	@\$(call echo_CHROOT_request)
 	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make CHROOT")
-	@sudo restore-luser-env
+	@sudo make restore-luser-env
 	@touch \$@
 
 mk_BOOT: mk_CHROOT
