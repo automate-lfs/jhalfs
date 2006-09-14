@@ -473,7 +473,7 @@ mk_CHROOT: mk_SUDO
 	  cd \$(MOUNT_PT)/bin && \\
 	  ln -sf /tools/bin/bash bash; ln -sf bash sh; \\
 	fi;
-	@sudo sed -e 's|^ln -sv|ln -svf|' -i \$(CMDSDIR)/chapter06/063-createfiles
+	@sudo sed -e 's|^ln -sv |ln -svf |' -i \$(CMDSDIR)/chapter06/063-createfiles
 	@\$(call echo_CHROOT_request)
 	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make CHROOT")
 	@sudo restore-luser-env
