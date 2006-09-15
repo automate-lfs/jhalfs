@@ -524,6 +524,8 @@ LUSER_HOME   = /home/\$(LUSER)
 PRT_DU       = echo -e "\nKB: \`du -skx --exclude=jhalfs \$(MOUNT_PT)\`\n"
 PRT_DU_CR    = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) / \`\n"
 
+export PATH := \${PATH}:/usr/sbin
+
 include makefile-functions
 
 EOF

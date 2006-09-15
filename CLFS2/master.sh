@@ -456,6 +456,8 @@ SU_LUSER   = su - \$(LUSER) -c
 PRT_DU     = echo -e "\nKB: \`du -skx --exclude=jhalfs \$(MOUNT_PT)\`\n"
 LUSER_HOME = /home/\$(LUSER)
 
+export PATH := \${PATH}:/usr/sbin
+
 include makefile-functions
 
 EOF

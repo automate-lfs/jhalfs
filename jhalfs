@@ -257,6 +257,17 @@ else
   echo "${nl_}\"${RED}sudo${OFF}\" ${BOLD}must be installed on your system for jhalfs to run"
   exit 1
 fi
+
+xsltprocVer=`xsltproc -V | head -n1 `
+  libxmlVer=$(echo $xsltprocVer | cut -d " " -f3)
+ libxsltVer=$(echo $xsltprocVer | cut -d " " -f5)
+    tidyVer=`tidy -V | cut -d " " -f9`
+    
+# Version numbers are packed strings not xx.yy.zz format.
+check_version "2.06.20"  "${libxmlVer:0:1}.${libxmlVer:1:2}.${libxmlVer:3:2}"     "LIBXML2"
+check_version "1.01.14"  "${libxsltVer:0:1}.${libxsltVer:1:2}.${libxsltVer:3:2}"  "LIBXSLT"
+check_version "2004"   "${tidyVer}"        "TIDY"
+
 echo "${SD_BORDER}${nl_}"
 
 validate_config

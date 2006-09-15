@@ -36,7 +36,9 @@ inline_doc
      exit 1
   }
 
-  echo -ne "$TXT:\t${L_arrow}${BOLD}${tst_version}${OFF}${R_arrow}"
+  echo -ne "${TXT}${dotSTR:${#TXT}}${L_arrow}${BOLD}${tst_version}${OFF}${R_arrow}"
+
+#  echo -ne "$TXT:\t${L_arrow}${BOLD}${tst_version}${OFF}${R_arrow}"
   IFS=".-(p"   # Split up w.x.y.z as well as w.x.y-rc  (catch release candidates)
   set -- $ref_version # set postional parameters to minimum ver values
   ref_major=$1; ref_minor=$2; ref_revision=$3
@@ -45,13 +47,13 @@ inline_doc
   major=$1; minor=$2; revision=$3
   #
   # Compare against minimum acceptable version..
-  (( major > ref_major )) && echo " ..OK" && return
+  (( major > ref_major )) && echo " ..${GREEN}OK${OFF}" && return
   (( major < ref_major )) && write_error_and_die
     # major=ref_major
   (( minor < ref_minor )) && write_error_and_die
-  (( minor > ref_minor )) && echo " ..OK" && return
+  (( minor > ref_minor )) && echo " ..${GREEN}OK${OFF}" && return
     # minor=ref_minor
-  (( revision >= ref_revision )) && echo " ..OK" && return
+  (( revision >= ref_revision )) && echo " ..${GREEN}OK${OFF}" && return
 
   # oops.. write error msg and die
   write_error_and_die
