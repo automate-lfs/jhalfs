@@ -1182,15 +1182,15 @@ if [[ "${METHOD}" = "chroot" ]]; then
 (
 cat << EOF
 
-all: ck_UID mk_SETUP mk_CROSS mk_TEMP mk_SUDO mk_SYSTOOLS mk_FINAL mk_BOOTSCRIPT mk_BOOTABLE
+all: ck_UID mk_SETUP mk_CROSS mk_SUDO mk_SYSTOOLS
 	@sudo make do-housekeeping
 	@\$(call echo_finished,$VERSION)
 
 ck_UID:
 	@if [ \`id -u\` = "0" ]; then \\
-	  echo "--------------------------------------------------"; \\
-	  echo "You cannot run this makefile from the root account"; \\
-	  echo "--------------------------------------------------"; \\
+	  echo "+--------------------------------------------------+"; \\
+	  echo "|You cannot run this makefile from the root account|"; \\
+	  echo "+--------------------------------------------------+"; \\
 	  exit 1; \\
 	fi
 
@@ -1202,17 +1202,11 @@ mk_SETUP:
 	
 #---------------AS LUSER
 mk_CROSS: mk_SETUP
-	@\$(call echo_PHASE,Cross Tool)
-	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make CROSS" )
+	@\$(call echo_PHASE,Cross and Temporary Tools)
+	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make AS_LUSER" )
 	@touch \$@
 
-mk_TEMP: mk_CROSS
-	@\$(call echo_PHASE,Temporary Tools)
-	@(sudo  \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make TEMP" )
-	@sudo make restore-luser-env
-	@touch \$@
-
-mk_SUDO: mk_TEMP
+mk_SUDO: mk_CROSS
 	@sudo make SUDO
 	@touch \$@
 #
@@ -1231,25 +1225,16 @@ mk_SYSTOOLS: mk_SUDO
 	fi;
 	@sudo sed -e 's|^ln -sv |ln -svf |' -i \$(CMDSDIR)/chroot/082-createfiles
 	@\$(call echo_CHROOT_request)
-	@\$(call echo_PHASE, Chroot systools)
-	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make SYSTOOLS")
+	@\$(call echo_PHASE, CHROOT JAIL )
+	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make CHROOT_JAIL")
 	@touch \$@
 
-mk_FINAL: mk_SYSTOOLS
-	@\$(call echo_PHASE,Final System)
-	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make FINAL")
-	@touch \$@
 
-mk_BOOTSCRIPT: mk_FINAL
-	@\$(call echo_PHASE,Bootscript)
-	@\$(call echo_CHROOT_request)
-	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make BOOTSCRIPT")
-	@touch \$@
 
-mk_BOOTABLE: mk_BOOTSCRIPT
-	@\$(call echo_PHASE, Make bootable )
-	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make BOOTABLE")
-	@touch \$@
+SETUP:       $host_prep
+AS_LUSER:    $cross_tools $temptools
+SUDO:	     $orphan_scripts
+CHROOT_JAIL: ${chroottools}${boottools} $testsuitetools $basicsystem  $bootscripttools  $bootabletools
 
 EOF
 ) >> $MKFILE
@@ -1261,19 +1246,23 @@ if [[ "${METHOD}" = "boot" ]]; then
 (
 cat << EOF
 
-all:	ck_UID mk_SETUP mk_CROSS mk_TEMP mk_SYSTOOLS mk_SUDO
+all:	ck_UID mk_SETUP mk_CROSS mk_SUDO
 	@sudo make restore-luser-env
 	@\$(call echo_boot_finished,$VERSION)
 
-makesys: mk_FINAL mk_BOOTSCRIPT mk_BOOTABLE
+makesys: mk_FINAL
 	@\$(call echo_finished,$VERSION)
 
 
 ck_UID:
 	@if [ \`id -u\` = "0" ]; then \\
-	  echo "--------------------------------------------------"; \\
-	  echo "You cannot run this makefile from the root account"; \\
-	  echo "--------------------------------------------------"; \\
+	  echo "+--------------------------------------------------+"; \\
+	  echo "|You cannot run this makefile from the root account|"; \\
+	  echo "|However, if this is the boot environment          |"; \\
+	  echo "| the command you are looking for is               |"; \\
+	  echo "|   make makesys                                   |"; \\
+	  echo "| to finish off the build                          |"; \\
+	  echo "+--------------------------------------------------+"; \\
 	  exit 1; \\
 	fi
 
@@ -1288,17 +1277,7 @@ mk_SETUP:
 	
 mk_CROSS: mk_SETUP
 	@\$(call echo_PHASE,Cross Tool)
-	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make CROSS" )
-	@touch \$@
-
-mk_TEMP: mk_CROSS
-	@\$(call echo_PHASE,Temporary Tools)
-	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make TEMP" )
-	@touch \$@
-
-mk_SYSTOOLS: mk_TEMP
-	@\$(call echo_PHASE,Minimal Boot system)
-	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make SYSTOOLS" )
+	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make AS_LUSER" )
 	@touch \$@
 
 mk_SUDO: mk_SYSTOOLS
@@ -1309,18 +1288,13 @@ mk_SUDO: mk_SYSTOOLS
 
 mk_FINAL:
 	@\$(call echo_PHASE,Final System)
-	@( make FINAL )
+	@( make AS_ROOT )
 	@touch \$@
 
-mk_BOOTSCRIPT: mk_FINAL
-	@\$(call echo_PHASE,Bootscript)
-	@( make BOOTSCRIPT )
-	@touch \$@
-
-mk_BOOTABLE: mk_BOOTSCRIPT
-	@\$(call echo_PHASE,Making Bootable)
-	@( make BOOTABLE )
-	@touch \$@
+SETUP:      $host_prep
+AS_LUSER:   $cross_tools $temptools ${chroottools}${boottools} 
+SUDO:	    $orphan_scripts
+AS_ROOT:    $testsuitetools $basicsystem $bootscripttools $bootabletools 
 
 EOF
 ) >> $MKFILE
@@ -1329,14 +1303,6 @@ fi
 (
  cat << EOF
 
-SETUP:      $host_prep
-CROSS:      $cross_tools
-TEMP:       $temptools
-SUDO:	    $orphan_scripts
-SYSTOOLS:   ${chroottools}${boottools}
-FINAL:      $testsuitetools $basicsystem
-BOOTSCRIPT: $bootscripttools
-BOOTABLE:   $bootabletools
 
 restart:
 	@echo "This feature does not exist for the CLFS makefile. (yet)"
