@@ -467,7 +467,7 @@ EOF
 cat << EOF
 
 all:	ck_UID mk_SETUP mk_LUSER mk_ROOT
-	@sudo do_housekeeping
+	@sudo make do-housekeeping
 	@\$(call echo_finished,$VERSION)
 
 ck_UID:
@@ -486,7 +486,7 @@ mk_SETUP:
 mk_LUSER: mk_SETUP
 	@\$(call echo_SULUSER_request)
 	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make LUSER" )
-	@sudo restore-luser-env
+	@sudo make restore-luser-env
 	@touch \$@
 
 mk_ROOT:
