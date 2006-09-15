@@ -323,17 +323,17 @@ chroot_Makefiles() {                   #
       *util-linux) orphan_scripts="${orphan_scripts} ${this_script}"  ;;
       *kernfs)     orphan_scripts="${orphan_scripts} ${this_script}"  ;;
       *)           chroottools="$chroottools $this_script"            ;;
-    esac    
+    esac
 
     # Grab the name of the target, strip id number, XXX-script
     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'`
 
     pkg_tarball=$(get_package_tarball_name $name)
-    
+
     # This is very ugly:: util-linux is in /chroot but must be run under LUSER
-    # .. Customized makefile entry 
+    # .. Customized makefile entry
     case "${this_script}" in
-      *util-linux) 
+      *util-linux)
          LUSER_wrt_target "${this_script}" "$PREV"
          LUSER_wrt_unpack "$pkg_tarball"
          [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
@@ -391,7 +391,7 @@ chroot_Makefiles() {                   #
 #--------------------------------------#
 boot_Makefiles() {                     #
 #--------------------------------------#
-  
+
   echo "${tab_}${GREEN}Processing... ${L_arrow}tmptools BOOT  ( LUSER ) ${R_arrow}"
   #
   # Create a target bootable partition containing a compile environment. Later
@@ -1109,7 +1109,7 @@ set -e
     final_sys_cmds=${METHOD}_final_system_Makefiles
   bootscripts_cmds=${METHOD}_bootscripts_Makefiles
      bootable_cmds=${METHOD}_bootable_Makefiles
-  
+
   host_prep_Makefiles        # mk_SETUP      (SETUP)  $host_prep
   cross_tools_Makefiles      # mk_CROSS      (LUSER)  $cross_tools
   temptools_Makefiles        # mk_TEMP       (LUSER)  $temptools
@@ -1199,7 +1199,7 @@ mk_SETUP:
 	@\$(call echo_SU_request)
 	@sudo make SETUP
 	@touch \$@
-	
+
 #---------------AS LUSER
 mk_CROSS: mk_SETUP
 	@\$(call echo_PHASE,Cross and Temporary Tools)
@@ -1213,11 +1213,11 @@ mk_SUDO: mk_CROSS
 # The convoluted piece of code below is necessary to provide 'make' with a valid shell in the
 # chroot environment. (Unless someone knows a different way)
 # Manually create the /bin directory and provide link to the /tools dir.
-# Also change the original symlink creation to include (f)orce to prevent failure due to 
+# Also change the original symlink creation to include (f)orce to prevent failure due to
 #  pre-existing links.
 
 #---------------CHROOT JAIL
-mk_SYSTOOLS: mk_SUDO 
+mk_SYSTOOLS: mk_SUDO
 	@if [ ! -e \$(MOUNT_PT)/bin ]; then \\
 	  mkdir \$(MOUNT_PT)/bin; \\
 	  cd \$(MOUNT_PT)/bin && \\
@@ -1274,7 +1274,7 @@ mk_SETUP:
 	@touch \$@
 
 #---------------AS LUSER
-	
+
 mk_CROSS: mk_SETUP
 	@\$(call echo_PHASE,Cross Tool)
 	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make AS_LUSER" )
@@ -1292,9 +1292,9 @@ mk_FINAL:
 	@touch \$@
 
 SETUP:      $host_prep
-AS_LUSER:   $cross_tools $temptools ${chroottools}${boottools} 
+AS_LUSER:   $cross_tools $temptools ${chroottools}${boottools}
 SUDO:	    $orphan_scripts
-AS_ROOT:    $testsuitetools $basicsystem $bootscripttools $bootabletools 
+AS_ROOT:    $testsuitetools $basicsystem $bootscripttools $bootabletools
 
 EOF
 ) >> $MKFILE
@@ -1326,6 +1326,7 @@ do-housekeeping:
 	@-umount \$(MOUNT_PT)/dev
 	@-umount \$(MOUNT_PT)/sys
 	@-umount \$(MOUNT_PT)/proc
+	@-rm /tools /cross-tools
 	@-if [ ! -f luser-exist ]; then \\
 		userdel \$(LUSER); \\
 		rm -rf /home/\$(LUSER); \\

@@ -446,7 +446,7 @@ ck_UID:
 	  echo "--------------------------------------------------"; \\
 	  exit 1; \\
 	fi
-	
+
 mk_SETUP:
 	@\$(call echo_SU_request)
 	@sudo make SETUP
@@ -517,6 +517,7 @@ do_housekeeping:
 	@-umount \$(MOUNT_PT)/dev/shm
 	@-umount \$(MOUNT_PT)/dev/pts
 	@-umount \$(MOUNT_PT)/dev
+	@-rm /tools
 	@-if [ ! -f luser-exist ]; then \\
 		userdel \$(LUSER); \\
 		rm -rf /home/\$(LUSER); \\

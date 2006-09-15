@@ -572,7 +572,7 @@ mk_SETUP:
 	@\$(call echo_SU_request)
 	@sudo make SETUP
 	@touch \$@
-	
+
 mk_LUSER: mk_SETUP
 	@\$(call echo_SULUSER_request)
 	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make LUSER" )
@@ -582,8 +582,8 @@ mk_LUSER: mk_SETUP
 mk_SUDO: mk_LUSER
 	@sudo make SUDO
 	@touch \$@
-	
-mk_CHROOT: mk_SUDO 
+
+mk_CHROOT: mk_SUDO
 	@if [ ! -e \$(MOUNT_PT)/bin ]; then \\
 	  mkdir \$(MOUNT_PT)/bin; \\
 	  cd \$(MOUNT_PT)/bin && \\
@@ -594,11 +594,11 @@ mk_CHROOT: mk_SUDO
 	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make CHROOT")
 	@touch \$@
 
-mk_BOOT: mk_CHROOT 
+mk_BOOT: mk_CHROOT
 	@\$(call echo_CHROOT_request)
 	@( sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BOOT")
 	@touch \$@
-	
+
 
 SETUP:	$chapter3
 
@@ -632,6 +632,7 @@ do-housekeeping:
 	@-umount \$(MOUNT_PT)/dev
 	@-umount \$(MOUNT_PT)/sys
 	@-umount \$(MOUNT_PT)/proc
+	@-rm /tools
 	@-if [ ! -f luser-exist ]; then \\
 		userdel \$(LUSER); \\
 		rm -rf /home/\$(LUSER); \\
