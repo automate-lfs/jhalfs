@@ -1,0 +1,13 @@
+$Id$
+
+
+		::::NOTICE::::
+
+ Hardened Linux From Scratch is a highly volatile project. Extreme design
+ changes can occur and the build could be broken for extended periods of
+ time.
+
+ As of Sept.15.2006 jhalfs cannot build the svn book.  This is a book
+ problem and not jhalfs.
+ 
+ 
