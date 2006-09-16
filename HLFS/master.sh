@@ -558,7 +558,7 @@ EOF
 (
   cat << EOF
 
-all:	ck_UID mk_SETUP mk_LUSER mk_SUDO mk_CHROOT mk_BOOT create-sbu_du-repor
+all:	ck_UID mk_SETUP mk_LUSER mk_SUDO mk_CHROOT mk_BOOT create-sbu_du-report
 	@sudo make do-housekeeping
 	@\$(call echo_finished,$VERSION)
 
