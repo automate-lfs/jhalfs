@@ -351,8 +351,6 @@ chapter789_Makefiles() {
     PREV=${this_script}
   done  # for file in chapter0{7,8,9}/*
 
-  # Add SBU-disk_usage report target if required
-  if [[ "$REPORT" = "y" ]] ; then wrt_report ; fi
 }
 
 
@@ -436,7 +434,7 @@ EOF
 (
     cat << EOF
 
-all:	ck_UID mk_SETUP mk_LUSER mk_SUDO mk_CHROOT mk_BOOT
+all:	ck_UID mk_SETUP mk_LUSER mk_SUDO mk_CHROOT mk_BOOT create-sbu_du-report
 	@sudo make do_housekeeping
 	@\$(call echo_finished,$VERSION)
 
@@ -456,6 +454,7 @@ mk_SETUP:
 mk_LUSER: mk_SETUP
 	@\$(call echo_SULUSER_request)
 	@( sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make LUSER" )
+	@sudo make restore-luser-env
 	@touch \$@
 
 mk_SUDO: mk_LUSER
@@ -477,7 +476,6 @@ mk_CHROOT: mk_SUDO
 	@sudo sed -e 's|^ln -sv |ln -svf |' -i \$(CMDSDIR)/chapter06/063-createfiles
 	@\$(call echo_CHROOT_request)
 	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make CHROOT")
-	@sudo make restore-luser-env
 	@touch \$@
 
 mk_BOOT: mk_CHROOT
@@ -564,16 +562,26 @@ restart_code:
 	  fi;\\
 	fi;
 
+EOF
+) >> $MKFILE
+
+  # Add SBU-disk_usage report target
+  echo "create-sbu_du-report:" >> $MKFILE
+  if [[ "$REPORT" = "y" ]] ; then
+(
+    cat << EOF
+	@\$(call echo_message, Building)
+	@./create-sbu_du-report.sh logs $VERSION
+	@\$(call echo_report,$VERSION-SBU_DU-$(date --iso-8601).report)
+	@touch  \$@
 
 
 EOF
 ) >> $MKFILE
-
-
+  else echo -e "\t@true\n\n" >> $MKFILE; fi
 
   # Bring over the items from the Makefile.tmp
   cat $MKFILE.tmp >> $MKFILE
   rm $MKFILE.tmp
   echo "Creating Makefile... ${BOLD}DONE${OFF}"
 }
-

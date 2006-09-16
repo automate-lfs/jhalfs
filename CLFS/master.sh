@@ -1000,9 +1000,6 @@ chroot_bootable_Makefiles() {          #
 
   done
 
-  # Add SBU-disk_usage report target if required
-  if [[ "$REPORT" = "y" ]] ; then wrt_report ; fi
-
 }
 
 #--------------------------------------#
@@ -1075,10 +1072,6 @@ boot_bootable_Makefiles() {            #
     # Keep the script file name for Makefile dependencies.
     PREV=$this_script
   done
-
-  # Add SBU-disk_usage report target if required
-  if [[ "$REPORT" = "y" ]] ; then wrt_report ; fi
-
 
 }
 
@@ -1184,7 +1177,7 @@ if [[ "${METHOD}" = "chroot" ]]; then
 (
 cat << EOF
 
-all: ck_UID mk_SETUP mk_CROSS mk_SUDO mk_SYSTOOLS
+all: ck_UID mk_SETUP mk_CROSS mk_SUDO mk_SYSTOOLS create-sbu_du-report
 	@sudo make do-housekeeping
 	@\$(call echo_finished,$VERSION)
 
@@ -1206,6 +1199,7 @@ mk_SETUP:
 mk_CROSS: mk_SETUP
 	@\$(call echo_PHASE,Cross and Temporary Tools)
 	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make AS_LUSER" )
+	@sudo make restore-luser-env
 	@touch \$@
 
 mk_SUDO: mk_CROSS
@@ -1238,8 +1232,35 @@ AS_LUSER:    $cross_tools $temptools
 SUDO:	     $orphan_scripts
 CHROOT_JAIL: ${chroottools}${boottools} $testsuitetools $basicsystem  $bootscripttools  $bootabletools
 
+do-housekeeping:
+	@-umount \$(MOUNT_PT)/dev/pts
+	@-umount \$(MOUNT_PT)/dev/shm
+	@-umount \$(MOUNT_PT)/dev
+	@-umount \$(MOUNT_PT)/sys
+	@-umount \$(MOUNT_PT)/proc
+	@-rm /tools /cross-tools
+	@-if [ ! -f luser-exist ]; then \\
+		userdel \$(LUSER); \\
+		rm -rf /home/\$(LUSER); \\
+	fi;
+
 EOF
 ) >> $MKFILE
+
+  # Add SBU-disk_usage report target
+  echo "create-sbu_du-report:" >> $MKFILE
+  if [[ "$REPORT" = "y" ]] ; then
+(
+    cat << EOF
+	@\$(call echo_message, Building)
+	@./create-sbu_du-report.sh logs $VERSION
+	@\$(call echo_report,$VERSION-SBU_DU-$(date --iso-8601).report)
+	@touch  \$@
+
+EOF
+) >> $MKFILE
+  else echo -e "\t@true\n" >> $MKFILE; fi
+
 fi
 
 ################### BOOT #####################
@@ -1321,18 +1342,6 @@ restore-luser-env:
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
-
-do-housekeeping:
-	@-umount \$(MOUNT_PT)/dev/pts
-	@-umount \$(MOUNT_PT)/dev/shm
-	@-umount \$(MOUNT_PT)/dev
-	@-umount \$(MOUNT_PT)/sys
-	@-umount \$(MOUNT_PT)/proc
-	@-rm /tools /cross-tools
-	@-if [ ! -f luser-exist ]; then \\
-		userdel \$(LUSER); \\
-		rm -rf /home/\$(LUSER); \\
-	fi;
 
 ########################################################
 

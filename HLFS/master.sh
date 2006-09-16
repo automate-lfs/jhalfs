@@ -558,7 +558,7 @@ EOF
 (
   cat << EOF
 
-all:	ck_UID mk_SETUP mk_LUSER mk_SUDO mk_CHROOT mk_BOOT
+all:	ck_UID mk_SETUP mk_LUSER mk_SUDO mk_CHROOT mk_BOOT create-sbu_du-repor
 	@sudo make do-housekeeping
 	@\$(call echo_finished,$VERSION)
 
@@ -683,6 +683,21 @@ restart_code:
 
 EOF
 ) >> $MKFILE
+
+  # Add SBU-disk_usage report target
+  echo "create-sbu_du-report:" >> $MKFILE
+  if [[ "$REPORT" = "y" ]] ; then
+(
+    cat << EOF
+	@\$(call echo_message, Building)
+	@./create-sbu_du-report.sh logs $VERSION
+	@\$(call echo_report,$VERSION-SBU_DU-$(date --iso-8601).report)
+	@touch  \$@
+
+
+EOF
+) >> $MKFILE
+  else echo -e "\t@true\n\n" >> $MKFILE; fi
 
   # Bring over the items from the Makefile.tmp
   cat $MKFILE.tmp >> $MKFILE
