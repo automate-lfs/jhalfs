@@ -26,11 +26,25 @@ wrt_system_build() {               #
   local PREV_IT=$2
 
   if [[ "$PROGNAME" = "clfs" ]] && [[ "$METHOD" = "chroot" ]] ; then
-    final_system_Makefiles $RUN
+    chroot_final_system_Makefiles $RUN
   elif [[ "$PROGNAME" = "clfs" ]] && [[ "$METHOD" = "boot" ]] ; then
-    bm_final_system_Makefiles $RUN
+    boot_final_system_Makefiles $RUN
   else
     chapter6_Makefiles $RUN
+  fi
+
+  if [[ "$PROGNAME" = "clfs" ]] ; then
+    basicsystem="$basicsystem $PREV_IT $system_build"
+  else
+    chapter6="$chapter6 $PREV_IT $system_build"
+  fi
+
+  if [[ "$RUN" = "$ITERATIONS" ]] ; then
+    if [[ "$PROGNAME" = "clfs" ]] ; then
+      basicsystem="$basicsystem iteration-$RUN"
+    else
+      chapter6="$chapter6 iteration-$RUN"
+    fi
   fi
 
   echo -e "\nsystem_build_$RUN: $PREV_IT $system_build" >> $MKFILE.tmp
@@ -44,15 +58,10 @@ wrt_compare_work() {               #
   local PRUNEPATH="/dev /home /${SCRIPT_ROOT} /lost+found /media /mnt /opt /proc \
 /sources /root /srv /sys /tmp /tools /usr/local /usr/src /var/log/paco"
 
-  if [[ "$PROGNAME" = "clfs" ]] && [[ "$METHOD" = "boot" ]] ; then
-    local    ROOT_DIR=/
-    local DEST_TOPDIR=/${SCRIPT_ROOT}
-    local   ICALOGDIR=/${SCRIPT_ROOT}/logs/ICA
-    local FARCELOGDIR=/${SCRIPT_ROOT}/logs/farce
-  else
-    local    ROOT_DIR=$BUILDDIR
-    local DEST_TOPDIR=$BUILDDIR/${SCRIPT_ROOT}
-  fi
+  local    ROOT_DIR=/
+  local DEST_TOPDIR=/${SCRIPT_ROOT}
+  local   ICALOGDIR=/${SCRIPT_ROOT}/logs/ICA
+  local FARCELOGDIR=/${SCRIPT_ROOT}/logs/farce
 
   if [[ "$RUN_ICA" = "y" ]] ; then
     local DEST_ICA=$DEST_TOPDIR/ICA && \
