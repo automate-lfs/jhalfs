@@ -1271,6 +1271,7 @@ cat << EOF
 
 all:	ck_UID mk_SETUP mk_CROSS mk_SUDO
 	@sudo make restore-luser-env
+	@sudo make do-housekeeping
 	@\$(call echo_boot_finished,$VERSION)
 
 makesys: mk_FINAL
@@ -1318,6 +1319,13 @@ SETUP:      $host_prep
 AS_LUSER:   $cross_tools $temptools ${chroottools}${boottools}
 SUDO:	    $orphan_scripts
 AS_ROOT:    $testsuitetools $basicsystem $bootscripttools $bootabletools
+
+do-housekeeping:
+	@-rm /tools /cross-tools
+	@-if [ ! -f luser-exist ]; then \\
+		userdel \$(LUSER); \\
+		rm -rf /home/\$(LUSER); \\
+	fi;
 
 EOF
 ) >> $MKFILE
