@@ -613,7 +613,7 @@ CHROOT:	$chapter6
 BOOT:	$chapter7
 
 
-restart: restart_code all
+#restart: restart_code all
 
 restore-luser-env:
 	@\$(call echo_message, Building)
