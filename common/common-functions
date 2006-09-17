@@ -542,6 +542,9 @@ create_package_list() {      #
 cat << EOF
 $LIBXML_PKG
 $LIBXSLT_PKG
+$TIDY_PKG
+$UNZIP_PKG
+$DBXML_PKG
 $DBXSL_PKG
 $LINKS_PKG
 $SUDO_PKG
@@ -743,6 +746,19 @@ add_blfs_deps_urls() {       # No easy way to extract it.
     echo "${LIBXSLT_URL} ${BLFS_SERVER}libxslt/${LIBXSLT_PKG} ${LIBXSLT_MD5}" >> urls.lst
   fi
 
+  if [[ "${DEP_TIDY}" = "y" ]] ; then
+    echo "${TIDY_URL} ${BLFS_SERVER}tidy/${TIDY_PKG} ${TIDY_MD5}" >> urls.lst
+    echo "${TIDY_PATCH_URL} ${BLFS_SERVER}tidy/${TIDY_PATCH} ${TIDY_PATCH_MD5}" >> urls.lst
+  fi
+
+  if [[ "${DEP_UNZIP}" = "y" ]] ; then
+    echo "${UNZIP_URL} ${BLFS_SERVER}unzip/${UNZIP_PKG} ${UNZIP_MD5}" >> urls.lst
+  fi
+
+  if [[ "${DEP_DBXML}" = "y" ]] ; then
+    echo "${DBXML_URL} ${BLFS_SERVER}docbook/${DBXML_PKG} ${DBXML_MD5}" >> urls.lst
+  fi
+
   if [[ "${DEP_DBXSL}" = "y" ]] ; then
     echo "${DBXSL_URL} ${BLFS_SERVER}docbook-xsl/${DBXSL_PKG} ${DBXSL_MD5}" >> urls.lst
   fi
@@ -787,27 +803,27 @@ copy_blfs_deps_scripts() {   # method avoid to place the test on all
   fi
 
   if [[ "${DEP_DBXSL}" = "y" ]] ; then
-    mv blfs-tool-deps/903-docbook-xsl ${PROGNAME}-commands/blfs-tool-deps
+    mv blfs-tool-deps/906-docbook-xsl ${PROGNAME}-commands/blfs-tool-deps
   fi
 
   if [[ "${DEP_LINKS}" = "y" ]] ; then
-    mv blfs-tool-deps/905-links ${PROGNAME}-commands/blfs-tool-deps
+    mv blfs-tool-deps/908-links ${PROGNAME}-commands/blfs-tool-deps
   fi
 
   if [[ "${DEP_SUDO}" = "y" ]] ; then
-    mv blfs-tool-deps/906-sudo ${PROGNAME}-commands/blfs-tool-deps
+    mv blfs-tool-deps/909-sudo ${PROGNAME}-commands/blfs-tool-deps
   fi
 
   if [[ "${DEP_WGET}" = "y" ]] ; then
-    mv blfs-tool-deps/907-wget ${PROGNAME}-commands/blfs-tool-deps
+    mv blfs-tool-deps/910-wget ${PROGNAME}-commands/blfs-tool-deps
   fi
 
   if [[ "${DEP_SVN}" = "y" ]] ; then
-    mv blfs-tool-deps/908-subversion ${PROGNAME}-commands/blfs-tool-deps
+    mv blfs-tool-deps/911-subversion ${PROGNAME}-commands/blfs-tool-deps
   fi
 
   if [[ "${DEP_GPM}" = "y" ]] ; then
-    mv blfs-tool-deps/904-gpm ${PROGNAME}-commands/blfs-tool-deps
+    mv blfs-tool-deps/907-gpm ${PROGNAME}-commands/blfs-tool-deps
   fi
 
   rm -rf blfs-tool-deps
