@@ -1215,7 +1215,7 @@ mk_SUDO: mk_CROSS
 #---------------CHROOT JAIL
 mk_SYSTOOLS: mk_SUDO
 	@if [ ! -e \$(MOUNT_PT)/bin ]; then \\
-	  mkdir \$(MOUNT_PT)/bin; \\
+	  sudo mkdir \$(MOUNT_PT)/bin; \\
 	  cd \$(MOUNT_PT)/bin && \\
 	  ln -svf /tools/bin/bash bash; ln -sf bash sh; \\
 	fi;

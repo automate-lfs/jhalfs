@@ -469,7 +469,7 @@ mk_SUDO: mk_LUSER
 #
 mk_CHROOT: mk_SUDO
 	@if [ ! -e \$(MOUNT_PT)/bin ]; then \\
-	  mkdir \$(MOUNT_PT)/bin; \\
+	  sudo mkdir \$(MOUNT_PT)/bin; \\
 	  cd \$(MOUNT_PT)/bin && \\
 	  ln -sf /tools/bin/bash bash; ln -sf bash sh; \\
 	fi;
