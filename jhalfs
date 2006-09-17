@@ -447,7 +447,7 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
   echo -n "Downloading the BLFS document, $BLFS_BRANCH_ID version... "
   if [[ ! -d ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} ]] ; then
     mkdir -p ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML}
-    svn co $SVN/BLFS/$TREE ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} >>$LOGDIR/$LOG 2>&1
+    svn co $SVN/BLFS/$BLFS_TREE ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} >>$LOGDIR/$LOG 2>&1
   else
     pushd ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} 1> /dev/null
       svn up >>$LOGDIR/$LOG 2>&1
