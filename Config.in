@@ -325,6 +325,19 @@ menu "--- BOOK Settings"
 		bool	"libxslt (required)"
 		default	y
 
+		config	DEP_TIDY
+		bool	"tidy (required)"
+		default	y
+
+		config	DEP_DBXML
+		bool	"DocBook XML DTD (required)"
+		default	y
+
+		config	DEP_UNZIP
+		bool	"UnZip (required to install DocBook XML DTD)"
+		default	y
+		depends on DEP_DBXML
+
 		config	DEP_DBXSL
 		bool	"DocBook XSL (required)"
 		default	y
