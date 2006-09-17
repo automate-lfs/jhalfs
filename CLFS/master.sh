@@ -1215,9 +1215,10 @@ mk_SUDO: mk_CROSS
 #---------------CHROOT JAIL
 mk_SYSTOOLS: mk_SUDO
 	@if [ ! -e \$(MOUNT_PT)/bin ]; then \\
-	  sudo mkdir \$(MOUNT_PT)/bin; \\
+	  mkdir \$(MOUNT_PT)/bin; \\
 	  cd \$(MOUNT_PT)/bin && \\
 	  ln -svf /tools/bin/bash bash; ln -sf bash sh; \\
+	  sudo chown -R 0:0 \$(MOUNT_PT)/bin; \\
 	fi;
 	@sudo sed -e 's|^ln -sv |ln -svf |' -i \$(CMDSDIR)/chroot/082-createfiles
 	@\$(call echo_CHROOT_request)
