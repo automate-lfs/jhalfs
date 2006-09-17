@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# $Id$
+
+set -e
+
+patch -Np1 -i ../tidy-051026-prevent_PRE_newlines-1.patch
+sh build/gnuauto/setup.sh
+./configure --prefix=/usr
+make
+make install
+cd htmldoc
+tidy -xml-help > tidy-help.xml
+tidy -xml-config > tidy-config.xml
+xsltproc -o tidy.1 tidy1.xsl tidy-help.xml
+xsltproc -o quickref.html quickref-html.xsl tidy-config.xml
+cd ..
+install -v -m644 htmldoc/tidy.1 /usr/share/man/man1
+install -v -m755 -d /usr/share/doc/tidy-051026
+install -v -m644 htmldoc/quickref.html /usr/share/doc/tidy-051026
+
+exit

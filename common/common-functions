@@ -756,7 +756,7 @@ add_blfs_deps_urls() {       # No easy way to extract it.
   fi
 
   if [[ "${DEP_DBXML}" = "y" ]] ; then
-    echo "${DBXML_URL} ${BLFS_SERVER}docbook/${DBXML_PKG} ${DBXML_MD5}" >> urls.lst
+    echo "${DBXML_URL} ${BLFS_SERVER}docbook-xml/${DBXML_PKG} ${DBXML_MD5}" >> urls.lst
   fi
 
   if [[ "${DEP_DBXSL}" = "y" ]] ; then
@@ -800,6 +800,18 @@ copy_blfs_deps_scripts() {   # method avoid to place the test on all
 
   if [[ "${DEP_LIBXSLT}" = "y" ]] ; then
     mv blfs-tool-deps/902-libxslt ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_TIDY}" = "y" ]] ; then
+    mv blfs-tool-deps/903-tidy ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_UNZIP}" = "y" ]] ; then
+    mv blfs-tool-deps/904-unzip ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_DBXML}" = "y" ]] ; then
+    mv blfs-tool-deps/905-docbook-xml ${PROGNAME}-commands/blfs-tool-deps
   fi
 
   if [[ "${DEP_DBXSL}" = "y" ]] ; then
