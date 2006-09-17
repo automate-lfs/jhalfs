@@ -108,7 +108,7 @@ for log in $BUILDLOGS ; do
   echo -e "Approximate SBU time is:\t$SBU" >> "$REPORT"
 
   # Dump disk usage values
-  echo -e "\nDisk usage before unpacking the package:\t\t\t$DU1 KB or $DU1MB MB" >> "$REPORT"
+  echo -e "\nDisk usage before unpacking the package:\t\t$DU1 KB or $DU1MB MB" >> "$REPORT"
   echo -e "Disk usage before deleting the source and build dirs:\t$DU2 KB or $DU2MB MB" >> "$REPORT"
   echo -e "Required space to build the package:\t\t\t$REQUIRED1 KB or $REQUIRED2 MB\n" >> "$REPORT"
 
