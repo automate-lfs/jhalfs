@@ -437,6 +437,7 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
   sed -i 's,tracking-dir,'$TRACKING_DIR',' ${BUILDDIR}${BLFS_ROOT}/{update_book.sh,gen-makefile.sh}
   # Copy the dependencies build scripts
   cp -r $COMMON_DIR/blfs-tool-deps $JHALFSDIR/
+  rm -rf $JHALFSDIR/blfs-tool-deps/.svn
 fi
 
 get_book
