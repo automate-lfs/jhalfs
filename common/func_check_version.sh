@@ -59,3 +59,96 @@ inline_doc
   write_error_and_die
 }
 
+#----------------------------#
+check_prerequisites() {      #
+#----------------------------#
+
+  # LFS/HLFS/CLFS prerequisites
+  if [ ! "${PROGNAME}" = "hlfs" ]; then
+    check_version "2.6.2"    "`uname -r`"                                       "KERNEL"
+    check_version "2.0.5"    "$BASH_VERSION"                                    "BASH"
+    check_version "3.0.0"    "`gcc -dumpversion`"                               "GCC"
+    check_version "1.14"     "`tar --version | head -n1 | cut -d \" \" -f4`"    "TAR"
+    check_version "1.12"     "`ld --version | head -n1 | cut -d\" \" -f4`"      "BINUTILS"
+    bzip2Ver="`bzip2 --version 2>&1 < /dev/null | head -n1 | cut -d\" \" -f8`"
+    check_version "1.0.3"    "${bzip2Ver%%,*}"                                  "BZIP2"
+    check_version "5.0"      "`chown --version | head -n1 | cut -d\")\" -f2`"   "COREUTILS"
+    check_version "2.8"      "`diff --version | head -n1 | cut -d \" \" -f4`"   "DIFF"
+    check_version "4.1.20"   "`find --version | head -n1 | cut -d \" \" -f4`"   "FIND"
+    check_version "3.0"      "`gawk --version | head -n1 | cut -d \" \" -f3`"   "GAWK"
+#  /lib/libc.so.6 | head -n1 | cut -d" " -f1-7
+    check_version "2.5"      "`grep --version | head -n1 | cut -d \" \" -f4`"   "GREP"
+#  #echo -n "gzip: ";  gzip --version | head -n1
+    check_version "3.79.1"    "`make --version | head -n1 | cut -d \" \" -f3`"  "MAKE"
+    check_version "2.5.4"    "`patch --version | head -n1 | cut -d \" \" -f2`"  "PATCH"
+    check_version "3.0.2"    "`sed --version | head -n1 | cut -d \" \" -f4`"    "SED"
+  else
+    # LFS/HLFS/CLFS prerequisites
+    check_version "2.6.2" "`uname -r`"         "KERNEL"
+    check_version "3.0"   "$BASH_VERSION"      "BASH"
+    check_version "3.0"   "`gcc -dumpversion`" "GCC"
+    check_version "1.1"   "`tar --version | head -n1 | cut -d \" \" -f4`"   "TAR"
+  fi
+
+  # Check for minimum sudo version
+  SUDO_LOC="`whereis -b sudo | cut -d " " -f2`"
+  if [ -x $SUDO_LOC ]; then
+    sudoVer=`sudo -V | head -n1 | cut -d " " -f3`
+    check_version "1.6.8"  "${sudoVer}"      "SUDO"
+  else
+    echo "${nl_}\"${RED}sudo${OFF}\" ${BOLD}must be installed on your system for jhalfs to run"
+    exit 1
+  fi
+
+  # Check for minimum libxml2 and libxslt versions
+  xsltprocVer=`xsltproc -V | head -n1 `
+  libxmlVer=$(echo $xsltprocVer | cut -d " " -f3)
+  libxsltVer=$(echo $xsltprocVer | cut -d " " -f5)
+
+  # Version numbers are packed strings not xx.yy.zz format.
+  check_version "2.06.20"  "${libxmlVer:0:1}.${libxmlVer:1:2}.${libxmlVer:3:2}"     "LIBXML2"
+  check_version "1.01.14"  "${libxsltVer:0:1}.${libxsltVer:1:2}.${libxsltVer:3:2}"  "LIBXSLT"
+
+  # The next versions checks are required only when BLFS_TOOL is set and
+  # this dependencies has not be selected for installation
+  if [[ "$BLFS_TOOL" = "y" ]] ; then
+
+    if [[ -z "$DEP_TIDY" ]] ; then
+      tidyVer=`tidy -V | cut -d " " -f9`
+      check_version "2004" "${tidyVer}" "TIDY"
+    fi
+
+    # Check if the proper DocBook-XML-DTD and DocBook-XSL are correctly installed
+XML_FILE="<?xml version='1.0' encoding='ISO-8859-1'?>
+<?xml-stylesheet type='text/xsl' href='http://docbook.sourceforge.net/release/xsl/1.69.1/xhtml/docbook.xsl'?>
+<!DOCTYPE article PUBLIC '-//OASIS//DTD DocBook XML V4.4//EN'
+  'http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd'>
+<article>
+  <title>Test file</title>
+  <sect1>
+    <title>Some title</title>
+    <para>Some text</para>
+  </sect1>
+</article>"
+
+    if [[ -z "$DEP_DBXML" ]] ; then
+      if `echo $XML_FILE | xmllint -noout -postvalid - 2>/dev/null` ; then
+        check_version "4.4" "4.4" "DocBook XML DTD"
+      else
+        echo "Warning: not found a working DocBook XML DTD 4.4 installation"
+        exit 2
+      fi
+    fi
+
+    if [[ -z "$DEP_DBXSL" ]] ; then
+      if `echo $XML_FILE | xsltproc --noout - 2>/dev/null` ; then
+        check_version "1.69.1" "1.69.1" "DocBook XSL"
+      else
+        echo "Warning: not found a working DocBook XSL 1.69.1 installation"
+        exit 2
+      fi
+    fi
+
+  fi # end BLFS_TOOL=Y
+
+}
