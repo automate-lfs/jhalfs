@@ -22,7 +22,8 @@ inline_doc
 
   declare -i major minor revision change
   declare -i ref_major ref_minor ref_revision ref_change
-
+  declare -r spaceSTR="         "
+  
   ref_version=$1
   tst_version=$2
   TXT=$3
@@ -36,7 +37,7 @@ inline_doc
      exit 1
   }
 
-  echo -ne "${TXT}${dotSTR:${#TXT}}${L_arrow}${BOLD}${tst_version}${OFF}${R_arrow}"
+  echo -ne "${TXT}${dotSTR:${#TXT}} ${L_arrow}${BOLD}${tst_version}${OFF}${R_arrow}"
 
 #  echo -ne "$TXT:\t${L_arrow}${BOLD}${tst_version}${OFF}${R_arrow}"
   IFS=".-(p"   # Split up w.x.y.z as well as w.x.y-rc  (catch release candidates)
@@ -47,17 +48,18 @@ inline_doc
   major=$1; minor=$2; revision=$3
   #
   # Compare against minimum acceptable version..
-  (( major > ref_major )) && echo " ..${GREEN}OK${OFF}" && return
+  (( major > ref_major )) && echo " ${spaceSTR:${#tst_version}}${GREEN}OK${OFF}" && return
   (( major < ref_major )) && write_error_and_die
     # major=ref_major
   (( minor < ref_minor )) && write_error_and_die
-  (( minor > ref_minor )) && echo " ..${GREEN}OK${OFF}" && return
+  (( minor > ref_minor )) && echo " ${spaceSTR:${#tst_version}}${GREEN}OK${OFF}" && return
     # minor=ref_minor
-  (( revision >= ref_revision )) && echo " ..${GREEN}OK${OFF}" && return
+  (( revision >= ref_revision )) && echo " ${spaceSTR:${#tst_version}}${GREEN}OK${OFF}" && return
 
   # oops.. write error msg and die
   write_error_and_die
 }
+#  local -r PARAM_VALS='${config_param}${dotSTR:${#config_param}} ${L_arrow}${BOLD}${!config_param}${OFF}${R_arrow}'
 
 #----------------------------#
 check_prerequisites() {      #
@@ -68,15 +70,17 @@ check_prerequisites() {      #
     check_version "2.6.2"    "`uname -r`"                                       "KERNEL"
     check_version "2.0.5"    "$BASH_VERSION"                                    "BASH"
     check_version "3.0.0"    "`gcc -dumpversion`"                               "GCC"
-    check_version "1.14"     "`tar --version | head -n1 | cut -d \" \" -f4`"    "TAR"
+    libcVer="`/lib/libc.so.6 | head -n1`"
+    libcVer="${libcVer##*version }"
+    check_version "2.2.5"    ${libcVer%%,*}                                     "GLIBC"
     check_version "1.12"     "`ld --version | head -n1 | cut -d\" \" -f4`"      "BINUTILS"
+    check_version "1.14"     "`tar --version | head -n1 | cut -d \" \" -f4`"    "TAR"
     bzip2Ver="`bzip2 --version 2>&1 < /dev/null | head -n1 | cut -d\" \" -f8`"
     check_version "1.0.3"    "${bzip2Ver%%,*}"                                  "BZIP2"
     check_version "5.0"      "`chown --version | head -n1 | cut -d\")\" -f2`"   "COREUTILS"
     check_version "2.8"      "`diff --version | head -n1 | cut -d \" \" -f4`"   "DIFF"
     check_version "4.1.20"   "`find --version | head -n1 | cut -d \" \" -f4`"   "FIND"
     check_version "3.0"      "`gawk --version | head -n1 | cut -d \" \" -f3`"   "GAWK"
-#  /lib/libc.so.6 | head -n1 | cut -d" " -f1-7
     check_version "2.5"      "`grep --version | head -n1 | cut -d \" \" -f4`"   "GREP"
 #  #echo -n "gzip: ";  gzip --version | head -n1
     check_version "3.79.1"    "`make --version | head -n1 | cut -d \" \" -f3`"  "MAKE"
