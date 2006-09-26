@@ -91,7 +91,7 @@ check_prerequisites() {      #
     check_version "2.6.2" "`uname -r`"         "KERNEL"
     check_version "3.0"   "$BASH_VERSION"      "BASH"
     check_version "3.0"   "`gcc -dumpversion`" "GCC"
-    check_version "1.1"   "`tar --version | head -n1 | cut -d \" \" -f4`"   "TAR"
+    check_version "1.14"   "`tar --version | head -n1 | cut -d \" \" -f4`"   "TAR"
   fi
 
   # Check for minimum sudo version
