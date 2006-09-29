@@ -82,7 +82,8 @@ check_prerequisites() {      #
     check_version "4.1.20"   "`find --version | head -n1 | cut -d \" \" -f4`"   "FIND"
     check_version "3.0"      "`gawk --version | head -n1 | cut -d \" \" -f3`"   "GAWK"
     check_version "2.5"      "`grep --version | head -n1 | cut -d \" \" -f4`"   "GREP"
-#  #echo -n "gzip: ";  gzip --version | head -n1
+    gzipVer=$(gzip --version 2>&1 | head -n1 | cut -d" " -f2)
+    check_version "1.2.4"    "$gzipVer"                                         "GZIP"
     check_version "3.79.1"    "`make --version | head -n1 | cut -d \" \" -f3`"  "MAKE"
     check_version "2.5.4"    "`patch --version | head -n1 | cut -d \" \" -f2`"  "PATCH"
     check_version "3.0.2"    "`sed --version | head -n1 | cut -d \" \" -f4`"    "SED"
