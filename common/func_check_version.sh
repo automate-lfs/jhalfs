@@ -2,10 +2,10 @@
 
 check_version() {
 : <<inline_doc
-      Tests for a minimum version level. Compares to version numbers and forces an 
+      Tests for a minimum version level. Compares to version numbers and forces an
         exit if minimum level not met.
       NOTE: This test will fail on versions containing alpha chars. ie. jpeg 6b
-    
+
     usage:	check_version "2.6.2" "`uname -r`"         "KERNEL"
 		check_version "3.0"   "$BASH_VERSION"      "BASH"
 		check_version "3.0"   "`gcc -dumpversion`" "GCC"
@@ -23,7 +23,7 @@ inline_doc
   declare -i major minor revision change
   declare -i ref_major ref_minor ref_revision ref_change
   declare -r spaceSTR="         "
-  
+
   ref_version=$1
   tst_version=$2
   TXT=$3
@@ -73,10 +73,10 @@ check_prerequisites() {      #
     libcVer="`/lib/libc.so.6 | head -n1`"
     libcVer="${libcVer##*version }"
     check_version "2.2.5"    ${libcVer%%,*}                                     "GLIBC"
-    check_version "1.12"     "`ld --version | head -n1 | cut -d\" \" -f4`"      "BINUTILS"
+    check_version "2.12"     "`ld --version | head -n1 | cut -d\" \" -f4`"      "BINUTILS"
     check_version "1.14"     "`tar --version | head -n1 | cut -d \" \" -f4`"    "TAR"
     bzip2Ver="`bzip2 --version 2>&1 < /dev/null | head -n1 | cut -d\" \" -f8`"
-    check_version "1.0.3"    "${bzip2Ver%%,*}"                                  "BZIP2"
+    check_version "1.0.2"    "${bzip2Ver%%,*}"                                  "BZIP2"
     check_version "5.0"      "`chown --version | head -n1 | cut -d\")\" -f2`"   "COREUTILS"
     check_version "2.8"      "`diff --version | head -n1 | cut -d \" \" -f4`"   "DIFF"
     check_version "4.1.20"   "`find --version | head -n1 | cut -d \" \" -f4`"   "FIND"
