@@ -67,38 +67,37 @@ check_prerequisites() {      #
 
   # LFS/HLFS/CLFS prerequisites
   if [ ! "${PROGNAME}" = "hlfs" ]; then
-    check_version "2.6.2"    "`uname -r`"                                       "KERNEL"
-    check_version "2.0.5"    "$BASH_VERSION"                                    "BASH"
-    check_version "3.0.0"    "`gcc -dumpversion`"                               "GCC"
+    check_version "2.6.2"    "`uname -r`"                                     "KERNEL"
+    check_version "2.0.5"    "$BASH_VERSION"                                  "BASH"
+    check_version "3.0.0"    "`gcc -dumpversion`"                             "GCC"
     libcVer="`/lib/libc.so.6 | head -n1`"
     libcVer="${libcVer##*version }"
     check_version "2.2.5"    ${libcVer%%,*}                                     "GLIBC"
-    check_version "2.12"     "`ld --version | head -n1 | cut -d\" \" -f4`"      "BINUTILS"
-    check_version "1.14"     "`tar --version | head -n1 | cut -d \" \" -f4`"    "TAR"
-    bzip2Ver="`bzip2 --version 2>&1 < /dev/null | head -n1 | cut -d\" \" -f8`"
-    check_version "1.0.2"    "${bzip2Ver%%,*}"                                  "BZIP2"
-    check_version "5.0"      "`chown --version | head -n1 | cut -d\")\" -f2`"   "COREUTILS"
-    check_version "2.8"      "`diff --version | head -n1 | cut -d \" \" -f4`"   "DIFF"
-    check_version "4.1.20"   "`find --version | head -n1 | cut -d \" \" -f4`"   "FIND"
-    check_version "3.0"      "`gawk --version | head -n1 | cut -d \" \" -f3`"   "GAWK"
-    check_version "2.5"      "`grep --version | head -n1 | cut -d \" \" -f4`"   "GREP"
-    gzipVer=$(gzip --version 2>&1 | head -n1 | cut -d" " -f2)
-    check_version "1.2.4"    "$gzipVer"                                         "GZIP"
-    check_version "3.79.1"    "`make --version | head -n1 | cut -d \" \" -f3`"  "MAKE"
-    check_version "2.5.4"    "`patch --version | head -n1 | cut -d \" \" -f2`"  "PATCH"
-    check_version "3.0.2"    "`sed --version | head -n1 | cut -d \" \" -f4`"    "SED"
+    check_version "2.12"     "$(ld --version  | head -n1 | cut -d" " -f4)"      "BINUTILS"
+    check_version "1.14"     "$(tar --version | head -n1 | cut -d" " -f4)"      "TAR"
+    bzip2Ver="$(bzip2 --version 2>&1 < /dev/null | head -n1 | cut -d" " -f8)"
+    check_version "1.0.2"    "${bzip2Ver%%,*}"                                   "BZIP2"
+    check_version "5.0"      "$(chown --version | head -n1 | cut -d")" -f2)"     "COREUTILS"
+    check_version "2.8"      "$(diff --version  | head -n1 | cut -d" " -f4)"     "DIFF"
+    check_version "4.1.20"   "$(find --version  | head -n1 | cut -d" " -f4)"     "FIND"
+    check_version "3.0"      "$(gawk --version  | head -n1 | cut -d" " -f3)"     "GAWK"
+    check_version "2.5"      "$(grep --version  | head -n1 | cut -d" " -f4)"     "GREP"
+    check_version "1.2.4"    "$(gzip --version 2>&1 | head -n1 | cut -d" " -f2)" "GZIP"
+    check_version "3.79.1"   "$(make --version  | head -n1 | cut -d " " -f3)"    "MAKE"
+    check_version "2.5.4"    "$(patch --version | head -n1 | cut -d" " -f2)"     "PATCH"
+    check_version "3.0.2"    "$(sed --version   | head -n1 | cut -d" " -f4)"     "SED"
   else
-    # LFS/HLFS/CLFS prerequisites
-    check_version "2.6.2" "`uname -r`"         "KERNEL"
-    check_version "3.0"   "$BASH_VERSION"      "BASH"
-    check_version "3.0"   "`gcc -dumpversion`" "GCC"
-    check_version "1.14"   "`tar --version | head -n1 | cut -d \" \" -f4`"   "TAR"
+    # HLFS prerequisites
+    check_version "2.6.2" "$(uname -r)"                                  "KERNEL"
+    check_version "3.0"   "$BASH_VERSION"                                "BASH"
+    check_version "3.0"   "$(gcc -dumpversion)"                          "GCC"
+    check_version "1.14"  "$(tar --version | head -n1 | cut -d" " -f4)"  "TAR"
   fi
 
   # Check for minimum sudo version
-  SUDO_LOC="`whereis -b sudo | cut -d " " -f2`"
+  SUDO_LOC="$(whereis -b sudo | cut -d" " -f2)"
   if [ -x $SUDO_LOC ]; then
-    sudoVer=`sudo -V | head -n1 | cut -d " " -f3`
+    sudoVer="$(sudo -V | head -n1 | cut -d" " -f3)"
     check_version "1.6.8"  "${sudoVer}"      "SUDO"
   else
     echo "${nl_}\"${RED}sudo${OFF}\" ${BOLD}must be installed on your system for jhalfs to run"
@@ -106,7 +105,7 @@ check_prerequisites() {      #
   fi
 
   # Check for minimum libxml2 and libxslt versions
-  xsltprocVer=`xsltproc -V | head -n1 `
+  xsltprocVer=$(xsltproc -V | head -n1 )
   libxmlVer=$(echo $xsltprocVer | cut -d " " -f3)
   libxsltVer=$(echo $xsltprocVer | cut -d " " -f5)
 
@@ -119,7 +118,7 @@ check_prerequisites() {      #
   if [[ "$BLFS_TOOL" = "y" ]] ; then
 
     if [[ -z "$DEP_TIDY" ]] ; then
-      tidyVer=`tidy -V | cut -d " " -f9`
+      tidyVer=$(tidy -V | cut -d " " -f9)
       check_version "2004" "${tidyVer}" "TIDY"
     fi
 
