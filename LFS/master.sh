@@ -372,6 +372,8 @@ build_Makefile() {           #
   # Add the iterations targets, if needed
   [[ "$COMPARE" = "y" ]] && wrt_compare_targets
   chapter789_Makefiles
+  # Add the BLFS_TOOL targets, if needed
+  [[ "$BLFS_TOOL" = "y" ]] && wrt_blfs_tool_targets
 
   # Add a header, some variables and include the function file
   # to the top of the real Makefile.
@@ -434,7 +436,7 @@ EOF
 (
     cat << EOF
 
-all:	ck_UID mk_SETUP mk_LUSER mk_SUDO mk_CHROOT mk_BOOT create-sbu_du-report
+all:	ck_UID mk_SETUP mk_LUSER mk_SUDO mk_CHROOT mk_BOOT create-sbu_du-report mk_BLFS_TOOL
 	@sudo make do_housekeeping
 	@\$(call echo_finished,$VERSION)
 
@@ -575,6 +577,23 @@ EOF
 	@./create-sbu_du-report.sh logs $VERSION
 	@\$(call echo_report,$VERSION-SBU_DU-$(date --iso-8601).report)
 	@touch  \$@
+
+
+EOF
+) >> $MKFILE
+  else echo -e "\t@true\n\n" >> $MKFILE; fi
+
+  # Add BLFS_TOOL targets
+  echo "mk_BLFS_TOOL:" >> $MKFILE
+  if [[ "$BLFS_TOOL" = "y" ]] ; then
+(
+    cat << EOF
+	@\$(call echo_CHROOT_request)
+	@ sudo mkdir $BUILDDIR$TRACKING_DIR
+	@( sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BLFS_TOOL")
+	@touch \$@
+
+BLFS_TOOL:  $blfs_tool
 
 
 EOF
