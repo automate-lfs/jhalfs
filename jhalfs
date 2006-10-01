@@ -159,7 +159,8 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
        branch-* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-}/BOOK ;;
               * )  BLFS_TREE=tags/${BLFS_BRANCH_ID}/BOOK ;;
   esac
-  # dependencies envars, to can update it more easy.
+  # Dependencies envars, to can update it more easy.
+  # Tidy and Unzip version are harcoded also in wrt_blfs_tool_targets()
     # libxml2
   LIBXML_PKG="libxml2-2.6.26.tar.gz"
   LIBXML_URL="ftp://xmlsoft.org/libxml2/${LIBXML_PKG}"

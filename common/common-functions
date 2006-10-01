@@ -315,6 +315,70 @@ EOF
 ) >> $MKFILE.tmp
 }
 
+
+#----------------------------------#
+wrt_blfs_tool_targets() {          #
+#----------------------------------#
+
+  echo "${tab_}${GREEN}Processing... ${L_arrow}BLFS_TOOL ${R_arrow}"
+
+  for file in blfs-tool-deps/* ; do
+    # Keep the script file name
+    this_script=`basename $file`
+
+    # Grab the name of the target
+    name=`echo ${this_script} | sed -e 's@[0-9]\{3\}-@@'`
+
+    # Find the package.
+    case $name in
+      tidy )  pkg_tarball=${TIDY_PKG} ;;
+      unzip ) pkg_tarball=${UNZIP_PKG} ;;
+      * )     pkg_tarball=$(get_package_tarball_name $name) ;;
+    esac
+
+    # Append each name of the script files to a list (this will become
+    # the names of the targets in the Makefile)
+    blfs_tool="$blfs_tool ${this_script}"
+
+    #--------------------------------------------------------------------#
+    #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
+    #--------------------------------------------------------------------#
+    #
+    # Drop in the name of the target on a new line, and the previous target
+    # as a dependency. Also call the echo_message function.
+    CHROOT_wrt_target "${this_script}" "$PREV"
+
+    # Insert instructions for unpacking the package and changing directories
+    # DocBook-XML is a zip, the build script will handle that.
+    [[ ! "$name" = "docbook-xml" ]] && CHROOT_Unpack "$pkg_tarball"
+
+    # Run the script.
+    CHROOT_wrt_RunAsRoot "$file"
+
+    # Remove the build directory(ies) except if the package build fails.
+    [[ ! "$name" = "docbook-xml" ]] && CHROOT_wrt_RemoveBuildDirs "$name"
+
+    # Touch the tracking file.
+    case $name in
+      tidy )  pkg_ver=tidy-051026 ;;
+      unzip ) pkg_ver=unzip-5.52 ;;
+      * )     pkg_ver=$(echo $pkg_tarball | sed -e 's/.tar.*//;s/.tgz//;s/.zip//') ;;
+    esac
+    echo -e "\t@touch $TRACKING_DIR/$pkg_ver" >>  $MKFILE.tmp
+
+    # Include a touch of the target name so make can check
+    # if it's already been made.
+    wrt_touch
+    #
+    #--------------------------------------------------------------------#
+    #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
+    #--------------------------------------------------------------------#
+
+    # Keep the script file name for Makefile dependencies.
+    PREV=${this_script}
+  done
+}
+
 #------------------------------------------------------#
 #        END Makefile scripting functions              #
 #------------------------------------------------------#
