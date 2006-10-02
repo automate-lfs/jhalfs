@@ -159,7 +159,8 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
        branch-* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-}/BOOK ;;
               * )  BLFS_TREE=tags/${BLFS_BRANCH_ID}/BOOK ;;
   esac
-  # dependencies envars, to can update it more easy.
+  # Dependencies envars, to can update it more easy.
+  # Tidy and Unzip version are harcoded also in wrt_blfs_tool_targets()
     # libxml2
   LIBXML_PKG="libxml2-2.6.26.tar.gz"
   LIBXML_URL="ftp://xmlsoft.org/libxml2/${LIBXML_PKG}"
@@ -168,6 +169,22 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
   LIBXSLT_PKG="libxslt-1.1.17.tar.gz"
   LIBXSLT_URL="ftp://xmlsoft.org/libxslt/${LIBXSLT_PKG}"
   LIBXSLT_MD5="fde6a7a93c0eb14cba628692fa3a1000"
+    # tidy
+  TIDY_PKG="tidy_src_051026.tgz"
+  TIDY_URL="http://tidy.sourceforge.net/src/${TIDY_PKG}"
+  TIDY_MD5="1e39fafd6808978871346658c8da1454"
+    # tidy patch
+  TIDY_PATCH="tidy-051026-prevent_PRE_newlines-1.patch"
+  TIDY_PATCH_URL="http://www.linuxfromscratch.org/patches/blfs/svn/${TIDY_PATCH}"
+  TIDY_PATCH_MD5="82f67f7af58fc2c945b3410ae655cc1a"
+    # unzip
+  UNZIP_PKG="unzip552.tar.gz"
+  UNZIP_URL="ftp://ftp.info-zip.org/pub/infozip/src/${UNZIP_PKG}"
+  UNZIP_MD5="9d23919999d6eac9217d1f41472034a9"
+    # DocBook XML DTD
+  DBXML_PKG="docbook-xml-4.4.zip"
+  DBXML_URL="http://www.docbook.org/xml/4.4/${DBXML_PKG}"
+  DBXML_MD5="cbb04e9a700955d88c50962ef22c1634"
     # DocBook XSL
   DBXSL_PKG="docbook-xsl-1.69.1.tar.bz2"
   DBXSL_URL="http://prdownloads.sourceforge.net/docbook/${DBXSL_PKG}"
@@ -241,13 +258,9 @@ source $COMMON_DIR/func_validate_configs.sh
 ###          MAIN               ###
 ###################################
 
-# Check for minimum bash,tar,gcc and kernel versions
+# Check for build prereequisites.
 echo
-check_version "2.6.2" "`uname -r`"         "KERNEL"
-check_version "3.0"   "$BASH_VERSION"      "BASH"
-check_version "3.0"   "`gcc -dumpversion`" "GCC"
-tarVer=`tar --version | head -n1 | cut -d " " -f4`
-check_version "1.15.0" "${tarVer}"      "TAR"
+  check_prerequisites
 echo "${SD_BORDER}${nl_}"
 
 validate_config
@@ -359,6 +372,7 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
   sed -i 's,tracking-dir,'$TRACKING_DIR',' ${BUILDDIR}${BLFS_ROOT}/{update_book.sh,gen-makefile.sh}
   # Copy the dependencies build scripts
   cp -r $COMMON_DIR/blfs-tool-deps $JHALFSDIR/
+  rm -rf $JHALFSDIR/blfs-tool-deps/.svn
 fi
 
 get_book
@@ -369,7 +383,7 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
   echo -n "Downloading the BLFS document, $BLFS_BRANCH_ID version... "
   if [[ ! -d ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} ]] ; then
     mkdir -p ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML}
-    svn co $SVN/BLFS/$TREE ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} >>$LOGDIR/$LOG 2>&1
+    svn co $SVN/BLFS/$BLFS_TREE ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} >>$LOGDIR/$LOG 2>&1
   else
     pushd ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} 1> /dev/null
       svn up >>$LOGDIR/$LOG 2>&1

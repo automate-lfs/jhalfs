@@ -36,7 +36,7 @@ write_or_exit() {
 }
 
   # initialize screen
-write_or_exit "${RESET_LINE}${TS_POSITION}0 min. 0 sec. "
+write_or_exit "${RESET_LINE}${TS_POSITION}0 min. 0 sec"
 
   # loop forever..
 while true ; do
