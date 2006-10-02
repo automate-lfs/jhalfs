@@ -499,9 +499,6 @@ LUSER:	$cross_tools $basicsystem $bootscripttools $bootable
 ROOT:	$chowning
 
 
-restart:
-	@echo "This feature does not exist for the CLFS-2 makefile. (yet)"
-
 restore-luser-env:
 	@\$(call echo_message, Building)
 	@if [ -f /home/\$(LUSER)/.bashrc.XXX ]; then \\

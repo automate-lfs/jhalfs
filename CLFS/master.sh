@@ -1335,10 +1335,6 @@ fi
 (
  cat << EOF
 
-
-restart:
-	@echo "This feature does not exist for the CLFS makefile. (yet)"
-
 restore-luser-env:
 	@\$(call echo_message, Building)
 	@if [ -f /home/\$(LUSER)/.bashrc.XXX ]; then \\
