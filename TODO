@@ -5,7 +5,7 @@
 MASTER SCRIPT
 -------------
 
-  - Nothing to be done at code level, for now.
+  - For CLFS book sources http://svn.cross-lfs.org should be used.
 
   - Update README to reflect the new work-flow.
 
@@ -13,11 +13,10 @@ MASTER SCRIPT
 xLFS MODULES
 ------------
 
-  - Rework Makefile creation to build the system more "by the book".
-    Work in progress
-
   - To create Makefile entries to build blfs-tool dependencies.
-    Waiting the Makefile rework.
+    Test LFS integration and port it to orher books.
+
+  - To develop a new restart code.
 
   - To add support for copying to the final system pre-generated
     configuration files created by the user.
@@ -34,6 +33,3 @@ OTHERS
     and Makefiles, using the Cracklib support for Shadow in LFS as an example.
     NOTE: that could require a special command line switch to regenerate the
     Makefile if additional scripts are manually added to the *-commands/*/ dirs.
-
-  - To create a script to install jhalfs system-wide, if possible.
-
