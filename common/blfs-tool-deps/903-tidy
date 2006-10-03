@@ -10,6 +10,7 @@ sh build/gnuauto/setup.sh
 ./configure --prefix=/usr
 make
 make install
+(cd ../ && tar -xvf tidy_docs_051020.tgz)
 cd htmldoc
 tidy -xml-help > tidy-help.xml
 tidy -xml-config > tidy-config.xml
