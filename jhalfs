@@ -177,6 +177,10 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
   TIDY_PATCH="tidy-051026-prevent_PRE_newlines-1.patch"
   TIDY_PATCH_URL="http://www.linuxfromscratch.org/patches/blfs/svn/${TIDY_PATCH}"
   TIDY_PATCH_MD5="82f67f7af58fc2c945b3410ae655cc1a"
+    # tidy docs
+  TIDY_DOCS="tidy_docs_051020.tgz"
+  TIDY_DOCS_URL="http://tidy.sourceforge.net/docs/${TIDY_DOCS}"
+  TIDY_DOCS_MD5="86de2f198e57399c063d2567b2a25628"
     # unzip
   UNZIP_PKG="unzip552.tar.gz"
   UNZIP_URL="ftp://ftp.info-zip.org/pub/infozip/src/${UNZIP_PKG}"

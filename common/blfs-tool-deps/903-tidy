@@ -3,6 +3,7 @@
 # $Id$
 
 set -e
+cd $PKGDIR
 
 patch -Np1 -i ../tidy-051026-prevent_PRE_newlines-1.patch
 sh build/gnuauto/setup.sh

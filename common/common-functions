@@ -813,6 +813,7 @@ add_blfs_deps_urls() {       # No easy way to extract it.
   if [[ "${DEP_TIDY}" = "y" ]] ; then
     echo "${TIDY_URL} ${BLFS_SERVER}tidy/${TIDY_PKG} ${TIDY_MD5}" >> urls.lst
     echo "${TIDY_PATCH_URL} ${BLFS_SERVER}tidy/${TIDY_PATCH} ${TIDY_PATCH_MD5}" >> urls.lst
+    echo "${TIDY_DOCS_URL} ${BLFS_SERVER}tidy/${TIDY_DOCS} ${TIDY_DOCS_MD5}" >> urls.lst
   fi
 
   if [[ "${DEP_UNZIP}" = "y" ]] ; then

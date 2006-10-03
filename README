@@ -8,9 +8,8 @@ $Id$
 
      The usage of this script assumes you have read and are familiar with
   the book(s) and, therefore, the configuration variables found in config
-  files will have meaning to you. There are a number of command line switches
-  which, if used, will override the config file settings.
-
+  files will have meaning to you.
+  
   NOTES::
   *.  The resulting Makefile takes considerable time to run to completion.
   Lay in a supply of caffeine beverages.

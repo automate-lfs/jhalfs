@@ -14,5 +14,4 @@ $Id$
  Automation failures:  
   1.Directory /dev and devices nodes /dev/null, /dev/console needed to be 
   created in kernfs
-  2.Linux-headers does not contain /net.
   3.Remove the creation of /null and /console node from the devices script.

@@ -3,6 +3,7 @@
 # $Id$
 
 set -e
+cd $PKGDIR
 
 ./configure --prefix=/usr \
             --without-berkeley-db \

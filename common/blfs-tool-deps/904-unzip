@@ -3,6 +3,7 @@
 # $Id$
 
 set -e
+cd $PKGDIR
 
 make -f unix/Makefile LOCAL_UNZIP=-D_FILE_OFFSET_BITS=64 linux
 make prefix=/usr install

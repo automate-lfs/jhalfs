@@ -548,7 +548,7 @@ EOF
 (
     cat << EOF
 	@\$(call echo_CHROOT_request)
-	@ sudo mkdir $BUILDDIR$TRACKING_DIR
+	@ sudo mkdir -p $BUILDDIR$TRACKING_DIR
 	@( sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BLFS_TOOL")
 	@touch \$@
 
