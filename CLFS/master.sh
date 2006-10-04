@@ -1170,7 +1170,7 @@ EOF
                 -e 's|\\$|&&|g' \
                 -e 's|exit||g' \
                 -e 's|$| -c|' \
-          P      -e 's|"$$CLFS"|$(MOUNT_PT)|'\
+                -e 's|"$$CLFS"|$(MOUNT_PT)|'\
                 -e 's|set -e||'`
     echo -e "CHROOT1= $chroot\n" >> $MKFILE
   fi
