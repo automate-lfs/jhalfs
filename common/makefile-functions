@@ -17,7 +17,7 @@ REVERSE = "[7m"
 define echo_PHASE
   @clear
   @echo $(BOLD)--------------------------------------------------------------------------------
-  @echo Executing $(BLUE)$(1)$(WHITE) scripts
+  @echo -e \\t\\tExecuting $(BLUE)$(1)$(WHITE) scripts
   @echo $(BOLD)--------------------------------------------------------------------------------
   #echo $(WHITE)
 endef

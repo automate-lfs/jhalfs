@@ -57,7 +57,7 @@ menu "--- BOOK Settings"
 				#-- A local working copy
 
 		config	BRANCH
-			bool	"Branch or stable book" if !BOOK_HLFS && !BOOK_CLFS2
+			bool	"Branch or stable book" if !BOOK_CLFS2
 			help
 				#-- A supported SVN branch or stable released book
 	endchoice
@@ -272,7 +272,7 @@ menu "--- BOOK Settings"
 		bool	"Add blfs-tool support"
 		default	n
 #		depends on !BOOK_BLFS
-		depends on BOOK_LFS
+		depends on BOOK_LFS || BOOK_CLFS
 		help
 			#--- Activating this option additional packages needed to
 			#    use blfs-tool will be installed.

@@ -1116,18 +1116,22 @@ set -e
   $bootscripts_cmds          # mk_BOOTSCRIPT (CHROOT) $bootscripttools
   $bootable_cmds             # mk_BOOTABLE   (CHROOT) $bootabletools
 
+  # Add the BLFS_TOOL targets, if needed
+  [[ "$BLFS_TOOL" = "y" ]] && wrt_blfs_tool_targets
+
   # Add a header, some variables and include the function file
   # to the top of the real Makefile.
 (
     cat << EOF
 $HEADER
 
-SRC          = /sources
-MOUNT_PT     = $BUILDDIR
-PKG_LST      = $PKG_LST
-LUSER        = $LUSER
-LGROUP       = $LGROUP
-SCRIPT_ROOT  = $SCRIPT_ROOT
+SRC            = /sources
+MOUNT_PT       = $BUILDDIR
+PKG_LST        = $PKG_LST
+LUSER          = $LUSER
+LGROUP         = $LGROUP
+SCRIPT_ROOT    = $SCRIPT_ROOT
+ADD_BLFS_TOOLS = $BLFS_TOOL
 
 BASEDIR      = \$(MOUNT_PT)
 SRCSDIR      = \$(BASEDIR)/sources
@@ -1166,7 +1170,7 @@ EOF
                 -e 's|\\$|&&|g' \
                 -e 's|exit||g' \
                 -e 's|$| -c|' \
-                -e 's|"$$CLFS"|$(MOUNT_PT)|'\
+          P      -e 's|"$$CLFS"|$(MOUNT_PT)|'\
                 -e 's|set -e||'`
     echo -e "CHROOT1= $chroot\n" >> $MKFILE
   fi
@@ -1177,7 +1181,7 @@ if [[ "${METHOD}" = "chroot" ]]; then
 (
 cat << EOF
 
-all: ck_UID mk_SETUP mk_CROSS mk_SUDO mk_SYSTOOLS create-sbu_du-report
+all: ck_UID mk_SETUP mk_CROSS mk_SUDO mk_SYSTOOLS create-sbu_du-report mk_BLFS_TOOL
 	@sudo make do-housekeeping
 	@\$(call echo_finished,$VERSION)
 
@@ -1226,12 +1230,19 @@ mk_SYSTOOLS: mk_SUDO
 	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make CHROOT_JAIL")
 	@touch \$@
 
-
+mk_BLFS_TOOL: mk_SYSTOOLS
+	@\$(call echo_PHASE,Building BLFS-TOOLS); \\
+	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
+	  sudo mkdir -p $BUILDDIR$TRACKING_DIR; \\
+	  sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make BLFS_TOOL"; \\
+	fi
+	@touch \$@
 
 SETUP:       $host_prep
 AS_LUSER:    $cross_tools $temptools
 SUDO:	     $orphan_scripts
 CHROOT_JAIL: ${chroottools}${boottools} $testsuitetools $basicsystem  $bootscripttools  $bootabletools
+BLFS_TOOL:   $blfs_tool
 
 do-housekeeping:
 	@-umount \$(MOUNT_PT)/dev/pts
@@ -1262,6 +1273,7 @@ EOF
 ) >> $MKFILE
   else echo -e "\t@true\n" >> $MKFILE; fi
 
+
 fi
 
 ################### BOOT #####################
@@ -1275,7 +1287,7 @@ all:	ck_UID mk_SETUP mk_CROSS mk_SUDO
 	@sudo make do-housekeeping
 	@\$(call echo_boot_finished,$VERSION)
 
-makesys: mk_FINAL
+makesys: mk_FINAL mk_BLFS_TOOL
 	@\$(call echo_finished,$VERSION)
 
 
@@ -1305,7 +1317,7 @@ mk_CROSS: mk_SETUP
 	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make AS_LUSER" )
 	@touch \$@
 
-mk_SUDO: mk_SYSTOOLS
+mk_SUDO: mk_CROSS
 	@sudo make SUDO
 	@touch \$@
 
@@ -1316,10 +1328,19 @@ mk_FINAL:
 	@( make AS_ROOT )
 	@touch \$@
 
+mk_BLFS_TOOL: mk_FINAL
+	@\$(call echo_PHASE,Building BLFS-TOOLS)
+	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
+	  mkdir -p $TRACKING_DIR; \\
+          make BLFS_TOOL; \\
+	fi
+	@touch \$@
+
 SETUP:      $host_prep
 AS_LUSER:   $cross_tools $temptools ${chroottools}${boottools}
 SUDO:	    $orphan_scripts
 AS_ROOT:    $testsuitetools $basicsystem $bootscripttools $bootabletools
+BLFS_TOOL:  $blfs_tool
 
 do-housekeeping:
 	@-rm /tools /cross-tools
