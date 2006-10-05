@@ -90,10 +90,6 @@ source configuration
 [[ $? > 0 ]] && echo "file:configuration did not load.." && exit 1
 [[ $VERBOSITY > 0 ]] && echo "OK"
 
-      #--- Envars not sourced from configuration
-declare -r SVN="svn://svn.linuxfromscratch.org"
-declare -r LOG=000-masterscript.log
-
 # These are boolean vars generated from Config.in.
 # ISSUE: If a boolean parameter is not set <true> that
 # variable is not defined by the menu app. This can
@@ -133,7 +129,7 @@ case $BRANCH_ID in
   2.4-branch )
     LFSVRS=${BRANCH_ID}
     TREE=branches/2.4-branch
-    ;;    
+    ;;
   * )
     case $PROGNAME in
       lfs | hlfs )
@@ -230,6 +226,15 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
   GPM_PATCH_2_URL="http://www.linuxfromscratch.org/patches/blfs/svn/${GPM_PATCH_2}"
   GPM_PATCH_2_MD5="bf6cbefe20c6f15b587f19ebc1c8a37a"
 fi
+
+#--- Envars not sourced from configuration
+case $PROGNAME in
+  clfs* ) declare -r SVN="http://svn.cross-lfs.org/svn/repos" ;;
+      * ) declare -r SVN="svn://svn.linuxfromscratch.org" ;;
+esac
+declare -r LOG=000-masterscript.log
+  # Needed to can fetch BLFS book sources when building CLFS
+declare -r SVN_2="svn://svn.linuxfromscratch.org"
 
 # Set true internal variables
 COMMON_DIR="common"
@@ -391,7 +396,7 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
   echo -n "Downloading the BLFS document, $BLFS_BRANCH_ID version... "
   if [[ ! -d ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} ]] ; then
     mkdir -p ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML}
-    svn co $SVN/BLFS/$BLFS_TREE ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} >>$LOGDIR/$LOG 2>&1
+    svn co $SVN_2/BLFS/$BLFS_TREE ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} >>$LOGDIR/$LOG 2>&1
   else
     pushd ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} 1> /dev/null
       svn up >>$LOGDIR/$LOG 2>&1

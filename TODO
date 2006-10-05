@@ -5,21 +5,19 @@
 MASTER SCRIPT
 -------------
 
-  - For CLFS book sources http://svn.cross-lfs.org should be used.
-
   - Update README to reflect the new work-flow.
 
 
 xLFS MODULES
 ------------
 
-  - To create Makefile entries to build blfs-tool dependencies.
-    Test LFS integration and port it to orher books.
+  - Test current BLFS_TOOL Makefile integration in LFS and CLFS.
+    Port it to CLFS-2 and HLFS, if possible.
 
-  - To develop a new restart code.
+  - To develop a new "restart" Makefile target code.
 
   - To add support for copying to the final system pre-generated
-    configuration files created by the user.
+    configuration files created by the user, if that can be implemented.
 
 
 BLFS MODULE (See BLFS/TODO)
@@ -31,5 +29,8 @@ OTHERS
 
   - Add a Customization file discussing how to hack the generated scripts
     and Makefiles, using the Cracklib support for Shadow in LFS as an example.
-    NOTE: that could require a special command line switch to regenerate the
-    Makefile if additional scripts are manually added to the *-commands/*/ dirs.
+
+    NOTE:
+      That requires a way to can regenerate the Makefile if additional
+      scripts are manually added to the *-commands/*/ dirs.
+
