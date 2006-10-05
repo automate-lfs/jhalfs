@@ -44,9 +44,19 @@ get_package_tarball_name() {       #
    # hopefully this will not cause problems.
    #
    case $script_name in
-     tcl)           echo $(grep "^tcl" $JHALFSDIR/pkg_tarball_list | head -n1 ) ;;
-     linux-headers) echo $(grep "^linux-headers.*.bz2" $JHALFSDIR/pkg_tarball_list | head -n1 ) ;;
-     *)             echo $(grep "^$script_name-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 ) ;;
+     tcl) echo $(grep "^tcl" $JHALFSDIR/pkg_tarball_list | head -n1 )
+         ;;
+     linux-headers)
+         if [ "${PROGNAME}" = "lfs" ]; then
+	   # Uses kernel headers directly
+           echo $(grep "^linux-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 )
+         else
+	   # CLFS/CLFS use massaged headers package
+           echo $(grep "^linux-headers-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 )
+         fi
+         ;;
+     *)  echo $(grep "^$script_name-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 ) 
+         ;;
    esac
 
 }
