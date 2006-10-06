@@ -286,9 +286,9 @@ menu "--- BOOK Settings"
 			#    directory and files owner, before start
 			#    using blfs-tool.
 			#
-			#    Also, be sure to create the $TRACKING_DIR directory
-			#    and bring to the build user the right privileges
-			#    over it.
+			#    Also, be sure to bring to that user read and write
+			#    privileges over the $TRACKING_DIR directory and
+			#    the files that it contains.
 			#
 			#    And don't forget to configure sudo properly.
 
