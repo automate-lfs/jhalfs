@@ -62,7 +62,7 @@ trap 'echo -e "\n\n${RED}INTERRUPT${OFF} trapped\n" &&  exit 2'  1 2 3 15 17 18 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 version="
-${BOLD}  \"jhalfs-X\"${OFF} builder tool (development) \$Rev$
+${BOLD}  \"jhalfs-trunk\"${OFF} builder tool (development) \$Rev$
   \$Date$
 
   Written by George Boudreau and Manuel Canales Esparcia,
