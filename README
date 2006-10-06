@@ -60,7 +60,7 @@ $Id$
      our use.
 
      Help on parameter function is available from the online help. Please
-     make use of that function for additional information not in this file.
+     make use of that feature for additional information not in this file.
 
      Once you have set the parameters you wish and have saved your work the
      jhalfs script is launch. The script verify first that the host can run
