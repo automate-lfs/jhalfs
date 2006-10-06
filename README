@@ -4,12 +4,16 @@ $Id$
 
      This collection of scripts, known as jhalfs, strives to create
   accurate makefiles from the Linux From Scratch book series XML files.
-  This software is an evolution of the original "jhalfs-0.2" code.
+  This software is an evolution of the original "jhalfs-0.2" code developed
+  by Jeremy Huntwork.
 
      The usage of this script assumes you have read and are familiar with
-  the book(s) and, therefore, the configuration variables found in config
-  files will have meaning to you.
-  
+  the book(s) and, therefore, the configuration variables found in menuconfig
+  interface will have meaning to you.
+
+  The list of supported books can be found at
+  http://wiki.linuxfromscratch.org/alfs/wiki/SupportedBooks
+
   NOTES::
   *.  The resulting Makefile takes considerable time to run to completion.
   Lay in a supply of caffeine beverages.
@@ -35,79 +39,103 @@ $Id$
 
 3. INSTALLATION::
 
-     No installation is required. System-wide installation is not allowed
-  for now.
+     No installation is required. System-wide installation is not allowed.
 
-4. CONFIGURATION FILES::
+4. CONFIGURATION::
 
-     ::NEWS:: There is new configuration method for jhalfs.
+     ::NEWS::
+         There is a new configuration method for jhalfs.
 
      We have installed the familiar menu based configuration tool driven by
-     by GNU make. see the section RUNNING, for details
+     GNU make. see the section RUNNING, for details
 
 5. RUNNING::
 
-     ::NEWS:: jhalfs is now launched via GNU make instead of individual symlinks.
+     ::NEWS::
+         jhalfs is now launched via GNU make instead of individual symlinks.
+
      The command <make> will launch a menu based configuration program. You will
-     recognize the layout from bulding the kernel or uClibc/Busybox. The
-     underlying menu code was borrowed from BusyBox and slightly modified for 
+     recognize the layout from building the kernel or uClibc/BusyBox. The
+     underlying menu code was borrowed from BusyBox and slightly modified for
      our use.
 
-     Help on parameter function is available from the online help.
-     
-     Once you have set the parameters you wish and have saved your work the 
-     makefile will proceed to launch the jhalfs script. The script validate and
-     present you with your selections which you may accept or reject.
-     
-     If you accepted the displayed settings jhalfs will proceed to create the
-     makefile, optionally download packages.
+     Help on parameter function is available from the online help. Please
+     make use of that function for additional information not in this file.
 
-     NOTE::    
-     If you run the jhalfs script directly the only funcion you can select is to
-     display the version number
+     Once you have set the parameters you wish and have saved your work the
+     jhalfs script is launch. The script verify first that the host can run
+     it and build the xLFS system, then validate the configuration and present
+     you with your selections which you may accept or reject.
+
+     If you accepted the displayed settings jhalfs will proceed to create the
+     Makefile, optionally download packages.
+
+     ::NEWS::
+         You must be logged as a normal user with sudo privileges to run
+         the Makefile.
+
+     NOTE::
+         If you run the jhalfs script directly the only function you can select
+         is to display the version number running <./jhalfs -v>
 
 
 6. LAYOUT::
 
-        /CLFS/config
-             /master.sh
-             /xxxx.xsl
+        /BLFS (see README.BLFS)
 
-        /CLFS2/config
-              /master.sh
-              /xxxx.xsl
+        /CLFS/master.sh
+             /clfs.xsl
 
-        /HLFS/config
-             /master.sh
-             /xxxx.xsl
+        /CLFS2/master.sh
+              /clfs2.xsl
 
-        /LFS/config
-            / master.sh
-            /xxxx.xsl
+        /HLFS/master.sh
+             /hlfs.xsl
 
-        /common/config
-               /common_functions
+        /LFS/master.sh
+            /lfs.xsl
+
+        /common/common_functions
                /makefile_functions
                /func_check_versions.sh
                /func_validate_configs.sh
+               /packages.xsl
+               /urls.xsl
+               /create-sbu_du-report.sh
+               /func_compare.sh
+               /progress_bar.sh
+               /blfs-tool-deps/9xx-*
 
         /contrib/jhalfs-paco.patch
 
-	/extras/do_copy_files
+        /extras/do_copy_files
                /do_ica_prep
                /do_ica_work
                /farce
                /filelist
 
-        README
-	README.BLFS
-	README.PACO
-	TODO
+        /optimize/opt_config
+                 /opt_override
+                 /optimize_functions
+                 /opt_config.d/noOpt
+                              /noSymbols
+                              /O3pipe
+                              /O3pipe_march
+                              /defOpt_fPIC
 
-	Config.in
-	makefile
-	jhalfs
-	blfs-tool
+        /menu/*
+
+        README
+        README.BLFS
+        README.HLFS
+        README.PACO
+        TODO
+        LICENSE
+
+        Config.in
+        Makefile
+        jhalfs
+        blfs-tool
 
 7. FAQ::
     Q. "This 'help' file is very sparse"
@@ -117,10 +145,10 @@ $Id$
 
     Q. "It doesn't work!"
     A. Yes it does, try >> make
-       Remember you must either be 'root' to run this script or have 'sudo' privileges.
+       Remember you must have 'sudo' privileges.
 
     Q. "It still doesn't work"
-    A. jhalfs was designed to work against the developement versions of the LFS
+    A. jhalfs was designed to work against the development versions of the LFS
        series of books. Consequently changes in a book(s) sometimes breaks older
        versions of jhalfs. Before you start pulling out your hair download the
        latest version of jhalfs to see if that solves your problem.
@@ -133,42 +161,50 @@ $Id$
 
        The layout below $BUILDDIR is as follows.
        $BUILDDIR/
-            jhalfs      (makefile,cmd scripts,logs..etc)
-	    sources     (where packages reside)
-	    tools       (temporary bootstrap system)
-	    cross-tools (temporary CLFS only)
-	        ...
-	    FHS dir structure
-	        ...
+            jhalfs      (Makefile, cmd scripts, logs, etc..)
+            sources     (where packages reside)
+            tools       (temporary bootstrap system)
+            cross-tools (temporary CLFS only)
+                ...
+            FHS dir structure
+                ...
+            blfs_root   (files to use blfs-tool if selected to install it)
 
     Q. "What is the function of the SRC_ARCHIVE variable?"
-    A. When then symlinked master.sh runs it creates a local copy of the
-       necessary packages in BUILDDIR/sources by downloading the files. If
-       the variable SRC_ARCHIVE is defined the software will first look in
-       this location for the file and, if found, will copy it to BUILDDIR/sources.
+    A. When jhalfs runs and packages download was selected, it creates a local
+       copy of the necessary packages in BUILDDIR/sources by downloading the
+       files. If the variable SRC_ARCHIVE is defined the software will first
+       look in this location for the file and, if found, will copy it to
+       BUILDDIR/sources.
        If the files are not found in SRC_ARCHIVE _and_ you have write priv to
        the directory any downloaded files will be mirrored there.
 
     Q. "How do I set the SRC_ARCHIVE location?"
     A. The best way to set the value of SRC_ARCHIVE is
+
        export SRC_ARCHIVE=/wherever/you/store/downloaded/packages
-                       OR
-       you can change the setting in common/config.
+
+       or you can set the full path in the proper menu entry.
 
     Q. "Why have 2 copies of the files?"
     A. The package files must be visible during the chroot phase and this is a
        simple and reliable method of doing so. This method also handles the CLFS
-       build method where the final build may be done on a separate machine.
+       boot build method where the final build may be done on a separate machine.
 
-    Q. "What is the function of LUSER and LGROUP? There is no cmd line switch"
-    A. If you are running jhalfs from a low or non-priveledged account you may not
-       have the priv to create/delete accounts. These variables are adjustable
-       when invoking make.
+    Q. "What is the function of "User account" and "Group account" menu settings?"
+    A. If you are running jhalfs from a low or non-privileged account you may not
+       have the priv to create/delete the user needed to build temporally tools.
+       These settings allow you to use your own user and group name to do that
+       build steps.
+
+       These variables are adjustable also when invoking make:
+
          $BUILDDIR make LUSER=myaccount LGROUP=mygroup
-       Then only changes to your account will be the creation of a NEW .bashrc after
-       saving your original to .bashrc.XXX
 
-    Q. "When I try to build 'xxx' with clfs the makefile fails at the mid-point"
+       The only changes to your account will be the creation of a NEW .bashrc
+       after saving your original to .bashrc.XXX
+
+    Q. "When I try to build CLFS the Makefile fails at the mid-point"
     A. There could be numerous reasons for the failure but the most likely reason
        is you are doing a cross-build using the 'chroot' method and the target is
        not compatible with the host.  If you choose to build using the chroot
@@ -177,7 +213,7 @@ $Id$
        it means the host and target are not compatible an you should use the
        'boot' method to create your target code.
        As an extreme example: You can build a sparc target on a x86 platform but
-       only the temptools phase. You must select the 'boot' method and not the 
+       only the temptools phase. You must select the 'boot' method and not the
        'chroot.' You must transfer the toolchain to a sparc platform, reboot the
        sparc box and continue the build.
        Of all the LFS series of books Cross-LFS requires the greatest
@@ -187,4 +223,3 @@ $Id$
 Authors:
   George Boudreau
   Manuel Canales Esparcia
-  Jeremy Huntwork
