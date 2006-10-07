@@ -3,6 +3,7 @@
 # $Id$
 
 set -e
+cd $PKGDIR
 
 ./configure --prefix=/usr
 make CFLAGS="-O2 -Wno-sign-compare -Wno-pointer-sign"

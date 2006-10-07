@@ -57,7 +57,7 @@ menu "--- BOOK Settings"
 				#-- A local working copy
 
 		config	BRANCH
-			bool	"Branch or stable book" if !BOOK_HLFS && !BOOK_CLFS2
+			bool	"Branch or stable book" if !BOOK_CLFS2
 			help
 				#-- A supported SVN branch or stable released book
 	endchoice
@@ -271,7 +271,8 @@ menu "--- BOOK Settings"
 	config BLFS_TOOL
 		bool	"Add blfs-tool support"
 		default	n
-		depends on !BOOK_BLFS
+#		depends on !BOOK_BLFS
+		depends on BOOK_LFS || BOOK_CLFS
 		help
 			#--- Activating this option additional packages needed to
 			#    use blfs-tool will be installed.
@@ -285,9 +286,9 @@ menu "--- BOOK Settings"
 			#    directory and files owner, before start
 			#    using blfs-tool.
 			#
-			#    Also, be sure to create the $TRACKING_DIR directory
-			#    and bring to the build user the right privileges
-			#    over it.
+			#    Also, be sure to bring to that user read and write
+			#    privileges over the $TRACKING_DIR directory and
+			#    the files that it contains.
 			#
 			#    And don't forget to configure sudo properly.
 
@@ -489,12 +490,16 @@ menu "--- General Settings"
                         #   if possible.
 
 	config	GETKERNEL
-		bool	"Always retrieve kernel package"
-		default	n
+		bool	"Always retrieve kernel package (see help)"
+		default	y if BOOK_LFS && relSVN
 		depends GETPKG
 		help
-			#-- Get the kernel package and patches even if no configuration
-			#   file has been supplied.
+			#-- Get the kernel package and patches even if no kernel
+			#   configuration file has been supplied.
+
+			# NOTE:
+			#   The kernel package must be available when building
+			#   the SVN version of LFS to can install the headers files.
 
 	config	RUNMAKE
 		bool	"Run the makefile"

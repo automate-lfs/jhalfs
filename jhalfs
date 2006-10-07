@@ -90,10 +90,6 @@ source configuration
 [[ $? > 0 ]] && echo "file:configuration did not load.." && exit 1
 [[ $VERBOSITY > 0 ]] && echo "OK"
 
-      #--- Envars not sourced from configuration
-declare -r SVN="svn://svn.linuxfromscratch.org"
-declare -r LOG=000-masterscript.log
-
 # These are boolean vars generated from Config.in.
 # ISSUE: If a boolean parameter is not set <true> that
 # variable is not defined by the menu app. This can
@@ -129,6 +125,10 @@ case $BRANCH_ID in
   branch-* )
     LFSVRS=${BRANCH_ID}
     TREE=branches/${BRANCH_ID#branch-}/BOOK
+    ;;
+  2.4-branch )
+    LFSVRS=${BRANCH_ID}
+    TREE=branches/2.4-branch
     ;;
   * )
     case $PROGNAME in
@@ -177,6 +177,10 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
   TIDY_PATCH="tidy-051026-prevent_PRE_newlines-1.patch"
   TIDY_PATCH_URL="http://www.linuxfromscratch.org/patches/blfs/svn/${TIDY_PATCH}"
   TIDY_PATCH_MD5="82f67f7af58fc2c945b3410ae655cc1a"
+    # tidy docs
+  TIDY_DOCS="tidy_docs_051020.tgz"
+  TIDY_DOCS_URL="http://tidy.sourceforge.net/docs/${TIDY_DOCS}"
+  TIDY_DOCS_MD5="86de2f198e57399c063d2567b2a25628"
     # unzip
   UNZIP_PKG="unzip552.tar.gz"
   UNZIP_URL="ftp://ftp.info-zip.org/pub/infozip/src/${UNZIP_PKG}"
@@ -223,6 +227,15 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
   GPM_PATCH_2_MD5="bf6cbefe20c6f15b587f19ebc1c8a37a"
 fi
 
+#--- Envars not sourced from configuration
+case $PROGNAME in
+  clfs* ) declare -r SVN="http://svn.cross-lfs.org/svn/repos" ;;
+      * ) declare -r SVN="svn://svn.linuxfromscratch.org" ;;
+esac
+declare -r LOG=000-masterscript.log
+  # Needed to can fetch BLFS book sources when building CLFS
+declare -r SVN_2="svn://svn.linuxfromscratch.org"
+
 # Set true internal variables
 COMMON_DIR="common"
 PACKAGE_DIR=$(echo $PROGNAME | tr [a-z] [A-Z])
@@ -268,7 +281,7 @@ echo "${SD_BORDER}${nl_}"
 echo -n "Are you happy with these settings? yes/no (no): "
 read ANSWER
 if [ x$ANSWER != "xyes" ] ; then
-  echo "${nl_}Fix the configuration options and rerun the script.${nl_}"
+  echo "${nl_}Rerun make to fix the configuration options.${nl_}"
   exit 1
 fi
 echo "${nl_}${SD_BORDER}${nl_}"
@@ -383,7 +396,7 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
   echo -n "Downloading the BLFS document, $BLFS_BRANCH_ID version... "
   if [[ ! -d ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} ]] ; then
     mkdir -p ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML}
-    svn co $SVN/BLFS/$BLFS_TREE ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} >>$LOGDIR/$LOG 2>&1
+    svn co $SVN_2/BLFS/$BLFS_TREE ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} >>$LOGDIR/$LOG 2>&1
   else
     pushd ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} 1> /dev/null
       svn up >>$LOGDIR/$LOG 2>&1

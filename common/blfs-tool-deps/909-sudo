@@ -3,6 +3,7 @@
 # $Id$
 
 set -e
+cd $PKGDIR
 
 patch -Np1 -i ../sudo-1.6.8p12-envvar_fix-1.patch
 ./configure --prefix=/usr --libexecdir=/usr/lib \

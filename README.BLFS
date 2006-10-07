@@ -8,13 +8,11 @@ $Id$
   installed on a non default prefix, build commands can change based on what
   dependencies will be used, etc.
 
-     Said that, the goal of jhalfs is try to help you solving packages
-  dependencies and creating your own build scripts/Makefile. Some of the
-  auto-generated build scripts and Makefile could work "as is", but as a
+     Said that, the goal of blfs-tool is try to help you solving packages
+  dependencies and creating your own build scripts and Makefile. Few of the
+  auto-generated build scripts and Makefile could work "as is", thus as a
   general rule you will need to review and edit the scripts while reading
   the book.
-
-  NOTE:: The code is still under development and may contains several bugs
 
 
 2. PREREQUISITES::
@@ -27,19 +25,36 @@ $Id$
      - be able to trace build failures and to find what is causing it
        (user error, package bug, BLFS command bug, or jhalfs code bug)
 
-     If you don't have the above skill, please don't use this tool.
+     If you do not have the above skills, please don't use this tool.
 
 
 3. USAGE::
 
-     Due the complexity of the BLFS book, the scripts/Makefile generation is
+     Due the complexity of the BLFS book, the scripts and Makefile generation is
   done in several steps:
 
-  3.1  INSTALLATION::
+  3.1  INSTALLED PACKAGES TRACKING SYSTEM
+
+       This tool includes a very simple tracking system to know what packages
+    has been installed using the tool. It is used to skip installed packages
+    from target selection menu and to know if an installed package has been updated
+    on the BLFS book. Don't rely on this feature as a packages management tool.
+
+       The directory where tracking files will be stored need be created
+    before installing blfs-tool. You can place that directory anywhere, taking
+    care that the builder user must have read and write privileges on that
+    directory and on all files it contains.
+
+       To use the default path set in the installation menu, run as root:
+
+    install -d -m1777 /var/lib/jhalfs/BLFS
+
+  3.2  BLFS_TOOL INSTALLATION::
 
        Run "make" to launch the jhalfs menuconfig interface. Select the BLFS
     book and it version. Then set the installation directory (default
-    $HOME/blfs_root) and the BLFS sources directory (default blfs-xml).
+    $HOME/blfs_root), the BLFS sources directory (default blfs-xml), and
+    the installed packages tracking directory (default /var/lib/jhalfs/BLFS).
 
        All required files will be placed in the installation directory and
     BLFS XML sources will be checkout to the named sub-directory.
@@ -69,45 +84,55 @@ $Id$
        From now on, all the work must be done from inside the installation
     root directory.
 
-  3.2  UPDATING BOOK SOURCES::
+       When finished the installation, the configuration and target selection
+    menu is launch.
+
+  3.3  UPDATING BOOK SOURCES::
 
        If using the development book version, and if you want to update already
     installed packages to the new version found in that book, you need to update
     the XML sources and packages database.
 
-    To do that run "./update_book.sh"
+       To do that run "./update_book.sh"
 
-  3.3  CONFIGURING AND PARSING THE BOOK:: (obsolete, to be rewritten)
+       On the next configuration run, packages already installed but listed
+    with a new version in the book will be available for target selection and
+    used to solve dependencies.
+
+  3.4  CONFIGURING AND PARSING THE BOOK::
 
        Next step is to create a book and build scripts in dependencies build order
-    for a target package. A target package can be any of the ones listed in the
-    packages file. That is done using the blfs-parser.sh script, but we are trying
-    to make a menuconfig based system.
+    for a target package. A target can be a package or a meta-package.
 
-       The script need three arguments:
+       Run <make> to launch the configuration interface. The main menu contains
+    three block: meta-package selection, individual package selection, and
+    build options.
 
-    package name         as listed in packages file
-    dependencies level   1 for required,
-                         2 for required an recommended
-                         3 for required, recommended, and optional
-    sudo usage           y if sudo will be used (you want build as a normal user)
-                         n if sudo isn't needed (you want build as root)
+       Only one meta-package or individual package must be selected on each run.
+    That is due that there is no way to solve dependencies properly when
+    more than one target are selected at the same time.
 
-       For example:
+       When a meta-package is selected is possible to unselect unwanted components.
+    That unselected components will be skipped if no other components depends
+    on them.
 
-       ./blfs-parser galeon 3 y
+       In the build options section the dependencies level and default packages
+    used to solve alternatives are set. Can be set also if the build will be
+    made as a normal user or as root. That settings are saved to be reused on
+    future configuration runs.
 
-    will create a directory named "galeon". Inside that directory you find a
-    directory named "HTML" that contains a galeon-based HTML book with all
-    dependencies in build order and a "scripts" directory with build scripts
-    that uses sudo for commands that need root privileges.
+       If, for example, your target selection is Xsoft-->Graphweb-->galeon a
+    directory named "galeon" will be created. Inside that directory you will
+    find a directory named "HTML" that contains a galeon-based HTML book with
+    its dependencies in build order, and a "scripts" directory with build
+    scripts for that packages.
 
-       There is also two other directories, dependencies and xincludes, that
+       There is also two other directories, "dependencies" and "xincludes", that
     contains files generated while resolving dependencies trees.
 
-  3.4  EDITING BUILD SCRIPTS
+  3.5  EDITING BUILD SCRIPTS
 
-       Now is the time to review the generated book and scripts, making in the
+       Now is time to review the generated book and scripts, making in the
     scripts any changes required to fix generation bugs or to fit your needs.
 
        Scripts for additional packages (i.e., for non-BLFS packages) can be
@@ -116,24 +141,20 @@ $Id$
     "foo" script is named "064-z-foo", you need to create a "064-y-bar" build
     script.
 
-      Note that the packages tracking system isn't a packages management tool
+      Remember that the packages tracking system isn't a packages management tool
     and know nothing about packages not in the BLFS book.
 
-  3.5  CREATING THE MAKEFILE
+      Also, review and edit envars.conf. That file is used to set global envars
+    needed by the build scripts.
+
+  3.6  CREATING THE MAKEFILE
+
        When the build scripts are ready to be run, the Makefile can be
     created. Be sure that you cd into the "package" directory and run
 
        ../gen_makefile.sh
 
-    Review the Makefile and if all look sane, start the build.
-
-
-(Text is needed about meta-packages, the installed packages tracking system
-and like)
-
-(The TRACKING_DIR directory must be created before using this tool running as root
-
-install -d -m1777 /var/lib/jhalfs/BLFS )
+    Review the Makefile and if all looks sane, start the build.
 
 4. GENERATED BUILD SCRIPTS ISSUES::
 
@@ -176,8 +197,8 @@ install -d -m1777 /var/lib/jhalfs/BLFS )
      to make it to use your local packages.
 
         Also, you will need to edit the scripts to fix the commands that must
-     be applied only to a concret individual sub-package. For example the "for"
-     loop to install xotg7-util packages may read like:
+     be applied only to a concrete individual sub-package. For example the "for"
+     loop to install xorg7-util packages may read like:
 
 for package in $(cat $WGET_LST) ; do
   packagedir=$(echo $package | sed 's/.tar.bz2//')

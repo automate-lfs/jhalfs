@@ -44,9 +44,19 @@ get_package_tarball_name() {       #
    # hopefully this will not cause problems.
    #
    case $script_name in
-     tcl)           echo $(grep "^tcl" $JHALFSDIR/pkg_tarball_list | head -n1 ) ;;
-     linux-headers) echo $(grep "^linux-headers.*.bz2" $JHALFSDIR/pkg_tarball_list | head -n1 ) ;;
-     *)             echo $(grep "^$script_name-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 ) ;;
+     tcl) echo $(grep "^tcl" $JHALFSDIR/pkg_tarball_list | head -n1 )
+         ;;
+     linux-headers)
+         if [ "${PROGNAME}" = "lfs" ]; then
+	   # Uses kernel headers directly
+           echo $(grep "^linux-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 )
+         else
+	   # CLFS/CLFS use massaged headers package
+           echo $(grep "^linux-headers-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 )
+         fi
+         ;;
+     *)  echo $(grep "^$script_name-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 )
+         ;;
    esac
 
 }
@@ -410,24 +420,21 @@ clean_builddir() {           #
 #----------------------------#
   # Test if the clean must be done.
   if [ "${CLEAN}" = "y" ]; then
-    # Test to make sure we're running the clean as root
-    if [ "$UID" != "0" ] ; then
-      echo "You must be logged in as root to clean the build directory."
-      exit 1
-    fi
     # Test to make sure that the build directory was populated by jhalfs
     if [ ! -d $JHALFSDIR ] || [ ! -d $BUILDDIR/sources ] ; then
       echo "Looks like $BUILDDIR was not populated by a previous jhalfs-X run."
       exit 1
     else
       # Clean the build directory
-      echo -ne "Cleaning $BUILDDIR...\n"
-      rm -rf $BUILDDIR/{bin,boot,dev,etc,home,lib,media,mnt,opt,proc,root,sbin,srv,sys,tmp,tools,cross-tools,usr,var}
-      echo -ne "Cleaning $JHALFSDIR...\n"
-      rm -rf $JHALFSDIR/{0*,1*,envars,sources-dir,*commands,*logs,Makefile,*.xsl,makefile-functions,pkg_tarball_list,*.config,*.sh}
-      echo -ne "Cleaning remainig extracted sources in $BUILDDIR/sources...\n"
-      rm -rf `find $BUILDDIR/sources/* -maxdepth 0 -type d`
-      echo -ne "done\n"
+      echo -n "Cleaning $BUILDDIR ..."
+      sudo rm -rf $BUILDDIR/{bin,boot,dev,etc,home,lib,media,mnt,opt,proc,root,sbin,srv,sys,tmp,tools,cross-tools,usr,var}
+      echo "done"
+      echo -n "Cleaning $JHALFSDIR ..."
+      sudo rm -rf $JHALFSDIR
+      echo "done"
+      echo -n "Cleaning remainig extracted sources in $BUILDDIR/sources ..."
+      sudo rm -rf `find $BUILDDIR/sources/* -maxdepth 0 -type d`
+      echo "done"
     fi
   fi
 }
@@ -813,6 +820,7 @@ add_blfs_deps_urls() {       # No easy way to extract it.
   if [[ "${DEP_TIDY}" = "y" ]] ; then
     echo "${TIDY_URL} ${BLFS_SERVER}tidy/${TIDY_PKG} ${TIDY_MD5}" >> urls.lst
     echo "${TIDY_PATCH_URL} ${BLFS_SERVER}tidy/${TIDY_PATCH} ${TIDY_PATCH_MD5}" >> urls.lst
+    echo "${TIDY_DOCS_URL} ${BLFS_SERVER}tidy/${TIDY_DOCS} ${TIDY_DOCS_MD5}" >> urls.lst
   fi
 
   if [[ "${DEP_UNZIP}" = "y" ]] ; then
