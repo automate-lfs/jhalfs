@@ -102,7 +102,7 @@ $Id$
   3.4  CONFIGURING AND PARSING THE BOOK::
 
        Next step is to create a book and build scripts in dependencies build order
-    for a target package. A target cam be a package or a meta-package.
+    for a target package. A target can be a package or a meta-package.
 
        Run <make> to launch the configuration interface. The main menu contains
     three block: meta-package selection, individual package selection, and
@@ -112,7 +112,7 @@ $Id$
     That is due that there is no way to solve dependencies properly when
     more than one target are selected at the same time.
 
-       When a meta-package is selected is possible to unselected unwanted components.
+       When a meta-package is selected is possible to unselect unwanted components.
     That unselected components will be skipped if no other components depends
     on them.
 
