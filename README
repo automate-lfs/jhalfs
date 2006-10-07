@@ -86,16 +86,16 @@ $Id$
      After booting the new xLFS system some steps are needed to finish
      blfs-tool installation:
 
-       - A user account need be created. You will must be logged on that user
+       - A user account must be created. You must be logged on that user
          account to use blfs-tool.
 
-       - Move /blfs-root to that user's home, making he the directory and
-         files owner.
+       - Move /blfs-root to that user's home and change ownership of the
+         directory and files to the user.
 
-       - Bring to that user read and write privileges over the $TRACKING_DIR
+       - Give the user read and write privileges over the $TRACKING_DIR
          directory and the files that it contains.
 
-       - Configure sudo to bring to that user the needed privileges.
+       - Configure sudo, adding the needed privileges for the user.
 
      We assume that blfs-tool will be used on a running fresh xLFS system.
      To use it to build BLFS packages from the chroot jail is also possible,
