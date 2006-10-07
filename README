@@ -78,8 +78,32 @@ $Id$
          If you run the jhalfs script directly the only function you can select
          is to display the version number running <./jhalfs -v>
 
+6. BLFS_TOOL SUPPORT::
 
-6. LAYOUT::
+     For books that support it, there is an option to install blfs-tool and its
+     dependendencies on the final system.
+
+     After booting the new xLFS system some steps are needed to finish
+     blfs-tool installation:
+
+       - A user account need be created. You will must be logged on that user
+         account to use blfs-tool.
+
+       - Move /blfs-root to that user's home, making he the directory and
+         files owner.
+
+       - Bring to that user read and write privileges over the $TRACKING_DIR
+         directory and the files that it contains.
+
+       - Configure sudo to bring to that user the needed privileges.
+
+     We assume that blfs-tool will be used on a running fresh xLFS system.
+     To use it to build BLFS packages from the chroot jail is also possible,
+     but is for you to figure out how to do that.
+
+     To know how to blfs-tool works, see README.BLFS.
+
+7. LAYOUT::
 
         /BLFS (see README.BLFS)
 
@@ -137,7 +161,7 @@ $Id$
         jhalfs
         blfs-tool
 
-7. FAQ::
+8. FAQ::
     Q. "This 'help' file is very sparse"
     A. Yes, it is. This tool, jhalfs, is for those who understand the LFS books
        and wish to automate the build. 99% of any problems that arise can be
