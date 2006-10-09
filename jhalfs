@@ -126,10 +126,6 @@ case $BRANCH_ID in
     LFSVRS=${BRANCH_ID}
     TREE=branches/${BRANCH_ID#branch-}/BOOK
     ;;
-  2.4-branch )
-    LFSVRS=${BRANCH_ID}
-    TREE=branches/2.4-branch
-    ;;
   * )
     case $PROGNAME in
       lfs | hlfs )
