@@ -248,7 +248,7 @@ EOF
 }
 
 if [[ -e Config.in ]] ; then
-  echo -e "${BOLD}This script must be run from inside the target package directory.${WHITE}"
+  echo -e "\n\tThis script must be run from inside a target package directory.\n"
   exit 1
 fi
 
