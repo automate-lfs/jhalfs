@@ -399,7 +399,18 @@ menu "--- BOOK Settings"
 			#   Note that the user that will build the packages must
 			#   have read and write privileges on that directory.
 	#--- End BLFS specific params
-
+	
+	#--- Custom Tools support
+	config CUSTOM_TOOLS
+		bool	"Add custom tool support"
+		default	n
+		depends on BOOK_LFS
+		help
+			#--- Activating this option additional packages you create
+			#    will be installed.
+			#
+	#--- End Custom Tools support
+	
 #--- End BOOK Settings
 endmenu
 

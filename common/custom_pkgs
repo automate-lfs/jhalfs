@@ -1,0 +1,100 @@
+#!/bin/sh
+
+#----------------------------------#
+add_CustomTools() {                # Add any users supplied scripts
+#----------------------------------#
+  PREV_SCRIPT=""
+  CUSTOM_LIST=""
+
+  echo "Adding custom packages... ${BOLD}START${OFF}"
+
+  cd $JHALFSDIR
+  > ${MKFILE}.tmp2
+
+  # First some build commands and a placeholder for the build list.
+  # This will not cause problems if there are no custom scripts.
+( cat << xEOFx
+
+
+mk_CUSTOM_TOOLS:
+	@\$(call echo_CHROOT_request)
+	@ sudo mkdir -p /home/georgeb/TRIAL/var/lib/jhalfs/BLFS
+	@( sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make CUSTOM_TOOLS")
+	@touch \$@
+
+CUSTOM_TOOLS:
+xEOFx
+) >> ${MKFILE}.tmp2
+
+
+  for this_script in custom-commands/config/*; do
+    if [[ `basename ${this_script}` = "*" ]]; then
+      break
+    fi
+    source $this_script
+    THIS_SCRIPT=$(basename ${this_script})
+    echo "$tab_${GREEN}Adding${OFF} ${THIS_SCRIPT}"
+
+( cat << EOF
+
+${THIS_SCRIPT}: ${PREV_SCRIPT}
+	@\$(call echo_message, Building)
+	@./progress_bar.sh \$@ \$\$PPID &
+	@\$(call remove_existing_dirs2,${PKG_FILE})
+	@\$(call unpack3,${PKG_FILE})
+	@\$(call get_pkg_root2)
+	@( time { source envars && /\$(SCRIPT_ROOT)/custom-commands/scripts/${THIS_SCRIPT} >>logs/${THIS_SCRIPT} 2>&1 ; } ) 2>>logs/${THIS_SCRIPT}
+	@\$(call remove_build_dirs2,${PKG})
+	@touch \$@
+	@touch /var/lib/jhalfs/BLFS/${PKG}-${PKG_VERSION}
+	@\$(call housekeeping)
+EOF
+) >> ${MKFILE}.tmp2
+
+    # Create the build script file
+( cat <<- xEOFx
+set -e
+cd \$PKGDIR
+`cat tmp`
+exit
+xEOFx
+) > custom-commands/scripts/$THIS_SCRIPT
+    chmod 755 custom-commands/scripts/$THIS_SCRIPT
+    rm -f tmp
+
+    PREV_SCRIPT=$THIS_SCRIPT
+    CUSTOM_LIST="${CUSTOM_LIST}${THIS_SCRIPT} "
+  done
+
+  # Add the dependancy list.
+  sed "s|^CUSTOM_TOOLS:|CUSTOM_TOOLS: ${CUSTOM_LIST}|" -i ${MKFILE}.tmp2
+  cat ${MKFILE}.tmp2 >> ${MKFILE}
+  rm  ${MKFILE}.tmp2
+  echo "Adding custom packages... ${BOLD}DONE${OFF}"
+}
+
+
+
+#----------------------------------#
+add_CustomToolsURLS() {            # Add any users supplied scripts URL information
+#----------------------------------#
+  local BLFS_SERVER="${SERVER}/pub/blfs/conglomeration/"
+  local this_script
+  local URL PKG PKG_VERSION PKG_FILE MD5  
+  
+  > urls.lst.tmp
+  for this_script in $JHALFSDIR/custom-commands/config/*; do
+    if [[ `basename ${this_script}` = "*" ]]; then
+      CUSTOM_TOOLS="n"
+      break
+    fi
+    source $this_script
+    echo "${URL} ${BLFS_SERVER}${PKG}/${PKG_FILE} ${MD5}" >> urls.lst.tmp
+     # Add any patches.. 
+    for PATCH in PATCH{1..10}; do
+      [[ -n ${!PATCH} ]] && echo "dummy-url ${!PATCH}" >> urls.lst.tmp        
+    done
+  done
+  cat  urls.lst.tmp >> $BUILDDIR/sources/urls.lst
+  rm urls.lst.tmp
+}

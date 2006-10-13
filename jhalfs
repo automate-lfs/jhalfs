@@ -264,6 +264,13 @@ source $COMMON_DIR/func_check_version.sh
 source $COMMON_DIR/func_validate_configs.sh
 [[ $? > 0 ]] && echo " function module did not load.." && exit 2
 [[ $VERBOSITY > 0 ]] && echo "OK"
+
+[[ $VERBOSITY > 0 ]] && echo -n "Loading function <custom_pkgs>..."
+source $COMMON_DIR/custom_pkgs
+[[ $? > 0 ]] && echo " function module did not load.." && exit 2
+[[ $VERBOSITY > 0 ]] && echo "OK"
+
+
 [[ $VERBOSITY > 0 ]] && echo "${SD_BORDER}${nl_}"
 
 
@@ -354,6 +361,16 @@ if [[ -n "$FILES" ]]; then
   popd 1> /dev/null
 fi
 #
+if [[ "${PROGNAME}" = "lfs" ]]; then
+  if [[ "${CUSTOM_TOOLS}" = "y" ]]; then
+    echo "Copying custom tool scripts to $JHALFSDIR"
+    mkdir -p $JHALFSDIR/custom-commands/config
+    mkdir -p $JHALFSDIR/custom-commands/scripts
+   cp -Rf custom/* $JHALFSDIR/custom-commands
+  fi
+fi
+
+#
 if [[ "$REPORT" = "y" ]]; then
   cp $COMMON_DIR/create-sbu_du-report.sh  $JHALFSDIR/
   # After being sure that all looks sane, dump the settings to a file
@@ -407,6 +424,11 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
 fi
 
 build_Makefile
+if [[ "${PROGNAME}" = "lfs" ]]; then
+  if [[ "${CUSTOM_TOOLS}" = "y" ]]; then
+    add_CustomTools
+  fi
+fi
 echo "${SD_BORDER}${nl_}"
 
 run_make
