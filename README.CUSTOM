@@ -1,0 +1,143 @@
+	HOW TO ADD CUSTOM SCRIPTS TO THE JHALFS MAKEFILE
+	
+
+  Normally JHALFS creates a Makefile containing only those scripts found in
+the {B,C,H}LFS books. An automated construction tool cannot predict the
+needs of every individual and requests are made "Can you add xxxx package".
+Rather than adding numerous package scripts and switches for each request it
+was easier to add a tool for the user(s) to code their own package needs.
+
+
+  LAYOUT
+  A new directory has been added to JHALFS tree which will contain the
+configuration scripts and a few examples. A switch has been added to the
+configuration file which enables/disables the inclusion of personal scripts.
+
+    custom
+      /config  <-- where to put your scripts.
+      template <-- ALL scripts MUST look like this
+
+
+
+  NOTE::: You are responsible for including all dependencies and ensuring they
+          are built in the proper order.
+
+  1. To add a package to the final JHALFS Makefile you must first create a file
+     in the custom/config directory.
+       **All config files MUST follow the naming convention, xxx-PKG, where xxx
+       is the order number and PKG is the name of the package. The file naming
+       format is important as it defines the build order. The example shown
+       below has an order number 950 and log files will list in alphabetical
+       order in the /logs directory after blfs-tools scripts.
+    The simplest method is to copy the template file into the config directory
+    and rename it.
+
+  2. Populate the variables with the necessary values.
+       Variable function is self explanitory except for the inclusion of the
+       build cmds. If the package you want to include is found in the BLFS
+       book then you only need to copy/paste the cmd strings between the xEOFx
+       pairs, otherwise you will need to define the build cmds yourself.
+     NOTE::: This script you just created is not usable directly but contains
+             all the information necessary for jhalfs to create a build script
+	     and an entry in the jhalfs Makefile.
+
+  3. As mentioned previously the build order is dictated by the 3 digit number
+     in the file name. If a package has dependencies it must be numerically
+     larger than the dependency files.
+       ie. The package mc has glib as a dependency and build order is
+           950-glib
+	   951-mc
+
+  4. A config file for BLFS-bootscripts is already created as 999-blfs_bootscripts.
+     If a package requires a bootscript to be installed add the cmd to this
+     file and NOT in the package script. The gpm script is included as an
+     example of multiple patch files and the need for a blfs bootscript.
+    
+  RUNNING:::  
+    Although your scripts are added to the generated makefile they are not
+    automatically built. You must tell the makefile to build the tools with
+    the cmd
+        make mk_CUSTOM_TOOLS
+
+  :::FINAL COMMENT:::
+    This feature was added so users could build the packages necessary to access
+    the internet and was not intended to replace the BLFS install system. 
+    
+
+#--------- GLIB example -----------
+
+  #
+  # Filename syntax xxx-PKG  ie. 950-glibc
+  # Create a file in the custom/config directory
+  # Populate the file using the following script as an example
+  #
+  
+PKG="glib"
+PKG_VERSION="1.2.10"
+PKG_FILE="glib-1.2.10.tar.gz"
+URL="http://gd.tuwien.ac.at/graphics/gimp/gtk/v1.2/${PKG_FILE}"
+MD5="6fe30dad87c77b91b632def29dd69ef9"
+
+  # Patches are named PATCH[1..10]
+  # This information is used to download the patch only
+  # If you do not have the MD5SUM the download will proceed with a warning.
+PATCH1="http://www.linuxfromscratch.org/patches/blfs/svn/glib-1.2.10-gcc34-1.patch 0077a1cce5e8a2231ac5a9b08c6263ba"
+
+
+  # NOTE::
+  #  The convoluted scheme used to write out a temporary file is
+  #  a work-around for embedded single and double quotes.
+
+( cat << "xEOFx"
+
+patch -Np1 -i ../glib-1.2.10-gcc34-1.patch &&
+./configure --prefix=/usr &&
+make
+make install &&
+chmod -v 755 /usr/lib/libgmodule-1.2.so.0.0.10
+
+xEOFx
+) > tmp
+
+
+#--------- GPM example -----------
+
+
+PKG="gpm"
+PKG_VERSION="1.20.1"
+PKG_FILE="gmp-1.20.1.tar.bz2"
+URL="ftp://arcana.linux.it/pub/gpm/gpm-1.20.1.tar.bz2"
+MD5="2c63e827d755527950d9d13fe3d87692"
+
+PATCH1=" http://www.linuxfromscratch.org/patches/blfs/svn/gpm-1.20.1-segfault-1.patch"
+PATCH2=" http://www.linuxfromscratch.org/patches/blfs/svn/gpm-1.20.1-silent-1.patch"
+
+
+( cat << "xEOFx"
+
+patch -Np1 -i ../gpm-1.20.1-segfault-1.patch &&
+patch -Np1 -i ../gpm-1.20.1-silent-1.patch &&
+./configure --prefix=/usr --sysconfdir=/etc &&
+LDFLAGS="-lm" make
+
+make install &&
+cp -v conf/gpm-root.conf /etc &&
+ldconfig
+
+# The normal cmd to install the boot script for gpm
+# --- PUT THIS CMD INSIDE 999-blfs_bootscripts
+#make install-gpm
+
+cat > /etc/sysconfig/mouse << "EOF"
+# Begin /etc/sysconfig/mouse
+
+MDEVICE="/dev/psaux"
+PROTOCOL="imps2"
+GPMOPTS=""
+
+# End /etc/sysconfig/mouse
+EOF
+
+xEOFx
+) > tmp
+

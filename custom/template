@@ -1,0 +1,15 @@
+#
+# Any comments you wish to add
+#
+
+PKG=""
+PKG_VERSION=""
+PKG_FILE=""
+URL=""
+MD5=""
+PATCH1=""
+
+( cat << "xEOFx"
+
+xEOFx
+) > tmp
