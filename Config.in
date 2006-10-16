@@ -267,6 +267,17 @@ menu "--- BOOK Settings"
 		default "uclibc"	if LIB_UCLIBC
 	#--- End HLFS specific params
 
+	#--- Custom Tools support
+	config CUSTOM_TOOLS
+		bool	"Add custom tool support"
+		default	n
+		depends on BOOK_LFS
+		help
+			#--- Activating this option additional packages you create
+			#    will be installed.
+			#
+	#--- End Custom Tools support
+
 	#--- blfs-tool Support
 	config BLFS_TOOL
 		bool	"Add blfs-tool support"
@@ -389,28 +400,23 @@ menu "--- BOOK Settings"
 	config	TRACKING_DIR
 		string "Installed packages database directory"
 		default "/var/lib/jhalfs/BLFS"
-		depends on BOOK_BLFS || BLFS_TOOL
+		depends on BOOK_BLFS || BLFS_TOOL || CUSTOM_TOOLS
 		help
 			#-- Full path to the directory where the installed
 			#   packages database will be created.
 			#
-			#   You MUST to create manually this directory.
+			#   If you are installing blfs-tool on a running xLFS system
+                        #   you MUST to create manually this directory.
+                        #
+                        #   If you are installing blfs-tool as part of a xLFS build
+                        #   and/or using the customized scripts feature, you will
+                        #   need to fix that directory permissions after booting
+                        #   the new system.
 			#
 			#   Note that the user that will build the packages must
 			#   have read and write privileges on that directory.
 	#--- End BLFS specific params
-	
-	#--- Custom Tools support
-	config CUSTOM_TOOLS
-		bool	"Add custom tool support"
-		default	n
-		depends on BOOK_LFS
-		help
-			#--- Activating this option additional packages you create
-			#    will be installed.
-			#
-	#--- End Custom Tools support
-	
+
 #--- End BOOK Settings
 endmenu
 

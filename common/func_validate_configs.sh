@@ -27,6 +27,7 @@ inline_doc
   local -r  blfs_PARAM_LIST="BRANCH_ID BLFS_ROOT BLFS_XML TRACKING_DIR"
 
   local -r  blfs_tool_PARAM_LIST="BLFS_BRANCH_ID BLFS_ROOT BLFS_XML TRACKING_DIR DEP_LIBXML DEP_LIBXSLT DEP_TIDY DEP_UNZIP DEP_DBXML DEP_DBXSL DEP_LINKS DEP_SUDO DEP_WGET DEP_SVN DEP_GPM"
+  local -r custom_tool_PARAM_LIST="TRACKING_DIR"
 
   local -r ERROR_MSG_pt1='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid,'
   local -r ERROR_MSG_pt2='rerun make and fix your configuration settings${OFF}'
@@ -186,6 +187,12 @@ inline_doc
   if [[ "${BLFS_TOOL}" = "y" ]] ; then
     echo "${nl_}    ${BLUE}blfs-tool settings${OFF}"
     for config_param in ${blfs_tool_PARAM_LIST}; do
+      echo -e "`eval echo $PARAM_VALS`"
+    done
+  fi
+
+  if [[ "${CUSTOM_TOOLS}" = "y" ]] && [[ "${BLFS_TOOL}" = "n" ]]  ; then
+    for config_param in ${custom_tool_PARAM_LIST}; do
       echo -e "`eval echo $PARAM_VALS`"
     done
   fi

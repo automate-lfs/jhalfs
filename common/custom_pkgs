@@ -20,7 +20,7 @@ add_CustomTools() {                # Add any users supplied scripts
 
 mk_CUSTOM_TOOLS:
 	@\$(call echo_CHROOT_request)
-	@ sudo mkdir -p /home/georgeb/TRIAL/var/lib/jhalfs/BLFS
+	@ sudo mkdir -p ${BUILDDIR}${TRACKING_DIR}
 	@( sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make CUSTOM_TOOLS")
 	@touch \$@
 
@@ -48,7 +48,7 @@ ${THIS_SCRIPT}: ${PREV_SCRIPT}
 	@( time { source envars && /\$(SCRIPT_ROOT)/custom-commands/scripts/${THIS_SCRIPT} >>logs/${THIS_SCRIPT} 2>&1 ; } ) 2>>logs/${THIS_SCRIPT}
 	@\$(call remove_build_dirs2,${PKG})
 	@touch \$@
-	@touch /var/lib/jhalfs/BLFS/${PKG}-${PKG_VERSION}
+	@touch ${TRACKING_DIR}/${PKG}-${PKG_VERSION}
 	@\$(call housekeeping)
 EOF
 ) >> ${MKFILE}.tmp2
