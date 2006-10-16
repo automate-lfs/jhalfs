@@ -37,6 +37,32 @@ xEOFx
     THIS_SCRIPT=$(basename ${this_script})
     echo "$tab_${GREEN}Adding${OFF} ${THIS_SCRIPT}"
 
+      # Create a Makefile entry
+    if [[ "x${PKG}" = "x" ]]; then
+    # Create an entry for a self contained cmd script that does not reference a package tarball
+( cat << EOF
+
+${THIS_SCRIPT}: ${PREV_SCRIPT}
+	@\$(call echo_message, Building)
+	@./progress_bar.sh \$@ \$\$PPID &
+	@( time { source envars && /\$(SCRIPT_ROOT)/custom-commands/scripts/${THIS_SCRIPT} >>logs/${THIS_SCRIPT} 2>&1 ; } ) 2>>logs/${THIS_SCRIPT}
+	@touch \$@
+	@\$(call housekeeping)
+EOF
+) >> ${MKFILE}.tmp2
+
+    # Create the build script file
+( cat <<- xEOFx
+#!/bin/bash
+set -e
+
+`cat tmp`
+exit
+xEOFx
+) > custom-commands/scripts/$THIS_SCRIPT
+    
+    else
+    # Create an entry for package
 ( cat << EOF
 
 ${THIS_SCRIPT}: ${PREV_SCRIPT}
@@ -63,9 +89,10 @@ cd \$PKGDIR
 exit
 xEOFx
 ) > custom-commands/scripts/$THIS_SCRIPT
+    fi
+   
     chmod 755 custom-commands/scripts/$THIS_SCRIPT
     rm -f tmp
-
     PREV_SCRIPT=$THIS_SCRIPT
     CUSTOM_LIST="${CUSTOM_LIST}${THIS_SCRIPT} "
   done
@@ -93,6 +120,9 @@ add_CustomToolsURLS() {            # Add any users supplied scripts URL informat
       break
     fi
     source $this_script
+      # A cmd only script had no PKG defined
+    [[ "x${PKG}" = "x" ]] && continue
+    
     echo "${URL} ${BLFS_SERVER}${PKG}/${PKG_FILE} ${MD5}" >> urls.lst.tmp
      # Add any patches..
     for PATCH in PATCH{1..10}; do
