@@ -1,3 +1,6 @@
+#
+# $Id$
+#
 PKG="bc"
 PKG_VERSION="1.06"
 PKG_FILE="bc-1.06.tar.gz"

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# $Id$
+
 #----------------------------------#
 add_CustomTools() {                # Add any users supplied scripts
 #----------------------------------#
@@ -58,7 +60,6 @@ set -e
 
 cd \$PKGDIR
 `cat tmp`
-
 exit
 xEOFx
 ) > custom-commands/scripts/$THIS_SCRIPT

@@ -1,5 +1,8 @@
+#
+# $Id$
+#
 	HOW TO ADD CUSTOM SCRIPTS TO THE JHALFS MAKEFILE
-	
+
 
   Normally JHALFS creates a Makefile containing only those scripts found in
 the {B,C,H}LFS books. An automated construction tool cannot predict the
@@ -52,8 +55,8 @@ configuration file which enables/disables the inclusion of personal scripts.
      If a package requires a bootscript to be installed add the cmd to this
      file and NOT in the package script. The gpm script is included as an
      example of multiple patch files and the need for a blfs bootscript.
-    
-  RUNNING:::  
+
+  RUNNING:::
     Although your scripts are added to the generated makefile they are not
     automatically built. You must tell the makefile to build the tools with
     the cmd
@@ -61,8 +64,8 @@ configuration file which enables/disables the inclusion of personal scripts.
 
   :::FINAL COMMENT:::
     This feature was added so users could build the packages necessary to access
-    the internet and was not intended to replace the BLFS install system. 
-    
+    the internet and was not intended to replace the BLFS install system.
+
 
 #--------- GLIB example -----------
 
@@ -71,7 +74,7 @@ configuration file which enables/disables the inclusion of personal scripts.
   # Create a file in the custom/config directory
   # Populate the file using the following script as an example
   #
-  
+
 PKG="glib"
 PKG_VERSION="1.2.10"
 PKG_FILE="glib-1.2.10.tar.gz"

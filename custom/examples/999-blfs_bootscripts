@@ -1,3 +1,6 @@
+#
+# $Id$
+#
 PKG="blfs-bootscripts"
 PKG_VERSION="20060910"
 PKG_FILE="blfs-bootscripts-${PKG_VERSION}.tar.bz2"
