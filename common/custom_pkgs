@@ -53,9 +53,12 @@ EOF
 
     # Create the build script file
 ( cat <<- xEOFx
+#!/bin/bash
 set -e
+
 cd \$PKGDIR
 `cat tmp`
+
 exit
 xEOFx
 ) > custom-commands/scripts/$THIS_SCRIPT
@@ -80,8 +83,8 @@ add_CustomToolsURLS() {            # Add any users supplied scripts URL informat
 #----------------------------------#
   local BLFS_SERVER="${SERVER}/pub/blfs/conglomeration/"
   local this_script
-  local URL PKG PKG_VERSION PKG_FILE MD5  
-  
+  local URL PKG PKG_VERSION PKG_FILE MD5
+
   > urls.lst.tmp
   for this_script in $JHALFSDIR/custom-commands/config/*; do
     if [[ `basename ${this_script}` = "*" ]]; then
@@ -90,9 +93,9 @@ add_CustomToolsURLS() {            # Add any users supplied scripts URL informat
     fi
     source $this_script
     echo "${URL} ${BLFS_SERVER}${PKG}/${PKG_FILE} ${MD5}" >> urls.lst.tmp
-     # Add any patches.. 
+     # Add any patches..
     for PATCH in PATCH{1..10}; do
-      [[ -n ${!PATCH} ]] && echo "dummy-url ${!PATCH}" >> urls.lst.tmp        
+      [[ -n ${!PATCH} ]] && echo "dummy-url ${!PATCH}" >> urls.lst.tmp
     done
   done
   cat  urls.lst.tmp >> $BUILDDIR/sources/urls.lst
