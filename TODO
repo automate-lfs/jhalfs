@@ -17,7 +17,8 @@ xLFS MODULES
   - To develop a new "restart" Makefile target code.
 
   - To add support for copying to the final system pre-generated
-    configuration files created by the user, if that can be implemented.
+    configuration files created by the user.
+    Work in progress via CUSTOM_TOOLS
 
 
 BLFS MODULE (See BLFS/TODO)
@@ -33,4 +34,6 @@ OTHERS
     NOTE:
       That requires a way to can regenerate the Makefile if additional
       scripts are manually added to the *-commands/*/ dirs.
+
+    Work in progress via RE_MAKE
 

@@ -823,3 +823,16 @@ endif
 
 #--- End Advanced Features
 endmenu
+
+config RE_MAKE
+	bool "Rebuild the Makefile (see help)"
+	default n
+	depends on !BOOK_BLFS
+	help
+		#-- Rebuild the Makefile
+		#
+		#   This option alow to rebuild the Makefile after
+		#   customizing the base system build scripts.
+		#
+		#   See README.CUSTOM for more info about this feature.
+

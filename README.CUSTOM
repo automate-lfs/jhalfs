@@ -10,6 +10,39 @@ needs of every individual and requests are made "Can you add xxxx package".
 Rather than adding numerous package scripts and switches for each request it
 was easier to add a tool for the user(s) to code their own package needs.
 
+  There is two areas that can be customized: how the base system is build
+and what additional configurations and packages requires your hardware to can
+boot and work with. Each one of this areas is handled in a diferent way.
+
+        BASE SYSTEM CUSTOMIZATION
+
+  There is two ways to alter how the base system will be built:
+
+  - Using a working copy of the book sources and editing the XML files.
+    This is the way used by book editors to test packages upgrades,
+    command changes, build order changes. etc.
+
+    This method requires you know very well the book sources and what
+    files need be edited. It will not be discussed here.
+
+  - Editing the generated build scripts to make any change you would.
+    This is the method discussed below.
+
+(TO BE WRITTEN)
+
+
+       ADDING POST-SYSTEM BUILD CONFIGURATION FILES AND EXTRA PACKAGES
+
+  The installation of BLFS packages is handled via blfs-tool and activated
+when you select the appropiate menu option. See README and README.BLFS for
+more info.
+
+  The feature descrbed below was added so users could install remaining
+configuration files, build the packages necessary to access the internet
+or to support specific hardware, or to install basic utilities that need
+have availables from the beginning, and was not intended to replace the BLFS
+install system.
+
 
   LAYOUT
   A new directory has been added to JHALFS tree which will contain the
@@ -63,10 +96,6 @@ configuration file which enables/disables the inclusion of personal scripts.
     the cmd
         make mk_CUSTOM_TOOLS
 
-  :::FINAL COMMENT:::
-    This feature was added so users could build the packages necessary to access
-    the internet and was not intended to replace the BLFS install system.
-
 
 #--------- GLIB example -----------
 
@@ -113,7 +142,7 @@ PKG_FILE="gmp-1.20.1.tar.bz2"
 URL="ftp://arcana.linux.it/pub/gpm/gpm-1.20.1.tar.bz2"
 MD5="2c63e827d755527950d9d13fe3d87692"
 
-  # MD5SUM is not absolutely necessary but JHALFS whines and complains 
+  # MD5SUM is not absolutely necessary but JHALFS whines and complains
   # Add the MD5SUM if you can
 PATCH1=" http://www.linuxfromscratch.org/patches/blfs/svn/gpm-1.20.1-segfault-1.patch"
 PATCH2=" http://www.linuxfromscratch.org/patches/blfs/svn/gpm-1.20.1-silent-1.patch"
@@ -153,7 +182,7 @@ xEOFx
   # There are no referenced to a package or package dir.
   # This method is useful for creating user files/profiles/etc
   # at build time.
-   
+
 
 PKG=""
 PKG_VERSION=""
