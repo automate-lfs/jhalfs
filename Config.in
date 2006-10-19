@@ -824,7 +824,7 @@ endif
 #--- End Advanced Features
 endmenu
 
-config RE_MAKE
+config REBUILD_MAKEFILE
 	bool "Rebuild the Makefile (see help)"
 	default n
 	depends on !BOOK_BLFS

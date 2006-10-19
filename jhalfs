@@ -108,7 +108,7 @@ REPORT=${REPORT:=n}
 VIMLANG=${VIMLANG:-n}
 GRSECURITY_HOST=${GRSECURITY_HOST:-n}
 CUSTOM_TOOLS=${CUSTOM_TOOLS:-n}
-RE_MAKE=${RE_MAKE:-n}
+REBUILD_MAKEFILE=${REBUILD_MAKEFILE:-n}
 
 # Book surces envars
 BRANCH_ID=${BRANCH_ID:=development}
@@ -317,7 +317,7 @@ if [[ "$OPTIMIZE" != "0" ]]; then
 fi
 #
 
-if [[ "$RE_MAKE" = "n" ]] ; then
+if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
 
   # If $BUILDDIR has subdirectories like tools/ or bin/, stop the run
   # and notify the user about that.
@@ -423,6 +423,16 @@ if [[ "$RE_MAKE" = "n" ]] ; then
     echo "${SD_BORDER}${nl_}"
   fi
 
+fi
+
+# When regeneration the Makefile we need to know also the canonical book version
+if [[ "$REBUILD_MAKEFILE" = "y" ]] ; then
+  case $PROGNAME in
+    clfs | clfs2 )
+      VERSION=$(xmllint --noent $JHALFSDIR/$BOOK/prologue/$ARCH/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
+    *)
+      VERSION=$(xmllint --noent $JHALFSDIR/$BOOK/prologue/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//')  ;;
+  esac
 fi
 
 build_Makefile
