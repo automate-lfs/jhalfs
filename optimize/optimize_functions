@@ -75,7 +75,7 @@ wrt_makeflags() {                  # Apply MAKEFLAGS to build
   local pkg=$1
   local MKF
 
-  if [[ "$BLACK_LIST" =~ "$pkg" ]]; then
+  if [[ "$BLACK_LIST" =~ ${pkg} ]]; then
     MKF=unset
   else
     MKF=$MAKEFLAGS

@@ -56,7 +56,7 @@ parse_configuration() {    #
                       continue ;;
     esac
 
-    if [[ "${REPLY}" =~ "^CONFIG_" ]]; then
+    if [[ "${REPLY}" =~ ^CONFIG_ ]]; then
       echo -n "$REPLY"
       if [[ $((++cntr)) > 1 ]]; then
         echo "  <<-- ERROR SELECT ONLY 1 PACKAGE AT A TIME, WILL NOT BUILD"
@@ -107,7 +107,7 @@ regenerate_deps() {        #
 
     # Drop the "=y"
     REPLY=${REPLY%=*}
-    if [[ "${REPLY}" =~ "^DEP_" ]]; then
+    if [[ "${REPLY}" =~ ^DEP_ ]]; then
       META_PACKAGE=$(echo $REPLY | cut -d "_" -f2 | tr [A-Z] [a-z])
       DEP_FNAME=$(echo $REPLY | cut -d "_" -f3)
        echo "${DEP_FNAME}" >>libs/${META_PACKAGE}.dep-MOD

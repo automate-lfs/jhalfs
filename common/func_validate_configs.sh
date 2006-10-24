@@ -159,7 +159,7 @@ inline_doc
       SRC_ARCHIVE) [[ "$GETPKG" = "y" ]] && validate_dir -z+ -d -w+ ;;
         # The build directory/partition MUST exist and be writable by the user
       BUILDDIR)   validate_dir -z -d -w
-                  [[ "xx x/x" =~ "x${!config_param}x" ]] && write_error_and_die ;;
+                  [[ "xx x/x" =~ x${!config_param}x ]] && write_error_and_die ;;
 
         # Validate files, testable states:
         #  fatal   -z -e -s -w -x -r,
