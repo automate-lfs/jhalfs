@@ -55,6 +55,10 @@ endif
 endif
 endif
 
+ifeq (/usr/include/locale.h, $(wildcard /usr/include/locale.h))
+	HOSTNCURSES += -DLOCALE=1
+endif
+
 CONF_SRC     = conf.c
 MCONF_SRC    = mconf.c
 LXD_SRC      = lxdialog/checklist.c lxdialog/menubox.c lxdialog/textbox.c \
