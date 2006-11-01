@@ -66,7 +66,7 @@ unset wrt_RunaAsRoot
 #----------------------------------#
 wrt_RunAsRoot() {                  # Some scripts must be run as root..
 #----------------------------------#
-  local ENV_MOUNT
+  local MOUNT_ENV
   local this_script=$1
   local file=$2
 
@@ -82,7 +82,7 @@ wrt_RunAsRoot() {                  # Some scripts must be run as root..
 (
 cat << EOF
 	@( time { export ${MOUNT_ENV}=\$(MOUNT_PT) && ${PROGNAME}-commands/`dirname $file`/\$@ >>logs/\$@ 2>&1 ; } ) 2>>logs/\$@ && \\
-	\$(PRT_DU_CR) >>logs/\$@
+	\$(PRT_DU) >>logs/\$@
 EOF
 ) >> $MKFILE.tmp
 }
@@ -97,8 +97,8 @@ ROOT_RunAsRoot() {                 #
   local file=$1
 (
 cat << EOF
-	@( time { source envars && \$(CMDSDIR)/$file >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
-	\$(PRT_DU_CR) >>logs/$this_script
+	@( time { source envars && \$(CMDSDIR)/$file >>logs/\$@ 2>&1 ; } ) 2>>logs/\$@ && \\
+	\$(PRT_DU_CR) >>logs/\$@
 EOF
 ) >> $MKFILE.tmp
 }
@@ -139,7 +139,8 @@ cat << EOF
 $i:  $PREV
 	@\$(call echo_message, Building)
 	@./progress_bar.sh \$@ \$\$PPID &
-	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) \$(MOUNT_PT)\`\n" >logs/\$@
+	@echo -e "\n\`date\`\n" >logs/\$@ &
+	@\$(PRT_DU) >>logs/\$@
 EOF
 ) >> $MKFILE.tmp
 }
@@ -228,7 +229,7 @@ CHROOT_wrt_target() {              # Create target and initialize log file
   local PREV=$2
   case $i in
     iteration* ) local LOGFILE="${this_script}.log" ;;
-             * ) local LOGFILE="${this_script}"      ;;
+             * ) local LOGFILE="\$@"      ;;
   esac
 (
 cat << EOF
@@ -236,7 +237,8 @@ cat << EOF
 $i:  $PREV
 	@\$(call echo_message, Building)
 	@./progress_bar.sh \$@ \$\$PPID &
-	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) / \`\n" >logs/$LOGFILE
+	@echo -e "\n\`date\`\n" >logs/$LOGFILE &
+	@\$(PRT_DU_CR) >>logs/$LOGFILE
 EOF
 ) >> $MKFILE.tmp
 }
@@ -283,8 +285,8 @@ CHROOT_wrt_RunAsRoot() {           #
   local file=$1
 (
 cat << EOF
-	@( time { source envars && \$(crCMDSDIR)/$file >>logs/$this_script 2>&1 ; } ) 2>>logs/$this_script && \\
-	\$(PRT_DU_CR) >>logs/$this_script
+	@( time { source envars && \$(crCMDSDIR)/$file >>logs/\$@ 2>&1 ; } ) 2>>logs/\$@ && \\
+	\$(PRT_DU_CR) >>logs/\$@
 EOF
 ) >> $MKFILE.tmp
 
@@ -296,7 +298,7 @@ CHROOT_wrt_CopyFstab() {           #
 #----------------------------------#
 (
 cat << EOF
-	@( time { cp -v /sources/fstab /etc/fstab >>logs/${this_script} 2>&1 ; } ) 2>>logs/${this_script}
+	@( time { cp -v /sources/fstab /etc/fstab >>logs/\$@ 2>&1 ; } ) 2>>logs/\$@
 EOF
 ) >> $MKFILE.tmp
 }

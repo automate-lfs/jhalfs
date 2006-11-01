@@ -518,8 +518,8 @@ crTESTLOGDIR = /\$(SCRIPT_ROOT)/test-logs
 
 SU_LUSER     = su - \$(LUSER) -c
 LUSER_HOME   = /home/\$(LUSER)
-PRT_DU       = echo -e "\nKB: \`du -skx --exclude=jhalfs \$(MOUNT_PT)\`\n"
-PRT_DU_CR    = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) / \`\n"
+PRT_DU       = echo -e "\nKB: \`du -skx --exclude=jhalfs --exclude=lost+found \$(MOUNT_PT)\`\n"
+PRT_DU_CR    = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) --exclude=lost+found / \`\n"
 
 export PATH := \${PATH}:/usr/sbin
 

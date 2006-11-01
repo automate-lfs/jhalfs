@@ -450,7 +450,7 @@ LOGDIR     = \$(BASEDIR)/\$(SCRIPT_ROOT)/logs
 TESTLOGDIR = \$(BASEDIR)/\$(SCRIPT_ROOT)/test-logs
 
 SU_LUSER   = su - \$(LUSER) -c
-PRT_DU     = echo -e "\nKB: \`du -skx --exclude=jhalfs \$(MOUNT_PT)\`\n"
+PRT_DU     = echo -e "\nKB: \`du -skx --exclude=jhalfs --exclude=lost+found \$(MOUNT_PT)\`\n"
 LUSER_HOME = /home/\$(LUSER)
 
 export PATH := \${PATH}:/usr/sbin

@@ -225,7 +225,12 @@ chapter6_Makefiles() {
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    CHROOT_wrt_target "${this_script}${N}" "$PREV"
+    # In the mount of kernel filesystems we need to set LFS
+    # and not to use chroot.
+    case "${this_script}" in
+      *kernfs)  LUSER_wrt_target  "${this_script}" "$PREV" ;;
+      *)        CHROOT_wrt_target "${this_script}${N}" "$PREV" ;;
+    esac
 
     # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
@@ -402,8 +407,8 @@ crTESTLOGDIR = /\$(SCRIPT_ROOT)/test-logs
 
 SU_LUSER     = su - \$(LUSER) -c
 LUSER_HOME   = /home/\$(LUSER)
-PRT_DU       = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) \$(MOUNT_PT) \`\n"
-PRT_DU_CR    = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) / \`\n"
+PRT_DU       = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) --exclude=lost+found \$(MOUNT_PT) \`\n"
+PRT_DU_CR    = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) --exclude=lost+found / \`\n"
 
 export PATH := \${PATH}:/usr/sbin
 
