@@ -16,6 +16,8 @@ xLFS MODULES
 
   - To develop a new "restart" Makefile target code.
 
+  - To add support for HLFS 2.4 branch
+
   - To add support for copying to the final system pre-generated
     configuration files created by the user.
     Work in progress via CUSTOM_TOOLS
