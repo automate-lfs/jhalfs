@@ -15,6 +15,6 @@ PATCH1=""
 # EXAMPLE
 #
 make install-gpm
-
+make install-service-dhcpcd
 xEOFx
 ) > tmp

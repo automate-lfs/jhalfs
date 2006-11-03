@@ -1,0 +1,25 @@
+#
+# $Id$
+#
+# dhcpcd is an implementation of the DHCP client specified in RFC2131.
+# This is useful for connecting your computer to a network which uses
+# DHCP to assign network addresses.
+#
+
+PKG="dhcpcd"
+PKG_VERSION="2.0.8"
+PKG_FILE="dhcpcd-${PKG_VERSION}.tar.bz2"
+URL="ftp://ftp.osuosl.org/pub/gentoo/distfiles/${PKG_FILE}"
+MD5="ec91c33b6d9cb46a42f9564e573fd249"
+PATCH1=""
+
+( cat << "xEOFx"
+
+./configure --prefix="" --mandir=/usr/share/man &&
+make
+
+make install &&
+chmod -v 754 /etc/dhcpc/dhcpcd.exe
+
+xEOFx
+) > tmp

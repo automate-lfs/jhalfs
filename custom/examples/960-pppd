@@ -1,0 +1,24 @@
+#
+# $Id$
+#
+# The PPP package contains the pppd daemon and the chat program.
+# This is used for connecting to other machines; often for connecting 
+# to the Internet via a dial-up or PPPoE connection to an ISP. 
+#
+
+PKG="ppp"
+PKG_VERSION="2.4.4"
+PKG_FILE="ppp-${PKG_VERSION}.tar.gz"
+URL="ftp://ftp.samba.org/pub/ppp/${PKG_FILE}"
+MD5="83800762e266132218b204dfb428d29"
+PATCH1=""
+
+( cat << "xEOFx"
+./configure --prefix=/usr &&
+make
+
+make install &&
+make install-etcppp
+
+xEOFx
+) > tmp
