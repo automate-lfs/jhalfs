@@ -190,7 +190,7 @@ define echo_boot_finished
   @echo  1.If it is necessary, transfer the newly created partition to the target machine
   @echo  2.Boot the new partition.
   @echo  3.Once you are logged in issue the following commands
-  @echo  $(tab_) $(BOLD})cd /jhalfs
+  @echo  $(tab_) $(BOLD)cd /jhalfs
   @echo  $(tab_) $(BOLD)make makesys
   @echo  The build process should resume. Follow any instructions that appear.
   @echo --------------------------------------------------------------------------------
