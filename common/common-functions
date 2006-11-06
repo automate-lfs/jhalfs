@@ -139,7 +139,7 @@ cat << EOF
 $i:  $PREV
 	@\$(call echo_message, Building)
 	@./progress_bar.sh \$@ \$\$PPID &
-	@echo -e "\n\`date\`\n" >logs/\$@
+	@echo "\$(nl_)\`date\`\$(nl_)" >logs/\$@
 	@\$(PRT_DU) >>logs/\$@
 EOF
 ) >> $MKFILE.tmp
@@ -202,7 +202,7 @@ LUSER_wrt_test_log() {             # Initialize testsuite log file
 (
 cat  << EOF
 	@echo "export  TEST_LOG=$TESTLOGDIR/$TESTLOGFILE" >> envars && \\
-	echo -e '\n\`date\`\n' >$TESTLOGDIR/$TESTLOGFILE
+	echo '\$(nl_)\`date\`\$(nl_)' >$TESTLOGDIR/$TESTLOGFILE
 EOF
 ) >> $MKFILE.tmp
 }
@@ -237,7 +237,7 @@ cat << EOF
 $i:  $PREV
 	@\$(call echo_message, Building)
 	@./progress_bar.sh \$@ \$\$PPID &
-	@echo -e "\n\`date\`\n" >logs/$LOGFILE
+	@echo "\$(nl_)\`date\`\$(nl_)" >logs/$LOGFILE
 	@\$(PRT_DU_CR) >>logs/$LOGFILE
 EOF
 ) >> $MKFILE.tmp
@@ -273,7 +273,7 @@ CHROOT_wrt_test_log() {            #
 (
 cat  << EOF
 	@echo "export TEST_LOG=/\$(SCRIPT_ROOT)/test-logs/$TESTLOGFILE" >> envars && \\
-	echo -e "\n\`date\`\n" >test-logs/$TESTLOGFILE
+	echo "\$(nl_)\`date\`\$(nl_)" >test-logs/$TESTLOGFILE
 EOF
 ) >> $MKFILE.tmp
 }
@@ -376,7 +376,7 @@ wrt_blfs_tool_targets() {          #
       unzip ) pkg_ver=unzip-5.52 ;;
       * )     pkg_ver=$(echo $pkg_tarball | sed -e 's/.tar.*//;s/.tgz//;s/.zip//') ;;
     esac
-    echo -e "\t@touch $TRACKING_DIR/$pkg_ver" >>  $MKFILE.tmp
+    echo  "\$(tab_)@touch $TRACKING_DIR/$pkg_ver" >>  $MKFILE.tmp
 
     # Include a touch of the target name so make can check
     # if it's already been made.
