@@ -13,8 +13,8 @@ OFF     = "[0m"
 BOLD    = "[1m"
 REVERSE = "[7m"
 
-tab_    ='\t'
-nl_     ='\n'
+tab_    = "	"
+nl_     = ""
 
 define echo_PHASE
   @clear
