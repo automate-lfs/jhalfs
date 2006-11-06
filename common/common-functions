@@ -139,7 +139,7 @@ cat << EOF
 $i:  $PREV
 	@\$(call echo_message, Building)
 	@./progress_bar.sh \$@ \$\$PPID &
-	@echo -e "\n\`date\`\n" >logs/\$@ &
+	@echo -e "\n\`date\`\n" >logs/\$@
 	@\$(PRT_DU) >>logs/\$@
 EOF
 ) >> $MKFILE.tmp
@@ -237,7 +237,7 @@ cat << EOF
 $i:  $PREV
 	@\$(call echo_message, Building)
 	@./progress_bar.sh \$@ \$\$PPID &
-	@echo -e "\n\`date\`\n" >logs/$LOGFILE &
+	@echo -e "\n\`date\`\n" >logs/$LOGFILE
 	@\$(PRT_DU_CR) >>logs/$LOGFILE
 EOF
 ) >> $MKFILE.tmp
