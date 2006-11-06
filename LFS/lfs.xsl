@@ -72,10 +72,8 @@
           </xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
-
         <!-- Creating dirs and files -->
       <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
-<!--
         <xsl:choose>
           <xsl:when test="@id='ch-system-changingowner' or
                     @id='ch-system-creatingdirs' or
@@ -90,15 +88,19 @@
             <xsl:text>#!/bin/sh&#xA;set -e&#xA;&#xA;</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
--->
+        <xsl:if test="sect2[@role='installation']">
+          <xsl:text>cd $PKGDIR&#xA;</xsl:text>
+          <xsl:if test="@id='ch-system-vim' and $vim-lang = 'y'">
+            <xsl:text>tar -xvf ../vim-&vim-version;-lang.* --strip-components=1&#xA;</xsl:text>
+          </xsl:if>
+        </xsl:if>
         <xsl:apply-templates select=".//para/userinput | .//screen"/>
         <xsl:if test="$testsuite='3' and @id='ch-tools-glibc'">
           <xsl:copy-of select="//sect1[@id='ch-system-glibc']/sect2[2]/screen[@role='nodump']"/>
           <xsl:text>&#xA;</xsl:text>
         </xsl:if>
+        <xsl:text>exit</xsl:text>
       </exsl:document>
-
-
     </xsl:if>
   </xsl:template>
 
