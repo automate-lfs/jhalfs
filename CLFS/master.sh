@@ -1170,7 +1170,7 @@ EOF
                 -e 's|\\$|&&|g' \
                 -e 's|exit||g' \
                 -e 's|$| -c|' \
-                -e 's|"$$CLFS"|$(MOUNT_PT)|'\
+                -e 's|"$${CLFS}"|$(MOUNT_PT)|'\
                 -e 's|set -e||'`
     echo -e "CHROOT1= $chroot\n" >> $MKFILE
   fi
@@ -1224,7 +1224,7 @@ mk_SYSTOOLS: mk_SUDO
 	  ln -svf /tools/bin/bash bash; ln -sf bash sh; \\
 	  sudo chown -R 0:0 \$(MOUNT_PT)/bin; \\
 	fi;
-	@sudo sed -e 's|^ln -sv |ln -svf |' -i \$(CMDSDIR)/chroot/082-createfiles
+	@sudo sed -e 's|^ln -sv |ln -svf |' -i \$(CMDSDIR)/chroot/*-createfiles
 	@\$(call echo_CHROOT_request)
 	@\$(call echo_PHASE, CHROOT JAIL )
 	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make CHROOT_JAIL")

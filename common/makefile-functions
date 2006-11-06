@@ -13,11 +13,13 @@ OFF     = "[0m"
 BOLD    = "[1m"
 REVERSE = "[7m"
 
+tab_    ='\t'
+nl_     ='\n'
 
 define echo_PHASE
   @clear
   @echo $(BOLD)--------------------------------------------------------------------------------
-  @echo -e \\t\\tExecuting $(BLUE)$(1)$(WHITE) scripts
+  @echo  $(tab_)$(tab_)Executing $(BLUE)$(1)$(WHITE) scripts
   @echo $(BOLD)--------------------------------------------------------------------------------
   #echo $(WHITE)
 endef
@@ -135,39 +137,39 @@ define echo_finished
   @echo --------------------------------------------------------------------------------
   @echo $(BOLD) Finished the build of $(BLUE)$(1)$(BOLD)
   @echo --------------------------------------------------------------------------------
-  @echo -e \\t\\t$(RED)W A R N I N G$(BOLD)
+  @echo  $(tab_)$(tab_)$(RED)W A R N I N G$(BOLD)
   @echo --------------------------------------------------------------------------------
   @echo
   @echo To be able to boot your new system you need to follow
   @echo the next steps:$(WHITE)
   @echo
-  @echo -e \\t- Enter to the chroot using the command found
-  @echo -e \\tin the section -Entering the Chroot Environment-
-  @echo -e \\texcept if building CLFS with METHOD=boot.
+  @echo  $(tab_)- Enter to the chroot using the command found
+  @echo  $(tab_)in the section -Entering the Chroot Environment-
+  @echo  $(tab_)except if building CLFS with METHOD=boot.
   @echo
-  @echo -e \\t- Set a password for the root user.
+  @echo  $(tab_)- Set a password for the root user.
   @echo
-  @echo -e \\t- Edit or create /etc/fstab, /etc/hosts, /etc/sysconfig/clock,
-  @echo -e \\t/etc/sysconfig/console, /etc/sysconfig/network,
-  @echo -e \\t/etc/sysconfig//network-devices/ifconfig.eth0/ipv4 and
-  @echo -e \\tany other configuration file required to suit your needs.
+  @echo  $(tab_)- Edit or create /etc/fstab, /etc/hosts, /etc/sysconfig/clock,
+  @echo  $(tab_)/etc/sysconfig/console, /etc/sysconfig/network,
+  @echo  $(tab_)/etc/sysconfig//network-devices/ifconfig.eth0/ipv4 and
+  @echo  $(tab_)any other configuration file required to suit your needs.
   @echo
-  @echo -e \\t- Exit from the chroot.
+  @echo  $(tab_)- Exit from the chroot.
   @echo
-  @echo -e \\t- Set-up the boot loader, except if building CLFS with METHOD=boot.
-  @echo -e \\tYou can set-up the host bootloader or the new boot-loader
-  @echo -e \\tinstalled on the new system.
-  @echo -e \\tIf the last, you must to mount the virtual filesystems, re-enter
-  @echo -e \\tthe chroot and be sure that /dev is populated with the
-  @echo -e \\trequired devices before configure the boot-loader. When ready,
-  @echo -e \\texit from the chroot and umount the filesystems
+  @echo  $(tab_)- Set-up the boot loader, except if building CLFS with METHOD=boot.
+  @echo  $(tab_)You can set-up the host bootloader or the new boot-loader
+  @echo  $(tab_)installed on the new system.
+  @echo  $(tab_)If the last, you must to mount the virtual filesystems, re-enter
+  @echo  $(tab_)the chroot and be sure that /dev is populated with the
+  @echo  $(tab_)required devices before configure the boot-loader. When ready,
+  @echo  $(tab_)exit from the chroot and umount the filesystems
   @echo
   @echo If you are an experienced LFS user, several of those steps can be
   @echo skipped or done in a different way. But then, that is something
   @echo that you already know and there is no need to discuss it here.
   @echo $(BOLD)
   @echo --------------------------------------------------------------------------------
-  @echo -e \\t\\t$(GREEN)Have a nice day $(ORANGE):-\)$(BOLD)
+  @echo  $(tab_)$(tab_)$(GREEN)Have a nice day $(ORANGE):-\)$(BOLD)
   @echo --------------------------------------------------------------------------------$(WHITE)
 endef
 
@@ -176,22 +178,22 @@ define echo_boot_finished
   @echo --------------------------------------------------------------------------------
   @echo        $(BOLD) Finished building a minimal boot system for $(BLUE)$(1)$(BOLD)
   @echo --------------------------------------------------------------------------------
-  @echo -e \\t\\t$(RED)W A R N I N G$(BOLD)
+  @echo  $(tab_)$(tab_)$(RED)W A R N I N G$(BOLD)
   @echo --------------------------------------------------------------------------------
   @echo
   @echo The build is not complete. Follow the next steps:$(WHITE)
   @echo
-  @echo -e \\t- Edit or create $(MOUNT_PT)/etc/fstab
-  @echo -e \\t and any other configuration file required to suit your needs.
+  @echo  $(tab_)- Edit or create $(MOUNT_PT)/etc/fstab
+  @echo  $(tab_) and any other configuration file required to suit your needs.
   @echo $(BOLD)
   @echo $(BOLD)$(YELLOW)
   @echo  1.If it is necessary, transfer the newly created partition to the target machine
   @echo  2.Boot the new partition.
   @echo  3.Once you are logged in issue the following commands
-  @echo -e \\t $(BOLD})cd /jhalfs
-  @echo -e \\t $(BOLD)make makesys
+  @echo  $(tab_) $(BOLD})cd /jhalfs
+  @echo  $(tab_) $(BOLD)make makesys
   @echo  The build process should resume. Follow any instructions that appear.
   @echo --------------------------------------------------------------------------------
-  @echo -e \\t\\t$(GREEN)Have a nice day $(ORANGE):-\)$(BOLD)
+  @echo  $(tab_)$(tab_)$(GREEN)Have a nice day $(ORANGE):-\)$(BOLD)
   @echo --------------------------------------------------------------------------------$(WHITE)
 endef
