@@ -569,17 +569,17 @@ ck_UID:
 
 mk_SETUP:
 	@\$(call echo_SU_request)
-	@sudo make SETUP
+	@sudo make SHELL=/bin/bash SETUP
 	@touch \$@
 
 mk_LUSER: mk_SETUP
 	@\$(call echo_SULUSER_request)
-	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make LUSER" )
+	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make SHELL=/bin/bash LUSER" )
 	@sudo make restore-luser-env
 	@touch \$@
 
 mk_SUDO: mk_LUSER
-	@sudo make SUDO
+	@sudo make SHELL=/bin/bash SUDO
 	@touch \$@
 
 mk_CHROOT: mk_SUDO

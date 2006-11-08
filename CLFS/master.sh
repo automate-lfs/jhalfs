@@ -1196,18 +1196,18 @@ ck_UID:
 #---------------AS ROOT
 mk_SETUP:
 	@\$(call echo_SU_request)
-	@sudo make SETUP
+	@sudo make SHELL=/bin/bash SETUP
 	@touch \$@
 
 #---------------AS LUSER
 mk_CROSS: mk_SETUP
 	@\$(call echo_PHASE,Cross and Temporary Tools)
-	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make AS_LUSER" )
+	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make SHELL=/bin/bash AS_LUSER" )
 	@sudo make restore-luser-env
 	@touch \$@
 
 mk_SUDO: mk_CROSS
-	@sudo make SUDO
+	@sudo make SHELL=/bin/bash SUDO
 	@touch \$@
 #
 # The convoluted piece of code below is necessary to provide 'make' with a valid shell in the
@@ -1314,11 +1314,11 @@ mk_SETUP:
 
 mk_CROSS: mk_SETUP
 	@\$(call echo_PHASE,Cross Tool)
-	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make AS_LUSER" )
+	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make SHELL=/bin/bash AS_LUSER" )
 	@touch \$@
 
 mk_SUDO: mk_CROSS
-	@sudo make SUDO
+	@sudo make SHELL=/bin/bash SUDO
 	@touch \$@
 
 #---------------AS ROOT
