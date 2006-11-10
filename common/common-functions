@@ -38,7 +38,7 @@ unset get_package_tarball_name
 #----------------------------------#
 get_package_tarball_name() {       #
 #----------------------------------#
-  local script_name=$1
+  local script_name=`echo ${1} | sed -e 's@[0-9]\{1\}-@@'`
 
    # The use of 'head' is necessary to limit the return value to the FIRST match..
    # hopefully this will not cause problems.
@@ -48,10 +48,10 @@ get_package_tarball_name() {       #
          ;;
      linux-headers)
          if [ "${PROGNAME}" = "lfs" ]; then
-	   # Uses kernel headers directly
+           # Uses kernel headers directly
            echo $(grep "^linux-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 )
          else
-	   # CLFS/CLFS use massaged headers package
+           # CLFS/HLFS use massaged headers package
            echo $(grep "^linux-headers-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 )
          fi
          ;;
