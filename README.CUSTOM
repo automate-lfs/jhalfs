@@ -14,6 +14,9 @@ was easier to add a tool for the user(s) to code their own package needs.
 and what additional configurations and packages requires your hardware to can
 boot and work with. Each one of this areas is handled in a diferent way.
 
+
+
+
         BASE SYSTEM CUSTOMIZATION
 
   There is two ways to alter how the base system will be built:
@@ -28,7 +31,61 @@ boot and work with. Each one of this areas is handled in a diferent way.
   - Editing the generated build scripts to make any change you would.
     This is the method discussed below.
 
-(TO BE WRITTEN)
+
+  EDITING THE BASE SCRIPTS
+
+  Fisrt step is to generate the build scripts with book defaults. To do that,
+configure jhalfs activating any option you want included, but do not select
+"Run the Makefile" option.
+
+  Under the ${BUILD_DIR}/${SCRIPT_ROOT}/${PROGNAME}-commands directory
+(using the defaults values to do an LFS build, that directory name is
+/mnt/build_dir/jhalfs/lfs-commands) you will find the default build scripts.
+
+  If all you want is modify, add, or remove some command from a package
+installation, for example to change it ./configure line, just edit the related
+script. If changing or adding a patch, be sure to copy the new patch to the
+${BUILD_DIR}/sources directory. When done, run 'make' from inside the
+${BUILD_DIR}/${SCRIPT_ROOT} directory.
+
+
+  REPLACING OR INSERTING PACKAGES AND CHANGING BUILD ORDER
+
+  To remove a package from the system, just remove its script(s).
+
+  To change the version of some package to build a newest or oldest one than the
+one found in the book, edit ${BUILD_DIR}/${SCRIPT_ROOT}/pkg_tarball_list to
+change it tarball name and place the new tarball in the ${BUILD_DIR}/sources
+directory,
+
+  To replace a package by an equivalent one, rename the replaced package script
+to reflect the new package name (for example, 102-man-db -> 102-man), edit the
+script to made the required commands changes, place the new tarball in the
+${BUILD_DIR}/sources directory, and edit ${BUILD_DIR}/${SCRIPT_ROOT}/pkg_tarball_list
+file to replace the removed package tarball name by the new package tarball name.
+
+  To change the build order, rename the scripts changing the first 3-digits
+string until have it ordered in the way you want.
+
+  To insert a new package, for example to build Cracklib to can build Shadow
+with Cracklib support, first you should decide before what default package it
+need be installed, in this example before 107-shadow. Then create a new script
+containg the needed commands, using an existing one as template, and name it with
+the same 3-digits string used for that mentioned default package, but adding
+another 1-digit string. In our example, the new script to build Cracklib just
+before Shadow will be named 107-1-cracklib. This naming schema allow to insert
+up to 10 scripts before each one of the default scripts. Place the tarball for
+the new package and required patches, if any, if ${BUILD_DIR}/sources and edit
+${BUILD_DIR}/${SCRIPT_ROOT}/pkg_tarball_list to add the tarball name for that
+package.
+
+  When ready, launch again the jhalfs configuration interface. Be sure that
+are selected exactly the same options than when generating the default build
+scripts. Be sure that "Rebuild files" is unselected and select "Run the Makefile"
+if you want. Then select "Rebuild the Makefile". This will create a new Makefile
+based on the changes you made to the build scripts.
+
+
 
 
        ADDING POST-SYSTEM BUILD CONFIGURATION FILES AND EXTRA PACKAGES
