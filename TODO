@@ -16,7 +16,7 @@ xLFS MODULES
 
   - To develop a new "restart" Makefile target code.
 
-  - To add support for HLFS 2.4 branch
+  - To add support for HLFS 2.4 and CLFS-3 branches.
 
   - To add support for copying to the final system pre-generated
     configuration files created by the user.
@@ -30,12 +30,4 @@ BLFS MODULE (See BLFS/TODO)
 OTHERS
 ------
 
-  - Add a Customization file discussing how to hack the generated scripts
-    and Makefiles, using the Cracklib support for Shadow in LFS as an example.
-
-    NOTE:
-      That requires a way to can regenerate the Makefile if additional
-      scripts are manually added to the *-commands/*/ dirs.
-
-    Work in progress via RE_MAKE
-
+  - Nothing for now
