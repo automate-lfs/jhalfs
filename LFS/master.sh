@@ -423,7 +423,7 @@ EOF
   for file in chapter06/*chroot* ; do
     chroot=`cat $file | \
             sed -e "s@chroot@$CHROOT_LOC@" \
-                -e '/#!\/bin\/sh/d' \
+                -e '/#!\/bin\/bash/d' \
                 -e 's@ \\\@ @g' | \
             tr -d '\n' | \
             sed -e 's/  */ /g' \
