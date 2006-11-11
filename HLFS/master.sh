@@ -362,7 +362,7 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     # In the mount of kernel filesystems we need to set HLFS and not to use chroot.
     case "${this_script}" in
       *kernfs* | *changingowner*)
-        wrt_RunAsRoot "${this_script}" "${file}"
+        wrt_RunAsRoot "${file}"
         ;;
       *)   # The rest of Chapter06
         CHROOT_wrt_RunAsRoot "${file}"

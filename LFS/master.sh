@@ -136,7 +136,7 @@ chapter5_Makefiles() {
     # and date and disk usage again at the bottom of the log file.
     # The changingowner script must be run as root.
     case "${this_script}" in
-      *changingowner)  wrt_RunAsRoot "${this_script}" "$file" ;;
+      *changingowner)  wrt_RunAsRoot "$file" ;;
       *)               LUSER_wrt_RunAsUser "$file" ;;
     esac
 
@@ -252,7 +252,7 @@ chapter6_Makefiles() {
     # In the mount of kernel filesystems we need to set LFS
     # and not to use chroot.
     case "${this_script}" in
-      *kernfs)  wrt_RunAsRoot    "${this_script}" "$file" ;;
+      *kernfs)  wrt_RunAsRoot  "$file" ;;
       *)        CHROOT_wrt_RunAsRoot "$file" ;;
     esac
 

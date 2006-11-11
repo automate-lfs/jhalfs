@@ -126,28 +126,6 @@ EOF
 #======== UNPACK =======
 
 #----------------------------------#
-ROOT_Unpack() {                    #  An alias, for clairity
-#----------------------------------#
-  local FILE=$1
-  local optSAVE_PREVIOUS=$2
-
-  if [[ "${optSAVE_PREVIOUS}" != "1" ]]; then
-(
-cat << EOF
-	@\$(call remove_existing_dirs,$FILE)
-EOF
-) >> $MKFILE.tmp
-  fi
-
-(
-cat << EOF
-	@\$(call unpack,$FILE)
-	@\$(call get_pkg_root_LUSER)
-EOF
-) >> $MKFILE.tmp
-}
-
-#----------------------------------#
 LUSER_wrt_unpack() {               # Unpack and set 'ROOT' var
 #----------------------------------#
   local FILE=$1
@@ -213,7 +191,7 @@ CHROOT_wrt_test_log() {            #
   local TESTLOGFILE=$1
 (
 cat  << EOF
-	@echo "export TEST_LOG=/\$(SCRIPT_ROOT)/test-logs/$TESTLOGFILE" >> envars && \\
+	@echo "export TEST_LOG=\$(crTESTLOGDIR)/$TESTLOGFILE" >> envars && \\
 	echo "\$(nl_)\`date\`\$(nl_)" >test-logs/$TESTLOGFILE
 EOF
 ) >> $MKFILE.tmp
@@ -228,12 +206,10 @@ EOF
 wrt_RunAsRoot() {                  # Some scripts must be run as root..
 #----------------------------------#
   local MOUNT_ENV
-  local this_script=$1
-  local file=$2
+  local file=$1
 
   case ${PROGNAME} in
     lfs   ) MOUNT_ENV="LFS" ;;
-    blfs  ) MOUNT_ENV="BLFS" ;;
     clfs  ) MOUNT_ENV="CLFS" ;;
     clfs2 ) MOUNT_ENV="CLFS" ;;
     clfs3 ) MOUNT_ENV="CLFS" ;;
@@ -245,18 +221,6 @@ wrt_RunAsRoot() {                  # Some scripts must be run as root..
 cat << EOF
 	@( time { export ${MOUNT_ENV}=\$(MOUNT_PT) && ${PROGNAME}-commands/`dirname $file`/\$@ >>logs/\$@ 2>&1 ; } ) 2>>logs/\$@ && \\
 	\$(PRT_DU) >>logs/\$@
-EOF
-) >> $MKFILE.tmp
-}
-
-#----------------------------------#
-ROOT_RunAsRoot() {                 #
-#----------------------------------#
-  local file=$1
-(
-cat << EOF
-	@( time { source envars && \$(CMDSDIR)/$file >>logs/\$@ 2>&1 ; } ) 2>>logs/\$@ && \\
-	\$(PRT_DU_CR) >>logs/\$@
 EOF
 ) >> $MKFILE.tmp
 }
@@ -280,7 +244,7 @@ CHROOT_wrt_RunAsRoot() {           #
   local file=$1
 (
 cat << EOF
-	@( time { source envars && \$(crCMDSDIR)/$file >>logs/\$@ 2>&1 ; } ) 2>>logs/\$@ && \\
+	@( time { source envars && \$(crCMDSDIR)/`dirname $file`/\$@ >>logs/\$@ 2>&1 ; } ) 2>>logs/\$@ && \\
 	\$(PRT_DU_CR) >>logs/\$@
 EOF
 ) >> $MKFILE.tmp

@@ -391,7 +391,7 @@ bootable_Makefiles() {        #
                   LUSER_wrt_RunAsUser "${file}"
                 fi
           ;;
-      *chowning)  wrt_RunAsRoot "${this_script}" "${file}"
+      *chowning)  wrt_RunAsRoot "${file}"
           ;;
               *)  LUSER_wrt_RunAsUser "${file}"
           ;;

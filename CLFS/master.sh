@@ -357,17 +357,13 @@ chroot_Makefiles() {                   #
     # Insert instructions for unpacking the package and changing directories
     #
     if [ "$pkg_tarball" != "" ] ; then
-      case $this_script in
-        *util-linux)      ROOT_Unpack  "$pkg_tarball"  ;;
-        *)              CHROOT_Unpack "$pkg_tarball"  ;;
-      esac
+      CHROOT_Unpack "$pkg_tarball"
       [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
     #
     # Select a script execution method
     case $this_script in
-      *kernfs)      wrt_RunAsRoot         "${this_script}" "${file}"  ;;
-      *util-linux)  ROOT_RunAsRoot        "${file}"  ;;
+      *kernfs)      wrt_RunAsRoot         "${file}"  ;;
       *)            CHROOT_wrt_RunAsRoot  "${file}"  ;;
     esac
     #
@@ -456,8 +452,8 @@ boot_Makefiles() {                     #
     case $this_script in
        # The following 2 scripts are defined in the /boot directory but need
        # to be run as a root user. Set them up here but run them in another phase
-      *changingowner*)  wrt_RunAsRoot "${this_script}" "${file}"    ;;
-      *devices*)        wrt_RunAsRoot "${this_script}" "${file}"    ;;
+      *changingowner*)  wrt_RunAsRoot "${file}"    ;;
+      *devices*)        wrt_RunAsRoot "${file}"    ;;
       *fstab*)   if [[ -n "$FSTAB" ]]; then
                    LUSER_wrt_CopyFstab
                  else
