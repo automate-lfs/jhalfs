@@ -113,6 +113,9 @@ $Id$
         /CLFS2/master.sh
               /clfs2.xsl
 
+        /CLFS3/master.sh
+              /clfs3.xsl
+
         /HLFS/master.sh
              /hlfs.xsl
 
@@ -121,14 +124,12 @@ $Id$
 
         /common/common_functions
                /makefile_functions
-               /func_check_versions.sh
-               /func_validate_configs.sh
                /packages.xsl
                /urls.xsl
                /create-sbu_du-report.sh
-               /func_compare.sh
                /progress_bar.sh
                /blfs-tool-deps/9xx-*
+               /libs/*
 
         /contrib/jhalfs-paco.patch
 

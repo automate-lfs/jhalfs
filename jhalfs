@@ -255,17 +255,17 @@ source $MODULE
 
 #*******************************************************************#
 [[ $VERBOSITY > 0 ]] && echo -n "Loading function <func_check_version.sh>..."
-source $COMMON_DIR/func_check_version.sh
+source $COMMON_DIR/libs/func_check_version.sh
 [[ $? > 0 ]] && echo " function module did not load.." && exit 2
 [[ $VERBOSITY > 0 ]] && echo "OK"
 
 [[ $VERBOSITY > 0 ]] && echo -n "Loading function <func_validate_configs.sh>..."
-source $COMMON_DIR/func_validate_configs.sh
+source $COMMON_DIR/libs/func_validate_configs.sh
 [[ $? > 0 ]] && echo " function module did not load.." && exit 2
 [[ $VERBOSITY > 0 ]] && echo "OK"
 
 [[ $VERBOSITY > 0 ]] && echo -n "Loading function <custom_pkgs>..."
-source $COMMON_DIR/custom_pkgs
+source $COMMON_DIR/libs/custom_pkgs
 [[ $? > 0 ]] && echo " function module did not load.." && exit 2
 [[ $VERBOSITY > 0 ]] && echo "OK"
 
@@ -296,8 +296,8 @@ echo "${nl_}${SD_BORDER}${nl_}"
 # compare module
 if [[ "$COMPARE" = "y" ]]; then
   [[ $VERBOSITY > 0 ]] && echo -n "Loading compare module..."
-  source $COMMON_DIR/func_compare.sh
-  [[ $? > 0 ]] && echo "$COMMON_DIR/func_compare.sh did not load.." && exit
+  source $COMMON_DIR/libs/func_compare.sh
+  [[ $? > 0 ]] && echo "$COMMON_DIR/libs/func_compare.sh did not load.." && exit
   [[ $VERBOSITY > 0 ]] && echo "OK"
 fi
 #

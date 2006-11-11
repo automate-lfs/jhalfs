@@ -73,12 +73,12 @@ source configuration
 [[ $VERBOSITY > 0 ]] && echo "OK"
 
 [[ $VERBOSITY > 0 ]] && echo -n "Loading function <func_check_version.sh>..."
-source $COMMON_DIR/func_check_version.sh
+source $COMMON_DIR/libs/func_check_version.sh
 [[ $? > 0 ]] && echo " function module did not load.." && exit 2
 [[ $VERBOSITY > 0 ]] && echo "OK"
 
 [[ $VERBOSITY > 0 ]] && echo -n "Loading function <func_validate_configs.sh>..."
-source $COMMON_DIR/func_validate_configs.sh
+source $COMMON_DIR/libs/func_validate_configs.sh
 [[ $? > 0 ]] && echo " function module did not load.." && exit 2
 [[ $VERBOSITY > 0 ]] && echo "OK"
 [[ $VERBOSITY > 0 ]] && echo "${SD_BORDER}${nl_}"
