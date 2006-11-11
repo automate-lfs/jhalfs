@@ -16,8 +16,8 @@ menu "--- BOOK Settings"
 		config	BOOK_CLFS2
 			bool "Cross-Compiled Linux From Scratch (Version 2)"
 
-#		config	BOOK_CLFS3
-#			bool "Cross-Compiled Linux From Scratch (Embedded Systems)"
+		config	BOOK_CLFS3
+			bool "Cross-Compiled Linux From Scratch (Embedded Systems)"
 
 		config	BOOK_HLFS
 			bool "Hardened Linux From Scratch"
@@ -31,7 +31,7 @@ menu "--- BOOK Settings"
 		default	"lfs"		if BOOK_LFS
 		default	"clfs"		if BOOK_CLFS
 		default	"clfs2"		if BOOK_CLFS2
-#		default	"clfs3"		if BOOK_CLFS3
+		default	"clfs3"		if BOOK_CLFS3
 		default	"hlfs"		if BOOK_HLFS
 		default	"blfs"		if BOOK_BLFS
 
@@ -83,7 +83,7 @@ menu "--- BOOK Settings"
 	choice
 		prompt	"Target architecture"
 		default	ARCH_X86
-		depends	BOOK_CLFS || BOOK_CLFS2
+		depends	BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3
 		help
 			#-- Choose a base architecture
 
@@ -91,24 +91,24 @@ menu "--- BOOK Settings"
 			bool	"x86"
 
 		config	ARCH_MIPS
-			bool	"mips"	if !BOOK_CLFS2
+			bool	"mips"	if !BOOK_CLFS2 || !BOOK_CLFS3
 
 		config	ARCH_PPC
-			bool	"ppc"	if !BOOK_CLFS2
+			bool	"ppc"	if !BOOK_CLFS2 || !BOOK_CLFS3
 
 		config	ARCH_SPARC
-			bool	"sparc"	if !BOOK_CLFS2
+			bool	"sparc"	if !BOOK_CLFS2 || !BOOK_CLFS3
 
 		config	ARCH_ALPHA
-			bool	"alpha"	if !BOOK_CLFS2
+			bool	"alpha"	if !BOOK_CLFS2 || !BOOK_CLFS3
 
 		config	ARCH_ARM
-			bool	"arm"	if !BOOK_CLFS
+			bool	"arm"	if !BOOK_CLFS || !BOOK_CLFS3
 	endchoice
 
 	choice
 		prompt	"Library"
-		depends	(BOOK_CLFS || BOOK_CLFS2)
+		depends	(BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3 )
 		default	DATA_32		if !ARCH_ALPHA
 		default	DATA_64		if ARCH_ALPHA
 
@@ -116,15 +116,15 @@ menu "--- BOOK Settings"
 			bool	"32-bit"	if !ARCH_ALPHA
 
 		config	DATA_64
-			bool	"64-bit"	if !ARCH_PPC && !ARCH_ARM && !(BOOK_CLFS2 && ARCH_X86)
+			bool	"64-bit"	if !ARCH_PPC && !ARCH_ARM && !((BOOK_CLFS2 || BOOK_CLFS3) && ARCH_X86)
 
 		config	DATA_MULTI
-			bool	"multilib"	if !ARCH_ALPHA && !ARCH_ARM && !(BOOK_CLFS2 && ARCH_X86)
+			bool	"multilib"	if !ARCH_ALPHA && !ARCH_ARM && !((BOOK_CLFS2 || BOOK_CLFS3) && ARCH_X86)
 	endchoice
 
 	choice
 		prompt	"Target"
-		depends	(BOOK_CLFS || BOOK_CLFS2) && ((ARCH_X86 && DATA_32) || ARCH_MIPS)
+		depends	(BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3) && ((ARCH_X86 && DATA_32) || ARCH_MIPS)
 
 		config	PROC_i486
 			bool	"i486"			if ARCH_X86 && DATA_32
@@ -144,7 +144,15 @@ menu "--- BOOK Settings"
 
 	config TARGET
 		string
-		depends	DATA_32
+		depends	DATA_32 && BOOK_CLFS3
+		default "i486-pc-linux-uclibc"		if ARCH_X86 && PROC_i486
+		default "i586-pc-linux-uclibc"		if ARCH_X86 && PROC_i586
+		default "i686-pc-linux-uclibc"		if ARCH_X86 && PROC_i686
+
+
+	config TARGET
+		string
+		depends	DATA_32 && !BOOK_CLFS3
 		default "i486-pc-linux-gnu"		if ARCH_X86 && PROC_i486
 		default "i586-pc-linux-gnu"		if ARCH_X86 && PROC_i586
 		default "i686-pc-linux-gnu"		if ARCH_X86 && PROC_i686
@@ -441,7 +449,7 @@ menu "--- General Settings"
 	config	DEF_USER
 		string
 		default	"lfs"	if BOOK_LFS
-		default	"clfs"	if BOOK_CLFS || BOOK_CLFS2
+		default	"clfs"	if BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3
 		default "hlfs"	if BOOK_HLFS
 
 	config	SET_USER

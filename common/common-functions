@@ -75,6 +75,7 @@ wrt_RunAsRoot() {                  # Some scripts must be run as root..
     blfs  ) MOUNT_ENV="BLFS" ;;
     clfs  ) MOUNT_ENV="CLFS" ;;
     clfs2 ) MOUNT_ENV="CLFS" ;;
+    clfs3 ) MOUNT_ENV="CLFS" ;;
     hlfs  ) MOUNT_ENV="HLFS" ;;
     *) echo "undefined progname $PROGNAME"; exit 1 ;;
   esac
@@ -457,6 +458,7 @@ get_book() {                 #
       hlfs) svn_root="HLFS" ;;
       clfs) svn_root="cross-lfs" ;;
       clfs2) svn_root="cross-lfs" ;;
+      clfs3) svn_root="cross-lfs" ;;
       *) echo "BOOK not defined in function <get_book>"
           exit 1 ;;
     esac
@@ -472,7 +474,7 @@ get_book() {                 #
         echo -ne "done\n"
         cd $JHALFSDIR
         case $PROGNAME in
-          clfs | clfs2)
+          clfs | clfs2 | clfs3 )
             VERSION=$(xmllint --noent $BOOK/prologue/$ARCH/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
           *)
             VERSION=$(xmllint --noent $BOOK/prologue/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//')  ;;
@@ -544,6 +546,18 @@ extract_commands() {         #
                  --stringparam lang $LANG \
                  -o ./${PROGNAME}-commands/ $XSL $BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
       ;;
+
+    clfs3)
+        echo -n " ${L_arrow}${BOLD}$ARCH${R_arrow} target architecture"
+        xsltproc --nonet \
+                 --xinclude \
+                 --stringparam vim-lang $VIMLANG \
+                 --stringparam timezone $TIMEZONE \
+                 --stringparam page $PAGE \
+                 --stringparam lang $LANG \
+                 -o ./${PROGNAME}-commands/ $XSL $BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
+      ;;
+
     hlfs)
         echo -n " ${L_arrow}${BOLD}$MODEL${R_arrow} HLFS libc implementation"
         xsltproc --nonet \
@@ -570,7 +584,8 @@ extract_commands() {         #
                  --stringparam lang $LANG \
                  -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
       ;;
-    *) exit 1 ;;
+    *)  echo -n " ${L_arrow}${BOLD}${PROGNAME}${R_arrow} book invalid, terminate build"
+        exit 1 ;;
   esac
 
   [[ "${BLFS_TOOL}" = "y" ]] && copy_blfs_deps_scripts
@@ -596,7 +611,7 @@ create_package_list() {      #
   rm -f pkg_tarball_list
   echo -n "Creating <${PROGNAME}> list of tarball names for $BOOK $ARCH"
   case ${PROGNAME} in
-    clfs | clfs2)
+    clfs | clfs2 | clfs3 )
         xsltproc --nonet --xinclude -o pkg_tarball_list packages.xsl \
                  $BOOK/materials/${ARCH}-chapter.xml >>$LOGDIR/$LOG 2>&1
       ;;
@@ -772,6 +787,14 @@ create_urls() {              #
       ;;
     clfs2)
         echo -n "Creating CLFS2 <${ARCH}> specific URLs file"
+        xsltproc --nonet --xinclude \
+                 --stringparam server $SERVER \
+                 -o $BUILDDIR/sources/urls.lst urls.xsl \
+                 $BOOK/materials/$ARCH-chapter.xml >>$LOGDIR/$LOG 2>&1
+        echo " ...OK"
+      ;;
+    clfs3)
+        echo -n "Creating CLFS3 <${ARCH}> specific URLs file"
         xsltproc --nonet --xinclude \
                  --stringparam server $SERVER \
                  -o $BUILDDIR/sources/urls.lst urls.xsl \

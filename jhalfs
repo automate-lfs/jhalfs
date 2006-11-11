@@ -117,6 +117,7 @@ case $BRANCH_ID in
   development )
     case $PROGNAME in
       clfs2 ) TREE=branches/clfs-2.0/BOOK ;;
+      clfs3 ) TREE=branches/clfs-3.0/BOOK ;;
            *) TREE=trunk/BOOK ;;
     esac
     LFSVRS=development
@@ -134,7 +135,7 @@ case $BRANCH_ID in
         LFSVRS=${BRANCH_ID}
         TREE=tags/${BRANCH_ID}/BOOK
         ;;
-      clfs | clfs2 )
+      clfs | clfs2 | clfs3)
         LFSVRS=${BRANCH_ID}
         TREE=tags/${BRANCH_ID}
         ;;
@@ -428,7 +429,7 @@ fi
 # When regeneration the Makefile we need to know also the canonical book version
 if [[ "$REBUILD_MAKEFILE" = "y" ]] ; then
   case $PROGNAME in
-    clfs | clfs2 )
+    clfs | clfs2 | clfs3 )
       VERSION=$(xmllint --noent $JHALFSDIR/$BOOK/prologue/$ARCH/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
     *)
       VERSION=$(xmllint --noent $JHALFSDIR/$BOOK/prologue/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//')  ;;
