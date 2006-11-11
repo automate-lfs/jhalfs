@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # $Id$
 
@@ -60,7 +60,7 @@ set -e
 exit
 xEOFx
 ) > custom-commands/scripts/$THIS_SCRIPT
-    
+
     else
     # Create an entry for package
 ( cat << EOF
@@ -90,7 +90,7 @@ exit
 xEOFx
 ) > custom-commands/scripts/$THIS_SCRIPT
     fi
-   
+
     chmod 755 custom-commands/scripts/$THIS_SCRIPT
     rm -f tmp
     PREV_SCRIPT=$THIS_SCRIPT
@@ -122,7 +122,7 @@ add_CustomToolsURLS() {            # Add any users supplied scripts URL informat
     source $this_script
       # A cmd only script had no PKG defined
     [[ "x${PKG}" = "x" ]] && continue
-    
+
     echo "${URL} ${BLFS_SERVER}${PKG}/${PKG_FILE} ${MD5}" >> urls.lst.tmp
      # Add any patches..
     for PATCH in PATCH{1..10}; do

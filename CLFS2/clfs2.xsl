@@ -66,7 +66,7 @@
           </xsl:variable>
             <!-- Creating dirs and files -->
           <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
-            <xsl:text>#!/bin/sh&#xA;</xsl:text>
+            <xsl:text>#!/bin/bash&#xA;</xsl:text>
             <xsl:if test="not(@id='ch-system-stripping')">
               <xsl:text>set -e&#xA;&#xA;</xsl:text>
             </xsl:if>
