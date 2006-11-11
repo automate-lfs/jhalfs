@@ -426,33 +426,7 @@ build_Makefile() {            # Construct a Makefile from the book scripts
 
   # Add a header, some variables and include the function file
   # to the top of the real Makefile.
-(
-    cat << EOF
-$HEADER
-
-SRC         = /sources
-MOUNT_PT    = $BUILDDIR
-PKG_LST     = $PKG_LST
-LUSER       = $LUSER
-LGROUP      = $LGROUP
-SCRIPT_ROOT = $SCRIPT_ROOT
-
-BASEDIR    = \$(MOUNT_PT)
-SRCSDIR    = \$(BASEDIR)/sources
-CMDSDIR    = \$(BASEDIR)/\$(SCRIPT_ROOT)/$PROGNAME-commands
-LOGDIR     = \$(BASEDIR)/\$(SCRIPT_ROOT)/logs
-TESTLOGDIR = \$(BASEDIR)/\$(SCRIPT_ROOT)/test-logs
-
-SU_LUSER   = su - \$(LUSER) -c
-PRT_DU     = echo -e "\nKB: \`du -skx --exclude=jhalfs --exclude=lost+found \$(MOUNT_PT)\`\n"
-LUSER_HOME = /home/\$(LUSER)
-
-export PATH := \${PATH}:/usr/sbin
-
-include makefile-functions
-
-EOF
-) > $MKFILE
+  wrt_Makefile_header
 
   # Drop in the main target 'all:' and the chapter targets with each sub-target
   # as a dependency.
