@@ -264,8 +264,8 @@ source $COMMON_DIR/libs/func_validate_configs.sh
 [[ $? > 0 ]] && echo " function module did not load.." && exit 2
 [[ $VERBOSITY > 0 ]] && echo "OK"
 
-[[ $VERBOSITY > 0 ]] && echo -n "Loading function <custom_pkgs>..."
-source $COMMON_DIR/libs/custom_pkgs
+[[ $VERBOSITY > 0 ]] && echo -n "Loading function <func_custom_pkgs>..."
+source $COMMON_DIR/libs/func_custom_pkgs
 [[ $? > 0 ]] && echo " function module did not load.." && exit 2
 [[ $VERBOSITY > 0 ]] && echo "OK"
 

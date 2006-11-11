@@ -129,7 +129,7 @@ $Id$
                /create-sbu_du-report.sh
                /progress_bar.sh
                /blfs-tool-deps/9xx-*
-               /libs/*
+               /libs/func_*
 
         /contrib/jhalfs-paco.patch
 
