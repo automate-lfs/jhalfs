@@ -81,7 +81,10 @@ $Id$
 6. BLFS_TOOL SUPPORT::
 
      For books that support it, there is an option to install blfs-tool and its
-     dependendencies on the final system.
+     dependendencies on the final system. The pre-made build dependencies
+     scripts has been written thinking on a LFS build. For CLFS and HLFS
+     builds you may need to adjust that scripts, that are found into the
+     common/blfs-tool-deps directory in the jhalfs sources tree.
 
      After booting the new xLFS system some steps are needed to finish
      blfs-tool installation:

@@ -21,7 +21,6 @@ PKG_LST        = $PKG_LST
 LUSER          = $LUSER
 LGROUP         = $LGROUP
 SCRIPT_ROOT    = $SCRIPT_ROOT
-ADD_BLFS_TOOLS = $BLFS_TOOL
 
 BASEDIR        = \$(MOUNT_PT)
 SRCSDIR        = \$(BASEDIR)/sources
@@ -37,6 +36,10 @@ SU_LUSER       = su - \$(LUSER) -c
 LUSER_HOME     = /home/\$(LUSER)
 PRT_DU         = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) --exclude=lost+found \$(MOUNT_PT) \`\n"
 PRT_DU_CR      = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) --exclude=lost+found / \`\n"
+
+ADD_REPORT     = $REPORT
+ADD_BLFS_TOOLS = $BLFS_TOOL
+
 
 export PATH := \${PATH}:/usr/sbin
 

@@ -290,8 +290,7 @@ menu "--- BOOK Settings"
 	config BLFS_TOOL
 		bool	"Add blfs-tool support"
 		default	n
-#		depends on !BOOK_BLFS
-		depends on BOOK_LFS || BOOK_CLFS
+		depends on !BOOK_BLFS && !BOOK_CLFS2 && !BOOK_CLFS3
 		help
 			#--- Activating this option additional packages needed to
 			#    use blfs-tool will be installed.

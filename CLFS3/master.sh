@@ -460,12 +460,19 @@ mk_ROOT:
 	@sudo make SHELL=/bin/bash ROOT
 	@touch \$@
 
+
 SETUP:  $host_prep
-
 LUSER:	$cross_tools $basicsystem $bootscripttools $bootable
-
 ROOT:	$chowning
 
+
+create-sbu_du-report:  ROOT
+	@\$(call echo_message, Building)
+	@if [ "\$(ADD_REPORT)" = "y" ]; then \\
+	  ./create-sbu_du-report.sh logs $VERSION; \\
+	  \$(call echo_report,$VERSION-SBU_DU-$(date --iso-8601).report); \\
+	fi;
+	@touch  \$@
 
 restore-luser-env:
 	@\$(call echo_message, Building)
@@ -488,21 +495,6 @@ do-housekeeping:
 
 EOF
 ) >> $MKFILE
-
-  # Add SBU-disk_usage report target
-  echo "create-sbu_du-report:" >> $MKFILE
-  if [[ "$REPORT" = "y" ]] ; then
-(
-    cat << EOF
-	@\$(call echo_message, Building)
-	@./create-sbu_du-report.sh logs $VERSION
-	@\$(call echo_report,$VERSION-SBU_DU-$(date --iso-8601).report)
-	@touch  \$@
-
-
-EOF
-) >> $MKFILE
-  else echo -e "\t@true\n\n" >> $MKFILE; fi
 
   # Bring over the items from the Makefile.tmp
   cat $MKFILE.tmp >> $MKFILE

@@ -458,17 +458,30 @@ mk_BOOT: mk_CHROOT
 	@( sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BOOT")
 	@touch \$@
 
+mk_BLFS_TOOL: create-sbu_du-report
+	@\$(call echo_PHASE,Building BLFS-TOOLS)
+	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
+	  sudo mkdir -p $BUILDDIR$TRACKING_DIR; \\
+	  sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BLFS_TOOL"; \\
+	fi;
+	@touch \$@
 
-SETUP:	$chapter4
 
-LUSER:	$chapter5
+SETUP:     $chapter4
+LUSER:     $chapter5
+SUDO:      057-changingowner 059-kernfs
+CHROOT:    $chapter6
+BOOT:      $chapter789
+BLFS_TOOL: $blfs_tool
 
-SUDO:	057-changingowner 059-kernfs
 
-CHROOT:	$chapter6
-
-BOOT:	$chapter789
-
+create-sbu_du-report:  mk_BOOT
+	@\$(call echo_message, Building)
+	@if [ "\$(ADD_REPORT)" = "y" ]; then \\
+	  ./create-sbu_du-report.sh logs $VERSION; \\
+	  \$(call echo_report,$VERSION-SBU_DU-$(date --iso-8601).report); \\
+	fi;
+	@touch  \$@
 
 restore-luser-env:
 	@\$(call echo_message, Building)
@@ -498,38 +511,6 @@ do_housekeeping:
 
 EOF
 ) >> $MKFILE
-
-  # Add SBU-disk_usage report target
-  echo "create-sbu_du-report:" >> $MKFILE
-  if [[ "$REPORT" = "y" ]] ; then
-(
-    cat << EOF
-	@\$(call echo_message, Building)
-	@./create-sbu_du-report.sh logs $VERSION
-	@\$(call echo_report,$VERSION-SBU_DU-$(date --iso-8601).report)
-	@touch  \$@
-
-
-EOF
-) >> $MKFILE
-  else echo -e "\t@true\n\n" >> $MKFILE; fi
-
-  # Add BLFS_TOOL targets
-  echo "mk_BLFS_TOOL:" >> $MKFILE
-  if [[ "$BLFS_TOOL" = "y" ]] ; then
-(
-    cat << EOF
-	@\$(call echo_CHROOT_request)
-	@ sudo mkdir -p $BUILDDIR$TRACKING_DIR
-	@( sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BLFS_TOOL")
-	@touch \$@
-
-BLFS_TOOL:  $blfs_tool
-
-
-EOF
-) >> $MKFILE
-  else echo -e "\t@true\n\n" >> $MKFILE; fi
 
   # Bring over the items from the Makefile.tmp
   cat $MKFILE.tmp >> $MKFILE
