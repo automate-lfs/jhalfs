@@ -16,6 +16,8 @@ REVERSE = "[7m"
 tab_    = "	"
 nl_     = ""
 
+#==== BUILD MESSAGES ===
+
 define echo_PHASE
   @clear
   @echo $(BOLD)--------------------------------------------------------------------------------
@@ -36,7 +38,7 @@ define echo_SULUSER_request
   @echo $(BOLD)--------------------------------------------------------------------------------
   @echo $(BOLD)$(BLUE)$@
   @echo $(WHITE)You are going to log into the user account $(BOLD)$(YELLOW)$(LUSER)$(OFF)
-  @echo su requires a password 
+  @echo su requires a password
 endef
 
 define echo_CHROOT_request
@@ -52,6 +54,11 @@ define echo_message
   @echo $(BOLD)$(1) target $(BLUE)$@$(BOLD)$(WHITE)
 endef
 
+#=======================
+
+
+#=== BUILD FUNCTIONS ===
+
 define remove_existing_dirs
   @PKG_PATH=`ls -t $(SRCSDIR)/$(1) | head -n1` && \
   ROOT=`tar -tf $$PKG_PATH | head -n1 | sed -e 's@^./@@;s@/.*@@'` && \
@@ -66,25 +73,19 @@ define remove_existing_dirs2
   rm -rf $(SRC)/$${ROOT%-*}-build
 endef
 
-define remove_build_dirs
-  @ROOT=`head -n1 $(SRCSDIR)/$(PKG_LST) | sed 's@^./@@;s@/.*@@'` && \
-  rm -rf $(SRCSDIR)/$$ROOT && \
-  rm -rf $(SRCSDIR)/$(1)-build
+#==#
+
+define unpack
+  @cd $(SRCSDIR) && \
+  tar -xvf `ls -t $(1) | head -n1` > $(PKG_LST)
 endef
 
-define remove_build_dirs2
-  @ROOT=`head -n1 $(SRC)/$(PKG_LST) | sed 's@^./@@;s@/.*@@'` && \
-  rm -rf $(SRC)/$$ROOT && \
-  rm -rf $(SRC)/$(1)-build
+define unpack2
+  @cd $(SRC) && \
+  tar -xvf `ls -t $(1) | head -n1` > $(PKG_LST)
 endef
 
-define housekeeping
-  @touch  $@ && \
-  sleep .25 && \
-  echo  -e "\n" $(BOLD)Target $(BLUE)$@ $(WHITE)$(BOLD)OK && \
-  echo --------------------------------------------------------------------------------$(WHITE)
-
-endef
+#==#
 
 define get_pkg_root
   @ROOT=`head -n1 $(SRCSDIR)/$(PKG_LST) | sed 's@^./@@;s@/.*@@'` && \
@@ -106,20 +107,34 @@ define get_pkg_root_LUSER
   echo "export PKGDIR=$(SRCSDIR)/$$ROOT" > envars
 endef
 
-define unpack
-  @cd $(SRCSDIR) && \
-  tar -xvf `ls -t $(1) | head -n1` > $(PKG_LST)
+#==#
+
+define remove_build_dirs
+  @ROOT=`head -n1 $(SRCSDIR)/$(PKG_LST) | sed 's@^./@@;s@/.*@@'` && \
+  rm -rf $(SRCSDIR)/$$ROOT && \
+  rm -rf $(SRCSDIR)/$(1)-build
 endef
 
-define unpack2
-  @cd $(SRCSDIR) && \
-  /tools/bin/tar -xvf `ls -t $(1) | head -n1` > $(PKG_LST)
+define remove_build_dirs2
+  @ROOT=`head -n1 $(SRC)/$(PKG_LST) | sed 's@^./@@;s@/.*@@'` && \
+  rm -rf $(SRC)/$$ROOT && \
+  rm -rf $(SRC)/$(1)-build
 endef
 
-define unpack3
-  @cd $(SRC) && \
-  tar -xvf `ls -t $(1) | head -n1` > $(PKG_LST)
+#==#
+
+define housekeeping
+  @touch  $@ && \
+  sleep .25 && \
+  echo  -e "\n" $(BOLD)Target $(BLUE)$@ $(WHITE)$(BOLD)OK && \
+  echo --------------------------------------------------------------------------------$(WHITE)
+
 endef
+
+#=======================
+
+
+#==== FINAL MESSAGES ===
 
 define echo_report
   @echo

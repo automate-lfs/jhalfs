@@ -162,7 +162,7 @@ EOF
   fi
 (
 cat  << EOF
-	@\$(call unpack3,$FILE)
+	@\$(call unpack2,$FILE)
 	@\$(call get_pkg_root2)
 EOF
 ) >> $MKFILE.tmp

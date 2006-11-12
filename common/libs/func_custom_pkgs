@@ -69,7 +69,7 @@ ${THIS_SCRIPT}: ${PREV_SCRIPT}
 	@\$(call echo_message, Building)
 	@./progress_bar.sh \$@ \$\$PPID &
 	@\$(call remove_existing_dirs2,${PKG_FILE})
-	@\$(call unpack3,${PKG_FILE})
+	@\$(call unpack2,${PKG_FILE})
 	@\$(call get_pkg_root2)
 	@( time { source envars && /\$(SCRIPT_ROOT)/custom-commands/scripts/${THIS_SCRIPT} >>logs/${THIS_SCRIPT} 2>&1 ; } ) 2>>logs/${THIS_SCRIPT}
 	@\$(call remove_build_dirs2,${PKG})
