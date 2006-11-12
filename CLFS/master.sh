@@ -4,100 +4,6 @@
 
 orphan_scripts="" # 2 scripts do not fit BOOT_Makefiles LUSER environment
 
-###################################
-###          FUNCTIONS          ###
-###################################
-
-#--------------------------------------#
-BOOT_wrt_target() {                    # "${this_script}" "$PREV"
-#--------------------------------------#
-  local i=$1
-  local PREV=$2
-  case $i in
-    iteration* ) local LOGFILE=$this_script.log ;;
-             * ) local LOGFILE=$this_script ;;
-  esac
-(
-cat << EOF
-
-$i:  $PREV
-	@\$(call echo_message, Building)
-	@./progress_bar.sh \$@ \$\$PPID &
-	@echo -e "\n\`date\`\n\nKB: \`du -skx --exclude=${SCRIPT_ROOT}\`\n" >logs/$LOGFILE
-EOF
-) >> $MKFILE.tmp
-}
-
-#--------------------------------------#
-BOOT_wrt_Unpack() {                    # "$pkg_tarball"
-#--------------------------------------#
-  local FILE=$1
-  local optSAVE_PREVIOUS=$2
-
-  if [ "${optSAVE_PREVIOUS}" != "1" ]; then
-(
-cat << EOF
-	@\$(call remove_existing_dirs2,$FILE)
-EOF
-) >> $MKFILE.tmp
-  fi
-(
-cat  << EOF
-	@\$(call unpack3,$FILE)
-	@\$(call get_pkg_root2)
-EOF
-) >> $MKFILE.tmp
-}
-
-#----------------------------------#
-BOOT_wrt_RunAsRoot() {             # "${this_script}" "${file}"
-#----------------------------------#
-  local this_script=$1
-  local file=$2
-(
-cat << EOF
-	@( time { source envars && ${PROGNAME}-commands/`dirname $file`/\$@ >>logs/\$@ 2>&1 ; } ) 2>>logs/\$@ && \\
-	echo -e "\nKB: \`du -skx --exclude=${SCRIPT_ROOT} \`\n" >>logs/\$@
-EOF
-) >> $MKFILE.tmp
-}
-
-#--------------------------------------#
-BOOT_wrt_RemoveBuildDirs() {           # "${name}"
-#--------------------------------------#
-  local name=$1
-(
-cat << EOF
-	@\$(call remove_build_dirs2,$name)
-EOF
-) >> $MKFILE.tmp
-}
-
-#----------------------------------#
-BOOT_wrt_test_log() {              #
-#----------------------------------#
-  local TESTLOGFILE=$1
-(
-cat  << EOF
-	@echo "export TEST_LOG=/\$(SCRIPT_ROOT)/test-logs/$TESTLOGFILE" >> envars && \\
-	echo -e "\n\`date\`\n" >test-logs/$TESTLOGFILE
-EOF
-) >> $MKFILE.tmp
-}
-
-#----------------------------------#
-BOOT_wrt_CopyFstab() {             #
-#----------------------------------#
-(
-cat << EOF
-	@( time { cp -v /sources/fstab /etc/fstab >>logs/${this_script} 2>&1 ; } ) 2>>logs/${this_script}
-EOF
-) >> $MKFILE.tmp
-}
-
-
-########################################
-
 
 #--------------------------------------#
 host_prep_Makefiles() {                #
@@ -558,14 +464,14 @@ boot_testsuite_tools_Makefiles() {     #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    BOOT_wrt_target "${this_script}" "$PREV"
+    CHROOT_wrt_target "${this_script}" "$PREV"
     #
-    BOOT_wrt_Unpack "$pkg_tarball"
+    CHROOT_Unpack "$pkg_tarball"
     [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     #
-    BOOT_wrt_RunAsRoot "${this_script}" "${file}"
+    CHROOT_wrt_RunAsRoot "${file}"
     #
-    BOOT_wrt_RemoveBuildDirs "${name}"
+    CHROOT_wrt_RemoveBuildDirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -763,28 +669,28 @@ boot_final_system_Makefiles() {        #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    BOOT_wrt_target "${this_script}${N}" "$PREV"
+    CHROOT_wrt_target "${this_script}${N}" "$PREV"
 
     # If $pkg_tarball isn't empty, we've got a package...
     if [ "$pkg_tarball" != "" ] ; then
       FILE="$pkg_tarball"
-      BOOT_wrt_Unpack "$FILE"
+      CHROOT_Unpack "$FILE"
       # If the testsuites must be run, initialize the log file
       case $name in
         binutils | gcc | glibc )
-          [[ "$TEST" != "0" ]] && BOOT_wrt_test_log "${this_script}"
+          [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}"
           ;;
         * )
-          [[ "$TEST" = "2" ]] || [[ "$TEST" = "3" ]] && BOOT_wrt_test_log "${this_script}"
+          [[ "$TEST" = "2" ]] || [[ "$TEST" = "3" ]] && CHROOT_wrt_test_log "${this_script}"
           ;;
       esac
       # If using optimizations, write the instructions
       [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
     #
-    BOOT_wrt_RunAsRoot "${this_script}" "${file}"
+    CHROOT_wrt_RunAsRoot "${file}"
     #
-    [[ "$pkg_tarball" != "" ]] && BOOT_wrt_RemoveBuildDirs "${name}"
+    [[ "$pkg_tarball" != "" ]] && CHROOT_wrt_RemoveBuildDirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -900,15 +806,15 @@ boot_bootscripts_Makefiles() {         #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    BOOT_wrt_target "${this_script}" "$PREV"
+    CHROOT_wrt_target "${this_script}" "$PREV"
     #
     # If $pkg_tarball isn't empty, we've got a package...
     #
-    [[ "$pkg_tarball" != "" ]] && BOOT_wrt_Unpack "$pkg_tarball"
+    [[ "$pkg_tarball" != "" ]] && CHROOT_Unpack "$pkg_tarball"
     #
-    BOOT_wrt_RunAsRoot "${this_script}" "${file}"
+    CHROOT_wrt_RunAsRoot "${file}"
     #
-    [[ "$pkg_tarball" != "" ]] && BOOT_wrt_RemoveBuildDirs "${name}"
+    [[ "$pkg_tarball" != "" ]] && CHROOT_wrt_RemoveBuildDirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -1035,28 +941,28 @@ boot_bootable_Makefiles() {            #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    BOOT_wrt_target "${this_script}" "$PREV"
+    CHROOT_wrt_target "${this_script}" "$PREV"
     #
     # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     #
-    [[ "$pkg_tarball" != "" ]] && BOOT_wrt_Unpack "$pkg_tarball"
+    [[ "$pkg_tarball" != "" ]] && CHROOT_Unpack "$pkg_tarball"
     #
     # Select a script execution method
     case $this_script in
       *fstab*)  if [[ -n "$FSTAB" ]]; then
                   # Minimal boot mode has no access to original file, store in /sources
                   cp $FSTAB $BUILDDIR/sources/fstab
-                  BOOT_wrt_CopyFstab "${this_script}"
+                  CHROOT_wrt_CopyFstab
                 else
-                  BOOT_wrt_RunAsRoot  "${this_script}" "${file}"
+                  CHROOT_wrt_RunAsRoot  "${file}"
                 fi
           ;;
-      *)  BOOT_wrt_RunAsRoot  "${this_script}" "${file}"   ;;
+      *)  CHROOT_wrt_RunAsRoot  "${file}"   ;;
     esac
     #
     # Housekeeping...remove any build directory(ies) except if the package build fails.
-    [[ "$pkg_tarball" != "" ]] && BOOT_wrt_RemoveBuildDirs "${name}"
+    [[ "$pkg_tarball" != "" ]] && CHROOT_wrt_RemoveBuildDirs "${name}"
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
