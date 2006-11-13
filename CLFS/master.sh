@@ -387,9 +387,14 @@ boot_Makefiles() {                     #
 
 
 #--------------------------------------#
-chroot_testsuite_tools_Makefiles() {   #
+testsuite_tools_Makefiles() {          #
 #--------------------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}(chroot) testsuite tools  ( CHROOT ) ${R_arrow}"
+
+  if [[ "${METHOD}" = "chroot" ]]; then
+    echo "${tab_}${GREEN}Processing... ${L_arrow}(chroot) testsuite tools  ( CHROOT ) ${R_arrow}"
+  else
+    echo "${tab_}${GREEN}Processing... ${L_arrow}(boot) testsuite tools ( ROOT ) ${R_arrow}"
+  fi
 
   for file in testsuite-tools/* ; do
     # Keep the script file name
@@ -436,65 +441,16 @@ chroot_testsuite_tools_Makefiles() {   #
   done
 }
 
-#--------------------------------------#
-boot_testsuite_tools_Makefiles() {     #
-#--------------------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}(boot) testsuite tools ( ROOT ) ${R_arrow}"
-  for file in testsuite-tools/* ; do
-    # Keep the script file name
-    this_script=`basename $file`
-
-    # First append each name of the script files to a list (this will become
-    # the names of the targets in the Makefile
-    PREV=
-    testsuitetools="$testsuitetools $this_script"
-
-    # Grab the name of the target, strip id number, XXX-script
-    name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'\
-                                  -e 's@-64bit@@' \
-                                  -e 's@-64@@' \
-                                  -e 's@64@@' \
-                                  -e 's@n32@@'`
-
-    pkg_tarball=$(get_package_tarball_name $name)
-
-    #--------------------------------------------------------------------#
-    #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
-    #--------------------------------------------------------------------#
-    #
-    # Drop in the name of the target on a new line, and the previous target
-    # as a dependency. Also call the echo_message function.
-    CHROOT_wrt_target "${this_script}" "$PREV"
-    #
-    CHROOT_Unpack "$pkg_tarball"
-    [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
-    #
-    CHROOT_wrt_RunAsRoot "${file}"
-    #
-    CHROOT_wrt_RemoveBuildDirs "${name}"
-    #
-    # Include a touch of the target name so make can check if it's already been made.
-    wrt_touch
-    #
-    #--------------------------------------------------------------------#
-    #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
-    #--------------------------------------------------------------------#
-    #
-    # Keep the script file name for Makefile dependencies.
-    PREV=$this_script
-
-  done
-
-}
-
 
 #--------------------------------------#
-chroot_final_system_Makefiles() {      #
+final_system_Makefiles() {             #
 #--------------------------------------#
   # Set envars and scripts for iteration targets
   LOGS="" # Start with an empty global LOGS envar
   if [[ -z "$1" ]] ; then
     local N=""
+    # In boot method the makesys phase was initiated in testsuite_tools_makefile
+    [[ "${METHOD}" = "boot" ]] && [[ "$TEST" = 0 ]] && PREV=""
   else
     local N=-build_$1
     local basicsystem=""
@@ -512,7 +468,11 @@ chroot_final_system_Makefiles() {      #
     sed -e 's@make install@&\nrm -v /lib/lib{history,readline}*old@' -i final-system$N/*-readline
   fi
 
-  echo "${tab_}${GREEN}Processing... ${L_arrow}(chroot) final system$N ( CHROOT ) ${R_arrow}"
+  if [[ "${METHOD}" = "chroot" ]]; then
+    echo "${tab_}${GREEN}Processing... ${L_arrow}(chroot) final system$N ( CHROOT ) ${R_arrow}"
+  else
+    echo "${tab_}${GREEN}Processing... ${L_arrow}(boot) final system$N  ( ROOT ) ${R_arrow}"
+  fi
 
   for file in final-system$N/* ; do
     # Keep the script file name
@@ -596,121 +556,14 @@ chroot_final_system_Makefiles() {      #
 }
 
 #--------------------------------------#
-boot_final_system_Makefiles() {        #
+bootscripts_Makefiles() {              #
 #--------------------------------------#
-  # Set envars and scripts for iteration targets
-  LOGS="" # Start with an empty global LOGS envar
-  if [[ -z "$1" ]] ; then
-    local N=""
-    # The makesys phase was initiated in bm_testsuite_tools_makefile
-    [[ "$TEST" = 0 ]] && PREV=""
+
+  if [[ "${METHOD}" = "chroot" ]]; then
+    echo "${tab_}${GREEN}Processing... ${L_arrow}(chroot) bootscripts   ( CHROOT ) ${R_arrow}"
   else
-    local N=-build_$1
-    local basicsystem=""
-    mkdir final-system$N
-    cp final-system/* final-system$N
-    for script in final-system$N/* ; do
-      # Overwrite existing symlinks, files, and dirs
-      sed -e 's/ln -sv/&f/g' \
-          -e 's/mv -v/&f/g' \
-          -e 's/mkdir -v/&p/g' -i ${script}
-    done
-    # Remove Bzip2 binaries before make install
-    sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i final-system$N/*-bzip2
-    # Delete *old Readline libraries just after make install
-    sed -e 's@make install@&\nrm -v /lib/lib{history,readline}*old@' -i final-system$N/*-readline
+    echo "${tab_}${GREEN}Processing... ${L_arrow}(boot) bootscripts     ( ROOT ) ${R_arrow}"
   fi
-
-  echo "${tab_}${GREEN}Processing... ${L_arrow}(boot) final system$N  ( ROOT ) ${R_arrow}"
-
-  for file in final-system$N/* ; do
-    # Keep the script file name
-    this_script=`basename $file`
-
-    # Test if the stripping phase must be skipped
-    # Skip alsp temp-perl for iterative runs
-    case $this_script in
-      *stripping*) [[ "$STRIP" = "n" ]] && continue ;;
-      *temp-perl*) [[ -n "$N" ]] && continue ;;
-    esac
-
-    # Grab the name of the target, strip id number, XXX-script
-    name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' \
-                                  -e 's@temp-@@' \
-                                  -e 's@-64bit@@' \
-                                  -e 's@-64@@' \
-                                  -e 's@64@@' \
-                                  -e 's@n32@@'`
-
-    # Find the version of the command files, if it corresponds with the building of
-    # a specific package. We need this here to can skip scripts not needed for
-    # iterations rebuilds
-
-    pkg_tarball=$(get_package_tarball_name $name)
-
-    if [[ "$pkg_tarball" = "" ]] && [[ -n "$N" ]] ; then
-      case "${this_script}" in
-        *stripping*) ;;
-        *)  continue ;;
-      esac
-    fi
-
-    # Append each name of the script files to a list (this will become
-    # the names of the targets in the Makefile
-    basicsystem="$basicsystem ${this_script}${N}"
-
-    # Append each name of the script files to a list (this will become
-    # the names of the logs to be moved for each iteration)
-    LOGS="$LOGS ${this_script}"
-
-    #--------------------------------------------------------------------#
-    #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
-    #--------------------------------------------------------------------#
-    #
-    # Drop in the name of the target on a new line, and the previous target
-    # as a dependency. Also call the echo_message function.
-    CHROOT_wrt_target "${this_script}${N}" "$PREV"
-
-    # If $pkg_tarball isn't empty, we've got a package...
-    if [ "$pkg_tarball" != "" ] ; then
-      FILE="$pkg_tarball"
-      CHROOT_Unpack "$FILE"
-      # If the testsuites must be run, initialize the log file
-      case $name in
-        binutils | gcc | glibc )
-          [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}"
-          ;;
-        * )
-          [[ "$TEST" = "2" ]] || [[ "$TEST" = "3" ]] && CHROOT_wrt_test_log "${this_script}"
-          ;;
-      esac
-      # If using optimizations, write the instructions
-      [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
-    fi
-    #
-    CHROOT_wrt_RunAsRoot "${file}"
-    #
-    [[ "$pkg_tarball" != "" ]] && CHROOT_wrt_RemoveBuildDirs "${name}"
-    #
-    # Include a touch of the target name so make can check if it's already been made.
-    wrt_touch
-    #
-    #--------------------------------------------------------------------#
-    #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
-    #--------------------------------------------------------------------#
-    #
-    # Keep the script file name for Makefile dependencies.
-    PREV=${this_script}${N}
-    # Set system_build envar for iteration targets
-    system_build=$basicsystem
-  done  # for file in final-system/* ...
-
-}
-
-#--------------------------------------#
-chroot_bootscripts_Makefiles() {       #
-#--------------------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}(chroot) bootscripts   ( CHROOT ) ${R_arrow}"
 
   for file in bootscripts/* ; do
     # Keep the script file name
@@ -769,70 +622,15 @@ chroot_bootscripts_Makefiles() {       #
 }
 
 #--------------------------------------#
-boot_bootscripts_Makefiles() {         #
+bootable_Makefiles() {                 #
 #--------------------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}(boot) bootscripts     ( ROOT ) ${R_arrow}"
 
-  for file in bootscripts/* ; do
-    # Keep the script file name
-    this_script=`basename $file`
+  if [[ "${METHOD}" = "chroot" ]]; then
+    echo "${tab_}${GREEN}Processing... ${L_arrow}(chroot) make bootable ( CHROOT ) ${R_arrow}"
+  else
+    echo "${tab_}${GREEN}Processing... ${L_arrow}(boot) make bootable   ( ROOT ) ${R_arrow}"
+  fi
 
-    case $this_script in
-      *udev) continue    ;;  # This is not a script but a commentary
-      *console*) continue ;; # Use the files that came with the bootscripts
-      *)  ;;
-    esac
-
-    # First append each name of the script files to a list (this will become
-    # the names of the targets in the Makefile
-    bootscripttools="$bootscripttools $this_script"
-
-    # Grab the name of the target, strip id number, XXX-script
-    name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'\
-                                  -e 's@-64bit@@' \
-                                  -e 's@-64@@' \
-                                  -e 's@64@@' \
-                                  -e 's@n32@@'`
-    case $name in
-      *bootscripts*) name=bootscripts-cross-lfs ;;
-      *udev-rules)   name=udev-cross-lfs ;;
-    esac
-
-    pkg_tarball=$(get_package_tarball_name $name)
-
-    #--------------------------------------------------------------------#
-    #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
-    #--------------------------------------------------------------------#
-    #
-    # Drop in the name of the target on a new line, and the previous target
-    # as a dependency. Also call the echo_message function.
-    CHROOT_wrt_target "${this_script}" "$PREV"
-    #
-    # If $pkg_tarball isn't empty, we've got a package...
-    #
-    [[ "$pkg_tarball" != "" ]] && CHROOT_Unpack "$pkg_tarball"
-    #
-    CHROOT_wrt_RunAsRoot "${file}"
-    #
-    [[ "$pkg_tarball" != "" ]] && CHROOT_wrt_RemoveBuildDirs "${name}"
-    #
-    # Include a touch of the target name so make can check if it's already been made.
-    wrt_touch
-    #
-    #--------------------------------------------------------------------#
-    #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
-    #--------------------------------------------------------------------#
-    #
-    # Keep the script file name for Makefile dependencies.
-    PREV=$this_script
-
-  done  # for file in bootscripts/* ...
-}
-
-#--------------------------------------#
-chroot_bootable_Makefiles() {          #
-#--------------------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}(chroot) make bootable ( CHROOT ) ${R_arrow}"
 
   for file in {bootable,the-end}/* ; do
     # Keep the script file name
@@ -904,79 +702,6 @@ chroot_bootable_Makefiles() {          #
 
 }
 
-#--------------------------------------#
-boot_bootable_Makefiles() {            #
-#--------------------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}(boot) make bootable   ( ROOT ) ${R_arrow}"
-
-  for file in {bootable,the-end}/* ; do
-    # Keep the script file name
-    this_script=`basename $file`
-
-    # A little housekeeping on the scripts
-    case $this_script in
-      *grub | *aboot | *colo | *silo | *arcload | *lilo | *reboot* )  continue  ;;
-      *kernel) # if there is no kernel config file do not build the kernel
-               [[ -z $CONFIG ]] && continue
-                 # Copy the named config file to /sources with a standardized name
-               cp $CONFIG $BUILDDIR/sources/kernel-config
-         ;;
-    esac
-    #
-    # First append each name of the script files to a list (this will become
-    # the names of the targets in the Makefile
-    bootabletools="$bootabletools $this_script"
-    #
-    # Grab the name of the target, strip id number and misc words.
-    case $this_script in
-      *kernel) name=linux  ;;
-      *)       name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' -e 's@-build@@' ` ;;
-    esac
-
-    pkg_tarball=$(get_package_tarball_name $name)
-
-    #--------------------------------------------------------------------#
-    #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
-    #--------------------------------------------------------------------#
-    #
-    # Drop in the name of the target on a new line, and the previous target
-    # as a dependency. Also call the echo_message function.
-    CHROOT_wrt_target "${this_script}" "$PREV"
-    #
-    # If $pkg_tarball isn't empty, we've got a package...
-    # Insert instructions for unpacking the package and changing directories
-    #
-    [[ "$pkg_tarball" != "" ]] && CHROOT_Unpack "$pkg_tarball"
-    #
-    # Select a script execution method
-    case $this_script in
-      *fstab*)  if [[ -n "$FSTAB" ]]; then
-                  # Minimal boot mode has no access to original file, store in /sources
-                  cp $FSTAB $BUILDDIR/sources/fstab
-                  CHROOT_wrt_CopyFstab
-                else
-                  CHROOT_wrt_RunAsRoot  "${file}"
-                fi
-          ;;
-      *)  CHROOT_wrt_RunAsRoot  "${file}"   ;;
-    esac
-    #
-    # Housekeeping...remove any build directory(ies) except if the package build fails.
-    [[ "$pkg_tarball" != "" ]] && CHROOT_wrt_RemoveBuildDirs "${name}"
-    #
-    # Include a touch of the target name so make can check if it's already been made.
-    wrt_touch
-    #
-    #--------------------------------------------------------------------#
-    #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
-    #--------------------------------------------------------------------#
-    #
-    # Keep the script file name for Makefile dependencies.
-    PREV=$this_script
-  done
-
-}
-
 
 #--------------------------------------#
 build_Makefile() {                     # Construct a Makefile from the book scripts
@@ -986,10 +711,6 @@ build_Makefile() {                     # Construct a Makefile from the book scri
   #
 set +e
   declare -f  method_cmds
-  declare -f  testsuite_cmds
-  declare -f  final_sys_cmds
-  declare -f  bootscripts_cmds
-  declare -f  bootable_cmds
 set -e
 
   echo "...Creating Makefile... ${BOLD}START${OFF}"
@@ -999,24 +720,20 @@ set -e
   >$MKFILE
   >$MKFILE.tmp
 
-       method_cmds=${METHOD}_Makefiles
-    testsuite_cmds=${METHOD}_testsuite_tools_Makefiles
-    final_sys_cmds=${METHOD}_final_system_Makefiles
-  bootscripts_cmds=${METHOD}_bootscripts_Makefiles
-     bootable_cmds=${METHOD}_bootable_Makefiles
+  method_cmds=${METHOD}_Makefiles
 
   host_prep_Makefiles        # mk_SETUP      (SETUP)  $host_prep
   cross_tools_Makefiles      # mk_CROSS      (LUSER)  $cross_tools
   temptools_Makefiles        # mk_TEMP       (LUSER)  $temptools
   $method_cmds               # mk_SYSTOOLS   (CHROOT) $chroottools/$boottools
   if [[ ! $TEST = "0" ]]; then
-    $testsuite_cmds          # mk_SYSTOOLS   (CHROOT) $testsuitetools
+    testsuite_tools_Makefiles    # mk_SYSTOOLS   (CHROOT) $testsuitetools
   fi
-  $final_sys_cmds            # mk_FINAL      (CHROOT) $basicsystem
+  final_system_Makefiles         # mk_FINAL      (CHROOT) $basicsystem
     # Add the iterations targets, if needed
   [[ "$COMPARE" = "y" ]] && wrt_compare_targets
-  $bootscripts_cmds          # mk_BOOTSCRIPT (CHROOT) $bootscripttools
-  $bootable_cmds             # mk_BOOTABLE   (CHROOT) $bootabletools
+  bootscripts_Makefiles          # mk_BOOTSCRIPT (CHROOT) $bootscripttools
+  bootable_Makefiles             # mk_BOOTABLE   (CHROOT) $bootabletools
 
   # Add the BLFS_TOOL targets, if needed
   [[ "$BLFS_TOOL" = "y" ]] && wrt_blfs_tool_targets
@@ -1110,7 +827,7 @@ mk_BLFS_TOOL: create-sbu_du-report
 SETUP:       $host_prep
 AS_LUSER:    $cross_tools $temptools
 SUDO:	     $orphan_scripts
-CHROOT_JAIL: ${chroottools}${boottools} $testsuitetools $basicsystem  $bootscripttools  $bootabletools
+CHROOT_JAIL: ${chroottools} $testsuitetools $basicsystem  $bootscripttools  $bootabletools
 BLFS_TOOL:   $blfs_tool
 
 
@@ -1170,7 +887,7 @@ ck_UID:
 
 mk_SETUP:
 	@\$(call echo_SU_request)
-	@sudo make SETUP
+	@sudo make SHELL=/bin/bash SETUP
 	@touch \$@
 
 #---------------AS LUSER
@@ -1188,19 +905,19 @@ mk_SUDO: mk_CROSS
 
 mk_FINAL:
 	@\$(call echo_PHASE,Final System)
-	@( make AS_ROOT )
+	@( source /root/.bash_profile && make AS_ROOT )
 	@touch \$@
 
 mk_BLFS_TOOL: mk_FINAL
 	@\$(call echo_PHASE,Building BLFS-TOOLS)
 	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
 	  mkdir -p $TRACKING_DIR; \\
-          make BLFS_TOOL; \\
+          ( make BLFS_TOOL ); \\
 	fi
 	@touch \$@
 
 SETUP:      $host_prep
-AS_LUSER:   $cross_tools $temptools ${chroottools}${boottools}
+AS_LUSER:   $cross_tools $temptools ${boottools}
 SUDO:	    $orphan_scripts
 AS_ROOT:    $testsuitetools $basicsystem $bootscripttools $bootabletools
 BLFS_TOOL:  $blfs_tool
