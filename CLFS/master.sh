@@ -394,6 +394,7 @@ testsuite_tools_Makefiles() {          #
     echo "${tab_}${GREEN}Processing... ${L_arrow}(chroot) testsuite tools  ( CHROOT ) ${R_arrow}"
   else
     echo "${tab_}${GREEN}Processing... ${L_arrow}(boot) testsuite tools ( ROOT ) ${R_arrow}"
+    PREV=""
   fi
 
   for file in testsuite-tools/* ; do
