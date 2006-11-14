@@ -91,7 +91,7 @@ menu "--- BOOK Settings"
 			bool	"x86"
 
 		config	ARCH_MIPS
-			bool	"mips"	if !BOOK_CLFS2 && !BOOK_CLFS3
+			bool	"mips"	if !BOOK_CLFS2
 
 		config	ARCH_PPC
 			bool	"ppc"	if !BOOK_CLFS2 && !BOOK_CLFS3
@@ -116,10 +116,10 @@ menu "--- BOOK Settings"
 			bool	"32-bit"	if !ARCH_ALPHA
 
 		config	DATA_64
-			bool	"64-bit"	if !ARCH_PPC && !ARCH_ARM && !((BOOK_CLFS2 || BOOK_CLFS3) && ARCH_X86)
+			bool	"64-bit"	if !ARCH_PPC && !ARCH_ARM && !((BOOK_CLFS2 || BOOK_CLFS3) && ARCH_X86) || (BOOK_CLFS3 && ARCH_MIPS)
 
 		config	DATA_MULTI
-			bool	"multilib"	if !ARCH_ALPHA && !ARCH_ARM && !((BOOK_CLFS2 || BOOK_CLFS3) && ARCH_X86)
+			bool	"multilib"	if !ARCH_ALPHA && !ARCH_ARM && !((BOOK_CLFS2 || BOOK_CLFS3) && ARCH_X86) && !(BOOK_CLFS3 && ARCH_MIPS)
 	endchoice
 
 	choice
@@ -136,7 +136,7 @@ menu "--- BOOK Settings"
 			bool	"i686"			if ARCH_X86 && DATA_32
 
 		config	PROC_mipsel
-			bool	"mips -little endian"	if ARCH_MIPS
+			bool	"mips little endian"	if ARCH_MIPS
 
 		config	PROC_mips
 			bool	"mips"			if ARCH_MIPS
@@ -148,6 +148,14 @@ menu "--- BOOK Settings"
 		default "i486-pc-linux-uclibc"		if ARCH_X86 && PROC_i486
 		default "i586-pc-linux-uclibc"		if ARCH_X86 && PROC_i586
 		default "i686-pc-linux-uclibc"		if ARCH_X86 && PROC_i686
+		default "mipsel-unknown-linux-uclibc"	if ARCH_MIPS && PROC_mipsel
+		default "mips-unknown-linux-uclibc"	if ARCH_MIPS && PROC_mips
+
+	config TARGET
+		string
+		depends	DATA_64 && BOOK_CLFS3
+		default "mips64el-unknown-linux-uclibc"	if ARCH_MIPS && PROC_mipsel
+		default "mips64-unknown-linux-uclibc"	if ARCH_MIPS && PROC_mips
 
 
 	config TARGET
@@ -164,7 +172,7 @@ menu "--- BOOK Settings"
 
 	config TARGET
 		string
-		depends	DATA_64
+		depends	DATA_64 && !BOOK_CLFS3
 		default	"x86_64-unknown-linux-gnu"	if ARCH_X86
 		default	"mips64el-unknown-linux-gnu"	if ARCH_MIPS && PROC_mipsel
 		default	"mips64-unknown-linux-gnu"	if ARCH_MIPS && PROC_mips
@@ -201,7 +209,12 @@ menu "--- BOOK Settings"
 
 	config	ARCH
 		string
-		depends	DATA_64
+		depends	DATA_64 && BOOK_CLFS3
+		default	"mips"	if ARCH_MIPS
+
+	config	ARCH
+		string
+		depends	DATA_64 && !BOOK_CLFS3
 		default	"x86_64-64"	if ARCH_X86
 		default	"mips64-64"	if ARCH_MIPS
 		default	"sparc64-64"	if ARCH_SPARC
@@ -214,6 +227,12 @@ menu "--- BOOK Settings"
 		default	"mips64"	if ARCH_MIPS
 		default	"sparc64"	if ARCH_SPARC
 		default	"ppc64"		if ARCH_PPC
+
+	config  MIPS_LEVEL
+		string
+		depends BOOK_CLFS3 && ARCH_MIPS
+		default	"1"		if DATA_32
+		default "3"		if DATA_64
 
 	choice
 		prompt	"Build method"
