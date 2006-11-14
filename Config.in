@@ -539,7 +539,6 @@ menu "--- General Settings"
 			#   The directory is cleaned only if it was populated by a
 			#   previous JHALFS run.
 			#
-			# NOTE::You must be 'root' for this function to work
 
 #--- End General Settings
 endmenu
