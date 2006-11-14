@@ -61,7 +61,7 @@ cat << EOF
 	echo "" >> /home/\$(LUSER)/.bashrc && \\
 	echo "export CLFS_HOST=\"${CLFS_HOST}\"" >> /home/\$(LUSER)/.bashrc && \\
 	echo "export CLFS_TARGET=\"${TARGET}\"" >> /home/\$(LUSER)/.bashrc && \\
-	echo "export CLFS_TARGET32=\"${TARGET32}\"" >> /home/\$(LUSER)/.bashrc && \\
+	echo "export CLFS_MIPS_LEVEL=\"${MIPS_LEVEL}\"" >> /home/\$(LUSER)/.bashrc && \\
 	echo "source $JHALFSDIR/envars" >> /home/\$(LUSER)/.bashrc
 	@chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bashrc && \\
 	touch envars && \\
