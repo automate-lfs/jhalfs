@@ -109,8 +109,11 @@
                         @id='ch-tools-cocoon-toolchain' or
                         @id='ch-system-butterfly-toolchain'">
              <xsl:text>tar -xvf gcc-core-&gcc-version;.*; &#xA;</xsl:text>
-             <xsl:text>tar -xvf gcc-g++-&gcc-version;.*; &#xA;</xsl:text>
              <xsl:text>tar -xvf binutils-&binutils-version;.*; &#xA;</xsl:text>
+          </xsl:if>
+	  <xsl:if test="@id='ch-tools-cocoon-toolchain' or
+                        @id='ch-system-butterfly-toolchain'">
+             <xsl:text>tar -xvf gcc-g++-&gcc-version;.*; &#xA;</xsl:text>
           </xsl:if>
           <!-- ONLY butterfly has a testsuite -->
           <xsl:if test="@id='ch-system-butterfly-toolchain' and $testsuite != '0'">
