@@ -11,12 +11,14 @@ MASTER SCRIPT
 xLFS MODULES
 ------------
 
-  - Test current BLFS_TOOL Makefile integration in LFS and CLFS.
-    Port it to CLFS-2 and HLFS, if possible.
+  - Test current BLFS_TOOL Makefile integration in LFS, HLFS and CLFS.
+    Port it to CLFS-2, if possible. CLFS-3 can't support it.
 
   - To develop a new "restart" Makefile target code.
 
-  - To add support for HLFS 2.4 and CLFS-3 branches.
+  - To add support for HLFS 2.4. Waiting until have a buildable book.
+
+  - To add support for CLFS-3. Work in progress, the book is incomplete yet.
 
   - To add support for copying to the final system pre-generated
     configuration files created by the user.
@@ -30,4 +32,4 @@ BLFS MODULE (See BLFS/TODO)
 OTHERS
 ------
 
-  - Nothing for now
+  - Bugs haunting and code clean-up.
