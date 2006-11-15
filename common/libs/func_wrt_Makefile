@@ -66,11 +66,11 @@ get_package_tarball_name() {       #
      tcl) echo $(grep "^tcl" $JHALFSDIR/pkg_tarball_list | head -n1 )
          ;;
      linux-headers)
-         if [ "${PROGNAME}" = "lfs" ]; then
+         if [[ "${PROGNAME}" = "lfs" ]] || [[ "${PROGNAME}" = "hlfs" ]] ; then
            # Uses kernel headers directly
            echo $(grep "^linux-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 )
          else
-           # CLFS/HLFS use massaged headers package
+           # CLFS{,2,3} use massaged headers package
            echo $(grep "^linux-headers-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 )
          fi
          ;;
