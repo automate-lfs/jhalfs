@@ -534,7 +534,7 @@ menu "--- General Settings"
 
 	config	GETKERNEL
 		bool	"Always retrieve kernel package (see help)"
-		default	y if BOOK_LFS && relSVN
+		default	y if (BOOK_LFS && relSVN) || BOOK_HLFS
 		depends GETPKG
 		help
 			#-- Get the kernel package and patches even if no kernel
