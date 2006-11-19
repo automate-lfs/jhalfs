@@ -116,8 +116,8 @@ BRANCH_ID=${BRANCH_ID:=development}
 case $BRANCH_ID in
   development )
     case $PROGNAME in
-      clfs2 ) TREE=branches/clfs-2.0/BOOK ;;
-      clfs3 ) TREE=branches/clfs-3.0/BOOK ;;
+      clfs2 ) TREE=branches/clfs-sysroot/BOOK ;;
+      clfs3 ) TREE=branches/clfs-embedded/BOOK ;;
            *) TREE=trunk/BOOK ;;
     esac
     LFSVRS=development

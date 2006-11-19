@@ -14,7 +14,7 @@ menu "--- BOOK Settings"
 			bool "Cross-Compiled Linux From Scratch"
 
 		config	BOOK_CLFS2
-			bool "Cross-Compiled Linux From Scratch (Version 2)"
+			bool "Cross-Compiled Linux From Scratch (Sysroot method)"
 
 		config	BOOK_CLFS3
 			bool "Cross-Compiled Linux From Scratch (Embedded Systems)"

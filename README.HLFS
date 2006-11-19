@@ -7,11 +7,12 @@ $Id$
  changes can occur and the build could be broken for extended periods of
  time.
 
- As of Sept.15.2006 jhalfs cannot build the svn book.  This is a book
+ As of Nov.19.2006 jhalfs cannot build the svn book.  This is a book
  problem and not jhalfs.
- 
 
- Automation failures:  
-  1.Directory /dev and devices nodes /dev/null, /dev/console needed to be 
+
+ Automation failures:
+  1.Directory /dev and devices nodes /dev/null, /dev/console needed to be
   created in kernfs
-  3.Remove the creation of /null and /console node from the devices script.
+  2.Remove the creation of /null and /console node from the devices script.
+  3.Some patches are missing or have a bad MD5SUM
