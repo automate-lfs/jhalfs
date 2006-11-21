@@ -96,7 +96,7 @@ cat << EOF
 	@\$(call echo_message, Building)
 
 	@touch \$(MOUNT_PT)/etc/mtab
-	@echo "root::0:0:root:/root:/bin/bash" >> \$(MOUNT_PT)/etc/passwd
+	@echo "root::0:0:root:/root:/bin/ash" >> \$(MOUNT_PT)/etc/passwd
 	@echo "root:x:0:" >> \$(MOUNT_PT)/etc/group
 	@echo "bin:x:1:"  >> \$(MOUNT_PT)/etc/group
 	@echo "sys:x:2:"  >> \$(MOUNT_PT)/etc/group
