@@ -422,7 +422,7 @@ ck_UID:
 
 mk_SETUP:
 	@\$(call echo_SU_request)
-	@sudo SHELL=/bin/bash make SETUP
+	@sudo make SHELL=/bin/bash SETUP
 	@touch \$@
 
 mk_LUSER: mk_SETUP
