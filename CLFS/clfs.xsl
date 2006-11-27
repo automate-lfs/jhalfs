@@ -88,13 +88,13 @@
           <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
             <xsl:choose>
               <xsl:when test="../@id='chapter-chroot'">
-                <xsl:text>#!/tools/bin/bash&#xA;set -e&#xA;&#xA;</xsl:text>
+                <xsl:text>#!/tools/bin/bash&#xA;set +h&#xA;set -e&#xA;&#xA;</xsl:text>
               </xsl:when>
               <xsl:when test="@id='ch-system-stripping'">
-                <xsl:text>#!/bin/bash&#xA;</xsl:text>
+                <xsl:text>#!/bin/bash&#xA;set +h&#xA;</xsl:text>
               </xsl:when>
               <xsl:otherwise>
-                <xsl:text>#!/bin/bash&#xA;set -e&#xA;&#xA;</xsl:text>
+                <xsl:text>#!/bin/bash&#xA;set +h&#xA;set -e&#xA;&#xA;</xsl:text>
               </xsl:otherwise>
             </xsl:choose>
             <xsl:if test="sect2[@role='installation']">

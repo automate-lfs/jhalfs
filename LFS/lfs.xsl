@@ -78,14 +78,14 @@
           <xsl:when test="@id='ch-system-changingowner' or
                     @id='ch-system-creatingdirs' or
                     @id='ch-system-createfiles'">
-            <xsl:text>#!/tools/bin/bash&#xA;set -e&#xA;&#xA;</xsl:text>
+            <xsl:text>#!/tools/bin/bash&#xA;set +h&#xA;set -e&#xA;&#xA;</xsl:text>
           </xsl:when>
           <xsl:when test="@id='ch-tools-stripping' or
                     @id='ch-system-strippingagain'">
-            <xsl:text>#!/bin/bash&#xA;</xsl:text>
+            <xsl:text>#!/bin/bash&#xA;set +h&#xA;</xsl:text>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:text>#!/bin/bash&#xA;set -e&#xA;&#xA;</xsl:text>
+            <xsl:text>#!/bin/bash&#xA;set +h&#xA;set -e&#xA;&#xA;</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:if test="sect2[@role='installation']">
