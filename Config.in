@@ -239,8 +239,11 @@ menu "--- BOOK Settings"
 		depends BOOK_CLFS3
 		default "-m32"		if DATA_32 && !ARCH_MIPS
 		default "-m64"		if DATA_64 && !ARCH_MIPS
-		default "-mabi=32"	if DATA_32 &&  ARCH_MIPS
-		default "-mabi=64"	if DATA_64 &&  ARCH_MIPS
+		default "-mabi=32"	if DATA_32 &&  ARCH_MIPS && PROC_mipsel
+		default "-mabi=64"	if DATA_64 &&  ARCH_MIPS && PROC_mipsel
+		default "-mabi=n32"	if DATA_32 &&  ARCH_MIPS && PROC_mips
+		default "-mabi=n64"	if DATA_64 &&  ARCH_MIPS && PROC_mips
+		
 	choice
 		prompt	"Build method"
 		depends	BOOK_CLFS
