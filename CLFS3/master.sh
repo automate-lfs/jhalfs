@@ -276,7 +276,6 @@ bootscripts_Makefiles() {     #
     this_script=`basename $file`
 
     case $this_script in
-      *udev)     continue ;; # This is not a script but a commentary, we want udev-rules
       *console*) continue ;; # Use the files that came with the bootscripts
       *network*) continue ;; # Manually create these files
       *)  ;;
@@ -293,8 +292,7 @@ bootscripts_Makefiles() {     #
                                   -e 's@64@@' \
                                   -e 's@n32@@'`
     case $name in
-      *bootscripts*) name=bootscripts-cross-lfs ;;
-      *udev-rules)   name=udev-cross-lfs ;;
+      *bootscripts*) name=clfs-embedded-bootscripts ;;
     esac
 
     pkg_tarball=$(get_package_tarball_name $name)
