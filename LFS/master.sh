@@ -95,11 +95,11 @@ chapter5_Makefiles() {
 
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
-    # DO NOT append the changingowner script.
+    # DO NOT append the changingowner script, it need be run as root.
     # A hack is necessary: create script in chap5 BUT run as a dependency for
-    #  chap6 CHROOT
+    # SUDO target
     case "${this_script}" in
-      *changingowner) : ;;
+      *changingowner) runasroot="$runasroot ${this_script}" ;;
                    *) chapter5="$chapter5 ${this_script}" ;;
     esac
 
@@ -196,7 +196,7 @@ chapter6_Makefiles() {
       *stripping*) [[ "${STRIP}" = "n" ]] && continue ;;
     esac
 
-    # Grab the name of the target
+    # Grab the name of the target.
     name=`echo ${this_script} | sed -e 's@[0-9]\{3\}-@@'`
 
     # Find the version of the command files, if it corresponds with the building of
@@ -213,7 +213,11 @@ chapter6_Makefiles() {
 
     # Append each name of the script files to a list (this will become
     # the names of the targets in the Makefile)
-    chapter6="$chapter6 ${this_script}${N}"
+    # The kernfs script must be run as part of SUDO target.
+    case "${this_script}" in
+      *kernfs) runasroot="$runasroot ${this_script}" ;;
+            *) chapter6="$chapter6 ${this_script}${N}" ;;
+    esac
 
     # Append each name of the script files to a list (this will become
     # the names of the logs to be moved for each iteration)
@@ -470,7 +474,7 @@ mk_BLFS_TOOL: create-sbu_du-report
 
 SETUP:     $chapter4
 LUSER:     $chapter5
-SUDO:      057-changingowner 059-kernfs
+SUDO:      $runasroot
 CHROOT:    $chapter6
 BOOT:      $chapter789
 BLFS_TOOL: $blfs_tool
