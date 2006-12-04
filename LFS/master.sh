@@ -38,8 +38,8 @@ chapter4_Makefiles() {       #
 		touch luser-exist; \\
 	fi;
 	@chown \$(LUSER) \$(MOUNT_PT)/tools && \\
-	chown -R \$(LUSER) \$(MOUNT_PT)/\$(SCRIPT_ROOT) && \\
-	chmod -R a+wt \$(MOUNT_PT) && \\
+	chmod -R a+wt \$(MOUNT_PT)/\$(SCRIPT_ROOT) && \\
+	chmod a+wt \$(SRCSDIR) && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
@@ -409,7 +409,8 @@ build_Makefile() {           #
 
 all:	ck_UID mk_SETUP mk_LUSER mk_SUDO mk_CHROOT mk_BOOT create-sbu_du-report mk_BLFS_TOOL
 	@sudo make do_housekeeping
-	@sudo echo "$VERSION - jhalfs build" > \$(MOUNT_PT)/etc/lfs-release
+	@echo "$VERSION - jhalfs build" > lfs-release && \\
+	sudo mv lfs-release \$(MOUNT_PT)/etc
 	@\$(call echo_finished,$VERSION)
 
 ck_UID:
