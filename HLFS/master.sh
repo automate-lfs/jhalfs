@@ -258,7 +258,6 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
   local file
   local this_script
   # Set envars and scripts for iteration targets
-  LOGS="" # Start with an empty global LOGS envar
   if [[ -z "$1" ]] ; then
     local N=""
   else
@@ -318,10 +317,6 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     # the names of the targets in the Makefile
     chapter6="$chapter6 ${this_script}${N}"
 
-    # Append each name of the script files to a list (this will become
-    # the names of the logs to be moved for each iteration)
-    LOGS="$LOGS ${this_script}"
-
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
@@ -346,9 +341,9 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
       # If the testsuites must be run, initialize the log file
       # butterfly-toolchain tests are enabled in 'process_tookchain' function
       case $name in
-        glibc ) [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}"
+        glibc ) [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}${N}"
           ;;
-	    * ) [[ "$TEST" > "1" ]]  && CHROOT_wrt_test_log "${this_script}"
+	    * ) [[ "$TEST" > "1" ]]  && CHROOT_wrt_test_log "${this_script}${N}"
           ;;
       esac
       # If using optimizations, write the instructions

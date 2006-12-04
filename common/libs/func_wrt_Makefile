@@ -114,18 +114,14 @@ CHROOT_wrt_target() {              # Create target and initialize log file
 #----------------------------------#
   local i=$1
   local PREV=$2
-  case $i in
-    iteration* ) local LOGFILE="${this_script}.log" ;;
-             * ) local LOGFILE="\$@"      ;;
-  esac
 (
 cat << EOF
 
 $i:  $PREV
 	@\$(call echo_message, Building)
 	@./progress_bar.sh \$@ \$\$PPID &
-	@echo "\$(nl_)\`date\`\$(nl_)" >logs/$LOGFILE
-	@\$(PRT_DU_CR) >>logs/$LOGFILE
+	@echo "\$(nl_)\`date\`\$(nl_)" >logs/\$@
+	@\$(PRT_DU_CR) >>logs/\$@
 EOF
 ) >> $MKFILE.tmp
 }
@@ -189,8 +185,8 @@ LUSER_wrt_test_log() {             # Initialize testsuite log file
   local TESTLOGFILE=$1
 (
 cat  << EOF
-	@echo "export  TEST_LOG=$TESTLOGDIR/$TESTLOGFILE" >> envars && \\
-	echo '\$(nl_)\`date\`\$(nl_)' >$TESTLOGDIR/$TESTLOGFILE
+	@echo "export  TEST_LOG=\$(TESTLOGDIR)/$TESTLOGFILE" >> envars && \\
+	echo '\$(nl_)\`date\`\$(nl_)' >\$(TESTLOGDIR)/\$@
 EOF
 ) >> $MKFILE.tmp
 }
@@ -202,7 +198,7 @@ CHROOT_wrt_test_log() {            #
 (
 cat  << EOF
 	@echo "export TEST_LOG=\$(crTESTLOGDIR)/$TESTLOGFILE" >> envars && \\
-	echo "\$(nl_)\`date\`\$(nl_)" >test-logs/$TESTLOGFILE
+	echo "\$(nl_)\`date\`\$(nl_)" >test-logs/\$@
 EOF
 ) >> $MKFILE.tmp
 }

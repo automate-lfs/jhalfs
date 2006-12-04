@@ -165,7 +165,6 @@ chapter6_Makefiles() {
 #----------------------------#
 
   # Set envars and scripts for iteration targets
-  LOGS="" # Start with an empty global LOGS envar
   if [[ -z "$1" ]] ; then
     local N=""
   else
@@ -219,10 +218,6 @@ chapter6_Makefiles() {
             *) chapter6="$chapter6 ${this_script}${N}" ;;
     esac
 
-    # Append each name of the script files to a list (this will become
-    # the names of the logs to be moved for each iteration)
-    LOGS="$LOGS ${this_script}"
-
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
     #--------------------------------------------------------------------#
@@ -243,10 +238,10 @@ chapter6_Makefiles() {
       # If the testsuites must be run, initialize the log file
       case $name in
         binutils | gcc | glibc )
-          [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}"
+          [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}${N}"
           ;;
         * )
-          [[ "$TEST" = "2" ]] || [[ "$TEST" = "3" ]] && CHROOT_wrt_test_log "${this_script}"
+          [[ "$TEST" = "2" ]] || [[ "$TEST" = "3" ]] && CHROOT_wrt_test_log "${this_script}${N}"
           ;;
       esac
       # If using optimizations, write the instructions
