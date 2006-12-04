@@ -86,17 +86,11 @@
           </xsl:variable>
             <!-- Creating dirs and files -->
           <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
-            <xsl:choose>
-              <xsl:when test="../@id='chapter-chroot'">
-                <xsl:text>#!/tools/bin/bash&#xA;set +h&#xA;set -e&#xA;&#xA;</xsl:text>
-              </xsl:when>
-              <xsl:when test="@id='ch-system-stripping'">
-                <xsl:text>#!/bin/bash&#xA;set +h&#xA;</xsl:text>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:text>#!/bin/bash&#xA;set +h&#xA;set -e&#xA;&#xA;</xsl:text>
-              </xsl:otherwise>
-            </xsl:choose>
+            <xsl:text>#!/bin/bash&#xA;set +h&#xA;</xsl:text>
+            <xsl:if test="not(@id='ch-system-stripping')">
+              <xsl:text>set -e</xsl:text>
+            </xsl:if>
+            <xsl:text>&#xA;</xsl:text>
             <xsl:if test="sect2[@role='installation']">
               <xsl:text>cd $PKGDIR&#xA;</xsl:text>
               <xsl:if test="@id='ch-system-vim' and $vim-lang = 'y'">

@@ -74,20 +74,12 @@
       </xsl:variable>
         <!-- Creating dirs and files -->
       <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
-        <xsl:choose>
-          <xsl:when test="@id='ch-system-changingowner' or
-                    @id='ch-system-creatingdirs' or
-                    @id='ch-system-createfiles'">
-            <xsl:text>#!/tools/bin/bash&#xA;set +h&#xA;set -e&#xA;&#xA;</xsl:text>
-          </xsl:when>
-          <xsl:when test="@id='ch-tools-stripping' or
-                    @id='ch-system-strippingagain'">
-            <xsl:text>#!/bin/bash&#xA;set +h&#xA;</xsl:text>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:text>#!/bin/bash&#xA;set +h&#xA;set -e&#xA;&#xA;</xsl:text>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:text>#!/bin/bash&#xA;set +h&#xA;</xsl:text>
+        <xsl:if test="not(@id='ch-tools-stripping') and
+                      not(@id='ch-system-strippingagain')">
+          <xsl:text>set -e&#xA;</xsl:text>
+        </xsl:if>
+        <xsl:text>&#xA;</xsl:text>
         <xsl:if test="sect2[@role='installation']">
           <xsl:text>cd $PKGDIR&#xA;</xsl:text>
           <xsl:if test="@id='ch-system-vim' and $vim-lang = 'y'">
