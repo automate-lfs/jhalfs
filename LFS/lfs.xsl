@@ -44,8 +44,13 @@
   </xsl:template>
 
   <xsl:template match="sect1">
-    <xsl:if test="count(descendant::screen/userinput) &gt; 0 and
-      count(descendant::screen/userinput) &gt; count(descendant::screen[@role='nodump'])">
+    <xsl:if test="(../@id='chapter-temporary-tools' or
+                  ../@id='chapter-building-system' or
+                  ../@id='chapter-bootscripts' or
+                  ../@id='chapter-bootable') and
+                  count(descendant::screen/userinput) &gt; 0 and
+                  count(descendant::screen/userinput) &gt;
+                  count(descendant::screen[@role='nodump'])">
         <!-- The dirs names -->
       <xsl:variable name="pi-dir" select="../processing-instruction('dbhtml')"/>
       <xsl:variable name="pi-dir-value" select="substring-after($pi-dir,'dir=')"/>
