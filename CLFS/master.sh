@@ -758,7 +758,8 @@ set -e
                 -e 's|exit||g' \
                 -e 's|$| -c|' \
                 -e 's|"$${CLFS}"|$(MOUNT_PT)|'\
-                -e 's|set -e||'`
+                -e 's|set -e||' \
+                -e 's|set +h||'`
     echo -e "CHROOT1= $chroot\n" >> $MKFILE
   fi
 

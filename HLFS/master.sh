@@ -512,7 +512,8 @@ build_Makefile() {           # Construct a Makefile from the book scripts
                 -e 's|exit||g' \
                 -e 's|$| -c|' \
                 -e 's|"$$HLFS"|$(MOUNT_PT)|'\
-                -e 's|set -e||'`
+                -e 's|set -e||' \
+                -e 's|set +h||'`
     echo -e "CHROOT$i= $chroot\n" >> $MKFILE
     i=`expr $i + 1`
   done

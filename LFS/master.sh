@@ -398,7 +398,8 @@ build_Makefile() {           #
                 -e 's|exit||g' \
                 -e 's|$| -c|' \
                 -e 's|"$$LFS"|$(MOUNT_PT)|' \
-                -e 's|set -e||'`
+                -e 's|set -e||' \
+                -e 's|set +h||'`
     echo -e "CHROOT$i= $chroot\n" >> $MKFILE
     i=`expr $i + 1`
   done
