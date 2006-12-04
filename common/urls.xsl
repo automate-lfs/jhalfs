@@ -42,10 +42,10 @@
         <xsl:value-of select="$cut"/>
       </xsl:variable>
       <xsl:variable name="dirname" select="substring-before($package2, '-0')"/>
-      <!-- Write the upstream URLs, except the redirected ones -->
+      <!-- Write the upstream URLs, fixing the redirected ones -->
       <xsl:choose>
         <xsl:when test="contains(@url,'?')">
-          <xsl:text>dummy-url</xsl:text>
+          <xsl:value-of select="substring-before(@url,'?')"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="@url"/>

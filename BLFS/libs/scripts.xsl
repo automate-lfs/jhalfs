@@ -356,10 +356,16 @@ done&#xA;</xsl:text>
         <!-- The FTP_SERVER mirror -->
         <xsl:text>    wget ${FTP_SERVER}conglomeration/$PKG_DIR/$PACKAGE</xsl:text>
         <!-- Upstream HTTP URL -->
-        <xsl:if test="string-length(ulink/@url) &gt; '10' and
-                      not(contains(string(ulink/@url),'sourceforge'))">
+        <xsl:if test="string-length(ulink/@url) &gt; '10'">
           <xsl:text> || \&#xA;    wget </xsl:text>
-          <xsl:value-of select="ulink/@url"/>
+          <xsl:choose>
+            <xsl:when test="contains(ulink/@url,'?')">
+              <xsl:value-of select="substring-before(ulink/@url,'?')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="ulink/@url"/>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:if>
       </xsl:when>
       <xsl:when test="contains(string(),'FTP')">
