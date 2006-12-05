@@ -144,7 +144,7 @@ cross_tools_Makefiles() {     #
     #   had older versions. The packages would be installed in the target directory
     #   and not the host.
     case $this_script in
-      *cflags* | *variables* | *abi )  # work done in host_prep_Makefiles
+      *cflags* | *variables* | *abi | *toolchain*)  # work done in host_prep_Makefiles
               continue ;;
       *) ;;
     esac

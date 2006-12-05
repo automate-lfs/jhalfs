@@ -71,6 +71,11 @@
               <xsl:text>set -e&#xA;</xsl:text>
             </xsl:if>
             <xsl:text>&#xA;</xsl:text>
+            <!-- Set envars needed by uClibc -->
+            <xsl:if test="@id='ch-cross-tools-uclibc'">
+              <xsl:copy-of select="//sect1[@id='ch-cross-tools-toolchain']/screen"/>
+              <xsl:text>&#xA;&#xA;</xsl:text>
+            </xsl:if>
             <xsl:if test="sect2[@role='installation']">
               <xsl:text>cd $PKGDIR&#xA;</xsl:text>
             </xsl:if>
