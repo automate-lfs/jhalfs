@@ -13,6 +13,7 @@ wrt_compare_targets() {            #
     this_script=$ITERATION
     CHROOT_wrt_target "$ITERATION" "$PREV"
     wrt_compare_work "$ITERATION" "$PREV_IT"
+    wrt_logs "$N"
     wrt_touch
     PREV_IT=$ITERATION
     PREV=$ITERATION
@@ -46,8 +47,6 @@ wrt_system_build() {               #
       chapter6="$chapter6 iteration-$RUN"
     fi
   fi
-
-  echo -e "\nsystem_build_$RUN: $PREV_IT $system_build" >> $MKFILE.tmp
 }
 
 #----------------------------------#
@@ -105,4 +104,38 @@ wrt_do_farce_work() {              #
   local ITEDIR=$3/$2
   local ITEFILE=$3/filelist-$2
   echo -e "\t@extras/farce --directory $OUTPUT $PREDIR $PREFILE $ITEDIR $ITEFILE >>logs/\$@ 2>&1" >> $MKFILE.tmp
+}
+
+#----------------------------------#
+wrt_logs() {                       #
+#----------------------------------#
+  local build=build_$1
+  local file
+
+(
+    cat << EOF
+	@cd logs && \\
+	mkdir $build && \\
+	mv -f ${system_build} $build && \\
+	if [ ! $build = build_1 ] ; then \\
+	  cd $build && \\
+	  for file in \`ls .\` ; do \\
+	    mv -f \$\$file \`echo \$\$file | sed -e 's,-$build,,'\` ; \\
+	  done ; \\
+	fi ;
+	@cd /\$(SCRIPT_ROOT)
+	@if [ -d test-logs ] ; then \\
+	  cd test-logs && \\
+	  mkdir $build && \\
+	  mv -f ${system_build} $build && \\
+	  if [ ! $build = build_1 ] ; then \\
+	    cd $build && \\
+	    for file in \`ls .\` ; do \\
+	      mv -f \$\$file \`echo \$\$file | sed -e 's,-$build,,'\` ; \\
+	    done ; \\
+	  fi ; \\
+	  cd /\$(SCRIPT_ROOT) ; \\
+	fi ;
+EOF
+) >> $MKFILE.tmp
 }

@@ -19,8 +19,8 @@ VERSION=$2
 
 # If there is iteration logs directories, copy the logs inside iteration-1
 # to the top level dir
-[[ -d "$LOGSDIR"/iteration-1 ]] && \
-  cp $LOGSDIR/iteration-1/* $LOGSDIR
+[[ -d "$LOGSDIR"/build_1 ]] && \
+  cp $LOGSDIR/build_1/* $LOGSDIR
 
 # Set the report file
 REPORT="$VERSION"-SBU_DU-$(date --iso-8601).report

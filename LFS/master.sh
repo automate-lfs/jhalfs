@@ -177,9 +177,11 @@ chapter6_Makefiles() {
       sed -e 's/ln -sv/&f/g' \
           -e 's/mv -v/&f/g' \
           -e 's/mkdir -v/&p/g' -i ${script}
+      # Rename the scripts
+      mv ${script} ${script}$N
     done
     # Remove Bzip2 binaries before make install
-    sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i chapter06$N/*-bzip2
+    sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i chapter06$N/*-bzip2$N
   fi
 
   echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6$N     ( CHROOT ) ${R_arrow}"
@@ -196,7 +198,7 @@ chapter6_Makefiles() {
     esac
 
     # Grab the name of the target.
-    name=`echo ${this_script} | sed -e 's@[0-9]\{3\}-@@'`
+    name=`echo ${this_script} | sed -e 's@[0-9]\{3\}-@@' -e 's,'$N',,'`
 
     # Find the version of the command files, if it corresponds with the building of
     # a specific package. We need this here to can skip scripts not needed for
@@ -215,7 +217,7 @@ chapter6_Makefiles() {
     # The kernfs script must be run as part of SUDO target.
     case "${this_script}" in
       *kernfs) runasroot="$runasroot ${this_script}" ;;
-            *) chapter6="$chapter6 ${this_script}${N}" ;;
+            *) chapter6="$chapter6 ${this_script}" ;;
     esac
 
     #--------------------------------------------------------------------#
@@ -228,7 +230,7 @@ chapter6_Makefiles() {
     # and not to use chroot.
     case "${this_script}" in
       *kernfs)  LUSER_wrt_target  "${this_script}" "$PREV" ;;
-      *)        CHROOT_wrt_target "${this_script}${N}" "$PREV" ;;
+      *)        CHROOT_wrt_target "${this_script}" "$PREV" ;;
     esac
 
     # If $pkg_tarball isn't empty, we've got a package...
@@ -238,10 +240,10 @@ chapter6_Makefiles() {
       # If the testsuites must be run, initialize the log file
       case $name in
         binutils | gcc | glibc )
-          [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}${N}"
+          [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}"
           ;;
         * )
-          [[ "$TEST" = "2" ]] || [[ "$TEST" = "3" ]] && CHROOT_wrt_test_log "${this_script}${N}"
+          [[ "$TEST" = "2" ]] || [[ "$TEST" = "3" ]] && CHROOT_wrt_test_log "${this_script}"
           ;;
       esac
       # If using optimizations, write the instructions
@@ -269,7 +271,7 @@ chapter6_Makefiles() {
     #--------------------------------------------------------------------#
 
     # Keep the script file name for Makefile dependencies.
-    PREV=${this_script}${N}
+    PREV=${this_script}
     # Set system_build envar for iteration targets
     system_build=$chapter6
   done # end for file in chapter06/*

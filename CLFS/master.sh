@@ -461,11 +461,13 @@ final_system_Makefiles() {             #
       sed -e 's/ln -sv/&f/g' \
           -e 's/mv -v/&f/g' \
           -e 's/mkdir -v/&p/g' -i ${script}
+      # Rename the scripts
+      mv ${script} ${script}$N
     done
     # Remove Bzip2 binaries before make install
-    sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i final-system$N/*-bzip2
+    sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i final-system$N/*-bzip2$N
     # Delete *old Readline libraries just after make install
-    sed -e 's@make install@&\nrm -v /lib/lib{history,readline}*old@' -i final-system$N/*-readline
+    sed -e 's@make install@&\nrm -v /lib/lib{history,readline}*old@' -i final-system$N/*-readline$N
   fi
 
   if [[ "${METHOD}" = "chroot" ]]; then
@@ -491,7 +493,8 @@ final_system_Makefiles() {             #
                                   -e 's@-64bit@@' \
                                   -e 's@-64@@' \
                                   -e 's@64@@' \
-                                  -e 's@n32@@'`
+                                  -e 's@n32@@' \
+                                  -e 's,'$N',,'`
 
     # Find the version of the command files, if it corresponds with the building of
     # a specific package. We need this here to can skip scripts not needed for
@@ -507,7 +510,7 @@ final_system_Makefiles() {             #
 
     # Append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
-    basicsystem="$basicsystem ${this_script}${N}"
+    basicsystem="$basicsystem ${this_script}"
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
@@ -515,7 +518,7 @@ final_system_Makefiles() {             #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    CHROOT_wrt_target "${this_script}${N}" "$PREV"
+    CHROOT_wrt_target "${this_script}" "$PREV"
 
     # If $pkg_tarball isn't empty, we've got a package...
     if [ "$pkg_tarball" != "" ] ; then
@@ -523,10 +526,10 @@ final_system_Makefiles() {             #
       # If the testsuites must be run, initialize the log file
       case $name in
         binutils | gcc | glibc )
-          [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}${N}"
+          [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}"
           ;;
         * )
-          [[ "$TEST" = "2" ]] || [[ "$TEST" = "3" ]] && CHROOT_wrt_test_log "${this_script}${N}"
+          [[ "$TEST" = "2" ]] || [[ "$TEST" = "3" ]] && CHROOT_wrt_test_log "${this_script}"
           ;;
       esac
       # If using optimizations, write the instructions
@@ -545,7 +548,7 @@ final_system_Makefiles() {             #
     #--------------------------------------------------------------------#
     #
     # Keep the script file name for Makefile dependencies.
-    PREV=${this_script}${N}
+    PREV=${this_script}
     # Set system_build envar for iteration targets
     system_build=$basicsystem
   done  # for file in final-system/* ...

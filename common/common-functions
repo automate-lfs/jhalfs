@@ -55,7 +55,7 @@ clean_builddir() {           #
     else
       # Clean the build directory
       echo -n "Cleaning $BUILDDIR ..."
-      sudo rm -rf $BUILDDIR/{bin,boot,dev,etc,home,lib,media,mnt,opt,proc,root,sbin,srv,sys,tmp,tools,cross-tools,usr,var}
+      sudo rm -rf $BUILDDIR/{bin,boot,etc,home,lib,media,mnt,opt,root,sbin,srv,tmp,tools,cross-tools,usr,var}
       echo "done"
       echo -n "Cleaning $JHALFSDIR ..."
       sudo rm -rf $JHALFSDIR

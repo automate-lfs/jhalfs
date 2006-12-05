@@ -19,7 +19,7 @@ process_toolchain() {        # embryo,cocoon and butterfly need special handling
   local TC_MountPT
   local remove_existing
 
-  tc_phase=`echo $toolchain | sed -e 's@[0-9]\{3\}-@@' -e 's@-toolchain@@'`
+  tc_phase=`echo $toolchain | sed -e 's@[0-9]\{3\}-@@' -e 's@-toolchain@@' -e 's,'$N',,'`
   case $tc_phase in
     embryo | \
     cocoon)    # Vars for LUSER phase
@@ -268,16 +268,17 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     for script in chapter06$N/* ; do
       # Overwrite existing symlinks, files, and dirs
       sed -e 's/ln -s /ln -sf /g' \
-          -e 's/^mv /&-f/g' -i ${script}
+          -e 's/^mv /&-f /g' \
+          -e 's/mkdir -v/&p/g' -i ${script}
+      # Rename the scripts
+      mv ${script} ${script}$N
     done
     # Remove Bzip2 binaries before make install
-    sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i chapter06$N/*-bzip2
+    sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i chapter06$N/*-bzip2$N
     # Fix how Module-Init-Tools do the install target
-    sed -e 's@make install@make INSTALL=install install@' -i chapter06$N/*-module-init-tools
-    # Delete *old Readline libraries just after make install
-    sed -e 's@make install@&\nrm -v /lib/lib{history,readline}*old@' -i chapter06$N/*-readline
+    sed -e 's@make install@make INSTALL=install install@' -i chapter06$N/*-module-init-tools$N
     # Don't readd already existing groups
-    sed -e '/groupadd/d' -i chapter06$N/*-udev
+    sed -e '/groupadd/d' -i chapter06$N/*-udev$N
   fi
 
   echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6$N     ( CHROOT ) ${R_arrow}"
@@ -296,7 +297,7 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     esac
 
     # Grab the name of the target
-    name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'`
+    name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' -e 's,'$N',,'`
 
     case $name in
       uclibc)  name="uClibc"   ;;
@@ -315,7 +316,7 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
 
     # Append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
-    chapter6="$chapter6 ${this_script}${N}"
+    chapter6="$chapter6 ${this_script}"
 
 
     #--------------------------------------------------------------------#
@@ -325,14 +326,14 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
     if [[ ${name} = "butterfly-toolchain" ]]; then
-       CHROOT_wrt_target "${this_script}${N}" "$PREV"
+       CHROOT_wrt_target "${this_script}" "$PREV"
          process_toolchain "${this_script}" "${file}"
        wrt_touch
        PREV=$this_script
        continue
     fi
 
-    CHROOT_wrt_target "${this_script}${N}" "$PREV"
+    CHROOT_wrt_target "${this_script}" "$PREV"
 
     # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
@@ -341,9 +342,9 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
       # If the testsuites must be run, initialize the log file
       # butterfly-toolchain tests are enabled in 'process_tookchain' function
       case $name in
-        glibc ) [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}${N}"
+        glibc ) [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}"
           ;;
-	    * ) [[ "$TEST" > "1" ]]  && CHROOT_wrt_test_log "${this_script}${N}"
+	    * ) [[ "$TEST" > "1" ]]  && CHROOT_wrt_test_log "${this_script}"
           ;;
       esac
       # If using optimizations, write the instructions
@@ -373,7 +374,7 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     #--------------------------------------------------------------------#
 
     # Keep the script file name for Makefile dependencies.
-    PREV=${this_script}${N}
+    PREV=${this_script}
     # Set system_build envar for iteration targets
     system_build=$chapter6
   done # end for file in chapter06/*

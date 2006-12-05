@@ -186,7 +186,7 @@ LUSER_wrt_test_log() {             # Initialize testsuite log file
 (
 cat  << EOF
 	@echo "export  TEST_LOG=\$(TESTLOGDIR)/$TESTLOGFILE" >> envars && \\
-	echo '\$(nl_)\`date\`\$(nl_)' >\$(TESTLOGDIR)/\$@
+	echo "\$(nl_)\`date\`\$(nl_)" >\$(TESTLOGDIR)/\$@
 EOF
 ) >> $MKFILE.tmp
 }
