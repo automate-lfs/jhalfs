@@ -294,6 +294,8 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
       *chroot* )  continue ;;
         # Test if the stripping phase must be skipped
       *-stripping* )  [[ "$STRIP" = "n" ]] && continue ;;
+        # Skip linux-headers in iterative builds
+      *linux-headers*) [[ -n "$N" ]] && continue ;;
     esac
 
     # Grab the name of the target

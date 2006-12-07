@@ -192,9 +192,11 @@ chapter6_Makefiles() {
 
     # We'll run the chroot commands differently than the others, so skip them in the
     # dependencies and target creation.
+    # Skip also linux-headers in iterative builds.
     case "${this_script}" in
       *chroot)      continue ;;
       *stripping*) [[ "${STRIP}" = "n" ]] && continue ;;
+      *linux-headers*) [[ -n "$N" ]] && continue ;;
     esac
 
     # Grab the name of the target.
