@@ -44,7 +44,8 @@ menu "--- BOOK Settings"
 	#--- Book version
 	choice
 		prompt	"Release"
-		default	relSVN
+		default	relSVN if !BOOK_CLFS
+		default BRANCH if BOOK_CLFS
 		config	relSVN
 			bool	"SVN"
 			help
@@ -64,7 +65,8 @@ menu "--- BOOK Settings"
 
 	config	BRANCH_ID
 		string	"Book Version (mandatory)"
-		default	"**EDIT ME**"
+		default	"**EDIT ME**" if !BOOK_CLFS
+		default 1.0.0 if BOOK_CLFS
 		depends	BRANCH
 		help
 			#-- A list of valid branches and stable books ID's is available here.
@@ -243,7 +245,7 @@ menu "--- BOOK Settings"
 		default "-mabi=64"	if DATA_64 &&  ARCH_MIPS && PROC_mipsel
 		default "-mabi=n32"	if DATA_32 &&  ARCH_MIPS && PROC_mips
 		default "-mabi=n64"	if DATA_64 &&  ARCH_MIPS && PROC_mips
-		
+
 	choice
 		prompt	"Build method"
 		depends	BOOK_CLFS
