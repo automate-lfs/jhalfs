@@ -233,7 +233,7 @@
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
-      <!-- Fixing butterfly toolchain test suites run -->
+      <!-- Fixing butterfly toolchain and other packages test suites run -->
       <xsl:when test="string() = 'make -k check'
                       or string() = 'make check'
                       or string() = 'make tests'">
@@ -267,9 +267,7 @@
         </xsl:choose>
       </xsl:when>
       <!-- Don't stop on strip run -->
-      <xsl:when test="contains(string(),'strip ') or
-                ancestor::sect2[@id='testing-gcc'] and
-                not(contains(string(),'EOF'))">
+      <xsl:when test="contains(string(),'strip ')">
         <xsl:apply-templates/>
         <xsl:text> || true&#xA;</xsl:text>
       </xsl:when>
