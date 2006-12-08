@@ -92,7 +92,7 @@
         <xsl:if test="(sect2[@role='installation'] and
                            not(@id='bootable-kernel'))">
           <xsl:text>cd $PKGDIR&#xA;</xsl:text>
-          <xsl:if test="@id='ch-tools-uclibc' or @id='ch-system-uclibc'">
+          <xsl:if test="@id='ch-system-uclibc'">
              <xsl:text>pushd ../; tar -xvf gettext-&gettext-version;.*; popd; &#xA;</xsl:text>
           </xsl:if>
 
