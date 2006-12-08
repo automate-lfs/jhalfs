@@ -162,13 +162,6 @@
         <xsl:value-of select="substring-after(string(),'tar.gz')"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
-      <!-- Avoiding a race condition in a patch -->
-      <xsl:when test="contains(string(),'debian_fixes')">
-        <xsl:value-of select="substring-before(string(),'patch')"/>
-        <xsl:text>patch -Z</xsl:text>
-        <xsl:value-of select="substring-after(string(),'patch')"/>
-        <xsl:text>&#xA;</xsl:text>
-      </xsl:when>
       <!-- grsecurity kernel in the host? -->
       <xsl:when test="ancestor::sect1[@id='ch-system-kernfs'] and
                 contains(string(),'sysctl')
