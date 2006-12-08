@@ -234,15 +234,19 @@
         </xsl:choose>
       </xsl:when>
       <!-- Fixing butterfly toolchain test suites run -->
-      <xsl:when test="string() = 'make -k check' or string() = 'make check'">
+      <xsl:when test="string() = 'make -k check'
+                      or string() = 'make check'
+                      or string() = 'make tests'">
         <xsl:choose>
-          <xsl:when test="$testsuite != '0'">
-            <xsl:apply-templates/>
+          <xsl:when test="(ancestor::sect1[@id='ch-system-butterfly-toolchain']
+                          and $testsuite != '0') or
+                          $testsuite = '2' or $testsuite = '3'">
             <xsl:choose>
               <xsl:when test="$bomb-testsuite = 'n'">
-                <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
+                <xsl:text>make -k check &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
               </xsl:when>
               <xsl:otherwise>
+                <xsl:apply-templates/>
                 <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
                 <xsl:if test="contains(string(),' -k ')">
                   <xsl:text> || true</xsl:text>
@@ -257,23 +261,12 @@
       <xsl:when test="contains(string(),'glibc-check-log')">
         <xsl:choose>
           <xsl:when test="$testsuite != '0'">
-            <xsl:value-of select="substring-before(string(),'&gt; glibc-')"/>
-            <xsl:choose>
-              <xsl:when test="$bomb-testsuite = 'n'">
-                <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
-                <xsl:if test="contains(string(),' -k ')">
-                  <xsl:text> || true</xsl:text>
-                </xsl:if>
-                <xsl:text>&#xA;</xsl:text>
-              </xsl:otherwise>
-            </xsl:choose>
+            <xsl:value-of select="substring-before(string(),'2&gt;&amp;1')"/>
+            <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
           </xsl:when>
         </xsl:choose>
       </xsl:when>
-      <!-- Don't stop on strip run and chapter05 GCC installation test-->
+      <!-- Don't stop on strip run -->
       <xsl:when test="contains(string(),'strip ') or
                 ancestor::sect2[@id='testing-gcc'] and
                 not(contains(string(),'EOF'))">
