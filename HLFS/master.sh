@@ -318,7 +318,10 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
 
     # Append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
-    chapter6="$chapter6 ${this_script}"
+    case "${this_script}" in
+      *kernfs* | *changingowner*) runasroot="$runasroot ${this_script}" ;;
+                               *) chapter6="$chapter6 ${this_script}" ;;
+    esac
 
 
     #--------------------------------------------------------------------#
@@ -334,8 +337,11 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
        PREV=$this_script
        continue
     fi
-
-    CHROOT_wrt_target "${this_script}" "$PREV"
+    # kernfs and changingowner are run in SUDO target
+    case "${this_script}" in
+      *kernfs* | *changingowner*)  LUSER_wrt_target  "${this_script}" "$PREV" ;;
+                               *)  CHROOT_wrt_target "${this_script}" "$PREV" ;;
+    esac
 
     # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
@@ -353,14 +359,10 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
       [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
 
-    # In the mount of kernel filesystems we need to set HLFS and not to use chroot.
+    # In kernfs and changingowner we need to set HLFS and not to use chroot.
     case "${this_script}" in
-      *kernfs* | *changingowner*)
-        wrt_RunAsRoot "${file}"
-        ;;
-      *)   # The rest of Chapter06
-        CHROOT_wrt_RunAsRoot "${file}"
-       ;;
+      *kernfs* | *changingowner*) wrt_RunAsRoot "${file}" ;;
+                               *) CHROOT_wrt_RunAsRoot "${file}" ;;
     esac
     #
     # Remove the build directory(ies) except if the package build fails.
@@ -572,7 +574,7 @@ mk_BLFS_TOOL: create-sbu_du-report
 
 SETUP:     $chapter3
 LUSER:     $chapter5
-SUDO:      060-kernfs 062-changingowner
+SUDO:      $runasroot
 CHROOT:    $chapter6
 BOOT:      $chapter7
 BLFS_TOOL: $blfs_tool
