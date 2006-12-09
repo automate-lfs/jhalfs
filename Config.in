@@ -85,7 +85,7 @@ menu "--- BOOK Settings"
 		default	ARCH_X86
 		depends	BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3
 		help
-			#-- Choose a base architecture
+			#-- Choose the target system base architecture
 
 		config	ARCH_X86
 			bool	"x86"
@@ -113,6 +113,8 @@ menu "--- BOOK Settings"
 		prompt	"Library"
 		depends	(BOOK_CLFS && !ARCH_ALPHA) || (BOOK_CLFS3 && ARCH_MIPS)
 		default	DATA_32
+		help
+			#-- Choose the target system libraries type
 
 		config	DATA_32
 			bool	"32-bit"
@@ -127,6 +129,8 @@ menu "--- BOOK Settings"
 	choice
 		prompt	"Processor type"
 		depends	(BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3) && ((ARCH_X86 && !(DATA_64 || DATA_MULTI)) || ARCH_MIPS || ARCH_HPPA)
+		help
+			#-- Choose the target system processor
 
 		config	PROC_i486
 			bool	"486 Compatibles"					if ARCH_X86
@@ -151,6 +155,23 @@ menu "--- BOOK Settings"
 
 		config	PROC_hppa2
 			bool	"PA 8000 Series"					if ARCH_HPPA
+	endchoice
+
+	choice
+		prompt	"MIPS 64 ABI"
+		depends	BOOK_CLFS3 && ARCH_MIPS && DATA_64
+		default	ABI_64
+		help
+			#-- Choose the target system ABI to use
+
+		config	ABI_32
+			bool	"o32"
+
+		config	ABI_N32
+			bool	"n32"
+
+		config	ABI_64
+			bool	"n64"
 	endchoice
 
 	config TARGET
@@ -199,7 +220,6 @@ menu "--- BOOK Settings"
 
 	config	ARCH
 		string
-		depends	BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3
 		default	"x86"		if ARCH_X86   && (DATA_32 || BOOK_CLFS2 || BOOK_CLFS3)
 		default	"x86_64"	if ARCH_X86   && DATA_MULTI
 		default	"x86_64-64"	if ARCH_X86   && DATA_64
@@ -228,12 +248,11 @@ menu "--- BOOK Settings"
 	config	ABI
 		string
 		depends BOOK_CLFS3
-		default "-m32"		if DATA_32 && !ARCH_MIPS
-		default "-m64"		if DATA_64 && !ARCH_MIPS
-		default "-mabi=32"	if DATA_32 &&  ARCH_MIPS && PROC_mipsel
-		default "-mabi=64"	if DATA_64 &&  ARCH_MIPS && PROC_mipsel
-		default "-mabi=n32"	if DATA_32 &&  ARCH_MIPS && PROC_mips
-		default "-mabi=n64"	if DATA_64 &&  ARCH_MIPS && PROC_mips
+		default "-m32"		if ARCH_X86
+#		default "-m64"		if NO USED YET IN THE BOOK
+		default "-mabi=32"	if ABI_32 || (ARCH_MIPS && DATA_32)
+		default "-mabi=n32"	if ABI_N32
+		default "-mabi=64"	if ABI_64
 
 	choice
 		prompt	"Build method"
