@@ -325,8 +325,8 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     # Append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
     case "${this_script}" in
-      *kernfs* | *changingowner*) runasroot="$runasroot ${this_script}" ;;
-                               *) chapter6="$chapter6 ${this_script}" ;;
+      *kernfs* ) runasroot=" ${this_script}" ;;
+             * ) chapter6="$chapter6 ${this_script}" ;;
     esac
 
 
@@ -343,10 +343,10 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
        PREV=$this_script
        continue
     fi
-    # kernfs and changingowner are run in SUDO target
+    # kernfs is run in SUDO target
     case "${this_script}" in
-      *kernfs* | *changingowner*)  LUSER_wrt_target  "${this_script}" "$PREV" ;;
-                               *)  CHROOT_wrt_target "${this_script}" "$PREV" ;;
+      *kernfs* )  LUSER_wrt_target  "${this_script}" "$PREV" ;;
+             * )  CHROOT_wrt_target "${this_script}" "$PREV" ;;
     esac
 
     # If $pkg_tarball isn't empty, we've got a package...
@@ -365,10 +365,10 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
       [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
 
-    # In kernfs and changingowner we need to set HLFS and not to use chroot.
+    # In kernfs we need to set HLFS and not to use chroot.
     case "${this_script}" in
-      *kernfs* | *changingowner*) wrt_RunAsRoot "${file}" ;;
-                               *) CHROOT_wrt_RunAsRoot "${file}" ;;
+      *kernfs* ) wrt_RunAsRoot "${file}" ;;
+             * ) CHROOT_wrt_RunAsRoot "${file}" ;;
     esac
     #
     # Remove the build directory(ies) except if the package build fails.
