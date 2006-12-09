@@ -94,21 +94,24 @@ menu "--- BOOK Settings"
 			bool	"mips"	if !BOOK_CLFS2
 
 		config	ARCH_PPC
-			bool	"ppc"	if !BOOK_CLFS2 && !BOOK_CLFS3
+			bool	"ppc"	if BOOK_CLFS
 
 		config	ARCH_SPARC
-			bool	"sparc"	if !BOOK_CLFS2 && !BOOK_CLFS3
+			bool	"sparc"	if BOOK_CLFS
 
 		config	ARCH_ALPHA
-			bool	"alpha"	if !BOOK_CLFS2 && !BOOK_CLFS3
+			bool	"alpha"	if BOOK_CLFS
 
 		config	ARCH_ARM
-			bool	"arm"	if !BOOK_CLFS && !BOOK_CLFS3
+			bool	"arm"	if BOOK_CLFS2
+
+		config	ARCH_HPPA
+			bool	"hppa"	if BOOK_CLFS2
 	endchoice
 
 	choice
 		prompt	"Library"
-		depends	(BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3 )
+		depends	(BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3 ) && !ARCH_HPPA
 		default	DATA_32		if !ARCH_ALPHA
 		default	DATA_64		if ARCH_ALPHA
 
@@ -123,23 +126,32 @@ menu "--- BOOK Settings"
 	endchoice
 
 	choice
-		prompt	"Target"
-		depends	(BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3) && ((ARCH_X86 && DATA_32) || ARCH_MIPS)
+		prompt	"Processor type"
+		depends	(BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3) && ((ARCH_X86 && DATA_32) || ARCH_MIPS || ARCH_HPPA)
 
 		config	PROC_i486
-			bool	"i486"			if ARCH_X86 && DATA_32
+			bool	"486 Compatibles"					if ARCH_X86 && DATA_32
 
 		config	PROC_i586
-			bool	"i586"			if ARCH_X86 && DATA_32
+			bool	"Pentium, K6, 586 Compatibles"				if ARCH_X86 && DATA_32
 
 		config	PROC_i686
-			bool	"i686"			if ARCH_X86 && DATA_32
+			bool	"Pentium II, Pentium III, Pentium 4, Athlon, Duron"	if ARCH_X86 && DATA_32
 
 		config	PROC_mipsel
-			bool	"mips little endian"	if ARCH_MIPS
+			bool	"MIPS Little Endian"					if ARCH_MIPS
 
 		config	PROC_mips
-			bool	"mips"			if ARCH_MIPS
+			bool	"MIPS Big Endian"					if ARCH_MIPS
+
+		config	PROC_unknown
+			bool	"Unknown"						if ARCH_HPPA
+
+		config	PROC_hppa1
+			bool	"PA 7000 Series"					if ARCH_HPPA
+
+		config	PROC_hppa2
+			bool	"PA 8000 Series"					if ARCH_HPPA
 	endchoice
 
 	config TARGET
@@ -188,6 +200,13 @@ menu "--- BOOK Settings"
 		default "sparc64-unknown-linux-gnu"	if ARCH_SPARC
 		default "powerpc64-unknown-linux-gnu"	if ARCH_PPC
 
+	config TARGET
+		string
+		depends	ARCH_HPPA
+		default	"hppa-unknown-linux-gnu"	if PROC_unknown
+		default	"hppa1.1-unknown-linux-gnu"	if PROC_hppa1
+		default	"hppa2.0-unknown-linux-gnu"	if PROC_hppa2
+
 
 	config TARGET32
 		string
@@ -200,12 +219,13 @@ menu "--- BOOK Settings"
 
 	config	ARCH
 		string
-		depends	DATA_32
+		depends	DATA_32 || ARCH_HPPA
 		default	"x86"	if ARCH_X86
 		default	"ppc"	if ARCH_PPC
 		default	"mips"	if ARCH_MIPS
 		default	"sparc"	if ARCH_SPARC
 		default	"arm"	if ARCH_ARM
+		default	"hppa"	if ARCH_HPPA
 
 	config	ARCH
 		string
@@ -243,7 +263,7 @@ menu "--- BOOK Settings"
 		default "-mabi=64"	if DATA_64 &&  ARCH_MIPS && PROC_mipsel
 		default "-mabi=n32"	if DATA_32 &&  ARCH_MIPS && PROC_mips
 		default "-mabi=n64"	if DATA_64 &&  ARCH_MIPS && PROC_mips
-		
+
 	choice
 		prompt	"Build method"
 		depends	BOOK_CLFS
