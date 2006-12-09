@@ -96,7 +96,7 @@
              <xsl:text>pushd ../; tar -xvf gettext-&gettext-version;.*; popd; &#xA;</xsl:text>
           </xsl:if>
 
-          <!-- NEW toolchain format, from inside ./sources dir unpack binutils and gcc -->
+          <!-- SVN toolchain format, from inside ./sources dir unpack binutils and gcc -->
 	  <xsl:if test="@id='ch-tools-embryo-toolchain' or
                         @id='ch-tools-cocoon-toolchain' or
                         @id='ch-system-butterfly-toolchain'">
@@ -111,7 +111,16 @@
           <xsl:if test="@id='ch-system-butterfly-toolchain' and $testsuite != '0'">
             <xsl:text>tar -xvf gcc-testsuite-&gcc-version;.*; &#xA;</xsl:text>
           </xsl:if>
-          <!-- END new toolchain format -->
+          <!-- END SVN toolchain format -->
+
+          <!-- 2.4-branch toolchain -->
+          <xsl:if test="@id='ch-tools-gcc-pass2' or @id='ch-system-gcc'">
+             <xsl:text>pushd ../; tar -xvf gcc-g++-&gcc-version;.*; popd; &#xA;</xsl:text>
+          </xsl:if>
+          <xsl:if test="@id='ch-system-gcc' and $testsuite != '0'">
+            <xsl:text>pushd ../; tar -xvf gcc-testsuite-&gcc-version;.*; popd; &#xA;</xsl:text>
+          </xsl:if>
+          <!-- END 2.4-branch toolchain -->
 
           <xsl:if test="@id='bootable-bootscripts'">
              <xsl:text>pushd ../; tar -xvf blfs-bootscripts-&blfs-bootscripts-version;.* ; popd; &#xA;</xsl:text>
@@ -166,6 +175,13 @@
       <xsl:when test="ancestor::sect1[@id='ch-system-kernfs'] and
                 contains(string(),'sysctl')
                 and $grsecurity_host ='n'"/>
+      <!-- Fix MAKEDEV installation in 2.4-branch -->
+      <xsl:when test="ancestor::sect1[@id='ch-system-devices'] and
+                contains(string(),'bzcat MAKEDEV')">
+        <xsl:text>bzcat /sources/</xsl:text>
+        <xsl:value-of select="substring-after(string(),'bzcat ')"/>
+        <xsl:text>&#xA;</xsl:text>
+      </xsl:when>
       <!-- Setting $LC_ALL and $LANG for /etc/profile -->
       <xsl:when test="ancestor::sect1[@id='bootable-profile'] and
                 contains(string(),'export LANG=')">
@@ -233,12 +249,14 @@
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
-      <!-- Fixing butterfly toolchain and other packages test suites run -->
+      <!-- Fixing butterfly and 2.4-branch toolchain plus other packages test suites run -->
       <xsl:when test="string() = 'make -k check'
                       or string() = 'make check'
                       or string() = 'make tests'">
         <xsl:choose>
-          <xsl:when test="(ancestor::sect1[@id='ch-system-butterfly-toolchain']
+          <xsl:when test="((ancestor::sect1[@id='ch-system-butterfly-toolchain']
+                          or ancestor::sect1[@id='ch-system-gcc'] or
+                          ancestor::sect1[@id='ch-system-binutils'])
                           and $testsuite != '0') or
                           $testsuite = '2' or $testsuite = '3'">
             <xsl:choose>

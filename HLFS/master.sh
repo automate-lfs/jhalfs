@@ -190,7 +190,7 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
     chapter5="$chapter5 $this_script"
 
     # Grab the name of the target
-    name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'`
+    name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' -e 's@-pass[0-9]\{1\}@@'`
 
     # Adjust 'name'
     case $name in
@@ -220,8 +220,11 @@ chapter5_Makefiles() {       # Bootstrap or temptools phase
     #
     LUSER_wrt_target "$this_script" "$PREV"
     # Find the version of the command files, if it corresponds with the building of
-    # a specific package
-    pkg_tarball=$(get_package_tarball_name $name)
+    # a specific package. Fix GCC tarball name for 2.4-branch.
+    case $name in
+      gcc ) pkg_tarball=$(get_package_tarball_name gcc-core) ;;
+        * ) pkg_tarball=$(get_package_tarball_name $name) ;;
+    esac
     # If $pkg_tarball isn't empty, we've got a package...
     if [ "$pkg_tarball" != "" ] ; then
       # Insert instructions for unpacking the package and to set the PKGDIR variable.
@@ -306,8 +309,11 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     esac
 
     # Find the version of the command files, if it corresponds with the building of
-    # a specific package
-    pkg_tarball=$(get_package_tarball_name $name)
+    # a specific package. Fix GCC tarball name for 2.4-branch.
+    case $name in
+      gcc ) pkg_tarball=$(get_package_tarball_name gcc-core) ;;
+        * ) pkg_tarball=$(get_package_tarball_name $name) ;;
+    esac
 
     if [[ "$pkg_tarball" = "" ]] && [[ -n "$N" ]] ; then
       case "${this_script}" in
@@ -349,11 +355,11 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
       CHROOT_Unpack "$pkg_tarball"
       # If the testsuites must be run, initialize the log file
       # butterfly-toolchain tests are enabled in 'process_tookchain' function
+      # 2.4-branch toolchain is ernabled here.
       case $name in
-        glibc ) [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}"
-          ;;
-	    * ) [[ "$TEST" > "1" ]]  && CHROOT_wrt_test_log "${this_script}"
-          ;;
+        glibc | gcc | binutils)
+            [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}" ;;
+        * ) [[ "$TEST" > "1" ]]  && CHROOT_wrt_test_log "${this_script}" ;;
       esac
       # If using optimizations, write the instructions
       [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
