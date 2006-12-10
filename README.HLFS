@@ -7,12 +7,12 @@ $Id$
  changes can occur and the build could be broken for extended periods of
  time.
 
- As of Nov.19.2006 jhalfs cannot build the svn book.  This is a book
+ As of Dec.10.2006 jhalfs cannot build the svn book.  This is a book
  problem and not jhalfs.
 
 
- Automation failures:
-  1.Directory /dev and devices nodes /dev/null, /dev/console needed to be
-  created in kernfs
-  2.Remove the creation of /null and /console node from the devices script.
-  3.Some patches are missing or have a bad MD5SUM
+ Build failures detected:
+   -.Some patches are missing or have a bad MD5SUM
+   -.In the SVN book the cooon-toolchain build fails (not sure yet wy)
+   -.In the 2.4 branch, the chapter06 Sed build fails due the applied patch
+     need the autofoo utilities that aren't installed yet at that point.
