@@ -175,6 +175,10 @@
       <xsl:when test="ancestor::sect1[@id='ch-system-kernfs'] and
                 contains(string(),'sysctl')
                 and $grsecurity_host ='n'"/>
+      <!-- We need to have /dev/console and /dev/null availables before
+           entering to the chroot -->
+      <xsl:when test="ancestor::sect1[@id='ch-system-devices'] and
+                contains(string(),'600 /dev/console')"/>
       <!-- Fix MAKEDEV installation in 2.4-branch -->
       <xsl:when test="ancestor::sect1[@id='ch-system-devices'] and
                 contains(string(),'bzcat MAKEDEV')">

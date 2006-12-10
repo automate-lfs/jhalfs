@@ -23,8 +23,8 @@
       duplicated URLs due that may be splitted for PDF output -->
     <xsl:if test="(ancestor::varlistentry[@condition=$model]
                   or not(ancestor::varlistentry[@condition])) and
-                  (contains(@url, '.tar.') or contains(@url, '.tgz')
-                  or contains(@url, '.patch')) and
+                  (contains(@url, '.bz2') or contains(@url, '.tar.gz') or
+                  contains(@url, '.tgz') or contains(@url, '.patch')) and
                   not(ancestor-or-self::*/@condition = 'pdf')">
       <!-- Extract the package name -->
       <xsl:variable name="package">
