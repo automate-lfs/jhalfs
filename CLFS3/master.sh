@@ -421,7 +421,8 @@ build_Makefile() {            # Construct a Makefile from the book scripts
 (
 cat << EOF
 
-all:	ck_UID mk_SETUP mk_LUSER mk_ROOT create-sbu_du-report
+all:	ck_UID mk_SETUP mk_LUSER create-sbu_du-report mk_ROOT
+	@sudo make restore-luser-env
 	@sudo make do-housekeeping
 	@\$(call echo_finished,$VERSION)
 
@@ -441,7 +442,6 @@ mk_SETUP:
 mk_LUSER: mk_SETUP
 	@\$(call echo_SULUSER_request)
 	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make SHELL=/bin/bash LUSER" )
-	@sudo make restore-luser-env
 	@touch \$@
 
 mk_ROOT:
@@ -456,7 +456,7 @@ LUSER:	$cross_tools $basicsystem $bootscripttools $bootable
 ROOT:	$chowning
 
 
-create-sbu_du-report:  ROOT
+create-sbu_du-report:  mk_LUSER
 	@\$(call echo_message, Building)
 	@if [ "\$(ADD_REPORT)" = "y" ]; then \\
 	  ./create-sbu_du-report.sh logs $VERSION; \\
