@@ -444,6 +444,7 @@ mk_LUSER: mk_SETUP
 	@touch \$@
 
 mk_ROOT:
+	@echo "$VERSION-embedded - jhalfs build" > \$(MOUNT_PT)/etc/clfs-release
 	@sudo make SHELL=/bin/bash ROOT
 	@touch \$@
 

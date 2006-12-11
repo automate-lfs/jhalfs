@@ -337,7 +337,7 @@ bootable_Makefiles() {        #
     # NOTE: new makfile format forces the last script, *chowning, into a separate
     #  phase.
     case ${this_script} in
-      *chowning) chowning=${this_script}   ;;
+      *chowning) chowning=" ${this_script}"   ;;
               *) bootable="$bootable $this_script"  ;;
     esac
     #
@@ -441,6 +441,7 @@ mk_LUSER: mk_SETUP
 	@touch \$@
 
 mk_ROOT:
+	@echo "$VERSION-sysroot - jhalfs build" > \$(MOUNT_PT)/etc/clfs-release
 	@sudo make SHELL=/bin/bash ROOT
 	@touch \$@
 

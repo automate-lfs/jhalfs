@@ -628,7 +628,7 @@ bootable_Makefiles() {                 #
   fi
 
 
-  for file in {bootable,the-end}/* ; do
+  for file in bootable/* ; do
     # Keep the script file name
     this_script=`basename $file`
 
@@ -766,6 +766,8 @@ cat << EOF
 
 all: ck_UID mk_SETUP mk_CROSS mk_SUDO mk_SYSTOOLS create-sbu_du-report mk_BLFS_TOOL
 	@sudo make do-housekeeping
+	@echo "$VERSION - jhalfs build" > clfs-release && \\
+	sudo mv clfs-release \$(MOUNT_PT)/etc
 	@\$(call echo_finished,$VERSION)
 
 ck_UID:
@@ -865,6 +867,7 @@ all:	ck_UID mk_SETUP mk_CROSS mk_SUDO
 	@\$(call echo_boot_finished,$VERSION)
 
 makesys: mk_FINAL mk_BLFS_TOOL
+	@echo "$VERSION - jhalfs build" > /etc/clfs-release
 	@\$(call echo_finished,$VERSION)
 
 
