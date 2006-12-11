@@ -62,7 +62,7 @@ cat << EOF
 	echo "umask 022" >> /home/\$(LUSER)/.bashrc && \\
 	echo "CLFS=\$(MOUNT_PT)" >> /home/\$(LUSER)/.bashrc && \\
 	echo "LC_ALL=POSIX" >> /home/\$(LUSER)/.bashrc && \\
-	echo "PATH=/cross-tools/bin:/bin:/usr/bin" >> /home/\$(LUSER)/.bashrc && \\
+	echo "PATH=\$(MOUNT_PT)/cross-tools/bin:/bin:/usr/bin" >> /home/\$(LUSER)/.bashrc && \\
 	echo "export CLFS LC_ALL PATH" >> /home/\$(LUSER)/.bashrc && \\
 	echo "" >> /home/\$(LUSER)/.bashrc && \\
 	echo "unset CFLAGS" >> /home/\$(LUSER)/.bashrc && \\
@@ -743,7 +743,7 @@ set -e
     CHROOT_LOC="`whereis -b chroot | cut -d " " -f2`"
     chroot=`cat chroot/*chroot* | \
             sed  -e "s@chroot@$CHROOT_LOC@" \
-                 -e '/#!\/tools\/bin\/bash/d' \
+                 -e '/#!\/bin\/bash/d' \
                  -e '/^export/d' \
                  -e '/^logout/d' \
                  -e 's@ \\\@ @g' | \
