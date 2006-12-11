@@ -408,6 +408,9 @@ build_Makefile() {            # Construct a Makefile from the book scripts
   final_system_Makefiles           # $basicsystem
   bootscripts_Makefiles            # $bootscripttools
   bootable_Makefiles               # $bootable
+  # Add the BLFS_TOOL targets, if needed. Clean PREV to prevent that
+  # the first dependency script will depend on *-chowning
+  [[ "$BLFS_TOOL" = "y" ]] && PREV="" && wrt_blfs_tool_targets
 
   # Add a header, some variables and include the function file
   # to the top of the real Makefile.
@@ -418,7 +421,8 @@ build_Makefile() {            # Construct a Makefile from the book scripts
 (
 cat << EOF
 
-all:	ck_UID mk_SETUP mk_LUSER mk_ROOT create-sbu_du-report
+all:	ck_UID mk_SETUP mk_LUSER create-sbu_du-report mk_BLFS_TOOL mk_ROOT
+	@sudo make restore-luser-env
 	@sudo make do-housekeeping
 	@\$(call echo_finished,$VERSION)
 
@@ -441,18 +445,27 @@ mk_LUSER: mk_SETUP
 	@sudo make restore-luser-env
 	@touch \$@
 
+mk_BLFS_TOOL: create-sbu_du-report
+	@\$(call echo_PHASE,Building BLFS-TOOLS)
+	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
+	  (sudo \$(SU_LUSER) "mkdir -p $BUILDDIR$TRACKING_DIR"); \\
+	  (sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make SHELL=/bin/bash BLFS_TOOL"); \\
+	fi;
+	@touch \$@
+
 mk_ROOT:
 	@echo "$VERSION-sysroot - jhalfs build" > clfs-release && \\
 	sudo mv clfs-release \$(MOUNT_PT)/etc
 	@sudo make SHELL=/bin/bash ROOT
 	@touch \$@
 
-SETUP:  $host_prep
-LUSER:  $cross_tools $basicsystem $bootscripttools $bootable
-ROOT:   $chowning
+SETUP:     $host_prep
+LUSER:     $cross_tools $basicsystem $bootscripttools $bootable
+BLFS_TOOL: $blfs_tool
+ROOT:      $chowning
 
 
-create-sbu_du-report:  ROOT
+create-sbu_du-report: mk_LUSER
 	@\$(call echo_message, Building)
 	@if [ "\$(ADD_REPORT)" = "y" ]; then \\
 	  ./create-sbu_du-report.sh logs $VERSION; \\

@@ -144,17 +144,33 @@ wrt_blfs_tool_targets() {          #
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    CHROOT_wrt_target "${this_script}" "$PREV"
+    if [ "$PROGNAME" = "clfs2" ]; then
+      LUSER_wrt_target "${this_script}" "$PREV"
+    else
+      CHROOT_wrt_target "${this_script}" "$PREV"
+    fi
 
     # Insert instructions for unpacking the package and changing directories
     # DocBook-XML is a zip, the build script will handle that.
-    [[ ! "$name" = "docbook-xml" ]] && CHROOT_Unpack "$pkg_tarball"
+    if [ "$PROGNAME" = "clfs2" ]; then
+      [[ ! "$name" = "docbook-xml" ]] && LUSER_wrt_unpack "$pkg_tarball"
+    else
+      [[ ! "$name" = "docbook-xml" ]] && CHROOT_Unpack "$pkg_tarball"
+    fi
 
     # Run the script.
-    CHROOT_wrt_RunAsRoot "$file"
+    if [ "$PROGNAME" = "clfs2" ]; then
+      LUSER_wrt_RunAsUser "${file}"
+    else
+      CHROOT_wrt_RunAsRoot "$file"
+    fi
 
     # Remove the build directory(ies) except if the package build fails.
-    [[ ! "$name" = "docbook-xml" ]] && CHROOT_wrt_RemoveBuildDirs "$name"
+    if [ "$PROGNAME" = "clfs2" ]; then
+      [[ ! "$name" = "docbook-xml" ]] && LUSER_RemoveBuildDirs "$name"
+    else
+      [[ ! "$name" = "docbook-xml" ]] && CHROOT_wrt_RemoveBuildDirs "$name"
+    fi
 
     # Touch the tracking file.
     case $name in
@@ -162,7 +178,11 @@ wrt_blfs_tool_targets() {          #
       unzip ) pkg_ver=unzip-5.52 ;;
       * )     pkg_ver=$(echo $pkg_tarball | sed -e 's/.tar.*//;s/.tgz//;s/.zip//') ;;
     esac
-    echo  "\$(tab_)@touch $TRACKING_DIR/$pkg_ver" >>  $MKFILE.tmp
+    if [ "$PROGNAME" = "clfs2" ]; then
+      echo -e "\t@touch \$(MOUNT_PT)$TRACKING_DIR/$pkg_ver" >>  $MKFILE.tmp
+    else
+      echo -e "\t@touch $TRACKING_DIR/$pkg_ver" >>  $MKFILE.tmp
+    fi
 
     # Include a touch of the target name so make can check
     # if it's already been made.

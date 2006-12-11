@@ -329,7 +329,7 @@ menu "--- BOOK Settings"
 	config BLFS_TOOL
 		bool	"Add blfs-tool support"
 		default	n
-		depends on !BOOK_BLFS && !BOOK_CLFS2 && !BOOK_CLFS3
+		depends on !BOOK_BLFS && !BOOK_CLFS3
 		help
 			#--- Activating this option additional packages needed to
 			#    use blfs-tool will be installed.
@@ -338,7 +338,7 @@ menu "--- BOOK Settings"
 			#    $BUILD_DIR/blfs_root.
 
 			#    After booting the new xLFS system you should to
-			#    create an user account and move the blfs-root
+			#    create an user account and move the /blfs-root
 			#    directory to the user's home, making he the
 			#    directory and files owner, before start
 			#    using blfs-tool.

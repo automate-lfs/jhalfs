@@ -86,6 +86,12 @@ $Id$
      builds you may need to adjust that scripts, that are found into the
      common/blfs-tool-deps directory in the jhalfs sources tree.
 
+     WARNING:: If adding blfs-tool support on a CLFS Sysroot build
+               you MUST to edit the dependencies scripts to fix the
+               installation paths.
+               Be sure to make the adjust carefully or you will end
+               messing your host system.
+
      After booting the new xLFS system some steps are needed to finish
      blfs-tool installation:
 
