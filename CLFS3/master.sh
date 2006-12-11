@@ -105,7 +105,8 @@ cat << EOF
 
 	@touch \$(MOUNT_PT)/var/run/utmp \$(MOUNT_PT)/var/log/{btmp,lastlog,wtmp}
 	@chmod 664 \$(MOUNT_PT)/var/run/utmp \$(MOUNT_PT)/var/log/lastlog
-	@chown -R \$(LUSER) \$(MOUNT_PT)
+	@chown -R \$(LUSER) \$(MOUNT_PT) && \\
+	chmod -R a+wt \$(MOUNT_PT)/\$(SCRIPT_ROOT)
 
 	@touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
@@ -444,7 +445,8 @@ mk_LUSER: mk_SETUP
 	@touch \$@
 
 mk_ROOT:
-	@echo "$VERSION-embedded - jhalfs build" > \$(MOUNT_PT)/etc/clfs-release
+	@echo "$VERSION-embedded - jhalfs build" > clfs-release && \\
+	sudo mv clfs-release \$(MOUNT_PT)/etc
 	@sudo make SHELL=/bin/bash ROOT
 	@touch \$@
 
