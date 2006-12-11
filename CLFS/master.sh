@@ -20,20 +20,17 @@ cat << EOF
 	@\$(call echo_message, Building)
 	@mkdir \$(MOUNT_PT)/tools && \\
 	rm -f /tools && \\
-	ln -s \$(MOUNT_PT)/tools /
-	@if [ ! -d \$(MOUNT_PT)/sources ]; then \\
-		mkdir \$(MOUNT_PT)/sources; \\
-	fi;
-	@chmod a+wt \$(MOUNT_PT)/sources && \\
+	ln -s \$(MOUNT_PT)/tools / && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
 
 024-creatingcrossdir: 023-creatingtoolsdir
+	@\$(call echo_message, Building)
 	@mkdir -v \$(MOUNT_PT)/cross-tools && \\
 	rm -f /cross-tools && \\
-	ln -s \$(MOUNT_PT)/cross-tools /
-	@touch \$@ && \\
+	ln -s \$(MOUNT_PT)/cross-tools / && \\
+	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
 
@@ -45,10 +42,10 @@ cat << EOF
 	else \\
 		touch luser-exist; \\
 	fi;
-	@chown \$(LUSER) \$(MOUNT_PT) && \\
-	chown \$(LUSER) \$(MOUNT_PT)/tools && \\
+	@chown \$(LUSER) \$(MOUNT_PT)/tools && \\
 	chown \$(LUSER) \$(MOUNT_PT)/cross-tools && \\
-	chown \$(LUSER) \$(MOUNT_PT)/sources && \\
+	chmod -R a+wt \$(MOUNT_PT)/\$(SCRIPT_ROOT) && \\
+	chmod a+wt \$(SRCSDIR) && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)

@@ -17,17 +17,8 @@ host_prep_Makefiles() {      # Initialization of the system
   CLFS_HOST="$(echo $MACHTYPE | sed "s/$(echo $MACHTYPE | cut -d- -f2)/cross/")"
 (
 cat << EOF
-023-creatingtoolsdir:
-	@\$(call echo_message, Building)
-	@if [ ! -d \$(MOUNT_PT)/sources ]; then \\
-		mkdir \$(MOUNT_PT)/sources; \\
-	fi;
-	@chmod a+wt \$(MOUNT_PT)/sources
-	@touch \$@ && \\
-	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
-	echo --------------------------------------------------------------------------------\$(WHITE)
 
-025-addinguser:  023-creatingtoolsdir
+025-addinguser:
 	@\$(call echo_message, Building)
 	@if [ ! -d /home/\$(LUSER) ]; then \\
 		groupadd \$(LGROUP); \\
@@ -35,8 +26,6 @@ cat << EOF
 	else \\
 		touch luser-exist; \\
 	fi;
-	@chown -R \$(LUSER) \$(MOUNT_PT) && \\
-	chown \$(LUSER) \$(MOUNT_PT)/sources
 	@touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
@@ -61,12 +50,10 @@ cat << EOF
 	echo "" >> /home/\$(LUSER)/.bashrc && \\
 	echo "export CLFS_HOST=\"${CLFS_HOST}\"" >> /home/\$(LUSER)/.bashrc && \\
 	echo "export CLFS_TARGET=\"${TARGET}\"" >> /home/\$(LUSER)/.bashrc && \\
-	echo "export CLFS_TARGET32=\"${TARGET32}\"" >> /home/\$(LUSER)/.bashrc && \\
 	echo "source $JHALFSDIR/envars" >> /home/\$(LUSER)/.bashrc
 	@chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bashrc && \\
 	touch envars && \\
-	chown \$(LUSER):\$(LGROUP) envars && \\
-	chmod -R a+wt \$(MOUNT_PT)
+	chown \$(LUSER):\$(LGROUP) envars
 	@touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
@@ -125,7 +112,7 @@ cat << EOF
 EOF
 ) >> $MKFILE.tmp
 
-  host_prep=" 023-creatingtoolsdir 025-addinguser 026-settingenvironment 027-create-directories 028-creating-sysfile"
+  host_prep=" 025-addinguser 026-settingenvironment 027-create-directories 028-creating-sysfile"
 }
 
 
