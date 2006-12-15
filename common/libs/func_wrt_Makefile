@@ -37,8 +37,9 @@ LUSER_HOME     = /home/\$(LUSER)
 PRT_DU         = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) --exclude=lost+found \$(MOUNT_PT) \`\n"
 PRT_DU_CR      = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) --exclude=lost+found / \`\n"
 
-ADD_REPORT     = $REPORT
-ADD_BLFS_TOOLS = $BLFS_TOOL
+ADD_REPORT       = $REPORT
+ADD_CUSTOM_TOOLS = $CUSTOM_TOOLS
+ADD_BLFS_TOOLS   = $BLFS_TOOL
 
 
 export PATH := \${PATH}:/usr/sbin

@@ -316,12 +316,12 @@ menu "--- BOOK Settings"
 
 	#--- Custom Tools support
 	config CUSTOM_TOOLS
-		bool	"Add custom tool support"
+		bool	"Add custom tools support"
 		default	n
-		depends on BOOK_LFS
+		depends on !BOOK_BLFS
 		help
 			#--- Activating this option additional packages you create
-			#    will be installed.
+			#    will be installed after finished the xLFS system build.
 			#
 	#--- End Custom Tools support
 

@@ -24,6 +24,9 @@ $Id$
   configuration of the uClibc package when building a HLFS system using
   uClibc rather than glibc.
 
+  *.  Read carefully this file and the other README.* files before start
+  using the tool.
+
 2. PREREQUISITES::
 
      To use this tool you MUST:

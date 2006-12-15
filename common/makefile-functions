@@ -18,7 +18,6 @@ nl_     = ""
 #==== BUILD MESSAGES ===
 
 define echo_PHASE
-  @clear
   @echo $(BOLD)--------------------------------------------------------------------------------
   @echo  $(tab_)$(tab_)Executing $(BLUE)$(1)$(WHITE) scripts
   @echo $(BOLD)--------------------------------------------------------------------------------
@@ -33,15 +32,13 @@ define echo_SU_request
 endef
 
 define echo_SULUSER_request
-  @clear
   @echo $(BOLD)--------------------------------------------------------------------------------
   @echo $(BOLD)$(BLUE)$@
   @echo $(WHITE)You are going to log into the user account $(BOLD)$(YELLOW)$(LUSER)$(OFF)
-  @echo su requires a password
+  @echo sudo requires a password
 endef
 
 define echo_CHROOT_request
-  @clear
   @echo $(BOLD)--------------------------------------------------------------------------------
   @echo $(BOLD)$(BLUE)$@
   @echo $(WHITE)You are going to CHROOT into $(MOUNT_PT) $(BOLD)$(YELLOW)$(LUSER)$(OFF)

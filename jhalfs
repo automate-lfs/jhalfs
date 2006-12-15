@@ -332,7 +332,7 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
   if [[ ! -d $JHALFSDIR ]]; then
     mkdir -p $JHALFSDIR
   fi
-  #
+
   # Create $BUILDDIR/sources even though it could be created by get_sources()
   if [[ ! -d $BUILDDIR/sources ]]; then
     mkdir -p $BUILDDIR/sources
@@ -344,34 +344,21 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
   fi
   >$LOGDIR/$LOG
   #
+  # Copy common helper files
+  cp $COMMON_DIR/{makefile-functions,progress_bar.sh,packages.xsl} $JHALFSDIR/
+  #
+  # Fix the XSL book parser
+  sed 's,FAKEDIR,'$BOOK',' $PACKAGE_DIR/$XSL > $JHALFSDIR/${XSL}
+  export XSL=$JHALFSDIR/${XSL}
+  #
+
+  # Copy urls.xsl, if needed
+  [[ "$GETPKG" = "y" ]] && cp $COMMON_DIR/urls.xsl  $JHALFSDIR/
+  #
+  # Create the test-log directory, if needed
   [[ "$TEST" != "0" ]] && [[ ! -d $TESTLOGDIR ]] && install -d -m 1777 $TESTLOGDIR
   #
-  cp $COMMON_DIR/{makefile-functions,progress_bar.sh} $JHALFSDIR/
-  #
-  [[ "$OPTIMIZE" != "0" ]] && cp optimize/opt_override $JHALFSDIR/
-  #
-  if [[ "$COMPARE" = "y" ]]; then
-    mkdir -p $JHALFSDIR/extras
-    cp extras/* $JHALFSDIR/extras
-  fi
-  #
-  if [[ -n "$FILES" ]]; then
-    # pushd/popd necessary to deal with multiple files
-    pushd $PACKAGE_DIR 1> /dev/null
-      cp $FILES $JHALFSDIR/
-    popd 1> /dev/null
-  fi
-  #
-  if [[ "${PROGNAME}" = "lfs" ]]; then
-    if [[ "${CUSTOM_TOOLS}" = "y" ]]; then
-      echo "Copying custom tool scripts to $JHALFSDIR"
-      mkdir -p $JHALFSDIR/custom-commands/config
-      mkdir -p $JHALFSDIR/custom-commands/scripts
-    cp -Rf custom/* $JHALFSDIR/custom-commands
-    fi
-  fi
-
-  #
+  # Prepare report creation, if needed
   if [[ "$REPORT" = "y" ]]; then
     cp $COMMON_DIR/create-sbu_du-report.sh  $JHALFSDIR/
     # After being sure that all looks sane, dump the settings to a file
@@ -379,13 +366,23 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
     validate_config > $JHALFSDIR/jhalfs.config
   fi
   #
-  [[ "$GETPKG" = "y" ]] && cp $COMMON_DIR/urls.xsl  $JHALFSDIR/
+  # Copy optimize files, if needed
+  [[ "$OPTIMIZE" != "0" ]] && cp optimize/opt_override $JHALFSDIR/
   #
-  cp $COMMON_DIR/packages.xsl  $JHALFSDIR/
+  # Copy compare files, if needed
+  if [[ "$COMPARE" = "y" ]]; then
+    mkdir -p $JHALFSDIR/extras
+    cp extras/* $JHALFSDIR/extras
+  fi
   #
-  sed 's,FAKEDIR,'$BOOK',' $PACKAGE_DIR/$XSL > $JHALFSDIR/${XSL}
-  export XSL=$JHALFSDIR/${XSL}
 
+  # Copy custom tools config files, if requested
+  if [[ "${CUSTOM_TOOLS}" = "y" ]]; then
+    echo "Copying custom tool scripts to $JHALFSDIR"
+    mkdir -p $JHALFSDIR/custom-commands
+    cp -f custom/config/* $JHALFSDIR/custom-commands
+  fi
+  #
   # Install blfs-tool, if requested.
   if [[ "${BLFS_TOOL}" = "y" ]] ; then
     # Install the files
@@ -405,6 +402,7 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
     cp -r $COMMON_DIR/blfs-tool-deps $JHALFSDIR/
     rm -rf $JHALFSDIR/blfs-tool-deps/.svn
   fi
+  #
 
   get_book
   echo "${SD_BORDER}${nl_}"
@@ -437,11 +435,7 @@ if [[ "$REBUILD_MAKEFILE" = "y" ]] ; then
 fi
 
 build_Makefile
-if [[ "${PROGNAME}" = "lfs" ]]; then
-  if [[ "${CUSTOM_TOOLS}" = "y" ]]; then
-    add_CustomTools
-  fi
-fi
+
 echo "${SD_BORDER}${nl_}"
 
 run_make

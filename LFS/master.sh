@@ -374,6 +374,8 @@ build_Makefile() {           #
   # Add the iterations targets, if needed
   [[ "$COMPARE" = "y" ]] && wrt_compare_targets
   chapter78_Makefiles
+  # Add the CUSTOM_TOOLS targets, if needed
+  [[ "$CUSTOM_TOOLS" = "y" ]] && wrt_CustomTools_target
   # Add the BLFS_TOOL targets, if needed
   [[ "$BLFS_TOOL" = "y" ]] && wrt_blfs_tool_targets
 
@@ -406,7 +408,7 @@ build_Makefile() {           #
 (
     cat << EOF
 
-all:	ck_UID mk_SETUP mk_LUSER mk_SUDO mk_CHROOT mk_BOOT create-sbu_du-report mk_BLFS_TOOL
+all:	ck_UID mk_SETUP mk_LUSER mk_SUDO mk_CHROOT mk_BOOT create-sbu_du-report mk_CUSTOM_TOOLS mk_BLFS_TOOL
 	@sudo make do_housekeeping
 	@echo "$VERSION - jhalfs build" > lfs-release && \\
 	sudo mv lfs-release \$(MOUNT_PT)/etc
@@ -458,21 +460,32 @@ mk_BOOT: mk_CHROOT
 	@( sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BOOT")
 	@touch \$@
 
-mk_BLFS_TOOL: create-sbu_du-report
-	@\$(call echo_PHASE,Building BLFS-TOOLS)
+mk_CUSTOM_TOOLS: create-sbu_du-report
+	@if [ "\$(ADD_CUSTOM_TOOLS)" = "y" ]; then \\
+	  \$(call echo_PHASE,Building CUSTOM_TOOLS); \\
+	  \$(call echo_CHROOT_request); \\
+	  sudo mkdir -p ${BUILDDIR}${TRACKING_DIR}; \\
+	  (sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make CUSTOM_TOOLS"); \\
+	fi;
+	@touch \$@
+
+mk_BLFS_TOOL: mk_CUSTOM_TOOLS
 	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
+	  \$(call echo_PHASE,Building BLFS_TOOL); \\
+	  \$(call echo_CHROOT_request); \\
 	  sudo mkdir -p $BUILDDIR$TRACKING_DIR; \\
-	  sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BLFS_TOOL"; \\
+	  (sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BLFS_TOOL"); \\
 	fi;
 	@touch \$@
 
 
-SETUP:     $chapter4
-LUSER:     $chapter5
-SUDO:      $runasroot
-CHROOT:    $chapter6
-BOOT:      $chapter78
-BLFS_TOOL: $blfs_tool
+SETUP:        $chapter4
+LUSER:        $chapter5
+SUDO:         $runasroot
+CHROOT:       $chapter6
+BOOT:         $chapter78
+CUSTOM_TOOLS: $custom_list
+BLFS_TOOL:    $blfs_tool
 
 
 create-sbu_du-report:  mk_BOOT

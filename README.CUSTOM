@@ -147,12 +147,6 @@ configuration file which enables/disables the inclusion of personal scripts.
      file and NOT in the package script. The gpm script is included as an
      example of multiple patch files and the need for a blfs bootscript.
 
-  RUNNING:::
-    Although your scripts are added to the generated makefile they are not
-    automatically built. You must tell the makefile to build the tools with
-    the cmd
-        make mk_CUSTOM_TOOLS
-
 
 #--------- GLIB example -----------
 

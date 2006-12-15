@@ -411,6 +411,8 @@ build_Makefile() {            # Construct a Makefile from the book scripts
   final_system_Makefiles           # $basicsystem
   bootscripts_Makefiles            # $bootscripttools
   bootable_Makefiles               # $bootable
+  # Add the CUSTOM_TOOLS targets, if needed
+  [[ "$CUSTOM_TOOLS" = "y" ]] && wrt_CustomTools_target
 
   # Add a header, some variables and include the function file
   # to the top of the real Makefile.
@@ -421,7 +423,7 @@ build_Makefile() {            # Construct a Makefile from the book scripts
 (
 cat << EOF
 
-all:	ck_UID mk_SETUP mk_LUSER create-sbu_du-report mk_ROOT
+all:	ck_UID mk_SETUP mk_LUSER create-sbu_du-report mk_CUSTOM_TOOLS mk_ROOT
 	@sudo make restore-luser-env
 	@sudo make do-housekeeping
 	@\$(call echo_finished,$VERSION)
@@ -444,16 +446,27 @@ mk_LUSER: mk_SETUP
 	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make SHELL=/bin/bash LUSER" )
 	@touch \$@
 
-mk_ROOT:
+mk_CUSTOM_TOOLS: create-sbu_du-report
+	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
+	  \$(call echo_PHASE,Building CUSTOM_TOOLS); \\
+	  \$(call echo_SULUSER_request); \\
+	  (sudo \$(SU_LUSER) "mkdir -p $BUILDDIR$TRACKING_DIR"); \\
+	  (sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make SHELL=/bin/bash CUSTOM_TOOLS"); \\
+	fi;
+	@touch \$@
+
+mk_ROOT: mk_CUSTOM_TOOLS
+	@\$(call echo_SU_request)
 	@echo "$VERSION-embedded - jhalfs build" > clfs-release && \\
 	sudo mv clfs-release \$(MOUNT_PT)/etc
 	@sudo make SHELL=/bin/bash ROOT
 	@touch \$@
 
 
-SETUP:  $host_prep
-LUSER:	$cross_tools $basicsystem $bootscripttools $bootable
-ROOT:	$chowning
+SETUP:        $host_prep
+LUSER:	      $cross_tools $basicsystem $bootscripttools $bootable
+CUSTOM_TOOLS: $custom_list
+ROOT:	      $chowning
 
 
 create-sbu_du-report:  mk_LUSER

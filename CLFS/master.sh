@@ -731,6 +731,8 @@ set -e
   bootscripts_Makefiles          # mk_BOOTSCRIPT (CHROOT) $bootscripttools
   bootable_Makefiles             # mk_BOOTABLE   (CHROOT) $bootabletools
 
+  # Add the CUSTOM_TOOLS targets, if needed
+  [[ "$CUSTOM_TOOLS" = "y" ]] && wrt_CustomTools_target
   # Add the BLFS_TOOL targets, if needed
   [[ "$BLFS_TOOL" = "y" ]] && wrt_blfs_tool_targets
 
@@ -764,7 +766,7 @@ if [[ "${METHOD}" = "chroot" ]]; then
 (
 cat << EOF
 
-all: ck_UID mk_SETUP mk_CROSS mk_SUDO mk_SYSTOOLS create-sbu_du-report mk_BLFS_TOOL
+all: ck_UID mk_SETUP mk_CROSS mk_SUDO mk_SYSTOOLS create-sbu_du-report mk_CUSTOM_TOOLS mk_BLFS_TOOL
 	@sudo make do-housekeeping
 	@echo "$VERSION - jhalfs build" > clfs-release && \\
 	sudo mv clfs-release \$(MOUNT_PT)/etc
@@ -815,19 +817,30 @@ mk_SYSTOOLS: mk_SUDO
 	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make CHROOT_JAIL")
 	@touch \$@
 
-mk_BLFS_TOOL: create-sbu_du-report
-	@\$(call echo_PHASE,Building BLFS-TOOLS)
+mk_CUSTOM_TOOLS: create-sbu_du-report
+	@if [ "\$(ADD_CUSTOM_TOOLS)" = "y" ]; then \\
+	  \$(call echo_PHASE,Building CUSTOM_TOOLS); \\
+	  \$(call echo_CHROOT_request); \\
+	  sudo mkdir -p ${BUILDDIR}${TRACKING_DIR}; \\
+	  (sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make CUSTOM_TOOLS"); \\
+	fi;
+	@touch \$@
+
+mk_BLFS_TOOL: mk_CUSTOM_TOOLS
 	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
+	  \$(call echo_PHASE,Building BLFS_TOOL); \\
+	  \$(call echo_CHROOT_request); \\
 	  sudo mkdir -p $BUILDDIR$TRACKING_DIR; \\
 	  sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make BLFS_TOOL"; \\
 	fi;
 	@touch \$@
 
-SETUP:       $host_prep
-AS_LUSER:    $cross_tools $temptools
-SUDO:	     $orphan_scripts
-CHROOT_JAIL: ${chroottools} $testsuitetools $basicsystem  $bootscripttools  $bootabletools
-BLFS_TOOL:   $blfs_tool
+SETUP:        $host_prep
+AS_LUSER:     $cross_tools $temptools
+SUDO:	      $orphan_scripts
+CHROOT_JAIL:  ${chroottools} $testsuitetools $basicsystem  $bootscripttools  $bootabletools
+CUSTOM_TOOLS: $custom_list
+BLFS_TOOL:    $blfs_tool
 
 
 create-sbu_du-report:  mk_SYSTOOLS
@@ -866,7 +879,7 @@ all:	ck_UID mk_SETUP mk_CROSS mk_SUDO
 	@sudo make do-housekeeping
 	@\$(call echo_boot_finished,$VERSION)
 
-makesys: mk_FINAL mk_BLFS_TOOL
+makesys: mk_FINAL mk_CUSTOM_TOOLS mk_BLFS_TOOL
 	@echo "$VERSION - jhalfs build" > /etc/clfs-release
 	@\$(call echo_finished,$VERSION)
 
@@ -908,19 +921,28 @@ mk_FINAL:
 	@( source /root/.bash_profile && make AS_ROOT )
 	@touch \$@
 
-mk_BLFS_TOOL: mk_FINAL
-	@\$(call echo_PHASE,Building BLFS-TOOLS)
+mk_CUSTOM_TOOLS: mk_FINAL
+	@if [ "\$(ADD_CUSTOM_TOOLS)" = "y" ]; then \\
+	  mkdir -p ${TRACKING_DIR}; \\
+	  \$(call echo_PHASE,Building CUSTOM_TOOLS); \\
+	  ( source /root/.bash_profile && make CUSTOM_TOOLS"); \\
+	fi;
+	@touch \$@
+
+mk_BLFS_TOOL: mk_CUSTOM_TOOLS
 	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
 	  mkdir -p $TRACKING_DIR; \\
-          ( make BLFS_TOOL ); \\
+	  \$(call echo_PHASE,Building BLFS_TOOL); \\
+	  ( source /root/.bash_profile && make BLFS_TOOL ); \\
 	fi
 	@touch \$@
 
-SETUP:      $host_prep
-AS_LUSER:   $cross_tools $temptools ${boottools}
-SUDO:	    $orphan_scripts
-AS_ROOT:    $testsuitetools $basicsystem $bootscripttools $bootabletools
-BLFS_TOOL:  $blfs_tool
+SETUP:        $host_prep
+AS_LUSER:     $cross_tools $temptools ${boottools}
+SUDO:	      $orphan_scripts
+AS_ROOT:      $testsuitetools $basicsystem $bootscripttools $bootabletools
+CUSTOM_TOOLS: $custom_list
+BLFS_TOOL:    $blfs_tool
 
 do-housekeeping:
 	@-rm /tools /cross-tools

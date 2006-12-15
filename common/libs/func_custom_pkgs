@@ -3,53 +3,38 @@
 # $Id$
 
 #----------------------------------#
-add_CustomTools() {                # Add any users supplied scripts
+wrt_CustomTools_target() {         # Add any users supplied scripts
 #----------------------------------#
-  PREV_SCRIPT=""
-  CUSTOM_LIST=""
+  PREV=""
 
-  echo "Adding custom packages... ${BOLD}START${OFF}"
+  echo "  Adding custom packages... ${BOLD}START${OFF}"
 
-  cd $JHALFSDIR
-  > ${MKFILE}.tmp2
+  # Create the custom_tools scripts directory
+  mkdir -p custom-tools
 
-  # First some build commands and a placeholder for the build list.
-  # This will not cause problems if there are no custom scripts.
-( cat << xEOFx
-
-
-mk_CUSTOM_TOOLS:
-	@\$(call echo_CHROOT_request)
-	@ sudo mkdir -p ${BUILDDIR}${TRACKING_DIR}
-	@( sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make CUSTOM_TOOLS")
-	@touch \$@
-
-CUSTOM_TOOLS:
-xEOFx
-) >> ${MKFILE}.tmp2
-
-
-  for this_script in custom-commands/config/*; do
-    if [[ `basename ${this_script}` = "*" ]]; then
+  for file in $JHALFSDIR/custom-commands/*; do
+    if [[ `basename ${file}` = "*" ]]; then
       break
     fi
-    source $this_script
-    THIS_SCRIPT=$(basename ${this_script})
-    echo "$tab_${GREEN}Adding${OFF} ${THIS_SCRIPT}"
+    source $file
+    this_script=$(basename ${file})
+    echo "$tab_${GREEN}Adding${OFF} ${this_script}"
 
       # Create a Makefile entry
     if [[ "x${PKG}" = "x" ]]; then
-    # Create an entry for a self contained cmd script that does not reference a package tarball
-( cat << EOF
-
-${THIS_SCRIPT}: ${PREV_SCRIPT}
-	@\$(call echo_message, Building)
-	@./progress_bar.sh \$@ \$\$PPID &
-	@( time { source envars && /\$(SCRIPT_ROOT)/custom-commands/scripts/${THIS_SCRIPT} >>logs/${THIS_SCRIPT} 2>&1 ; } ) 2>>logs/${THIS_SCRIPT}
-	@touch \$@
-	@\$(call housekeeping)
-EOF
-) >> ${MKFILE}.tmp2
+    # Create an entry for a self contained cmd script that does not
+    # reference a package tarball
+      case $PROGNAME in
+        clfs2 | clfs3 )
+          LUSER_wrt_target "${this_script}" "$PREV"
+          LUSER_wrt_RunAsUser "custom-tools/${this_script}"
+          ;;
+        *)
+          CHROOT_wrt_target "${this_script}" "$PREV"
+          CHROOT_wrt_RunAsRoot "custom-tools/${this_script}"
+          ;;
+      esac
+      wrt_touch
 
     # Create the build script file
 ( cat <<- xEOFx
@@ -59,25 +44,27 @@ set -e
 `cat tmp`
 exit
 xEOFx
-) > custom-commands/scripts/$THIS_SCRIPT
+) > custom-tools/${this_script}
 
     else
     # Create an entry for package
-( cat << EOF
-
-${THIS_SCRIPT}: ${PREV_SCRIPT}
-	@\$(call echo_message, Building)
-	@./progress_bar.sh \$@ \$\$PPID &
-	@\$(call remove_existing_dirs2,${PKG_FILE})
-	@\$(call unpack2,${PKG_FILE})
-	@\$(call get_pkg_root2)
-	@( time { source envars && /\$(SCRIPT_ROOT)/custom-commands/scripts/${THIS_SCRIPT} >>logs/${THIS_SCRIPT} 2>&1 ; } ) 2>>logs/${THIS_SCRIPT}
-	@\$(call remove_build_dirs2,${PKG})
-	@touch \$@
-	@touch ${TRACKING_DIR}/${PKG}-${PKG_VERSION}
-	@\$(call housekeeping)
-EOF
-) >> ${MKFILE}.tmp2
+      case $PROGNAME in
+        clfs2 | clfs3 )
+          LUSER_wrt_target "${this_script}" "$PREV"
+          LUSER_wrt_unpack "${PKG_FILE}"
+          LUSER_wrt_RunAsUser "custom-tools/${this_script}"
+          LUSER_RemoveBuildDirs "${PKG}"
+          echo -e "\t@touch \$(MOUNT_PT)$TRACKING_DIR/${PKG}-${PKG_VERSION}" >>  $MKFILE.tmp
+          ;;
+        *)
+          CHROOT_wrt_target "${this_script}" "$PREV"
+          CHROOT_Unpack "${PKG_FILE}"
+          CHROOT_wrt_RunAsRoot "custom-tools/${this_script}"
+          CHROOT_wrt_RemoveBuildDirs "${PKG}"
+          echo -e "\t@touch $TRACKING_DIR/${PKG}-${PKG_VERSION}" >>  $MKFILE.tmp
+          ;;
+      esac
+      wrt_touch
 
     # Create the build script file
 ( cat <<- xEOFx
@@ -88,22 +75,19 @@ cd \$PKGDIR
 `cat tmp`
 exit
 xEOFx
-) > custom-commands/scripts/$THIS_SCRIPT
+) > custom-tools/$this_script
     fi
 
-    chmod 755 custom-commands/scripts/$THIS_SCRIPT
     rm -f tmp
-    PREV_SCRIPT=$THIS_SCRIPT
-    CUSTOM_LIST="${CUSTOM_LIST}${THIS_SCRIPT} "
+    PREV=$this_script
+    custom_list="${custom_list} ${this_script}"
   done
 
-  # Add the dependancy list.
-  sed "s|^CUSTOM_TOOLS:|CUSTOM_TOOLS: ${CUSTOM_LIST}|" -i ${MKFILE}.tmp2
-  cat ${MKFILE}.tmp2 >> ${MKFILE}
-  rm  ${MKFILE}.tmp2
-  echo "Adding custom packages... ${BOLD}DONE${OFF}"
-}
+  # Make the scripts executable.
+  chmod +x custom-tools/*
 
+  echo "  Adding custom packages... ${BOLD}DONE${OFF}"
+}
 
 
 #----------------------------------#
@@ -114,7 +98,7 @@ add_CustomToolsURLS() {            # Add any users supplied scripts URL informat
   local URL PKG PKG_VERSION PKG_FILE MD5
 
   > urls.lst.tmp
-  for this_script in $JHALFSDIR/custom-commands/config/*; do
+  for this_script in $JHALFSDIR/custom-commands/*; do
     if [[ `basename ${this_script}` = "*" ]]; then
       CUSTOM_TOOLS="n"
       break

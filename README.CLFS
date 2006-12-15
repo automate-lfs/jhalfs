@@ -1,0 +1,29 @@
+# $Id$
+
+       CLFS-1.x NOTES
+
+  None for now.
+
+
+
+       CLFS SYSROOT METHOD NOTES
+
+  None for now.
+
+
+
+       CLFS EMBEDDED SYSTEMS NOTES
+
+  .- To install CBLFS packages you must to use the "Add custom tools support"
+  feature. To learn how it works and how to use it, see the section titled
+     "Adding Post-System Build Configuration Files and Extra Packages"
+  found in README.CUSTOM. That is also applicable to bootloaders installation.
+
+  .- If your target is a MIPS wireless router, you must to use the "Rebuild
+  Makefile" feature to install wireless tools. To learn how it works and how
+  to use it, see the section titled "Base System Customization" found in
+  README.CUSTOM
+
+  .- The backup & clean-up phases aren't run. This is to allow users to
+  review the installed files and do a more in-deeper clan-up before creating
+  the system tarball.
