@@ -113,7 +113,7 @@ cross_tools_Makefiles() {              #
     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' \
                                   -e 's@-static@@' \
                                   -e 's@-final@@' \
-				  -e 's@-64@@' \
+                                  -e 's@-64@@' \
                                   -e 's@-n32@@'`
     pkg_tarball=$(get_package_tarball_name $name)
 
@@ -223,7 +223,6 @@ chroot_Makefiles() {                   #
     # First append each name of the script files to a list (this will become
     # the names of the targets in the Makefile
     case "${this_script}" in
-      *util-linux) orphan_scripts="${orphan_scripts} ${this_script}"  ;;
       *kernfs)     orphan_scripts="${orphan_scripts} ${this_script}"  ;;
       *)           chroottools="$chroottools $this_script"            ;;
     esac
@@ -243,8 +242,8 @@ chroot_Makefiles() {                   #
          LUSER_wrt_RunAsUser "${file}"
          LUSER_RemoveBuildDirs "${name}"
          wrt_touch
-	 temptools="$temptools $this_script"
-	 continue ;;
+         temptools="$temptools $this_script"
+         continue ;;
      esac
 
 
