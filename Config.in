@@ -711,7 +711,7 @@ menu "--- Build Settings"
 	config	LC_ALL
 		string "Language"
 		default "$LC_ALL"
-		depends on !BOOK_LFS
+		depends on BOOK_HLFS
 		help
 			#-- Language information in /etc/profile  See <locale -a> for values
 
