@@ -181,7 +181,7 @@ chapter6_Makefiles() {
       mv ${script} ${script}$N
     done
     # Remove Bzip2 binaries before make install
-    sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i chapter06$N/*-bzip2$N
+    sed -e 's@make PREFIX=/usr install@rm -vf /usr/bin/bz*\n&@' -i chapter06$N/*-bzip2$N
   fi
 
   echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6$N     ( CHROOT ) ${R_arrow}"
