@@ -247,9 +247,21 @@ inline_doc
         # alsa-plugins-->ffmpeg-->several-->alsa-plugins
         [[ "$PKG" = "alsa-plugins" ]] && continue
         ;;
+      GTK )
+        # deprecated GTK version
+        [[ "$PKG" = "alsa-tools" ]] && continue
+        ;;
       akode )
         # Both are in the same page
         [[ "$PKG" = "kdemultimedia" ]] && continue
+        ;;
+      dbus )
+        # cups-->dbus-->several combinations-->cups
+        [[ "$PKG" = "cups" ]] && continue
+        ;;
+      librsvg | poppler | gtk2 )
+        # All optinal testsuite dependencies are circular
+        [[ "$PKG" = "cairo" ]] && continue
         ;;
     esac
 
