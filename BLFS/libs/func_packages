@@ -69,6 +69,7 @@ generate_packages()  {  # Master packages file
   sed -i '/fw-firewall\t/d;/gcc2\t/d;/cvsserver\t/d;/svnserver\t/d' packages.tmp
   sed -i '/fam\t/d;/libungif\t/d;/ncpfs\t/d;/slrn\t/d;/konq\t/d' packages.tmp
   sed -i '/gst-plugins\t/d;/openquicktime\t/d;/compressdoc\t/d' packages.tmp
+  sed -i '/errata\t/d;/foreword\t/d;/organization\t/d;/whoread\t/d' packages.tmp
 
   # Meta-packages version
   ALSA_VER=$(get_pkg_ver alsa)
