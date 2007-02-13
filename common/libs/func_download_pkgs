@@ -136,6 +136,7 @@ create_urls() {              #
         echo -n "Creating CLFS <${ARCH}> specific URLs file"
         xsltproc --nonet --xinclude \
                  --stringparam server $SERVER \
+                 --stringparam family clfs \
                  -o $BUILDDIR/sources/urls.lst urls.xsl \
                  $BOOK/materials/$ARCH-chapter.xml >>$LOGDIR/$LOG 2>&1
         echo " ...OK"
@@ -144,6 +145,7 @@ create_urls() {              #
         echo -n "Creating CLFS2 <${ARCH}> specific URLs file"
         xsltproc --nonet --xinclude \
                  --stringparam server $SERVER \
+                 --stringparam family clfs \
                  -o $BUILDDIR/sources/urls.lst urls.xsl \
                  $BOOK/materials/$ARCH-chapter.xml >>$LOGDIR/$LOG 2>&1
         echo " ...OK"
@@ -152,6 +154,7 @@ create_urls() {              #
         echo -n "Creating CLFS3 <${ARCH}> specific URLs file"
         xsltproc --nonet --xinclude \
                  --stringparam server $SERVER \
+                 --stringparam family clfs \
                  -o $BUILDDIR/sources/urls.lst urls.xsl \
                  $BOOK/materials/$ARCH-chapter.xml >>$LOGDIR/$LOG 2>&1
         echo " ...OK"
@@ -160,6 +163,7 @@ create_urls() {              #
         echo -n "Creating HLFS <${MODEL}> specific URLs file"
         xsltproc --nonet --xinclude \
                  --stringparam server $SERVER \
+                 --stringparam family lfs \
                  --stringparam model $MODEL \
                  -o $BUILDDIR/sources/urls.lst urls.xsl \
                  $BOOK/chapter04/chapter04.xml >>$LOGDIR/$LOG 2>&1
@@ -169,6 +173,7 @@ create_urls() {              #
         echo -n "Creating LFS specific URLs file"
         xsltproc --nonet --xinclude \
                  --stringparam server $SERVER \
+                 --stringparam family lfs \
                  -o ../sources/urls.lst urls.xsl \
                  $BOOK/chapter03/chapter03.xml >>$LOGDIR/$LOG 2>&1
         echo " ...OK"

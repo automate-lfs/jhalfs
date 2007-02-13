@@ -10,6 +10,9 @@
   <!-- The FTP server used as fallback -->
   <xsl:param name="server">ftp://ftp.osuosl.org</xsl:param>
 
+  <!-- The book family (lfs or clfs). Needed to use the proper FTP path. -->
+  <xsl:param name="family">lfs</xsl:param>
+
   <!-- The libc model used for HLFS -->
   <xsl:param name="model" select="glibc"/>
 
@@ -54,7 +57,9 @@
       <xsl:text> </xsl:text>
       <!-- Write FTP mirror URLs -->
       <xsl:value-of select="$server"/>
-      <xsl:text>/pub/lfs/conglomeration/</xsl:text>
+      <xsl:text>/pub/</xsl:text>
+      <xsl:value-of select="$family"/>
+      <xsl:text>/conglomeration/</xsl:text>
       <xsl:choose>
         <!-- Fix some directories. Test against $dirname to be sure that we
         are matching the start of a package name, not a string in a patch name
@@ -77,7 +82,7 @@
         <xsl:when test="contains($package, 'tcl')">
           <xsl:text>tcl/</xsl:text>
         </xsl:when>
-        <xsl:when test="contains($dirname, 'uClibc')">
+        <xsl:when test="contains($package, 'uClibc')">
           <xsl:text>uClibc/</xsl:text>
         </xsl:when>
         <xsl:when test="contains($dirname, 'udev')">
