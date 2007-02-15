@@ -118,13 +118,64 @@ EOF
   host_prep=" 025-addinguser 026-settingenvironment 027-create-directories 028-creating-sysfile"
 }
 
+#-----------------------------#
+systemprep_Makefiles() {      #
+#-----------------------------#
+  echo "${tab_}${GREEN}Processing... ${L_arrow}system prep tools     ( LUSER ) ${R_arrow}"
+  
+  for file in systemprep/* ; do        
+    # Keep the script file name
+    this_script=`basename $file`
+
+    # Set the dependency for the first target.
+    if [ -z $PREV ] ; then PREV=028-creating-sysfile ; fi
+
+    # First append each name of the script files to a list (this will become
+    # the names of the targets in the Makefile)
+    cross_tools="$cross_tools $this_script"
+
+    # Grab the name of the target (minus the -headers or -cross in the case of gcc
+    # and binutils in chapter 5)
+    name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'`
+
+    pkg_tarball=$(get_package_tarball_name $name)
+    #--------------------------------------------------------------------#
+    #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
+    #--------------------------------------------------------------------#
+    #
+    # Drop in the name of the target on a new line, and the previous target
+    # as a dependency. Also call the echo_message function.
+    LUSER_wrt_target "${this_script}" "$PREV"
+    #
+    # If $pkg_tarball isn't empty, we've got a package...
+    if [ "$pkg_tarball" != "" ] ; then
+       LUSER_wrt_unpack "$pkg_tarball"
+    fi
+    #
+    LUSER_wrt_RunAsUser "${file}"
+    #
+    [[ "$pkg_tarball" != "" ]] && LUSER_RemoveBuildDirs "${name}"
+    #
+    # Include a touch of the target name so make can check if it's already been made.
+    wrt_touch
+    #
+    #--------------------------------------------------------------------#
+    #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
+    #--------------------------------------------------------------------#
+    #
+    # Keep the script file name for Makefile dependencies.
+    PREV=$this_script
+
+  done # for file in ....
+}
+
 
 #-----------------------------#
 cross_tools_Makefiles() {     #
 #-----------------------------#
   echo "${tab_}${GREEN}Processing... ${L_arrow}cross tools     ( LUSER ) ${R_arrow}"
-
-  for file in cross-tools/* ; do
+  
+  for file in cross-tools/* ; do        
     # Keep the script file name
     this_script=`basename $file`
     #
@@ -407,6 +458,7 @@ build_Makefile() {            # Construct a Makefile from the book scripts
   >$MKFILE.tmp
 
   host_prep_Makefiles
+  [[ "${PLATFORM% -*}" = "WRT" ]] && systemprep_Makefiles # $cross_tools
   cross_tools_Makefiles            # $cross_tools
   final_system_Makefiles           # $basicsystem
   bootscripts_Makefiles            # $bootscripttools
