@@ -262,11 +262,6 @@ menu "--- BOOK Settings"
 		default	"arm"		if ARCH_ARM
 		default	"hppa"		if ARCH_HPPA
 		
-	config  PLATFORM
-		string
-		default	"WRT - Wireless Router" if PLATFORM_WRT
-		default "GENERIC"	if PLATFORM_GENERIC
-		
 	config  MIPS_LEVEL
 		string
 		depends BOOK_CLFS3 && ARCH_MIPS
