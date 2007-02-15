@@ -155,8 +155,8 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
          *EDIT* )  echo " You forgot to set the BLFS branch or stable book version."
                    echo " Please rerun make and fix the configuration."
                    exit 2 ;;
-       branch-* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-}/BOOK ;;
-              * )  BLFS_TREE=tags/${BLFS_BRANCH_ID}/BOOK ;;
+       branch-* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-} ;;
+              * )  BLFS_TREE=tags/${BLFS_BRANCH_ID} ;;
   esac
   # Dependencies envars, to can update it more easy.
   # Tidy and Unzip version are harcoded also in wrt_blfs_tool_targets()
