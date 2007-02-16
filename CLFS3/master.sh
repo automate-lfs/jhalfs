@@ -475,7 +475,7 @@ build_Makefile() {            # Construct a Makefile from the book scripts
 (
 cat << EOF
 
-all:	ck_UID mk_SETUP mk_LUSER create-sbu_du-report
+all:	ck_UID mk_SETUP mk_LUSER create-sbu_du-report mk_CUSTOM_TOOLS mk_ROOT
 	@sudo make restore-luser-env
 	@sudo make do-housekeeping
 	@\$(call echo_finished,$VERSION)
@@ -506,7 +506,7 @@ mk_CUSTOM_TOOLS: create-sbu_du-report
 	fi;
 	@touch \$@
 
-mk_ROOT: mk_CUSTOM_TOOLS
+mk_ROOT: 
 	@\$(call echo_SU_request)
 	@echo "$VERSION-embedded - jhalfs build" > clfs-release && \\
 	sudo mv clfs-release \$(MOUNT_PT)/etc
