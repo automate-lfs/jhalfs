@@ -11,10 +11,10 @@
 # it can even be made smaller.
 #
 
-PKG="DROPBEAR
+PKG="DROPBEAR"
 PKG_VERSION="0.48.1"
-PKG_FILE="${PKG}-${PKG_VERSION}.tar.gz
-URL="http://matt.ucc.asn.au/dropbear/releases/${PKG_FILE}
+PKG_FILE="${PKG}-${PKG_VERSION}.tar.gz"
+URL="http://matt.ucc.asn.au/dropbear/releases/${PKG_FILE}"
 MD5="ca8e53a766faec831882831364568421"
 for i in PATCH{1..10}; do
    unset $i
