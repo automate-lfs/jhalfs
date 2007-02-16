@@ -6,7 +6,9 @@ PKG_VERSION="1.20.1"
 PKG_FILE="gpm-${PKG_VERSION}.tar.bz2"
 URL="ftp://arcana.linux.it/pub/gpm/${PKG_FILE}"
 MD5="2c63e827d755527950d9d13fe3d87692"
-
+for i in PATCH{1..10}; do
+   unset $i
+done
 PATCH1=" http://www.linuxfromscratch.org/patches/blfs/svn/gpm-1.20.1-segfault-1.patch"
 PATCH2=" http://www.linuxfromscratch.org/patches/blfs/svn/gpm-1.20.1-silent-1.patch"
 

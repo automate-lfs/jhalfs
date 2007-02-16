@@ -6,6 +6,9 @@ PKG_VERSION="1.06"
 PKG_FILE="bc-1.06.tar.gz"
 URL="http://ftp.gnu.org/gnu/bc/${PKG_FILE}"
 MD5="d44b5dddebd8a7a7309aea6c36fda117"
+for i in PATCH{1..10}; do
+   unset $i
+done
 
 ( cat << "xEOFx"
 sed -i '/PROTO.*readline/d' bc/scan.l &&

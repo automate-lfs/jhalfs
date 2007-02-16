@@ -6,7 +6,9 @@ PKG_VERSION="20060910"
 PKG_FILE="blfs-bootscripts-${PKG_VERSION}.tar.bz2"
 URL="http://www.linuxfromscratch.org/blfs/downloads/svn/${PKG_FILE}"
 MD5="e1715c58dc694bf474c4468e6bade3ad"
-PATCH1=""
+for i in PATCH{1..10}; do
+   unset $i
+done
 
 ( cat << "xEOFx"
 

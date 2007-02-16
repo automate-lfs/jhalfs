@@ -9,9 +9,11 @@
 PKG="ppp"
 PKG_VERSION="2.4.4"
 PKG_FILE="ppp-${PKG_VERSION}.tar.gz"
-URL="ftp://ftp.samba.org/pub/ppp/${PKG_FILE}"
-MD5="83800762e266132218b204dfb428d29"
-PATCH1=""
+URL="http://samba.org/ftp/ppp/${PKG_FILE}"
+MD5="183800762e266132218b204dfb428d29"
+for i in PATCH{1..10}; do
+   unset $i
+done
 
 ( cat << "xEOFx"
 ./configure --prefix=/usr &&
