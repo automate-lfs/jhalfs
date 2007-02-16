@@ -122,8 +122,8 @@ EOF
 systemprep_Makefiles() {      #
 #-----------------------------#
   echo "${tab_}${GREEN}Processing... ${L_arrow}system prep tools     ( LUSER ) ${R_arrow}"
-  
-  for file in systemprep/* ; do        
+
+  for file in systemprep/* ; do
     # Keep the script file name
     this_script=`basename $file`
 
@@ -174,8 +174,8 @@ systemprep_Makefiles() {      #
 cross_tools_Makefiles() {     #
 #-----------------------------#
   echo "${tab_}${GREEN}Processing... ${L_arrow}cross tools     ( LUSER ) ${R_arrow}"
-  
-  for file in cross-tools/* ; do        
+
+  for file in cross-tools/* ; do
     # Keep the script file name
     this_script=`basename $file`
     #
@@ -490,19 +490,19 @@ ck_UID:
 
 mk_SETUP:
 	@\$(call echo_SU_request)
-	@sudo make SHELL=/bin/bash SETUP
+	@sudo make SETUP
 	@touch \$@
 
 mk_LUSER: mk_SETUP
 	@\$(call echo_SULUSER_request)
-	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make SHELL=/bin/bash LUSER" )
+	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make LUSER" )
 	@touch \$@
 
 mk_CUSTOM_TOOLS: create-sbu_du-report
 	\$(call echo_PHASE,Building CUSTOM_TOOLS);
 	@if [ "\$(ADD_CUSTOM_TOOLS)" = "y" ]; then \\
 	  (sudo \$(SU_LUSER) "mkdir -p $BUILDDIR$TRACKING_DIR"); \\
-	  (sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make SHELL=/bin/bash CUSTOM_TOOLS"); \\
+	  (sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make CUSTOM_TOOLS"); \\
 	fi;
 	@touch \$@
 
@@ -510,7 +510,7 @@ mk_ROOT: mk_CUSTOM_TOOLS
 	@\$(call echo_SU_request)
 	@echo "$VERSION-embedded - jhalfs build" > clfs-release && \\
 	sudo mv clfs-release \$(MOUNT_PT)/etc
-	@sudo make SHELL=/bin/bash ROOT
+	@sudo make ROOT
 	@touch \$@
 
 

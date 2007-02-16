@@ -437,19 +437,19 @@ ck_UID:
 
 mk_SETUP:
 	@\$(call echo_SU_request)
-	@sudo make SHELL=/bin/bash SETUP
+	@sudo make SETUP
 	@touch \$@
 
 mk_LUSER: mk_SETUP
 	@\$(call echo_SULUSER_request)
-	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make SHELL=/bin/bash LUSER" )
+	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make LUSER" )
 	@touch \$@
 
 mk_CUSTOM_TOOLS: create-sbu_du-report
 	\$(call echo_PHASE,CUSTOM_TOOLS)
 	@if [ "\$(ADD_CUSTOM_TOOLS)" = "y" ]; then \\
 	  (sudo \$(SU_LUSER) "mkdir -p $BUILDDIR$TRACKING_DIR"); \\
-	  (sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make SHELL=/bin/bash CUSTOM_TOOLS"); \\
+	  (sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make CUSTOM_TOOLS"); \\
 	fi;
 	@touch \$@
 
@@ -457,7 +457,7 @@ mk_BLFS_TOOL: mk_CUSTOM_TOOLS
 	\$(call echo_PHASE,BLFS_TOOL)
 	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
 	  (sudo \$(SU_LUSER) "mkdir -p $BUILDDIR$TRACKING_DIR"); \\
-	  (sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make SHELL=/bin/bash BLFS_TOOL"); \\
+	  (sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make BLFS_TOOL"); \\
 	fi;
 	@touch \$@
 
@@ -465,7 +465,7 @@ mk_ROOT: mk_BLFS_TOOL
 	@\$(call echo_SU_request)
 	@echo "$VERSION-sysroot - jhalfs build" > clfs-release && \\
 	sudo mv clfs-release \$(MOUNT_PT)/etc
-	@sudo make SHELL=/bin/bash ROOT
+	@sudo make ROOT
 	@touch \$@
 
 SETUP:        $host_prep
