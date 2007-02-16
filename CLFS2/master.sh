@@ -461,7 +461,7 @@ mk_BLFS_TOOL: mk_CUSTOM_TOOLS
 	fi;
 	@touch \$@
 
-mk_ROOT: mk_BLFS_TOOL
+mk_ROOT: create-sbu_du-report
 	@\$(call echo_SU_request)
 	@echo "$VERSION-sysroot - jhalfs build" > clfs-release && \\
 	sudo mv clfs-release \$(MOUNT_PT)/etc
