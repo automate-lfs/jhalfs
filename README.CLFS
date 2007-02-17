@@ -19,10 +19,9 @@
      "Adding Post-System Build Configuration Files and Extra Packages"
   found in README.CUSTOM. That is also applicable to bootloaders installation.
 
-  .- If your target is a MIPS wireless router, you must to use the "Rebuild
-  Makefile" feature to install wireless tools. To learn how it works and how
-  to use it, see the section titled "Base System Customization" found in
-  README.CUSTOM
+  .- If your target is a MIPS wireless router, you must to select "mips" as
+  your target architecture and "WRT - MIPS based wireless route" as your
+  hardware platform.
 
   .- The backup & clean-up phases aren't run. This is to allow users to
   review the installed files and do a more in-deeper clan-up before creating
