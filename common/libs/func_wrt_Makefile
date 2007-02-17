@@ -125,7 +125,7 @@ cat << EOF
 
 $i:  $PREV
 	@\$(call echo_message, Building)
-	@./progress_bar.sh \$@ \$\$PPID &
+	@\$(SHELL) progress_bar.sh \$@ \$\$PPID &
 	@echo "\$(nl_)\`date\`\$(nl_)" >logs/\$@
 	@\$(PRT_DU_CR) >>logs/\$@
 EOF
