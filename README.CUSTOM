@@ -103,7 +103,8 @@ install system.
   :::NOTICE:::
   The following examples are for use with LFS and are not applicable to any
 of the CLFS-sysroot or CLFS-Embedded books. The directory examples_CLFS-E
-contains code extracted from Beyond CLFS-embedded.
+contains code extracted from Beyond CLFS-embedded. Any packages you chose to
+add should honour the DESTDIR=${CLFS} switch or equivalent.
 
 
   LAYOUT
