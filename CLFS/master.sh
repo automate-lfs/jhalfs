@@ -795,22 +795,9 @@ mk_CROSS: mk_SETUP
 mk_SUDO: mk_CROSS
 	@sudo make SUDO
 	@touch \$@
-#
-# The convoluted piece of code below is necessary to provide 'make' with a valid shell in the
-# chroot environment. (Unless someone knows a different way)
-# Manually create the /bin directory and provide link to the /tools dir.
-# Also change the original symlink creation to include (f)orce to prevent failure due to
-#  pre-existing links.
 
 #---------------CHROOT JAIL
 mk_SYSTOOLS: mk_SUDO
-	@if [ ! -e \$(MOUNT_PT)/bin ]; then \\
-	  mkdir \$(MOUNT_PT)/bin; \\
-	  cd \$(MOUNT_PT)/bin && \\
-	  ln -svf /tools/bin/bash bash; ln -sf bash sh; \\
-	  sudo chown -R 0:0 \$(MOUNT_PT)/bin; \\
-	fi;
-	@sudo sed -e 's|^ln -sv |ln -svf |' -i \$(CMDSDIR)/chroot/*-createfiles
 	@\$(call echo_CHROOT_request)
 	@\$(call echo_PHASE, CHROOT JAIL )
 	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make CHROOT_JAIL")

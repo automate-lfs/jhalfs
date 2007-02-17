@@ -14,7 +14,11 @@ wrt_Makefile_header() {            #
 #
 # Generated on `date "+%F %X %Z"`
 
-SHELL          = /bin/bash
+ifeq (\$(shell [ -x /bin/bash ] && echo /bin/bash),/bin/bash)
+  SHELL = /bin/bash
+else
+  SHELL = /tools/bin/bash
+endif
 
 SRC            = /sources
 MOUNT_PT       = $BUILDDIR
@@ -104,7 +108,7 @@ cat << EOF
 
 $i:  $PREV
 	@\$(call echo_message, Building)
-	@./progress_bar.sh \$@ \$\$PPID &
+	@\$(SHELL) progress_bar.sh \$@ \$\$PPID &
 	@echo "\$(nl_)\`date\`\$(nl_)" >logs/\$@
 	@\$(PRT_DU) >>logs/\$@
 EOF

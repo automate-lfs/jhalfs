@@ -435,22 +435,9 @@ mk_LUSER: mk_SETUP
 
 mk_SUDO: mk_LUSER
 	@sudo make SUDO
-	touch \$@
-#
-# The convoluted piece of code below is necessary to provide 'make' with a valid shell in the
-# chroot environment. (Unless someone knows a different way)
-# Manually create the /bin directory and provide link to the /tools dir.
-# Also change the original symlink creation to include (f)orce to prevent failure due to
-#  pre-existing links.
-#
+	@touch \$@
+
 mk_CHROOT: mk_SUDO
-	@if [ ! -e \$(MOUNT_PT)/bin ]; then \\
-	  mkdir \$(MOUNT_PT)/bin; \\
-	  cd \$(MOUNT_PT)/bin && \\
-	  ln -sf /tools/bin/bash bash; ln -sf bash sh; \\
-	  sudo chown -R 0:0 \$(MOUNT_PT)/bin; \\
-	fi;
-	@sudo sed -e 's|^ln -sv |ln -svf |' -i \$(CMDSDIR)/chapter06/*-createfiles
 	@\$(call echo_CHROOT_request)
 	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make CHROOT")
 	@touch \$@

@@ -86,7 +86,16 @@
           </xsl:variable>
             <!-- Creating dirs and files -->
           <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
-            <xsl:text>#!/bin/bash&#xA;set +h&#xA;</xsl:text>
+            <xsl:choose>
+              <xsl:when test="@id='ch-chroot-changingowner' or
+                        @id='ch-chroot-creatingdirs' or
+                        @id='ch-chroot-createfiles'">
+                <xsl:text>#!/tools/bin/bash&#xA;set +h&#xA;</xsl:text>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:text>#!/bin/bash&#xA;set +h&#xA;</xsl:text>
+              </xsl:otherwise>
+            </xsl:choose>
             <xsl:if test="not(@id='ch-system-stripping')">
               <xsl:text>set -e</xsl:text>
             </xsl:if>
