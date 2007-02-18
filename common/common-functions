@@ -59,7 +59,7 @@ clean_builddir() {           #
     else
       # Clean the build directory
       echo -n "Cleaning $BUILDDIR ..."
-      # First delete proc and sys directories, if exit.
+      # First delete proc and sys directories, if exist.
       # Both should be empty, if not be sure to exit.
       if [ -d $BUILDDIR/proc ] ; then
         sudo rmdir $BUILDDIR/proc || exit 1
