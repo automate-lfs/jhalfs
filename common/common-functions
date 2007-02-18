@@ -12,7 +12,7 @@ ${DD_BORDER}
 
 ${tab_}${tab_}${BOLD}${RED}W A R N I N G${OFF}
     Looks like the \$BUILDDIR directory contains subdirectories
-    from a previous HLFS build.
+    from a previous build.
 
     Please format the partition mounted on \$BUILDDIR or set
     a different build directory before running jhalfs.
@@ -52,10 +52,22 @@ clean_builddir() {           #
     if [ ! -d $JHALFSDIR ] || [ ! -d $BUILDDIR/sources ] ; then
       echo "Looks like $BUILDDIR was not populated by a previous jhalfs run."
       exit 1
+    # Test that dev filesystems are not mounted in $BUILDDIR
+    elif mount | grep $BUILDDIR/dev > /dev/null ; then
+      echo "Looks like kernel fylesystems are yet mounted on $BUILDDIR."
+      exit 1
     else
       # Clean the build directory
       echo -n "Cleaning $BUILDDIR ..."
-      sudo rm -rf $BUILDDIR/{bin,boot,etc,home,lib,media,mnt,opt,root,sbin,srv,tmp,tools,cross-tools,usr,var}
+      # First delete proc and sys directories, if exit.
+      # Both should be empty, if not be sure to exit.
+      if [ -d $BUILDDIR/proc ] ; then
+        sudo rmdir $BUILDDIR/proc || exit 1
+      fi
+      if [ -d $BUILDDIR/sys ] ; then
+        sudo rmdir $BUILDDIR/sys || exit 1
+      fi
+      sudo rm -rf $BUILDDIR/{bin,boot,dev,etc,home,lib,media,mnt,opt,root,sbin,srv,tmp,tools,cross-tools,usr,var}
       echo "done"
       echo -n "Cleaning $JHALFSDIR ..."
       sudo rm -rf $JHALFSDIR
