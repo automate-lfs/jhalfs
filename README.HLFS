@@ -7,12 +7,11 @@ $Id$
  changes can occur and the build could be broken for extended periods of
  time.
 
- As of Dec.10.2006 jhalfs cannot build the svn book.  This is a book
- problem and not jhalfs.
+ As of Feb.18.2007 jhalfs cannot build the SVN or 2.4-branch book.
+ This is a book problem and not a jhalfs bug.
 
 
  Build failures detected:
-   -.Some patches are missing or have a bad MD5SUM
-   -.In the SVN book the cooon-toolchain build fails (not sure yet wy)
-   -.In the 2.4 branch, the chapter06 Sed build fails due the applied patch
-     need the autofoo utilities that aren't installed yet at that point.
+
+   -.Several patches are missing or have a bad MD5 sum, thus the tool
+     is unnable to start and test the builds.
