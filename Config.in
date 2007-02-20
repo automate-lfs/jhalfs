@@ -100,7 +100,7 @@ menu "--- BOOK Settings"
 			bool	"sparc"	if BOOK_CLFS
 
 		config	ARCH_ALPHA
-			bool	"alpha"	if BOOK_CLFS
+			bool	"alpha"	if !BOOK_CLFS3
 
 		config	ARCH_ARM
 			bool	"arm"	if BOOK_CLFS2
@@ -119,11 +119,11 @@ menu "--- BOOK Settings"
 
 		config	PLATFORM_GENERIC
 			bool	"Generic platform"
-			
+
 		config	PLATFORM_WRT
 			bool	"WRT - MIPS based wireless router" if ARCH_MIPS
 	endchoice
-	
+
 	choice
 		prompt	"Library"
 		depends	(BOOK_CLFS && !ARCH_ALPHA) || (BOOK_CLFS3 && ARCH_MIPS)
@@ -261,7 +261,7 @@ menu "--- BOOK Settings"
 		default	"alpha"		if ARCH_ALPHA
 		default	"arm"		if ARCH_ARM
 		default	"hppa"		if ARCH_HPPA
-		
+
 	config  MIPS_LEVEL
 		string
 		depends BOOK_CLFS3 && ARCH_MIPS
