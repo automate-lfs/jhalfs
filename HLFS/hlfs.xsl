@@ -85,7 +85,8 @@
       <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
         <xsl:choose>
           <xsl:when test="@id='ch-system-creatingdirs' or
-                    @id='ch-system-createfiles'">
+                    @id='ch-system-createfiles' or
+                    @id='ch-system-strippingagain'">
             <xsl:text>#!/tools/bin/bash&#xA;set +h&#xA;</xsl:text>
           </xsl:when>
           <xsl:otherwise>

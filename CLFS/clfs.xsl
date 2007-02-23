@@ -89,7 +89,8 @@
             <xsl:choose>
               <xsl:when test="@id='ch-chroot-changingowner' or
                         @id='ch-chroot-creatingdirs' or
-                        @id='ch-chroot-createfiles'">
+                        @id='ch-chroot-createfiles' or
+                        @id='ch-system-stripping'">
                 <xsl:text>#!/tools/bin/bash&#xA;set +h&#xA;</xsl:text>
               </xsl:when>
               <xsl:otherwise>
