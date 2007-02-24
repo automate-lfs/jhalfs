@@ -460,7 +460,7 @@ final_system_Makefiles() {             #
       # Rename the scripts
       mv ${script} ${script}$N
     done
-    # Remove Bzip2 binaries before make install
+    # Remove Bzip2 binaries before make install (CLFS-1.0 compatibility)
     sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i final-system$N/*-bzip2$N
     # Delete *old Readline libraries just after make install
     sed -e 's@make install@&\nrm -v /lib/lib{history,readline}*old@' -i final-system$N/*-readline$N
