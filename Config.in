@@ -143,7 +143,7 @@ menu "--- BOOK Settings"
 
 	choice
 		prompt	"Processor type"
-		depends	(BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3) && ((ARCH_X86 && !(DATA_64 || DATA_MULTI)) || ARCH_MIPS || ARCH_HPPA)
+		depends	(BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3) && ((ARCH_X86 && !(DATA_64 || DATA_MULTI)) || ARCH_MIPS || ARCH_HPPA || ARCH_ALPHA)
 		help
 			#-- Choose the target system processor
 
@@ -163,13 +163,34 @@ menu "--- BOOK Settings"
 			bool	"MIPS Big Endian"					if ARCH_MIPS
 
 		config	PROC_unknown
-			bool	"Unknown"						if ARCH_HPPA
+			bool	"Unknown"						if ARCH_HPPA || ARCH_ALPHA
 
 		config	PROC_hppa1
 			bool	"PA 7000 Series"					if ARCH_HPPA
 
 		config	PROC_hppa2
 			bool	"PA 8000 Series"					if ARCH_HPPA
+
+		config	PROC_EV5
+			bool	"EV5 Series"						if ARCH_ALPHA
+
+		config	PROC_EV56
+			bool	"EV56 Series"						if ARCH_ALPHA
+
+		config	PROC_PCA56
+			bool	"PCA56 Series"						if ARCH_ALPHA
+
+		config	PROC_PCA57
+			bool	"PCA57 Series"						if ARCH_ALPHA
+
+		config	PROC_EV6
+			bool	"EV6 Series"						if ARCH_ALPHA
+
+		config	PROC_EV67
+			bool	"EV67 Series"						if ARCH_ALPHA
+
+		config	PROC_EV68
+			bool	"EV68 Series"						if ARCH_ALPHA
 	endchoice
 
 	choice
@@ -217,12 +238,20 @@ menu "--- BOOK Settings"
 		default "sparc-unknown-linux-gnu"	if  ARCH_SPARC && DATA_32
 		default "sparc64-unknown-linux-gnu"	if  ARCH_SPARC && (DATA_64 || DATA_MULTI)
 
-		default	"hppa-unknown-linux-gnu"	if  PROC_unknown
+		default	"hppa-unknown-linux-gnu"	if  PROC_unknown && ARCH_HPPA
 		default	"hppa1.1-unknown-linux-gnu"	if  PROC_hppa1
 		default	"hppa2.0-unknown-linux-gnu"	if  PROC_hppa2
 
 		default	"arm-unknown-linux-gnu"		if  ARCH_ARM
-		default "alpha-unknown-linux-gnu"	if  ARCH_ALPHA
+
+		default "alpha-unknown-linux-gnu"	if  PROC_unknown && ARCH_ALPHA
+		default "alphaev5-unknown-linux-gnu"	if  PROC_EV5
+		default "alphaev56-unknown-linux-gnu"	if  PROC_EV56
+		default "alphapca56-unknown-linux-gnu"	if  PROC_PCA56
+		default "alphapca57-unknown-linux-gnu"	if  PROC_PCA57
+		default "alphaev6-unknown-linux-gnu"	if  PROC_EV6
+		default "alphaev67-unknown-linux-gnu"	if  PROC_EV67
+		default "alphaev68-unknown-linux-gnu"	if  PROC_EV68
 
 	config TARGET32
 		string
