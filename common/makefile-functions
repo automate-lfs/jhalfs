@@ -133,15 +133,15 @@ endef
 #==== FINAL MESSAGES ===
 
 define echo_report
-  @echo
-  @echo $(BOLD) The report file $(BLUE)$(1)$(BOLD) has been created
-  @echo
-  @echo $(WHITE)Please send the $(BOLD)$(MOUNT_PT)/jhalfs/$(1)$(WHITE)
-  @echo file to $(BOLD)manuel@linuxfromscratch.org$(WHITE)
-  @echo
-  @echo That will help us to keep more accurate SBU and
-  @echo disk usage values into the book. Thanks.
-  @echo --------------------------------------------------------------------------------$(WHITE)
+  echo ; \
+  echo $(BOLD) The report file $(BLUE)$(1)$(BOLD) has been created ; \
+  echo ; \
+  echo $(WHITE)Please send the $(BOLD)$(MOUNT_PT)/jhalfs/$(1)$(WHITE) ; \
+  echo file to $(BOLD)manuel@linuxfromscratch.org$(WHITE) ; \
+  echo ; \
+  echo That will help us to keep more accurate SBU and ; \
+  echo disk usage values into the book. Thanks. ; \
+  echo $(BOLD)--------------------------------------------------------------------------------$(WHITE)
 endef
 
 define echo_finished
