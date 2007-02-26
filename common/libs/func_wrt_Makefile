@@ -14,11 +14,8 @@ wrt_Makefile_header() {            #
 #
 # Generated on `date "+%F %X %Z"`
 
-ifeq (\$(shell [ -x /bin/bash ] && echo /bin/bash),/bin/bash)
-  SHELL = /bin/bash
-else
-  SHELL = /tools/bin/bash
-endif
+
+SHELL = /bin/bash
 
 SRC            = /sources
 MOUNT_PT       = $BUILDDIR

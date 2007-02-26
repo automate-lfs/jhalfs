@@ -467,6 +467,7 @@ mk_BLFS_TOOL: mk_CUSTOM_TOOLS
 SETUP:        $chapter4
 LUSER:        $chapter5
 SUDO:         $runasroot
+CHROOT:       SHELL=/tools/bin/bash
 CHROOT:       $chapter6
 BOOT:         $chapter78
 CUSTOM_TOOLS: $custom_list

@@ -824,6 +824,7 @@ mk_BLFS_TOOL: mk_CUSTOM_TOOLS
 SETUP:        $host_prep
 AS_LUSER:     $cross_tools $temptools
 SUDO:	      $orphan_scripts
+CHROOT_JAIL:  SHELL=/tools/bin/bash
 CHROOT_JAIL:  ${chroottools} $testsuitetools $basicsystem  $bootscripttools  $bootabletools
 CUSTOM_TOOLS: $custom_list
 BLFS_TOOL:    $blfs_tool
@@ -926,6 +927,7 @@ mk_BLFS_TOOL: mk_CUSTOM_TOOLS
 SETUP:        $host_prep
 AS_LUSER:     $cross_tools $temptools ${boottools}
 SUDO:	      $orphan_scripts
+AS_ROOT:      SHELL=/tools/bin/bash
 AS_ROOT:      $testsuitetools $basicsystem $bootscripttools $bootabletools
 CUSTOM_TOOLS: $custom_list
 BLFS_TOOL:    $blfs_tool
