@@ -251,12 +251,6 @@ final_system_Makefiles() {    #
     # Keep the script file name
     this_script=`basename $file`
 
-    # Test if the stripping phase must be skipped.
-    # Skip alsp temp-perl for iterative runs
-    case $this_script in
-      *stripping*) [[ "$STRIP" = "n" ]] && continue ;;
-    esac
-
     # Grab the name of the target, strip id number, XXX-script
     name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' \
                                   -e 's@temp-@@' \
@@ -506,7 +500,7 @@ mk_CUSTOM_TOOLS: create-sbu_du-report
 	fi;
 	@touch \$@
 
-mk_ROOT: 
+mk_ROOT:
 	@\$(call echo_SU_request)
 	@echo "$VERSION-embedded - jhalfs build" > clfs-release && \\
 	sudo mv clfs-release \$(MOUNT_PT)/etc

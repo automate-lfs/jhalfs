@@ -66,11 +66,7 @@
           </xsl:variable>
             <!-- Creating dirs and files -->
           <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
-            <xsl:text>#!/bin/bash&#xA;set +h&#xA;</xsl:text>
-            <xsl:if test="not(@id='ch-system-stripping')">
-              <xsl:text>set -e&#xA;</xsl:text>
-            </xsl:if>
-            <xsl:text>&#xA;</xsl:text>
+            <xsl:text>#!/bin/bash&#xA;set +h&#xA;set -e&#xA;&#xA;</xsl:text>
             <!-- Set envars needed by uClibc -->
             <xsl:if test="@id='ch-cross-tools-uclibc'">
               <xsl:copy-of select="//sect1[@id='ch-cross-tools-toolchain']/screen"/>

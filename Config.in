@@ -743,6 +743,7 @@ menu "--- Build Settings"
 	config	STRIP
 		bool "Strip Installed Binaries/Libraries"
 		default y
+		depends on !BOOK_CLFS3
 
 	config	VIMLANG
 		bool "Install vim-lang package"
