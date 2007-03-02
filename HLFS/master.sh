@@ -578,7 +578,6 @@ mk_BOOT: mk_CHROOT
 mk_CUSTOM_TOOLS: create-sbu_du-report
 	@if [ "\$(ADD_CUSTOM_TOOLS)" = "y" ]; then \\
 	  \$(call sh_echo_PHASE,Building CUSTOM_TOOLS); \\
-	  \$(call sh_echo_CHROOT_request); \\
 	  sudo mkdir -p ${BUILDDIR}${TRACKING_DIR}; \\
 	  (sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make CUSTOM_TOOLS"); \\
 	fi;
@@ -587,7 +586,6 @@ mk_CUSTOM_TOOLS: create-sbu_du-report
 mk_BLFS_TOOL: mk_CUSTOM_TOOLS
 	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
 	  \$(call sh_echo_PHASE,Building BLFS_TOOL); \\
-	  \$(call sh_echo_CHROOT_request); \\
 	  sudo mkdir -p $BUILDDIR$TRACKING_DIR; \\
 	  (sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BLFS_TOOL"); \\
 	fi;
