@@ -24,6 +24,12 @@ define echo_PHASE
   @echo $(WHITE)
 endef
 
+define sh_echo_PHASE
+  echo $(BOLD)--------------------------------------------------------------------------------;\
+  echo  $(tab_)$(tab_)Executing $(BLUE)$(1)$(WHITE) scripts; \
+  echo $(BOLD)--------------------------------------------------------------------------------echo $(WHITE)
+endef
+
 define echo_SU_request
   @echo $(BOLD)--------------------------------------------------------------------------------
   @echo $(BLUE)$@
