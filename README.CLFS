@@ -8,7 +8,15 @@
 
        CLFS SYSROOT METHOD NOTES
 
-  None for now.
+  .- If you want to install additional custom packages via "Add custom tools
+  support" and/or select "Add blfs-tool support", be sure to review and edit
+  their pàckages build scripts to follow the sysroot build method or you will
+  end messing your host system. Be very carefull with this.
+
+  .- If you install additional packages not using the "Add custom tools support"
+  feature (i,e, you will install it manually after finished the Makefile run)
+  you will need to run manually the "Changing the Ownership Of The CLFS System"
+  phase commands found in the book.
 
 
 
@@ -18,6 +26,11 @@
   feature. To learn how it works and how to use it, see the section titled
      "Adding Post-System Build Configuration Files and Extra Packages"
   found in README.CUSTOM. That is also applicable to bootloaders installation.
+
+  .- If you install additional packages not using the "Add custom tools support"
+  feature (i,e, you will install it manually after finished the Makefile run)
+  you will need to run manually the "Changing the Ownership Of The CLFS System"
+  phase commands found in the book.
 
   .- If your target is a MIPS wireless router, you must to select "mips" as
   your target architecture and "WRT - MIPS based wireless route" as your
