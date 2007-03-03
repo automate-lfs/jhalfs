@@ -14,4 +14,4 @@ $Id$
  Build failures detected:
 
    -.Several patches are missing or have a bad MD5 sum, thus the tool
-     is unnable to start and test the builds.
+     is unable to start and test the builds.

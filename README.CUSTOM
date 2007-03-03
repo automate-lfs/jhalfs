@@ -12,7 +12,7 @@ was easier to add a tool for the user(s) to code their own package needs.
 
   There is two areas that can be customized: how the base system is build
 and what additional configurations and packages requires your hardware to can
-boot and work with. Each one of this areas is handled in a diferent way.
+boot and work with. Each one of this areas is handled in a different way.
 
 
 
@@ -34,7 +34,7 @@ boot and work with. Each one of this areas is handled in a diferent way.
 
   EDITING THE BASE SCRIPTS
 
-  Fisrt step is to generate the build scripts with book defaults. To do that,
+  First step is to generate the build scripts with book defaults. To do that,
 configure jhalfs activating any option you want included, but do not select
 "Run the Makefile" option.
 
@@ -70,7 +70,7 @@ string until have it ordered in the way you want.
   To insert a new package, for example to build Cracklib to can build Shadow
 with Cracklib support, first you should decide before what default package it
 need be installed, in this example before 107-shadow. Then create a new script
-containg the needed commands, using an existing one as template, and name it with
+containing the needed commands, using an existing one as template, and name it with
 the same 3-digits string used for that mentioned default package, but adding
 another 1-digit string. In our example, the new script to build Cracklib just
 before Shadow will be named 107-1-cracklib. This naming schema allow to insert
@@ -91,13 +91,13 @@ based on the changes you made to the build scripts.
        ADDING POST-SYSTEM BUILD CONFIGURATION FILES AND EXTRA PACKAGES
 
   The installation of BLFS packages is handled via blfs-tool and activated
-when you select the appropiate menu option. See README and README.BLFS for
+when you select the appropriate menu option. See README and README.BLFS for
 more info.
 
-  The feature descrbed below was added so users could install remaining
-configuration files, build the packages necessary to access the internet
+  The feature described below was added so users could install remaining
+configuration files, build the packages necessary to access the Internet
 or to support specific hardware, or to install basic utilities that need
-have availables from the beginning, and was not intended to replace the BLFS
+have available from the beginning, and was not intended to replace the BLFS
 install system.
 
   :::NOTICE:::
@@ -134,7 +134,7 @@ configuration file which enables/disables the inclusion of personal scripts.
     and rename it.
 
   2. Populate the variables with the necessary values.
-       Variable function is self explanitory except for the inclusion of the
+       Variable function is self explanatory except for the inclusion of the
        build cmds. If the package you want to include is found in the BLFS
        book then you only need to copy/paste the cmd strings between the xEOFx
        pairs, otherwise you will need to define the build cmds yourself.
@@ -145,7 +145,7 @@ configuration file which enables/disables the inclusion of personal scripts.
   3. As mentioned previously the build order is dictated by the 3 digit number
      in the file name. If a package has dependencies it must be numerically
      larger than the dependency files.
-       ie. The package mc has glib as a dependency and build order is
+       i.e. The package mc has glib as a dependency and build order is
            950-glib
 	   951-mc
 

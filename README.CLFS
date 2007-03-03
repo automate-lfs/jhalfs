@@ -10,8 +10,8 @@
 
   .- If you want to install additional custom packages via "Add custom tools
   support" and/or select "Add blfs-tool support", be sure to review and edit
-  their pàckages build scripts to follow the sysroot build method or you will
-  end messing your host system. Be very carefull with this.
+  their packages build scripts to follow the sysroot build method or you will
+  end messing your host system. Be very careful with this.
 
   .- If you install additional packages not using the "Add custom tools support"
   feature (i,e, you will install it manually after finished the Makefile run)

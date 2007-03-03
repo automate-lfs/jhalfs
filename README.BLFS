@@ -164,7 +164,7 @@ $Id$
    discussed. They are due build procedures and/or BLFS layout particularities
    than we can't handle. In several cases editing the build scripts is mandatory.
    You may need also to insert some build script created by you to resolve
-   unhandled dependencies and/or to remove some script installing the affected
+   unhanded dependencies and/or to remove some script installing the affected
    package by hand.
 
    4.1  BLFS BOOTSCRIPTS
