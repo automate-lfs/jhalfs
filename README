@@ -143,7 +143,10 @@ $Id$
                /blfs-tool-deps/9xx-*
                /libs/func_*
 
-        /contrib/jhalfs-paco.patch
+        /custom/template
+               /config/
+               /examples/*
+               /examples_CLFS-E/*
 
         /extras/do_copy_files
                /do_ica_prep
@@ -164,8 +167,9 @@ $Id$
 
         README
         README.BLFS
+        README.CLFS
         README.HLFS
-        README.PACO
+        README.CUSTOM
         TODO
         LICENSE
 

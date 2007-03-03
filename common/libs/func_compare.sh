@@ -55,7 +55,7 @@ wrt_compare_work() {               #
   local ITERATION=$1
   local   PREV_IT=$2
   local PRUNEPATH="/dev /home /${SCRIPT_ROOT} /lost+found /media /mnt /opt /proc \
-/sources /root /srv /sys /tmp /tools /usr/local /usr/src /var/log/paco"
+/sources /root /srv /sys /tmp /tools /usr/local /usr/src"
 
   local    ROOT_DIR=/
   local DEST_TOPDIR=/${SCRIPT_ROOT}
