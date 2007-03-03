@@ -908,16 +908,16 @@ mk_FINAL:
 
 mk_CUSTOM_TOOLS: mk_FINAL
 	@if [ "\$(ADD_CUSTOM_TOOLS)" = "y" ]; then \\
-	  mkdir -p ${TRACKING_DIR}; \\
 	  \$(call sh_echo_PHASE,Building CUSTOM_TOOLS); \\
+	  mkdir -p ${TRACKING_DIR}; \\
 	  ( source /root/.bash_profile && make CUSTOM_TOOLS ); \\
 	fi;
 	@touch \$@
 
 mk_BLFS_TOOL: mk_CUSTOM_TOOLS
 	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
-	  mkdir -p $TRACKING_DIR; \\
 	  \$(call sh_echo_PHASE,Building BLFS_TOOL); \\
+	  mkdir -p $TRACKING_DIR; \\
 	  ( source /root/.bash_profile && make BLFS_TOOL ); \\
 	fi
 	@touch \$@

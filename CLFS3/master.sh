@@ -493,8 +493,8 @@ mk_LUSER: mk_SETUP
 	@touch \$@
 
 mk_CUSTOM_TOOLS: create-sbu_du-report
-	\$(call echo_PHASE,Building CUSTOM_TOOLS);
 	@if [ "\$(ADD_CUSTOM_TOOLS)" = "y" ]; then \\
+	  \$(call sh_echo_PHASE,Building CUSTOM_TOOLS); \\
 	  (sudo \$(SU_LUSER) "mkdir -p $BUILDDIR$TRACKING_DIR"); \\
 	  (sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make CUSTOM_TOOLS"); \\
 	fi;

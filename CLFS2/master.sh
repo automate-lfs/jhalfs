@@ -422,7 +422,7 @@ build_Makefile() {            # Construct a Makefile from the book scripts
 (
 cat << EOF
 
-all:	ck_UID mk_SETUP mk_LUSER create-sbu_du-report mk_ROOT
+all:	ck_UID mk_SETUP mk_LUSER create-sbu_du-report mk_CUSTOM_TOOLS mk_BLFS_TOOL mk_ROOT
 	@sudo make restore-luser-env
 	@sudo make do-housekeeping
 	@\$(call echo_finished,$VERSION)
@@ -446,16 +446,16 @@ mk_LUSER: mk_SETUP
 	@touch \$@
 
 mk_CUSTOM_TOOLS: create-sbu_du-report
-	\$(call echo_PHASE,CUSTOM_TOOLS)
 	@if [ "\$(ADD_CUSTOM_TOOLS)" = "y" ]; then \\
+	  \$(call sh_echo_PHASE,Building CUSTOM_TOOLS); \\
 	  (sudo \$(SU_LUSER) "mkdir -p $BUILDDIR$TRACKING_DIR"); \\
 	  (sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make CUSTOM_TOOLS"); \\
 	fi;
 	@touch \$@
 
 mk_BLFS_TOOL: mk_CUSTOM_TOOLS
-	\$(call echo_PHASE,BLFS_TOOL)
 	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
+	  \$(call sh_echo_PHASE,Building BLFS_TOOL); \\
 	  (sudo \$(SU_LUSER) "mkdir -p $BUILDDIR$TRACKING_DIR"); \\
 	  (sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make BLFS_TOOL"); \\
 	fi;
