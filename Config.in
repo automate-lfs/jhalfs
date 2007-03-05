@@ -103,7 +103,7 @@ menu "--- BOOK Settings"
 			bool	"alpha"	if !BOOK_CLFS3
 
 		config	ARCH_ARM
-			bool	"arm"	if BOOK_CLFS2
+			bool	"arm"	if !BOOK_CLFS
 
 		config	ARCH_HPPA
 			bool	"hppa"	if BOOK_CLFS2
@@ -143,7 +143,7 @@ menu "--- BOOK Settings"
 
 	choice
 		prompt	"Processor type"
-		depends	(BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3) && ((ARCH_X86 && !(DATA_64 || DATA_MULTI)) || ARCH_MIPS || ARCH_HPPA || ARCH_ALPHA)
+		depends	(BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3) && ((ARCH_X86 && !(DATA_64 || DATA_MULTI)) || ARCH_MIPS || ARCH_HPPA || ARCH_ALPHA || (ARCH_ARM && BOOK_CLFS3))
 		help
 			#-- Choose the target system processor
 
@@ -191,6 +191,15 @@ menu "--- BOOK Settings"
 
 		config	PROC_EV68
 			bool	"EV68 Series"						if ARCH_ALPHA
+
+		config	PROC_ARM
+			bool	"Generic arm, little endian"				if ARCH_ARM
+
+		config	PROC_ARM5L
+			bool	"Generic arm, version 5, little endian"			if ARCH_ARM
+
+		config	PROC_ARM5B
+			bool	"Generic arm, version 5, big endian"			if ARCH_ARM
 	endchoice
 
 	choice
@@ -242,7 +251,11 @@ menu "--- BOOK Settings"
 		default	"hppa1.1-unknown-linux-gnu"	if  PROC_hppa1
 		default	"hppa2.0-unknown-linux-gnu"	if  PROC_hppa2
 
-		default	"arm-unknown-linux-gnu"		if  ARCH_ARM
+		default	"arm-unknown-linux-gnu"		if  ARCH_ARM && BOOK_CLFS2
+
+		default "arm-unknown-linux-uclibc"	if  PROC_ARM
+		default "armv5l-unknown-linux-uclibc"	if  PROC_ARM5L
+		default "armv5b-unknown-linux-uclibc"	if  PROC_ARM5B
 
 		default "alpha-unknown-linux-gnu"	if  PROC_unknown && ARCH_ALPHA
 		default "alphaev5-unknown-linux-gnu"	if  PROC_EV5
