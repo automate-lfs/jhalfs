@@ -109,10 +109,8 @@ cat << EOF
 	@\$(call echo_message, Building)
 	@mkdir \$(MOUNT_PT)/tools && \\
 	rm -f /tools && \\
-	ln -s \$(MOUNT_PT)/tools / && \\
-	touch \$@ && \\
-	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
-	echo --------------------------------------------------------------------------------\$(WHITE)
+	ln -s \$(MOUNT_PT)/tools /
+	@\$(call housekeeping)
 
 021-addinguser:  020-creatingtoolsdir
 	@\$(call echo_message, Building)
@@ -124,10 +122,8 @@ cat << EOF
 	fi;
 	@chown \$(LUSER) \$(MOUNT_PT)/tools && \\
 	chmod -R a+wt \$(MOUNT_PT)/\$(SCRIPT_ROOT) && \\
-	chmod a+wt \$(SRCSDIR) && \\
-	touch \$@ && \\
-	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
-	echo --------------------------------------------------------------------------------\$(WHITE)
+	chmod a+wt \$(SRCSDIR)
+	@\$(call housekeeping)
 
 022-settingenvironment:  021-addinguser
 	@\$(call echo_message, Building)
@@ -151,10 +147,8 @@ cat << EOF
 	chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bashrc && \\
 	chmod -R a+wt \$(MOUNT_PT) && \\
 	touch envars && \\
-	chown \$(LUSER) envars && \\
-	touch \$@ && \\
-	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
-	echo --------------------------------------------------------------------------------\$(WHITE)
+	chown \$(LUSER) envars
+	@\$(call housekeeping)
 EOF
 ) >> $MKFILE.tmp
   chapter3=" 020-creatingtoolsdir 021-addinguser 022-settingenvironment"
@@ -546,12 +540,12 @@ ck_UID:
 
 mk_SETUP:
 	@\$(call echo_SU_request)
-	@sudo make SETUP
+	@sudo make BREAKPOINT=\$(BREAKPOINT) SETUP
 	@touch \$@
 
 mk_LUSER: mk_SETUP
 	@\$(call echo_SULUSER_request)
-	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make LUSER" )
+	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) LUSER" )
 	@sudo make restore-luser-env
 	@touch \$@
 
@@ -567,19 +561,19 @@ mk_CHROOT: mk_SUDO
 	  sudo chown -R 0:0 \$(MOUNT_PT)/dev;
 	fi;
 	@\$(call echo_CHROOT_request)
-	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make CHROOT")
+	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) CHROOT")
 	@touch \$@
 
 mk_BOOT: mk_CHROOT
 	@\$(call echo_CHROOT_request)
-	@( sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BOOT")
+	@( sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) BOOT")
 	@touch \$@
 
 mk_CUSTOM_TOOLS: create-sbu_du-report
 	@if [ "\$(ADD_CUSTOM_TOOLS)" = "y" ]; then \\
 	  \$(call sh_echo_PHASE,Building CUSTOM_TOOLS); \\
 	  sudo mkdir -p ${BUILDDIR}${TRACKING_DIR}; \\
-	  (sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make CUSTOM_TOOLS"); \\
+	  (sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) CUSTOM_TOOLS"); \\
 	fi;
 	@touch \$@
 
@@ -587,7 +581,7 @@ mk_BLFS_TOOL: mk_CUSTOM_TOOLS
 	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
 	  \$(call sh_echo_PHASE,Building BLFS_TOOL); \\
 	  sudo mkdir -p $BUILDDIR$TRACKING_DIR; \\
-	  (sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BLFS_TOOL"); \\
+	  (sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) BLFS_TOOL"); \\
 	fi;
 	@touch \$@
 

@@ -26,9 +26,7 @@ cat << EOF
 	else \\
 		touch luser-exist; \\
 	fi;
-	@touch \$@ && \\
-	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
-	echo --------------------------------------------------------------------------------\$(WHITE)
+	@\$(call housekeeping)
 
 026-settingenvironment:  025-addinguser
 	@\$(call echo_message, Building)
@@ -54,9 +52,7 @@ cat << EOF
 	@chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bashrc && \\
 	touch envars && \\
 	chown \$(LUSER):\$(LGROUP) envars
-	@touch \$@ && \\
-	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
-	echo --------------------------------------------------------------------------------\$(WHITE)
+	@\$(call housekeeping)
 
 027-create-directories: 026-settingenvironment
 	@\$(call echo_message, Building)
@@ -74,10 +70,7 @@ cat << EOF
 	@for dir in \$(MOUNT_PT)/usr{,/local}; do \\
 	  ln -s share/{man,doc,info} \$\$dir ; \\
 	done
-
-	@touch \$@ && \\
-	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
-	echo --------------------------------------------------------------------------------\$(WHITE)
+	@\$(call housekeeping)
 
 028-creating-sysfile: 027-create-directories
 	@\$(call echo_message, Building)
@@ -105,10 +98,7 @@ cat << EOF
 	@chmod 664 \$(MOUNT_PT)/var/run/utmp \$(MOUNT_PT)/var/log/lastlog
 	@chown -R \$(LUSER) \$(MOUNT_PT) && \\
 	chmod -R a+wt \$(MOUNT_PT)/\$(SCRIPT_ROOT)
-
-	@touch \$@ && \\
-	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
-	echo --------------------------------------------------------------------------------\$(WHITE)
+	@\$(call housekeeping)
 
 EOF
 ) >> $MKFILE.tmp
@@ -437,19 +427,19 @@ ck_UID:
 
 mk_SETUP:
 	@\$(call echo_SU_request)
-	@sudo make SETUP
+	@sudo make BREAKPOINT=\$(BREAKPOINT) SETUP
 	@touch \$@
 
 mk_LUSER: mk_SETUP
 	@\$(call echo_SULUSER_request)
-	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make LUSER" )
+	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) LUSER" )
 	@touch \$@
 
 mk_CUSTOM_TOOLS: create-sbu_du-report
 	@if [ "\$(ADD_CUSTOM_TOOLS)" = "y" ]; then \\
 	  \$(call sh_echo_PHASE,Building CUSTOM_TOOLS); \\
 	  (sudo \$(SU_LUSER) "mkdir -p $BUILDDIR$TRACKING_DIR"); \\
-	  (sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make CUSTOM_TOOLS"); \\
+	  (sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) CUSTOM_TOOLS"); \\
 	fi;
 	@touch \$@
 
@@ -457,7 +447,7 @@ mk_BLFS_TOOL: mk_CUSTOM_TOOLS
 	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
 	  \$(call sh_echo_PHASE,Building BLFS_TOOL); \\
 	  (sudo \$(SU_LUSER) "mkdir -p $BUILDDIR$TRACKING_DIR"); \\
-	  (sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make BLFS_TOOL"); \\
+	  (sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) BLFS_TOOL"); \\
 	fi;
 	@touch \$@
 
@@ -465,7 +455,7 @@ mk_ROOT: create-sbu_du-report
 	@\$(call echo_SU_request)
 	@echo "$VERSION-sysroot - jhalfs build" > clfs-release && \\
 	sudo mv clfs-release \$(MOUNT_PT)/etc
-	@sudo make ROOT
+	@sudo make BREAKPOINT=\$(BREAKPOINT) ROOT
 	@touch \$@
 
 SETUP:        $host_prep

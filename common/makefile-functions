@@ -129,8 +129,11 @@ define housekeeping
   @touch  $@ && \
   sleep .25 && \
   echo  -e "\n" $(BOLD)Target $(BLUE)$@ $(WHITE)$(BOLD)OK && \
-  echo --------------------------------------------------------------------------------$(WHITE)
-
+  echo --------------------------------------------------------------------------------$(WHITE) && \
+  if [ "$(BREAKPOINT)" = "$@" ] ; then \
+     echo $(tab_)$(RED)The build has been stopped at $(BLUE)$@ $(RED)as requested$(WHITE) ; \
+     false ; \
+  fi
 endef
 
 #=======================

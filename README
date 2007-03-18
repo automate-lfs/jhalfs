@@ -261,6 +261,19 @@ $Id$
        understanding of host/target hardware combination. Please read the book
        carefully and don't skip the easy parts (there are none..)
 
+    Q. "How could I stop the build at a predefined chosen point?"
+    A. Launch the Makefile manually passing the last numbered target to be build
+       as the break point. For example:
+
+          make BREAKPOINT=84-bash
+
+       The build can be stopped also at the end of a top-level build phase by
+       calling directly the appropriate mk_* target. For example:
+
+          make mk_LUSER
+
+       See the Makefile to know the proper target names for that book build.
+
 Authors:
   George Boudreau
   Manuel Canales Esparcia
