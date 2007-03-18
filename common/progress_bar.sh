@@ -23,6 +23,13 @@ declare -a  GRAPHIC_STR="| / - \\ + "
 declare -i  SEC=0  # Seconds accumulator
 declare -i  PREV_SEC=0
 
+# Prevent segfault on stripping phases
+if [[ "$SHELL" = "/bin/bash" ]] ; then
+  SLEEP=/bin/sleep
+else
+  SLEEP=/tools/bin/sleep
+fi
+
 write_or_exit() {
     # make has been killed or failed or run to completion, leave
   [[ ! -e /proc/${MAKE_PPID} ]] && echo -n "${CURSOR_ON}" && exit
@@ -43,7 +50,7 @@ while true ; do
       # Loop through the animation string
     for GRAPHIC_CHAR in ${GRAPHIC_STR} ; do
       write_or_exit "${CSI}$((SEC + 3))G${GRAPHIC_CHAR}"
-      sleep .12 # This value MUST be less than .2 seconds.
+      $SLEEP .12 # This value MUST be less than .2 seconds.
     done
 
       # A BASH internal variable, the number of seconds the script
