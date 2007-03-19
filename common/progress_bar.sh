@@ -24,10 +24,10 @@ declare -i  SEC=0  # Seconds accumulator
 declare -i  PREV_SEC=0
 
 # Prevent segfault on stripping phases
-if [[ "$SHELL" = "/bin/bash" ]] ; then
-  SLEEP=/bin/sleep
-else
+if [[ "$BASHBIN" = "/tools/bin/bash" ]] ; then
   SLEEP=/tools/bin/sleep
+else
+  SLEEP=/bin/sleep
 fi
 
 write_or_exit() {
