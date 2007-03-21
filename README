@@ -234,7 +234,7 @@ $Id$
 
     Q. "What is the function of "User account" and "Group account" menu settings?"
     A. If you are running jhalfs from a low or non-privileged account you may not
-       have the priv to create/delete the user needed to build temporally tools.
+       have the priv to create/delete the user needed to build temporary tools.
        These settings allow you to use your own user and group name to do that
        build steps.
 

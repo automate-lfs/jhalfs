@@ -276,7 +276,7 @@ chapter6_Makefiles() {
 #----------------------------#
 chapter78_Makefiles() {
 #----------------------------#
-  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter7/8 ( BOOT ) ${R_arrow}"
+  echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter7/8   ( BOOT ) ${R_arrow}"
 
   for file in chapter0{7,8}/* ; do
     # Keep the script file name
