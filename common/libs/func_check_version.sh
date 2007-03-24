@@ -40,7 +40,7 @@ inline_doc
   echo -ne "${TXT}${dotSTR:${#TXT}} ${L_arrow}${BOLD}${tst_version}${OFF}${R_arrow}"
 
 #  echo -ne "$TXT:\t${L_arrow}${BOLD}${tst_version}${OFF}${R_arrow}"
-  IFS=".-(p"   # Split up w.x.y.z as well as w.x.y-rc  (catch release candidates)
+  IFS=".-(pa"   # Split up w.x.y.z as well as w.x.y-rc  (catch release candidates)
   set -- $ref_version # set postional parameters to minimum ver values
   ref_major=$1; ref_minor=$2; ref_revision=$3
   #
@@ -69,7 +69,7 @@ check_prerequisites() {      #
   if [ ! "${PROGNAME}" = "hlfs" ]; then
     check_version "2.6.2"    "`uname -r`"                                     "KERNEL"
     check_version "2.0.5"    "$BASH_VERSION"                                  "BASH"
-    check_version "3.0.0"    "`gcc -dumpversion`"                             "GCC"
+    check_version "3.0.1"    "`gcc -dumpversion`"                             "GCC"
     libcVer="`/lib/libc.so.6 | head -n1`"
     libcVer="${libcVer##*version }"
     check_version "2.2.5"    ${libcVer%%,*}                                     "GLIBC"
@@ -77,6 +77,7 @@ check_prerequisites() {      #
     check_version "1.14"     "$(tar --version | head -n1 | cut -d" " -f4)"      "TAR"
     bzip2Ver="$(bzip2 --version 2>&1 < /dev/null | head -n1 | cut -d" " -f8)"
     check_version "1.0.2"    "${bzip2Ver%%,*}"                                   "BZIP2"
+    check_version "1.26a"     "$(bison --version | head -n1 | cut -d" " -f4)"     "BISON"
     check_version "5.0"      "$(chown --version | head -n1 | cut -d")" -f2)"     "COREUTILS"
     check_version "2.8"      "$(diff --version  | head -n1 | cut -d" " -f4)"     "DIFF"
     check_version "4.1.20"   "$(find --version  | head -n1 | cut -d" " -f4)"     "FIND"
