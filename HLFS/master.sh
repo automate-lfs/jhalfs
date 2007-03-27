@@ -558,7 +558,7 @@ mk_CHROOT: mk_SUDO
 	  mkdir \$(MOUNT_PT)/dev && \\
 	  sudo mknod -m 666 \$(MOUNT_PT)/dev/null c 1 3 && \\
 	  sudo mknod -m 600 \$(MOUNT_PT)/dev/console c 5 1 && \\
-	  sudo chown -R 0:0 \$(MOUNT_PT)/dev;
+	  sudo chown -R 0:0 \$(MOUNT_PT)/dev; \\
 	fi;
 	@\$(call echo_CHROOT_request)
 	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) CHROOT")
