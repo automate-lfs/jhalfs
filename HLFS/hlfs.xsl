@@ -302,6 +302,13 @@
           </xsl:when>
         </xsl:choose>
       </xsl:when>
+      <!-- Fixing Butterfly sanity checks  -->
+      <xsl:when test="contains(string(),'./fortify-test')
+                      or contains(string(),'./ssp-test')">
+        <xsl:text>!</xsl:text>
+        <xsl:apply-templates/>
+        <xsl:text>&#xA;</xsl:text>
+      </xsl:when>
       <!-- Don't stop on strip run -->
       <xsl:when test="contains(string(),'strip ')">
         <xsl:apply-templates/>
