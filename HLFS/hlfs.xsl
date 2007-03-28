@@ -305,7 +305,7 @@
       <!-- Fixing Butterfly sanity checks  -->
       <xsl:when test="contains(string(),'./fortify-test')
                       or contains(string(),'./ssp-test')">
-        <xsl:text>!</xsl:text>
+        <xsl:text>! </xsl:text>
         <xsl:apply-templates/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
