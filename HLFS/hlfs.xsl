@@ -99,8 +99,7 @@
           <xsl:text>set -e&#xA;</xsl:text>
         </xsl:if>
         <xsl:text>&#xA;</xsl:text>
-        <xsl:if test="(sect2[@role='installation'] and
-                           not(@id='bootable-kernel'))">
+        <xsl:if test="(sect2[@role='installation'])">
           <xsl:text>cd $PKGDIR&#xA;</xsl:text>
           <xsl:if test="@id='ch-system-uclibc'">
              <xsl:text>pushd ../; tar -xvf gettext-&gettext-version;.*; popd; &#xA;</xsl:text>
@@ -132,9 +131,11 @@
           </xsl:if>
           <!-- END 2.4-branch toolchain -->
 
+<!-- temporary
           <xsl:if test="@id='bootable-bootscripts'">
              <xsl:text>pushd ../; tar -xvf blfs-bootscripts-&blfs-bootscripts-version;.* ; popd; &#xA;</xsl:text>
           </xsl:if>
+-->
         </xsl:if>
         <xsl:apply-templates select=".//para/userinput | .//screen"/>
         <xsl:text>exit</xsl:text>
@@ -209,11 +210,14 @@
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
       <!-- Fixing bootscripts installation -->
+
+<!-- temporary
       <xsl:when test="ancestor::sect1[@id='bootable-bootscripts'] and
                 string() = 'make install'">
         <xsl:text>make install&#xA;</xsl:text>
         <xsl:text>cd ../blfs-bootscripts-&blfs-bootscripts-version;&#xA;</xsl:text>
       </xsl:when>
+-->
       <!-- Compile the keymap into the kernel has been dissabled -->
       <xsl:when test="contains(string(),'defkeymap')"/>
       <!-- Copying the kernel config file -->

@@ -431,6 +431,11 @@ chapter7_Makefiles() {       # Create a bootable system.. kernel, bootscripts..e
         blfs_bootscripts=$(get_package_tarball_name "blfs-bootscripts" | sed -e 's/.tar.*//' )
         echo -e "\t@echo \"\$(MOUNT_PT)\$(SRC)/$blfs_bootscripts\" >> sources-dir" >> $MKFILE.tmp
         ;;
+      *kernel)
+        name="linux"
+        pkg_tarball=$(get_package_tarball_name $name)
+        CHROOT_Unpack "$pkg_tarball"
+	;;
     esac
 
     case "${this_script}" in
@@ -453,11 +458,12 @@ chapter7_Makefiles() {       # Create a bootable system.. kernel, bootscripts..e
 cat << EOF
 	@ROOT=\`head -n1 \$(SRC)/\$(PKG_LST) | sed 's@^./@@;s@/.*@@'\` && \\
 	rm -r \$(SRC)/\$\$ROOT
-	@rm -r \`cat sources-dir\` && \\
+	@rm -rf \`cat sources-dir\` && \\
 	rm sources-dir
 EOF
 ) >> $MKFILE.tmp
        ;;
+      *kernel)       CHROOT_wrt_RemoveBuildDirs "dummy" ;;
     esac
 
     # Include a touch of the target name so make can check if it's already been made.
