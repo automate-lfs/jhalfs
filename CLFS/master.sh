@@ -792,6 +792,7 @@ mk_SUDO: mk_CROSS
 mk_SYSTOOLS: mk_SUDO
 	@\$(call echo_CHROOT_request)
 	@\$(call echo_PHASE, CHROOT JAIL )
+	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) PREP_CHROOT_JAIL")
 	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) CHROOT_JAIL")
 	@touch \$@
 
@@ -811,13 +812,15 @@ mk_BLFS_TOOL: mk_CUSTOM_TOOLS
 	fi;
 	@touch \$@
 
-SETUP:        $host_prep
-AS_LUSER:     $cross_tools $temptools
-SUDO:	      $orphan_scripts
-CHROOT_JAIL:  SHELL=/tools/bin/bash
-CHROOT_JAIL:  ${chroottools} $testsuitetools $basicsystem  $bootscripttools  $bootabletools
-CUSTOM_TOOLS: $custom_list
-BLFS_TOOL:    $blfs_tool
+SETUP:            $host_prep
+AS_LUSER:         $cross_tools $temptools
+SUDO:	          $orphan_scripts
+PREP_CHROOT_JAIL:  SHELL=/tools/bin/bash
+PREP_CHROOT_JAIL: ${chroottools}
+CHROOT_JAIL:       SHELL=/tools/bin/bash
+CHROOT_JAIL:      $testsuitetools $basicsystem  $bootscripttools  $bootabletools
+CUSTOM_TOOLS:     $custom_list
+BLFS_TOOL:        $blfs_tool
 
 
 create-sbu_du-report:  mk_SYSTOOLS
