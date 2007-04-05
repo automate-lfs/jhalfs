@@ -774,32 +774,32 @@ ck_UID:
 #---------------AS ROOT
 mk_SETUP:
 	@\$(call echo_SU_request)
-	@sudo make make BREAKPOINT=\$(BREAKPOINT) SETUP
+	@sudo make BREAKPOINT=\$(BREAKPOINT) SETUP
 	@touch \$@
 
 #---------------AS LUSER
 mk_CROSS: mk_SETUP
 	@\$(call echo_PHASE,Cross and Temporary Tools)
-	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make make BREAKPOINT=\$(BREAKPOINT) AS_LUSER" )
+	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) AS_LUSER" )
 	@sudo make restore-luser-env
 	@touch \$@
 
 mk_SUDO: mk_CROSS
-	@sudo make make BREAKPOINT=\$(BREAKPOINT) SUDO
+	@sudo make BREAKPOINT=\$(BREAKPOINT) SUDO
 	@touch \$@
 
 #---------------CHROOT JAIL
 mk_SYSTOOLS: mk_SUDO
 	@\$(call echo_CHROOT_request)
 	@\$(call echo_PHASE, CHROOT JAIL )
-	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make make BREAKPOINT=\$(BREAKPOINT) CHROOT_JAIL")
+	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) CHROOT_JAIL")
 	@touch \$@
 
 mk_CUSTOM_TOOLS: create-sbu_du-report
 	@if [ "\$(ADD_CUSTOM_TOOLS)" = "y" ]; then \\
 	  \$(call sh_echo_PHASE,Building CUSTOM_TOOLS); \\
 	  sudo mkdir -p ${BUILDDIR}${TRACKING_DIR}; \\
-	  (sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make make BREAKPOINT=\$(BREAKPOINT) CUSTOM_TOOLS"); \\
+	  (sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) CUSTOM_TOOLS"); \\
 	fi;
 	@touch \$@
 
@@ -807,7 +807,7 @@ mk_BLFS_TOOL: mk_CUSTOM_TOOLS
 	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
 	  \$(call sh_echo_PHASE,Building BLFS_TOOL); \\
 	  sudo mkdir -p $BUILDDIR$TRACKING_DIR; \\
-	  sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make make BREAKPOINT=\$(BREAKPOINT) BLFS_TOOL"; \\
+	  sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) BLFS_TOOL"; \\
 	fi;
 	@touch \$@
 
@@ -877,32 +877,32 @@ ck_UID:
 
 mk_SETUP:
 	@\$(call echo_SU_request)
-	@sudo make make BREAKPOINT=\$(BREAKPOINT) SETUP
+	@sudo make BREAKPOINT=\$(BREAKPOINT) SETUP
 	@touch \$@
 
 #---------------AS LUSER
 
 mk_CROSS: mk_SETUP
 	@\$(call echo_PHASE,Cross Tool)
-	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make make BREAKPOINT=\$(BREAKPOINT) AS_LUSER" )
+	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) AS_LUSER" )
 	@touch \$@
 
 mk_SUDO: mk_CROSS
-	@sudo make make BREAKPOINT=\$(BREAKPOINT) SUDO
+	@sudo make BREAKPOINT=\$(BREAKPOINT) SUDO
 	@touch \$@
 
 #---------------AS ROOT
 
 mk_FINAL:
 	@\$(call echo_PHASE,Final System)
-	@( source /root/.bash_profile && make make BREAKPOINT=\$(BREAKPOINT) AS_ROOT )
+	@( source /root/.bash_profile && make BREAKPOINT=\$(BREAKPOINT) AS_ROOT )
 	@touch \$@
 
 mk_CUSTOM_TOOLS: mk_FINAL
 	@if [ "\$(ADD_CUSTOM_TOOLS)" = "y" ]; then \\
 	  \$(call sh_echo_PHASE,Building CUSTOM_TOOLS); \\
 	  mkdir -p ${TRACKING_DIR}; \\
-	  ( source /root/.bash_profile && make make BREAKPOINT=\$(BREAKPOINT) CUSTOM_TOOLS ); \\
+	  ( source /root/.bash_profile && make BREAKPOINT=\$(BREAKPOINT) CUSTOM_TOOLS ); \\
 	fi;
 	@touch \$@
 
@@ -910,7 +910,7 @@ mk_BLFS_TOOL: mk_CUSTOM_TOOLS
 	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
 	  \$(call sh_echo_PHASE,Building BLFS_TOOL); \\
 	  mkdir -p $TRACKING_DIR; \\
-	  ( source /root/.bash_profile && make make BREAKPOINT=\$(BREAKPOINT) BLFS_TOOL ); \\
+	  ( source /root/.bash_profile && make BREAKPOINT=\$(BREAKPOINT) BLFS_TOOL ); \\
 	fi
 	@touch \$@
 
