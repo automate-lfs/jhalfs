@@ -7,7 +7,8 @@ $Id$
  changes can occur and the build could be broken for extended periods of
  time.
 
- As of Feb.18.2007 jhalfs cannot build the SVN or 2.4-branch book.
+ As of April.06.2007 jhalfs is able to build the SVN glibc branch. The
+ build status of the uClibc and the 2.4-branch book is unknown. 
  This is a book problem and not a jhalfs bug.
 
 
