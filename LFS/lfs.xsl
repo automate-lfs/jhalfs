@@ -177,24 +177,46 @@
         <xsl:text>make mrproper&#xA;</xsl:text>
         <xsl:text>cp -v ../kernel-config .config&#xA;</xsl:text>
       </xsl:when>
-      <!-- The Coreutils and Module-Init-Tools test suites are optional -->
+      <!-- The Bash, Coreutils, and Module-Init-Tools test suites are optional -->
       <xsl:when test="(ancestor::sect1[@id='ch-system-coreutils'] or
-                ancestor::sect1[@id='ch-system-module-init-tools']) and
-                (contains(string(),'check') or
-                contains(string(),'dummy'))">
+                       ancestor::sect1[@id='ch-system-bash'] or
+                       ancestor::sect1[@id='ch-system-module-init-tools']) and
+                      (contains(string(),'check') or contains(string(),'nobody')
+                       or contains(string(),'dummy'))">
         <xsl:choose>
           <xsl:when test="$testsuite = '0' or $testsuite = '1'"/>
           <xsl:otherwise>
-            <xsl:if test="not(contains(string(),'check'))">
+            <xsl:if test="not(contains(string(),'check')) and
+                          not(contains(string(),'tests'))">
               <xsl:apply-templates/>
               <xsl:text>&#xA;</xsl:text>
             </xsl:if>
+            <!-- Coreutils and Module-Init-Tools -->
             <xsl:if test="contains(string(),'check')">
               <xsl:choose>
                 <xsl:when test="$bomb-testsuite = 'n'">
                   <xsl:value-of select="substring-before(string(),'check')"/>
                   <xsl:text>-k check</xsl:text>
                   <xsl:value-of select="substring-after(string(),'check')"/>
+                  <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:apply-templates/>
+                  <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
+                  <xsl:if test="contains(string(),' -k ')">
+                    <xsl:text> || true</xsl:text>
+                  </xsl:if>
+                  <xsl:text>&#xA;</xsl:text>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:if>
+            <!-- Bash -->
+            <xsl:if test="contains(string(),'tests')">
+              <xsl:choose>
+                <xsl:when test="$bomb-testsuite = 'n'">
+                  <xsl:value-of select="substring-before(string(),'tests')"/>
+                  <xsl:text>-k tests</xsl:text>
+                  <xsl:value-of select="substring-after(string(),'tests')"/>
                   <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
                 </xsl:when>
                 <xsl:otherwise>
