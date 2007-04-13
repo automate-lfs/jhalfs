@@ -536,7 +536,7 @@ menu "--- General Settings"
 
 	#--- Set User Account
 	config	CONFIG_USER
-		bool	"Change the default user/group for this build"
+		bool	"Change the default user/group and homedir for this build"
 		default	n
 		help	#-- Unprivileged user and group name
 			#   If you do not have the priv to create/delete
@@ -544,10 +544,12 @@ menu "--- General Settings"
 			#   user id for the build
 			#
 			# default values for each book
-			# LFS   lfs
-			# CLFS  clfs
-			# CLFS2 clfs
-			# HLFS  hlfs
+			# LFS    lfs
+			# CLFS*  clfs
+			# HLFS   hlfs
+			#
+			# Also, if your host place users home dirs into a
+			# directory other than /home you can specify it here.
 
 	config	DEF_USER
 		string
@@ -560,7 +562,6 @@ menu "--- General Settings"
 		depends	CONFIG_USER
 		default	DEF_USER
 
-
 	config	CONFIG_GROUP
 		bool	"Set Group?"
 		default	n
@@ -571,6 +572,16 @@ menu "--- General Settings"
 		depends	CONFIG_GROUP
 		default	DEF_USER
 
+	config	CONFIG_HOME
+		bool	"Set home dir?"
+		default	n
+		depends	CONFIG_USER
+
+	config	SET_HOME
+		string	"Path to the directory where user home dir will be created"
+		depends	CONFIG_HOME
+		default	"/home"
+
 	config	LUSER
 		string
 		default	DEF_USER	if !CONFIG_USER
@@ -580,6 +591,11 @@ menu "--- General Settings"
 		string
 		default	LUSER		if !CONFIG_GROUP
 		default	SET_GROUP	if  CONFIG_GROUP
+
+	config	LHOME
+		string
+		default	"/home"		if !CONFIG_HOME
+		default	SET_HOME	if  CONFIG_HOME
 	#--- End Set User Account
 
 	config BUILDDIR

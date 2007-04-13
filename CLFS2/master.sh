@@ -20,7 +20,7 @@ cat << EOF
 
 025-addinguser:
 	@\$(call echo_message, Building)
-	@if [ ! -d /home/\$(LUSER) ]; then \\
+	@if [ ! -d \$(LUSER_HOME) ]; then \\
 		groupadd \$(LGROUP); \\
 		useradd -s /bin/bash -g \$(LGROUP) -m -k /dev/null \$(LUSER); \\
 	else \\
@@ -30,26 +30,26 @@ cat << EOF
 
 026-settingenvironment:  025-addinguser
 	@\$(call echo_message, Building)
-	@if [ -f /home/\$(LUSER)/.bashrc -a ! -f /home/\$(LUSER)/.bashrc.XXX ]; then \\
-		mv /home/\$(LUSER)/.bashrc /home/\$(LUSER)/.bashrc.XXX; \\
+	@if [ -f \$(LUSER_HOME)/.bashrc -a ! -f \$(LUSER_HOME)/.bashrc.XXX ]; then \\
+		mv \$(LUSER_HOME)/.bashrc \$(LUSER_HOME)/.bashrc.XXX; \\
 	fi;
-	@if [ -f /home/\$(LUSER)/.bash_profile  -a ! -f /home/\$(LUSER)/.bash_profile.XXX ]; then \\
-		mv /home/\$(LUSER)/.bash_profile /home/\$(LUSER)/.bash_profile.XXX; \\
+	@if [ -f \$(LUSER_HOME)/.bash_profile  -a ! -f \$(LUSER_HOME)/.bash_profile.XXX ]; then \\
+		mv \$(LUSER_HOME)/.bash_profile \$(LUSER_HOME)/.bash_profile.XXX; \\
 	fi;
-	@echo "set +h" > /home/\$(LUSER)/.bashrc && \\
-	echo "umask 022" >> /home/\$(LUSER)/.bashrc && \\
-	echo "CLFS=\$(MOUNT_PT)" >> /home/\$(LUSER)/.bashrc && \\
-	echo "LC_ALL=POSIX" >> /home/\$(LUSER)/.bashrc && \\
-	echo "PATH=\$(MOUNT_PT)/cross-tools/bin:/bin:/usr/bin" >> /home/\$(LUSER)/.bashrc && \\
-	echo "export CLFS LC_ALL PATH" >> /home/\$(LUSER)/.bashrc && \\
-	echo "" >> /home/\$(LUSER)/.bashrc && \\
-	echo "unset CFLAGS" >> /home/\$(LUSER)/.bashrc && \\
-	echo "unset CXXFLAGS" >> /home/\$(LUSER)/.bashrc && \\
-	echo "" >> /home/\$(LUSER)/.bashrc && \\
-	echo "export CLFS_HOST=\"${CLFS_HOST}\"" >> /home/\$(LUSER)/.bashrc && \\
-	echo "export CLFS_TARGET=\"${TARGET}\"" >> /home/\$(LUSER)/.bashrc && \\
-	echo "source $JHALFSDIR/envars" >> /home/\$(LUSER)/.bashrc
-	@chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bashrc && \\
+	@echo "set +h" > \$(LUSER_HOME)/.bashrc && \\
+	echo "umask 022" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "CLFS=\$(MOUNT_PT)" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "LC_ALL=POSIX" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "PATH=\$(MOUNT_PT)/cross-tools/bin:/bin:/usr/bin" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "export CLFS LC_ALL PATH" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "unset CFLAGS" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "unset CXXFLAGS" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "export CLFS_HOST=\"${CLFS_HOST}\"" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "export CLFS_TARGET=\"${TARGET}\"" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "source $JHALFSDIR/envars" >> \$(LUSER_HOME)/.bashrc
+	@chown \$(LUSER):\$(LGROUP) \$(LUSER_HOME)/.bashrc && \\
 	touch envars && \\
 	chown \$(LUSER):\$(LGROUP) envars
 	@\$(call housekeeping)
@@ -475,13 +475,13 @@ create-sbu_du-report: mk_LUSER
 
 restore-luser-env:
 	@\$(call echo_message, Building)
-	@if [ -f /home/\$(LUSER)/.bashrc.XXX ]; then \\
-		mv -f /home/\$(LUSER)/.bashrc.XXX /home/\$(LUSER)/.bashrc; \\
+	@if [ -f \$(LUSER_HOME)/.bashrc.XXX ]; then \\
+		mv -f \$(LUSER_HOME)/.bashrc.XXX \$(LUSER_HOME)/.bashrc; \\
 	fi;
-	@if [ -f /home/\$(LUSER)/.bash_profile.XXX ]; then \\
-		mv /home/\$(LUSER)/.bash_profile.XXX /home/\$(LUSER)/.bash_profile; \\
+	@if [ -f \$(LUSER_HOME)/.bash_profile.XXX ]; then \\
+		mv \$(LUSER_HOME)/.bash_profile.XXX \$(LUSER_HOME)/.bash_profile; \\
 	fi;
-	@chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bash* && \\
+	@chown \$(LUSER):\$(LGROUP) \$(LUSER_HOME)/.bash* && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
@@ -489,7 +489,7 @@ restore-luser-env:
 do-housekeeping:
 	@-if [ ! -f luser-exist ]; then \\
 		userdel \$(LUSER); \\
-		rm -rf /home/\$(LUSER); \\
+		rm -rf \$(LUSER_HOME); \\
 	fi;
 
 EOF

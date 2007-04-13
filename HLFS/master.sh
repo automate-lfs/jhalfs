@@ -100,7 +100,7 @@ chapter3_Makefiles() {       # Initialization of the system
     TARGET="pc-linux-gnu"; LOADER="ld-linux.so.2"
   fi
 
-  # If /home/$LUSER is already present in the host, we asume that the
+  # If $LUSER_HOME is already present in the host, we asume that the
   # hlfs user and group are also presents in the host, and a backup
   # of their bash init files is made.
 (
@@ -114,7 +114,7 @@ cat << EOF
 
 021-addinguser:  020-creatingtoolsdir
 	@\$(call echo_message, Building)
-	@if [ ! -d /home/\$(LUSER) ]; then \\
+	@if [ ! -d \$(LUSER_HOME) ]; then \\
 		groupadd \$(LGROUP); \\
 		useradd -s /bin/bash -g \$(LGROUP) -m -k /dev/null \$(LUSER); \\
 	else \\
@@ -127,24 +127,24 @@ cat << EOF
 
 022-settingenvironment:  021-addinguser
 	@\$(call echo_message, Building)
-	@if [ -f /home/\$(LUSER)/.bashrc -a ! -f /home/\$(LUSER)/.bashrc.XXX ]; then \\
-		mv /home/\$(LUSER)/.bashrc /home/\$(LUSER)/.bashrc.XXX; \\
+	@if [ -f \$(LUSER_HOME)/.bashrc -a ! -f \$(LUSER_HOME)/.bashrc.XXX ]; then \\
+		mv \$(LUSER_HOME)/.bashrc \$(LUSER_HOME)/.bashrc.XXX; \\
 	fi;
-	@if [ -f /home/\$(LUSER)/.bash_profile  -a ! -f /home/\$(LUSER)/.bash_profile.XXX ]; then \\
-		mv /home/\$(LUSER)/.bash_profile /home/\$(LUSER)/.bash_profile.XXX; \\
+	@if [ -f \$(LUSER_HOME)/.bash_profile  -a ! -f \$(LUSER_HOME)/.bash_profile.XXX ]; then \\
+		mv \$(LUSER_HOME)/.bash_profile \$(LUSER_HOME)/.bash_profile.XXX; \\
 	fi;
-	@echo "set +h" > /home/\$(LUSER)/.bashrc && \\
-	echo "umask 022" >> /home/\$(LUSER)/.bashrc && \\
-	echo "HLFS=\$(MOUNT_PT)" >> /home/\$(LUSER)/.bashrc && \\
-	echo "LC_ALL=POSIX" >> /home/\$(LUSER)/.bashrc && \\
-	echo "PATH=/tools/bin:/bin:/usr/bin" >> /home/\$(LUSER)/.bashrc && \\
-	echo "export HLFS LC_ALL PATH" >> /home/\$(LUSER)/.bashrc && \\
-	echo "" >> /home/\$(LUSER)/.bashrc && \\
-	echo "target=$(uname -m)-${TARGET}" >> /home/\$(LUSER)/.bashrc && \\
-	echo "ldso=/tools/lib/${LOADER}" >> /home/\$(LUSER)/.bashrc && \\
-	echo "export target ldso" >> /home/\$(LUSER)/.bashrc && \\
-	echo "source $JHALFSDIR/envars" >> /home/\$(LUSER)/.bashrc && \\
-	chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bashrc && \\
+	@echo "set +h" > \$(LUSER_HOME)/.bashrc && \\
+	echo "umask 022" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "HLFS=\$(MOUNT_PT)" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "LC_ALL=POSIX" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "PATH=/tools/bin:/bin:/usr/bin" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "export HLFS LC_ALL PATH" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "target=$(uname -m)-${TARGET}" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "ldso=/tools/lib/${LOADER}" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "export target ldso" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "source $JHALFSDIR/envars" >> \$(LUSER_HOME)/.bashrc && \\
+	chown \$(LUSER):\$(LGROUP) \$(LUSER_HOME)/.bashrc && \\
 	chmod -R a+wt \$(MOUNT_PT) && \\
 	touch envars && \\
 	chown \$(LUSER) envars
@@ -612,13 +612,13 @@ create-sbu_du-report:  mk_BOOT
 
 restore-luser-env:
 	@\$(call echo_message, Building)
-	@if [ -f /home/\$(LUSER)/.bashrc.XXX ]; then \\
-		mv -f /home/\$(LUSER)/.bashrc.XXX /home/\$(LUSER)/.bashrc; \\
+	@if [ -f \$(LUSER_HOME)/.bashrc.XXX ]; then \\
+		mv -f \$(LUSER_HOME)/.bashrc.XXX \$(LUSER_HOME)/.bashrc; \\
 	fi;
-	@if [ -f /home/\$(LUSER)/.bash_profile.XXX ]; then \\
-		mv /home/\$(LUSER)/.bash_profile.XXX /home/\$(LUSER)/.bash_profile; \\
+	@if [ -f \$(LUSER_HOME)/.bash_profile.XXX ]; then \\
+		mv \$(LUSER_HOME)/.bash_profile.XXX \$(LUSER_HOME)/.bash_profile; \\
 	fi;
-	@chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bash* && \\
+	@chown \$(LUSER):\$(LGROUP) \$(LUSER_HOME)/.bash* && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
@@ -632,7 +632,7 @@ do-housekeeping:
 	@-rm /tools
 	@-if [ ! -f luser-exist ]; then \\
 		userdel \$(LUSER); \\
-		rm -rf /home/\$(LUSER); \\
+		rm -rf \$(LUSER_HOME); \\
 	fi;
 
 
