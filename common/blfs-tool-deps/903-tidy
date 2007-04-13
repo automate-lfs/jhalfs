@@ -5,20 +5,9 @@
 set -e
 cd $PKGDIR
 
-patch -Np1 -i ../tidy-051026-prevent_PRE_newlines-1.patch
-sh build/gnuauto/setup.sh
 ./configure --prefix=/usr
 make
 make install
-(cd ../ && tar -xvf tidy_docs_051020.tgz)
-cd htmldoc
-tidy -xml-help > tidy-help.xml
-tidy -xml-config > tidy-config.xml
-xsltproc -o tidy.1 tidy1.xsl tidy-help.xml
-xsltproc -o quickref.html quickref-html.xsl tidy-config.xml
-cd ..
-install -v -m644 htmldoc/tidy.1 /usr/share/man/man1
-install -v -m755 -d /usr/share/doc/tidy-051020
-cp -v -R htmldoc/* /usr/share/doc/tidy-051020
+make -C htmldoc install_apidocs
 
 exit

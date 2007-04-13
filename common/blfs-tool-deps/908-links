@@ -8,5 +8,8 @@ cd $PKGDIR
 ./configure --prefix=/usr
 make CFLAGS="-O2 -Wno-sign-compare -Wno-pointer-sign"
 make install
+install -v -d -m755 /usr/share/doc/links-2.1pre23
+install -v -m644 doc/links_cal/* KEYS BRAILLE_HOWTO \
+    /usr/share/doc/links-2.1pre23
 
 exit

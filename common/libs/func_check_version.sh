@@ -126,8 +126,8 @@ check_prerequisites() {      #
     # Check if the proper DocBook-XML-DTD and DocBook-XSL are correctly installed
 XML_FILE="<?xml version='1.0' encoding='ISO-8859-1'?>
 <?xml-stylesheet type='text/xsl' href='http://docbook.sourceforge.net/release/xsl/1.69.1/xhtml/docbook.xsl'?>
-<!DOCTYPE article PUBLIC '-//OASIS//DTD DocBook XML V4.4//EN'
-  'http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd'>
+<!DOCTYPE article PUBLIC '-//OASIS//DTD DocBook XML V4.5//EN'
+  'http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd'>
 <article>
   <title>Test file</title>
   <sect1>
@@ -138,9 +138,9 @@ XML_FILE="<?xml version='1.0' encoding='ISO-8859-1'?>
 
     if [[ -z "$DEP_DBXML" ]] ; then
       if `echo $XML_FILE | xmllint -noout -postvalid - 2>/dev/null` ; then
-        check_version "4.4" "4.4" "DocBook XML DTD"
+        check_version "4.5" "4.5" "DocBook XML DTD"
       else
-        echo "Warning: not found a working DocBook XML DTD 4.4 installation"
+        echo "Warning: not found a working DocBook XML DTD 4.5 installation"
         exit 2
       fi
     fi

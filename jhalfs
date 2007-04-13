@@ -161,41 +161,37 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
   # Dependencies envars, to can update it more easy.
   # Tidy and Unzip version are harcoded also in wrt_blfs_tool_targets()
     # libxml2
-  LIBXML_PKG="libxml2-2.6.26.tar.gz"
+  LIBXML_PKG="libxml2-2.6.27.tar.gz"
   LIBXML_URL="ftp://xmlsoft.org/libxml2/${LIBXML_PKG}"
-  LIBXML_MD5="2d8d3805041edab967368b497642f981"
+  LIBXML_MD5="f5806f5059ef7bd4d3fcf36cf116d1ef"
     # libxslt
-  LIBXSLT_PKG="libxslt-1.1.17.tar.gz"
+  LIBXSLT_PKG="libxslt-1.1.20.tar.gz"
   LIBXSLT_URL="ftp://xmlsoft.org/libxslt/${LIBXSLT_PKG}"
-  LIBXSLT_MD5="fde6a7a93c0eb14cba628692fa3a1000"
+  LIBXSLT_MD5="4ea2dc22a23bf2aa570f868aa86357f8"
     # tidy
-  TIDY_PKG="tidy_src_051026.tgz"
-  TIDY_URL="http://tidy.sourceforge.net/src/${TIDY_PKG}"
-  TIDY_MD5="1e39fafd6808978871346658c8da1454"
-    # tidy patch
-  TIDY_PATCH="tidy-051026-prevent_PRE_newlines-1.patch"
-  TIDY_PATCH_URL="http://www.linuxfromscratch.org/patches/blfs/svn/${TIDY_PATCH}"
-  TIDY_PATCH_MD5="82f67f7af58fc2c945b3410ae655cc1a"
-    # tidy docs
-  TIDY_DOCS="tidy_docs_051020.tgz"
-  TIDY_DOCS_URL="http://tidy.sourceforge.net/docs/${TIDY_DOCS}"
-  TIDY_DOCS_MD5="86de2f198e57399c063d2567b2a25628"
+  TIDY_PKG="tidy-cvs_20070326.tar.bz2"
+  TIDY_URL="http://anduin.linuxfromscratch.org/files/BLFS/sources/${TIDY_PKG}"
+  TIDY_MD5="468bfaa5cf917a8ecbe7834c13a61376"
     # unzip
   UNZIP_PKG="unzip552.tar.gz"
-  UNZIP_URL="ftp://ftp.info-zip.org/pub/infozip/src/${UNZIP_PKG}"
+  UNZIP_URL="http://downloads.sourceforge.net/infozip/${UNZIP_PKG}"
   UNZIP_MD5="9d23919999d6eac9217d1f41472034a9"
+    # unzip security patch
+  UNZIP_PATCH="unzip-5.52-security_fix-1.patch"
+  UNZIP_PATCH_URL="http://www.linuxfromscratch.org/patches/blfs/svn/${UNZIP_PATCH}"
+  UNZIP_PATCH_MD5="00ebf64fdda2ad54ddfc619f85f328bb"
     # DocBook XML DTD
-  DBXML_PKG="docbook-xml-4.4.zip"
-  DBXML_URL="http://www.docbook.org/xml/4.4/${DBXML_PKG}"
-  DBXML_MD5="cbb04e9a700955d88c50962ef22c1634"
+  DBXML_PKG="docbook-xml-4.5.zip"
+  DBXML_URL="http://www.docbook.org/xml/4.5/${DBXML_PKG}"
+  DBXML_MD5="03083e288e87a7e829e437358da7ef9e"
     # DocBook XSL
   DBXSL_PKG="docbook-xsl-1.69.1.tar.bz2"
   DBXSL_URL="http://prdownloads.sourceforge.net/docbook/${DBXSL_PKG}"
   DBXSL_MD5="6ebd29a67f2dcc3f2220f475ee6f6552"
     # Links
-  LINKS_PKG="links-2.1pre21.tar.bz2"
+  LINKS_PKG="links-2.1pre23.tar.bz2"
   LINKS_URL="http://links.twibright.com/download/${LINKS_PKG}"
-  LINKS_MD5="7687e2c32e337e11c6e9d8cd8c5202c9"
+  LINKS_MD5="4a1fb575c133eee821b9a1f8e9220b40"
     # sudo
   SUDO_PKG="sudo-1.6.8p12.tar.gz"
   SUDO_URL="http://www.courtesan.com/sudo/dist/${SUDO_PKG}"

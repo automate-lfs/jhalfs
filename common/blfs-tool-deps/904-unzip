@@ -5,6 +5,7 @@
 set -e
 cd $PKGDIR
 
+patch -Np1 -i ../unzip-5.52-security_fix-1.patch
 make -f unix/Makefile LOCAL_UNZIP=-D_FILE_OFFSET_BITS=64 linux
 make prefix=/usr install
 
