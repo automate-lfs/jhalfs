@@ -232,7 +232,7 @@ chapter6_Makefiles() {
     # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     if [ "$pkg_tarball" != "" ] ; then
-      # Touch timestamp file if inelalled files logs will be created.
+      # Touch timestamp file if installed files logs will be created.
       if [ "${INSTALL_LOG}" = "y" ] ; then
         CHROOT_wrt_TouchTimestamp
       fi
