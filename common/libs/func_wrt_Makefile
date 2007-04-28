@@ -28,12 +28,13 @@ SCRIPT_ROOT    = $SCRIPT_ROOT
 BASEDIR        = \$(MOUNT_PT)
 SRCSDIR        = \$(BASEDIR)/sources
 CMDSDIR        = \$(BASEDIR)/\$(SCRIPT_ROOT)/$PROGNAME-commands
-LOGDIR         = \$(BASEDIR)/\$(SCRIPT_ROOT)/logs
-TESTLOGDIR     = \$(BASEDIR)/\$(SCRIPT_ROOT)/test-logs
+LOGDIR         = \$(BASEDIR)/\$(SCRIPT_ROOT)/$LOGDIRBASE
+TESTLOGDIR     = \$(BASEDIR)/\$(SCRIPT_ROOT)/$TESTLOGDIRBASE
 
 crCMDSDIR      = /\$(SCRIPT_ROOT)/$PROGNAME-commands
-crLOGDIR       = /\$(SCRIPT_ROOT)/logs
-crTESTLOGDIR   = /\$(SCRIPT_ROOT)/test-logs
+crLOGDIR       = /\$(SCRIPT_ROOT)/$LOGDIRBASE
+crTESTLOGDIR   = /\$(SCRIPT_ROOT)/$TESTLOGDIRBASE
+crFILELOGDIR   = /\$(SCRIPT_ROOT)/$FILELOGDIRBASE
 
 SU_LUSER       = su - \$(LUSER) -c
 LUSER_HOME     = \$(LHOME)/\$(LUSER)
@@ -282,6 +283,33 @@ CHROOT_wrt_CopyFstab() {           #
 (
 cat << EOF
 	@( time { cp -v /sources/fstab /etc/fstab >>logs/\$@ 2>&1 ; } ) 2>>logs/\$@
+EOF
+) >> $MKFILE.tmp
+}
+
+#=======================
+
+
+#==== INSTALLED FILES LOGS ====
+
+#----------------------------------#
+CHROOT_wrt_TouchTimestamp() {      #
+#----------------------------------#
+  local name=$1
+(
+cat << EOF
+	@\$(call touch_timestamp)
+EOF
+) >> $MKFILE.tmp
+}
+
+#----------------------------------#
+CHROOT_wrt_LogNewFiles() {         #
+#----------------------------------#
+  local name=$1
+(
+cat << EOF
+	@\$(call log_new_files,$name)
 EOF
 ) >> $MKFILE.tmp
 }

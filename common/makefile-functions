@@ -111,6 +111,19 @@ endef
 
 #==#
 
+define touch_timestamp
+  @touch $(SRC)/timestamp-marker && sleep 1
+endef
+
+define log_new_files
+  @find / -xdev ! -path "/$(SCRIPT_ROOT)/*" ! -path "/proc/*" \
+  ! -path "/tmp/*" ! -path "/dev/*" ! -path "$(SRC)/*" \
+  -newer $(SRC)/timestamp-marker -not -type d \
+  -fprintf $(crFILELOGDIR)/$(1) "%p\t%s\t%u:%g\t%m\t%l\n" || true
+endef
+
+#==@
+
 define remove_build_dirs
   @ROOT=`head -n1 $(SRCSDIR)/$(PKG_LST) | sed 's@^./@@;s@/.*@@'` && \
   rm -rf $(SRCSDIR)/$$ROOT && \

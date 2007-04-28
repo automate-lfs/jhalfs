@@ -232,6 +232,10 @@ chapter6_Makefiles() {
     # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     if [ "$pkg_tarball" != "" ] ; then
+      # Touch timestamp file if inelalled files logs will be created.
+      if [ "${INSTALL_LOG}" = "y" ] ; then
+        CHROOT_wrt_TouchTimestamp
+      fi
       CHROOT_Unpack "$pkg_tarball"
       # If the testsuites must be run, initialize the log file
       case $name in
@@ -253,9 +257,13 @@ chapter6_Makefiles() {
       *)        CHROOT_wrt_RunAsRoot "$file" ;;
     esac
 
-    # Remove the build directory(ies) except if the package build fails.
+    # Write installed files log and remove the build directory(ies)
+    # except if the package build fails.
     if [ "$pkg_tarball" != "" ] ; then
       CHROOT_wrt_RemoveBuildDirs "$name"
+      if [ "${INSTALL_LOG}" = "y" ] ; then
+        CHROOT_wrt_LogNewFiles "$name"
+      fi
     fi
 
     # Include a touch of the target name so make can check
@@ -310,11 +318,17 @@ chapter78_Makefiles() {
             name="lfs-bootscripts"
             pkg_tarball=$(get_package_tarball_name $name)
             CHROOT_Unpack "$pkg_tarball"
+            if [ "${INSTALL_LOG}" = "y" ] ; then
+              CHROOT_wrt_TouchTimestamp
+            fi
         ;;
       *kernel)
             name="linux"
             pkg_tarball=$(get_package_tarball_name $name)
             CHROOT_Unpack "$pkg_tarball"
+            if [ "${INSTALL_LOG}" = "y" ] ; then
+              CHROOT_wrt_TouchTimestamp
+            fi
        ;;
     esac
 
@@ -331,8 +345,14 @@ chapter78_Makefiles() {
     esac
 
     case "${this_script}" in
-      *bootscripts)  CHROOT_wrt_RemoveBuildDirs "dummy" ;;
-      *kernel)       CHROOT_wrt_RemoveBuildDirs "dummy" ;;
+      *bootscripts)  CHROOT_wrt_RemoveBuildDirs "dummy"
+                     if [ "${INSTALL_LOG}" = "y" ] ; then
+                       CHROOT_wrt_LogNewFiles "$name"
+                     fi ;;
+      *kernel)       CHROOT_wrt_RemoveBuildDirs "dummy"
+                     if [ "${INSTALL_LOG}" = "y" ] ; then
+                       CHROOT_wrt_LogNewFiles "$name"
+                     fi ;;
     esac
 
     # Include a touch of the target name so make can check

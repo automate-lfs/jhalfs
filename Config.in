@@ -733,6 +733,17 @@ menu "--- Build Settings"
 
 	#--- End Test Suites
 
+	#--- Installed files logs
+	config	INSTALL_LOG
+		bool	"Create installed files logs"
+		default	n
+		depends on BOOK_LFS
+		help
+			#-- Select this if you want to create logs of the files
+			#   installed by each package on the final system.
+
+	#--- End Installed files logs
+
 	#--- FSTAB
 	config	HAVE_FSTAB
 		bool	"Use a custom fstab file"
@@ -920,13 +931,29 @@ endif
 			string "jhalfs directory"
 			default "$BUILDDIR/$SCRIPT_ROOT"
 
+		config	LOGDIRBASE
+			string "Build logs directory basename"
+			default "logs"
+
 		config	LOGDIR
 			string "Build logs directory"
-			default "$JHALFSDIR/logs"
+			default "$JHALFSDIR/$LOGDIRBASE"
+
+		config	TESTLOGDIRBASE
+			string "Test suites logs directory basename"
+			default "test-logs"
 
 		config	TESTLOGDIR
 			string "Test suites logs directory"
-			default "$JHALFSDIR/test-logs"
+			default "$JHALFSDIR/$TESTLOGDIRBASE"
+
+		config	FILELOGDIRBASE
+			string "Installed files logs directory basename"
+			default "installed-files"
+
+		config	FILELOGDIR
+			string "Installed files logs directory"
+			default "$JHALFSDIR/$FILELOGDIRBASE"
 
 		config	ICALOGDIR
 			string "ICA logs directory"

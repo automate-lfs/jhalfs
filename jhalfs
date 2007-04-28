@@ -109,6 +109,7 @@ VIMLANG=${VIMLANG:-n}
 GRSECURITY_HOST=${GRSECURITY_HOST:-n}
 CUSTOM_TOOLS=${CUSTOM_TOOLS:-n}
 REBUILD_MAKEFILE=${REBUILD_MAKEFILE:-n}
+INSTALL_LOG=${INSTALL_LOG:-n}
 
 # Book surces envars
 BRANCH_ID=${BRANCH_ID:=development}
@@ -353,6 +354,9 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
   #
   # Create the test-log directory, if needed
   [[ "$TEST" != "0" ]] && [[ ! -d $TESTLOGDIR ]] && install -d -m 1777 $TESTLOGDIR
+  #
+  # Create the installed-files directory, if needed
+  [[ "$INSTALL_LOG" = "y" ]] && [[ ! -d $FILELOGDIR ]] && install -d -m 1777 $FILELOGDIR
   #
   # Prepare report creation, if needed
   if [[ "$REPORT" = "y" ]]; then
