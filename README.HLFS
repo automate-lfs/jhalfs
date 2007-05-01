@@ -7,12 +7,7 @@ $Id$
  changes can occur and the build could be broken for extended periods of
  time.
 
- As of April.06.2007 jhalfs is able to build the SVN glibc branch. The
- build status of the uClibc and the 2.4-branch book is unknown. 
- This is a book problem and not a jhalfs bug.
-
-
- Build failures detected:
-
-   -.Several patches are missing or have a bad MD5 sum, thus the tool
-     is unable to start and test the builds.
+ As of May.01.2007 jhalfs can't be used to build HLFS systems. This is due
+ the HLFS team is mergin 2.4-branch code to trunk. After the HLFS team
+ finish the books merges, jhalfs will need several changes to can build
+ again HLFS books.
