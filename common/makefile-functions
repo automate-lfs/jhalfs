@@ -116,8 +116,7 @@ define touch_timestamp
 endef
 
 define log_new_files
-  @find / -xdev ! -path "/$(SCRIPT_ROOT)/*" ! -path "/proc/*" \
-  ! -path "/tmp/*" ! -path "/dev/*" ! -path "$(SRC)/*" \
+  @find / -xdev ! -path "/$(SCRIPT_ROOT)/*" ! -path "/tmp/*" ! -path "$(SRC)/*" \
   -newer $(SRC)/timestamp-marker -not -type d \
   -fprintf $(crFILELOGDIR)/$(1) "%p\t%s\t%u:%g\t%m\t%l\n" || true
 endef
