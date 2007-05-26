@@ -233,7 +233,8 @@ chapter6_Makefiles() {
     # Insert instructions for unpacking the package and changing directories
     if [ "$pkg_tarball" != "" ] ; then
       # Touch timestamp file if installed files logs will be created.
-      if [ "${INSTALL_LOG}" = "y" ] ; then
+      # But only for the firt build when running iterative builds.
+      if [ "${INSTALL_LOG}" = "y" ] && [ "x${N}" = "x" ] ; then
         CHROOT_wrt_TouchTimestamp
       fi
       CHROOT_Unpack "$pkg_tarball"
@@ -261,7 +262,7 @@ chapter6_Makefiles() {
     # except if the package build fails.
     if [ "$pkg_tarball" != "" ] ; then
       CHROOT_wrt_RemoveBuildDirs "$name"
-      if [ "${INSTALL_LOG}" = "y" ] ; then
+      if [ "${INSTALL_LOG}" = "y" ] && [ "x${N}" = "x" ] ; then
         CHROOT_wrt_LogNewFiles "$name"
       fi
     fi
@@ -317,18 +318,18 @@ chapter78_Makefiles() {
       *bootscripts)
             name="lfs-bootscripts"
             pkg_tarball=$(get_package_tarball_name $name)
-            CHROOT_Unpack "$pkg_tarball"
             if [ "${INSTALL_LOG}" = "y" ] ; then
               CHROOT_wrt_TouchTimestamp
             fi
+            CHROOT_Unpack "$pkg_tarball"
         ;;
       *kernel)
             name="linux"
             pkg_tarball=$(get_package_tarball_name $name)
-            CHROOT_Unpack "$pkg_tarball"
             if [ "${INSTALL_LOG}" = "y" ] ; then
               CHROOT_wrt_TouchTimestamp
             fi
+            CHROOT_Unpack "$pkg_tarball"
        ;;
     esac
 
