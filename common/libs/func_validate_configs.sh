@@ -117,6 +117,7 @@ inline_doc
       TIMEZONE        | \
       PAGE            | \
       INSTALL_LOG     | \
+      REPORT          | \
       REBUILD_MAKEFILE ) echo -e "`eval echo $PARAM_VALS`" ;;
 
       # Envvars that depend on other settings to be displayed
@@ -138,25 +139,13 @@ inline_doc
       LGROUP)     echo -e "`eval echo $PARAM_VALS`"
                   [[ "${!config_param}" = "**EDIT ME**" ]] && write_error_and_die
                   ;;
-      REPORT)     echo -e "`eval echo $PARAM_VALS`"
-                  if [[ "${!config_param}" = "y" ]]; then
-                    if [[ `type -p bc` ]]; then
-                      continue
-                    else
-                      echo -e "  ${BOLD}The bc binary was not found${OFF}"
-                      echo -e "  The SBU and disk usage report creation will be skiped"
-                      REPORT=n
-                      continue
-                    fi
-                  fi ;;
-
         # BOOK validation. Very ugly, need be fixed
       BOOK)        if [[ "${WORKING_COPY}" = "y" ]] ; then
                      validate_dir -z -d
                    else
                      echo -e "`eval echo $PARAM_VALS`"
-                   fi ;;
-
+                   fi
+                  ;;
         # Validate directories, testable states:
         #  fatal   -z -d -w,
         #  warning -z+   -w+
