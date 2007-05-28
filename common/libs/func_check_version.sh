@@ -74,7 +74,7 @@ check_prerequisites() {      #
     libcVer="${libcVer##*version }"
     check_version "2.2.5"    ${libcVer%%,*}                                     "GLIBC"
     check_version "2.12"     "$(ld --version  | head -n1 | cut -d" " -f4)"      "BINUTILS"
-    check_version "1.14"     "$(tar --version | head -n1 | cut -d" " -f4)"      "TAR"
+    check_version "1.15"     "$(tar --version | head -n1 | cut -d" " -f4)"      "TAR"
     bzip2Ver="$(bzip2 --version 2>&1 < /dev/null | head -n1 | cut -d" " -f8)"
     check_version "1.0.2"    "${bzip2Ver%%,*}"                                   "BZIP2"
     check_version "1.875"    "$(bison --version | head -n1 | cut -d" " -f4)"     "BISON"
@@ -92,7 +92,7 @@ check_prerequisites() {      #
     check_version "2.6.2" "$(uname -r)"                                  "KERNEL"
     check_version "3.0"   "$BASH_VERSION"                                "BASH"
     check_version "3.0"   "$(gcc -dumpversion)"                          "GCC"
-    check_version "1.14"  "$(tar --version | head -n1 | cut -d" " -f4)"  "TAR"
+    check_version "1.15"  "$(tar --version | head -n1 | cut -d" " -f4)"  "TAR"
   fi
 
   # Check for minimum sudo version
