@@ -25,7 +25,7 @@ inline_doc
   local -r  GENERAL_common="LUSER LGROUP LHOME BUILDDIR CLEAN GETPKG SRC_ARCHIVE \
                             SERVER GETKERNEL RUNMAKE"
   local -r    BUILD_chroot="TEST BOMB_TEST STRIP"
-  local -r    BUILD_common="FSTAB CONFIG TIMEZONE PAGE LANG"
+  local -r    BUILD_common="FSTAB CONFIG TIMEZONE PAGE LANG INSTALL_LOG"
   local -r ADVANCED_chroot="COMPARE RUN_ICA RUN_FARCE ITERATIONS OPTIMIZE"
   local -r ADVANCED_common="REPORT REBUILD_MAKEFILE"
 
@@ -37,11 +37,11 @@ inline_doc
   local -r CLFS3_book="$BOOK_common                  $BOOK_clfsX PLATFORM MIPS_LEVEL"
 
   # Build Settings by book
-  local -r   LFS_build="$BUILD_chroot $BUILD_common VIMLANG INSTALL_LOG"
-  local -r  HLFS_build="$BUILD_chroot $BUILD_common LC_ALL"
-  local -r  CLFS_build="$BUILD_chroot $BUILD_common VIMLANG"
-  local -r CLFS2_build="STRIP         $BUILD_common VIMLANG"
-  local -r CLFS3_build="              $BUILD_common"
+  local -r   LFS_build="$BUILD_chroot VIMLANG $BUILD_common"
+  local -r  HLFS_build="$BUILD_chroot         $BUILD_common LC_ALL"
+  local -r  CLFS_build="$BUILD_chroot VIMLANG $BUILD_common"
+  local -r CLFS2_build="STRIP         VIMLANG $BUILD_common"
+  local -r CLFS3_build="                      $BUILD_common"
 
   # Full list of books settings
   local -r   lfs_PARAM_LIST="$LFS_book   $GENERAL_common $LFS_build   $ADVANCED_chroot $ADVANCED_common"

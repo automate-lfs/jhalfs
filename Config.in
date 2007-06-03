@@ -737,7 +737,6 @@ menu "--- Build Settings"
 	config	INSTALL_LOG
 		bool	"Create installed files logs"
 		default	n
-		depends on BOOK_LFS
 		help
 			#-- Select this if you want to create logs of the files
 			#   installed by each package on the final system.

@@ -510,6 +510,11 @@ final_system_Makefiles() {             #
 
     # If $pkg_tarball isn't empty, we've got a package...
     if [ "$pkg_tarball" != "" ] ; then
+      # Touch timestamp file if installed files logs will be created.
+      # But only for the firt build when running iterative builds.
+      if [ "${INSTALL_LOG}" = "y" ] && [ "x${N}" = "x" ] ; then
+        CHROOT_wrt_TouchTimestamp
+      fi
       CHROOT_Unpack "$pkg_tarball"
       # If the testsuites must be run, initialize the log file
       case $name in
@@ -526,9 +531,17 @@ final_system_Makefiles() {             #
     #
     CHROOT_wrt_RunAsRoot  "${file}"
     #
-    [[ "$pkg_tarball" != "" ]] && CHROOT_wrt_RemoveBuildDirs "${name}"
+    # Write installed files log and remove the build directory(ies)
+    # except if the package build fails.
+    if [ "$pkg_tarball" != "" ] ; then
+      CHROOT_wrt_RemoveBuildDirs "$name"
+      if [ "${INSTALL_LOG}" = "y" ] && [ "x${N}" = "x" ] ; then
+        CHROOT_wrt_LogNewFiles "$name"
+      fi
+    fi
     #
-    # Include a touch of the target name so make can check if it's already been made.
+    # Include a touch of the target name so make can check
+    # if it's already been made.
     wrt_touch
     #
     #--------------------------------------------------------------------#
@@ -589,11 +602,23 @@ bootscripts_Makefiles() {              #
     #
     # If $pkg_tarball isn't empty, we've got a package...
     #
-    [[ "$pkg_tarball" != "" ]] && CHROOT_Unpack "$pkg_tarball"
+    if [ "$pkg_tarball" != "" ] ; then
+      if [ "${INSTALL_LOG}" = "y" ] ; then
+        CHROOT_wrt_LogNewFiles "$name"
+      fi
+      CHROOT_Unpack "$pkg_tarball"
+    fi
     #
     CHROOT_wrt_RunAsRoot "${file}"
     #
-    [[ "$pkg_tarball" != "" ]] && CHROOT_wrt_RemoveBuildDirs "${name}"
+    # Write installed files log and remove the build directory(ies)
+    # except if the package build fails.
+    if [ "$pkg_tarball" != "" ] ; then
+      CHROOT_wrt_RemoveBuildDirs "$name"
+      if [ "${INSTALL_LOG}" = "y" ] ; then
+        CHROOT_wrt_LogNewFiles "$name"
+      fi
+    fi
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -658,7 +683,12 @@ bootable_Makefiles() {                 #
     # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     #
-    [[ "$pkg_tarball" != "" ]] && CHROOT_Unpack "$pkg_tarball"
+    if [ "$pkg_tarball" != "" ] ; then
+      if [ "${INSTALL_LOG}" = "y" ] ; then
+        CHROOT_wrt_LogNewFiles "$name"
+      fi
+      CHROOT_Unpack "$pkg_tarball"
+    fi
     #
     # Select a script execution method
     case $this_script in
@@ -672,8 +702,14 @@ bootable_Makefiles() {                 #
         ;;
     esac
     #
-    # Housekeeping...remove any build directory(ies) except if the package build fails.
-    [[ "$pkg_tarball" != "" ]] && CHROOT_wrt_RemoveBuildDirs "${name}"
+    # Write installed files log and remove the build directory(ies)
+    # except if the package build fails.
+    if [ "$pkg_tarball" != "" ] ; then
+      CHROOT_wrt_RemoveBuildDirs "$name"
+      if [ "${INSTALL_LOG}" = "y" ] ; then
+        CHROOT_wrt_LogNewFiles "$name"
+      fi
+    fi
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch

@@ -310,11 +310,32 @@ EOF
 #==== INSTALLED FILES LOGS ====
 
 #----------------------------------#
+LUSER_wrt_TouchTimestamp() {       #
+#----------------------------------#
+(
+cat << EOF
+	@\$(call touch_timestamp_LUSER)
+EOF
+) >> $MKFILE.tmp
+}
+
+#----------------------------------#
 CHROOT_wrt_TouchTimestamp() {      #
 #----------------------------------#
 (
 cat << EOF
 	@\$(call touch_timestamp)
+EOF
+) >> $MKFILE.tmp
+}
+
+#----------------------------------#
+LUSER_wrt_LogNewFiles() {          #
+#----------------------------------#
+  local name=$1
+(
+cat << EOF
+	@\$(call log_new_files_LUSER,$name)
 EOF
 ) >> $MKFILE.tmp
 }

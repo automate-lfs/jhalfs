@@ -115,10 +115,20 @@ define touch_timestamp
   @touch $(SRC)/timestamp-marker && sleep 1
 endef
 
+define touch_timestamp_LUSER
+  @touch $(SRCDIR)/timestamp-marker && sleep 1
+endef
+
 define log_new_files
   @find / -xdev ! -path "/$(SCRIPT_ROOT)/*" ! -path "/tmp/*" ! -path "$(SRC)/*" \
   -newer $(SRC)/timestamp-marker -not -type d \
   -printf "%p\t%s\t%u:%g\t%m\t%l\n" | sort > $(crFILELOGDIR)/$(1)
+endef
+
+define log_new_files_LUSER
+  @find $(BASEDIR) -xdev ! -path "$(BASEDIR)/$(SCRIPT_ROOT)/*" ! -path "$(BASEDIR)/tmp/*" ! -path "$(SRCDIR)/*" \
+  -newer $(SRCDIR)/timestamp-marker -not -type d \
+  -printf "%p\t%s\t%u:%g\t%m\t%l\n" | sort > $(BASEDIR)$(crFILELOGDIR)/$(1)
 endef
 
 #==@

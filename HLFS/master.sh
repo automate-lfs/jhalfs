@@ -331,11 +331,19 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
     if [[ ${name} = "butterfly-toolchain" ]]; then
-       CHROOT_wrt_target "${this_script}" "$PREV"
-         process_toolchain "${this_script}" "${file}"
-       wrt_touch
-       PREV=$this_script
-       continue
+      CHROOT_wrt_target "${this_script}" "$PREV"
+      # Touch timestamp file if installed files logs will be created.
+      # But only for the firt build when running iterative builds.
+      if [ "${INSTALL_LOG}" = "y" ] && [ "x${N}" = "x" ] ; then
+        CHROOT_wrt_TouchTimestamp
+      fi
+      process_toolchain "${this_script}" "${file}"
+      if [ "${INSTALL_LOG}" = "y" ] && [ "x${N}" = "x" ] ; then
+        CHROOT_wrt_LogNewFiles "$name"
+      fi
+      wrt_touch
+      PREV=$this_script
+      continue
     fi
     # kernfs is run in SUDO target
     case "${this_script}" in
@@ -346,6 +354,11 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
     # If $pkg_tarball isn't empty, we've got a package...
     # Insert instructions for unpacking the package and changing directories
     if [ "$pkg_tarball" != "" ] ; then
+      # Touch timestamp file if installed files logs will be created.
+      # But only for the firt build when running iterative builds.
+      if [ "${INSTALL_LOG}" = "y" ] && [ "x${N}" = "x" ] ; then
+        CHROOT_wrt_TouchTimestamp
+      fi
       CHROOT_Unpack "$pkg_tarball"
       # If the testsuites must be run, initialize the log file
       # butterfly-toolchain tests are enabled in 'process_tookchain' function
@@ -365,9 +378,13 @@ chapter6_Makefiles() {       # sysroot or chroot build phase
              * ) CHROOT_wrt_RunAsRoot "${file}" ;;
     esac
     #
-    # Remove the build directory(ies) except if the package build fails.
+    # Write installed files log and remove the build directory(ies)
+    # except if the package build fails.
     if [ "$pkg_tarball" != "" ] ; then
       CHROOT_wrt_RemoveBuildDirs "$name"
+      if [ "${INSTALL_LOG}" = "y" ] && [ "x${N}" = "x" ] ; then
+        CHROOT_wrt_LogNewFiles "$name"
+      fi
     fi
     #
     # Include a touch of the target name so make can check if it's already been made.
@@ -427,6 +444,9 @@ chapter7_Makefiles() {       # Create a bootable system.. kernel, bootscripts..e
 
     case "${this_script}" in
       *bootscripts*)
+        if [ "${INSTALL_LOG}" = "y" ] ; then
+          CHROOT_wrt_TouchTimestamp
+        fi
         CHROOT_Unpack $(get_package_tarball_name "lfs-bootscripts")
         blfs_bootscripts=$(get_package_tarball_name "blfs-bootscripts" | sed -e 's/.tar.*//' )
         echo -e "\t@echo \"\$(MOUNT_PT)\$(SRC)/$blfs_bootscripts\" >> sources-dir" >> $MKFILE.tmp
@@ -434,8 +454,11 @@ chapter7_Makefiles() {       # Create a bootable system.. kernel, bootscripts..e
       *kernel)
         name="linux"
         pkg_tarball=$(get_package_tarball_name $name)
+        if [ "${INSTALL_LOG}" = "y" ] ; then
+          CHROOT_wrt_TouchTimestamp
+        fi
         CHROOT_Unpack "$pkg_tarball"
-	;;
+        ;;
     esac
 
     case "${this_script}" in
@@ -462,8 +485,14 @@ cat << EOF
 	rm sources-dir
 EOF
 ) >> $MKFILE.tmp
+          if [ "${INSTALL_LOG}" = "y" ] ; then
+            CHROOT_wrt_LogNewFiles "$name"
+          fi
        ;;
-      *kernel)       CHROOT_wrt_RemoveBuildDirs "dummy" ;;
+      *kernel)       CHROOT_wrt_RemoveBuildDirs "dummy"
+                     if [ "${INSTALL_LOG}" = "y" ] ; then
+                       CHROOT_wrt_LogNewFiles "$name"
+                     fi ;;
     esac
 
     # Include a touch of the target name so make can check if it's already been made.
