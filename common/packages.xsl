@@ -7,12 +7,22 @@
 
   <xsl:output method="text"/>
 
+  <!-- The libc model used for HLFS -->
+  <xsl:param name="model" select="glibc"/>
+
+  <!-- The kernel series used for HLFS -->
+  <xsl:param name="kernel" select="2.6"/>
+
   <xsl:template match="/">
     <xsl:apply-templates select="//para"/>
   </xsl:template>
 
   <xsl:template match="para">
-    <xsl:if test="contains(string(),'Download:')">
+    <xsl:if test="contains(string(),'Download:') and
+                  (ancestor::varlistentry[@condition=$model]
+                  or not(ancestor::varlistentry[@condition])) and
+                  (ancestor::varlistentry[@vendor=$kernel]
+                  or not(ancestor::varlistentry[@vendor]))">
       <xsl:call-template name="package_name">
         <xsl:with-param name="url" select="ulink/@url"/>
       </xsl:call-template>

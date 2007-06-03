@@ -118,7 +118,7 @@ extract_commands() {         #
       ;;
 
     hlfs)
-        echo -n " ${L_arrow}${BOLD}$MODEL${R_arrow} HLFS libc implementation... "
+        echo -n " ${L_arrow}${BOLD}$MODEL + $KERNEL${R_arrow} HLFS flavour... "
         xsltproc --nonet \
                  --xinclude \
                  --stringparam model $MODEL \
@@ -177,7 +177,10 @@ create_package_list() {      #
                  $BOOK/materials/${ARCH}-chapter.xml >>$LOGDIR/$LOG 2>&1
       ;;
     hlfs)
-        xsltproc --nonet --xinclude -o pkg_tarball_list packages.xsl \
+        xsltproc --nonet --xinclude
+                 --stringparam model $MODEL \
+                 --stringparam kernel $KERNEL \
+                  -o pkg_tarball_list packages.xsl \
                  $BOOK/chapter04/chapter04.xml >>$LOGDIR/$LOG 2>&1
       ;;
     lfs)

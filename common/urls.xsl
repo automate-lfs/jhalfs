@@ -16,6 +16,9 @@
   <!-- The libc model used for HLFS -->
   <xsl:param name="model" select="glibc"/>
 
+  <!-- The kernel series used for HLFS -->
+  <xsl:param name="kernel" select="2.6"/>
+
   <xsl:template match="/">
     <xsl:apply-templates select="//ulink"/>
   </xsl:template>
@@ -26,6 +29,8 @@
       duplicated URLs due that may be splitted for PDF output -->
     <xsl:if test="(ancestor::varlistentry[@condition=$model]
                   or not(ancestor::varlistentry[@condition])) and
+                  (ancestor::varlistentry[@vendor=$kernel]
+                  or not(ancestor::varlistentry[@vendor])) and
                   (contains(@url, '.bz2') or contains(@url, '.tar.gz') or
                   contains(@url, '.tgz') or contains(@url, '.patch')) and
                   not(ancestor-or-self::*/@condition = 'pdf')">
