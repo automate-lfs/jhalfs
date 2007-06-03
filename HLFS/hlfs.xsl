@@ -16,6 +16,9 @@
   <!-- What libc implentation must be used? -->
   <xsl:param name="model" select="glibc"/>
 
+  <!-- What kernel serie must be used? -->
+  <xsl:param name="kernel" select="2.6"/>
+
   <!-- Is the host kernel using grsecurity? -->
   <xsl:param name="grsecurity_host" select="n"/>
 
@@ -51,6 +54,7 @@
                   ../@id='chapter-building-system' or
                   ../@id='chapter-bootable') and
                   ((@condition=$model or not(@condition)) and
+                  ((@vendor=$kernel or not(@vendor)) and
                   count(descendant::screen/userinput) &gt; 0 and
                   count(descendant::screen/userinput) &gt;
                   count(descendant::screen[@role='nodump']))">
@@ -144,6 +148,7 @@
 
   <xsl:template match="screen">
     <xsl:if test="(@condition=$model or not(@condition)) and
+                  (@vendor=$kernel or not(@vendor)) and
                   child::* = userinput and not(@role = 'nodump')">
       <xsl:apply-templates select="userinput" mode="screen"/>
     </xsl:if>
@@ -319,7 +324,8 @@
   </xsl:template>
 
   <xsl:template match="literal">
-    <xsl:if test="@condition=$model or not(@condition)">
+    <xsl:if test="(@condition=$model or not(@condition)) and
+                  (@vendor=$kernel or not(@vendor))">
       <xsl:apply-templates/>
     </xsl:if>
   </xsl:template>

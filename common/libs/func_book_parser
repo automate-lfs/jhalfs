@@ -122,6 +122,7 @@ extract_commands() {         #
         xsltproc --nonet \
                  --xinclude \
                  --stringparam model $MODEL \
+                 --stringparam kernel $KERNEL \
                  --stringparam testsuite $TEST \
                  --stringparam bomb-testsuite $BOMB_TEST \
                  --stringparam timezone $TIMEZONE \

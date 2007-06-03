@@ -377,6 +377,25 @@ menu "--- BOOK Settings"
 		string
 		default	"glibc"		if LIB_GLIBC
 		default "uclibc"	if LIB_UCLIBC
+
+	choice
+		prompt "Kernel series"
+		depends on BOOK_HLFS
+		help
+			#-- Which kernel series to use: 2.6/2.4
+
+		config	KERNEL_26
+			bool "2.6 kernel series"
+
+		config	KERNEL_24
+			bool "2.4 kernel series"
+	endchoice
+
+	config	KERNEL
+		depends on BOOK_HLFS
+		string
+		default	"2.6"		if KERNEL_26
+		default	"2.4"		if KERNEL_24
 	#--- End HLFS specific params
 
 	#--- Custom Tools support
