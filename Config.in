@@ -804,13 +804,6 @@ menu "--- Build Settings"
 		help
 			#-- Language information in /etc/profile  See <locale -a> for values
 
-	config	LC_ALL
-		string "Language"
-		default "$LC_ALL"
-		depends on BOOK_HLFS
-		help
-			#-- Language information in /etc/profile  See <locale -a> for values
-
 	#--- Groff page
 	choice
 		prompt	"Groff page size"

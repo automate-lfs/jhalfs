@@ -38,7 +38,7 @@ inline_doc
 
   # Build Settings by book
   local -r   LFS_build="$BUILD_chroot VIMLANG $BUILD_common"
-  local -r  HLFS_build="$BUILD_chroot         $BUILD_common LC_ALL"
+  local -r  HLFS_build="$BUILD_chroot         $BUILD_common"
   local -r  CLFS_build="$BUILD_chroot VIMLANG $BUILD_common"
   local -r CLFS2_build="STRIP         VIMLANG $BUILD_common"
   local -r CLFS3_build="                      $BUILD_common"

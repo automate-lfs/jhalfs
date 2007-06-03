@@ -13,9 +13,6 @@
 
 <!-- XSLT stylesheet to create shell scripts from CLFS2 books. -->
 
-  <!-- Install vim-lang package? -->
-  <xsl:param name="vim-lang" select="y"/>
-
   <!-- Time zone -->
   <xsl:param name="timezone" select="GMT"/>
 

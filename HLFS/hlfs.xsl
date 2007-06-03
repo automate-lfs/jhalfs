@@ -41,7 +41,6 @@
 
   <!-- Locale settings -->
   <xsl:param name="lang" select="C"/>
-  <xsl:param name="lc_all" select="C"/>
 
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
@@ -197,16 +196,13 @@
         <xsl:value-of select="substring-after(string(),'bzcat ')"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
-      <!-- Setting $LC_ALL and $LANG for /etc/profile -->
+      <!-- Setting $LANG for /etc/profile -->
       <xsl:when test="ancestor::sect1[@id='bootable-profile'] and
                 contains(string(),'export LANG=')">
-        <xsl:value-of select="substring-before(string(),'export LC_ALL=')"/>
-        <xsl:text>export LC_ALL=</xsl:text>
-        <xsl:value-of select="$lc_all"/>
-        <xsl:text>&#xA;export LANG=</xsl:text>
+        <xsl:value-of select="substring-before(string(),'export LANG=')"/>
+        <xsl:text>export LANG=</xsl:text>
         <xsl:value-of select="$lang"/>
-        <xsl:text>&#xA;export INPUTRC</xsl:text>
-        <xsl:value-of select="substring-after(string(),'INPUTRC')"/>
+        <xsl:value-of select="substring-after(string(),'CC]')"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
       <!-- Fixing bootscripts installation -->

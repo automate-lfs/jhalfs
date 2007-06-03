@@ -111,7 +111,6 @@ extract_commands() {         #
         echo -n " ${L_arrow}${BOLD}$ARCH${R_arrow} target architecture... "
         xsltproc --nonet \
                  --xinclude \
-                 --stringparam vim-lang $VIMLANG \
                  --stringparam timezone $TIMEZONE \
                  --stringparam page $PAGE \
                  --stringparam lang $LANG \
@@ -128,7 +127,6 @@ extract_commands() {         #
                  --stringparam timezone $TIMEZONE \
                  --stringparam page $PAGE \
                  --stringparam lang $LANG \
-                 --stringparam lc_all $LC_ALL \
                  --stringparam grsecurity_host $GRSECURITY_HOST \
                  -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
       ;;
