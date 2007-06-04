@@ -36,6 +36,9 @@
   -->
   <xsl:param name="bomb-testsuite" select="n"/>
 
+  <!-- Additional features -->
+  <xsl:param name="features">,ssp,aslr,pax,hardened_tmp,warnings,misc,blowfish,</xsl:param>
+
   <!-- Time zone -->
   <xsl:param name="timezone" select="GMT"/>
 
@@ -149,7 +152,8 @@
   <xsl:template match="screen">
     <xsl:if test="(@condition=$model or not(@condition)) and
                   (@vendor=$kernel or not(@vendor)) and
-                  child::* = userinput and not(@role = 'nodump')">
+                  child::* = userinput and (not(@role) or
+                  (@role and contains($features,concat(',',@role,','))))">
       <xsl:apply-templates select="userinput" mode="screen"/>
     </xsl:if>
   </xsl:template>

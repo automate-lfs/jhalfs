@@ -396,6 +396,73 @@ menu "--- BOOK Settings"
 		string
 		default	"2.6"		if KERNEL_26
 		default	"2.4"		if KERNEL_24
+
+        menu	"HLFS Additional Features"
+		depends on BOOK_HLFS
+
+		config	SET_SSP
+		bool	"Stack-smashing protector"
+		default	y
+
+		config	SET_ASLR
+		bool	"Address-space layout randomization"
+		default	y
+
+		config	SET_PAX
+		bool	"PaX-aware ELF executables and kernel"
+		default	y
+
+		config	SET_HARDENED_TMP
+		bool	"Hardened temporary files creation"
+		default	y
+
+		config	SET_WARNINGS
+		bool	"Additional warnings"
+		default	y
+
+		config	SET_MISC
+		bool	"Miscellaneous features"
+		default	y
+
+		config	SET_BLOWFISH
+		bool	"Blowfish passwords"
+		default	y
+	endmenu
+
+	config	SSP
+		depends on SET_SSP
+		string
+		default ",ssp,"
+
+	config	ASLR
+		depends on SET_ASLR
+		string
+		default ",aslr,"
+
+	config	PAX
+		depends on SET_PAX
+		string
+		default ",pax,"
+
+	config	HARDENED_TMP
+		depends on SET_HARDENED_TMP
+		string
+		default ",hardened_tmp,"
+
+	config	WARNINGS
+		depends on SET_WARNINGS
+		string
+		default ",warnings,"
+
+	config	MISC
+		depends on SET_MISC
+		string
+		default ",misc,"
+
+	config	BLOWFISH
+		depends on SET_BLOWFISH
+		string
+		default ",blowfish,"
 	#--- End HLFS specific params
 
 	#--- Custom Tools support

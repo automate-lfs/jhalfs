@@ -31,7 +31,9 @@ inline_doc
 
   # BOOK Settings by book
   local -r   LFS_book="$BOOK_common BLFS_TOOL"
-  local -r  HLFS_book="$BOOK_common BLFS_TOOL MODEL KERNEL GRSECURITY_HOST"
+  local -r HLFS_added="SET_SSP SET_ASLR SET_PAX SET_HARDENED_TMP SET_WARNINGS \
+                       SET_MISC SET_BLOWFISH"
+  local -r  HLFS_book="$BOOK_common BLFS_TOOL MODEL KERNEL GRSECURITY_HOST $HLFS_added"
   local -r  CLFS_book="$BOOK_common BLFS_TOOL METHOD $BOOK_clfsX TARGET32 BOOT_CONFIG"
   local -r CLFS2_book="$BOOK_common BLFS_TOOL        $BOOK_clfsX"
   local -r CLFS3_book="$BOOK_common                  $BOOK_clfsX PLATFORM MIPS_LEVEL"
