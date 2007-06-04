@@ -53,11 +53,11 @@
     <xsl:if test="(../@id='chapter-temporary-tools' or
                   ../@id='chapter-building-system' or
                   ../@id='chapter-bootable') and
-                  ((@condition=$model or not(@condition)) and
-                  ((@vendor=$kernel or not(@vendor)) and
-                  count(descendant::screen/userinput) &gt; 0 and
+                  (count(descendant::screen/userinput) &gt; 0 and
                   count(descendant::screen/userinput) &gt;
-                  count(descendant::screen[@role='nodump'])))">
+                  count(descendant::screen[@role='nodump'])) and
+                  ((@condition=$model or not(@condition)) and
+                  (@vendor=$kernel or not(@vendor)))">
         <!-- The dirs names -->
       <xsl:variable name="pi-dir" select="../processing-instruction('dbhtml')"/>
       <xsl:variable name="pi-dir-value" select="substring-after($pi-dir,'dir=')"/>
