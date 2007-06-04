@@ -57,7 +57,7 @@
                   ((@vendor=$kernel or not(@vendor)) and
                   count(descendant::screen/userinput) &gt; 0 and
                   count(descendant::screen/userinput) &gt;
-                  count(descendant::screen[@role='nodump']))">
+                  count(descendant::screen[@role='nodump'])))">
         <!-- The dirs names -->
       <xsl:variable name="pi-dir" select="../processing-instruction('dbhtml')"/>
       <xsl:variable name="pi-dir-value" select="substring-after($pi-dir,'dir=')"/>

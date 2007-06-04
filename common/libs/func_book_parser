@@ -177,7 +177,7 @@ create_package_list() {      #
                  $BOOK/materials/${ARCH}-chapter.xml >>$LOGDIR/$LOG 2>&1
       ;;
     hlfs)
-        xsltproc --nonet --xinclude
+        xsltproc --nonet --xinclude \
                  --stringparam model $MODEL \
                  --stringparam kernel $KERNEL \
                   -o pkg_tarball_list packages.xsl \
