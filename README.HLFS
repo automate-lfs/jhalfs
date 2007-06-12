@@ -5,9 +5,7 @@ $Id$
 
  Hardened Linux From Scratch is a highly volatile project. Extreme design
  changes can occur and the build could be broken for extended periods of
- time.
+ time, like right now.
 
- As of May.01.2007 jhalfs can't be used to build HLFS systems. This is due
- the HLFS team is mergin 2.4-branch code to trunk. After the HLFS team
- finish the books merges, jhalfs will need several changes to can build
- again HLFS books.
+ As of June.12.2007 jhalfs has been updated to match current HLFS SVN sources,
+ included support to activate/deactivate additional build features.
