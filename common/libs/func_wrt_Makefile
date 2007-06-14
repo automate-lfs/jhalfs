@@ -72,13 +72,15 @@ get_package_tarball_name() {       #
    case $script_name in
      tcl) echo $(grep "^tcl" $JHALFSDIR/pkg_tarball_list | head -n1 )
          ;;
+     powerpc-utils) echo $(grep "^powerpc-utils" $JHALFSDIR/pkg_tarball_list | head -n1 )
+         ;;
      uClibc)
          if [[ "${PROGNAME}" = "clfs3" ]]; then
            echo $(grep "^uClibc-" $JHALFSDIR/pkg_tarball_list | head -n1 )
-	 else
+         else
            echo $(grep "^$script_name-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 )
-	 fi
-	 ;;
+         fi
+         ;;
      linux-headers)
          if [[ "${PROGNAME}" = "lfs" ]] || [[ "${PROGNAME}" = "hlfs" ]] ; then
            # Uses kernel headers directly
