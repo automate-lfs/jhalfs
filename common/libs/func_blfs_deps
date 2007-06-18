@@ -22,7 +22,7 @@ add_blfs_deps_urls() {       # No easy way to extract it.
 
   if [[ "${DEP_UNZIP}" = "y" ]] ; then
     echo "${UNZIP_URL} ${BLFS_SERVER}unzip/${UNZIP_PKG} ${UNZIP_MD5}" >> urls.lst
-    echo "${UZIP_PATCH_URL} ${BLFS_SERVER}unzip/${UNZIP_PATCH} ${UNZIP_PATCH_MD5}" >> urls.lst
+    echo "${UNZIP_PATCH_URL} ${BLFS_SERVER}unzip/${UNZIP_PATCH} ${UNZIP_PATCH_MD5}" >> urls.lst
   fi
 
   if [[ "${DEP_DBXML}" = "y" ]] ; then
