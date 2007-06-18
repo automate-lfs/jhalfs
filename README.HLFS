@@ -5,7 +5,7 @@ $Id$
 
  Hardened Linux From Scratch is a highly volatile project. Extreme design
  changes can occur and the build could be broken for extended periods of
- time, like right now.
+ time.
 
- As of June.12.2007 jhalfs has been updated to match current HLFS SVN sources,
- included support to activate/deactivate additional build features.
+ As of June 18.2007, the jhalfs code need be full revised to match current
+ SVN HLFS book code.
