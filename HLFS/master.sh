@@ -93,13 +93,6 @@ chapter3_Makefiles() {       # Initialization of the system
 
   echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter3     ( SETUP ) ${R_arrow}"
 
-  # Define a few model dependant variables
-  if [[ ${MODEL} = "uclibc" ]]; then
-    TARGET="pc-linux-gnu"; LOADER="ld-uClibc.so.0"
-  else
-    TARGET="pc-linux-gnu"; LOADER="ld-linux.so.2"
-  fi
-
   # If $LUSER_HOME is already present in the host, we asume that the
   # hlfs user and group are also presents in the host, and a backup
   # of their bash init files is made.
@@ -140,9 +133,6 @@ cat << EOF
 	echo "PATH=/tools/bin:/bin:/usr/bin" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "export HLFS LC_ALL PATH" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "" >> \$(LUSER_HOME)/.bashrc && \\
-	echo "target=$(uname -m)-${TARGET}" >> \$(LUSER_HOME)/.bashrc && \\
-	echo "ldso=/tools/lib/${LOADER}" >> \$(LUSER_HOME)/.bashrc && \\
-	echo "export target ldso" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "source $JHALFSDIR/envars" >> \$(LUSER_HOME)/.bashrc && \\
 	chown \$(LUSER):\$(LGROUP) \$(LUSER_HOME)/.bashrc && \\
 	chmod -R a+wt \$(MOUNT_PT) && \\

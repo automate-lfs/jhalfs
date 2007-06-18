@@ -110,7 +110,6 @@
           <xsl:if test="@id='ch-system-uclibc'">
              <xsl:text>pushd ../; tar -xvf gettext-&gettext-version;.*; popd; &#xA;</xsl:text>
           </xsl:if>
-
           <!-- SVN toolchain format, from inside ./sources dir unpack binutils and gcc -->
 	  <xsl:if test="@id='ch-tools-embryo-toolchain' or
                         @id='ch-tools-cocoon-toolchain' or
@@ -127,21 +126,6 @@
             <xsl:text>tar -xvf gcc-testsuite-&gcc-version;.*; &#xA;</xsl:text>
           </xsl:if>
           <!-- END SVN toolchain format -->
-
-          <!-- 2.4-branch toolchain -->
-          <xsl:if test="@id='ch-tools-gcc-pass2' or @id='ch-system-gcc'">
-             <xsl:text>pushd ../; tar -xvf gcc-g++-&gcc-version;.*; popd; &#xA;</xsl:text>
-          </xsl:if>
-          <xsl:if test="@id='ch-system-gcc' and $testsuite != '0'">
-            <xsl:text>pushd ../; tar -xvf gcc-testsuite-&gcc-version;.*; popd; &#xA;</xsl:text>
-          </xsl:if>
-          <!-- END 2.4-branch toolchain -->
-
-<!-- temporary
-          <xsl:if test="@id='bootable-bootscripts'">
-             <xsl:text>pushd ../; tar -xvf blfs-bootscripts-&blfs-bootscripts-version;.* ; popd; &#xA;</xsl:text>
-          </xsl:if>
--->
         </xsl:if>
         <xsl:apply-templates select=".//para/userinput | .//screen"/>
         <xsl:text>exit</xsl:text>
@@ -183,28 +167,10 @@
 
   <xsl:template match="userinput" mode="screen">
     <xsl:choose>
-      <!-- Estandarized package formats -->
-      <xsl:when test="contains(string(),'tar.gz')">
-        <xsl:value-of select="substring-before(string(),'tar.gz')"/>
-        <xsl:text>tar.*</xsl:text>
-        <xsl:value-of select="substring-after(string(),'tar.gz')"/>
-        <xsl:text>&#xA;</xsl:text>
-      </xsl:when>
       <!-- grsecurity kernel in the host? -->
       <xsl:when test="ancestor::sect1[@id='ch-system-kernfs'] and
                 contains(string(),'sysctl')
                 and $grsecurity_host ='n'"/>
-      <!-- We need to have /dev/console and /dev/null availables before
-           entering to the chroot -->
-      <xsl:when test="ancestor::sect1[@id='ch-system-devices'] and
-                contains(string(),'600 /dev/console')"/>
-      <!-- Fix MAKEDEV installation in 2.4-branch -->
-      <xsl:when test="ancestor::sect1[@id='ch-system-devices'] and
-                contains(string(),'bzcat MAKEDEV')">
-        <xsl:text>bzcat /sources/</xsl:text>
-        <xsl:value-of select="substring-after(string(),'bzcat ')"/>
-        <xsl:text>&#xA;</xsl:text>
-      </xsl:when>
       <!-- Setting $LANG for /etc/profile -->
       <xsl:when test="ancestor::sect1[@id='bootable-profile'] and
                 contains(string(),'export LANG=')">
@@ -214,17 +180,6 @@
         <xsl:value-of select="substring-after(string(),'CC]')"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
-      <!-- Fixing bootscripts installation -->
-
-<!-- temporary
-      <xsl:when test="ancestor::sect1[@id='bootable-bootscripts'] and
-                string() = 'make install'">
-        <xsl:text>make install&#xA;</xsl:text>
-        <xsl:text>cd ../blfs-bootscripts-&blfs-bootscripts-version;&#xA;</xsl:text>
-      </xsl:when>
--->
-      <!-- Compile the keymap into the kernel has been dissabled -->
-      <xsl:when test="contains(string(),'defkeymap')"/>
       <!-- Copying the kernel config file -->
       <xsl:when test="string() = 'make mrproper'">
         <xsl:text>make mrproper&#xA;</xsl:text>
@@ -232,6 +187,13 @@
       </xsl:when>
       <!-- No interactive commands are needed if the .config file is the proper one -->
       <xsl:when test="string() = 'make menuconfig'"/>
+      <!-- For uClibc we need to set CONFIG_SITE -->
+      <xsl:when test="contains(string(),'CONFIG_SITE')">
+        <xsl:value-of select="substring-before(string(),'export')"/>
+        <xsl:text>echo "export</xsl:text>
+        <xsl:value-of select="substring-after(string(),'export')"/>
+        <xsl:text>" &gt;&gt; ~/.bashrc&#xA;</xsl:text>
+      </xsl:when>
       <!-- For uClibc we need to cd to the Gettext package -->
       <xsl:when test="contains(string(),'cd gettext-runtime/')">
         <xsl:text>cd ../gettext-*/gettext-runtime</xsl:text>
@@ -272,16 +234,11 @@
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
-      <!-- Fixing butterfly and 2.4-branch toolchain plus other packages test suites run -->
-      <xsl:when test="string() = 'make -k check'
-                      or string() = 'make check'
-                      or string() = 'make tests'">
+      <!-- Fixing butterfly toolchain test suite run -->
+      <xsl:when test="ancestor::sect1[@id='ch-system-butterfly-toolchain']
+                      and string() = 'make -k check'">
         <xsl:choose>
-          <xsl:when test="((ancestor::sect1[@id='ch-system-butterfly-toolchain']
-                          or ancestor::sect1[@id='ch-system-gcc'] or
-                          ancestor::sect1[@id='ch-system-binutils'])
-                          and $testsuite != '0') or
-                          $testsuite = '2' or $testsuite = '3'">
+          <xsl:when test="$testsuite != '0'">
             <xsl:choose>
               <xsl:when test="$bomb-testsuite = 'n'">
                 <xsl:text>make -k check &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
@@ -299,6 +256,15 @@
         </xsl:choose>
       </xsl:when>
       <!-- Fixing Glbc test suite  -->
+      <xsl:when test="contains(string(),'rm -v configparms') and
+                      contains(string(),'-fno-stack-protector')">
+        <xsl:choose>
+          <xsl:when test="$testsuite != '0'">
+            <xsl:apply-templates/>
+            <xsl:text>&#xA;</xsl:text>
+          </xsl:when>
+        </xsl:choose>
+      </xsl:when>
       <xsl:when test="contains(string(),'glibc-check-log')">
         <xsl:choose>
           <xsl:when test="$testsuite != '0'">
