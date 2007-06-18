@@ -125,7 +125,7 @@ extract_commands() {         #
                  --stringparam kernel $KERNEL \
                  --stringparam testsuite $TEST \
                  --stringparam bomb-testsuite $BOMB_TEST \
-                 --stringparam features $SSP$ASLR$PAX$HARDENED_TMP$WARNINGS$MISC$BLOWFISH \
+                 --stringparam features x$SSP$ASLR$PAX$HARDENED_TMP$WARNINGS$MISC$BLOWFISH \
                  --stringparam timezone $TIMEZONE \
                  --stringparam page $PAGE \
                  --stringparam lang $LANG \
