@@ -273,6 +273,12 @@
           </xsl:when>
         </xsl:choose>
       </xsl:when>
+      <!-- Fixing Cocoon sanity checks  -->
+      <xsl:when test="contains(string(),'./strcat-overflow')">
+        <xsl:text>set +e&#xA;</xsl:text>
+        <xsl:apply-templates/>
+        <xsl:text>&#xA;set -e&#xA;</xsl:text>
+      </xsl:when>
       <!-- Fixing Butterfly sanity checks  -->
       <xsl:when test="contains(string(),'./fortify-test')
                       or contains(string(),'./ssp-test')">
