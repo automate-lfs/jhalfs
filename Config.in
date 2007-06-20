@@ -430,37 +430,37 @@ menu "--- BOOK Settings"
 # 	endmenu
 
 	config	SSP
-		depends on SET_SSP
+#		depends on SET_SSP
 		string
 		default ",ssp,"
 
 	config	ASLR
-		depends on SET_ASLR
+#		depends on SET_ASLR
 		string
 		default ",aslr,"
 
 	config	PAX
-		depends on SET_PAX
+#		depends on SET_PAX
 		string
 		default ",pax,"
 
 	config	HARDENED_TMP
-		depends on SET_HARDENED_TMP
+#		depends on SET_HARDENED_TMP
 		string
 		default ",hardened_tmp,"
 
 	config	WARNINGS
-		depends on SET_WARNINGS
+#		depends on SET_WARNINGS
 		string
 		default ",warnings,"
 
 	config	MISC
-		depends on SET_MISC
+#		depends on SET_MISC
 		string
 		default ",misc,"
 
 	config	BLOWFISH
-		depends on SET_BLOWFISH
+#		depends on SET_BLOWFISH
 		string
 		default ",blowfish,"
 	#--- End HLFS specific params
