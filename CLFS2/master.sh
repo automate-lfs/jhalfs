@@ -97,7 +97,8 @@ cat << EOF
 	@touch \$(MOUNT_PT)/var/run/utmp \$(MOUNT_PT)/var/log/{btmp,lastlog,wtmp}
 	@chmod 664 \$(MOUNT_PT)/var/run/utmp \$(MOUNT_PT)/var/log/lastlog
 	@chown -R \$(LUSER) \$(MOUNT_PT) && \\
-	chmod -R a+wt \$(MOUNT_PT)/\$(SCRIPT_ROOT)
+	chmod -R a+w \$(MOUNT_PT)/\$(SCRIPT_ROOT) && \\
+	chmod -R a+w \$(SRCSDIR)
 	@\$(call housekeeping)
 
 EOF
