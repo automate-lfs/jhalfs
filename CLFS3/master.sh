@@ -210,13 +210,24 @@ cross_tools_Makefiles() {     #
     # If $pkg_tarball isn't empty, we've got a package...
     if [ "$pkg_tarball" != "" ] ; then
        LUSER_wrt_unpack "$pkg_tarball"
+      # Touch timestamp file if installed files logs will be created.
+      if [ "${INSTALL_LOG}" = "y" ] ; then
+        LUSER_wrt_TouchTimestamp
+      fi
        # If using optimizations, write the instructions
        [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
     #
     LUSER_wrt_RunAsUser "${file}"
     #
-    [[ "$pkg_tarball" != "" ]] && LUSER_RemoveBuildDirs "${name}"
+    # Write installed files log and remove the build directory(ies)
+    # except if the package build fails.
+    if [ "$pkg_tarball" != "" ] ; then
+      LUSER_RemoveBuildDirs "${name}"
+      if [ "${INSTALL_LOG}" = "y" ] ; then
+        LUSER_wrt_LogNewFiles "$name"
+      fi
+    fi
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -269,7 +280,6 @@ final_system_Makefiles() {    #
     # If $pkg_tarball isn't empty, we've got a package...
     if [ "$pkg_tarball" != "" ] ; then
       # Touch timestamp file if installed files logs will be created.
-      # But only for the firt build when running iterative builds.
       if [ "${INSTALL_LOG}" = "y" ] ; then
         LUSER_wrt_TouchTimestamp
       fi
