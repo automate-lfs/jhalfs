@@ -313,7 +313,7 @@ menu "--- BOOK Settings"
 	config	ABI
 		string
 		depends BOOK_CLFS3
-		default "-m32"		if ARCH_X86
+		default "-m32"		if ARCH_X86 || ARCH_ARM
 #		default "-m64"		if NO USED YET IN THE BOOK
 		default "-mabi=32"	if ABI_32 || (ARCH_MIPS && DATA_32)
 		default "-mabi=n32"	if ABI_N32
