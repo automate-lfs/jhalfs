@@ -116,7 +116,7 @@ define touch_timestamp
 endef
 
 define touch_timestamp_LUSER
-  @touch $(SRCDIR)/timestamp-marker && sleep 1
+  @touch $(SRCSDIR)/timestamp-marker && sleep 1
 endef
 
 define log_new_files
@@ -126,8 +126,8 @@ define log_new_files
 endef
 
 define log_new_files_LUSER
-  @find $(BASEDIR) -xdev ! -path "$(BASEDIR)/$(SCRIPT_ROOT)/*" ! -path "$(BASEDIR)/tmp/*" ! -path "$(SRCDIR)/*" \
-  -newer $(SRCDIR)/timestamp-marker -not -type d \
+  @find $(BASEDIR) -xdev ! -path "$(BASEDIR)/$(SCRIPT_ROOT)/*" ! -path "$(BASEDIR)/tmp/*" ! -path "$(SRCSDIR)/*" \
+  -newer $(SRCSDIR)/timestamp-marker -not -type d \
   -printf "%p\t%s\t%u:%g\t%m\t%l\n" | sort > $(BASEDIR)$(crFILELOGDIR)/$(1)
 endef
 
