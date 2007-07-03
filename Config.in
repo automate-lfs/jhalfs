@@ -237,7 +237,7 @@ menu "--- BOOK Settings"
 		default	"mips64-unknown-linux-gnu"	if !BOOK_CLFS3 && PROC_mips   && (DATA_64 || DATA_MULTI)
 
 		default "mipsel-unknown-linux-uclibc"	if  BOOK_CLFS3 && PROC_mipsel && DATA_32
-		default "mips-unknown-linux-uclibc"	if  BOOK_CLFS3 && PROC_mips   && DATA-32
+		default "mips-unknown-linux-uclibc"	if  BOOK_CLFS3 && PROC_mips   && DATA_32
 		default "mips64el-unknown-linux-uclibc"	if  BOOK_CLFS3 && PROC_mipsel && DATA_64
 		default "mips64-unknown-linux-uclibc"	if  BOOK_CLFS3 && PROC_mips   && DATA_64
 
