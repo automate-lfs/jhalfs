@@ -2,22 +2,21 @@ $Id$
 
 1. INTRODUCTION::
 
-     To automatize packages build from the BLFS book instructions is a huge
-  task. The BLFS book isn't linear, some package pages need to use a non
-  default layout, there are circular dependencies, several packages can be
-  installed on a non default prefix, build commands can change based on what
-  dependencies will be used, etc.
+     To automate package builds from the BLFS book instructions is a huge
+  task. Some of the issues are: the BLFS book isn't linear; some package
+  pages use a custom layout; there are circular dependencies; several
+  packages can be installed on a non-default prefix; build commands can
+  change based on what dependencies will be used, etc.
 
-     Said that, the goal of blfs-tool is try to help you solving packages
-  dependencies and creating your own build scripts and Makefile. Few of the
-  auto-generated build scripts and Makefile could work "as is", thus as a
-  general rule you will need to review and edit the scripts while reading
-  the book.
+     That being said, the goal of the blfs-tool is to help you solve package
+  dependencies, create build scripts and a Makefile. Few of the auto-generated
+  build scripts and Makefile will work "as is", thus, as a general rule,
+  you will need to review and edit the scripts while reading the book.
 
 
 2. PREREQUISITES::
 
-     To use this tool you MUST to:
+     To use this tool you MUST:
 
      - have experience building BLFS packages
      - know how to edit and write shell scripts
@@ -30,20 +29,21 @@ $Id$
 
 3. USAGE::
 
-     Due the complexity of the BLFS book, the scripts and Makefile generation is
-  done in several steps:
+     Due the complexity of the BLFS book, the scripts and Makefile generation
+  is done in several steps:
 
   3.1  INSTALLED PACKAGES TRACKING SYSTEM
 
-       This tool includes a very simple tracking system to know what packages
-    has been installed using the tool. It is used to skip installed packages
-    from target selection menu and to know if an installed package has been updated
-    on the BLFS book. Don't rely on this feature as a packages management tool.
+       This tool includes a very simple tracking system to log which packages
+    have been installed using the tool. It is used to skip installed packages
+    from target selection menu and to test if an installed package has been
+    updated in the BLFS book. Do not rely on this feature as a package
+    management tool.
 
-       The directory where tracking files will be stored need be created
-    before installing blfs-tool. You can place that directory anywhere, taking
-    care that the builder user must have read and write privileges on that
-    directory and on all files it contains.
+       The directory where tracking files will be stored needs to be created
+    before installing blfs-tool. You can place this directory anywhere, taking
+    care that the user must have read and write privileges on that directory
+    and on all files it contains.
 
        To use the default path set in the installation menu, run as root:
 
@@ -52,12 +52,12 @@ $Id$
   3.2  BLFS_TOOL INSTALLATION::
 
        Run "make" to launch the jhalfs menuconfig interface. Select the BLFS
-    book and it version. Then set the installation directory (default
+    book and version. Then set the installation directory (default
     $HOME/blfs_root), the BLFS sources directory (default blfs-xml), and
     the installed packages tracking directory (default /var/lib/jhalfs/BLFS).
 
        All required files will be placed in the installation directory and
-    BLFS XML sources will be checkout to the named sub-directory.
+    BLFS XML sources will be installed in the named sub-directory.
 
        Installed files:
 
@@ -70,9 +70,9 @@ $Id$
     update_book.sh     update the XML book sources and regenerates packages
                        database and meta-packages dependencies tree
     gen_config.sh      regenerates Config.in
-    gen_pkg_book.sh    solve dependencies and generates linear BLFS books
+    gen_pkg_book.sh    resolves dependencies and generates linear BLFS books
                        and build scripts
-    gen-makefile.sh    generates target Makefile
+    gen-makefile.sh    generates the target Makefile
     progress_bar.sh    the target Makefile progress bar
     Makefile           run gen_config.sh to update Config.in,
                        then launch the menuconfig interface, and lastly run
@@ -89,118 +89,118 @@ $Id$
 
   3.3  UPDATING BOOK SOURCES::
 
-       If using the development book version, and if you want to update already
-    installed packages to the new version found in that book, you need to update
-    the XML sources and packages database.
+       If you are using the development book version and you want to update
+    installed packages to the latest version found in that book, you need to
+    update the XML sources and packages database.
 
        To do that run "./update_book.sh"
 
        On the next configuration run, packages already installed but listed
-    with a new version in the book will be available for target selection and
-    used to solve dependencies.
+    with a new version in the book will be available for target selection
+    and used to solve dependencies.
 
   3.4  CONFIGURING AND PARSING THE BOOK::
 
-       Next step is to create a book and build scripts in dependencies build order
-    for a target package. A target can be a package or a meta-package.
+       The next step is to create a book and build scripts in dependency
+    build order for a target package. A target can be a package or a
+    meta-package.
 
     WARNING:
            Only one target (meta-package or individual package) must be
            selected on each configuration run.
-           That is due that there is no way to solve dependencies properly
-           when more than one target are selected at the same time.
+	   There is no way to solve dependencies properly when more
+           than one target are selected.
 
        Run <make> to launch the configuration interface. The main menu contains
-    three block: meta-package selection, individual package selection, and
+    three blocks: meta-package selection, individual package selection, and
     build options.
 
-       When a meta-package is selected is possible to unselect unwanted components.
-    That unselected components will be skipped if no other components depends
-    on them.
+       When a meta-package is selected, it is possible to unselect unwanted
+    components. The unselected components will be skipped if no other components
+    depends on them.
 
-       In the build options section the dependencies level and default packages
-    used to solve alternatives are set. Can be set also if the build will be
-    made as a normal user or as root. That settings are saved to be reused on
+       In the build options section, the dependencies level and default packages
+    used to solve alternatives are set. You can also select whether the build will
+    be made as a normal user or as root. That settings are saved to be reused in
     future configuration runs.
 
-       If, for example, your target selection is Xsoft-->Graphweb-->galeon a
+       If, for example, your target selection is Xsoft-->Graphweb-->galeon, a
     directory named "galeon" will be created. Inside that directory you will
     find a directory named "HTML" that contains a galeon-based HTML book with
     its dependencies in build order, and a "scripts" directory with build
     scripts for that packages.
 
-       There is also two other directories, "dependencies" and "xincludes", that
-    contains files generated while resolving dependencies trees.
+       There are also two other directories ("dependencies" and "xincludes")
+    that contain files generated while resolving dependencies trees.
 
   3.5  EDITING BUILD SCRIPTS
 
-       Now is time to review the generated book and scripts, making in the
-    scripts any changes required to fix generation bugs or to fit your needs.
+       Now it is time to review the generated book and scripts, making any changes
+    to the scripts necessary to fix generation bugs or to suit your needs.
 
        Scripts for additional packages (i.e., for non-BLFS packages) can be
-    inserted in an easy way due how the scripts are named. For example, if you
-    want to install the external dependency "bar" before "foo" package and the
-    "foo" script is named "064-z-foo", you need to create a "064-y-bar" build
-    script.
+    easily inserted. For example, if you want to install the external dependency
+    "bar" before "foo" package and the "foo" script is named "064-z-foo", you
+    need to create a "064-y-bar" build script.
 
-      Remember that the packages tracking system isn't a packages management tool
-    and know nothing about packages not in the BLFS book.
+      Remember, the package tracking system isn't a package management tool
+    and knows nothing about packages not in the BLFS book.
 
-      Also, review and edit envars.conf. That file is used to set global envars
+      Also, review and edit envars.conf. This file is used to set global envars
     needed by the build scripts.
 
   3.6  CREATING THE MAKEFILE
 
        When the build scripts are ready to be run, the Makefile can be
     created. Be sure that you cd into the "package" directory and run
+    ../gen-makefile.sh
 
-       ../gen_makefile.sh
-
-    Review the Makefile and if all looks sane, start the build.
+    Review the Makefile, and, if all looks sane, start the build.
 
 4. GENERATED BUILD SCRIPTS ISSUES::
 
-      In this section known issues with the generated build scripts are
-   discussed. They are due build procedures and/or BLFS layout particularities
-   than we can't handle. In several cases editing the build scripts is mandatory.
-   You may need also to insert some build script created by you to resolve
-   unhanded dependencies and/or to remove some script installing the affected
+      In this section, known issues with the generated build scripts are
+   discussed. They are due to build procedures and/or BLFS layout particularities
+   that we can't handle. In several cases, editing the build scripts is mandatory.
+   You may also need to insert some build scripts created by you to resolve
+   unhandled dependencies and/or to remove some script installing the affected
    package by hand.
 
    4.1  BLFS BOOTSCRIPTS
 
-        For now, bootscripts installation will fail. You will need to edit the
-     scripts for packages that install bootscripts and fix their installation
-     command. That could be fixed in the future, but not sure.
+        For now, bootscripts installation will fail. You will need to edit
+     the scripts for packages that install bootscripts and fix their
+     installation command. That could be fixed in the future.
 
-   4.2  PACKAGES CONFIGURATION
+   4.2  PACKAGE CONFIGURATION
 
-        For that packages that have a "Configuration" section, you should to
-     edit it build script to fit the configuration to your needs.
+        For those packages that have a "Configuration" section, you should
+     edit the build script to fit the needs of your system.
 
    4.4  PDL and Perl modules.
 
-        The generated scripts for that packages are plainly broken and can't
-     be fixed. You must to replace it by your own ones or install that
+        The generated scripts for these packages are broken and can not
+     be fixed. You must replace them with your own scripts or install the
      packages by hand.
 
    4.4  GCC, JDK, Sane, and KDE-multimedia
 
-        On the pages for that packages, the BLFS book actually have instructions
-     to install two packages. You must to edit the scripts to fix it. We will
-     try to fix some of them, but may not be possible.
+        On the pages for these packages, the BLFS book actually has instructions
+     to install two packages. You must edit the scripts to fix this.
+
+        We will try to fix some of them, but this may not be possible.
 
    4.5  XORG7
 
         The generated scripts for Xorg7 pseudo-packages don't have support for
      $SRC_ARCHIVE nor MD5 checking.
 
-        If you has downloaded previously the packages, you must to edit the scripts
-     to make it to use your local packages.
+        If you have previously downloaded the packages, you must edit the
+     scripts to use your local packages.
 
         Also, you will need to edit the scripts to fix the commands that must
-     be applied only to a concrete individual sub-package. For example the "for"
-     loop to install xorg7-util packages may read like:
+     be applied only to a concrete individual sub-package. For example, the
+     "for" loop to install xorg7-util packages may read like:
 
 for package in $(cat $WGET_LST) ; do
   packagedir=$(echo $package | sed 's/.tar.bz2//')
@@ -219,7 +219,7 @@ for package in $(cat $WGET_LST) ; do
   rm -rf $packagedir
 done
 
-        After reading the HTML page to know what commands is for what package,
+        After reading the HTML page to find what command is for what package,
      the loop can be changed to read something like:
 
 for package in $(cat $WGET_LST) ; do
@@ -245,24 +245,24 @@ done
 
    4.6  PATCHES
 
-        By default all required patches will be downloaded from the NET.
+        By default, all required patches will be downloaded from the NET.
 
-        If you has downloaded previously the patches, you must to edit the scripts
-     to make it to use your local patches.
+        If you have previously downloaded the patches, you must edit the
+     scripts to use your local patches.
 
         Also, be sure that all scripts have the commands to download/apply the
-     required patches. Due book layout issues some patches may be missing.
+     required patches. Due to book layout issues, some patches may be missing.
 
    4.7  ROOT COMMANDS
 
-        If building as a normal user (the default setting) be sure that all
-     commands that need root privileges are run using sudo.
+        If building as a normal user (the default setting), be sure that all
+     commands that require root privileges are run using sudo.
 
-        Due book layout issues some sudo command may be missing.
+        Due to book layout issues, some sudo commands may be missing.
 
    4.8  OTHERS
 
-        May have other issues that we are not aware on them yet. If you find
-     someone, please report it to <alfs-discuss@linuxfromscratch.org>.
+        There may be other issues that we are not aware of. If you find
+     any, please report it to <alfs-discuss@linuxfromscratch.org>.
 
 

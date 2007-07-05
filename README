@@ -46,16 +46,10 @@ $Id$
 
 4. CONFIGURATION::
 
-     ::NEWS::
-         There is a new configuration method for jhalfs.
-
      We have installed the familiar menu based configuration tool driven by
      GNU make. see the section RUNNING, for details
 
 5. RUNNING::
-
-     ::NEWS::
-         jhalfs is now launched via GNU make instead of individual symlinks.
 
      The command <make> will launch a menu based configuration program. You will
      recognize the layout from building the kernel or uClibc/BusyBox. The
