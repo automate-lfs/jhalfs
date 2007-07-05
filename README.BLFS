@@ -256,7 +256,10 @@ done
    4.7  ROOT COMMANDS
 
         If building as a normal user (the default setting), be sure that all
-     commands that require root privileges are run using sudo.
+     commands that require root privileges are run using sudo. Also make sure
+     necessary root privilege commands are visible in your PATH. ie. ldconfig
+     may not be in your user path and you will have to adjust all instances to
+     include the full path. 
 
         Due to book layout issues, some sudo commands may be missing.
 
