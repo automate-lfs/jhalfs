@@ -155,7 +155,7 @@ UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
 cd $UNPACKDIR&#xA;</xsl:text>
         <xsl:apply-templates select=".//screen | .//para/command"/>
         <xsl:if test="$sudo = 'y'">
-          <xsl:text>sudo </xsl:text>
+          <xsl:text>sudo /sbin/</xsl:text>
         </xsl:if>
         <xsl:text>ldconfig&#xA;&#xA;</xsl:text>
       </xsl:when>
@@ -187,7 +187,7 @@ cd $UNPACKDIR&#xA;</xsl:text>
   rm -rf $packagedir
 done&#xA;</xsl:text>
         <xsl:if test="$sudo = 'y'">
-          <xsl:text>sudo </xsl:text>
+          <xsl:text>sudo /sbin/</xsl:text>
         </xsl:if>
         <xsl:text>ldconfig&#xA;&#xA;</xsl:text>
       </xsl:when>

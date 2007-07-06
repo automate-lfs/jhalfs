@@ -79,15 +79,15 @@ $Id$
 
      For books that support it, there is an option to install blfs-tool and its
      dependencies on the final system. The pre-made build dependencies
-     scripts has been written thinking on a LFS build. For CLFS and HLFS
+     scripts has been written based on a LFS build. For CLFS and HLFS
      builds you may need to adjust that scripts, that are found into the
      common/blfs-tool-deps directory in the jhalfs sources tree.
 
-     WARNING:: If adding blfs-tool support on a CLFS Sysroot build
+     WARNING:: If you add blfs-tool support on a CLFS Sysroot build
                you MUST to edit the dependencies scripts to fix the
                installation paths.
-               Be sure to make the adjust carefully or you will end
-               messing your host system.
+	       Be careful when you modify the scripts as you can
+	       easily disable the host system.
 
      After booting the new xLFS system some steps are needed to finish
      blfs-tool installation:

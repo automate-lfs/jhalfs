@@ -11,10 +11,10 @@ CONFIG = menu
 all: 	menuconfig
 
 $(CONFIG)/conf:
-	$(MAKE) -C $(CONFIG) conf
+	$(MAKE) -B -C $(CONFIG) conf
 
 $(CONFIG)/mconf:
-	$(MAKE) -C $(CONFIG) ncurses conf mconf
+	$(MAKE) -B -C $(CONFIG) ncurses conf mconf
 
 menuconfig: $(CONFIG)/mconf
 	@./update_book.sh none

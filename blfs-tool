@@ -155,6 +155,7 @@ echo "${nl_}${SD_BORDER}${nl_}"
 cp -r BLFS/* $BLFS_ROOT
 cp -r menu $BLFS_ROOT
 cp $COMMON_DIR/progress_bar.sh $BLFS_ROOT
+chmod 777 ${BLFS_ROOT}/progress_bar.sh
 cp README.BLFS $BLFS_ROOT
 
 # Start the work
@@ -178,5 +179,5 @@ else
 fi
 
 # Run the menuconfig interface
-make
+make -B
 
