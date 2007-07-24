@@ -111,6 +111,7 @@ extract_commands() {         #
         echo -n " ${L_arrow}${BOLD}$ARCH${R_arrow} target architecture... "
         xsltproc --nonet \
                  --xinclude \
+                 --stringparam endian x$ENDIAN \
                  --stringparam timezone $TIMEZONE \
                  --stringparam page $PAGE \
                  --stringparam lang $LANG \

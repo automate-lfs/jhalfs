@@ -319,6 +319,12 @@ menu "--- BOOK Settings"
 		default "-mabi=n32"	if ABI_N32
 		default "-mabi=64"	if ABI_64
 
+	config	ENDIAN
+		string
+		depends BOOK_CLFS3 && (ARCH_MIPS || ARCH_ARM)
+		default "little"	if PROC_mipsel || PROC_ARM || PROC_ARM5L
+		default "big"		if PROC_mips || PROC_ARM5B
+
 	choice
 		prompt	"Build method"
 		depends	BOOK_CLFS
