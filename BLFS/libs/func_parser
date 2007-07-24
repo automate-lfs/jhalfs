@@ -106,7 +106,7 @@ inline_doc
            ../libs/book.xsl \
            $TARGET-index.xml > xsltproc.log 2>&1
   mkdir HTML/{stylesheets,images}
-  cp ../$BLFS_XML/stylesheets/*.css HTML/stylesheets
+  cp ../$BLFS_XML/stylesheets/lfs-xsl/*.css HTML/stylesheets
   cp ../$BLFS_XML/images/*.png HTML/images
   cd HTML
   sed -i -e "s@../stylesheets@stylesheets@g" *.html
