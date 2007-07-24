@@ -34,7 +34,19 @@ inline_doc
   write_error_and_die() {
      echo -e "\n\t\t$TXT version -->${tst_version}<-- is too old.
 		    This script requires ${ref_version} or greater\n"
-     exit 1
+   # Ask the user instead of bomb, to make happy that packages which version
+   # ouput don't follow our expectations
+    echo "If you are sure that you have instaled a proper version of ${BOLD}$TXT${OFF}"
+    echo "but jhalfs has failed to detect it, press 'c' and 'ENTER' keys to continue,"
+    echo -n "otherwise press 'ENTER' key to stop jhalfs.  "
+    read ANSWER
+    if [ x$ANSWER != "xc" ] ; then
+      echo "${nl_}Please, install a proper $TXT version.${nl_}"
+      exit 1
+    else
+      minor=$ref_minor
+      revision=$ref_revision
+    fi
   }
 
   echo -ne "${TXT}${dotSTR:${#TXT}} ${L_arrow}${BOLD}${tst_version}${OFF}${R_arrow}"
