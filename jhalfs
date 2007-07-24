@@ -194,9 +194,9 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
   DBXML_URL="http://www.docbook.org/xml/4.5/${DBXML_PKG}"
   DBXML_MD5="03083e288e87a7e829e437358da7ef9e"
     # DocBook XSL
-  DBXSL_PKG="docbook-xsl-1.69.1.tar.bz2"
-  DBXSL_URL="http://prdownloads.sourceforge.net/docbook/${DBXSL_PKG}"
-  DBXSL_MD5="6ebd29a67f2dcc3f2220f475ee6f6552"
+#   DBXSL_PKG="docbook-xsl-1.69.1.tar.bz2"
+#   DBXSL_URL="http://prdownloads.sourceforge.net/docbook/${DBXSL_PKG}"
+#   DBXSL_MD5="6ebd29a67f2dcc3f2220f475ee6f6552"
     # Links
   LINKS_PKG="links-2.1pre23.tar.bz2"
   LINKS_URL="http://links.twibright.com/download/${LINKS_PKG}"

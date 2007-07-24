@@ -54,10 +54,10 @@ inline_doc
   local -r clfs3_PARAM_LIST="$CLFS3_book $GENERAL_common $CLFS3_build                  $ADVANCED_common"
   local -r  blfs_PARAM_LIST="BRANCH_ID BLFS_ROOT BLFS_XML TRACKING_DIR"
 
-  # Additional variables
+  # Additional variables (add DEP_DBXSL when required again)
   local -r blfs_tool_PARAM_LIST="BLFS_BRANCH_ID BLFS_ROOT BLFS_XML TRACKING_DIR \
                                  DEP_LIBXML DEP_LIBXSLT DEP_TIDY DEP_UNZIP \
-                                 DEP_DBXML DEP_DBXSL DEP_LINKS DEP_SUDO DEP_WGET \
+                                 DEP_DBXML DEP_LINKS DEP_SUDO DEP_WGET \
                                  DEP_SVN DEP_GPM"
   local -r custom_tool_PARAM_LIST="TRACKING_DIR"
 

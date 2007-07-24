@@ -149,14 +149,14 @@ XML_FILE="<?xml version='1.0' encoding='ISO-8859-1'?>
       fi
     fi
 
-    if [[ -z "$DEP_DBXSL" ]] ; then
-      if `echo $XML_FILE | xsltproc --noout - 2>/dev/null` ; then
-        check_version "1.69.1" "1.69.1" "DocBook XSL"
-      else
-        echo "Warning: not found a working DocBook XSL 1.69.1 installation"
-        exit 2
-      fi
-    fi
+#     if [[ -z "$DEP_DBXSL" ]] ; then
+#       if `echo $XML_FILE | xsltproc --noout - 2>/dev/null` ; then
+#         check_version "1.69.1" "1.69.1" "DocBook XSL"
+#       else
+#         echo "Warning: not found a working DocBook XSL 1.69.1 installation"
+#         exit 2
+#       fi
+#     fi
 
   fi # end BLFS_TOOL=Y
 

@@ -29,9 +29,9 @@ add_blfs_deps_urls() {       # No easy way to extract it.
     echo "${DBXML_URL} ${BLFS_SERVER}docbook-xml/${DBXML_PKG} ${DBXML_MD5}" >> urls.lst
   fi
 
-  if [[ "${DEP_DBXSL}" = "y" ]] ; then
-    echo "${DBXSL_URL} ${BLFS_SERVER}docbook-xsl/${DBXSL_PKG} ${DBXSL_MD5}" >> urls.lst
-  fi
+#   if [[ "${DEP_DBXSL}" = "y" ]] ; then
+#     echo "${DBXSL_URL} ${BLFS_SERVER}docbook-xsl/${DBXSL_PKG} ${DBXSL_MD5}" >> urls.lst
+#   fi
 
   if [[ "${DEP_LINKS}" = "y" ]] ; then
     echo "${LINKS_URL} ${BLFS_SERVER}links/${LINKS_PKG} ${LINKS_MD5}" >> urls.lst
@@ -84,9 +84,9 @@ copy_blfs_deps_scripts() {   # method avoid to place the test on all
     mv blfs-tool-deps/905-docbook-xml ${PROGNAME}-commands/blfs-tool-deps
   fi
 
-  if [[ "${DEP_DBXSL}" = "y" ]] ; then
-    mv blfs-tool-deps/906-docbook-xsl ${PROGNAME}-commands/blfs-tool-deps
-  fi
+#   if [[ "${DEP_DBXSL}" = "y" ]] ; then
+#     mv blfs-tool-deps/906-docbook-xsl ${PROGNAME}-commands/blfs-tool-deps
+#   fi
 
   if [[ "${DEP_LINKS}" = "y" ]] ; then
     mv blfs-tool-deps/908-links ${PROGNAME}-commands/blfs-tool-deps

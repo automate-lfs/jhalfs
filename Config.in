@@ -553,9 +553,9 @@ menu "--- BOOK Settings"
 		default	y
 		depends on DEP_DBXML
 
-		config	DEP_DBXSL
-		bool	"DocBook XSL (required)"
-		default	y
+		#config	DEP_DBXSL
+		#bool	"DocBook XSL (required)"
+		#default	y
 
 		config	DEP_LINKS
 		bool	"links (required)"
