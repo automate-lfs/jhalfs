@@ -186,6 +186,7 @@ inline_doc
         # Don't have their own XML file
       hal-requirements | hal-runtime-dependencies ) continue ;;
       perl-* | tk-perl )         DEP=perl-modules ;;
+      dbus-* )                   DEP=dbus-bindings ;;
 
         # Orphan links (proper link must be created when generating the book)
       arts )                     DEP=aRts ;;
@@ -222,10 +223,14 @@ inline_doc
       jadetex | perl-* | lynx | Links | w3m )
         # Optional dependencies are runtime only
         [[ "$PKG" = "docbook-utils" ]] && continue
+        # w3c is used only to rebuild the documentation
+        [[ "$PKG" = "linux-pam" ]] && continue
         ;;
       libxslt )
         # libxml2-->libxslt-->libxml2
         [[ "$PKG" = "libxml2" ]] && continue
+        # Used only to rebuild the documentation
+        [[ "$PKG" = "linux-pam" ]] && continue
         ;;
       openldap | postgresql | $KBR5 )
         # cyrus-sasl-->several-->cyrus-sasl
@@ -262,6 +267,28 @@ inline_doc
       librsvg | poppler | gtk2 )
         # All optinal testsuite dependencies are circular
         [[ "$PKG" = "cairo" ]] && continue
+        ;;
+      fop | docbook-xsl | DocBook )
+        # Used only to rebuild the documentation
+        [[ "$PKG" = "linux-pam" ]] && continue
+        ;;
+      doxygen )
+        # Used only to rebuild the documentation
+        [[ "$PKG" = "libxcb" ]] && continue
+        [[ "$PKG" = "libusb" ]] && continue
+        [[ "$PKG" = "dbus" ]] && continue
+        ;;
+      tk )
+        # python-->tk-->xorg7-->libxcb-->libxslt-->python
+        [[ "$PKG" = "python" ]] && continue
+        ;;
+      graphviz )
+        # Used only to build the API documentation
+        [[ "$PKG" = "libusb" ]] && continue
+        ;;
+      dbus-bindings )
+        # True circular dependecy
+        [[ "$PKG" = "dbus-bindings" ]] && continue
         ;;
     esac
 
