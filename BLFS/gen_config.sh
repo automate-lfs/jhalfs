@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id:$
+# $Id$
 #
 
 export outFile=Config.in	# file for reading and writing to.
