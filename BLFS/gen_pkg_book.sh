@@ -131,7 +131,7 @@ regenerate_deps() {        #
 clean_configuration() {    #
 #--------------------------#
 
-tail -n 30 configuration > configuration.tmp
+tail -n 29 configuration > configuration.tmp
 mv configuration.tmp configuration
 
 }

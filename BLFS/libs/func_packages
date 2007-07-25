@@ -63,7 +63,7 @@ generate_packages()  {  # Master packages file
   done
 
   # IDs clean-up (unuseful pages or commented-out packages, could be more)
-  sed -i '/template/d;/ntroduction/d;/preface/d;/alsa.xml/d' packages.tmp
+  sed -i '/template/d;/ntroduction/d;/preface/d;/alsa.xml/d;/xorg.xml/d' packages.tmp
   sed -i '/obsolete/d;/postlfs-/d;/-client.xml/d;/xorg7.xml/d' packages.tmp
   sed -i '/courier.xml/d;/-other\t/d;/others-/d;/other-/d;/^ash\t/d' packages.tmp
   sed -i '/fw-firewall\t/d;/gcc2\t/d;/cvsserver\t/d;/svnserver\t/d' packages.tmp
@@ -205,6 +205,6 @@ alsa-plugins\nalsa-lib" > libs/alsa.dep
 generate_xorg7()  {        # Xorg7 packages
 #--------------------------#
   echo -e "x-config\nx-setup\nrman\nxterm2\nxorg7-driver\nxorg7-server\nluit\n\
-xorg7-font\nxorg7-data\nxorg7-app\nxbitmaps\nmesalib\nlibdrm\n\
-xorg7-lib\nxorg7-util\nxorg7-proto" > libs/xorg7.dep
+xkeyboard-config\nxorg7-font\nxorg7-data\nxorg7-app\nmesalib\nlibdrm\nxbitmaps\n\
+xorg7-lib\nlibxcb\nxcb-proto\nlibXdmcp\nlibXau\nxorg7-util\nxorg7-proto" > libs/xorg7.dep
 }
