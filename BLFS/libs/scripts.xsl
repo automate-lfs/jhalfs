@@ -29,7 +29,7 @@
       <xsl:variable name="filename" select="@id"/>
 
         <!-- Package name (use "Download FTP" by default. If empty, use "Download HTTP" -->
-      <xsl:param name="package">
+      <xsl:variable name="package">
         <xsl:choose>
           <xsl:when
             test="string-length(sect2[@role='package']/itemizedlist/listitem[2]/para/ulink/@url)
@@ -46,14 +46,14 @@
             </xsl:call-template>
           </xsl:otherwise>
         </xsl:choose>
-      </xsl:param>
+      </xsl:variable>
 
         <!-- FTP dir name -->
-      <xsl:param name="ftpdir">
+      <xsl:variable name="ftpdir">
         <xsl:call-template name="ftp_dir">
           <xsl:with-param name="package" select="$package"/>
         </xsl:call-template>
-      </xsl:param>
+      </xsl:variable>
 
         <!-- The build order -->
       <xsl:variable name="position" select="position()"/>
