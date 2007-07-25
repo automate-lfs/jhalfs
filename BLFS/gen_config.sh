@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id$
+# $Id:$
 #
 
 export outFile=Config.in	# file for reading and writing to.
@@ -96,7 +96,7 @@ EOF
   [[ "${SET_COMMENT}" = "y" ]] && echo "comment \"\"" >>$outFile; unset SET_COMMENT
 
     # Deal with targets that are part of a meta-package but that are in the same
-    # directory that non meta-packages targets
+    # directory that non meta-package targets
   case ${PKG_NAME} in
      alsa-* | \
      xorg7-* | \

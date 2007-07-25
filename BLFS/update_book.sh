@@ -74,7 +74,7 @@ inline_doc
 
 if [ "${DOC_MODE}" = "none" ] ; then
   echo -en "\n\tGenerating packages database file ..."
-  generate_packages
+  LC_ALL=C && generate_packages
   echo "done."
 
   echo -en "\tGenerating alsa dependencies list ..."
