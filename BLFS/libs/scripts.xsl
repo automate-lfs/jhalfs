@@ -168,17 +168,16 @@ cd $UNPACKDIR&#xA;</xsl:text>
 
   <xsl:template match="sect2" mode="xorg7">
     <xsl:choose>
-      <xsl:when test="@role = 'package'"/>
+      <xsl:when test="@role = 'package'">
+        <xsl:apply-templates select="itemizedlist/listitem/para" mode="xorg7"/>
+      </xsl:when>
       <xsl:when test="not(@role)">
         <xsl:apply-templates select=".//screen"/>
-        <xsl:apply-templates select="../sect2[@role='package']/itemizedlist/listitem/para"
-                             mode="xorg7"/>
-        <xsl:text>WGET_LST=</xsl:text>
-        <xsl:apply-templates select=".//screen" mode="wget_lst"/>
-        <xsl:text>&#xA;</xsl:text>
+        <xsl:apply-templates select="../sect2[@role='package']/itemizedlist/listitem/para" mode="xorg7-patch"/>
+        <xsl:apply-templates select=".//screen" mode="sect-ver"/>
       </xsl:when>
       <xsl:when test="@role = 'installation'">
-        <xsl:text>for package in $(cat $WGET_LST) ; do
+        <xsl:text>for package in $(grep -v '^#' ../${sect-ver}.wget) ; do
   packagedir=$(echo $package | sed 's/.tar.bz2//')
   tar -xf $package
   cd $packagedir&#xA;</xsl:text>
@@ -190,6 +189,10 @@ done&#xA;</xsl:text>
           <xsl:text>sudo /sbin/</xsl:text>
         </xsl:if>
         <xsl:text>ldconfig&#xA;&#xA;</xsl:text>
+      </xsl:when>
+      <xsl:when test="@role = 'configuration'">
+        <xsl:apply-templates select=".//screen"/>
+        <xsl:text>&#xA;</xsl:text>
       </xsl:when>
     </xsl:choose>
   </xsl:template>
@@ -391,6 +394,15 @@ done&#xA;</xsl:text>
   </xsl:template>
 
   <xsl:template match="itemizedlist/listitem/para" mode="xorg7">
+    <xsl:if test="contains(string(ulink/@url),'.md5') or
+                  contains(string(ulink/@url),'.wget')">
+      <xsl:text>wget </xsl:text>
+      <xsl:value-of select="ulink/@url"/>
+      <xsl:text>&#xA;</xsl:text>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="itemizedlist/listitem/para" mode="xorg7-patch">
     <xsl:if test="contains(string(ulink/@url),'.patch')">
       <xsl:text>wget </xsl:text>
       <xsl:value-of select="ulink/@url"/>
@@ -413,8 +425,10 @@ done&#xA;</xsl:text>
     </xsl:if>
   </xsl:template>
 
-  <xsl:template match="screen" mode="wget_lst">
-    <xsl:value-of select="substring-after(string(),' -i ')"/>
+  <xsl:template match="screen" mode="sect-ver">
+    <xsl:text>sect-ver=</xsl:text>
+    <xsl:value-of select="substring-before(substring-after(string(),'-c ../'),'.md5')"/>
+    <xsl:text>&#xA;</xsl:text>
   </xsl:template>
 
   <xsl:template match="para/command">

@@ -177,7 +177,7 @@ $Id$
         For those packages that have a "Configuration" section, you should
      edit the build script to fit the needs of your system.
 
-   4.4  PDL and Perl modules.
+   4.4  PDL, Perl modules, and Glib-Bindings.
 
         The generated scripts for these packages are broken and can not
      be fixed. You must replace them with your own scripts or install the
@@ -193,55 +193,8 @@ $Id$
    4.5  XORG7
 
         The generated scripts for Xorg7 pseudo-packages don't have support for
-     $SRC_ARCHIVE nor MD5 checking.
-
-        If you have previously downloaded the packages, you must edit the
-     scripts to use your local packages.
-
-        Also, you will need to edit the scripts to fix the commands that must
-     be applied only to a concrete individual sub-package. For example, the
-     "for" loop to install xorg7-util packages may read like:
-
-for package in $(cat $WGET_LST) ; do
-  packagedir=$(echo $package | sed 's/.tar.bz2//')
-  tar -xf $package
-  cd $packagedir
-  sed -i "s@/usr/X11R6@$XORG_PREFIX@" X11.tmpl &&
-  ./configure $XORG_CONFIG --with-config-dir=$XORG_PREFIX/lib/X11/config
-  sudo sh -c "make install"
-  ./configure $XORG_CONFIG --with-config-dir=$XORG_PREFIX/lib/X11/config &&
-  make
-  sudo sh -c "make install"
-  ./configure $XORG_CONFIG &&
-  make
-  sudo sh -c "make install"
-  cd ..
-  rm -rf $packagedir
-done
-
-        After reading the HTML page to find what command is for what package,
-     the loop can be changed to read something like:
-
-for package in $(cat $WGET_LST) ; do
-  packagedir=$(echo $package | sed 's/.tar.bz2//')
-  tar -xf $package
-  cd $packagedir
-  if [ ${packagedir} = "xorg-cf-files" ] ; then
-    sed -i "s@/usr/X11R6@$XORG_PREFIX@" X11.tmpl &&
-    ./configure $XORG_CONFIG --with-config-dir=$XORG_PREFIX/lib/X11/config
-    sudo sh -c "make install"
-  elif [ ${packagedir} = "Imake" ] ; then
-    ./configure $XORG_CONFIG --with-config-dir=$XORG_PREFIX/lib/X11/config &&
-    make
-    sudo sh -c "make install"
-  else
-    ./configure $XORG_CONFIG &&
-    make
-    sudo sh -c "make install"
-  fi
-  cd ..
-  rm -rf $packagedir
-done
+     $SRC_ARCHIVE. If you have previously downloaded the packages, you must edit
+     the scripts to use your local packages.
 
    4.6  PATCHES
 
@@ -257,9 +210,7 @@ done
 
         If building as a normal user (the default setting), be sure that all
      commands that require root privileges are run using sudo. Also make sure
-     necessary root privilege commands are visible in your PATH. ie. ldconfig
-     may not be in your user path and you will have to adjust all instances to
-     include the full path. 
+     necessary root privilege commands are visible in your PATH.
 
         Due to book layout issues, some sudo commands may be missing.
 
