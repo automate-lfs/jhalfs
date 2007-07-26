@@ -3,7 +3,8 @@ $Id$
 1. INTRODUCTION::
 
      If you want to add blfs-tool support into a xLFS base system build,
-  read the "BLFS_TOOL SUPPORT" section found in the README.
+  read the "BLFS_TOOL SUPPORT" section found in the README and be sure
+  to follow the after-booting installation intructions.
 
      To automate package builds from the BLFS book instructions is a huge
   task. Some of the issues are: the BLFS book isn't linear; some package
