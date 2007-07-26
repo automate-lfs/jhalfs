@@ -106,8 +106,15 @@
               <xsl:with-param name="ftpdir" select="$ftpdir"/>
             </xsl:apply-templates>
             <!-- Clean-up -->
-            <xsl:text>cd $SRC_DIR/$PKG_DIR&#xA;</xsl:text>
-            <xsl:text>rm -rf $UNPACKDIR unpacked&#xA;&#xA;</xsl:text>
+            <xsl:if test="not(@id='mesalib')">
+              <xsl:text>cd $SRC_DIR/$PKG_DIR&#xA;</xsl:text>
+              <xsl:text>rm -rf $UNPACKDIR unpacked&#xA;&#xA;</xsl:text>
+            </xsl:if>
+            <xsl:if test="@id='xorg7-server'">
+              <xsl:text>cd $SRC_DIR/MesaLib
+UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
+rm -rf $UNPACKDIR unpacked&#xA;&#xA;</xsl:text>
+            </xsl:if>
           </xsl:when>
           <!-- Xorg7 pseudo-packages -->
           <xsl:when test="contains(@id,'xorg7') and not(@id = 'xorg7-server')">
@@ -447,9 +454,16 @@ done&#xA;</xsl:text>
   </xsl:template>
 
   <xsl:template match="replaceable">
-    <xsl:text>**EDITME</xsl:text>
-    <xsl:apply-templates/>
-    <xsl:text>EDITME**</xsl:text>
+    <xsl:choose>
+      <xsl:when test="ancestor::sect1[@id='xorg7-server']">
+        <xsl:text>$SRC_DIR/MesaLib</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>**EDITME</xsl:text>
+        <xsl:apply-templates/>
+        <xsl:text>EDITME**</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
 </xsl:stylesheet>
