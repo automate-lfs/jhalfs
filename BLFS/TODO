@@ -17,4 +17,4 @@
 
 --   Bugs hunting.
 
---   Resolve a circular dependency with apache-ant/jdk
+--   Find a better way to define circular dependencies.
