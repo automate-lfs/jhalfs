@@ -7,5 +7,5 @@ $Id$
  changes can occur and the build could be broken for extended periods of
  time.
 
- As of June 18.2007, the jhalfs code need be full revised to match current
- SVN HLFS book code.
+ As of July 26.2007, the Glibc-based systems builds should work.
+ uClibc-based system still fail due book issues.
