@@ -22,6 +22,9 @@
 
        CLFS EMBEDDED SYSTEMS NOTES
 
+  .- Mips, WRT and ARM builds are broken due a book bug on the uClibc
+  *ENDIAN* configuration settings.
+
   .- To install CBLFS packages you must to use the "Add custom tools support"
   feature. To learn how it works and how to use it, see the section titled
      "Adding Post-System Build Configuration Files and Extra Packages"
