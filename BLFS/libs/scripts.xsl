@@ -185,18 +185,18 @@ FTP_SERVER=$FTP_SERVER&#xA;</xsl:text>
         <xsl:text>mkdir -p ${section}&#xA;cd ${section}&#xA;</xsl:text>
         <xsl:apply-templates select="../sect2[@role='package']/itemizedlist/listitem/para" mode="xorg7-patch"/>
         <xsl:text>for line in $(grep -v '^#' ../${sect-ver}.wget) ; do
-  if [[ ! -f $line ]] ; then
-    if [[ -f $SRC_ARCHIVE/Xorg/$section/$line ]] ; then
-      cp $SRC_ARCHIVE/Xorg/$section/$line $line
-    elif [[ -f $SRC_ARCHIVE/Xorg/$line ]] ; then
-      cp $SRC_ARCHIVE/Xorg/$line $line
-    elif [[ -f $SRC_ARCHIVE/$section/$line ]] ; then
-      cp $SRC_ARCHIVE/$section/$line $line
-    elif [[ -f $SRC_ARCHIVE/$line ]] ; then
-      cp $SRC_ARCHIVE/$line $line
+  if [[ ! -f ${line} ]] ; then
+    if [[ -f $SRC_ARCHIVE/Xorg/${section}/${line} ]] ; then
+      cp $SRC_ARCHIVE/Xorg/${section}/${line} ${line}
+    elif [[ -f $SRC_ARCHIVE/Xorg/${line} ]] ; then
+      cp $SRC_ARCHIVE/Xorg/${line} ${line}
+    elif [[ -f $SRC_ARCHIVE/${section}/${line} ]] ; then
+      cp $SRC_ARCHIVE/${section}/${line} ${line}
+    elif [[ -f $SRC_ARCHIVE/${line} ]] ; then
+      cp $SRC_ARCHIVE/${line} ${line}
     else
-      wget ${FTP_SERVER}conglomeration/Xorg/$line || \
-      wget http://xorg.freedesktop.org/releases/individual/util/$line
+      wget ${FTP_SERVER}conglomeration/Xorg/${line} || \
+      wget http://xorg.freedesktop.org/releases/individual/${section}/${line}
     fi
   fi
 done
@@ -207,11 +207,11 @@ cp ../${sect-ver}.md5 ../${sect-ver}.md5.orig&#xA;</xsl:text>
       <xsl:when test="@role = 'installation'">
         <xsl:text>for package in $(grep -v '^#' ../${sect-ver}.wget) ; do
   packagedir=$(echo $package | sed 's/.tar.bz2//')
-  tar -xf $package
-  cd $packagedir&#xA;</xsl:text>
+  tar -xf ${package}
+  cd ${packagedir}&#xA;</xsl:text>
         <xsl:apply-templates select=".//screen | .//para/command"/>
         <xsl:text>  cd ..
-  rm -rf $packagedir
+  rm -rf ${packagedir}
   sed -i "/${package}/d" ../${sect-ver}.wget
   sed -i "/${package}/d" ../${sect-ver}.md5
 done
