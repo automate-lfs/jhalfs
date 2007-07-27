@@ -179,9 +179,30 @@ cd $UNPACKDIR&#xA;</xsl:text>
         <xsl:apply-templates select="itemizedlist/listitem/para" mode="xorg7"/>
       </xsl:when>
       <xsl:when test="not(@role)">
-        <xsl:apply-templates select=".//screen"/>
-        <xsl:apply-templates select="../sect2[@role='package']/itemizedlist/listitem/para" mode="xorg7-patch"/>
+        <xsl:text>SRC_ARCHIVE=$SRC_ARCHIVE
+FTP_SERVER=$FTP_SERVER&#xA;</xsl:text>
         <xsl:apply-templates select=".//screen" mode="sect-ver"/>
+        <xsl:text>mkdir -p ${section}&#xA;cd ${section}&#xA;</xsl:text>
+        <xsl:apply-templates select="../sect2[@role='package']/itemizedlist/listitem/para" mode="xorg7-patch"/>
+        <xsl:text>for line in $(grep -v '^#' ../${sect-ver}.wget) ; do
+  if [[ ! -f $line ]] ; then
+    if [[ -f $SRC_ARCHIVE/Xorg/$section/$line ]] ; then
+      cp $SRC_ARCHIVE/Xorg/$section/$line $line
+    elif [[ -f $SRC_ARCHIVE/Xorg/$line ]] ; then
+      cp $SRC_ARCHIVE/Xorg/$line $line
+    elif [[ -f $SRC_ARCHIVE/$section/$line ]] ; then
+      cp $SRC_ARCHIVE/$section/$line $line
+    elif [[ -f $SRC_ARCHIVE/$line ]] ; then
+      cp $SRC_ARCHIVE/$line $line
+    else
+      wget ${FTP_SERVER}conglomeration/Xorg/$line || \
+      wget http://xorg.freedesktop.org/releases/individual/util/$line
+    fi
+  fi
+done
+md5sum -c ../${sect-ver}.md5
+cp ../${sect-ver}.wget ../${sect-ver}.wget.orig
+cp ../${sect-ver}.md5 ../${sect-ver}.md5.orig&#xA;</xsl:text>
       </xsl:when>
       <xsl:when test="@role = 'installation'">
         <xsl:text>for package in $(grep -v '^#' ../${sect-ver}.wget) ; do
@@ -191,7 +212,11 @@ cd $UNPACKDIR&#xA;</xsl:text>
         <xsl:apply-templates select=".//screen | .//para/command"/>
         <xsl:text>  cd ..
   rm -rf $packagedir
-done&#xA;</xsl:text>
+  sed -i "/${package}/d" ../${sect-ver}.wget
+  sed -i "/${package}/d" ../${sect-ver}.md5
+done
+mv ../${sect-ver}.wget.orig ../${sect-ver}.wget
+mv ../${sect-ver}.md5.orig ../${sect-ver}.md5&#xA;</xsl:text>
         <xsl:if test="$sudo = 'y'">
           <xsl:text>sudo /sbin/</xsl:text>
         </xsl:if>
@@ -433,7 +458,9 @@ done&#xA;</xsl:text>
   </xsl:template>
 
   <xsl:template match="screen" mode="sect-ver">
-    <xsl:text>sect-ver=</xsl:text>
+    <xsl:text>section=</xsl:text>
+    <xsl:value-of select="substring-before(substring-after(string(),'mkdir '),' &amp;')"/>
+    <xsl:text>&#xA;sect-ver=</xsl:text>
     <xsl:value-of select="substring-before(substring-after(string(),'-c ../'),'.md5')"/>
     <xsl:text>&#xA;</xsl:text>
   </xsl:template>

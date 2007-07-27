@@ -196,9 +196,16 @@ $Id$
 
    4.5  XORG7
 
-        The generated scripts for Xorg7 pseudo-packages don't have support for
-     $SRC_ARCHIVE. If you have previously downloaded the packages, you must edit
+        The generated scripts for Xorg7 pseudo-packages have $SRC_ARCHIVE
+     support for individual packages, but not for patches nor *.wget and *.md5
+     files.
+
+        If you have previously downloaded the patches, you must edit
      the scripts to use your local packages.
+
+       The *.wget and *.md5 files should be downladed always from inside
+     the scripts to be sure that the most current individual packages are
+     used. Thus don't reuse previouly existing ones.
 
    4.6  PATCHES
 
