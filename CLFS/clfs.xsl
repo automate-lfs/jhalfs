@@ -42,6 +42,9 @@
   <!-- Locale settings -->
   <xsl:param name="lang" select="C"/>
 
+  <!-- Sparc64 processor type -->
+  <xsl:param name="sparc" select="1"/>
+
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
   </xsl:template>
@@ -279,6 +282,40 @@
       </xsl:when>
       <xsl:when test="ancestor::sect1[@id='ch-system-groff']">
         <xsl:value-of select="$page"/>
+      </xsl:when>
+      <xsl:when test="ancestor::sect1[@id='ch-cross-tools-flags']">
+        <xsl:choose>
+          <xsl:when test="contains(string(),'BUILD32')">
+            <xsl:choose>
+              <xsl:when test="$sparc = '1' or $sparc = '2'">
+                <xsl:text>-m32 -mcpu=ultrasparc -mtune=ultrasparc</xsl:text>
+              </xsl:when>
+              <xsl:when test="$sparc = '3'">
+                <xsl:text>-m32 -mcpu=ultrasparc3 -mtune=ultrasparc3</xsl:text>
+              </xsl:when>
+            </xsl:choose>
+          </xsl:when>
+          <xsl:when test="contains(string(),'BUILD64')">
+            <xsl:choose>
+              <xsl:when test="$sparc = '1' or $sparc = '2'">
+                <xsl:text>-m64 -mcpu=ultrasparc -mtune=ultrasparc</xsl:text>
+              </xsl:when>
+              <xsl:when test="$sparc = '3'">
+                <xsl:text>-m64 -mcpu=ultrasparc3 -mtune=ultrasparc3</xsl:text>
+              </xsl:when>
+            </xsl:choose>
+          </xsl:when>
+          <xsl:when test="contains(string(),'GCCTARGET')">
+            <xsl:choose>
+              <xsl:when test="$sparc = '1' or $sparc = '2'">
+                <xsl:text>-mcpu=ultrasparc -mtune=ultrasparc</xsl:text>
+              </xsl:when>
+              <xsl:when test="$sparc = '3'">
+                <xsl:text>-mcpu=ultrasparc3 -mtune=ultrasparc3</xsl:text>
+              </xsl:when>
+            </xsl:choose>
+          </xsl:when>
+        </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
         <xsl:text>**EDITME</xsl:text>

@@ -143,7 +143,7 @@ menu "--- BOOK Settings"
 
 	choice
 		prompt	"Processor type"
-		depends	(BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3) && ((ARCH_X86 && !(DATA_64 || DATA_MULTI)) || ARCH_MIPS || ARCH_HPPA || ARCH_ALPHA || (ARCH_ARM && BOOK_CLFS3))
+		depends	(BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3) && ((ARCH_X86 && !(DATA_64 || DATA_MULTI)) || ARCH_MIPS || ARCH_HPPA || ARCH_ALPHA || (ARCH_SPARC && (DATA_64 || DATA_MULTI)) || (ARCH_ARM && BOOK_CLFS3))
 		help
 			#-- Choose the target system processor
 
@@ -200,6 +200,15 @@ menu "--- BOOK Settings"
 
 		config	PROC_ARM5B
 			bool	"Generic arm, version 5, big endian"			if ARCH_ARM
+
+		config	PROC_ULTRA1
+			bool	"UtraSparc"						if ARCH_SPARC && (DATA_64 || DATA_MULTI)
+
+		config	PROC_ULTRA2
+			bool	"UtraSparc2"						if ARCH_SPARC && (DATA_64 || DATA_MULTI)
+
+		config	PROC_ULTRA3
+			bool	"UtraSparc3"						if ARCH_SPARC && (DATA_64 || DATA_MULTI)
 	endchoice
 
 	choice
@@ -277,8 +286,15 @@ menu "--- BOOK Settings"
 
 	config  PLATFORM
 		string
-		default "GENERIC"                       if (!BOOK_CLFS3) || PLATFORM_GENERIC
-		default	"WRT - Wireless Router"         if PLATFORM_WRT
+		default "GENERIC"			if (!BOOK_CLFS3) || PLATFORM_GENERIC
+		default	"WRT - Wireless Router"		if PLATFORM_WRT
+
+	config  SPARC64_PROC
+		string
+		default "none"				if !(ARCH_SPARC && (DATA_64 || DATA_MULTI))
+		default	"1"				if PROC_ULTRA1
+		default	"2"				if PROC_ULTRA2
+		default	"3"				if PROC_ULTRA3
 
 	config	ARCH
 		string
