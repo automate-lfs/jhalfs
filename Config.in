@@ -504,8 +504,9 @@ menu "--- BOOK Settings"
 		default	n
 		depends on !BOOK_BLFS && !BOOK_CLFS3
 		help
-			#--- Activating this option additional packages needed to
-			#    use blfs-tool will be installed.
+			#--- Activating this option will install additional
+			#    packages needed to con use blfs-tool when booting
+			#    the new system.
 			#
 			#    The blfs-tool files will be installed under
 			#    $BUILD_DIR/blfs_root.
@@ -585,16 +586,27 @@ menu "--- BOOK Settings"
 		bool	"wget (recommended)"
 		default	y
 
-		config	DEP_SVN
-		bool	"SVN client (optional)"
-		default	y
-
 		config	DEP_GPM
 		bool	"GPM (optional, see help)"
 		default	y
 		help
 			#-- You MUST to install manually the gpm bootscript
-			#   and create its configuration file
+			#   and create its configuration file.
+			#
+			#   An alternative is to unselect this option and
+			#   install gpm, it configuration file, and it
+			#   bootscript using the custom tools support.
+
+		config	DEP_SVN
+		bool	"SVN client (optional, see help)"
+		default	n
+		help
+			#-- Subversion-1.3.1 will be installed. This version is
+			#   old but not relies on additional packages to can be
+			#   build.
+			#
+			#   If you are happy with this old version and don't
+			#   need extra features, select this option.
 	endmenu
 	#--- End blfs-tool Support
 

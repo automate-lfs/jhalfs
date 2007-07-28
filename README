@@ -86,8 +86,8 @@ $Id$
      WARNING:: If you add blfs-tool support on a CLFS Sysroot build
                you MUST to edit the dependencies scripts to fix the
                installation paths.
-	       Be careful when you modify the scripts as you can
-	       easily disable the host system.
+               Be careful when you modify the scripts as you can
+               easily disable the host system.
 
      After booting the new xLFS system some steps are needed to finish
      blfs-tool installation:
@@ -100,6 +100,9 @@ $Id$
 
        - Give the user read and write privileges over the $TRACKING_DIR
          directory and the files that it contains.
+
+       - If you think that you may need the libxml2/libxslt Python modules,
+         remove the libxml2 and libxslt trackin files found in $TRACKING_DIR.
 
        - Configure sudo, adding the needed privileges for the user.
 

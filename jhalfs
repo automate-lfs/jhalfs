@@ -170,13 +170,13 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
   # Dependencies envars, to can update it more easy.
   # Tidy and Unzip version are harcoded also in wrt_blfs_tool_targets()
     # libxml2
-  LIBXML_PKG="libxml2-2.6.27.tar.gz"
+  LIBXML_PKG="libxml2-2.6.29.tar.gz"
   LIBXML_URL="ftp://xmlsoft.org/libxml2/${LIBXML_PKG}"
-  LIBXML_MD5="f5806f5059ef7bd4d3fcf36cf116d1ef"
+  LIBXML_MD5="8b99b6e8b08e838438d9e6b639d79ebd"
     # libxslt
-  LIBXSLT_PKG="libxslt-1.1.20.tar.gz"
+  LIBXSLT_PKG="libxslt-1.1.21.tar.gz"
   LIBXSLT_URL="ftp://xmlsoft.org/libxslt/${LIBXSLT_PKG}"
-  LIBXSLT_MD5="4ea2dc22a23bf2aa570f868aa86357f8"
+  LIBXSLT_MD5="59fe34e85692f71df2a38c2ee291b3ca"
     # tidy
   TIDY_PKG="tidy-cvs_20070326.tar.bz2"
   TIDY_URL="http://anduin.linuxfromscratch.org/files/BLFS/sources/${TIDY_PKG}"
@@ -203,7 +203,7 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
   LINKS_MD5="4a1fb575c133eee821b9a1f8e9220b40"
     # sudo
   SUDO_PKG="sudo-1.6.8p12.tar.gz"
-  SUDO_URL="http://www.courtesan.com/sudo/dist/${SUDO_PKG}"
+  SUDO_URL="http://anduin.linuxfromscratch.org/sources/BLFS/svn/s/${SUDO_PKG}"
   SUDO_MD5="b29893c06192df6230dd5f340f3badf5"
     # sudo envar fix patch
   SUDO_PATCH="sudo-1.6.8p12-envvar_fix-1.patch"
@@ -219,7 +219,7 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
   SVN_MD5="07b95963968ae345541ca99d0e7bf082"
     # GPM
   GPM_PKG="gpm-1.20.1.tar.bz2"
-  GPM_URL="ftp://arcana.linux.it/pub/gpm/${GPM_PKG}"
+  GPM_URL="ftp://ftp.linux.ee/pub/gentoo/distfiles/distfiles/${GPM_PKG}"
   GPM_MD5="2c63e827d755527950d9d13fe3d87692"
     # GPM segfaul patch
   GPM_PATCH_1="gpm-1.20.1-segfault-1.patch"
