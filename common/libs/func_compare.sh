@@ -26,10 +26,8 @@ wrt_system_build() {               #
   local     RUN=$1
   local PREV_IT=$2
 
-  if [[ "$PROGNAME" = "clfs" ]] && [[ "$METHOD" = "chroot" ]] ; then
-    chroot_final_system_Makefiles $RUN
-  elif [[ "$PROGNAME" = "clfs" ]] && [[ "$METHOD" = "boot" ]] ; then
-    boot_final_system_Makefiles $RUN
+  if [[ "$PROGNAME" = "clfs" ]] ; then
+    final_system_Makefiles $RUN
   else
     chapter6_Makefiles $RUN
   fi
