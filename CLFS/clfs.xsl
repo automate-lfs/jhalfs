@@ -43,7 +43,7 @@
   <xsl:param name="lang" select="C"/>
 
   <!-- Sparc64 processor type -->
-  <xsl:param name="sparc" select="1"/>
+  <xsl:param name="sparc" select="none"/>
 
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
