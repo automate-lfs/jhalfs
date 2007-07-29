@@ -293,7 +293,7 @@ boot_Makefiles() {                     #
 
     # A little housekeeping on the scripts
     case $this_script in
-      *grub | *aboot | *colo | *silo | *arcload | *lilo )     continue     ;;
+      *grub | *aboot | *colo | *silo | *arcload | *lilo | *introduction ) continue ;;
       *whatnext*) continue     ;;
       *fstab)   [[ ! -z ${FSTAB} ]] && cp ${FSTAB} $BUILDDIR/sources/fstab ;;
       *kernel)  # if there is no kernel config file do not build the kernel

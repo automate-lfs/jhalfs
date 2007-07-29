@@ -397,7 +397,6 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
     cp -r BLFS/* ${BUILDDIR}${BLFS_ROOT}
     cp -r menu ${BUILDDIR}${BLFS_ROOT}
     cp $COMMON_DIR/progress_bar.sh ${BUILDDIR}${BLFS_ROOT}
-    chmod 777 ${BUILDDIR}${BLFS_ROOT}/progress_bar.sh
     cp README.BLFS ${BUILDDIR}${BLFS_ROOT}
     # Clean-up
     rm -rf ${BUILDDIR}${BLFS_ROOT}/libs/.svn
