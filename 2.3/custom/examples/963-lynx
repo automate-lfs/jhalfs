@@ -1,0 +1,32 @@
+#
+# $Id$
+#
+# Lynx is a text based web browser.
+#
+
+PKG="lynx"
+PKG_VERSION="2.8.6"
+PKG_FILE="lynx${PKG_VERSION}.tar.bz2"
+URL="ftp://lynx.isc.org/lynx2.8.6/${PKG_FILE}"
+MD5="dc80497b7dda6a28fd80404684d27548"
+for i in PATCH{1..10}; do
+   unset $i
+done
+
+( cat << "xEOFx"
+
+./configure --prefix=/usr \
+            --sysconfdir=/etc/lynx \
+            --datadir=/usr/share/doc/lynx-2.8.6 \
+            --with-zlib \
+            --with-bzlib \
+            --with-screen=ncursesw \
+            --enable-locale-charset &&
+
+make
+
+make install-full &&
+chgrp -v -R root /usr/share/doc/lynx-2.8.6/lynx_doc
+
+xEOFx
+) > tmp

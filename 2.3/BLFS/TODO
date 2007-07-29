@@ -1,0 +1,20 @@
+#####
+#
+# Project TODO list
+#
+# $Id$
+#####
+
+
+--   Review generated scripts for bugs trying to figure out if are due fails
+     in the BLFS book XML tagging (that will implied that the book need be
+     fixed) or are required variations due book layout. If the latter, try
+     to fix it via XSL, documenting in README.BLFS that issues that can't be
+     fixed.
+
+     This is an on-going and never-end task due that, ideally, each commit to
+     the BLFS book should be revised and validated, but our time is limited.
+
+--   Bugs hunting.
+
+--   Find a better way to define circular dependencies.

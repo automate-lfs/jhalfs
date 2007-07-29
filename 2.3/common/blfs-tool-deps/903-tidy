@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# $Id$
+
+set -e
+cd $PKGDIR
+
+./configure --prefix=/usr
+make
+make install
+make -C htmldoc install_apidocs
+
+exit

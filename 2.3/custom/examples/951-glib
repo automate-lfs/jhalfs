@@ -1,0 +1,22 @@
+#
+# $Id$
+#
+PKG="glib"
+PKG_VERSION="1.2.10"
+PKG_FILE="glib-1.2.10.tar.gz"
+URL="http://gd.tuwien.ac.at/graphics/gimp/gtk/v1.2/${PKG_FILE}"
+MD5="6fe30dad87c77b91b632def29dd69ef9"
+for i in PATCH{1..10}; do
+   unset $i
+done
+PATCH1="http://www.linuxfromscratch.org/patches/blfs/svn/glib-1.2.10-gcc34-1.patch 0077a1cce5e8a2231ac5a9b08c6263ba"
+
+
+( cat << "xEOFx"
+patch -Np1 -i ../glib-1.2.10-gcc34-1.patch &&
+./configure --prefix=/usr &&
+make
+make install &&
+chmod -v 755 /usr/lib/libgmodule-1.2.so.0.0.10
+xEOFx
+) > tmp

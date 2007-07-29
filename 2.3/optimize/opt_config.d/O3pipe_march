@@ -1,0 +1,25 @@
+#
+#$Id$
+#
+#####
+#
+# MODE O3pipe_march configuration
+#
+# Usage: - Apply optimization string to each variable
+#        - "unset" will cause the variable to be not set
+#          instead of just set to null.
+#
+# Use this as an example for modeA_modeB combined modes
+#
+#####
+
+# Inherit optimizations from O3pipe
+source optimize/opt_config.d/O3pipe
+
+CFLAGS_O3pipe_march=$CFLAGS_O3pipe" -march=pentium4"
+CXXFLAGS_O3pipe_march=$CFLAGS_O3pipe"  -march=pentium4"
+LDFLAGS_O3pipe_march=$LDFLAGS_O3pipe
+
+OTHER_CFLAGS_O3pipe_march=$CFLAGS_O3pipe" -march=pentium4"
+OTHER_CXXFLAGS_O3pipe_march=$CXXFLAGS_O3pipe" -march=pentium4"
+OTHER_LDFLAGS_O3pipe_march=$LDFLAGS_O3pipe

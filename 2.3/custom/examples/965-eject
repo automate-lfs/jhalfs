@@ -1,0 +1,25 @@
+#
+# $Id$
+#
+#  Program for ejecting removable media under software control.
+#  Can also control the auto-eject feature of some drives and
+#  can be used to switch CDs on an IDE/ATAPI CD changer. 
+#
+
+PKG="eject"
+PKG_VERSION="2.10"
+PKG_FILE="eject-${PKG_VERSION}.tar.gz"
+URL="ftp://sunsite.unc.edu/pub/Linux/utils/disk-management/${PKG_FILE}"
+MD5="82e3a7a4d7e3323018c6938015ff25f7"
+PATCH1=""
+
+( cat << "xEOFx"
+
+./configure --prefix=/usr \
+            --enable-default-device=/dev/cdrom \
+            --disable-nls
+make
+make install
+
+xEOFx
+) > tmp

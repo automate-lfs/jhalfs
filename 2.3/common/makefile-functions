@@ -1,0 +1,242 @@
+
+# $Id$
+
+BOLD    = "[0;1m"
+RED     = "[1;31m"
+GREEN   = "[0;32m"
+ORANGE  = "[0;33m"
+BLUE    = "[1;34m"
+WHITE   = "[00m"
+YELLOW  = "[1;33m"
+
+OFF     = "[0m"
+REVERSE = "[7m"
+
+tab_    = "	"
+nl_     = ""
+
+#==== BUILD MESSAGES ===
+
+define echo_PHASE
+  @echo $(BOLD)--------------------------------------------------------------------------------
+  @echo  $(tab_)$(tab_)Executing $(BLUE)$(1)$(WHITE) scripts
+  @echo $(BOLD)--------------------------------------------------------------------------------
+  @echo $(WHITE)
+endef
+
+define sh_echo_PHASE
+  echo $(BOLD)--------------------------------------------------------------------------------;\
+  echo  $(tab_)$(tab_)Executing $(BLUE)$(1)$(WHITE) scripts; \
+  echo $(BOLD)--------------------------------------------------------------------------------echo $(WHITE)
+endef
+
+define echo_SU_request
+  @echo $(BOLD)--------------------------------------------------------------------------------
+  @echo $(BLUE)$@
+  @echo $(WHITE)ROOT privilege is required to perform a number commands
+  @echo sudo will request a password to all high privilege cmds to execute correctly
+endef
+
+define echo_SULUSER_request
+  @echo $(BOLD)--------------------------------------------------------------------------------
+  @echo $(BOLD)$(BLUE)$@
+  @echo $(WHITE)You are going to log into the user account $(BOLD)$(YELLOW)$(LUSER)$(OFF)
+  @echo sudo requires a password
+endef
+
+define echo_CHROOT_request
+  @echo $(BOLD)--------------------------------------------------------------------------------
+  @echo $(BOLD)$(BLUE)$@
+  @echo $(WHITE)You are going to CHROOT into $(MOUNT_PT) $(BOLD)$(YELLOW)$(LUSER)$(OFF)
+  @echo a password is required
+endef
+
+define echo_message
+  @echo $(BOLD)--------------------------------------------------------------------------------
+  @echo $(BOLD)$(1) target $(BLUE)$@$(BOLD)$(WHITE)
+endef
+
+#=======================
+
+
+#=== BUILD FUNCTIONS ===
+
+define remove_existing_dirs
+  @PKG_PATH=`ls -t $(SRCSDIR)/$(1) | head -n1` && \
+  ROOT=`tar -tf $$PKG_PATH | head -n1 | sed -e 's@^./@@;s@/.*@@'` && \
+  rm -rf $(SRCSDIR)/$$ROOT && \
+  rm -rf $(SRCSDIR)/$${ROOT%-*}-build
+endef
+
+define remove_existing_dirs2
+  @PKG_PATH=`ls -t $(SRC)/$(1) | head -n1` && \
+  ROOT=`tar -tf $$PKG_PATH | head -n1 | sed -e 's@^./@@;s@/.*@@'` && \
+  rm -rf $(SRC)/$$ROOT && \
+  rm -rf $(SRC)/$${ROOT%-*}-build
+endef
+
+#==#
+
+define unpack
+  @cd $(SRCSDIR) && \
+  tar -xvf `ls -t $(1) | head -n1` > $(PKG_LST)
+endef
+
+define unpack2
+  @cd $(SRC) && \
+  tar -xvf `ls -t $(1) | head -n1` > $(PKG_LST)
+endef
+
+#==#
+
+define get_pkg_root
+  @ROOT=`head -n1 $(SRCSDIR)/$(PKG_LST) | sed 's@^./@@;s@/.*@@'` && \
+  if [ "$(1)" != "nouser" ]; then \
+    echo "export PKGDIR=$(SRCSDIR)/$$ROOT" > envars; \
+    chown -R $(LUSER) $(SRCSDIR)/$$ROOT; \
+  else \
+    echo "export PKGDIR=$(crSRCSDIR)/$$ROOT" > envars; \
+  fi;
+endef
+
+define get_pkg_root2
+  @ROOT=`head -n1 $(SRC)/$(PKG_LST) | sed 's@^./@@;s@/.*@@'` && \
+  echo "export PKGDIR=$(SRC)/$$ROOT" > envars
+endef
+
+define get_pkg_root_LUSER
+  @ROOT=`head -n1 $(SRCSDIR)/$(PKG_LST) | sed 's@^./@@;s@/.*@@'` && \
+  echo "export PKGDIR=$(SRCSDIR)/$$ROOT" > envars
+endef
+
+#==#
+
+define touch_timestamp
+  @touch $(SRC)/timestamp-marker && sleep 1
+endef
+
+define touch_timestamp_LUSER
+  @touch $(SRCSDIR)/timestamp-marker && sleep 1
+endef
+
+define log_new_files
+  @find / -xdev ! -path "/$(SCRIPT_ROOT)/*" ! -path "/tmp/*" ! -path "$(SRC)/*" \
+  -newer $(SRC)/timestamp-marker -not -type d \
+  -printf "%p\t%s\t%u:%g\t%m\t%l\n" | sort > $(crFILELOGDIR)/$(1)
+endef
+
+define log_new_files_LUSER
+  @find $(BASEDIR) -xdev ! -path "$(BASEDIR)/$(SCRIPT_ROOT)/*" ! -path "$(BASEDIR)/tmp/*" ! -path "$(SRCSDIR)/*" \
+  -newer $(SRCSDIR)/timestamp-marker -not -type d \
+  -printf "%p\t%s\t%u:%g\t%m\t%l\n" | sort > $(BASEDIR)$(crFILELOGDIR)/$(1)
+endef
+
+#==@
+
+define remove_build_dirs
+  @ROOT=`head -n1 $(SRCSDIR)/$(PKG_LST) | sed 's@^./@@;s@/.*@@'` && \
+  rm -rf $(SRCSDIR)/$$ROOT && \
+  rm -rf $(SRCSDIR)/$(1)-build
+endef
+
+define remove_build_dirs2
+  @ROOT=`head -n1 $(SRC)/$(PKG_LST) | sed 's@^./@@;s@/.*@@'` && \
+  rm -rf $(SRC)/$$ROOT && \
+  rm -rf $(SRC)/$(1)-build
+endef
+
+#==#
+
+define housekeeping
+  @touch  $@ && \
+  sleep .25 && \
+  echo  -e "\n" $(BOLD)Target $(BLUE)$@ $(WHITE)$(BOLD)OK && \
+  echo --------------------------------------------------------------------------------$(WHITE) && \
+  if [ "$(BREAKPOINT)" = "$@" ] ; then \
+     echo $(tab_)$(RED)The build has been stopped at $(BLUE)$@ $(RED)as requested$(WHITE) ; \
+     false ; \
+  fi
+endef
+
+#=======================
+
+
+#==== FINAL MESSAGES ===
+
+define echo_report
+  echo ; \
+  echo $(BOLD) The report file $(BLUE)$(1)$(BOLD) has been created ; \
+  echo ; \
+  echo $(WHITE)Please send the $(BOLD)$(MOUNT_PT)/jhalfs/$(1)$(WHITE) ; \
+  echo file to $(BOLD)manuel@linuxfromscratch.org$(WHITE) ; \
+  echo ; \
+  echo That will help us to keep more accurate SBU and ; \
+  echo disk usage values into the book. Thanks. ; \
+  echo $(BOLD)--------------------------------------------------------------------------------$(WHITE)
+endef
+
+define echo_finished
+  @echo $(BOLD)
+  @echo --------------------------------------------------------------------------------
+  @echo $(BOLD) Finished the build of $(BLUE)$(1)$(BOLD)
+  @echo --------------------------------------------------------------------------------
+  @echo  $(tab_)$(tab_)$(RED)W A R N I N G$(BOLD)
+  @echo --------------------------------------------------------------------------------
+  @echo
+  @echo To be able to boot your new system you need to follow
+  @echo the next steps:$(WHITE)
+  @echo
+  @echo  $(tab_)- Enter to the chroot using the command found
+  @echo  $(tab_)in the section -Entering the Chroot Environment-
+  @echo  $(tab_)except if building CLFS with METHOD=boot.
+  @echo
+  @echo  $(tab_)- Set a password for the root user.
+  @echo
+  @echo  $(tab_)- Edit or create /etc/fstab, /etc/hosts, /etc/sysconfig/clock,
+  @echo  $(tab_)/etc/sysconfig/console, /etc/sysconfig/network,
+  @echo  $(tab_)/etc/sysconfig//network-devices/ifconfig.eth0/ipv4 and
+  @echo  $(tab_)any other configuration file required to suit your needs.
+  @echo
+  @echo  $(tab_)- Exit from the chroot.
+  @echo
+  @echo  $(tab_)- Set-up the boot loader, except if building CLFS with METHOD=boot.
+  @echo  $(tab_)You can set-up the host bootloader or the new boot-loader
+  @echo  $(tab_)installed on the new system.
+  @echo  $(tab_)If the last, you must to mount the virtual filesystems, re-enter
+  @echo  $(tab_)the chroot and be sure that /dev is populated with the
+  @echo  $(tab_)required devices before configure the boot-loader. When ready,
+  @echo  $(tab_)exit from the chroot and umount the filesystems
+  @echo
+  @echo If you are an experienced LFS user, several of those steps can be
+  @echo skipped or done in a different way. But then, that is something
+  @echo that you already know and there is no need to discuss it here.
+  @echo $(BOLD)
+  @echo --------------------------------------------------------------------------------
+  @echo  $(tab_)$(tab_)$(GREEN)Have a nice day $(ORANGE):-\)$(BOLD)
+  @echo --------------------------------------------------------------------------------$(WHITE)
+endef
+
+define echo_boot_finished
+  @echo $(BOLD)
+  @echo --------------------------------------------------------------------------------
+  @echo        $(BOLD) Finished building a minimal boot system for $(BLUE)$(1)$(BOLD)
+  @echo --------------------------------------------------------------------------------
+  @echo  $(tab_)$(tab_)$(RED)W A R N I N G$(BOLD)
+  @echo --------------------------------------------------------------------------------
+  @echo
+  @echo The build is not complete. Follow the next steps:$(WHITE)
+  @echo
+  @echo  $(tab_)- Edit or create $(MOUNT_PT)/etc/fstab
+  @echo  $(tab_) and any other configuration file required to suit your needs.
+  @echo $(BOLD)
+  @echo $(BOLD)$(YELLOW)
+  @echo  1.If it is necessary, transfer the newly created partition to the target machine
+  @echo  2.Boot the new partition.
+  @echo  3.Once you are logged in issue the following commands
+  @echo  $(tab_) $(BOLD)cd /jhalfs
+  @echo  $(tab_) $(BOLD)make makesys
+  @echo  The build process should resume. Follow any instructions that appear.
+  @echo --------------------------------------------------------------------------------
+  @echo  $(tab_)$(tab_)$(GREEN)Have a nice day $(ORANGE):-\)$(BOLD)
+  @echo --------------------------------------------------------------------------------$(WHITE)
+endef

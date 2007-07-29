@@ -1,0 +1,276 @@
+$Id$
+
+1. INTRODUCTION::
+
+     This collection of scripts, known as jhalfs, strives to create
+  accurate makefiles from the Linux From Scratch book series XML files.
+  This software is an evolution of the original "jhalfs-0.2" code developed
+  by Jeremy Huntwork.
+
+     The usage of this script assumes you have read and are familiar with
+  the book(s) and, therefore, the configuration variables found in menuconfig
+  interface will have meaning to you.
+
+  The list of supported books can be found at
+  http://wiki.linuxfromscratch.org/alfs/wiki/SupportedBooks
+
+  NOTES::
+  *.  The resulting Makefile takes considerable time to run to completion.
+  Lay in a supply of caffeine beverages.
+
+  *.  It is recommended that you temporarily unpack your linux kernel,
+  run <make menuconfig>, configure the kernel as per the book and save
+  the resulting .config file. This suggestion also applies to the
+  configuration of the uClibc package when building a HLFS system using
+  uClibc rather than glibc.
+
+  *.  Read carefully this file and the other README.* files before start
+  using the tool.
+
+2. PREREQUISITES::
+
+     To use this tool you MUST:
+
+     - have experience building {c,h,b}LFS packages
+     - know how to edit and write shell scripts
+     - know how a Makefile works
+     - be able to trace build failures and to find what is causing it
+       (user error, package bug, {c,h,b}LFS command bug, or jhalfs code bug)
+
+     If you do not have the above skills, please don't use this tool.
+
+
+3. INSTALLATION::
+
+     No installation is required. System-wide installation is not allowed.
+
+4. CONFIGURATION::
+
+     We have installed the familiar menu based configuration tool driven by
+     GNU make. see the section RUNNING, for details
+
+5. RUNNING::
+
+     The command <make> will launch a menu based configuration program. You will
+     recognize the layout from building the kernel or uClibc/BusyBox. The
+     underlying menu code was borrowed from BusyBox and slightly modified for
+     our use.
+
+     Help on parameter function is available from the on-line help. Please
+     make use of that feature for additional information not in this file.
+
+     Once you have set the parameters you wish and have saved your work the
+     jhalfs script is launch. The script verify first that the host can run
+     it and build the xLFS system, then validate the configuration and present
+     you with your selections which you may accept or reject.
+
+     If you accepted the displayed settings jhalfs will proceed to create the
+     Makefile, optionally download packages.
+
+     ::NEWS::
+         You must be logged as a normal user with sudo privileges to run
+         the Makefile.
+
+     NOTE::
+         If you run the jhalfs script directly the only function you can select
+         is to display the version number running <./jhalfs -v>
+
+6. BLFS_TOOL SUPPORT::
+
+     For books that support it, there is an option to install blfs-tool and its
+     dependencies on the final system. The pre-made build dependencies
+     scripts has been written based on a LFS build. For CLFS and HLFS
+     builds you may need to adjust that scripts, that are found into the
+     common/blfs-tool-deps directory in the jhalfs sources tree.
+
+     WARNING:: If you add blfs-tool support on a CLFS Sysroot build
+               you MUST to edit the dependencies scripts to fix the
+               installation paths.
+               Be careful when you modify the scripts as you can
+               easily disable the host system.
+
+     After booting the new xLFS system some steps are needed to finish
+     blfs-tool installation:
+
+       - A user account must be created. You must be logged on that user
+         account to use blfs-tool.
+
+       - Move /blfs-root to that user's home and change ownership of the
+         directory and files to the user.
+
+       - Give the user read and write privileges over the $TRACKING_DIR
+         directory and the files that it contains.
+
+       - If you think that you may need the libxml2/libxslt Python modules,
+         remove the libxml2 and libxslt trackin files found in $TRACKING_DIR.
+
+       - Configure sudo, adding the needed privileges for the user.
+
+     We assume that blfs-tool will be used on a running fresh xLFS system.
+     To use it to build BLFS packages from the chroot jail is also possible,
+     but is for you to figure out how to do that.
+
+     To know how to blfs-tool works, see README.BLFS.
+
+7. LAYOUT::
+
+        /BLFS (see README.BLFS)
+
+        /CLFS/master.sh
+             /clfs.xsl
+
+        /CLFS2/master.sh
+              /clfs2.xsl
+
+        /CLFS3/master.sh
+              /clfs3.xsl
+
+        /HLFS/master.sh
+             /hlfs.xsl
+
+        /LFS/master.sh
+            /lfs.xsl
+
+        /common/common_functions
+               /makefile_functions
+               /packages.xsl
+               /urls.xsl
+               /create-sbu_du-report.sh
+               /progress_bar.sh
+               /blfs-tool-deps/9xx-*
+               /libs/func_*
+
+        /custom/template
+               /config/
+               /examples/*
+               /examples_CLFS-E/*
+
+        /extras/do_copy_files
+               /do_ica_prep
+               /do_ica_work
+               /farce
+               /filelist
+
+        /optimize/opt_config
+                 /opt_override
+                 /optimize_functions
+                 /opt_config.d/noOpt
+                              /noSymbols
+                              /O3pipe
+                              /O3pipe_march
+                              /defOpt_fPIC
+
+        /menu/*
+
+        README
+        README.BLFS
+        README.CLFS
+        README.HLFS
+        README.CUSTOM
+        TODO
+        LICENSE
+
+        Config.in
+        Makefile
+        jhalfs
+        blfs-tool
+
+8. FAQ::
+    Q. "This 'help' file is very sparse"
+    A. Yes, it is. This tool, jhalfs, is for those who understand the LFS books
+       and wish to automate the build. 99% of any problems that arise can be
+       solved by reading the book(s).
+
+    Q. "It doesn't work!"
+    A. Yes it does, try >> make
+       Remember you must have 'sudo' privileges.
+
+    Q. "It still doesn't work"
+    A. jhalfs was designed to work against the development versions of the LFS
+       series of books. Consequently changes in a book(s) sometimes breaks older
+       versions of jhalfs. Before you start pulling out your hair download the
+       latest version of jhalfs to see if that solves your problem.
+
+    Q. "How do I specify the build location?"
+    A. The original LFS document worked against the well known location /mnt/lfs.
+       This script automates the build of all of the LFS series of books and uses
+       a generic location $BUILDDIR with a default value of /mnt/build_dir.
+       You may change this value to suit your needs.
+
+       The layout below $BUILDDIR is as follows.
+       $BUILDDIR/
+            jhalfs      (Makefile, cmd scripts, logs, etc..)
+            sources     (where packages reside)
+            tools       (temporary bootstrap system)
+            cross-tools (temporary CLFS only)
+                ...
+            FHS dir structure
+                ...
+            blfs_root   (files to use blfs-tool if selected to install it)
+
+    Q. "What is the function of the SRC_ARCHIVE variable?"
+    A. When jhalfs runs and packages download was selected, it creates a local
+       copy of the necessary packages in BUILDDIR/sources by downloading the
+       files. If the variable SRC_ARCHIVE is defined the software will first
+       look in this location for the file and, if found, will copy it to
+       BUILDDIR/sources.
+       If the files are not found in SRC_ARCHIVE _and_ you have write priv to
+       the directory any downloaded files will be mirrored there.
+
+    Q. "How do I set the SRC_ARCHIVE location?"
+    A. The best way to set the value of SRC_ARCHIVE is
+
+       export SRC_ARCHIVE=/wherever/you/store/downloaded/packages
+
+       or you can set the full path in the proper menu entry.
+
+    Q. "Why have 2 copies of the files?"
+    A. The package files must be visible during the chroot phase and this is a
+       simple and reliable method of doing so. This method also handles the CLFS
+       boot build method where the final build may be done on a separate machine.
+
+    Q. "What is the function of "User account" and "Group account" menu settings?"
+    A. If you are running jhalfs from a low or non-privileged account you may not
+       have the priv to create/delete the user needed to build temporary tools.
+       These settings allow you to use your own user and group name to do that
+       build steps.
+
+       These variables are adjustable also when invoking make:
+
+         $BUILDDIR make LUSER=myaccount LGROUP=mygroup
+
+       The only changes to your account will be the creation of a NEW .bashrc
+       after saving your original to .bashrc.XXX
+
+    Q. "When I try to build CLFS the Makefile fails at the mid-point"
+    A. There could be numerous reasons for the failure but the most likely reason
+       is you are doing a cross-build using the 'chroot' method and the target is
+       not compatible with the host.  If you choose to build using the chroot
+       method a test is performed at the end of the temptools phase. If the test
+       succeeds the build continues inside a chroot jail. However if the test fails
+       it means the host and target are not compatible an you should use the
+       'boot' method to create your target code.
+       As an extreme example: You can build a sparc target on a x86 platform but
+       only the temptools phase. You must select the 'boot' method and not the
+       'chroot.' You must transfer the toolchain to a sparc platform, reboot the
+       sparc box and continue the build.
+       Of all the LFS series of books Cross-LFS requires the greatest
+       understanding of host/target hardware combination. Please read the book
+       carefully and don't skip the easy parts (there are none..)
+
+    Q. "How could I stop the build at a predefined chosen point?"
+    A. Launch the Makefile manually passing the last numbered target to be build
+       as the break point. For example:
+
+          make BREAKPOINT=84-bash
+
+       The build can be stopped also at the end of a top-level build phase by
+       calling directly the appropriate mk_* target. For example:
+
+          make mk_LUSER
+
+       See the Makefile to know the proper target names for that book build.
+
+Authors:
+  George Boudreau
+  Manuel Canales Esparcia

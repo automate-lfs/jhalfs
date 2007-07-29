@@ -1,0 +1,151 @@
+#!/bin/bash
+#####
+#
+# Parse the XML documents to create a 'package' book
+#
+# $Id$
+#####
+
+
+#----------------------------#
+generate_TARGET_xml()  {     #
+#----------------------------#
+: <<inline_doc
+    function:   Generate the XML document for the TARGET package
+    input vars: nothing
+    externals:  vars: TARGET
+    modifies:   nothing
+    returns:    nothing
+    output:     file: $TARGET-index.xml
+    on error:   nothing
+    on success: nothing
+inline_doc
+
+  local
+  echo -en "\n\tGenerating $TARGET-index.xml ..."
+
+  #---------------------
+  # Header to $TARGET-index.xml
+{
+cat << EOF
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+  "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" >
+
+<book>
+
+  <xi:include xmlns:xi="http://www.w3.org/2003/XInclude" href="../$BLFS_XML/book/bookinfo.xml"/>
+
+  <preface>
+    <?dbhtml filename="preface.html" dir="preface"?>
+
+    <title>Preface</title>
+
+    <xi:include xmlns:xi="http://www.w3.org/2003/XInclude" href="../$BLFS_XML/introduction/important/locale-issues.xml"/>
+    <xi:include xmlns:xi="http://www.w3.org/2003/XInclude" href="../$BLFS_XML/introduction/important/bootscripts.xml"/>
+
+  </preface>
+
+  <chapter>
+    <?dbhtml filename="chapter.html" dir="installing"?>
+
+    <title>Installing $TARGET in Dependencies Build Order</title>
+
+EOF
+} > $TARGET-index.xml
+
+  #---------------------
+  # Dump $TARGET-index.xml.tmp in reverse order.
+  tac $TARGET-index.xml.tmp >> $TARGET-index.xml
+  rm $TARGET-index.xml.tmp
+
+  #---------------------
+  # Footer of $TARGET-index.xml
+{
+cat << EOF
+
+  </chapter>
+
+  <xi:include xmlns:xi="http://www.w3.org/2003/XInclude" href="../$BLFS_XML/appendices/creat-comm.xml"/>
+  <xi:include xmlns:xi="http://www.w3.org/2003/XInclude" href="../$BLFS_XML/appendices/ac-free-lic.xml"/>
+
+  <index/>
+
+</book>
+
+EOF
+} >> $TARGET-index.xml
+
+  echo "done"
+}
+
+
+#-------------------------#
+generate_target_book() {  #
+#-------------------------#
+: <<inline_doc
+    function:   Create an HTML document of the requested TARGET.
+    input vars: nothing
+    externals:  vars: TARGET
+                      BLFS_XML
+                      MAIL_SERVER
+                      X11
+    modifies:   nothing
+    returns:    nothing
+    output:     file: NUMEROUS FILES
+    on error:   nothing
+    on success: nothing
+inline_doc
+
+  local filename # output filename
+  echo -en  "\n\tGenerating <$TARGET> HTML book from <$BLFS_XML> xml files ..."
+  xsltproc --xinclude --nonet \
+           --stringparam mail_server $MAIL_SERVER \
+           --stringparam xwindow $X11 \
+           --stringparam base.dir HTML/ \
+           ../libs/book.xsl \
+           $TARGET-index.xml > xsltproc.log 2>&1
+  mkdir HTML/{stylesheets,images}
+  cp ../$BLFS_XML/stylesheets/lfs-xsl/*.css HTML/stylesheets
+  cp ../$BLFS_XML/images/*.png HTML/images
+  cd HTML
+  sed -i -e "s@../stylesheets@stylesheets@g" *.html
+  sed -i -e "s@../images@images@g" *.html
+  for filename in `find . -name "*.html"` ; do
+    tidy -config ../../$BLFS_XML/tidy.conf $filename || true
+    sh ../../$BLFS_XML/obfuscate.sh $filename
+    sed -i -e "s@text/html@application/xhtml+xml@g" $filename
+  done
+  cd ..
+  echo "done"
+}
+
+
+#-------------------------#
+create_build_scripts() {  #
+#-------------------------#
+: <<inline_doc
+    function:   Create shell scripts of the requested TARGET.
+    input vars: $1 use sudo n/y
+    externals:  TARGET
+    modifies:   nothing
+    returns:    nothing
+    output:     file: NUMEROUS FILES
+    on error:   nothing
+    on success: nothing
+inline_doc
+
+  # Log separator
+  echo -e "\n\tScripts generation depuration and errors:\n" >> xsltproc.log
+
+  echo -en "\n\tGenerating the build scripts ..."
+  xsltproc --xinclude --nonet \
+           --stringparam sudo $SUDO \
+           -o ./scripts/ ../libs/scripts.xsl \
+           $TARGET-index.xml >> xsltproc.log 2>&1
+    # Make the scripts executable.
+  chmod -R +x scripts
+  cd ..
+  echo -e "done\n"
+
+}

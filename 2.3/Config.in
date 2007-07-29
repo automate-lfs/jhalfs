@@ -1,0 +1,1108 @@
+menu "--- BOOK Settings"
+
+	#--- BOOK/script
+	choice
+		prompt "Use BOOK"
+		default BOOK_LFS
+		help
+			#-- Select the BOOK/Build style you wish to configure.
+
+		config	BOOK_LFS
+			bool "Linux From Scratch"
+
+		config	BOOK_CLFS
+			bool "Cross-Compiled Linux From Scratch"
+
+		config	BOOK_CLFS2
+			bool "Cross-Compiled Linux From Scratch (Sysroot method)"
+
+		config	BOOK_CLFS3
+			bool "Cross-Compiled Linux From Scratch (Embedded Systems)"
+
+		config	BOOK_HLFS
+			bool "Hardened Linux From Scratch"
+
+		config	BOOK_BLFS
+			bool "Beyond Linux From Scratch"
+	endchoice
+
+	config	PROGNAME
+		string
+		default	"lfs"		if BOOK_LFS
+		default	"clfs"		if BOOK_CLFS
+		default	"clfs2"		if BOOK_CLFS2
+		default	"clfs3"		if BOOK_CLFS3
+		default	"hlfs"		if BOOK_HLFS
+		default	"blfs"		if BOOK_BLFS
+
+	config	RUN_ME
+		string
+		default	"./jhalfs run"	if !BOOK_BLFS
+		default	"./blfs-tool"	if BOOK_BLFS
+	#--- End BOOK/script
+
+	#--- Book version
+	choice
+		prompt	"Release"
+		default	relSVN
+		config	relSVN
+			bool	"SVN"
+			help
+				#-- Current development version as in trunk
+
+		config	WORKING_COPY
+			bool	"Working Copy"
+			depends on !BOOK_BLFS
+			help
+				#-- A local working copy
+
+		config	BRANCH
+			bool	"Branch or stable book" if !BOOK_CLFS2 && !BOOK_CLFS3
+			help
+				#-- A supported SVN branch or stable released book
+	endchoice
+
+	config	BRANCH_ID
+		string	"Book Version (mandatory)"
+		default	"**EDIT ME**"
+		depends	BRANCH
+		help
+			#-- A list of valid branches and stable books ID's is available here.
+			#   http://wiki.linuxfromscratch.org/alfs/wiki/SupportedBooks
+
+	config	BOOK
+		string	"Loc of working copy (mandatory)"
+		default	"**EDIT ME**"
+		depends	WORKING_COPY
+		help
+			#-- The full path to a local copy of the book XML sources
+			#
+	#--- End BOOK version
+
+	#--- CLFS specific params
+	choice
+		prompt	"Target architecture"
+		default	ARCH_X86
+		depends	BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3
+		help
+			#-- Choose the target system base architecture
+
+		config	ARCH_X86
+			bool	"x86"
+
+		config	ARCH_MIPS
+			bool	"mips"	if !BOOK_CLFS2
+
+		config	ARCH_PPC
+			bool	"ppc"	if BOOK_CLFS
+
+		config	ARCH_SPARC
+			bool	"sparc"	if BOOK_CLFS
+
+		config	ARCH_ALPHA
+			bool	"alpha"	if !BOOK_CLFS3
+
+		config	ARCH_ARM
+			bool	"arm"	if !BOOK_CLFS
+
+		config	ARCH_HPPA
+			bool	"hppa"	if BOOK_CLFS2
+	endchoice
+
+	choice
+		prompt	"Hardware Platform"
+		depends	BOOK_CLFS3 && ARCH_MIPS
+		default	PLATFORM_GENERIC
+		help
+			# Chose a destination platform
+			# Platform specific files will be included
+
+		config	PLATFORM_GENERIC
+			bool	"Generic platform"
+
+		config	PLATFORM_WRT
+			bool	"WRT - MIPS based wireless router" if ARCH_MIPS
+	endchoice
+
+	choice
+		prompt	"Library"
+		depends	(BOOK_CLFS && !ARCH_ALPHA) || (BOOK_CLFS3 && ARCH_MIPS)
+		default	DATA_32
+		help
+			#-- Choose the target system libraries type
+
+		config	DATA_32
+			bool	"32-bit"
+
+		config	DATA_64
+			bool	"64-bit"	if !ARCH_PPC
+
+		config	DATA_MULTI
+			bool	"multilib"	if !(BOOK_CLFS3 && ARCH_MIPS )
+	endchoice
+
+	choice
+		prompt	"Processor type"
+		depends	(BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3) && ((ARCH_X86 && !(DATA_64 || DATA_MULTI)) || ARCH_MIPS || ARCH_HPPA || ARCH_ALPHA || (ARCH_SPARC && (DATA_64 || DATA_MULTI)) || (ARCH_ARM && BOOK_CLFS3))
+		help
+			#-- Choose the target system processor
+
+		config	PROC_i486
+			bool	"486 Compatibles"					if ARCH_X86
+
+		config	PROC_i586
+			bool	"Pentium, K6, 586 Compatibles"				if ARCH_X86
+
+		config	PROC_i686
+			bool	"Pentium II, Pentium III, Pentium 4, Athlon, Duron"	if ARCH_X86
+
+		config	PROC_mipsel
+			bool	"MIPS Little Endian"					if ARCH_MIPS
+
+		config	PROC_mips
+			bool	"MIPS Big Endian"					if ARCH_MIPS
+
+		config	PROC_unknown
+			bool	"Unknown"						if ARCH_HPPA || ARCH_ALPHA
+
+		config	PROC_hppa1
+			bool	"PA 7000 Series"					if ARCH_HPPA
+
+		config	PROC_hppa2
+			bool	"PA 8000 Series"					if ARCH_HPPA
+
+		config	PROC_EV5
+			bool	"EV5 Series"						if ARCH_ALPHA
+
+		config	PROC_EV56
+			bool	"EV56 Series"						if ARCH_ALPHA
+
+		config	PROC_PCA56
+			bool	"PCA56 Series"						if ARCH_ALPHA
+
+		config	PROC_PCA57
+			bool	"PCA57 Series"						if ARCH_ALPHA
+
+		config	PROC_EV6
+			bool	"EV6 Series"						if ARCH_ALPHA
+
+		config	PROC_EV67
+			bool	"EV67 Series"						if ARCH_ALPHA
+
+		config	PROC_EV68
+			bool	"EV68 Series"						if ARCH_ALPHA
+
+		config	PROC_ARM
+			bool	"Generic arm, little endian"				if ARCH_ARM
+
+		config	PROC_ARM5L
+			bool	"Generic arm, version 5, little endian"			if ARCH_ARM
+
+		config	PROC_ARM5B
+			bool	"Generic arm, version 5, big endian"			if ARCH_ARM
+
+		config	PROC_ULTRA1
+			bool	"UtraSparc"						if ARCH_SPARC && (DATA_64 || DATA_MULTI)
+
+		config	PROC_ULTRA2
+			bool	"UtraSparc2"						if ARCH_SPARC && (DATA_64 || DATA_MULTI)
+
+		config	PROC_ULTRA3
+			bool	"UtraSparc3"						if ARCH_SPARC && (DATA_64 || DATA_MULTI)
+	endchoice
+
+	choice
+		prompt	"MIPS 64 ABI"
+		depends	BOOK_CLFS3 && ARCH_MIPS && DATA_64
+		default	ABI_64
+		help
+			#-- Choose the target system ABI to use
+
+		config	ABI_32
+			bool	"o32"
+
+		config	ABI_N32
+			bool	"n32"
+
+		config	ABI_64
+			bool	"n64"
+	endchoice
+
+	config TARGET
+		string
+		default "i486-pc-linux-gnu"		if !BOOK_CLFS3 && PROC_i486
+		default "i586-pc-linux-gnu"		if !BOOK_CLFS3 && PROC_i586
+		default "i686-pc-linux-gnu"		if !BOOK_CLFS3 && PROC_i686
+
+		default "i486-pc-linux-uclibc"		if  BOOK_CLFS3 && PROC_i486
+		default "i586-pc-linux-uclibc"		if  BOOK_CLFS3 && PROC_i586
+		default "i686-pc-linux-uclibc"		if  BOOK_CLFS3 && PROC_i686
+
+		default	"x86_64-unknown-linux-gnu"	if  ARCH_X86   && (DATA_64 || DATA_MULTI)
+
+		default "mipsel-unknown-linux-gnu"	if !BOOK_CLFS3 && PROC_mipsel && DATA_32
+		default "mips-unknown-linux-gnu"	if !BOOK_CLFS3 && PROC_mips   && DATA_32
+		default	"mips64el-unknown-linux-gnu"	if !BOOK_CLFS3 && PROC_mipsel && (DATA_64 || DATA_MULTI)
+		default	"mips64-unknown-linux-gnu"	if !BOOK_CLFS3 && PROC_mips   && (DATA_64 || DATA_MULTI)
+
+		default "mipsel-unknown-linux-uclibc"	if  BOOK_CLFS3 && PROC_mipsel && DATA_32
+		default "mips-unknown-linux-uclibc"	if  BOOK_CLFS3 && PROC_mips   && DATA_32
+		default "mips64el-unknown-linux-uclibc"	if  BOOK_CLFS3 && PROC_mipsel && DATA_64
+		default "mips64-unknown-linux-uclibc"	if  BOOK_CLFS3 && PROC_mips   && DATA_64
+
+		default	"powerpc-unknown-linux-gnu"	if  ARCH_PPC   && DATA_32
+		default "powerpc64-unknown-linux-gnu"	if  ARCH_PPC   && DATA_MULTI
+
+		default "sparc-unknown-linux-gnu"	if  ARCH_SPARC && DATA_32
+		default "sparc64-unknown-linux-gnu"	if  ARCH_SPARC && (DATA_64 || DATA_MULTI)
+
+		default	"hppa-unknown-linux-gnu"	if  PROC_unknown && ARCH_HPPA
+		default	"hppa1.1-unknown-linux-gnu"	if  PROC_hppa1
+		default	"hppa2.0-unknown-linux-gnu"	if  PROC_hppa2
+
+		default	"arm-unknown-linux-gnu"		if  ARCH_ARM && BOOK_CLFS2
+
+		default "arm-unknown-linux-uclibc"	if  PROC_ARM
+		default "armv5l-unknown-linux-uclibc"	if  PROC_ARM5L
+		default "armv5b-unknown-linux-uclibc"	if  PROC_ARM5B
+
+		default "alpha-unknown-linux-gnu"	if  PROC_unknown && ARCH_ALPHA
+		default "alphaev5-unknown-linux-gnu"	if  PROC_EV5
+		default "alphaev56-unknown-linux-gnu"	if  PROC_EV56
+		default "alphapca56-unknown-linux-gnu"	if  PROC_PCA56
+		default "alphapca57-unknown-linux-gnu"	if  PROC_PCA57
+		default "alphaev6-unknown-linux-gnu"	if  PROC_EV6
+		default "alphaev67-unknown-linux-gnu"	if  PROC_EV67
+		default "alphaev68-unknown-linux-gnu"	if  PROC_EV68
+
+	config TARGET32
+		string
+		depends	DATA_MULTI
+		default "i686-pc-linux-gnu"		if ARCH_X86
+		default "mipsel-unknown-linux-gnu"	if PROC_mipsel
+		default "mips-unknown-linux-gnu"	if PROC_mips
+		default "sparc-unknown-linux-gnu"	if ARCH_SPARC
+		default "powerpc-unknown-linux-gnu"	if ARCH_PPC
+
+	config  PLATFORM
+		string
+		default "GENERIC"			if (!BOOK_CLFS3) || PLATFORM_GENERIC
+		default	"WRT - Wireless Router"		if PLATFORM_WRT
+
+	config  SPARC64_PROC
+		string
+		default "none"				if !(ARCH_SPARC && (DATA_64 || DATA_MULTI))
+		default	"1"				if PROC_ULTRA1
+		default	"2"				if PROC_ULTRA2
+		default	"3"				if PROC_ULTRA3
+
+	config	ARCH
+		string
+		default	"x86"		if ARCH_X86   && (DATA_32 || BOOK_CLFS2 || BOOK_CLFS3)
+		default	"x86_64"	if ARCH_X86   && DATA_MULTI
+		default	"x86_64-64"	if ARCH_X86   && DATA_64
+
+		default	"wrt"		if PLATFORM_WRT && BOOK_CLFS3
+
+		default	"mips"		if ARCH_MIPS  && (DATA_32 || BOOK_CLFS3)
+		default	"mips64"	if ARCH_MIPS  && DATA_MULTI
+		default	"mips64-64"	if ARCH_MIPS  && DATA_64 && BOOK_CLFS
+
+
+		default	"ppc"		if ARCH_PPC   && DATA_32
+		default	"ppc64"		if ARCH_PPC   && DATA_MULTI
+
+		default	"sparc"		if ARCH_SPARC && DATA_32
+		default	"sparc64"	if ARCH_SPARC && DATA_MULTI
+		default	"sparc64-64"	if ARCH_SPARC && DATA_64
+
+		default	"alpha"		if ARCH_ALPHA
+		default	"arm"		if ARCH_ARM
+		default	"hppa"		if ARCH_HPPA
+
+	config  MIPS_LEVEL
+		string
+		depends BOOK_CLFS3 && ARCH_MIPS
+		default	"1"		if DATA_32
+		default "3"		if DATA_64
+
+	config	ABI
+		string
+		depends BOOK_CLFS3
+		default "-m32"		if ARCH_X86 || ARCH_ARM
+#		default "-m64"		if NO USED YET IN THE BOOK
+		default "-mabi=32"	if ABI_32 || (ARCH_MIPS && DATA_32)
+		default "-mabi=n32"	if ABI_N32
+		default "-mabi=64"	if ABI_64
+
+	config	ENDIAN
+		string
+		depends BOOK_CLFS3 && (ARCH_MIPS || ARCH_ARM)
+		default "little"	if PROC_mipsel || PROC_ARM || PROC_ARM5L
+		default "big"		if PROC_mips || PROC_ARM5B
+
+	choice
+		prompt	"Build method"
+		depends	BOOK_CLFS
+		help
+			#-- What build method should be used: a chroot jail or minimal boot system
+			#   Review the Cross-LFS book chap6 "TO BOOT OR CHROOT" for a full explanation.
+
+		config	BUILD_CHROOT
+			bool	"chroot"
+
+		config	BUILD_BOOT
+			bool	"boot"
+	endchoice
+
+	config	METHOD
+		string
+		default	"chroot"	if BUILD_CHROOT
+		default	"boot"		if BUILD_BOOT
+
+	config	BOOT_CONFIG
+		string	"BOOT kernel config file (mandatory)"
+		default "***EDIT ME***"
+		depends on BUILD_BOOT
+		help
+			#-- If METHOD=boot, location of boot-kernel config file
+			#   The config file will be copied to ${BUILD_DIR}/sources
+			#   and renamed 'bootkernel-config'
+			#
+			# NOTE: this setting is required
+	#--- End CLFS specific params
+
+	#--- HLFS specific params
+	config	GRSECURITY_HOST
+		bool	"Building on grsecurity enabled host?"
+		default	n
+		depends on BOOK_HLFS
+		help
+			#-- If your build system has grsecurity patches applied
+			#   you MUST enable this switch.
+
+	choice
+		prompt "Library"
+		depends on BOOK_HLFS
+		help
+			#-- Which library model to use: uClibc/glibc
+
+		config	LIB_GLIBC
+			bool "glibc"
+
+		config	LIB_UCLIBC
+			bool "uClibc"
+	endchoice
+
+	config	MODEL
+		depends on BOOK_HLFS
+		string
+		default	"glibc"		if LIB_GLIBC
+		default "uclibc"	if LIB_UCLIBC
+
+	choice
+		prompt "Kernel series"
+		depends on BOOK_HLFS
+		help
+			#-- Which kernel series to use: 2.6/2.4
+
+		config	KERNEL_26
+			bool "2.6 kernel series"
+
+		config	KERNEL_24
+			bool "2.4 kernel series"
+	endchoice
+
+	config	KERNEL
+		depends on BOOK_HLFS
+		string
+		default	"2.6"		if KERNEL_26
+		default	"2.4"		if KERNEL_24
+
+#         menu	"HLFS Additional Features"
+# 		depends on BOOK_HLFS
+#
+# 		config	SET_SSP
+# 		bool	"Stack-smashing protector"
+# 		default	y
+#
+# 		config	SET_ASLR
+# 		bool	"Address-space layout randomization"
+# 		default	y
+#
+# 		config	SET_PAX
+# 		bool	"PaX-aware ELF executables and kernel"
+# 		default	y
+#
+# 		config	SET_HARDENED_TMP
+# 		bool	"Hardened temporary files creation"
+# 		default	y
+#
+# 		config	SET_WARNINGS
+# 		bool	"Additional warnings"
+# 		default	y
+#
+# 		config	SET_MISC
+# 		bool	"Miscellaneous features"
+# 		default	y
+#
+# 		config	SET_BLOWFISH
+# 		bool	"Blowfish passwords"
+# 		default	y
+# 	endmenu
+
+	config	SSP
+#		depends on SET_SSP
+		string
+		default ",ssp,"
+
+	config	ASLR
+#		depends on SET_ASLR
+		string
+		default ",aslr,"
+
+	config	PAX
+#		depends on SET_PAX
+		string
+		default ",pax,"
+
+	config	HARDENED_TMP
+#		depends on SET_HARDENED_TMP
+		string
+		default ",hardened_tmp,"
+
+	config	WARNINGS
+#		depends on SET_WARNINGS
+		string
+		default ",warnings,"
+
+	config	MISC
+#		depends on SET_MISC
+		string
+		default ",misc,"
+
+	config	BLOWFISH
+#		depends on SET_BLOWFISH
+		string
+		default ",blowfish,"
+	#--- End HLFS specific params
+
+	#--- Custom Tools support
+	config CUSTOM_TOOLS
+		bool	"Add custom tools support"
+		default	n
+		depends on !BOOK_BLFS
+		help
+			#--- Activating this option additional packages you create
+			#    will be installed after finished the xLFS system build.
+			#
+	#--- End Custom Tools support
+
+	#--- blfs-tool Support
+	config BLFS_TOOL
+		bool	"Add blfs-tool support"
+		default	n
+		depends on !BOOK_BLFS && !BOOK_CLFS3
+		help
+			#--- Activating this option will install additional
+			#    packages needed to use blfs-tool when booting
+			#    the new system.
+			#
+			#    The blfs-tool files will be installed under
+			#    $BUILD_DIR/blfs_root.
+
+			#    After booting the new xLFS system you should to
+			#    create an user account and move the /blfs-root
+			#    directory to the user's home, making he the
+			#    directory and files owner, before start
+			#    using blfs-tool.
+			#
+			#    Also, be sure to bring to that user read and write
+			#    privileges over the $TRACKING_DIR directory and
+			#    the files that it contains.
+			#
+			#    And don't forget to configure sudo properly.
+
+	choice
+		prompt	"BLFS Release"
+		default	BLFS_SVN
+		depends on BLFS_TOOL
+		config	BLFS_SVN
+			bool	"BLFS SVN"
+			help
+				#-- Current development version as in trunk
+
+		config	BLFS_BRANCH
+			bool	"BLFS Branch or stable book"
+			help
+				#-- A supported SVN branch or stable released book
+	endchoice
+
+	config	BLFS_BRANCH_ID
+		string	"BLFS Book Version (mandatory)"
+		default	"**EDIT ME**"
+		depends on BLFS_BRANCH
+		help
+			#-- A list of valid branches and stable books ID's is available here.
+			#   http://wiki.linuxfromscratch.org/alfs/wiki/SupportedBooks
+
+	menu "blfs-tool dependencies"
+		depends on BLFS_TOOL
+
+		config	DEP_LIBXML
+		bool	"libxml2 (required)"
+		default	y
+
+		config	DEP_LIBXSLT
+		bool	"libxslt (required)"
+		default	y
+
+		config	DEP_TIDY
+		bool	"tidy (required)"
+		default	y
+
+		config	DEP_DBXML
+		bool	"DocBook XML DTD (required)"
+		default	y
+
+		config	DEP_UNZIP
+		bool	"UnZip (required to install DocBook XML DTD)"
+		default	y
+		depends on DEP_DBXML
+
+		#config	DEP_DBXSL
+		#bool	"DocBook XSL (required)"
+		#default	y
+
+		config	DEP_LINKS
+		bool	"links (required)"
+		default	y
+
+		config	DEP_SUDO
+		bool	"sudo (recommended)"
+		default	y
+
+		config	DEP_WGET
+		bool	"wget (recommended)"
+		default	y
+
+		config	DEP_GPM
+		bool	"GPM (optional, see help)"
+		default	y
+		help
+			#-- You MUST to install manually the gpm bootscript
+			#   and create its configuration file.
+			#
+			#   An alternative is to unselect this option and
+			#   install gpm, its configuration file, and its
+			#   bootscript using the custom tools support.
+
+		config	DEP_SVN
+		bool	"SVN client (optional, see help)"
+		default	n
+		help
+			#-- Subversion-1.3.1 will be installed. This version is
+			#   old but does not rely on additional packages to be
+			#   built.
+			#
+			#   If you are happy with this old version and don't
+			#   need extra features, select this option.
+	endmenu
+	#--- End blfs-tool Support
+
+	#--- BLFS specific params
+	config	BLFS_ROOT
+		string "Directory root"
+		default "$HOME/blfs_root" if BOOK_BLFS
+		default "/blfs_root" if BLFS_TOOL
+		depends on BOOK_BLFS || BLFS_TOOL
+		help
+			#-- Full path to the directory where all required
+			#   files and scripts will be stored.
+
+	config	BLFS_XML
+		string "BLFS sources directory"
+		default "blfs-xml"
+		depends on BOOK_BLFS || BLFS_TOOL
+		help
+			#-- The directory name under $BLFS_ROOT where BLFS book
+			#   sources will be checkout.
+
+	config	TRACKING_DIR
+		string "Installed packages database directory"
+		default "/var/lib/jhalfs/BLFS"
+		depends on BOOK_BLFS || BLFS_TOOL || CUSTOM_TOOLS
+		help
+			#-- Full path to the directory where the installed
+			#   packages database will be created.
+			#
+			#   If you are installing blfs-tool on a running xLFS system
+                        #   you MUST to create manually this directory.
+                        #
+                        #   If you are installing blfs-tool as part of a xLFS build
+                        #   and/or using the customized scripts feature, you will
+                        #   need to fix that directory permissions after booting
+                        #   the new system.
+			#
+			#   Note that the user that will build the packages must
+			#   have read and write privileges on that directory.
+	#--- End BLFS specific params
+
+#--- End BOOK Settings
+endmenu
+
+menu "--- General Settings"
+	depends on !BOOK_BLFS
+
+	#--- Set User Account
+	config	CONFIG_USER
+		bool	"Change the default user/group and homedir for this build"
+		default	n
+		help	#-- Unprivileged user and group name
+			#   If you do not have the priv to create/delete
+			#   users and groups you can specifiy your own
+			#   user id for the build
+			#
+			# default values for each book
+			# LFS    lfs
+			# CLFS*  clfs
+			# HLFS   hlfs
+			#
+			# Also, if your host place users home dirs into a
+			# directory other than /home you can specify it here.
+
+	config	DEF_USER
+		string
+		default	"lfs"	if BOOK_LFS
+		default	"clfs"	if BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3
+		default "hlfs"	if BOOK_HLFS
+
+	config	SET_USER
+		string	"User account"
+		depends	CONFIG_USER
+		default	DEF_USER
+
+	config	CONFIG_GROUP
+		bool	"Set Group?"
+		default	n
+		depends	CONFIG_USER
+
+	config	SET_GROUP
+		string	"GROUP account"
+		depends	CONFIG_GROUP
+		default	DEF_USER
+
+	config	CONFIG_HOME
+		bool	"Set home dir?"
+		default	n
+		depends	CONFIG_USER
+
+	config	SET_HOME
+		string	"Path to the directory where user home dir will be created"
+		depends	CONFIG_HOME
+		default	"/home"
+
+	config	LUSER
+		string
+		default	DEF_USER	if !CONFIG_USER
+		default	SET_USER	if  CONFIG_USER
+
+	config	LGROUP
+		string
+		default	LUSER		if !CONFIG_GROUP
+		default	SET_GROUP	if  CONFIG_GROUP
+
+	config	LHOME
+		string
+		default	"/home"		if !CONFIG_HOME
+		default	SET_HOME	if  CONFIG_HOME
+	#--- End Set User Account
+
+	config BUILDDIR
+		string "Build Directory"
+		default "/mnt/build_dir"
+		help
+			#-- The directory where the created system will be located.
+
+	config	GETPKG
+		bool "Retrieve source files"
+		default n
+		help
+			#-- Download all packages and patches required by the book selected
+			#   NOTE: Looks for files in the local archive defined by SRC_ARCHIVE
+			#   first and if necessary retrieve them from the 'net.
+			#   Files will be transfered to $BUILDDIR/sources.
+
+	config SRC_ARCHIVE
+		string "Package Archive Directory"
+		default "$SRC_ARCHIVE"
+		depends GETPKG
+		help
+			#-- A local archive for packages/file (not $BUILDDIR/sources)
+			#   Used only if GETPKG = 1
+			#   Any missing file will be downloaded and archived here,
+			#   if the user has the right priviledges.
+
+	config SERVER
+		string "FTP mirror"
+		default "ftp://ftp.lfs-matrix.net"
+		depends GETPKG
+		help
+			#-- FTP mirror to download packages and patches if not found
+			#   in $SRC_ARCHIVE
+			#   As a last resort, the files will dowloaded from upstream,
+                        #   if possible.
+
+	config	GETKERNEL
+		bool	"Always retrieve kernel package (see help)"
+		default	y if BOOK_LFS || BOOK_HLFS
+		depends GETPKG
+		help
+			#-- Get the kernel package and patches even if no kernel
+			#   configuration file has been supplied.
+
+			# NOTE:
+			#   The kernel package must be available when building
+			#   the SVN version of LFS or HLFS to can install the
+			#   headers files.
+			#
+			#   If building LFS-6.2 this setting can be disabled.
+
+	config	RUNMAKE
+		bool	"Run the makefile"
+		default n
+		help
+			#-- Automatically run the makefile once it has been created
+
+	config	CLEAN
+		bool	"Rebuild files"
+		default	n
+		help
+			#-- Clean the build directory before performing any other task.
+			#   The directory is cleaned only if it was populated by a
+			#   previous JHALFS run.
+			#
+
+#--- End General Settings
+endmenu
+
+menu "--- Build Settings"
+	depends on !BOOK_BLFS
+
+	#--- Test Suites
+	config	CONFIG_TESTS
+		bool	"Run testsuites"
+		depends	!BOOK_CLFS2 && !BOOK_CLFS3
+		default	y
+		help
+			#-- Run test suites
+			#
+			#  You will can to select between:
+			#
+			#  - Only final system Glibc, GCC and Binutils testsuites
+			#  - All final system testsuites
+			#  - Both temporary tools and final system testsuites
+			#
+			#  HLFS and CLFS has no testsuites available in the
+			#  temporary tools phase
+
+			#  You will be promt also about the "flavour" of the
+			#  testsuites run:
+			#
+			#  - Don't stop on test suite failures
+			#  - Abort the build at the first test suite failure
+			#
+
+	choice
+		prompt	"Tests level"
+		depends	 CONFIG_TESTS
+		default	TEST_1
+
+		config	TST_1
+			bool	"Only final system Glibc, GCC and Binutils testsuites"
+
+		config	TST_2
+			bool	"All final system testsuites"
+
+		config	TST_3
+			bool	"Both temporary tools and final system testsuites" if !BOOK_HLFS && !BOOK_CLFS
+	endchoice
+
+	config	TEST
+		int
+		default	"0"	if !CONFIG_TESTS
+		default	"1"	if TST_1
+		default	"2"	if TST_2
+		default	"3"	if TST_3
+
+	choice
+		prompt	"Flavour"
+		depends	CONFIG_TESTS
+
+		config	NO_BOMB
+			bool	"Don't stop on test suite failures"
+
+		config	BOMB
+			bool	"Abort the build at the first test suite failure"
+	endchoice
+
+	config	BOMB_TEST
+		bool
+		default	n if NO_BOMB
+		default	y if BOMB
+
+	#--- End Test Suites
+
+	#--- Installed files logs
+	config	INSTALL_LOG
+		bool	"Create installed files logs"
+		default	n
+		help
+			#-- Select this if you want to create logs of the files
+			#   installed by each package on the final system.
+
+	#--- End Installed files logs
+
+	#--- FSTAB
+	config	HAVE_FSTAB
+		bool	"Use a custom fstab file"
+		default	n
+		help
+			#-- Select this if you have ready a proper fstab file
+
+	config	FSTAB
+		string	"Fstab file (optional)"
+		default	"***EDIT ME***"
+		depends on HAVE_FSTAB
+		help
+			#-- The location of fstab file (if empty, a template is created)
+	#--- End FSTAB
+
+	#--- Kernel
+	config	CONFIG_BUILD_KERNEL
+		bool	"Build the kernel"
+		default	n
+		help
+			#-- Select this option if you wish to build the kernel.
+			#
+			#   You will be prompted for the full path to the .config
+			#   file. It will be copied to the 'sources' directory and
+			#   rename kernel-config
+
+	config	CONFIG
+		string	"Kernel config file"
+		default	"***EDIT ME***"
+		depends on CONFIG_BUILD_KERNEL
+		help
+			#-- Fully qualified path to a kernel config file
+			#   The config file will be copied to ${BUILD_DIR}/sources
+			#   and renamed 'kernel-config'
+	#--- End Kernel
+
+	config	STRIP
+		bool "Strip Installed Binaries/Libraries"
+		default y
+		depends on !BOOK_CLFS3
+
+	config	VIMLANG
+		bool "Install vim-lang package"
+		default y
+		depends on !BOOK_HLFS && !BOOK_CLFS3
+		help
+			#-- Install the optional vim-lang package
+
+	config	TIMEZONE
+		string "TimeZone"
+		default "GMT"
+		help
+			#-- The timezone as output by tzselect
+			#   This will be copied to /etc/localtime
+
+	config	LANG
+		string "Language"
+		default "$LANG"
+		help
+			#-- Language information in /etc/profile  See <locale -a> for values
+
+	#--- Groff page
+	choice
+		prompt	"Groff page size"
+		default	PAGE_LETTER
+		help
+			#-- Page definition for groff: letter or A4
+
+		config	PAGE_LETTER
+			bool	"letter"
+
+		config	PAGE_A4
+			bool	"A4"
+	endchoice
+
+	config	PAGE
+		string
+		default	"letter"	if PAGE_LETTER
+		default	"A4"		if PAGE_A4
+	#--- End Groff page
+
+#--- End Build Settings
+endmenu
+
+menu "--- Advanced Features"
+	depends on !BOOK_BLFS
+
+	config	REPORT
+		bool "Create SBU and disk usage report"
+		default y
+
+	#--- ICA/farce
+	config	COMPARE
+		bool "Run comparison analysis on final stage"
+		depends	!BOOK_CLFS2 && !BOOK_CLFS3
+		default n
+		help
+			#-- Should some iterative comparison analysis by made?
+			#
+			#   Unless you are familiar with ICA and/or FARCE do not
+			#   select this option
+			#
+			#  ICA and FARCE are analysis tools for comparing one
+			#  build to the next. Builds mays differ from one iteration
+			#  to another due to the build order and these tools try
+			#  to ferret out those differences by examining the stored
+			#  build logs and binary files.
+			#
+			#  The scripts are well commented and can be found in ./extras/*
+			#
+
+	config	ITERATIONS
+		int	"Number of test runs (2,3,4,5)"	if COMPARE
+		depends on COMPARE
+		range	2 5
+		default	3
+
+	config	RUN_ICA
+		bool	"ICA testing"
+		depends on COMPARE
+		default y
+		help
+			#-- Run ICA testing
+
+	config	RUN_FARCE
+		bool	"farce testing"
+		depends on COMPARE
+		default n
+		help
+			#-- Run farce testing
+	#--- End ICA/farce
+
+	#--- Optimizations
+if !BOOK_CLFS2 && !BOOK_CLFS3
+	config	CONFIG_OPTIMIZE
+		bool	"Use optimization (see help)"
+		default	n
+		help
+			#-- Actual optimzation flags MUST be defined in ./optimize/*
+			#   files before activate this option.
+			#
+			# WARNING: The use of build optimizations may be dangerous.
+			#   You should know what you are doing and be sure that the
+			#   optimization settings listed below are what you want.
+			#   It there are build issues or the system doesn't work as
+			#   expected, please rebuild without optimizations before
+			#   asking for support.
+
+	choice
+		prompt "Optimization level "
+		default OPT_1
+		depends	CONFIG_OPTIMIZE
+		help
+			#-- Optimization values are set in optimize/* files
+
+		config	OPT_1
+			bool	"Final system only"
+
+		config	OPT_2
+			bool	"Both temp tools and final system"
+	endchoice
+
+	config	OPTIMIZE
+		int
+		default	"0"	if !CONFIG_OPTIMIZE
+		default	"1"	if OPT_1
+		default	"2"	if OPT_2
+endif
+	#--- End Optimizations
+
+	#-- Internal Settings
+	menu "--- Internal Settings (WARNING: for jhalfs developers only)"
+
+		config	SCRIPT_ROOT
+			string	"Scripts root"
+			default "jhalfs"
+
+		config	JHALFSDIR
+			string "jhalfs directory"
+			default "$BUILDDIR/$SCRIPT_ROOT"
+
+		config	LOGDIRBASE
+			string "Build logs directory basename"
+			default "logs"
+
+		config	LOGDIR
+			string "Build logs directory"
+			default "$JHALFSDIR/$LOGDIRBASE"
+
+		config	TESTLOGDIRBASE
+			string "Test suites logs directory basename"
+			default "test-logs"
+
+		config	TESTLOGDIR
+			string "Test suites logs directory"
+			default "$JHALFSDIR/$TESTLOGDIRBASE"
+
+		config	FILELOGDIRBASE
+			string "Installed files logs directory basename"
+			default "installed-files"
+
+		config	FILELOGDIR
+			string "Installed files logs directory"
+			default "$JHALFSDIR/$FILELOGDIRBASE"
+
+		config	ICALOGDIR
+			string "ICA logs directory"
+			default "$LOGDIR/ICA"
+
+		config	FARCELOGDIR
+			string "farce logs directory"
+			default "$LOGDIR/farce"
+
+		config	MKFILE
+			string "Makefile"
+			default "$JHALFSDIR/Makefile"
+
+		config	XSL
+			string "XSL stylesheet"
+			default "$PROGNAME.xsl"
+
+		config	PKG_LST
+			string "Package contents list"
+			default "unpacked"
+
+	#--- End Internal Settings
+	endmenu
+
+#--- End Advanced Features
+endmenu
+
+config REBUILD_MAKEFILE
+	bool "Rebuild the Makefile (see help)"
+	default n
+	depends on !BOOK_BLFS
+	help
+		#-- Rebuild the Makefile
+		#
+		#   This option alow to rebuild the Makefile after
+		#   customizing the base system build scripts.
+		#
+		#   See README.CUSTOM for more info about this feature.
+
