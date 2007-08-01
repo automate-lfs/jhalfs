@@ -12,9 +12,11 @@
 #    instead of just set to null.
 MAKEFLAGS="-j3"
 
-#--- List of packages that don't support well MAKEFLAGS.
+#--- List of packages that have issues with jobs control.
 #    This list may be different for you.
-BLACK_LIST="autoconf dejagnu gettext groff"
+#    If your MAKEFLAGS don't contains a -jX option, you can set
+#    a empty list here.
+BLACK_LIST="autoconf dejagnu gettext groff man-db"
 
 #--- Default optimization mode
 #    This mode is overridden by definitions in opt_override;
