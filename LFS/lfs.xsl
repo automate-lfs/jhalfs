@@ -187,7 +187,7 @@
           <xsl:when test="$testsuite = '0' or $testsuite = '1'"/>
           <xsl:otherwise>
             <xsl:if test="not(contains(string(),'check')) and
-                          not(contains(string(),'tests'))">
+                          not(contains(string(),'make tests'))">
               <xsl:apply-templates/>
               <xsl:text>&#xA;</xsl:text>
             </xsl:if>
@@ -211,7 +211,7 @@
               </xsl:choose>
             </xsl:if>
             <!-- Bash -->
-            <xsl:if test="contains(string(),'tests')">
+            <xsl:if test="contains(string(),'make tests')">
               <xsl:choose>
                 <xsl:when test="$bomb-testsuite = 'n'">
                   <xsl:value-of select="substring-before(string(),'tests')"/>
