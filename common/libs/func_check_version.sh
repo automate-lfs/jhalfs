@@ -89,7 +89,7 @@ check_prerequisites() {      #
   bzip2Ver="$(bzip2 --version 2>&1 < /dev/null | head -n1 | cut -d" " -f8)"
   check_version "1.0.2"   "${bzip2Ver%%,*}"                                    "BZIP2"
   check_version "1.875"   "$(bison --version | head -n1 | cut -d" " -f4)"      "BISON"
-  check_version "5.0"     "$(chown --version | head -n1 | cut -d")" -f2)"      "COREUTILS"
+  check_version "5.2.1"   "$(chown --version | head -n1 | cut -d")" -f2)"      "COREUTILS"
   check_version "2.8"     "$(diff --version  | head -n1 | cut -d" " -f4)"      "DIFF"
   check_version "4.1.20"  "$(find --version  | head -n1 | cut -d" " -f4)"      "FIND"
   check_version "3.0"     "$(gawk --version  | head -n1 | cut -d" " -f3)"      "GAWK"
