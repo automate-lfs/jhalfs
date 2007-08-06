@@ -184,13 +184,17 @@ $Id$
    4.4  PDL, Perl modules, and Glib-Bindings.
 
         The generated scripts for these packages are broken and can not
-     be fixed. You must replace them with your own scripts or install the
-     packages by hand.
+     be fixed. You must rename it as the sub-package to be installed and
+     edit it to use the proper commads for that sub-package.
 
-   4.4  GCC, JDK, Sane, and KDE-multimedia
+        You may need to create additional scripts for these sub-package
+     dependencies, if any.
+
+   4.4  GCC, JDK, Sane, and KDE-multimedia, freetype2, MesaLib and others
 
         On the pages for these packages, the BLFS book actually has instructions
-     to install two packages. You must edit the scripts to fix this.
+     to download and install two or more packages. You must edit the scripts to
+     fix this.
 
         We will try to fix some of them, but this may not be possible.
 
@@ -206,6 +210,9 @@ $Id$
        The *.wget and *.md5 files should be downladed always from inside
      the scripts to be sure that the most current individual packages are
      used. Thus don't reuse previouly existing ones.
+
+       In the script for xorg7-font, be sure to move the fonts directories
+     symlinks creation to after the "for ... done" loop.
 
    4.6  PATCHES
 

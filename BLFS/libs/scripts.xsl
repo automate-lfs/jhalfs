@@ -184,7 +184,7 @@ FTP_SERVER=$FTP_SERVER&#xA;</xsl:text>
         <xsl:apply-templates select=".//screen" mode="sect-ver"/>
         <xsl:text>mkdir -p ${section}&#xA;cd ${section}&#xA;</xsl:text>
         <xsl:apply-templates select="../sect2[@role='package']/itemizedlist/listitem/para" mode="xorg7-patch"/>
-        <xsl:text>for line in $(grep -v '^#' ../${sect-ver}.wget) ; do
+        <xsl:text>for line in $(grep -v '^#' ../${sect_ver}.wget) ; do
   if [[ ! -f ${line} ]] ; then
     if [[ -f $SRC_ARCHIVE/Xorg/${section}/${line} ]] ; then
       cp $SRC_ARCHIVE/Xorg/${section}/${line} ${line}
@@ -200,23 +200,23 @@ FTP_SERVER=$FTP_SERVER&#xA;</xsl:text>
     fi
   fi
 done
-md5sum -c ../${sect-ver}.md5
-cp ../${sect-ver}.wget ../${sect-ver}.wget.orig
-cp ../${sect-ver}.md5 ../${sect-ver}.md5.orig&#xA;</xsl:text>
+md5sum -c ../${sect_ver}.md5
+cp ../${sect_ver}.wget ../${sect_ver}.wget.orig
+cp ../${sect_ver}.md5 ../${sect_ver}.md5.orig&#xA;</xsl:text>
       </xsl:when>
       <xsl:when test="@role = 'installation'">
-        <xsl:text>for package in $(grep -v '^#' ../${sect-ver}.wget) ; do
+        <xsl:text>for package in $(grep -v '^#' ../${sect_ver}.wget) ; do
   packagedir=$(echo $package | sed 's/.tar.bz2//')
   tar -xf ${package}
   cd ${packagedir}&#xA;</xsl:text>
         <xsl:apply-templates select=".//screen | .//para/command"/>
         <xsl:text>  cd ..
   rm -rf ${packagedir}
-  sed -i "/${package}/d" ../${sect-ver}.wget
-  sed -i "/${package}/d" ../${sect-ver}.md5
+  sed -i "/${package}/d" ../${sect_ver}.wget
+  sed -i "/${package}/d" ../${sect_ver}.md5
 done
-mv ../${sect-ver}.wget.orig ../${sect-ver}.wget
-mv ../${sect-ver}.md5.orig ../${sect-ver}.md5&#xA;</xsl:text>
+mv ../${sect_ver}.wget.orig ../${sect_ver}.wget
+mv ../${sect_ver}.md5.orig ../${sect_ver}.md5&#xA;</xsl:text>
         <xsl:if test="$sudo = 'y'">
           <xsl:text>sudo /sbin/</xsl:text>
         </xsl:if>
@@ -460,7 +460,7 @@ mv ../${sect-ver}.md5.orig ../${sect-ver}.md5&#xA;</xsl:text>
   <xsl:template match="screen" mode="sect-ver">
     <xsl:text>section=</xsl:text>
     <xsl:value-of select="substring-before(substring-after(string(),'mkdir '),' &amp;')"/>
-    <xsl:text>&#xA;sect-ver=</xsl:text>
+    <xsl:text>&#xA;sect_ver=</xsl:text>
     <xsl:value-of select="substring-before(substring-after(string(),'-c ../'),'.md5')"/>
     <xsl:text>&#xA;</xsl:text>
   </xsl:template>
