@@ -4,6 +4,8 @@
 
 # $Id$
 
+LANG=C
+LC_ALL=C
 TOPDIR=$(shell pwd)
 CONFIG_CONFIG_IN = Config.in
 CONFIG = menu
