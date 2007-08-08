@@ -57,7 +57,7 @@ inline_doc
   # Additional variables (add DEP_DBXSL when required again)
   local -r blfs_tool_PARAM_LIST="BLFS_BRANCH_ID BLFS_ROOT BLFS_XML TRACKING_DIR \
                                  DEP_LIBXML DEP_LIBXSLT DEP_TIDY DEP_UNZIP \
-                                 DEP_DBXML DEP_LINKS DEP_SUDO DEP_WGET \
+                                 DEP_DBXML DEP_LYNX DEP_SUDO DEP_WGET \
                                  DEP_SVN DEP_GPM"
   local -r custom_tool_PARAM_LIST="TRACKING_DIR"
 

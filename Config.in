@@ -574,8 +574,8 @@ menu "--- BOOK Settings"
 		#bool	"DocBook XSL (required)"
 		#default	y
 
-		config	DEP_LINKS
-		bool	"links (required)"
+		config	DEP_LYNX
+		bool	"lynx (required)"
 		default	y
 
 		config	DEP_SUDO

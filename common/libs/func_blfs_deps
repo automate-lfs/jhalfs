@@ -33,8 +33,8 @@ add_blfs_deps_urls() {       # No easy way to extract it.
 #     echo "${DBXSL_URL} ${BLFS_SERVER}docbook-xsl/${DBXSL_PKG} ${DBXSL_MD5}" >> urls.lst
 #   fi
 
-  if [[ "${DEP_LINKS}" = "y" ]] ; then
-    echo "${LINKS_URL} ${BLFS_SERVER}links/${LINKS_PKG} ${LINKS_MD5}" >> urls.lst
+  if [[ "${DEP_LYNX}" = "y" ]] ; then
+    echo "${LYNX_URL} ${BLFS_SERVER}lynx/${LYNX_PKG} ${LYNX_MD5}" >> urls.lst
   fi
 
   if [[ "${DEP_SUDO}" = "y" ]] ; then
@@ -88,8 +88,8 @@ copy_blfs_deps_scripts() {   # method avoid to place the test on all
 #     mv blfs-tool-deps/906-docbook-xsl ${PROGNAME}-commands/blfs-tool-deps
 #   fi
 
-  if [[ "${DEP_LINKS}" = "y" ]] ; then
-    mv blfs-tool-deps/908-links ${PROGNAME}-commands/blfs-tool-deps
+  if [[ "${DEP_LYNX}" = "y" ]] ; then
+    mv blfs-tool-deps/908-lynx ${PROGNAME}-commands/blfs-tool-deps
   fi
 
   if [[ "${DEP_SUDO}" = "y" ]] ; then
@@ -129,6 +129,7 @@ wrt_blfs_tool_targets() {          #
 
     # Find the package.
     case $name in
+      lynx )  pkg_tarball=${LYNX_PKG} ;;
       tidy )  pkg_tarball=${TIDY_PKG} ;;
       unzip ) pkg_tarball=${UNZIP_PKG} ;;
       * )     pkg_tarball=$(get_package_tarball_name $name) ;;
@@ -174,6 +175,8 @@ wrt_blfs_tool_targets() {          #
 
     # Touch the tracking file.
     case $name in
+      docbook-xml )  pkg_ver=DocBook-4.5 ;;
+      lynx )  pkg_ver=lynx-2.8.6 ;;
       tidy )  pkg_ver=html-tidy-cvs_20070326 ;;
       unzip ) pkg_ver=unzip-5.52 ;;
       * )     pkg_ver=$(echo $pkg_tarball | sed -e 's/.tar.*//;s/.tgz//;s/.zip//') ;;

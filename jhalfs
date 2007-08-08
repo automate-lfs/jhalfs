@@ -198,9 +198,9 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
 #   DBXSL_URL="http://prdownloads.sourceforge.net/docbook/${DBXSL_PKG}"
 #   DBXSL_MD5="6ebd29a67f2dcc3f2220f475ee6f6552"
     # Links
-  LINKS_PKG="links-2.1pre23.tar.bz2"
-  LINKS_URL="http://links.twibright.com/download/${LINKS_PKG}"
-  LINKS_MD5="4a1fb575c133eee821b9a1f8e9220b40"
+  LYNX_PKG="lynx2.8.6.tar.bz2"
+  LYNX_URL="http://lynx.isc.org/release/${LYNX_PKG}"
+  LYNX_MD5="dc80497b7dda6a28fd80404684d27548"
     # sudo
   SUDO_PKG="sudo-1.6.8p12.tar.gz"
   SUDO_URL="http://anduin.linuxfromscratch.org/sources/BLFS/svn/s/${SUDO_PKG}"
