@@ -174,6 +174,7 @@ wrt_blfs_tool_targets() {          #
 
     # Touch the tracking file.
     case $name in
+      docbook-xml )  pkg_ver=DocBook-4.5 ;;
       tidy )  pkg_ver=html-tidy-cvs_20070326 ;;
       unzip ) pkg_ver=unzip-5.52 ;;
       * )     pkg_ver=$(echo $pkg_tarball | sed -e 's/.tar.*//;s/.tgz//;s/.zip//') ;;
