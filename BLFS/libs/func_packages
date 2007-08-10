@@ -42,7 +42,21 @@ get_installed_ver() {   # Find installed package version for a given package ID
 #-----------------------#
   local pkg_id=$1
 
-  find $TRACKING_DIR -name "${pkg_id}-[[:digit:]]*" | sed "s/.*${pkg_id}-//"
+
+  case ${pkg_id} in
+    html-tidy )
+      find $TRACKING_DIR -name "${pkg_id}-cvs_[[:digit:]]*" | sed "s/.*${pkg_id}-//"
+      ;;
+    cdparanoia )
+      find $TRACKING_DIR -name "${pkg_id}-III-[[:digit:]]*" | sed "s/.*${pkg_id}-//"
+      ;;
+    psutils )
+      find $TRACKING_DIR -name "${pkg_id}-p[[:digit:]]*" | sed "s/.*${pkg_id}-//"
+      ;;
+    * )
+      find $TRACKING_DIR -name "${pkg_id}-[[:digit:]]*" | sed "s/.*${pkg_id}-//"
+      ;;
+  esac
 
 }
 
@@ -64,11 +78,11 @@ generate_packages()  {  # Master packages file
 
   # IDs clean-up (unuseful pages or commented-out packages, could be more)
   sed -i '/template/d;/ntroduction/d;/preface/d;/alsa.xml/d;/xorg.xml/d' packages.tmp
-  sed -i '/obsolete/d;/postlfs-/d;/-client.xml/d;/xorg7.xml/d' packages.tmp
+  sed -i '/obsolete/d;/ispell\t/d;/postlfs-/d;/-client.xml/d;/xorg7.xml/d' packages.tmp
   sed -i '/courier.xml/d;/-other\t/d;/others-/d;/other-/d;/^ash\t/d' packages.tmp
   sed -i '/fw-firewall\t/d;/gcc2\t/d;/cvsserver\t/d;/svnserver\t/d' packages.tmp
   sed -i '/fam\t/d;/libungif\t/d;/ncpfs\t/d;/slrn\t/d;/konq\t/d' packages.tmp
-  sed -i '/gst-plugins\t/d;/openquicktime\t/d;/compressdoc\t/d' packages.tmp
+  sed -i '/gst-plugins\t/d;/gimp-print\t/d;/openquicktime\t/d;/compressdoc\t/d' packages.tmp
   sed -i '/errata\t/d;/foreword\t/d;/organization\t/d;/whoread\t/d' packages.tmp
 
   # Meta-packages version
