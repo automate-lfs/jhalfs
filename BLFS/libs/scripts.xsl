@@ -155,7 +155,7 @@ cd xc&#xA;</xsl:text>
         <xsl:text>
 if [[ -e unpacked ]] ; then
   UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
-  rm -rf $UNPACKDIR
+  [[ -n $UNPACKDIR ]] && [[ -d $UNPACKDIR ]] && rm -rf $UNPACKDIR
 fi
 tar -xvf $PACKAGE > unpacked
 UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
