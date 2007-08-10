@@ -447,11 +447,11 @@ mv ../${sect_ver}.md5.orig ../${sect_ver}.md5&#xA;</xsl:text>
   <xsl:template match="screen">
     <xsl:if test="child::* = userinput and not(@role = 'nodump')">
       <xsl:if test="@role = 'root' and $sudo = 'y'">
-        <xsl:text>sudo sh -c "</xsl:text>
+        <xsl:text>sudo sh -c '</xsl:text>
       </xsl:if>
       <xsl:apply-templates select="userinput"/>
       <xsl:if test="@role = 'root' and $sudo = 'y'">
-        <xsl:text>"</xsl:text>
+        <xsl:text>'</xsl:text>
       </xsl:if>
       <xsl:text>&#xA;</xsl:text>
     </xsl:if>
