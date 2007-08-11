@@ -50,6 +50,9 @@ get_installed_ver() {   # Find installed package version for a given package ID
     cdparanoia )
       find $TRACKING_DIR -name "${pkg_id}-III-[[:digit:]]*" | sed "s/.*${pkg_id}-//"
       ;;
+    ffmpeg )
+      find $TRACKING_DIR -name "${pkg_id}-svn_[[:digit:]]*" | sed "s/.*${pkg_id}-//"
+      ;;
     psutils )
       find $TRACKING_DIR -name "${pkg_id}-p[[:digit:]]*" | sed "s/.*${pkg_id}-//"
       ;;
