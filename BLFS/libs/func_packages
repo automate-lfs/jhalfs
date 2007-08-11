@@ -74,7 +74,10 @@ generate_packages()  {  # Master packages file
   # Extract Id and path for sect1 files
   for file in `find $BLFS_XML -name "*.xml"` ; do
     pkg_id=$(grep "sect1 id" $file | sed -e 's/<sect1 id="//;s/".*//')
-    pkg_ver=$(get_pkg_ver $pkg_id)
+    case ${pkg_id} in
+      dbus-bindings | perl-modules ) pkg_ver=0.no_version ;;
+      * )                            pkg_ver=$(get_pkg_ver $pkg_id) ;;
+    esac
     installed_ver=$(get_installed_ver $pkg_id)
     [[ ! -z "$pkg_id" ]] && echo -e "$pkg_id\t$file\t$pkg_ver\t$installed_ver" >> packages.tmp
   done
