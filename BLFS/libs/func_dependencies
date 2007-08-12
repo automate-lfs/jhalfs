@@ -203,7 +203,8 @@ inline_doc
               * )
                   pkg_ver=$(grep "^${X11}[[:space:]]" ../packages | cut -f3)
                   inst_ver=$(grep "^${X11}[[:space:]]" ../packages | cut -f4)
-                  [ -n "${pkg_ver}" ] && [ "x${pkg_ver}" = "x${inst_ver}" ] && continue
+                  [ -n "${pkg_ver}" ] && [[ "x${pkg_ver}" = "x${inst_ver}" ]] && continue
+                  [ -n "${pkg_ver}" ] && [[ "x${pkg_ver}" < "x${inst_ver}" ]] && continue
                   ;;
         esac
         ;;
@@ -212,7 +213,8 @@ inline_doc
     # If DEP has been previouly installed, skip it
     pkg_ver=$(grep "^${DEP}[[:space:]]" ../packages | cut -f3)
     inst_ver=$(grep "^${DEP}[[:space:]]" ../packages | cut -f4)
-    [ -n "${pkg_ver}" ] && [ "x${pkg_ver}" = "x${inst_ver}" ] && continue
+    [ -n "${pkg_ver}" ] && [[ "x${pkg_ver}" = "x${inst_ver}" ]] && continue
+    [ -n "${pkg_ver}" ] && [[ "x${pkg_ver}" < "x${inst_ver}" ]] && continue
 
     #------------------
     # Prevent circular dependencies
