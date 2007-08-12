@@ -51,7 +51,7 @@ do
       continue
     fi
       # Do not include installed packages newer than the book ones
-    if [ -n "${PKG_VER}" ] && [[ "x${PKG_VER}" = "x${INST_VER}" ]]; then
+    if [ -n "${PKG_VER}" ] && [[ "x${PKG_VER}" < "x${INST_VER}" ]]; then
       continue
     fi
       # Set installed version for updated meta-packages
@@ -83,9 +83,9 @@ EOF
            continue
          fi
           # Do not include installed packages newer than the book ones
-        if [ -n "${PKG_VER}" ] && [[ "x${PKG_VER}" = "x${INST_VER}" ]]; then
-          continue
-        fi
+         if [ -n "${PKG_VER}" ] && [[ "x${PKG_VER}" < "x${INST_VER}" ]]; then
+           continue
+         fi
            # Set installed version for updated meta-packages components
          [ -n "${INST_VER}" ] && INST_STRING="[installed ${INST_VER}]"
 (
@@ -126,7 +126,7 @@ EOF
     continue
   fi
     # Do not include installed packages newer than the book ones
-  if [ -n "${PKG_VER}" ] && [[ "x${PKG_VER}" = "x${INST_VER}" ]]; then
+  if [ -n "${PKG_VER}" ] && [[ "x${PKG_VER}" < "x${INST_VER}" ]]; then
     continue
   fi
     # Set installed version for updated packages
