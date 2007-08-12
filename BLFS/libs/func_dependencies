@@ -187,6 +187,8 @@ inline_doc
       hal-requirements | hal-runtime-dependencies ) continue ;;
       perl-* | tk-perl )         DEP=perl-modules ;;
       dbus-* )                   DEP=dbus-bindings ;;
+      pyxml | pycairo | pygobject | pygtk | pyorbit | \
+      gnome-python | gnome-python-desktop ) DEP=python-modules ;;
 
         # Orphan links (proper link must be created when generating the book)
       arts )                     DEP=aRts ;;
@@ -308,6 +310,18 @@ inline_doc
       postgresql )
         # cyrus-sasl-->postgresql-->$KBR5-->openldap-->cyrus-sasl
         [[ "$PKG" = "cyrus-sasl" ]] && continue
+        ;;
+      python-modules )
+        # True circular dependecy
+        [[ "$PKG" = "python-modules" ]] && continue
+        # libgsf-->python-modules-->several combinations-->libgsf
+        [[ "$PKG" = "libgsf" ]] && continue
+        # gimp-->python-modules-->several combinations-->gimp
+        [[ "$PKG" = "gimp" ]] && continue
+        # Used to rebuild the documentation
+        [[ "$PKG" = "gstreamer" ]] && continue
+        [[ "$PKG" = "gst-plugins-base" ]] && continue
+        [[ "$PKG" = "gst-plugins-good" ]] && continue
         ;;
       tk )
         # python-->tk-->xorg7-->several combinations-->libxslt-->python
