@@ -47,7 +47,11 @@ do
   if [ $PKG_DIR = "." ]; then
     SET_COMMENT=y
       # Do not include previously installed packages
-    if [ -n "${PKG_VER}" ] && [ "x${PKG_VER}" = "x${INST_VER}" ]; then
+    if [ -n "${PKG_VER}" ] && [[ "x${PKG_VER}" = "x${INST_VER}" ]]; then
+      continue
+    fi
+      # Do not include installed packages newer than the book ones
+    if [ -n "${PKG_VER}" ] && [[ "x${PKG_VER}" = "x${INST_VER}" ]]; then
       continue
     fi
       # Set installed version for updated meta-packages
@@ -75,9 +79,13 @@ EOF
          PKG_VER=$(grep "^${PKG_NAME}[[:space:]]" $inFile | cut -f3)
          INST_VER=$(grep "^${PKG_NAME}[[:space:]]" $inFile | cut -f4)
            # Skip installed meta-package components
-         if [ -n "${PKG_VER}" ] && [ "x${PKG_VER}" = "x${INST_VER}" ]; then
+         if [ -n "${PKG_VER}" ] && [[ "x${PKG_VER}" = "x${INST_VER}" ]]; then
            continue
          fi
+          # Do not include installed packages newer than the book ones
+        if [ -n "${PKG_VER}" ] && [[ "x${PKG_VER}" = "x${INST_VER}" ]]; then
+          continue
+        fi
            # Set installed version for updated meta-packages components
          [ -n "${INST_VER}" ] && INST_STRING="[installed ${INST_VER}]"
 (
@@ -114,7 +122,11 @@ EOF
   esac
 
     # Skip installed packages
-  if [ -n "${PKG_VER}" ] && [ "x${PKG_VER}" = "x${INST_VER}" ]; then
+  if [ -n "${PKG_VER}" ] && [[ "x${PKG_VER}" = "x${INST_VER}" ]]; then
+    continue
+  fi
+    # Do not include installed packages newer than the book ones
+  if [ -n "${PKG_VER}" ] && [[ "x${PKG_VER}" = "x${INST_VER}" ]]; then
     continue
   fi
     # Set installed version for updated packages
