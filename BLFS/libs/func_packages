@@ -27,13 +27,12 @@ get_pkg_ver() {         # Find package version for a given package ID
     wireless_tools ) pkg_id=wireless-tools ;;
         bind-utils ) pkg_id=bind ;;
          html-tidy ) pkg_id=tidy ;;
-               jdk ) pkg_id=jdk-src ;;
           reiserfs ) pkg_id=reiser ;;
                xfs ) pkg_id=xfsprogs ;;
   esac
 
   xmllint --noent ./${BLFS_XML}/book/bookinfo.xml 2>/dev/null | \
-  grep -i " ${pkg_id}-version " | cut -d "\"" -f2
+  grep -i " ${pkg_id}-version " | cut -d "\"" -f2 | sed "s/ /_/g"
 
 }
 
@@ -57,7 +56,7 @@ get_installed_ver() {   # Find installed package version for a given package ID
       find $TRACKING_DIR -name "${pkg_id}-p[[:digit:]]*" | sed "s/.*${pkg_id}-//"
       ;;
     * )
-      find $TRACKING_DIR -name "${pkg_id}-[[:digit:]]*" | sed "s/.*${pkg_id}-//"
+      find $TRACKING_DIR -name "${pkg_id}-[[:digit:]]*" | sed "s/.*${pkg_id}-//" | sed "s/ /_/g"
       ;;
   esac
 
