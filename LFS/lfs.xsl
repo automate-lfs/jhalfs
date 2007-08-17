@@ -105,7 +105,11 @@
           <xsl:copy-of select="//sect1[@id='ch-system-glibc']/sect2[2]/screen[@role='nodump']"/>
           <xsl:text>&#xA;</xsl:text>
         </xsl:if>
-        <xsl:text>exit</xsl:text>
+        <xsl:if test="not(@id='ch-system-chroot') and
+                      not(@id='ch-system-revisedchroot')">
+          <xsl:text>echo -e "\n\nTotalseconds: $SECONDS\n"&#xA;</xsl:text>
+        </xsl:if>
+        <xsl:text>exit&#xA;</xsl:text>
       </exsl:document>
     </xsl:if>
   </xsl:template>

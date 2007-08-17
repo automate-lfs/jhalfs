@@ -112,6 +112,9 @@
               </xsl:if>
             </xsl:if>
             <xsl:apply-templates select=".//para/userinput | .//screen"/>
+            <xsl:if test="not(@id='ch-chroot-chroot')">
+              <xsl:text>echo -e "\n\nTotalseconds: $SECONDS\n"&#xA;</xsl:text>
+            </xsl:if>
             <xsl:text>exit</xsl:text>
           </exsl:document>
         </xsl:if>

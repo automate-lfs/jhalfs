@@ -64,17 +64,21 @@ endef
 define remove_existing_dirs
   @PKG_PATH=`ls -t $(SRCSDIR)/$(1) | head -n1` && \
   ROOT=`tar -tf $$PKG_PATH | head -n1 | sed -e 's@^./@@;s@/.*@@'` && \
-  test -n "$$ROOT" -a -d $(SRCSDIR)/$$ROOT && \
-  rm -rf $(SRCSDIR)/$$ROOT && \
-  rm -rf $(SRCSDIR)/$${ROOT%-*}-build
+  [ -n "$$ROOT" ] && \
+  if [ -d $(SRCDIR)/$$ROOT ]; then \
+    rm -rf $(SRCSDIR)/$$ROOT && \
+    rm -rf $(SRCSDIR)/$${ROOT%-*}-build; \
+  fi;
 endef
 
 define remove_existing_dirs2
   @PKG_PATH=`ls -t $(SRC)/$(1) | head -n1` && \
   ROOT=`tar -tf $$PKG_PATH | head -n1 | sed -e 's@^./@@;s@/.*@@'` && \
-  test -n "$$ROOT" -a -d $(SRC)/$$ROOT && \
-  rm -rf $(SRC)/$$ROOT && \
-  rm -rf $(SRC)/$${ROOT%-*}-build
+  [ -n "$$ROOT" ] && \
+  if [ -d $(SRC)/$$ROOT ]; then \
+    rm -rf $(SRC)/$$ROOT && \
+    rm -rf $(SRC)/$${ROOT%-*}-build; \
+  fi;
 endef
 
 #==#

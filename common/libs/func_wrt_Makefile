@@ -40,8 +40,6 @@ SU_LUSER       = su - \$(LUSER) -c
 LUSER_HOME     = \$(LHOME)/\$(LUSER)
 PRT_DU         = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) --exclude=lost+found \$(MOUNT_PT) \`\n"
 PRT_DU_CR      = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) --exclude=lost+found / \`\n"
-TIME_MARK      = \`date +%s.%N\`
-BUILD_TIME     = perl -e "printf \"\nTotalseconds: %.3f\", ('\$\$end' - '\$\$start')"
 
 ADD_REPORT       = $REPORT
 ADD_CUSTOM_TOOLS = $CUSTOM_TOOLS
@@ -234,10 +232,8 @@ wrt_RunAsRoot() {                  # Some scripts must be run as root..
 
 (
 cat << EOF
-	@start=\$(TIME_MARK) && \\
-	export ${MOUNT_ENV}=\$(MOUNT_PT) && \\
+	@export ${MOUNT_ENV}=\$(MOUNT_PT) && \\
 	${PROGNAME}-commands/`dirname $file`/\$@ >>logs/\$@ 2>&1 && \\
-	end=\$(TIME_MARK) && \$(BUILD_TIME) >>logs/\$@ && \\
 	\$(PRT_DU) >>logs/\$@
 EOF
 ) >> $MKFILE.tmp
@@ -250,10 +246,8 @@ LUSER_wrt_RunAsUser() {            # Calculate time with perl, footer to log fil
 
 (
 cat << EOF
-	@start=\$(TIME_MARK) && \\
-	source ~/.bashrc && \\
+	@source ~/.bashrc && \\
 	\$(CMDSDIR)/`dirname $file`/\$@ >> logs/\$@ 2>&1 && \\
-	end=\$(TIME_MARK) && \$(BUILD_TIME) >>logs/\$@ && \\
 	\$(PRT_DU) >>logs/\$@
 EOF
 ) >> $MKFILE.tmp
@@ -265,10 +259,8 @@ CHROOT_wrt_RunAsRoot() {           #
   local file=$1
 (
 cat << EOF
-	@start=\$(TIME_MARK) && \\
-	source envars && \\
+	@source envars && \\
 	\$(crCMDSDIR)/`dirname $file`/\$@ >>logs/\$@ 2>&1 && \\
-	end=\$(TIME_MARK) && \$(BUILD_TIME) >>logs/\$@ && \\
 	\$(PRT_DU_CR) >>logs/\$@
 EOF
 ) >> $MKFILE.tmp
@@ -285,9 +277,7 @@ LUSER_wrt_CopyFstab() {            #
 #----------------------------------#
 (
 cat << EOF
-	@start=\$(TIME_MARK) && \\
-	cp -v \$(MOUNT_PT)/sources/fstab \$(MOUNT_PT)/etc/fstab >>logs/\$@ 2>&1 && \\
-	end=\$(TIME_MARK) && \$(BUILD_TIME) >>logs/\$@ && \\
+	@cp -v \$(MOUNT_PT)/sources/fstab \$(MOUNT_PT)/etc/fstab >>logs/\$@ 2>&1 && \\
 	\$(PRT_DU) >>logs/\$@
 EOF
 ) >> $MKFILE.tmp
@@ -298,9 +288,7 @@ CHROOT_wrt_CopyFstab() {           #
 #----------------------------------#
 (
 cat << EOF
-	@start=\$(TIME_MARK) && \\
-	cp -v /sources/fstab /etc/fstab >>logs/\$@ 2>&1 && \\
-	end=\$(TIME_MARK) && \$(BUILD_TIME) >>logs/\$@ && \\
+	@cp -v /sources/fstab /etc/fstab >>logs/\$@ 2>&1 && \\
 	\$(PRT_DU_CR) >>logs/\$@
 EOF
 ) >> $MKFILE.tmp
