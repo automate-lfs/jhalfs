@@ -111,13 +111,13 @@
              <xsl:text>pushd ../; tar -xvf gettext-&gettext-version;.*; popd; &#xA;</xsl:text>
           </xsl:if>
           <!-- SVN toolchain format, from inside ./sources dir unpack binutils and gcc -->
-	  <xsl:if test="@id='ch-tools-embryo-toolchain' or
+          <xsl:if test="@id='ch-tools-embryo-toolchain' or
                         @id='ch-tools-cocoon-toolchain' or
                         @id='ch-system-butterfly-toolchain'">
              <xsl:text>tar -xvf gcc-core-&gcc-version;.*; &#xA;</xsl:text>
              <xsl:text>tar -xvf binutils-&binutils-version;.*; &#xA;</xsl:text>
           </xsl:if>
-	  <xsl:if test="@id='ch-tools-cocoon-toolchain' or
+          <xsl:if test="@id='ch-tools-cocoon-toolchain' or
                         @id='ch-system-butterfly-toolchain'">
              <xsl:text>tar -xvf gcc-g++-&gcc-version;.*; &#xA;</xsl:text>
           </xsl:if>
@@ -128,6 +128,10 @@
           <!-- END SVN toolchain format -->
         </xsl:if>
         <xsl:apply-templates select=".//para/userinput | .//screen"/>
+        <xsl:if test="not(@id='ch-system-chroot') and
+                      not(@id='ch-system-revisedchroot')">
+          <xsl:text>echo -e "\n\nTotalseconds: $SECONDS\n"&#xA;</xsl:text>
+        </xsl:if>
         <xsl:text>exit</xsl:text>
       </exsl:document>
     </xsl:if>

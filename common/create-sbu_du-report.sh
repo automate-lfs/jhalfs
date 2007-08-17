@@ -53,7 +53,7 @@ BUILDLOGS="`grep -l "^Totalseconds:" ${LOGSDIR}/*`"
 # Match the first timed log to extract the SBU unit value from it
 BASELOG=`grep -l "^Totalseconds:" $LOGSDIR/* | head -n1`
 echo -e "\nUsing ${BASELOG#*[[:digit:]]-} to obtain the SBU unit value."
-SBU_UNIT=`sed -n 's/^Totalseconds:\s\([[:digit:]]*.[[:digit:]]*\)$/\1/p' $BASELOG`
+SBU_UNIT=`sed -n 's/^Totalseconds:\s\([[:digit:]]*\)$/\1/p' $BASELOG`
 echo -e "\nThe SBU unit value is equal to $SBU_UNIT seconds.\n"
 echo -e "\n\n$LINE\n\nThe SBU unit value is equal to $SBU_UNIT seconds.\n" >> "$REPORT"
 
@@ -70,13 +70,13 @@ for log in $BUILDLOGS ; do
 
 # Start SBU calculation
 # Build time
-  TIME=`sed -n 's/^Totalseconds:\s\([[:digit:]]*.[[:digit:]]*\)$/\1/p' $log`
+  TIME=`sed -n 's/^Totalseconds:\s\([[:digit:]]*\)$/\1/p' $log`
   SECS=`perl -e 'print ('$TIME' % '60')';`
   MINUTES=`perl -e 'printf "%.0f" , (('$TIME' - '$SECS') / '60')';`
-  SBU=`perl -e 'printf "%.3f" , ('$TIME' / '$SBU_UNIT')';`
+  SBU=`perl -e 'printf "%.1f" , ('$TIME' / '$SBU_UNIT')';`
 
 # Append SBU value to SBU2 for grand total
-  SBU2=`perl -e 'printf "%.3f" , ('$SBU2' + '$SBU')';`
+  SBU2=`perl -e 'printf "%.1f" , ('$SBU2' + '$SBU')';`
 
 # Start disk usage calculation
 # Disk usage before unpacking the package
