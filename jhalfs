@@ -42,7 +42,7 @@ simple_error() {        # Basic error trap.... JUST DIE
 }
 
 see_ya() {
-    echo -e "\n${L_arrow}${BOLD}jhalfs branch-2.3.x${R_arrow} exit${OFF}\n"
+    echo -e "\n${L_arrow}${BOLD}jhalfs 2.3.1${R_arrow} exit${OFF}\n"
 }
 ##### Simple error TRAPS
 # ctrl-c   SIGINT
@@ -62,7 +62,7 @@ trap 'echo -e "\n\n${RED}INTERRUPT${OFF} trapped\n" &&  exit 2'  1 2 3 15 17 18 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 version="
-${BOLD}  \"jhalfs branch-2.3.x\"${OFF} builder tool (bug-fixes branch) \$Rev$
+${BOLD}  \"jhalfs 2.3.1\"${OFF} builder tool (stable) \$Rev$
   \$Date$
 
   Written by George Boudreau and Manuel Canales Esparcia,
