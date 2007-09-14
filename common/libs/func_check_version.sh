@@ -93,7 +93,7 @@ check_prerequisites() {      #
   check_version "2.8"     "$(diff --version  | head -n1 | cut -d" " -f4)"      "DIFF"
   check_version "4.1.20"  "$(find --version  | head -n1 | cut -d" " -f4)"      "FIND"
   check_version "3.0"     "$(gawk --version  | head -n1 | cut -d" " -f3)"      "GAWK"
-  check_version "2.5"     "$(grep --version  | head -n1 | cut -d" " -f4)"      "GREP"
+  check_version "2.5"     "$(grep --version  | head -n1 | awk '{print $NF}')"  "GREP"
   check_version "1.2.4"   "$(gzip --version 2>&1 | head -n1 | cut -d" " -f2)"  "GZIP"
   check_version "3.79.1"  "$(make --version  | head -n1 | cut -d " " -f3 | cut -c1-4)"  "MAKE"
   check_version "2.5.4"   "$(patch --version | head -n1 | cut -d" " -f2)"      "PATCH"
