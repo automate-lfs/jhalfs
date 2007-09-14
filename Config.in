@@ -723,6 +723,9 @@ menu "--- General Settings"
 		default "/mnt/build_dir"
 		help
 			#-- The directory where the created system will be located.
+			#   NOTE: A working directory named jhalfs will be created
+			#   here, so ensure this does not conflict with the jhalfs
+			#   source directory.
 
 	config	GETPKG
 		bool "Retrieve source files"

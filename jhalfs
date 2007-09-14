@@ -119,6 +119,14 @@ SET_WARNINGS=${SET_WARNINGS:=n}
 SET_MISC=${SET_MISC:=n}
 SET_BLOWFISH=${SET_BLOWFISH:=n}
 
+# Sanity check on the location of $BUILDDIR / $JHALFSDIR
+CWD=$(cd `dirname $0` && pwd)
+if [[ $JHALFSDIR == $CWD ]]; then
+    echo " The jhalfs source directory conflicts with the jhalfs build directory."
+    echo " Please move the source directory or change the build directory."
+    exit 2
+fi
+
 # Book surces envars
 BRANCH_ID=${BRANCH_ID:=development}
 
