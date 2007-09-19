@@ -13,6 +13,8 @@
 
 <!-- XSLT stylesheet to create shell scripts from LFS books. -->
 
+<!-- ####################### PARAMETERS ################################### -->
+
   <!-- Run test suites?
        0 = none
        1 = only chapter06 Glibc, GCC and Binutils testsuites
@@ -36,83 +38,180 @@
   <!-- Page size -->
   <xsl:param name="page" select="letter"/>
 
-  <!-- Locale settings -->
+  <!-- Locale setting -->
   <xsl:param name="lang" select="C"/>
 
-  <xsl:template match="/">
-    <xsl:apply-templates select="//sect1"/>
+<!-- ####################################################################### -->
+
+<!-- ########################### NAMED TEMPLATES ########################### -->
+
+    <!-- Chapter directory name (the same used for HTML output) -->
+  <xsl:template name="dirname">
+    <xsl:variable name="pi-dir" select="processing-instruction('dbhtml')"/>
+    <xsl:variable name="pi-dir-value" select="substring-after($pi-dir,'dir=')"/>
+    <xsl:variable name="quote-dir" select="substring($pi-dir-value,1,1)"/>
+    <xsl:variable name="dirname" select="substring-before(substring($pi-dir-value,2),$quote-dir)"/>
+    <xsl:value-of select="$dirname"/>
   </xsl:template>
 
-  <xsl:template match="sect1">
-    <xsl:if test="(../@id='chapter-temporary-tools' or
-                  ../@id='chapter-building-system' or
-                  ../@id='chapter-bootscripts' or
-                  ../@id='chapter-bootable') and
-                  count(descendant::screen/userinput) &gt; 0 and
-                  count(descendant::screen/userinput) &gt;
-                  count(descendant::screen[@role='nodump'])">
-        <!-- The dirs names -->
-      <xsl:variable name="pi-dir" select="../processing-instruction('dbhtml')"/>
-      <xsl:variable name="pi-dir-value" select="substring-after($pi-dir,'dir=')"/>
-      <xsl:variable name="quote-dir" select="substring($pi-dir-value,1,1)"/>
-      <xsl:variable name="dirname" select="substring-before(substring($pi-dir-value,2),$quote-dir)"/>
-        <!-- The file names -->
-      <xsl:variable name="pi-file" select="processing-instruction('dbhtml')"/>
-      <xsl:variable name="pi-file-value" select="substring-after($pi-file,'filename=')"/>
-      <xsl:variable name="filename" select="substring-before(substring($pi-file-value,2),'.html')"/>
-        <!-- The build order -->
-      <xsl:variable name="position" select="position()"/>
-      <xsl:variable name="order">
+
+    <!-- Base file name (the same used for HTML output) -->
+  <xsl:template name="filename">
+    <xsl:variable name="pi-file" select="processing-instruction('dbhtml')"/>
+    <xsl:variable name="pi-file-value" select="substring-after($pi-file,'filename=')"/>
+    <xsl:variable name="filename" select="substring-before(substring($pi-file-value,2),'.html')"/>
+    <xsl:value-of select="$filename"/>
+  </xsl:template>
+
+
+    <!-- Script header -->
+  <xsl:template name="header">
+    <xsl:choose>
+      <xsl:when test="@id='ch-system-creatingdirs' or
+                      @id='ch-system-createfiles' or
+                      @id='ch-system-strippingagain'">
+        <xsl:text>#!/tools/bin/bash&#xA;</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>#!/bin/bash&#xA;</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
+
+    <xsl:text>set +h&#xA;</xsl:text>
+
+    <xsl:if test="not(@id='ch-tools-stripping') and
+                  not(@id='ch-system-strippingagain')">
+      <xsl:text>set -e&#xA;</xsl:text>
+    </xsl:if>
+
+    <xsl:text>&#xA;</xsl:text>
+  </xsl:template>
+
+
+    <!-- Extra previous commands needed by the book but not inside screen tags -->
+  <xsl:template name="pre_commands">
+    <xsl:if test="sect2[@role='installation']">
+      <xsl:text>cd $PKGDIR&#xA;</xsl:text>
+    </xsl:if>
+    <xsl:if test="@id='ch-system-vim' and $vim-lang = 'y'">
+      <xsl:text>tar -xvf ../vim-&vim-version;-lang.* --strip-components=1&#xA;</xsl:text>
+    </xsl:if>
+  </xsl:template>
+
+
+    <!-- Extra post commands needed by the book but not inside screen tags -->
+  <xsl:template name="post_commands">
+    <xsl:if test="$testsuite='3' and @id='ch-tools-glibc'">
+      <xsl:copy-of select="//userinput[@remap='locale-test']"/>
+      <xsl:text>&#xA;</xsl:text>
+    </xsl:if>
+  </xsl:template>
+
+
+    <!-- Script footer -->
+  <xsl:template name="footer">
+    <xsl:if test="not(@id='ch-system-chroot') and
+                  not(@id='ch-system-revisedchroot')">
+      <xsl:text>echo -e "\n\nTotalseconds: $SECONDS\n"&#xA;</xsl:text>
+    </xsl:if>
+
+    <xsl:text>exit&#xA;</xsl:text>
+  </xsl:template>
+
+<!-- ######################################################################## -->
+
+<!-- ############################# MATCH TEMPLATES ########################## -->
+
+    <!-- Root element -->
+  <xsl:template match="/">
+    <xsl:apply-templates select="//chapter"/>
+  </xsl:template>
+
+
+    <!-- chapter -->
+  <xsl:template match="chapter">
+    <xsl:if test="@id='chapter-temporary-tools' or @id='chapter-building-system'
+                  or @id='chapter-bootscripts' or @id='chapter-bootable'">
+
+        <!-- The dir name -->
+      <xsl:variable name="dirname">
+        <xsl:call-template name="dirname"/>
+      </xsl:variable>
+
+        <!-- The chapter order position -->
+      <xsl:variable name="ch_position" select="position()"/>
+      <xsl:variable name="ch_order">
         <xsl:choose>
-          <xsl:when test="string-length($position) = 1">
-            <xsl:text>00</xsl:text>
-            <xsl:value-of select="$position"/>
-          </xsl:when>
-          <xsl:when test="string-length($position) = 2">
+          <xsl:when test="string-length($ch_position) = 1">
             <xsl:text>0</xsl:text>
-            <xsl:value-of select="$position"/>
+            <xsl:value-of select="$ch_position"/>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:value-of select="$position"/>
+            <xsl:value-of select="$ch_position"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
-        <!-- Creating dirs and files -->
-      <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
-        <xsl:choose>
-          <xsl:when test="@id='ch-system-creatingdirs' or
-                    @id='ch-system-createfiles' or
-                    @id='ch-system-strippingagain'">
-            <xsl:text>#!/tools/bin/bash&#xA;set +h&#xA;</xsl:text>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:text>#!/bin/bash&#xA;set +h&#xA;</xsl:text>
-          </xsl:otherwise>
-        </xsl:choose>
-        <xsl:if test="not(@id='ch-tools-stripping') and
-                      not(@id='ch-system-strippingagain')">
-          <xsl:text>set -e&#xA;</xsl:text>
-        </xsl:if>
-        <xsl:text>&#xA;</xsl:text>
-        <xsl:if test="sect2[@role='installation']">
-          <xsl:text>cd $PKGDIR&#xA;</xsl:text>
-          <xsl:if test="@id='ch-system-vim' and $vim-lang = 'y'">
-            <xsl:text>tar -xvf ../vim-&vim-version;-lang.* --strip-components=1&#xA;</xsl:text>
-          </xsl:if>
-        </xsl:if>
-        <xsl:apply-templates select=".//screen"/>
-        <xsl:if test="$testsuite='3' and @id='ch-tools-glibc'">
-          <xsl:copy-of select="//userinput[@remap='locale-test']"/>
-          <xsl:text>&#xA;</xsl:text>
-        </xsl:if>
-        <xsl:if test="not(@id='ch-system-chroot') and
-                      not(@id='ch-system-revisedchroot')">
-          <xsl:text>echo -e "\n\nTotalseconds: $SECONDS\n"&#xA;</xsl:text>
-        </xsl:if>
-        <xsl:text>exit&#xA;</xsl:text>
-      </exsl:document>
+
+      <xsl:apply-templates select="sect1">
+        <xsl:with-param name="ch_order" select="$ch_order"/>
+        <xsl:with-param name="dirname" select="$dirname"/>
+      </xsl:apply-templates>
+
     </xsl:if>
   </xsl:template>
+
+
+    <!-- sect1 -->
+  <xsl:template match="sect1">
+
+      <!-- Inherited chapter order -->
+    <xsl:param name="ch_order" select="foo"/>
+
+      <!-- Inherited dir name -->
+    <xsl:param name="dirname" select="foo"/>
+
+    <xsl:if test="count(descendant::screen/userinput) &gt; 0 and
+                  count(descendant::screen/userinput) &gt;
+                  count(descendant::screen[@role='nodump'])">
+
+        <!-- Base file name -->
+      <xsl:variable name="filename">
+        <xsl:call-template name="filename"/>
+      </xsl:variable>
+
+        <!-- Sect1 order position -->
+      <xsl:variable name="sect1_position" select="position()"/>
+      <xsl:variable name="sect1_order">
+        <xsl:choose>
+          <xsl:when test="string-length($sect1_position) = 1">
+            <xsl:text>0</xsl:text>
+            <xsl:value-of select="$sect1_position"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$sect1_position"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+
+        <!-- Script build order -->
+      <xsl:variable name="order" select="concat($ch_order,'_',$sect1_order)"/>
+
+        <!-- Creating dirs and files -->
+      <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
+        <xsl:call-template name="header"/>
+        <xsl:call-template name="pre_commands"/>
+        <xsl:apply-templates select=".//screen"/>
+        <xsl:call-template name="post_commands"/>
+        <xsl:call-template name="footer"/>
+      </exsl:document>
+
+    </xsl:if>
+  </xsl:template>
+
+
+
+
+
 
   <xsl:template match="screen">
     <xsl:if test="child::* = userinput and not(@role = 'nodump')">
