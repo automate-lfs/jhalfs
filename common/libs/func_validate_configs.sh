@@ -12,27 +12,61 @@ validate_config() {          # Are the config values sane (within reason)
 
     input vars: none
     externals:  color constants
-                PROGNAME (lfs,clfs,hlfs)
+                PROGNAME (lfs,hlfs,clfs,clfs2,clfs3,blfs)
     modifies:   none
     returns:    nothing
     on error:   write text to console and dies
     on success: write text to console and returns
 inline_doc
 
-  # First internal variables, then the ones that change the book's flavour, and lastly system configuration variables
-  local -r  hlfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE MODEL  GRSECURITY_HOST      TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL         PAGE TIMEZONE LANG LC_ALL LUSER LGROUP BLFS_TOOL"
-  local -r  clfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE METHOD ARCH TARGET TARGET32 TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB BOOT_CONFIG CONFIG GETKERNEL VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP BLFS_TOOL"
-  local -r clfs2_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE        ARCH TARGET                         OPTIMIZE REPORT                                      STRIP FSTAB             CONFIG GETKERNEL VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP BLFS_TOOL"
-  local -r   lfs_PARAM_LIST="BOOK BUILDDIR SRC_ARCHIVE GETPKG RUNMAKE                             TEST BOMB_TEST OPTIMIZE REPORT COMPARE RUN_ICA RUN_FARCE ITERATIONS STRIP FSTAB             CONFIG GETKERNEL VIMLANG PAGE TIMEZONE LANG        LUSER LGROUP BLFS_TOOL CUSTOM_TOOLS"
+  # Common settings by Config.in sections and books family
+  local -r     BOOK_common="BOOK CUSTOM_TOOLS"
+  local -r      BOOK_clfsX="ARCH TARGET"
+  local -r  GENERAL_common="LUSER LGROUP LHOME BUILDDIR CLEAN GETPKG SRC_ARCHIVE \
+                            SERVER GETKERNEL RUNMAKE"
+  local -r    BUILD_chroot="TEST BOMB_TEST STRIP"
+  local -r    BUILD_common="FSTAB CONFIG TIMEZONE PAGE LANG INSTALL_LOG"
+  local -r ADVANCED_chroot="COMPARE RUN_ICA RUN_FARCE ITERATIONS OPTIMIZE"
+  local -r ADVANCED_common="REPORT REBUILD_MAKEFILE"
+
+  # BOOK Settings by book
+  local -r   LFS_book="$BOOK_common BLFS_TOOL"
+  #local -r HLFS_added="SET_SSP SET_ASLR SET_PAX SET_HARDENED_TMP SET_WARNINGS \
+  #                     SET_MISC SET_BLOWFISH"
+  local -r HLFS_added=""
+  local -r  HLFS_book="$BOOK_common BLFS_TOOL MODEL KERNEL GRSECURITY_HOST $HLFS_added"
+  local -r  CLFS_book="$BOOK_common BLFS_TOOL METHOD $BOOK_clfsX TARGET32 BOOT_CONFIG"
+  local -r CLFS2_book="$BOOK_common BLFS_TOOL        $BOOK_clfsX"
+  local -r CLFS3_book="$BOOK_common                  $BOOK_clfsX PLATFORM MIPS_LEVEL"
+
+  # Build Settings by book
+  local -r   LFS_build="$BUILD_chroot VIMLANG $BUILD_common"
+  local -r  HLFS_build="$BUILD_chroot         $BUILD_common"
+  local -r  CLFS_build="$BUILD_chroot VIMLANG $BUILD_common"
+  local -r CLFS2_build="STRIP         VIMLANG $BUILD_common"
+  local -r CLFS3_build="                      $BUILD_common"
+
+  # Full list of books settings
+  local -r   lfs_PARAM_LIST="$LFS_book   $GENERAL_common $LFS_build   $ADVANCED_chroot $ADVANCED_common"
+  local -r  hlfs_PARAM_LIST="$HLFS_book  $GENERAL_common $HLFS_build  $ADVANCED_chroot $ADVANCED_common"
+  local -r  clfs_PARAM_LIST="$CLFS_book  $GENERAL_common $CLFS_build  $ADVANCED_chroot $ADVANCED_common"
+  local -r clfs2_PARAM_LIST="$CLFS2_book $GENERAL_common $CLFS2_build                  $ADVANCED_common"
+  local -r clfs3_PARAM_LIST="$CLFS3_book $GENERAL_common $CLFS3_build                  $ADVANCED_common"
   local -r  blfs_PARAM_LIST="BRANCH_ID BLFS_ROOT BLFS_XML TRACKING_DIR"
 
-  local -r  blfs_tool_PARAM_LIST="BLFS_BRANCH_ID BLFS_ROOT BLFS_XML TRACKING_DIR DEP_LIBXML DEP_LIBXSLT DEP_TIDY DEP_UNZIP DEP_DBXML DEP_DBXSL DEP_LINKS DEP_SUDO DEP_WGET DEP_SVN DEP_GPM"
+  # Additional variables (add DEP_DBXSL when required again)
+  local -r blfs_tool_PARAM_LIST="BLFS_BRANCH_ID BLFS_ROOT BLFS_XML TRACKING_DIR \
+                                 DEP_LIBXML DEP_LIBXSLT DEP_TIDY DEP_UNZIP \
+                                 DEP_DBXML DEP_LYNX DEP_SUDO DEP_WGET \
+                                 DEP_SVN DEP_GPM"
+  local -r custom_tool_PARAM_LIST="TRACKING_DIR"
 
+  # Internal variables
   local -r ERROR_MSG_pt1='The variable \"${L_arrow}${config_param}${R_arrow}\" value ${L_arrow}${BOLD}${!config_param}${R_arrow} is invalid,'
   local -r ERROR_MSG_pt2='rerun make and fix your configuration settings${OFF}'
   local -r PARAM_VALS='${config_param}${dotSTR:${#config_param}} ${L_arrow}${BOLD}${!config_param}${OFF}${R_arrow}'
 
-  local    PARAM_LIST=
+  local PARAM_LIST=
   local config_param
   local validation_str
   local save_param
@@ -97,23 +131,6 @@ inline_doc
   PARAM_GROUP=${PROGNAME}_PARAM_LIST
   for config_param in ${!PARAM_GROUP}; do
     case $config_param in
-      # Allways display this, if found in ${PROGNAME}_PARAM_LIST
-      GETPKG          | \
-      RUNMAKE         | \
-      TEST            | \
-      OPTIMIZE        | \
-      STRIP           | \
-      VIMLANG         | \
-      MODEL           | \
-      METHOD          | \
-      ARCH            | \
-      TARGET          | \
-      GRSECURITY_HOST | \
-      BLFS_TOOL       | \
-      CUSTOM_TOOLS    | \
-      TIMEZONE        | \
-      PAGE)   echo -e "`eval echo $PARAM_VALS`" ;;
-
       # Envvars that depend on other settings to be displayed
       GETKERNEL ) if [[ -z "$CONFIG" ]] && [[ -z "$BOOT_CONFIG" ]] ; then
                     [[ "$GETPKG" = "y" ]] && echo -e "`eval echo $PARAM_VALS`"
@@ -124,6 +141,8 @@ inline_doc
       ITERATIONS) [[ "$COMPARE" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
       BOMB_TEST)  [[ ! "$TEST" = "0" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
       TARGET32)   [[ -n "${TARGET32}" ]] &&  echo -e "`eval echo $PARAM_VALS`" ;;
+      MIPS_LEVEL) [[ "${ARCH}" = "mips" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
+      SERVER)     [[ "$GETPKG" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
 
       # Envars that requires some validation
       LUSER)      echo -e "`eval echo $PARAM_VALS`"
@@ -132,32 +151,21 @@ inline_doc
       LGROUP)     echo -e "`eval echo $PARAM_VALS`"
                   [[ "${!config_param}" = "**EDIT ME**" ]] && write_error_and_die
                   ;;
-      REPORT)     echo -e "`eval echo $PARAM_VALS`"
-                  if [[ "${!config_param}" = "y" ]]; then
-                    if [[ `type -p bc` ]]; then
-                      continue
-                    else
-                      echo -e "  ${BOLD}The bc binary was not found${OFF}"
-                      echo -e "  The SBU and disk usage report creation will be skiped"
-                      REPORT=n
-                      continue
-                    fi
-                  fi ;;
-
         # BOOK validation. Very ugly, need be fixed
       BOOK)        if [[ "${WORKING_COPY}" = "y" ]] ; then
                      validate_dir -z -d
                    else
                      echo -e "`eval echo $PARAM_VALS`"
-                   fi ;;
-
+                   fi
+                  ;;
         # Validate directories, testable states:
         #  fatal   -z -d -w,
         #  warning -z+   -w+
       SRC_ARCHIVE) [[ "$GETPKG" = "y" ]] && validate_dir -z+ -d -w+ ;;
         # The build directory/partition MUST exist and be writable by the user
       BUILDDIR)   validate_dir -z -d -w
-                  [[ "xx x/x" =~ "x${!config_param}x" ]] && write_error_and_die ;;
+                  [[ "xx x/x" =~ x${!config_param}x ]] && write_error_and_die ;;
+      LHOME)      validate_dir -z -d ;;
 
         # Validate files, testable states:
         #  fatal   -z -e -s -w -x -r,
@@ -166,9 +174,8 @@ inline_doc
       CONFIG)      validate_file -z+ -e -s ;;
       BOOT_CONFIG) [[ "${METHOD}" = "boot" ]] && validate_file -z -e -s ;;
 
-        # Treatment of 'special' parameters
-      LANG | \
-      LC_ALL)  # See it the locale values exist on this machine
+        # Treatment of LANG parameter
+      LANG )  # See it the locale value has been set
                echo -n "`eval echo $PARAM_VALS`"
                [[ -z "${!config_param}" ]] &&
                  echo " -- Variable $config_param cannot be empty!" &&
@@ -180,12 +187,21 @@ inline_doc
       BRANCH_ID | BLFS_ROOT | BLFS_XML )  echo "`eval echo $PARAM_VALS`" ;;
       TRACKING_DIR ) validate_dir -z -d -w ;;
 
+      # Display non-validated envars found in ${PROGNAME}_PARAM_LIST
+      * ) echo -e "`eval echo $PARAM_VALS`" ;;
+
     esac
   done
 
   if [[ "${BLFS_TOOL}" = "y" ]] ; then
     echo "${nl_}    ${BLUE}blfs-tool settings${OFF}"
     for config_param in ${blfs_tool_PARAM_LIST}; do
+      echo -e "`eval echo $PARAM_VALS`"
+    done
+  fi
+
+  if [[ "${CUSTOM_TOOLS}" = "y" ]] && [[ "${BLFS_TOOL}" = "n" ]]  ; then
+    for config_param in ${custom_tool_PARAM_LIST}; do
       echo -e "`eval echo $PARAM_VALS`"
     done
   fi

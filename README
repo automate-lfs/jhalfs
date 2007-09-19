@@ -24,6 +24,9 @@ $Id$
   configuration of the uClibc package when building a HLFS system using
   uClibc rather than glibc.
 
+  *.  Read carefully this file and the other README.* files before start
+  using the tool.
+
 2. PREREQUISITES::
 
      To use this tool you MUST:
@@ -43,23 +46,17 @@ $Id$
 
 4. CONFIGURATION::
 
-     ::NEWS::
-         There is a new configuration method for jhalfs.
-
      We have installed the familiar menu based configuration tool driven by
      GNU make. see the section RUNNING, for details
 
 5. RUNNING::
-
-     ::NEWS::
-         jhalfs is now launched via GNU make instead of individual symlinks.
 
      The command <make> will launch a menu based configuration program. You will
      recognize the layout from building the kernel or uClibc/BusyBox. The
      underlying menu code was borrowed from BusyBox and slightly modified for
      our use.
 
-     Help on parameter function is available from the online help. Please
+     Help on parameter function is available from the on-line help. Please
      make use of that feature for additional information not in this file.
 
      Once you have set the parameters you wish and have saved your work the
@@ -81,7 +78,16 @@ $Id$
 6. BLFS_TOOL SUPPORT::
 
      For books that support it, there is an option to install blfs-tool and its
-     dependendencies on the final system.
+     dependencies on the final system. The pre-made build dependencies
+     scripts has been written based on a LFS build. For CLFS and HLFS
+     builds you may need to adjust that scripts, that are found into the
+     common/blfs-tool-deps directory in the jhalfs sources tree.
+
+     WARNING:: If you add blfs-tool support on a CLFS Sysroot build
+               you MUST to edit the dependencies scripts to fix the
+               installation paths.
+               Be careful when you modify the scripts as you can
+               easily disable the host system.
 
      After booting the new xLFS system some steps are needed to finish
      blfs-tool installation:
@@ -94,6 +100,9 @@ $Id$
 
        - Give the user read and write privileges over the $TRACKING_DIR
          directory and the files that it contains.
+
+       - If you think that you may need the libxml2/libxslt Python modules,
+         remove the libxml2 and libxslt trackin files found in $TRACKING_DIR.
 
        - Configure sudo, adding the needed privileges for the user.
 
@@ -113,6 +122,9 @@ $Id$
         /CLFS2/master.sh
               /clfs2.xsl
 
+        /CLFS3/master.sh
+              /clfs3.xsl
+
         /HLFS/master.sh
              /hlfs.xsl
 
@@ -121,16 +133,17 @@ $Id$
 
         /common/common_functions
                /makefile_functions
-               /func_check_versions.sh
-               /func_validate_configs.sh
                /packages.xsl
                /urls.xsl
                /create-sbu_du-report.sh
-               /func_compare.sh
                /progress_bar.sh
                /blfs-tool-deps/9xx-*
+               /libs/func_*
 
-        /contrib/jhalfs-paco.patch
+        /custom/template
+               /config/
+               /examples/*
+               /examples_CLFS-E/*
 
         /extras/do_copy_files
                /do_ica_prep
@@ -151,8 +164,9 @@ $Id$
 
         README
         README.BLFS
+        README.CLFS
         README.HLFS
-        README.PACO
+        README.CUSTOM
         TODO
         LICENSE
 
@@ -217,7 +231,7 @@ $Id$
 
     Q. "What is the function of "User account" and "Group account" menu settings?"
     A. If you are running jhalfs from a low or non-privileged account you may not
-       have the priv to create/delete the user needed to build temporally tools.
+       have the priv to create/delete the user needed to build temporary tools.
        These settings allow you to use your own user and group name to do that
        build steps.
 
@@ -243,6 +257,19 @@ $Id$
        Of all the LFS series of books Cross-LFS requires the greatest
        understanding of host/target hardware combination. Please read the book
        carefully and don't skip the easy parts (there are none..)
+
+    Q. "How could I stop the build at a predefined chosen point?"
+    A. Launch the Makefile manually passing the last numbered target to be build
+       as the break point. For example:
+
+          make BREAKPOINT=84-bash
+
+       The build can be stopped also at the end of a top-level build phase by
+       calling directly the appropriate mk_* target. For example:
+
+          make mk_LUSER
+
+       See the Makefile to know the proper target names for that book build.
 
 Authors:
   George Boudreau

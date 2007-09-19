@@ -26,6 +26,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef LOCALE
+#include <locale.h>
+#endif
+
 #ifdef CURSES_LOC
 #ifdef __sun__
 #define CURS_MACROS

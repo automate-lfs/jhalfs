@@ -29,7 +29,7 @@
       <xsl:variable name="filename" select="@id"/>
 
         <!-- Package name (use "Download FTP" by default. If empty, use "Download HTTP" -->
-      <xsl:param name="package">
+      <xsl:variable name="package">
         <xsl:choose>
           <xsl:when
             test="string-length(sect2[@role='package']/itemizedlist/listitem[2]/para/ulink/@url)
@@ -46,14 +46,14 @@
             </xsl:call-template>
           </xsl:otherwise>
         </xsl:choose>
-      </xsl:param>
+      </xsl:variable>
 
         <!-- FTP dir name -->
-      <xsl:param name="ftpdir">
+      <xsl:variable name="ftpdir">
         <xsl:call-template name="ftp_dir">
           <xsl:with-param name="package" select="$package"/>
         </xsl:call-template>
-      </xsl:param>
+      </xsl:variable>
 
         <!-- The build order -->
       <xsl:variable name="position" select="position()"/>
@@ -86,7 +86,7 @@
 
         <!-- Creating the scripts -->
       <exsl:document href="{$order}-z-{$filename}" method="text">
-        <xsl:text>#!/bin/sh&#xA;set -e&#xA;&#xA;</xsl:text>
+        <xsl:text>#!/bin/bash&#xA;set -e&#xA;&#xA;</xsl:text>
         <xsl:choose>
           <!-- Package page -->
           <xsl:when test="sect2[@role='package'] and not(@id = 'xorg7-app' or
@@ -106,8 +106,15 @@
               <xsl:with-param name="ftpdir" select="$ftpdir"/>
             </xsl:apply-templates>
             <!-- Clean-up -->
-            <xsl:text>cd $SRC_DIR/$PKG_DIR&#xA;</xsl:text>
-            <xsl:text>rm -rf $UNPACKDIR unpacked&#xA;&#xA;</xsl:text>
+            <xsl:if test="not(@id='mesalib')">
+              <xsl:text>cd $SRC_DIR/$PKG_DIR&#xA;</xsl:text>
+              <xsl:text>rm -rf $UNPACKDIR unpacked&#xA;&#xA;</xsl:text>
+            </xsl:if>
+            <xsl:if test="@id='xorg7-server'">
+              <xsl:text>cd $SRC_DIR/MesaLib
+UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
+rm -rf $UNPACKDIR unpacked&#xA;&#xA;</xsl:text>
+            </xsl:if>
           </xsl:when>
           <!-- Xorg7 pseudo-packages -->
           <xsl:when test="contains(@id,'xorg7') and not(@id = 'xorg7-server')">
@@ -148,14 +155,14 @@ cd xc&#xA;</xsl:text>
         <xsl:text>
 if [[ -e unpacked ]] ; then
   UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
-  rm -rf $UNPACKDIR
+  [[ -n $UNPACKDIR ]] &amp;&amp; [[ -d $UNPACKDIR ]] &amp;&amp; rm -rf $UNPACKDIR
 fi
 tar -xvf $PACKAGE > unpacked
 UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
 cd $UNPACKDIR&#xA;</xsl:text>
         <xsl:apply-templates select=".//screen | .//para/command"/>
         <xsl:if test="$sudo = 'y'">
-          <xsl:text>sudo </xsl:text>
+          <xsl:text>sudo /sbin/</xsl:text>
         </xsl:if>
         <xsl:text>ldconfig&#xA;&#xA;</xsl:text>
       </xsl:when>
@@ -168,28 +175,56 @@ cd $UNPACKDIR&#xA;</xsl:text>
 
   <xsl:template match="sect2" mode="xorg7">
     <xsl:choose>
-      <xsl:when test="@role = 'package'"/>
+      <xsl:when test="@role = 'package'">
+        <xsl:apply-templates select="itemizedlist/listitem/para" mode="xorg7"/>
+      </xsl:when>
       <xsl:when test="not(@role)">
-        <xsl:apply-templates select=".//screen"/>
-        <xsl:apply-templates select="../sect2[@role='package']/itemizedlist/listitem/para"
-                             mode="xorg7"/>
-        <xsl:text>WGET_LST=</xsl:text>
-        <xsl:apply-templates select=".//screen" mode="wget_lst"/>
-        <xsl:text>&#xA;</xsl:text>
+        <xsl:text>SRC_ARCHIVE=$SRC_ARCHIVE
+FTP_SERVER=$FTP_SERVER&#xA;</xsl:text>
+        <xsl:apply-templates select=".//screen" mode="sect-ver"/>
+        <xsl:text>mkdir -p ${section}&#xA;cd ${section}&#xA;</xsl:text>
+        <xsl:apply-templates select="../sect2[@role='package']/itemizedlist/listitem/para" mode="xorg7-patch"/>
+        <xsl:text>for line in $(grep -v '^#' ../${sect_ver}.wget) ; do
+  if [[ ! -f ${line} ]] ; then
+    if [[ -f $SRC_ARCHIVE/Xorg/${section}/${line} ]] ; then
+      cp $SRC_ARCHIVE/Xorg/${section}/${line} ${line}
+    elif [[ -f $SRC_ARCHIVE/Xorg/${line} ]] ; then
+      cp $SRC_ARCHIVE/Xorg/${line} ${line}
+    elif [[ -f $SRC_ARCHIVE/${section}/${line} ]] ; then
+      cp $SRC_ARCHIVE/${section}/${line} ${line}
+    elif [[ -f $SRC_ARCHIVE/${line} ]] ; then
+      cp $SRC_ARCHIVE/${line} ${line}
+    else
+      wget ${FTP_SERVER}conglomeration/Xorg/${line} || \
+      wget http://xorg.freedesktop.org/releases/individual/${section}/${line}
+    fi
+  fi
+done
+md5sum -c ../${sect_ver}.md5
+cp ../${sect_ver}.wget ../${sect_ver}.wget.orig
+cp ../${sect_ver}.md5 ../${sect_ver}.md5.orig&#xA;</xsl:text>
       </xsl:when>
       <xsl:when test="@role = 'installation'">
-        <xsl:text>for package in $(cat $WGET_LST) ; do
+        <xsl:text>for package in $(grep -v '^#' ../${sect_ver}.wget) ; do
   packagedir=$(echo $package | sed 's/.tar.bz2//')
-  tar -xf $package
-  cd $packagedir&#xA;</xsl:text>
+  tar -xf ${package}
+  cd ${packagedir}&#xA;</xsl:text>
         <xsl:apply-templates select=".//screen | .//para/command"/>
         <xsl:text>  cd ..
-  rm -rf $packagedir
-done&#xA;</xsl:text>
+  rm -rf ${packagedir}
+  sed -i "/${package}/d" ../${sect_ver}.wget
+  sed -i "/${package}/d" ../${sect_ver}.md5
+done
+mv ../${sect_ver}.wget.orig ../${sect_ver}.wget
+mv ../${sect_ver}.md5.orig ../${sect_ver}.md5&#xA;</xsl:text>
         <xsl:if test="$sudo = 'y'">
-          <xsl:text>sudo </xsl:text>
+          <xsl:text>sudo /sbin/</xsl:text>
         </xsl:if>
         <xsl:text>ldconfig&#xA;&#xA;</xsl:text>
+      </xsl:when>
+      <xsl:when test="@role = 'configuration'">
+        <xsl:apply-templates select=".//screen"/>
+        <xsl:text>&#xA;</xsl:text>
       </xsl:when>
     </xsl:choose>
   </xsl:template>
@@ -356,10 +391,16 @@ done&#xA;</xsl:text>
         <!-- The FTP_SERVER mirror -->
         <xsl:text>    wget ${FTP_SERVER}conglomeration/$PKG_DIR/$PACKAGE</xsl:text>
         <!-- Upstream HTTP URL -->
-        <xsl:if test="string-length(ulink/@url) &gt; '10' and
-                      not(contains(string(ulink/@url),'sourceforge'))">
+        <xsl:if test="string-length(ulink/@url) &gt; '10'">
           <xsl:text> || \&#xA;    wget </xsl:text>
-          <xsl:value-of select="ulink/@url"/>
+          <xsl:choose>
+            <xsl:when test="contains(ulink/@url,'?')">
+              <xsl:value-of select="substring-before(ulink/@url,'?')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="ulink/@url"/>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:if>
       </xsl:when>
       <xsl:when test="contains(string(),'FTP')">
@@ -385,6 +426,15 @@ done&#xA;</xsl:text>
   </xsl:template>
 
   <xsl:template match="itemizedlist/listitem/para" mode="xorg7">
+    <xsl:if test="contains(string(ulink/@url),'.md5') or
+                  contains(string(ulink/@url),'.wget')">
+      <xsl:text>wget </xsl:text>
+      <xsl:value-of select="ulink/@url"/>
+      <xsl:text>&#xA;</xsl:text>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="itemizedlist/listitem/para" mode="xorg7-patch">
     <xsl:if test="contains(string(ulink/@url),'.patch')">
       <xsl:text>wget </xsl:text>
       <xsl:value-of select="ulink/@url"/>
@@ -397,18 +447,22 @@ done&#xA;</xsl:text>
   <xsl:template match="screen">
     <xsl:if test="child::* = userinput and not(@role = 'nodump')">
       <xsl:if test="@role = 'root' and $sudo = 'y'">
-        <xsl:text>sudo sh -c "</xsl:text>
+        <xsl:text>sudo sh -c '</xsl:text>
       </xsl:if>
       <xsl:apply-templates select="userinput"/>
       <xsl:if test="@role = 'root' and $sudo = 'y'">
-        <xsl:text>"</xsl:text>
+        <xsl:text>'</xsl:text>
       </xsl:if>
       <xsl:text>&#xA;</xsl:text>
     </xsl:if>
   </xsl:template>
 
-  <xsl:template match="screen" mode="wget_lst">
-    <xsl:value-of select="substring-after(string(),' -i ')"/>
+  <xsl:template match="screen" mode="sect-ver">
+    <xsl:text>section=</xsl:text>
+    <xsl:value-of select="substring-before(substring-after(string(),'mkdir '),' &amp;')"/>
+    <xsl:text>&#xA;sect_ver=</xsl:text>
+    <xsl:value-of select="substring-before(substring-after(string(),'-c ../'),'.md5')"/>
+    <xsl:text>&#xA;</xsl:text>
   </xsl:template>
 
   <xsl:template match="para/command">
@@ -427,9 +481,16 @@ done&#xA;</xsl:text>
   </xsl:template>
 
   <xsl:template match="replaceable">
-    <xsl:text>**EDITME</xsl:text>
-    <xsl:apply-templates/>
-    <xsl:text>EDITME**</xsl:text>
+    <xsl:choose>
+      <xsl:when test="ancestor::sect1[@id='xorg7-server']">
+        <xsl:text>$SRC_DIR/MesaLib</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>**EDITME</xsl:text>
+        <xsl:apply-templates/>
+        <xsl:text>EDITME**</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
 </xsl:stylesheet>

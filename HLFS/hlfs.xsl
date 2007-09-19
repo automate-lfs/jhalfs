@@ -16,6 +16,9 @@
   <!-- What libc implentation must be used? -->
   <xsl:param name="model" select="glibc"/>
 
+  <!-- What kernel serie must be used? -->
+  <xsl:param name="kernel" select="2.6"/>
+
   <!-- Is the host kernel using grsecurity? -->
   <xsl:param name="grsecurity_host" select="n"/>
 
@@ -33,6 +36,9 @@
   -->
   <xsl:param name="bomb-testsuite" select="n"/>
 
+  <!-- Additional features -->
+  <xsl:param name="features">,ssp,aslr,pax,hardened_tmp,warnings,misc,blowfish,</xsl:param>
+
   <!-- Time zone -->
   <xsl:param name="timezone" select="GMT"/>
 
@@ -41,7 +47,6 @@
 
   <!-- Locale settings -->
   <xsl:param name="lang" select="C"/>
-  <xsl:param name="lc_all" select="C"/>
 
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
@@ -51,10 +56,11 @@
     <xsl:if test="(../@id='chapter-temporary-tools' or
                   ../@id='chapter-building-system' or
                   ../@id='chapter-bootable') and
-                  ((@condition=$model or not(@condition)) and
-                  count(descendant::screen/userinput) &gt; 0 and
+                  (count(descendant::screen/userinput) &gt; 0 and
                   count(descendant::screen/userinput) &gt;
-                  count(descendant::screen[@role='nodump']))">
+                  count(descendant::screen[@role='nodump'])) and
+                  ((@condition=$model or not(@condition)) and
+                  (@vendor=$kernel or not(@vendor)))">
         <!-- The dirs names -->
       <xsl:variable name="pi-dir" select="../processing-instruction('dbhtml')"/>
       <xsl:variable name="pi-dir-value" select="substring-after($pi-dir,'dir=')"/>
@@ -84,45 +90,48 @@
         <!-- Creating dirs and files -->
       <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
         <xsl:choose>
-          <xsl:when test="@id='ch-system-changingowner' or
-                    @id='ch-system-creatingdirs' or
-                    @id='ch-system-createfiles'">
-            <xsl:text>#!/tools/bin/bash&#xA;set -e&#xA;&#xA;</xsl:text>
-          </xsl:when>
-          <xsl:when test="@id='ch-tools-stripping' or
+          <xsl:when test="@id='ch-system-creatingdirs' or
+                    @id='ch-system-createfiles' or
+                    @id='ch-system-changingowner' or
                     @id='ch-system-strippingagain'">
-            <xsl:text>#!/bin/sh&#xA;</xsl:text>
+            <xsl:text>#!/tools/bin/bash&#xA;set +h&#xA;</xsl:text>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:text>#!/bin/sh&#xA;set -e&#xA;&#xA;</xsl:text>
+            <xsl:text>#!/bin/bash&#xA;set +h&#xA;</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
-        <xsl:if test="(sect2[@role='installation'] and
-                           not(@id='bootable-kernel'))">
+        <xsl:if test="not(@id='ch-tools-stripping') and
+                      not(@id='ch-system-strippingagain')">
+          <xsl:text>set -e&#xA;</xsl:text>
+        </xsl:if>
+        <xsl:text>&#xA;</xsl:text>
+        <xsl:if test="(sect2[@role='installation'])">
           <xsl:text>cd $PKGDIR&#xA;</xsl:text>
-          <xsl:if test="@id='ch-tools-uclibc' or @id='ch-system-uclibc'">
+          <xsl:if test="@id='ch-system-uclibc'">
              <xsl:text>pushd ../; tar -xvf gettext-&gettext-version;.*; popd; &#xA;</xsl:text>
           </xsl:if>
-
-          <!-- NEW toolchain format, from inside ./sources dir unpack binutils and gcc -->
-	  <xsl:if test="@id='ch-tools-embryo-toolchain' or
+          <!-- SVN toolchain format, from inside ./sources dir unpack binutils and gcc -->
+          <xsl:if test="@id='ch-tools-embryo-toolchain' or
                         @id='ch-tools-cocoon-toolchain' or
                         @id='ch-system-butterfly-toolchain'">
              <xsl:text>tar -xvf gcc-core-&gcc-version;.*; &#xA;</xsl:text>
-             <xsl:text>tar -xvf gcc-g++-&gcc-version;.*; &#xA;</xsl:text>
              <xsl:text>tar -xvf binutils-&binutils-version;.*; &#xA;</xsl:text>
+          </xsl:if>
+          <xsl:if test="@id='ch-tools-cocoon-toolchain' or
+                        @id='ch-system-butterfly-toolchain'">
+             <xsl:text>tar -xvf gcc-g++-&gcc-version;.*; &#xA;</xsl:text>
           </xsl:if>
           <!-- ONLY butterfly has a testsuite -->
           <xsl:if test="@id='ch-system-butterfly-toolchain' and $testsuite != '0'">
             <xsl:text>tar -xvf gcc-testsuite-&gcc-version;.*; &#xA;</xsl:text>
           </xsl:if>
-          <!-- END new toolchain format -->
-
-          <xsl:if test="@id='bootable-bootscripts'">
-             <xsl:text>pushd ../; tar -xvf blfs-bootscripts-&blfs-bootscripts-version;.* ; popd; &#xA;</xsl:text>
-          </xsl:if>
+          <!-- END SVN toolchain format -->
         </xsl:if>
         <xsl:apply-templates select=".//para/userinput | .//screen"/>
+        <xsl:if test="not(@id='ch-system-chroot') and
+                      not(@id='ch-system-revisedchroot')">
+          <xsl:text>echo -e "\n\nTotalseconds: $SECONDS\n"&#xA;</xsl:text>
+        </xsl:if>
         <xsl:text>exit</xsl:text>
       </exsl:document>
     </xsl:if>
@@ -130,7 +139,9 @@
 
   <xsl:template match="screen">
     <xsl:if test="(@condition=$model or not(@condition)) and
-                  child::* = userinput and not(@role = 'nodump')">
+                  (@vendor=$kernel or not(@vendor)) and
+                  child::* = userinput and (not(@role) or
+                  (@role and contains($features,concat(',',@role,','))))">
       <xsl:apply-templates select="userinput" mode="screen"/>
     </xsl:if>
   </xsl:template>
@@ -160,44 +171,19 @@
 
   <xsl:template match="userinput" mode="screen">
     <xsl:choose>
-      <!-- Estandarized package formats -->
-      <xsl:when test="contains(string(),'tar.gz')">
-        <xsl:value-of select="substring-before(string(),'tar.gz')"/>
-        <xsl:text>tar.*</xsl:text>
-        <xsl:value-of select="substring-after(string(),'tar.gz')"/>
-        <xsl:text>&#xA;</xsl:text>
-      </xsl:when>
-      <!-- Avoiding a race condition in a patch -->
-      <xsl:when test="contains(string(),'debian_fixes')">
-        <xsl:value-of select="substring-before(string(),'patch')"/>
-        <xsl:text>patch -Z</xsl:text>
-        <xsl:value-of select="substring-after(string(),'patch')"/>
-        <xsl:text>&#xA;</xsl:text>
-      </xsl:when>
       <!-- grsecurity kernel in the host? -->
       <xsl:when test="ancestor::sect1[@id='ch-system-kernfs'] and
                 contains(string(),'sysctl')
                 and $grsecurity_host ='n'"/>
-      <!-- Setting $LC_ALL and $LANG for /etc/profile -->
+      <!-- Setting $LANG for /etc/profile -->
       <xsl:when test="ancestor::sect1[@id='bootable-profile'] and
                 contains(string(),'export LANG=')">
-        <xsl:value-of select="substring-before(string(),'export LC_ALL=')"/>
-        <xsl:text>export LC_ALL=</xsl:text>
-        <xsl:value-of select="$lc_all"/>
-        <xsl:text>&#xA;export LANG=</xsl:text>
+        <xsl:value-of select="substring-before(string(),'export LANG=')"/>
+        <xsl:text>export LANG=</xsl:text>
         <xsl:value-of select="$lang"/>
-        <xsl:text>&#xA;export INPUTRC</xsl:text>
-        <xsl:value-of select="substring-after(string(),'INPUTRC')"/>
+        <xsl:value-of select="substring-after(string(),'CC]')"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
-      <!-- Fixing bootscripts installation -->
-      <xsl:when test="ancestor::sect1[@id='bootable-bootscripts'] and
-                string() = 'make install'">
-        <xsl:text>make install&#xA;</xsl:text>
-        <xsl:text>cd ../blfs-bootscripts-&blfs-bootscripts-version;&#xA;</xsl:text>
-      </xsl:when>
-      <!-- Compile the keymap into the kernel has been dissabled -->
-      <xsl:when test="contains(string(),'defkeymap')"/>
       <!-- Copying the kernel config file -->
       <xsl:when test="string() = 'make mrproper'">
         <xsl:text>make mrproper&#xA;</xsl:text>
@@ -205,6 +191,13 @@
       </xsl:when>
       <!-- No interactive commands are needed if the .config file is the proper one -->
       <xsl:when test="string() = 'make menuconfig'"/>
+      <!-- For uClibc we need to set CONFIG_SITE -->
+      <xsl:when test="contains(string(),'CONFIG_SITE')">
+        <xsl:value-of select="substring-before(string(),'export')"/>
+        <xsl:text>echo "export</xsl:text>
+        <xsl:value-of select="substring-after(string(),'export')"/>
+        <xsl:text>" &gt;&gt; ~/.bashrc&#xA;</xsl:text>
+      </xsl:when>
       <!-- For uClibc we need to cd to the Gettext package -->
       <xsl:when test="contains(string(),'cd gettext-runtime/')">
         <xsl:text>cd ../gettext-*/gettext-runtime</xsl:text>
@@ -245,16 +238,17 @@
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
-      <!-- Fixing butterfly toolchain test suites run -->
-      <xsl:when test="string() = 'make -k check' or string() = 'make check'">
+      <!-- Fixing butterfly toolchain test suite run -->
+      <xsl:when test="ancestor::sect1[@id='ch-system-butterfly-toolchain']
+                      and string() = 'make -k check'">
         <xsl:choose>
           <xsl:when test="$testsuite != '0'">
-            <xsl:apply-templates/>
             <xsl:choose>
               <xsl:when test="$bomb-testsuite = 'n'">
-                <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
+                <xsl:text>make -k check &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
               </xsl:when>
               <xsl:otherwise>
+                <xsl:apply-templates/>
                 <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
                 <xsl:if test="contains(string(),' -k ')">
                   <xsl:text> || true</xsl:text>
@@ -266,29 +260,38 @@
         </xsl:choose>
       </xsl:when>
       <!-- Fixing Glbc test suite  -->
-      <xsl:when test="contains(string(),'glibc-check-log')">
+      <xsl:when test="contains(string(),'rm -v configparms') and
+                      contains(string(),'-fno-stack-protector')">
         <xsl:choose>
           <xsl:when test="$testsuite != '0'">
-            <xsl:value-of select="substring-before(string(),'&gt; glibc-')"/>
-            <xsl:choose>
-              <xsl:when test="$bomb-testsuite = 'n'">
-                <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
-                <xsl:if test="contains(string(),' -k ')">
-                  <xsl:text> || true</xsl:text>
-                </xsl:if>
-                <xsl:text>&#xA;</xsl:text>
-              </xsl:otherwise>
-            </xsl:choose>
+            <xsl:apply-templates/>
+            <xsl:text>&#xA;</xsl:text>
           </xsl:when>
         </xsl:choose>
       </xsl:when>
-      <!-- Don't stop on strip run and chapter05 GCC installation test-->
-      <xsl:when test="contains(string(),'strip ') or
-                ancestor::sect2[@id='testing-gcc'] and
-                not(contains(string(),'EOF'))">
+      <xsl:when test="contains(string(),'glibc-check-log')">
+        <xsl:choose>
+          <xsl:when test="$testsuite != '0'">
+            <xsl:value-of select="substring-before(string(),'2&gt;&amp;1')"/>
+            <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
+          </xsl:when>
+        </xsl:choose>
+      </xsl:when>
+      <!-- Fixing Cocoon sanity checks  -->
+      <xsl:when test="contains(string(),'./strcat-overflow')">
+        <xsl:text>set +e&#xA;</xsl:text>
+        <xsl:apply-templates/>
+        <xsl:text>&#xA;set -e&#xA;</xsl:text>
+      </xsl:when>
+      <!-- Fixing Butterfly sanity checks  -->
+      <xsl:when test="contains(string(),'./fortify-test')
+                      or contains(string(),'./ssp-test')">
+        <xsl:text>! </xsl:text>
+        <xsl:apply-templates/>
+        <xsl:text>&#xA;</xsl:text>
+      </xsl:when>
+      <!-- Don't stop on strip run -->
+      <xsl:when test="contains(string(),'strip ')">
         <xsl:apply-templates/>
         <xsl:text> || true&#xA;</xsl:text>
       </xsl:when>
@@ -301,7 +304,8 @@
   </xsl:template>
 
   <xsl:template match="literal">
-    <xsl:if test="@condition=$model or not(@condition)">
+    <xsl:if test="(@condition=$model or not(@condition)) and
+                  (@vendor=$kernel or not(@vendor))">
       <xsl:apply-templates/>
     </xsl:if>
   </xsl:template>

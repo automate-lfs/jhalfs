@@ -38,13 +38,13 @@ declare -r L_arrow=$'\e[1;33m<\e[0m'
 simple_error() {        # Basic error trap.... JUST DIE
 #-----------------------#
   # If +e then disable text output
-  if [[ "$-" =~ "e" ]]; then
+  if [[ "$-" =~ e ]]; then
     echo -e "\n${RED}ERROR:${GREEN} basic error trapped!${OFF}\n" >&2
   fi
 }
 
 see_ya() {
-    echo -e "\n${L_arrow}${BOLD}jhalfs-X${R_arrow} exit${OFF}\n"
+    echo -e "\n${L_arrow}${BOLD}jhalfs-trunk${R_arrow} exit${OFF}\n"
 }
 ##### Simple error TRAPS
 # ctrl-c   SIGINT
@@ -73,12 +73,12 @@ source configuration
 [[ $VERBOSITY > 0 ]] && echo "OK"
 
 [[ $VERBOSITY > 0 ]] && echo -n "Loading function <func_check_version.sh>..."
-source $COMMON_DIR/func_check_version.sh
+source $COMMON_DIR/libs/func_check_version.sh
 [[ $? > 0 ]] && echo " function module did not load.." && exit 2
 [[ $VERBOSITY > 0 ]] && echo "OK"
 
 [[ $VERBOSITY > 0 ]] && echo -n "Loading function <func_validate_configs.sh>..."
-source $COMMON_DIR/func_validate_configs.sh
+source $COMMON_DIR/libs/func_validate_configs.sh
 [[ $? > 0 ]] && echo " function module did not load.." && exit 2
 [[ $VERBOSITY > 0 ]] && echo "OK"
 [[ $VERBOSITY > 0 ]] && echo "${SD_BORDER}${nl_}"
@@ -95,8 +95,8 @@ case $BRANCH_ID in
        *EDIT* )  echo " You forgot to set the branch or stable book version."
                  echo " Please rerun make and fix the configuration."
                  exit 2 ;;
-     branch-* )  TREE=branches/${BRANCH_ID#branch-}/BOOK ;;
-            * )  TREE=tags/${BRANCH_ID}/BOOK ;;
+     branch-* )  TREE=branches/${BRANCH_ID#branch-} ;;
+            * )  TREE=tags/${BRANCH_ID} ;;
 esac
 
 # Check for minimun dependencies versions
@@ -112,8 +112,8 @@ check_version "2004"     "${tidyVer}"                                           
 
 XML_FILE="<?xml version='1.0' encoding='ISO-8859-1'?>
 <?xml-stylesheet type='text/xsl' href='http://docbook.sourceforge.net/release/xsl/1.69.1/xhtml/docbook.xsl'?>
-<!DOCTYPE article PUBLIC '-//OASIS//DTD DocBook XML V4.4//EN'
-  'http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd'>
+<!DOCTYPE article PUBLIC '-//OASIS//DTD DocBook XML V4.5//EN'
+  'http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd'>
 <article>
   <title>Test file</title>
   <sect1>
@@ -123,18 +123,18 @@ XML_FILE="<?xml version='1.0' encoding='ISO-8859-1'?>
 </article>"
 
 if `echo $XML_FILE | xmllint -noout -postvalid - 2>/dev/null` ; then
-  check_version "4.4" "4.4" "DocBook XML DTD"
+  check_version "4.5" "4.5" "DocBook XML DTD"
 else
-  echo "Warning: not found a working DocBook XML DTD 4.4 installation"
+  echo "Warning: not found a working DocBook XML DTD 4.5 installation"
   exit 2
 fi
 
-if `echo $XML_FILE | xsltproc --noout - 2>/dev/null` ; then
-  check_version "1.69.1" "1.69.1" "DocBook XSL"
-else
-  echo "Warning: not found a working DocBook XSL 1.69.1 installation"
-  exit 2
-fi
+# if `echo $XML_FILE | xsltproc --noout - 2>/dev/null` ; then
+#   check_version "1.69.1" "1.69.1" "DocBook XSL"
+# else
+#   echo "Warning: not found a working DocBook XSL 1.69.1 installation"
+#   exit 2
+# fi
 
 echo "${SD_BORDER}${nl_}"
 
@@ -178,5 +178,5 @@ else
 fi
 
 # Run the menuconfig interface
-make
+make -B
 

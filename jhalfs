@@ -36,13 +36,13 @@ declare -r L_arrow=$'\e[1;33m<\e[0m'
 simple_error() {        # Basic error trap.... JUST DIE
 #-----------------------#
   # If +e then disable text output
-  if [[ "$-" =~ "e" ]]; then
+  if [[ "$-" =~ e ]]; then
     echo -e "\n${RED}ERROR:${GREEN} basic error trapped!${OFF}\n" >&2
   fi
 }
 
 see_ya() {
-    echo -e "\n${L_arrow}${BOLD}jhalfs-X${R_arrow} exit${OFF}\n"
+    echo -e "\n${L_arrow}${BOLD}jhalfs-trunk${R_arrow} exit${OFF}\n"
 }
 ##### Simple error TRAPS
 # ctrl-c   SIGINT
@@ -62,7 +62,7 @@ trap 'echo -e "\n\n${RED}INTERRUPT${OFF} trapped\n" &&  exit 2'  1 2 3 15 17 18 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 version="
-${BOLD}  \"jhalfs-X\"${OFF} builder tool (experimental) \$Rev$
+${BOLD}  \"jhalfs-trunk\"${OFF} builder tool (development) \$Rev$
   \$Date$
 
   Written by George Boudreau and Manuel Canales Esparcia,
@@ -108,6 +108,24 @@ REPORT=${REPORT:=n}
 VIMLANG=${VIMLANG:-n}
 GRSECURITY_HOST=${GRSECURITY_HOST:-n}
 CUSTOM_TOOLS=${CUSTOM_TOOLS:-n}
+REBUILD_MAKEFILE=${REBUILD_MAKEFILE:-n}
+INSTALL_LOG=${INSTALL_LOG:-n}
+CLEAN=${CLEAN:=n}
+SET_SSP=${SET_SSP:=n}
+SET_ASLR=${SET_ASLR:=n}
+SET_PAX=${SET_PAX:=n}
+SET_HARDENED_TMP=${SET_HARDENED_TMP:=n}
+SET_WARNINGS=${SET_WARNINGS:=n}
+SET_MISC=${SET_MISC:=n}
+SET_BLOWFISH=${SET_BLOWFISH:=n}
+
+# Sanity check on the location of $BUILDDIR / $JHALFSDIR
+CWD=$(cd `dirname $0` && pwd)
+if [[ $JHALFSDIR == $CWD ]]; then
+    echo " The jhalfs source directory conflicts with the jhalfs build directory."
+    echo " Please move the source directory or change the build directory."
+    exit 2
+fi
 
 # Book surces envars
 BRANCH_ID=${BRANCH_ID:=development}
@@ -115,7 +133,8 @@ BRANCH_ID=${BRANCH_ID:=development}
 case $BRANCH_ID in
   development )
     case $PROGNAME in
-      clfs2 ) TREE=branches/clfs-2.0/BOOK ;;
+      clfs2 ) TREE=branches/clfs-sysroot/BOOK ;;
+      clfs3 ) TREE=branches/clfs-embedded/BOOK ;;
            *) TREE=trunk/BOOK ;;
     esac
     LFSVRS=development
@@ -133,7 +152,7 @@ case $BRANCH_ID in
         LFSVRS=${BRANCH_ID}
         TREE=tags/${BRANCH_ID}/BOOK
         ;;
-      clfs | clfs2 )
+      clfs | clfs2 | clfs3)
         LFSVRS=${BRANCH_ID}
         TREE=tags/${BRANCH_ID}
         ;;
@@ -153,50 +172,46 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
          *EDIT* )  echo " You forgot to set the BLFS branch or stable book version."
                    echo " Please rerun make and fix the configuration."
                    exit 2 ;;
-       branch-* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-}/BOOK ;;
-              * )  BLFS_TREE=tags/${BLFS_BRANCH_ID}/BOOK ;;
+       branch-* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-} ;;
+              * )  BLFS_TREE=tags/${BLFS_BRANCH_ID} ;;
   esac
   # Dependencies envars, to can update it more easy.
   # Tidy and Unzip version are harcoded also in wrt_blfs_tool_targets()
     # libxml2
-  LIBXML_PKG="libxml2-2.6.26.tar.gz"
+  LIBXML_PKG="libxml2-2.6.29.tar.gz"
   LIBXML_URL="ftp://xmlsoft.org/libxml2/${LIBXML_PKG}"
-  LIBXML_MD5="2d8d3805041edab967368b497642f981"
+  LIBXML_MD5="8b99b6e8b08e838438d9e6b639d79ebd"
     # libxslt
-  LIBXSLT_PKG="libxslt-1.1.17.tar.gz"
+  LIBXSLT_PKG="libxslt-1.1.21.tar.gz"
   LIBXSLT_URL="ftp://xmlsoft.org/libxslt/${LIBXSLT_PKG}"
-  LIBXSLT_MD5="fde6a7a93c0eb14cba628692fa3a1000"
+  LIBXSLT_MD5="59fe34e85692f71df2a38c2ee291b3ca"
     # tidy
-  TIDY_PKG="tidy_src_051026.tgz"
-  TIDY_URL="http://tidy.sourceforge.net/src/${TIDY_PKG}"
-  TIDY_MD5="1e39fafd6808978871346658c8da1454"
-    # tidy patch
-  TIDY_PATCH="tidy-051026-prevent_PRE_newlines-1.patch"
-  TIDY_PATCH_URL="http://www.linuxfromscratch.org/patches/blfs/svn/${TIDY_PATCH}"
-  TIDY_PATCH_MD5="82f67f7af58fc2c945b3410ae655cc1a"
-    # tidy docs
-  TIDY_DOCS="tidy_docs_051020.tgz"
-  TIDY_DOCS_URL="http://tidy.sourceforge.net/docs/${TIDY_DOCS}"
-  TIDY_DOCS_MD5="86de2f198e57399c063d2567b2a25628"
+  TIDY_PKG="tidy-cvs_20070326.tar.bz2"
+  TIDY_URL="http://anduin.linuxfromscratch.org/files/BLFS/sources/${TIDY_PKG}"
+  TIDY_MD5="468bfaa5cf917a8ecbe7834c13a61376"
     # unzip
   UNZIP_PKG="unzip552.tar.gz"
-  UNZIP_URL="ftp://ftp.info-zip.org/pub/infozip/src/${UNZIP_PKG}"
+  UNZIP_URL="http://downloads.sourceforge.net/infozip/${UNZIP_PKG}"
   UNZIP_MD5="9d23919999d6eac9217d1f41472034a9"
+    # unzip security patch
+  UNZIP_PATCH="unzip-5.52-security_fix-1.patch"
+  UNZIP_PATCH_URL="http://www.linuxfromscratch.org/patches/blfs/svn/${UNZIP_PATCH}"
+  UNZIP_PATCH_MD5="00ebf64fdda2ad54ddfc619f85f328bb"
     # DocBook XML DTD
-  DBXML_PKG="docbook-xml-4.4.zip"
-  DBXML_URL="http://www.docbook.org/xml/4.4/${DBXML_PKG}"
-  DBXML_MD5="cbb04e9a700955d88c50962ef22c1634"
+  DBXML_PKG="docbook-xml-4.5.zip"
+  DBXML_URL="http://www.docbook.org/xml/4.5/${DBXML_PKG}"
+  DBXML_MD5="03083e288e87a7e829e437358da7ef9e"
     # DocBook XSL
-  DBXSL_PKG="docbook-xsl-1.69.1.tar.bz2"
-  DBXSL_URL="http://prdownloads.sourceforge.net/docbook/${DBXSL_PKG}"
-  DBXSL_MD5="6ebd29a67f2dcc3f2220f475ee6f6552"
+#   DBXSL_PKG="docbook-xsl-1.69.1.tar.bz2"
+#   DBXSL_URL="http://prdownloads.sourceforge.net/docbook/${DBXSL_PKG}"
+#   DBXSL_MD5="6ebd29a67f2dcc3f2220f475ee6f6552"
     # Links
-  LINKS_PKG="links-2.1pre21.tar.bz2"
-  LINKS_URL="http://links.twibright.com/download/${LINKS_PKG}"
-  LINKS_MD5="7687e2c32e337e11c6e9d8cd8c5202c9"
+  LYNX_PKG="lynx2.8.6.tar.bz2"
+  LYNX_URL="http://lynx.isc.org/release/${LYNX_PKG}"
+  LYNX_MD5="dc80497b7dda6a28fd80404684d27548"
     # sudo
   SUDO_PKG="sudo-1.6.8p12.tar.gz"
-  SUDO_URL="http://www.courtesan.com/sudo/dist/${SUDO_PKG}"
+  SUDO_URL="http://anduin.linuxfromscratch.org/sources/BLFS/svn/s/${SUDO_PKG}"
   SUDO_MD5="b29893c06192df6230dd5f340f3badf5"
     # sudo envar fix patch
   SUDO_PATCH="sudo-1.6.8p12-envvar_fix-1.patch"
@@ -212,7 +227,7 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
   SVN_MD5="07b95963968ae345541ca99d0e7bf082"
     # GPM
   GPM_PKG="gpm-1.20.1.tar.bz2"
-  GPM_URL="ftp://arcana.linux.it/pub/gpm/${GPM_PKG}"
+  GPM_URL="ftp://ftp.linux.ee/pub/gentoo/distfiles/distfiles/${GPM_PKG}"
   GPM_MD5="2c63e827d755527950d9d13fe3d87692"
     # GPM segfaul patch
   GPM_PATCH_1="gpm-1.20.1-segfault-1.patch"
@@ -235,9 +250,8 @@ declare -r SVN_2="svn://svn.linuxfromscratch.org"
 
 # Set true internal variables
 COMMON_DIR="common"
-PACKAGE_DIR=$(echo $PROGNAME | tr [a-z] [A-Z])
+PACKAGE_DIR=$(echo $PROGNAME | tr '[a-z]' '[A-Z]')
 MODULE=$PACKAGE_DIR/master.sh
-
 
 [[ $VERBOSITY > 0 ]] && echo -n "Loading common-functions module..."
 source $COMMON_DIR/common-functions
@@ -253,17 +267,17 @@ source $MODULE
 
 #*******************************************************************#
 [[ $VERBOSITY > 0 ]] && echo -n "Loading function <func_check_version.sh>..."
-source $COMMON_DIR/func_check_version.sh
+source $COMMON_DIR/libs/func_check_version.sh
 [[ $? > 0 ]] && echo " function module did not load.." && exit 2
 [[ $VERBOSITY > 0 ]] && echo "OK"
 
 [[ $VERBOSITY > 0 ]] && echo -n "Loading function <func_validate_configs.sh>..."
-source $COMMON_DIR/func_validate_configs.sh
+source $COMMON_DIR/libs/func_validate_configs.sh
 [[ $? > 0 ]] && echo " function module did not load.." && exit 2
 [[ $VERBOSITY > 0 ]] && echo "OK"
 
-[[ $VERBOSITY > 0 ]] && echo -n "Loading function <custom_pkgs>..."
-source $COMMON_DIR/custom_pkgs
+[[ $VERBOSITY > 0 ]] && echo -n "Loading function <func_custom_pkgs>..."
+source $COMMON_DIR/libs/func_custom_pkgs
 [[ $? > 0 ]] && echo " function module did not load.." && exit 2
 [[ $VERBOSITY > 0 ]] && echo "OK"
 
@@ -294,8 +308,8 @@ echo "${nl_}${SD_BORDER}${nl_}"
 # compare module
 if [[ "$COMPARE" = "y" ]]; then
   [[ $VERBOSITY > 0 ]] && echo -n "Loading compare module..."
-  source $COMMON_DIR/func_compare.sh
-  [[ $? > 0 ]] && echo "$COMMON_DIR/func_compare.sh did not load.." && exit
+  source $COMMON_DIR/libs/func_compare.sh
+  [[ $? > 0 ]] && echo "$COMMON_DIR/libs/func_compare.sh did not load.." && exit
   [[ $VERBOSITY > 0 ]] && echo "OK"
 fi
 #
@@ -316,116 +330,127 @@ if [[ "$OPTIMIZE" != "0" ]]; then
 fi
 #
 
-# If $BUILDDIR has subdirectories like tools/ or bin/, stop the run
-# and notify the user about that.
-if [ -d $BUILDDIR/tools -o -d $BUILDDIR/bin ] && [ -z $CLEAN ] ; then
-  eval "$no_empty_builddir"
-fi
+if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
 
-# If requested, clean the build directory
-clean_builddir
+  # If $BUILDDIR has subdirectories like tools/ or bin/, stop the run
+  # and notify the user about that.
+  if [ -d $BUILDDIR/tools -o -d $BUILDDIR/bin ] && [ -z $CLEAN ] ; then
+    eval "$no_empty_builddir"
+  fi
 
-if [[ ! -d $JHALFSDIR ]]; then
-  mkdir -p $JHALFSDIR
-fi
-#
-# Create $BUILDDIR/sources even though it could be created by get_sources()
-if [[ ! -d $BUILDDIR/sources ]]; then
-  mkdir -p $BUILDDIR/sources
-fi
-#
-# Create the log directory
-if [[ ! -d $LOGDIR ]]; then
-  mkdir $LOGDIR
-fi
->$LOGDIR/$LOG
-#
-[[ "$TEST" != "0" ]] && [[ ! -d $TESTLOGDIR ]] && install -d -m 1777 $TESTLOGDIR
-#
-cp $COMMON_DIR/{makefile-functions,progress_bar.sh} $JHALFSDIR/
-#
-[[ "$OPTIMIZE" != "0" ]] && cp optimize/opt_override $JHALFSDIR/
-#
-if [[ "$COMPARE" = "y" ]]; then
-  mkdir -p $JHALFSDIR/extras
-  cp extras/* $JHALFSDIR/extras
-fi
-#
-if [[ -n "$FILES" ]]; then
-  # pushd/popd necessary to deal with multiple files
-  pushd $PACKAGE_DIR 1> /dev/null
-    cp $FILES $JHALFSDIR/
-  popd 1> /dev/null
-fi
-#
-if [[ "${PROGNAME}" = "lfs" ]]; then
+  # If requested, clean the build directory
+  clean_builddir
+
+  if [[ ! -d $JHALFSDIR ]]; then
+    mkdir -p $JHALFSDIR
+  fi
+
+  # Create $BUILDDIR/sources even though it could be created by get_sources()
+  if [[ ! -d $BUILDDIR/sources ]]; then
+    mkdir -p $BUILDDIR/sources
+  fi
+  #
+  # Create the log directory
+  if [[ ! -d $LOGDIR ]]; then
+    mkdir $LOGDIR
+  fi
+  >$LOGDIR/$LOG
+  #
+  # Copy common helper files
+  cp $COMMON_DIR/{makefile-functions,progress_bar.sh,packages.xsl} $JHALFSDIR/
+  #
+  # Fix the XSL book parser
+  sed 's,FAKEDIR,'$BOOK',' $PACKAGE_DIR/$XSL > $JHALFSDIR/${XSL}
+  export XSL=$JHALFSDIR/${XSL}
+  #
+
+  # Copy urls.xsl, if needed
+  [[ "$GETPKG" = "y" ]] && cp $COMMON_DIR/urls.xsl  $JHALFSDIR/
+  #
+  # Create the test-log directory, if needed
+  [[ "$TEST" != "0" ]] && [[ ! -d $TESTLOGDIR ]] && install -d -m 1777 $TESTLOGDIR
+  #
+  # Create the installed-files directory, if needed
+  [[ "$INSTALL_LOG" = "y" ]] && [[ ! -d $FILELOGDIR ]] && install -d -m 1777 $FILELOGDIR
+  #
+  # Prepare report creation, if needed
+  if [[ "$REPORT" = "y" ]]; then
+    cp $COMMON_DIR/create-sbu_du-report.sh  $JHALFSDIR/
+    # After being sure that all looks sane, dump the settings to a file
+    # This file will be used to create the REPORT header
+    validate_config > $JHALFSDIR/jhalfs.config
+  fi
+  #
+  # Copy optimize files, if needed
+  [[ "$OPTIMIZE" != "0" ]] && cp optimize/opt_override $JHALFSDIR/
+  #
+  # Copy compare files, if needed
+  if [[ "$COMPARE" = "y" ]]; then
+    mkdir -p $JHALFSDIR/extras
+    cp extras/* $JHALFSDIR/extras
+  fi
+  #
+
+  # Copy custom tools config files, if requested
   if [[ "${CUSTOM_TOOLS}" = "y" ]]; then
     echo "Copying custom tool scripts to $JHALFSDIR"
-    mkdir -p $JHALFSDIR/custom-commands/config
-    mkdir -p $JHALFSDIR/custom-commands/scripts
-   cp -Rf custom/* $JHALFSDIR/custom-commands
+    mkdir -p $JHALFSDIR/custom-commands
+    cp -f custom/config/* $JHALFSDIR/custom-commands
   fi
-fi
-
-#
-if [[ "$REPORT" = "y" ]]; then
-  cp $COMMON_DIR/create-sbu_du-report.sh  $JHALFSDIR/
-  # After being sure that all looks sane, dump the settings to a file
-  # This file will be used to create the REPORT header
-  validate_config > $JHALFSDIR/jhalfs.config
-fi
-#
-[[ "$GETPKG" = "y" ]] && cp $COMMON_DIR/urls.xsl  $JHALFSDIR/
-#
-cp $COMMON_DIR/packages.xsl  $JHALFSDIR/
-#
-sed 's,FAKEDIR,'$BOOK',' $PACKAGE_DIR/$XSL > $JHALFSDIR/${XSL}
-export XSL=$JHALFSDIR/${XSL}
-
-# Install blfs-tool, if requested.
-if [[ "${BLFS_TOOL}" = "y" ]] ; then
-  # Install the files
-  [[ ! -d ${BUILDDIR}${BLFS_ROOT} ]] && mkdir -p ${BUILDDIR}${BLFS_ROOT}
-  cp -r BLFS/* ${BUILDDIR}${BLFS_ROOT}
-  cp -r menu ${BUILDDIR}${BLFS_ROOT}
-  cp $COMMON_DIR/progress_bar.sh ${BUILDDIR}${BLFS_ROOT}
-  cp README.BLFS ${BUILDDIR}${BLFS_ROOT}
-  # Clean-up
-  rm -rf ${BUILDDIR}${BLFS_ROOT}/libs/.svn
-  rm -rf ${BUILDDIR}${BLFS_ROOT}/menu/.svn
-  rm -rf ${BUILDDIR}${BLFS_ROOT}/menu/lxdialog/.svn
-  # Set some harcoded envars to their proper values
-  sed -i 's,blfs-xml,'$BLFS_XML',' ${BUILDDIR}${BLFS_ROOT}/{update_book.sh,libs/book.xsl}
-  sed -i 's,tracking-dir,'$TRACKING_DIR',' ${BUILDDIR}${BLFS_ROOT}/{update_book.sh,gen-makefile.sh}
-  # Copy the dependencies build scripts
-  cp -r $COMMON_DIR/blfs-tool-deps $JHALFSDIR/
-  rm -rf $JHALFSDIR/blfs-tool-deps/.svn
-fi
-
-get_book
-echo "${SD_BORDER}${nl_}"
-
-# Get the BLFS book, if requested.
-if [[ "${BLFS_TOOL}" = "y" ]] ; then
-  echo -n "Downloading the BLFS document, $BLFS_BRANCH_ID version... "
-  if [[ ! -d ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} ]] ; then
-    mkdir -p ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML}
-    svn co $SVN_2/BLFS/$BLFS_TREE ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} >>$LOGDIR/$LOG 2>&1
-  else
-    pushd ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} 1> /dev/null
-      svn up >>$LOGDIR/$LOG 2>&1
-    popd 1> /dev/null
+  #
+  # Install blfs-tool, if requested.
+  if [[ "${BLFS_TOOL}" = "y" ]] ; then
+    # Install the files
+    [[ ! -d ${BUILDDIR}${BLFS_ROOT} ]] && mkdir -p ${BUILDDIR}${BLFS_ROOT}
+    cp -r BLFS/* ${BUILDDIR}${BLFS_ROOT}
+    cp -r menu ${BUILDDIR}${BLFS_ROOT}
+    cp $COMMON_DIR/progress_bar.sh ${BUILDDIR}${BLFS_ROOT}
+    cp README.BLFS ${BUILDDIR}${BLFS_ROOT}
+    # Clean-up
+    rm -rf ${BUILDDIR}${BLFS_ROOT}/libs/.svn
+    rm -rf ${BUILDDIR}${BLFS_ROOT}/menu/.svn
+    rm -rf ${BUILDDIR}${BLFS_ROOT}/menu/lxdialog/.svn
+    # Set some harcoded envars to their proper values
+    sed -i 's,blfs-xml,'$BLFS_XML',' ${BUILDDIR}${BLFS_ROOT}/{update_book.sh,libs/book.xsl}
+    sed -i 's,tracking-dir,'$TRACKING_DIR',' ${BUILDDIR}${BLFS_ROOT}/{update_book.sh,gen-makefile.sh}
+    # Copy the dependencies build scripts
+    cp -r $COMMON_DIR/blfs-tool-deps $JHALFSDIR/
+    rm -rf $JHALFSDIR/blfs-tool-deps/.svn
   fi
-  echo -ne "done\n"
+  #
+
+  get_book
   echo "${SD_BORDER}${nl_}"
+
+  # Get the BLFS book, if requested.
+  if [[ "${BLFS_TOOL}" = "y" ]] ; then
+    echo -n "Downloading the BLFS document, $BLFS_BRANCH_ID version... "
+    if [[ ! -d ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} ]] ; then
+      mkdir -p ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML}
+      svn co $SVN_2/BLFS/$BLFS_TREE ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} >>$LOGDIR/$LOG 2>&1
+    else
+      pushd ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} 1> /dev/null
+        svn up >>$LOGDIR/$LOG 2>&1
+      popd 1> /dev/null
+    fi
+    echo -ne "done\n"
+    echo "${SD_BORDER}${nl_}"
+  fi
+
+fi
+
+# When regeneration the Makefile we need to know also the canonical book version
+if [[ "$REBUILD_MAKEFILE" = "y" ]] ; then
+  case $PROGNAME in
+    clfs | clfs2 | clfs3 )
+      VERSION=$(xmllint --noent $JHALFSDIR/$BOOK/prologue/$ARCH/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
+    *)
+      VERSION=$(xmllint --noent $JHALFSDIR/$BOOK/prologue/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//')  ;;
+  esac
 fi
 
 build_Makefile
-if [[ "${PROGNAME}" = "lfs" ]]; then
-  if [[ "${CUSTOM_TOOLS}" = "y" ]]; then
-    add_CustomTools
-  fi
-fi
+
 echo "${SD_BORDER}${nl_}"
 
 run_make

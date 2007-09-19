@@ -4,6 +4,8 @@
 
 # $Id$
 
+LANG=C
+LC_ALL=C
 TOPDIR=$(shell pwd)
 CONFIG_CONFIG_IN = Config.in
 CONFIG = menu
@@ -11,10 +13,10 @@ CONFIG = menu
 all: 	menuconfig
 
 $(CONFIG)/conf:
-	$(MAKE) -C $(CONFIG) conf
+	$(MAKE) -B -C $(CONFIG) conf
 
 $(CONFIG)/mconf:
-	$(MAKE) -C $(CONFIG) ncurses conf mconf
+	$(MAKE) -B -C $(CONFIG) ncurses conf mconf
 
 menuconfig: $(CONFIG)/mconf
 	@./update_book.sh none
@@ -35,4 +37,4 @@ clean-target:
 	rm -f error
 	- $(MAKE) -C $(CONFIG) clean
 
-.PHONY: all menuconfig config clean clean-target
+.PHONY: all menuconfig config clean clean-target $(CONFIG)/conf $(CONFIG)/mconf

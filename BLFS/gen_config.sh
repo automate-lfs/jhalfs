@@ -47,7 +47,11 @@ do
   if [ $PKG_DIR = "." ]; then
     SET_COMMENT=y
       # Do not include previously installed packages
-    if [ -n "${PKG_VER}" ] && [ "x${PKG_VER}" = "x${INST_VER}" ]; then
+    if [ -n "${PKG_VER}" ] && [[ "x${PKG_VER}" = "x${INST_VER}" ]]; then
+      continue
+    fi
+      # Do not include installed packages newer than the book ones
+    if [ -n "${PKG_VER}" ] && [[ "x${PKG_VER}" < "x${INST_VER}" ]]; then
       continue
     fi
       # Set installed version for updated meta-packages
@@ -75,7 +79,11 @@ EOF
          PKG_VER=$(grep "^${PKG_NAME}[[:space:]]" $inFile | cut -f3)
          INST_VER=$(grep "^${PKG_NAME}[[:space:]]" $inFile | cut -f4)
            # Skip installed meta-package components
-         if [ -n "${PKG_VER}" ] && [ "x${PKG_VER}" = "x${INST_VER}" ]; then
+         if [ -n "${PKG_VER}" ] && [[ "x${PKG_VER}" = "x${INST_VER}" ]]; then
+           continue
+         fi
+          # Do not include installed packages newer than the book ones
+         if [ -n "${PKG_VER}" ] && [[ "x${PKG_VER}" < "x${INST_VER}" ]]; then
            continue
          fi
            # Set installed version for updated meta-packages components
@@ -95,15 +103,30 @@ EOF
   fi
   [[ "${SET_COMMENT}" = "y" ]] && echo "comment \"\"" >>$outFile; unset SET_COMMENT
 
-    # Deal with a few unusable (at target level) package names
+    # Deal with targets that are part of a meta-package but that are in the same
+    # directory that non meta-package targets
   case ${PKG_NAME} in
-     xorg7-* ) continue ;;
-     alsa-* ) continue ;;
-     x-config | x-setup ) continue ;;
+     alsa-* | \
+     xorg7-* | \
+     x-config | \
+     x-setup | \
+     libXau | \
+     libxcb | \
+     libXdmcp | \
+     luit | \
+     xbitmaps | \
+     xcb-proto | \
+     xkeyboard-config | \
+     mesalib | \
+     libdrm ) continue ;;
   esac
 
     # Skip installed packages
-  if [ -n "${PKG_VER}" ] && [ "x${PKG_VER}" = "x${INST_VER}" ]; then
+  if [ -n "${PKG_VER}" ] && [[ "x${PKG_VER}" = "x${INST_VER}" ]]; then
+    continue
+  fi
+    # Do not include installed packages newer than the book ones
+  if [ -n "${PKG_VER}" ] && [[ "x${PKG_VER}" < "x${INST_VER}" ]]; then
     continue
   fi
     # Set installed version for updated packages
@@ -222,15 +245,12 @@ choice
 	prompt	"Window package"
 	config	WIN_xorg7
 	bool	"Xorg7"
-	config	WIN_xorg
-	bool	"Xorg"
 	config	WIN_xfree86
 	bool	"xfree86"
 endchoice
 config	X11
 	string
 	default	xorg7	if WIN_xorg7
-	default	xorg	if WIN_xorg
 	default xfree86	if WIN_xfree86
 endmenu
 

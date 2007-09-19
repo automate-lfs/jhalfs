@@ -144,6 +144,9 @@ void dialog_clear (void)
 void
 init_dialog (void)
 {
+#ifdef LOCALE
+    setlocale(LC_CTYPE, "");    /* required by ncurses on linux UTF-8 console */
+#endif
     initscr ();			/* Init curses */
     keypad (stdscr, TRUE);
     cbreak ();

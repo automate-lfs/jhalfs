@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # $Id$
 
 ###################################
@@ -17,59 +17,42 @@ host_prep_Makefiles() {      # Initialization of the system
   CLFS_HOST="$(echo $MACHTYPE | sed "s/$(echo $MACHTYPE | cut -d- -f2)/cross/")"
 (
 cat << EOF
-023-creatingtoolsdir:
-	@\$(call echo_message, Building)
-	@if [ ! -d \$(MOUNT_PT)/sources ]; then \\
-		mkdir \$(MOUNT_PT)/sources; \\
-	fi;
-	@chmod a+wt \$(MOUNT_PT)/sources
-	@touch \$@ && \\
-	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
-	echo --------------------------------------------------------------------------------\$(WHITE)
 
-025-addinguser:  023-creatingtoolsdir
+025-addinguser:
 	@\$(call echo_message, Building)
-	@if [ ! -d /home/\$(LUSER) ]; then \\
+	@if [ ! -d \$(LUSER_HOME) ]; then \\
 		groupadd \$(LGROUP); \\
 		useradd -s /bin/bash -g \$(LGROUP) -m -k /dev/null \$(LUSER); \\
 	else \\
 		touch luser-exist; \\
 	fi;
-	@chown -R \$(LUSER) \$(MOUNT_PT) && \\
-	chown \$(LUSER) \$(MOUNT_PT)/sources
-	@touch \$@ && \\
-	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
-	echo --------------------------------------------------------------------------------\$(WHITE)
+	@\$(call housekeeping)
 
 026-settingenvironment:  025-addinguser
 	@\$(call echo_message, Building)
-	@if [ -f /home/\$(LUSER)/.bashrc -a ! -f /home/\$(LUSER)/.bashrc.XXX ]; then \\
-		mv /home/\$(LUSER)/.bashrc /home/\$(LUSER)/.bashrc.XXX; \\
+	@if [ -f \$(LUSER_HOME)/.bashrc -a ! -f \$(LUSER_HOME)/.bashrc.XXX ]; then \\
+		mv \$(LUSER_HOME)/.bashrc \$(LUSER_HOME)/.bashrc.XXX; \\
 	fi;
-	@if [ -f /home/\$(LUSER)/.bash_profile  -a ! -f /home/\$(LUSER)/.bash_profile.XXX ]; then \\
-		mv /home/\$(LUSER)/.bash_profile /home/\$(LUSER)/.bash_profile.XXX; \\
+	@if [ -f \$(LUSER_HOME)/.bash_profile  -a ! -f \$(LUSER_HOME)/.bash_profile.XXX ]; then \\
+		mv \$(LUSER_HOME)/.bash_profile \$(LUSER_HOME)/.bash_profile.XXX; \\
 	fi;
-	@echo "set +h" > /home/\$(LUSER)/.bashrc && \\
-	echo "umask 022" >> /home/\$(LUSER)/.bashrc && \\
-	echo "CLFS=\$(MOUNT_PT)" >> /home/\$(LUSER)/.bashrc && \\
-	echo "LC_ALL=POSIX" >> /home/\$(LUSER)/.bashrc && \\
-	echo "PATH=\$(MOUNT_PT)/cross-tools/bin:/bin:/usr/bin" >> /home/\$(LUSER)/.bashrc && \\
-	echo "export CLFS LC_ALL PATH" >> /home/\$(LUSER)/.bashrc && \\
-	echo "" >> /home/\$(LUSER)/.bashrc && \\
-	echo "unset CFLAGS" >> /home/\$(LUSER)/.bashrc && \\
-	echo "unset CXXFLAGS" >> /home/\$(LUSER)/.bashrc && \\
-	echo "" >> /home/\$(LUSER)/.bashrc && \\
-	echo "export CLFS_HOST=\"${CLFS_HOST}\"" >> /home/\$(LUSER)/.bashrc && \\
-	echo "export CLFS_TARGET=\"${TARGET}\"" >> /home/\$(LUSER)/.bashrc && \\
-	echo "export CLFS_TARGET32=\"${TARGET32}\"" >> /home/\$(LUSER)/.bashrc && \\
-	echo "source $JHALFSDIR/envars" >> /home/\$(LUSER)/.bashrc
-	@chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bashrc && \\
+	@echo "set +h" > \$(LUSER_HOME)/.bashrc && \\
+	echo "umask 022" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "CLFS=\$(MOUNT_PT)" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "LC_ALL=POSIX" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "PATH=\$(MOUNT_PT)/cross-tools/bin:/bin:/usr/bin" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "export CLFS LC_ALL PATH" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "unset CFLAGS" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "unset CXXFLAGS" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "export CLFS_HOST=\"${CLFS_HOST}\"" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "export CLFS_TARGET=\"${TARGET}\"" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "source $JHALFSDIR/envars" >> \$(LUSER_HOME)/.bashrc
+	@chown \$(LUSER):\$(LGROUP) \$(LUSER_HOME)/.bashrc && \\
 	touch envars && \\
-	chown \$(LUSER):\$(LGROUP) envars && \\
-	chmod -R a+wt \$(MOUNT_PT)
-	@touch \$@ && \\
-	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
-	echo --------------------------------------------------------------------------------\$(WHITE)
+	chown \$(LUSER):\$(LGROUP) envars
+	@\$(call housekeeping)
 
 027-create-directories: 026-settingenvironment
 	@\$(call echo_message, Building)
@@ -87,10 +70,7 @@ cat << EOF
 	@for dir in \$(MOUNT_PT)/usr{,/local}; do \\
 	  ln -s share/{man,doc,info} \$\$dir ; \\
 	done
-
-	@touch \$@ && \\
-	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
-	echo --------------------------------------------------------------------------------\$(WHITE)
+	@\$(call housekeeping)
 
 028-creating-sysfile: 027-create-directories
 	@\$(call echo_message, Building)
@@ -116,16 +96,15 @@ cat << EOF
 
 	@touch \$(MOUNT_PT)/var/run/utmp \$(MOUNT_PT)/var/log/{btmp,lastlog,wtmp}
 	@chmod 664 \$(MOUNT_PT)/var/run/utmp \$(MOUNT_PT)/var/log/lastlog
-	@chown -R \$(LUSER) \$(MOUNT_PT)
-
-	@touch \$@ && \\
-	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
-	echo --------------------------------------------------------------------------------\$(WHITE)
+	@chown -R \$(LUSER) \$(MOUNT_PT) && \\
+	chmod -R a+w \$(MOUNT_PT)/\$(SCRIPT_ROOT) && \\
+	chmod -R a+w \$(SRCSDIR)
+	@\$(call housekeeping)
 
 EOF
 ) >> $MKFILE.tmp
 
-  host_prep=" 023-creatingtoolsdir 025-addinguser 026-settingenvironment 027-create-directories 028-creating-sysfile"
+  host_prep=" 025-addinguser 026-settingenvironment 027-create-directories 028-creating-sysfile"
 }
 
 
@@ -139,18 +118,9 @@ cross_tools_Makefiles() {     #
     this_script=`basename $file`
     #
     # Skip this script...
-    # NOTE.. the book indicated you only needed to install groff or file if the host
-    #   had older versions. The packages would be installed in the target directory
-    #   and not the host.
     case $this_script in
       *cflags* | *variables* )  # work done in host_prep_Makefiles
               continue ;;
-      *file ) FileVer=`file --version | head -n1 | cut -d " " -f1`
-              [[ "$FileVer" = "file-4.17" ]] && continue
-        ;;
-      *groff) GroffVer=`groff --version | head -n1 | cut -d " " -f4`
-              [[ "$GroffVer" = "1.19.2" ]] && continue
-        ;;
       *) ;;
     esac
 
@@ -248,6 +218,11 @@ final_system_Makefiles() {    #
     #
     # If $pkg_tarball isn't empty, we've got a package...
     if [ "$pkg_tarball" != "" ] ; then
+      # Touch timestamp file if installed files logs will be created.
+      # But only for the firt build when running iterative builds.
+      if [ "${INSTALL_LOG}" = "y" ] ; then
+        LUSER_wrt_TouchTimestamp
+      fi
       LUSER_wrt_unpack "$pkg_tarball"
       # If using optimizations, write the instructions
       [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
@@ -255,7 +230,14 @@ final_system_Makefiles() {    #
     #
     LUSER_wrt_RunAsUser "${file}"
     #
-    [[ "$pkg_tarball" != "" ]] && LUSER_RemoveBuildDirs "${name}"
+    # Write installed files log and remove the build directory(ies)
+    # except if the package build fails.
+    if [ "$pkg_tarball" != "" ] ; then
+      LUSER_RemoveBuildDirs "${name}"
+      if [ "${INSTALL_LOG}" = "y" ] ; then
+        LUSER_wrt_LogNewFiles "$name"
+      fi
+    fi
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -313,11 +295,21 @@ bootscripts_Makefiles() {     #
     LUSER_wrt_target "${this_script}" "$PREV"
     #
     # If $pkg_tarball isn't empty, we've got a package...
-    [[ "$pkg_tarball" != "" ]] && LUSER_wrt_unpack "$pkg_tarball"
+    if [ "$pkg_tarball" != "" ] ; then
+      LUSER_wrt_unpack "$pkg_tarball"
+      if [ "${INSTALL_LOG}" = "y" ] ; then
+        LUSER_wrt_TouchTimestamp
+      fi
+    fi
     #
     LUSER_wrt_RunAsUser "${file}"
     #
-    [[ "$pkg_tarball" != "" ]] && LUSER_RemoveBuildDirs "${name}"
+    if [ "$pkg_tarball" != "" ] ; then
+      LUSER_RemoveBuildDirs "${name}"
+      if [ "${INSTALL_LOG}" = "y" ] ; then
+        LUSER_wrt_LogNewFiles "$name"
+      fi
+    fi
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -359,7 +351,7 @@ bootable_Makefiles() {        #
     # NOTE: new makfile format forces the last script, *chowning, into a separate
     #  phase.
     case ${this_script} in
-      *chowning) chowning=${this_script}   ;;
+      *chowning) chowning=" ${this_script}"   ;;
               *) bootable="$bootable $this_script"  ;;
     esac
     #
@@ -381,7 +373,12 @@ bootable_Makefiles() {        #
     LUSER_wrt_target "${this_script}" "$PREV"
     #
     # If $pkg_tarball isn't empty, we've got a package...
-    [[ "$pkg_tarball" != "" ]] && LUSER_wrt_unpack "$pkg_tarball"
+    if [ "$pkg_tarball" != "" ] ; then
+      LUSER_wrt_unpack "$pkg_tarball"
+      if [ "${INSTALL_LOG}" = "y" ] ; then
+        LUSER_wrt_TouchTimestamp
+      fi
+    fi
     #
     # Select a script execution method
     case $this_script in
@@ -391,14 +388,19 @@ bootable_Makefiles() {        #
                   LUSER_wrt_RunAsUser "${file}"
                 fi
           ;;
-      *chowning)  wrt_RunAsRoot "${this_script}" "${file}"
+      *chowning)  wrt_RunAsRoot "${file}"
           ;;
               *)  LUSER_wrt_RunAsUser "${file}"
 	  ;;
     esac
     #
     # Housekeeping...remove any build directory(ies) except if the package build fails.
-    [[ "$pkg_tarball" != "" ]] && LUSER_RemoveBuildDirs "${name}"
+    if [ "$pkg_tarball" != "" ] ; then
+      LUSER_RemoveBuildDirs "${name}"
+      if [ "${INSTALL_LOG}" = "y" ] ; then
+        LUSER_wrt_LogNewFiles "$name"
+      fi
+    fi
     #
     # Include a touch of the target name so make can check if it's already been made.
     wrt_touch
@@ -429,43 +431,22 @@ build_Makefile() {            # Construct a Makefile from the book scripts
   final_system_Makefiles           # $basicsystem
   bootscripts_Makefiles            # $bootscripttools
   bootable_Makefiles               # $bootable
+  # Add the CUSTOM_TOOLS targets, if needed
+  [[ "$CUSTOM_TOOLS" = "y" ]] && wrt_CustomTools_target
+  # Add the BLFS_TOOL targets, if needed.
+  [[ "$BLFS_TOOL" = "y" ]] && wrt_blfs_tool_targets
 
   # Add a header, some variables and include the function file
   # to the top of the real Makefile.
-(
-    cat << EOF
-$HEADER
-
-SRC         = /sources
-MOUNT_PT    = $BUILDDIR
-PKG_LST     = $PKG_LST
-LUSER       = $LUSER
-LGROUP      = $LGROUP
-SCRIPT_ROOT = $SCRIPT_ROOT
-
-BASEDIR    = \$(MOUNT_PT)
-SRCSDIR    = \$(BASEDIR)/sources
-CMDSDIR    = \$(BASEDIR)/\$(SCRIPT_ROOT)/$PROGNAME-commands
-LOGDIR     = \$(BASEDIR)/\$(SCRIPT_ROOT)/logs
-TESTLOGDIR = \$(BASEDIR)/\$(SCRIPT_ROOT)/test-logs
-
-SU_LUSER   = su - \$(LUSER) -c
-PRT_DU     = echo -e "\nKB: \`du -skx --exclude=jhalfs \$(MOUNT_PT)\`\n"
-LUSER_HOME = /home/\$(LUSER)
-
-export PATH := \${PATH}:/usr/sbin
-
-include makefile-functions
-
-EOF
-) > $MKFILE
+  wrt_Makefile_header
 
   # Drop in the main target 'all:' and the chapter targets with each sub-target
   # as a dependency.
 (
 cat << EOF
 
-all:	ck_UID mk_SETUP mk_LUSER mk_ROOT create-sbu_du-report
+all:	ck_UID mk_SETUP mk_LUSER create-sbu_du-report mk_CUSTOM_TOOLS mk_BLFS_TOOL mk_ROOT
+	@sudo make restore-luser-env
 	@sudo make do-housekeeping
 	@\$(call echo_finished,$VERSION)
 
@@ -479,35 +460,61 @@ ck_UID:
 
 mk_SETUP:
 	@\$(call echo_SU_request)
-	@sudo make SETUP
+	@sudo make BREAKPOINT=\$(BREAKPOINT) SETUP
 	@touch \$@
 
 mk_LUSER: mk_SETUP
 	@\$(call echo_SULUSER_request)
-	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make LUSER" )
-	@sudo make restore-luser-env
+	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) LUSER" )
 	@touch \$@
 
-mk_ROOT:
-	@sudo make ROOT
+mk_CUSTOM_TOOLS: create-sbu_du-report
+	@if [ "\$(ADD_CUSTOM_TOOLS)" = "y" ]; then \\
+	  \$(call sh_echo_PHASE,Building CUSTOM_TOOLS); \\
+	  (sudo \$(SU_LUSER) "mkdir -p $BUILDDIR$TRACKING_DIR"); \\
+	  (sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) CUSTOM_TOOLS"); \\
+	fi;
 	@touch \$@
 
-SETUP:  $host_prep
+mk_BLFS_TOOL: mk_CUSTOM_TOOLS
+	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
+	  \$(call sh_echo_PHASE,Building BLFS_TOOL); \\
+	  (sudo \$(SU_LUSER) "mkdir -p $BUILDDIR$TRACKING_DIR"); \\
+	  (sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) BLFS_TOOL"); \\
+	fi;
+	@touch \$@
 
-LUSER:	$cross_tools $basicsystem $bootscripttools $bootable
+mk_ROOT: create-sbu_du-report
+	@\$(call echo_SU_request)
+	@echo "$VERSION-sysroot - jhalfs build" > clfs-release && \\
+	sudo mv clfs-release \$(MOUNT_PT)/etc
+	@sudo make BREAKPOINT=\$(BREAKPOINT) ROOT
+	@touch \$@
 
-ROOT:	$chowning
+SETUP:        $host_prep
+LUSER:        $cross_tools $basicsystem $bootscripttools $bootable
+CUSTOM_TOOLS: $custom_list
+BLFS_TOOL:    $blfs_tool
+ROOT:         $chowning
 
+
+create-sbu_du-report: mk_LUSER
+	@\$(call echo_message, Building)
+	@if [ "\$(ADD_REPORT)" = "y" ]; then \\
+	  ./create-sbu_du-report.sh logs $VERSION; \\
+	  \$(call echo_report,$VERSION-SBU_DU-$(date --iso-8601).report); \\
+	fi;
+	@touch  \$@
 
 restore-luser-env:
 	@\$(call echo_message, Building)
-	@if [ -f /home/\$(LUSER)/.bashrc.XXX ]; then \\
-		mv -f /home/\$(LUSER)/.bashrc.XXX /home/\$(LUSER)/.bashrc; \\
+	@if [ -f \$(LUSER_HOME)/.bashrc.XXX ]; then \\
+		mv -f \$(LUSER_HOME)/.bashrc.XXX \$(LUSER_HOME)/.bashrc; \\
 	fi;
-	@if [ -f /home/\$(LUSER)/.bash_profile.XXX ]; then \\
-		mv /home/\$(LUSER)/.bash_profile.XXX /home/\$(LUSER)/.bash_profile; \\
+	@if [ -f \$(LUSER_HOME)/.bash_profile.XXX ]; then \\
+		mv \$(LUSER_HOME)/.bash_profile.XXX \$(LUSER_HOME)/.bash_profile; \\
 	fi;
-	@chown \$(LUSER):\$(LGROUP) /home/\$(LUSER)/.bash* && \\
+	@chown \$(LUSER):\$(LGROUP) \$(LUSER_HOME)/.bash* && \\
 	touch \$@ && \\
 	echo " "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK && \\
 	echo --------------------------------------------------------------------------------\$(WHITE)
@@ -515,26 +522,11 @@ restore-luser-env:
 do-housekeeping:
 	@-if [ ! -f luser-exist ]; then \\
 		userdel \$(LUSER); \\
-		rm -rf /home/\$(LUSER); \\
+		rm -rf \$(LUSER_HOME); \\
 	fi;
 
 EOF
 ) >> $MKFILE
-
-  # Add SBU-disk_usage report target
-  echo "create-sbu_du-report:" >> $MKFILE
-  if [[ "$REPORT" = "y" ]] ; then
-(
-    cat << EOF
-	@\$(call echo_message, Building)
-	@./create-sbu_du-report.sh logs $VERSION
-	@\$(call echo_report,$VERSION-SBU_DU-$(date --iso-8601).report)
-	@touch  \$@
-
-
-EOF
-) >> $MKFILE
-  else echo -e "\t@true\n\n" >> $MKFILE; fi
 
   # Bring over the items from the Makefile.tmp
   cat $MKFILE.tmp >> $MKFILE
@@ -542,4 +534,3 @@ EOF
   echo "Creating Makefile... ${BOLD}DONE${OFF}"
 
 }
-

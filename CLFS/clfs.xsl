@@ -42,6 +42,9 @@
   <!-- Locale settings -->
   <xsl:param name="lang" select="C"/>
 
+  <!-- Sparc64 processor type -->
+  <xsl:param name="sparc" select="none"/>
+
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
   </xsl:template>
@@ -87,23 +90,31 @@
             <!-- Creating dirs and files -->
           <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
             <xsl:choose>
-              <xsl:when test="../@id='chapter-chroot'">
-                <xsl:text>#!/tools/bin/bash&#xA;set -e&#xA;&#xA;</xsl:text>
-              </xsl:when>
-              <xsl:when test="@id='ch-system-stripping'">
-                <xsl:text>#!/bin/sh&#xA;</xsl:text>
+              <xsl:when test="@id='ch-chroot-changingowner' or
+                        @id='ch-chroot-creatingdirs' or
+                        @id='ch-chroot-createfiles' or
+                        @id='ch-system-stripping'">
+                <xsl:text>#!/tools/bin/bash&#xA;set +h&#xA;</xsl:text>
               </xsl:when>
               <xsl:otherwise>
-                <xsl:text>#!/bin/sh&#xA;set -e&#xA;&#xA;</xsl:text>
+                <xsl:text>#!/bin/bash&#xA;set +h&#xA;</xsl:text>
               </xsl:otherwise>
             </xsl:choose>
-            <xsl:if test="sect2[@role='installation']">
+            <xsl:if test="not(@id='ch-system-stripping')">
+              <xsl:text>set -e</xsl:text>
+            </xsl:if>
+            <xsl:text>&#xA;</xsl:text>
+            <xsl:if test="sect2[@role='installation'] and
+                          not(@id='ch-system-multiarch-wrapper')">
               <xsl:text>cd $PKGDIR&#xA;</xsl:text>
               <xsl:if test="@id='ch-system-vim' and $vim-lang = 'y'">
                 <xsl:text>tar -xvf ../vim-&vim-version;-lang.* --strip-components=1&#xA;</xsl:text>
               </xsl:if>
             </xsl:if>
             <xsl:apply-templates select=".//para/userinput | .//screen"/>
+            <xsl:if test="not(@id='ch-chroot-chroot')">
+              <xsl:text>echo -e "\n\nTotalseconds: $SECONDS\n"&#xA;</xsl:text>
+            </xsl:if>
             <xsl:text>exit</xsl:text>
           </exsl:document>
         </xsl:if>
@@ -147,13 +158,6 @@
         <xsl:value-of select="substring-before(string(),'tar.gz')"/>
         <xsl:text>tar.*</xsl:text>
         <xsl:value-of select="substring-after(string(),'tar.gz')"/>
-        <xsl:text>&#xA;</xsl:text>
-      </xsl:when>
-      <!-- Avoiding a race condition in a patch -->
-      <xsl:when test="contains(string(),'debian_fixes')">
-        <xsl:value-of select="substring-before(string(),'patch')"/>
-        <xsl:text>patch -Z</xsl:text>
-        <xsl:value-of select="substring-after(string(),'patch')"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
       <!-- Setting $LANG for /etc/profile -->
@@ -281,6 +285,40 @@
       </xsl:when>
       <xsl:when test="ancestor::sect1[@id='ch-system-groff']">
         <xsl:value-of select="$page"/>
+      </xsl:when>
+      <xsl:when test="ancestor::sect1[@id='ch-cross-tools-flags']">
+        <xsl:choose>
+          <xsl:when test="contains(string(),'BUILD32')">
+            <xsl:choose>
+              <xsl:when test="$sparc = '1' or $sparc = '2'">
+                <xsl:text>-m32 -mcpu=ultrasparc -mtune=ultrasparc</xsl:text>
+              </xsl:when>
+              <xsl:when test="$sparc = '3'">
+                <xsl:text>-m32 -mcpu=ultrasparc3 -mtune=ultrasparc3</xsl:text>
+              </xsl:when>
+            </xsl:choose>
+          </xsl:when>
+          <xsl:when test="contains(string(),'BUILD64')">
+            <xsl:choose>
+              <xsl:when test="$sparc = '1' or $sparc = '2'">
+                <xsl:text>-m64 -mcpu=ultrasparc -mtune=ultrasparc</xsl:text>
+              </xsl:when>
+              <xsl:when test="$sparc = '3'">
+                <xsl:text>-m64 -mcpu=ultrasparc3 -mtune=ultrasparc3</xsl:text>
+              </xsl:when>
+            </xsl:choose>
+          </xsl:when>
+          <xsl:when test="contains(string(),'GCCTARGET')">
+            <xsl:choose>
+              <xsl:when test="$sparc = '1' or $sparc = '2'">
+                <xsl:text>-mcpu=ultrasparc -mtune=ultrasparc</xsl:text>
+              </xsl:when>
+              <xsl:when test="$sparc = '3'">
+                <xsl:text>-mcpu=ultrasparc3 -mtune=ultrasparc3</xsl:text>
+              </xsl:when>
+            </xsl:choose>
+          </xsl:when>
+        </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
         <xsl:text>**EDITME</xsl:text>

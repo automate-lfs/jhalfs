@@ -1,0 +1,201 @@
+#!/bin/bash
+
+# $Id$
+
+#----------------------------# Hardcoded URLs and MD5.
+add_blfs_deps_urls() {       # No easy way to extract it.
+#----------------------------# Some FTP mirrors may not work
+
+  local BLFS_SERVER="${SERVER}/pub/blfs/conglomeration/"
+
+  if [[ "${DEP_LIBXML}" = "y" ]] ; then
+    echo "${LIBXML_URL} ${BLFS_SERVER}libxml2/${LIBXML_PKG} ${LIBXML_MD5}" >> urls.lst
+  fi
+
+  if [[ "${DEP_LIBXSLT}" = "y" ]] ; then
+    echo "${LIBXSLT_URL} ${BLFS_SERVER}libxslt/${LIBXSLT_PKG} ${LIBXSLT_MD5}" >> urls.lst
+  fi
+
+  if [[ "${DEP_TIDY}" = "y" ]] ; then
+    echo "${TIDY_URL} ${BLFS_SERVER}tidy/${TIDY_PKG} ${TIDY_MD5}" >> urls.lst
+  fi
+
+  if [[ "${DEP_UNZIP}" = "y" ]] ; then
+    echo "${UNZIP_URL} ${BLFS_SERVER}unzip/${UNZIP_PKG} ${UNZIP_MD5}" >> urls.lst
+    echo "${UNZIP_PATCH_URL} ${BLFS_SERVER}unzip/${UNZIP_PATCH} ${UNZIP_PATCH_MD5}" >> urls.lst
+  fi
+
+  if [[ "${DEP_DBXML}" = "y" ]] ; then
+    echo "${DBXML_URL} ${BLFS_SERVER}docbook-xml/${DBXML_PKG} ${DBXML_MD5}" >> urls.lst
+  fi
+
+#   if [[ "${DEP_DBXSL}" = "y" ]] ; then
+#     echo "${DBXSL_URL} ${BLFS_SERVER}docbook-xsl/${DBXSL_PKG} ${DBXSL_MD5}" >> urls.lst
+#   fi
+
+  if [[ "${DEP_LYNX}" = "y" ]] ; then
+    echo "${LYNX_URL} ${BLFS_SERVER}lynx/${LYNX_PKG} ${LYNX_MD5}" >> urls.lst
+  fi
+
+  if [[ "${DEP_SUDO}" = "y" ]] ; then
+    echo "${SUDO_URL} ${BLFS_SERVER}sudo/${SUDO_PKG} ${SUDO_MD5}" >> urls.lst
+    echo "${SUDO_PATCH_URL} ${BLFS_SERVER}sudo/${SUDO_PATCH} ${SUDO_PATCH_MD5}" >> urls.lst
+  fi
+
+  if [[ "${DEP_WGET}" = "y" ]] ; then
+    echo "${WGET_URL} ${BLFS_SERVER}wget/${WGET_PKG} ${WGET_MD5}" >> urls.lst
+  fi
+
+  if [[ "${DEP_SVN}" = "y" ]] ; then
+    echo "${SVN_URL} ${BLFS_SERVER}subversion/${SVN_PKG} ${SVN_MD5}" >> urls.lst
+  fi
+
+  if [[ "${DEP_GPM}" = "y" ]] ; then
+    echo "${GPM_URL} ${BLFS_SERVER}gpm/${GPM_PKG} ${GPM_MD5}" >> urls.lst
+    echo "${GPM_PATCH_1_URL} ${BLFS_SERVER}gpm/${GPM_PATCH_1} ${GPM_PATCH_1_MD5}" >> urls.lst
+    echo "${GPM_PATCH_2_URL} ${BLFS_SERVER}gpm/${GPM_PATCH_2} ${GPM_PATCH_2_MD5}" >> urls.lst
+  fi
+
+}
+
+#----------------------------# Maybe there is a better way to do this, but this
+copy_blfs_deps_scripts() {   # method avoid to place the test on all
+#----------------------------# $PROGNAME/master.sh scripts.
+
+  mkdir -p ${PROGNAME}-commands/blfs-tool-deps
+
+  if [[ "${DEP_LIBXML}" = "y" ]] ; then
+    mv blfs-tool-deps/901-libxml2 ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_LIBXSLT}" = "y" ]] ; then
+    mv blfs-tool-deps/902-libxslt ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_TIDY}" = "y" ]] ; then
+    mv blfs-tool-deps/903-tidy ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_UNZIP}" = "y" ]] ; then
+    mv blfs-tool-deps/904-unzip ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_DBXML}" = "y" ]] ; then
+    mv blfs-tool-deps/905-docbook-xml ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+#   if [[ "${DEP_DBXSL}" = "y" ]] ; then
+#     mv blfs-tool-deps/906-docbook-xsl ${PROGNAME}-commands/blfs-tool-deps
+#   fi
+
+  if [[ "${DEP_LYNX}" = "y" ]] ; then
+    mv blfs-tool-deps/908-lynx ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_SUDO}" = "y" ]] ; then
+    mv blfs-tool-deps/909-sudo ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_WGET}" = "y" ]] ; then
+    mv blfs-tool-deps/910-wget ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_SVN}" = "y" ]] ; then
+    mv blfs-tool-deps/911-subversion ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  if [[ "${DEP_GPM}" = "y" ]] ; then
+    mv blfs-tool-deps/907-gpm ${PROGNAME}-commands/blfs-tool-deps
+  fi
+
+  rm -rf blfs-tool-deps
+
+}
+
+
+#----------------------------------#
+wrt_blfs_tool_targets() {          #
+#----------------------------------#
+  PREV=""
+
+  echo "${tab_}${GREEN}Processing... ${L_arrow}BLFS_TOOL ${R_arrow}"
+
+  for file in blfs-tool-deps/* ; do
+    # Keep the script file name
+    this_script=`basename $file`
+
+    # Grab the name of the target
+    name=`echo ${this_script} | sed -e 's@[0-9]\{3\}-@@'`
+
+    # Find the package.
+    case $name in
+      lynx )  pkg_tarball=${LYNX_PKG} ;;
+      tidy )  pkg_tarball=${TIDY_PKG} ;;
+      unzip ) pkg_tarball=${UNZIP_PKG} ;;
+      * )     pkg_tarball=$(get_package_tarball_name $name) ;;
+    esac
+
+    # Append each name of the script files to a list (this will become
+    # the names of the targets in the Makefile)
+    blfs_tool="$blfs_tool ${this_script}"
+
+    #--------------------------------------------------------------------#
+    #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
+    #--------------------------------------------------------------------#
+    #
+    # Drop in the name of the target on a new line, and the previous target
+    # as a dependency. Also call the echo_message function.
+    if [ "$PROGNAME" = "clfs2" ]; then
+      LUSER_wrt_target "${this_script}" "$PREV"
+    else
+      CHROOT_wrt_target "${this_script}" "$PREV"
+    fi
+
+    # Insert instructions for unpacking the package and changing directories
+    # DocBook-XML is a zip, the build script will handle that.
+    if [ "$PROGNAME" = "clfs2" ]; then
+      [[ ! "$name" = "docbook-xml" ]] && LUSER_wrt_unpack "$pkg_tarball"
+    else
+      [[ ! "$name" = "docbook-xml" ]] && CHROOT_Unpack "$pkg_tarball"
+    fi
+
+    # Run the script.
+    if [ "$PROGNAME" = "clfs2" ]; then
+      LUSER_wrt_RunAsUser "${file}"
+    else
+      CHROOT_wrt_RunAsRoot "$file"
+    fi
+
+    # Remove the build directory(ies) except if the package build fails.
+    if [ "$PROGNAME" = "clfs2" ]; then
+      [[ ! "$name" = "docbook-xml" ]] && LUSER_RemoveBuildDirs "$name"
+    else
+      [[ ! "$name" = "docbook-xml" ]] && CHROOT_wrt_RemoveBuildDirs "$name"
+    fi
+
+    # Touch the tracking file.
+    case $name in
+      docbook-xml )  pkg_ver=DocBook-4.5 ;;
+      lynx )  pkg_ver=lynx-2.8.6 ;;
+      tidy )  pkg_ver=html-tidy-cvs_20070326 ;;
+      unzip ) pkg_ver=unzip-5.52 ;;
+      * )     pkg_ver=$(echo $pkg_tarball | sed -e 's/.tar.*//;s/.tgz//;s/.zip//') ;;
+    esac
+    if [ "$PROGNAME" = "clfs2" ]; then
+      echo -e "\t@touch \$(MOUNT_PT)$TRACKING_DIR/$pkg_ver" >>  $MKFILE.tmp
+    else
+      echo -e "\t@touch $TRACKING_DIR/$pkg_ver" >>  $MKFILE.tmp
+    fi
+
+    # Include a touch of the target name so make can check
+    # if it's already been made.
+    wrt_touch
+    #
+    #--------------------------------------------------------------------#
+    #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
+    #--------------------------------------------------------------------#
+
+    # Keep the script file name for Makefile dependencies.
+    PREV=${this_script}
+  done
+}

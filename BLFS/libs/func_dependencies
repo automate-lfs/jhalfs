@@ -186,6 +186,9 @@ inline_doc
         # Don't have their own XML file
       hal-requirements | hal-runtime-dependencies ) continue ;;
       perl-* | tk-perl )         DEP=perl-modules ;;
+      dbus-* )                   DEP=dbus-bindings ;;
+      pyxml | pycairo | pygobject | pygtk | pyorbit | \
+      gnome-python | gnome-python-desktop ) DEP=python-modules ;;
 
         # Orphan links (proper link must be created when generating the book)
       arts )                     DEP=aRts ;;
@@ -202,7 +205,8 @@ inline_doc
               * )
                   pkg_ver=$(grep "^${X11}[[:space:]]" ../packages | cut -f3)
                   inst_ver=$(grep "^${X11}[[:space:]]" ../packages | cut -f4)
-                  [ -n "${pkg_ver}" ] && [ "x${pkg_ver}" = "x${inst_ver}" ] && continue
+                  [ -n "${pkg_ver}" ] && [[ "x${pkg_ver}" = "x${inst_ver}" ]] && continue
+                  [ -n "${pkg_ver}" ] && [[ "x${pkg_ver}" < "x${inst_ver}" ]] && continue
                   ;;
         esac
         ;;
@@ -211,7 +215,8 @@ inline_doc
     # If DEP has been previouly installed, skip it
     pkg_ver=$(grep "^${DEP}[[:space:]]" ../packages | cut -f3)
     inst_ver=$(grep "^${DEP}[[:space:]]" ../packages | cut -f4)
-    [ -n "${pkg_ver}" ] && [ "x${pkg_ver}" = "x${inst_ver}" ] && continue
+    [ -n "${pkg_ver}" ] && [[ "x${pkg_ver}" = "x${inst_ver}" ]] && continue
+    [ -n "${pkg_ver}" ] && [[ "x${pkg_ver}" < "x${inst_ver}" ]] && continue
 
     #------------------
     # Prevent circular dependencies
@@ -219,37 +224,114 @@ inline_doc
     # must be skipped, not placed here, to avoid that the script will bomb
     # due empty *.xinc files
     case $DEP in
-      jadetex | perl-* | lynx | Links | w3m )
-        # Optional dependencies are runtime only
-        [[ "$PKG" = "docbook-utils" ]] && continue
-        ;;
-      libxslt )
-        # libxml2-->libxslt-->libxml2
-        [[ "$PKG" = "libxml2" ]] && continue
-        ;;
-      openldap | postgresql | $KBR5 )
-        # cyrus-sasl-->several-->cyrus-sasl
-        [[ "$PKG" = "cyrus-sasl" ]] && continue
-        ;;
-      espgs )
-        # sendmail-->espgs-->cups-->php-->sendmail
-        [[ "$PKG" = "$MAIL_SERVER" ]] && continue
+      akode )
+        # Both are in the same page
+        [[ "$PKG" = "kdemultimedia" ]] && continue
         ;;
       aRts )
         # esound-->aRts-->esound
         [[ "$PKG" = "esound" ]] && continue
         ;;
-      gimp | sane )
-        # imagemagick-->{sane}-->gimp-->imagemagick
-        [[ "$PKG" = "imagemagick" ]] && continue
+      dbus-bindings )
+        # True circular dependecy
+        [[ "$PKG" = "dbus-bindings" ]] && continue
+        ;;
+      DocBook )
+        # Used to rebuild the documentation
+        [[ "$PKG" = "linux-pam" ]] && continue
+        ;;
+      docbook-xsl )
+        # Used to rebuild the documentation
+        [[ "$PKG" = "linux-pam" ]] && continue
+        ;;
+      doxygen )
+        # Used to rebuild the documentation
+        [[ "$PKG" = "dbus" ]] && continue
+        [[ "$PKG" = "libdvdcss" ]] && continue
+        [[ "$PKG" = "libusb" ]] && continue
+        [[ "$PKG" = "libxcb" ]] && continue
+        ;;
+      espgs )
+        # Used to rebuild the documentation
+        [[ "$PKG" = "$MAIL_SERVER" ]] && continue
         ;;
       ffmpeg )
         # alsa-plugins-->ffmpeg-->several-->alsa-plugins
         [[ "$PKG" = "alsa-plugins" ]] && continue
         ;;
-      akode )
-        # Both are in the same page
-        [[ "$PKG" = "kdemultimedia" ]] && continue
+      fop )
+        # Used to rebuild the documentation
+        [[ "$PKG" = "linux-pam" ]] && continue
+        ;;
+      graphviz )
+        # Used to build the API documentation
+        [[ "$PKG" = "libusb" ]] && continue
+        ;;
+      GTK )
+        # deprecated GTK version
+        [[ "$PKG" = "alsa-tools" ]] && continue
+        ;;
+      gtk2 )
+        # Testsuite only
+        [[ "$PKG" = "cairo" ]] && continue
+        ;;
+      jadetex )
+        # Runtime only
+        [[ "$PKG" = "docbook-utils" ]] && continue
+        ;;
+      $KBR5 )
+        # cyrus-sasl-->postgresql-->$KBR5-->openldap-->cyrus-sasl
+        [[ "$PKG" = "cyrus-sasl" ]] && continue
+        ;;
+      librsvg )
+        # Testsuite only
+        [[ "$PKG" = "cairo" ]] && continue
+        ;;
+      libxslt )
+        # libxml2-->libxslt-->libxml2
+        [[ "$PKG" = "libxml2" ]] && continue
+        ;;
+      Links )
+        # Runtime only
+        [[ "$PKG" = "docbook-utils" ]] && continue
+        ;;
+      lynx )
+        # Runtime only
+        [[ "$PKG" = "docbook-utils" ]] && continue
+        ;;
+      openldap )
+        # cyrus-sasl-->postgresql-->$KBR5-->openldap-->cyrus-sasl
+        [[ "$PKG" = "cyrus-sasl" ]] && continue
+        ;;
+      poppler )
+        # Testsuite only
+        [[ "$PKG" = "cairo" ]] && continue
+        ;;
+      postgresql )
+        # cyrus-sasl-->postgresql-->$KBR5-->openldap-->cyrus-sasl
+        [[ "$PKG" = "cyrus-sasl" ]] && continue
+        ;;
+      python-modules )
+        # True circular dependecy
+        [[ "$PKG" = "python-modules" ]] && continue
+        # libgsf-->python-modules-->several combinations-->libgsf
+        [[ "$PKG" = "libgsf" ]] && continue
+        # gimp-->python-modules-->several combinations-->gimp
+        [[ "$PKG" = "gimp" ]] && continue
+        # Used to rebuild the documentation
+        [[ "$PKG" = "gstreamer" ]] && continue
+        [[ "$PKG" = "gst-plugins-base" ]] && continue
+        [[ "$PKG" = "gst-plugins-good" ]] && continue
+        ;;
+      tk )
+        # python-->tk-->xorg7-->several combinations-->libxslt-->python
+        [[ "$PKG" = "python" ]] && continue
+        ;;
+      w3m )
+        # Runtime only
+        [[ "$PKG" = "docbook-utils" ]] && continue
+        # Used to rebuild the documentation
+        [[ "$PKG" = "linux-pam" ]] && continue
         ;;
     esac
 

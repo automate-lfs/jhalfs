@@ -10,8 +10,14 @@
   <!-- The FTP server used as fallback -->
   <xsl:param name="server">ftp://ftp.osuosl.org</xsl:param>
 
+  <!-- The book family (lfs or clfs). Needed to use the proper FTP path. -->
+  <xsl:param name="family">lfs</xsl:param>
+
   <!-- The libc model used for HLFS -->
   <xsl:param name="model" select="glibc"/>
+
+  <!-- The kernel series used for HLFS -->
+  <xsl:param name="kernel" select="2.6"/>
 
   <xsl:template match="/">
     <xsl:apply-templates select="//ulink"/>
@@ -23,8 +29,10 @@
       duplicated URLs due that may be splitted for PDF output -->
     <xsl:if test="(ancestor::varlistentry[@condition=$model]
                   or not(ancestor::varlistentry[@condition])) and
-                  (contains(@url, '.tar.') or contains(@url, '.tgz')
-                  or contains(@url, '.patch')) and
+                  (ancestor::varlistentry[@vendor=$kernel]
+                  or not(ancestor::varlistentry[@vendor])) and
+                  (contains(@url, '.bz2') or contains(@url, '.tar.gz') or
+                  contains(@url, '.tgz') or contains(@url, '.patch')) and
                   not(ancestor-or-self::*/@condition = 'pdf')">
       <!-- Extract the package name -->
       <xsl:variable name="package">
@@ -42,10 +50,10 @@
         <xsl:value-of select="$cut"/>
       </xsl:variable>
       <xsl:variable name="dirname" select="substring-before($package2, '-0')"/>
-      <!-- Write the upstream URLs, except the redirected ones -->
+      <!-- Write the upstream URLs, fixing the redirected ones -->
       <xsl:choose>
         <xsl:when test="contains(@url,'?')">
-          <xsl:text>dummy-url</xsl:text>
+          <xsl:value-of select="substring-before(@url,'?')"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="@url"/>
@@ -54,7 +62,9 @@
       <xsl:text> </xsl:text>
       <!-- Write FTP mirror URLs -->
       <xsl:value-of select="$server"/>
-      <xsl:text>/pub/lfs/conglomeration/</xsl:text>
+      <xsl:text>/pub/</xsl:text>
+      <xsl:value-of select="$family"/>
+      <xsl:text>/conglomeration/</xsl:text>
       <xsl:choose>
         <!-- Fix some directories. Test against $dirname to be sure that we
         are matching the start of a package name, not a string in a patch name
@@ -77,7 +87,7 @@
         <xsl:when test="contains($package, 'tcl')">
           <xsl:text>tcl/</xsl:text>
         </xsl:when>
-        <xsl:when test="contains($dirname, 'uClibc')">
+        <xsl:when test="contains($package, 'uClibc')">
           <xsl:text>uClibc/</xsl:text>
         </xsl:when>
         <xsl:when test="contains($dirname, 'udev')">

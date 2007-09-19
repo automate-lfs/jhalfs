@@ -44,8 +44,13 @@
   </xsl:template>
 
   <xsl:template match="sect1">
-    <xsl:if test="count(descendant::screen/userinput) &gt; 0 and
-      count(descendant::screen/userinput) &gt; count(descendant::screen[@role='nodump'])">
+    <xsl:if test="(../@id='chapter-temporary-tools' or
+                  ../@id='chapter-building-system' or
+                  ../@id='chapter-bootscripts' or
+                  ../@id='chapter-bootable') and
+                  count(descendant::screen/userinput) &gt; 0 and
+                  count(descendant::screen/userinput) &gt;
+                  count(descendant::screen[@role='nodump'])">
         <!-- The dirs names -->
       <xsl:variable name="pi-dir" select="../processing-instruction('dbhtml')"/>
       <xsl:variable name="pi-dir-value" select="substring-after($pi-dir,'dir=')"/>
@@ -75,31 +80,36 @@
         <!-- Creating dirs and files -->
       <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
         <xsl:choose>
-          <xsl:when test="@id='ch-system-changingowner' or
-                    @id='ch-system-creatingdirs' or
-                    @id='ch-system-createfiles'">
-            <xsl:text>#!/tools/bin/bash&#xA;set -e&#xA;&#xA;</xsl:text>
-          </xsl:when>
-          <xsl:when test="@id='ch-tools-stripping' or
+          <xsl:when test="@id='ch-system-creatingdirs' or
+                    @id='ch-system-createfiles' or
                     @id='ch-system-strippingagain'">
-            <xsl:text>#!/bin/sh&#xA;</xsl:text>
+            <xsl:text>#!/tools/bin/bash&#xA;set +h&#xA;</xsl:text>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:text>#!/bin/sh&#xA;set -e&#xA;&#xA;</xsl:text>
+            <xsl:text>#!/bin/bash&#xA;set +h&#xA;</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
+        <xsl:if test="not(@id='ch-tools-stripping') and
+                      not(@id='ch-system-strippingagain')">
+          <xsl:text>set -e&#xA;</xsl:text>
+        </xsl:if>
+        <xsl:text>&#xA;</xsl:text>
         <xsl:if test="sect2[@role='installation']">
           <xsl:text>cd $PKGDIR&#xA;</xsl:text>
           <xsl:if test="@id='ch-system-vim' and $vim-lang = 'y'">
             <xsl:text>tar -xvf ../vim-&vim-version;-lang.* --strip-components=1&#xA;</xsl:text>
           </xsl:if>
         </xsl:if>
-        <xsl:apply-templates select=".//para/userinput | .//screen"/>
+        <xsl:apply-templates select=".//screen"/>
         <xsl:if test="$testsuite='3' and @id='ch-tools-glibc'">
-          <xsl:copy-of select="//sect1[@id='ch-system-glibc']/sect2[2]/screen[@role='nodump']"/>
+          <xsl:copy-of select="//userinput[@remap='locale-test']"/>
           <xsl:text>&#xA;</xsl:text>
         </xsl:if>
-        <xsl:text>exit</xsl:text>
+        <xsl:if test="not(@id='ch-system-chroot') and
+                      not(@id='ch-system-revisedchroot')">
+          <xsl:text>echo -e "\n\nTotalseconds: $SECONDS\n"&#xA;</xsl:text>
+        </xsl:if>
+        <xsl:text>exit&#xA;</xsl:text>
       </exsl:document>
     </xsl:if>
   </xsl:template>
@@ -107,31 +117,6 @@
   <xsl:template match="screen">
     <xsl:if test="child::* = userinput and not(@role = 'nodump')">
       <xsl:apply-templates select="userinput" mode="screen"/>
-    </xsl:if>
-  </xsl:template>
-
-  <xsl:template match="para/userinput">
-    <xsl:if test="(contains(string(),'test') or
-            contains(string(),'check')) and
-            (($testsuite = '2' and
-            ancestor::chapter[@id='chapter-building-system']) or
-            $testsuite = '3')">
-      <xsl:choose>
-        <xsl:when test="$bomb-testsuite = 'n'">
-          <xsl:value-of select="substring-before(string(),'make')"/>
-          <xsl:text>make -k</xsl:text>
-          <xsl:value-of select="substring-after(string(),'make')"/>
-          <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:apply-templates/>
-          <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
-          <xsl:if test="contains(string(),' -k ')">
-            <xsl:text> || true</xsl:text>
-          </xsl:if>
-          <xsl:text>&#xA;</xsl:text>
-        </xsl:otherwise>
-      </xsl:choose>
     </xsl:if>
   </xsl:template>
 
@@ -171,18 +156,20 @@
         <xsl:text>make mrproper&#xA;</xsl:text>
         <xsl:text>cp -v ../kernel-config .config&#xA;</xsl:text>
       </xsl:when>
-      <!-- The Coreutils and Module-Init-Tools test suites are optional -->
+      <!-- The Bash, Coreutils, and Module-Init-Tools test suites are optional -->
       <xsl:when test="(ancestor::sect1[@id='ch-system-coreutils'] or
-                ancestor::sect1[@id='ch-system-module-init-tools']) and
-                (contains(string(),'check') or
-                contains(string(),'dummy'))">
+                       ancestor::sect1[@id='ch-system-bash'] or
+                       ancestor::sect1[@id='ch-system-module-init-tools'])
+                      and @remap = 'test'">
         <xsl:choose>
           <xsl:when test="$testsuite = '0' or $testsuite = '1'"/>
           <xsl:otherwise>
-            <xsl:if test="not(contains(string(),'check'))">
+            <xsl:if test="not(contains(string(),'check')) and
+                          not(contains(string(),'make tests'))">
               <xsl:apply-templates/>
               <xsl:text>&#xA;</xsl:text>
             </xsl:if>
+            <!-- Coreutils and Module-Init-Tools -->
             <xsl:if test="contains(string(),'check')">
               <xsl:choose>
                 <xsl:when test="$bomb-testsuite = 'n'">
@@ -201,12 +188,35 @@
                 </xsl:otherwise>
               </xsl:choose>
             </xsl:if>
+            <!-- Bash -->
+            <xsl:if test="contains(string(),'make tests')">
+              <xsl:choose>
+                <xsl:when test="$bomb-testsuite = 'n'">
+                  <xsl:value-of select="substring-before(string(),'tests')"/>
+                  <xsl:text>-k tests</xsl:text>
+                  <xsl:value-of select="substring-after(string(),'tests')"/>
+                  <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:apply-templates/>
+                  <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
+                  <xsl:if test="contains(string(),' -k ')">
+                    <xsl:text> || true</xsl:text>
+                  </xsl:if>
+                  <xsl:text>&#xA;</xsl:text>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:if>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
       <!-- Fixing toolchain test suites run -->
-      <xsl:when test="string() = 'make check' or
-                string() = 'make -k check'">
+      <xsl:when test="(string() = 'make check' or
+                       string() = 'make -k check') and
+                      (ancestor::sect1[@id='ch-system-gcc'] or
+                       ancestor::sect1[@id='ch-system-glibc'] or
+                       ancestor::sect1[@id='ch-system-binutils'] or
+                       ancestor::sect1[@id='ch-tools-gcc-pass2'])">
         <xsl:choose>
           <xsl:when test="(($testsuite = '1' or $testsuite = '2') and
                     ancestor::chapter[@id='chapter-building-system']) or
@@ -244,6 +254,36 @@
             <xsl:apply-templates/>
             <xsl:text> &gt;&gt; $TEST_LOG&#xA;</xsl:text>
           </xsl:when>
+        </xsl:choose>
+      </xsl:when>
+      <!-- The rest of testsuites -->
+      <xsl:when test="@remap = 'test'">
+        <xsl:choose>
+          <xsl:when test="$testsuite = '0'"/>
+          <xsl:when test="$testsuite = '1' and
+                          not(ancestor::sect1[@id='ch-system-gcc']) and
+                          not(ancestor::sect1[@id='ch-system-glibc']) and
+                          not(ancestor::sect1[@id='ch-system-binutils'])"/>
+          <xsl:when test="$testsuite = '2' and
+                          ancestor::chapter[@id='chapter-temporary-tools']"/>
+          <xsl:otherwise>
+            <xsl:choose>
+              <xsl:when test="$bomb-testsuite = 'n'">
+                <xsl:value-of select="substring-before(string(),'make')"/>
+                <xsl:text>make -k</xsl:text>
+                <xsl:value-of select="substring-after(string(),'make')"/>
+                <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:apply-templates/>
+                <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
+                <xsl:if test="contains(string(),' -k ')">
+                  <xsl:text> || true</xsl:text>
+                </xsl:if>
+                <xsl:text>&#xA;</xsl:text>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
       <!-- Don't stop on strip run -->
