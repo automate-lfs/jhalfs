@@ -41,6 +41,29 @@
   <!-- Locale setting -->
   <xsl:param name="lang" select="C"/>
 
+
+<!-- ####################################################################### -->
+
+<!-- ########### NAMED USER TEMPLATES TO ALLOW CUSTOMIZATIONS ############## -->
+
+    <!-- Hock for user header additions -->
+  <xsl:template name="user_header">
+    <xsl:text>&#xA;</xsl:text>
+  </xsl:template>
+
+
+    <!-- Hock for user envars or extra commands before cd into the sources dir -->
+  <xsl:template name="user_pre_commands">
+    <xsl:text>&#xA;</xsl:text>
+  </xsl:template>
+
+
+    <!-- Hock for user footer additions -->
+  <xsl:template name="user_footer">
+    <xsl:text>&#xA;</xsl:text>
+  </xsl:template>
+
+
 <!-- ####################################################################### -->
 
 <!-- ########################### NAMED TEMPLATES ########################### -->
@@ -66,6 +89,7 @@
 
     <!-- Script header -->
   <xsl:template name="header">
+      <!-- Set the shabang -->
     <xsl:choose>
       <xsl:when test="@id='ch-system-creatingdirs' or
                       @id='ch-system-createfiles' or
@@ -76,14 +100,13 @@
         <xsl:text>#!/bin/bash&#xA;</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
-
+      <!-- Set +h -->
     <xsl:text>set +h&#xA;</xsl:text>
-
+      <!-- Set -e -->
     <xsl:if test="not(@id='ch-tools-stripping') and
                   not(@id='ch-system-strippingagain')">
       <xsl:text>set -e&#xA;</xsl:text>
     </xsl:if>
-
     <xsl:text>&#xA;</xsl:text>
   </xsl:template>
 
@@ -110,13 +133,32 @@
 
     <!-- Script footer -->
   <xsl:template name="footer">
+      <!-- Dump the build time -->
     <xsl:if test="not(@id='ch-system-chroot') and
                   not(@id='ch-system-revisedchroot')">
-      <xsl:text>echo -e "\n\nTotalseconds: $SECONDS\n"&#xA;</xsl:text>
+      <xsl:text>&#xA;&#xA;echo -e "\n\nTotalseconds: $SECONDS\n"&#xA;</xsl:text>
     </xsl:if>
-
-    <xsl:text>exit&#xA;</xsl:text>
+      <!-- Exit -->
+    <xsl:text>&#xA;exit&#xA;</xsl:text>
   </xsl:template>
+
+
+    <!-- Extract a package name from a package URL -->
+  <xsl:template name="package_name">
+    <xsl:param name="url" select="foo"/>
+    <xsl:param name="sub-url" select="substring-after($url,'/')"/>
+    <xsl:choose>
+      <xsl:when test="contains($sub-url,'/')">
+        <xsl:call-template name="package_name">
+          <xsl:with-param name="url" select="$sub-url"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$sub-url"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
 
 <!-- ######################################################################## -->
 
@@ -124,6 +166,7 @@
 
     <!-- Root element -->
   <xsl:template match="/">
+      <!-- Start processing at chapter level -->
     <xsl:apply-templates select="//chapter"/>
   </xsl:template>
 
@@ -132,12 +175,10 @@
   <xsl:template match="chapter">
     <xsl:if test="@id='chapter-temporary-tools' or @id='chapter-building-system'
                   or @id='chapter-bootscripts' or @id='chapter-bootable'">
-
         <!-- The dir name -->
       <xsl:variable name="dirname">
         <xsl:call-template name="dirname"/>
       </xsl:variable>
-
         <!-- The chapter order position -->
       <xsl:variable name="ch_position" select="position()"/>
       <xsl:variable name="ch_order">
@@ -151,34 +192,28 @@
           </xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
-
+        <!-- Process the childrens -->
       <xsl:apply-templates select="sect1">
         <xsl:with-param name="ch_order" select="$ch_order"/>
         <xsl:with-param name="dirname" select="$dirname"/>
       </xsl:apply-templates>
-
     </xsl:if>
   </xsl:template>
 
 
     <!-- sect1 -->
   <xsl:template match="sect1">
-
       <!-- Inherited chapter order -->
     <xsl:param name="ch_order" select="foo"/>
-
       <!-- Inherited dir name -->
     <xsl:param name="dirname" select="foo"/>
-
     <xsl:if test="count(descendant::screen/userinput) &gt; 0 and
                   count(descendant::screen/userinput) &gt;
                   count(descendant::screen[@role='nodump'])">
-
         <!-- Base file name -->
       <xsl:variable name="filename">
         <xsl:call-template name="filename"/>
       </xsl:variable>
-
         <!-- Sect1 order position -->
       <xsl:variable name="sect1_position" select="position()"/>
       <xsl:variable name="sect1_order">
@@ -192,34 +227,90 @@
           </xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
-
         <!-- Script build order -->
       <xsl:variable name="order" select="concat($ch_order,'_',$sect1_order)"/>
-
         <!-- Creating dirs and files -->
       <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
         <xsl:call-template name="header"/>
+        <xsl:call-template name="user_header"/>
+        <xsl:apply-templates select="sect1info[@condition='script']">
+          <xsl:with-param name="phase" select="$filename"/>
+        </xsl:apply-templates>
+        <xsl:call-template name="user_pre_commands"/>
         <xsl:call-template name="pre_commands"/>
         <xsl:apply-templates select=".//screen"/>
         <xsl:call-template name="post_commands"/>
+        <xsl:call-template name="user_footer"/>
         <xsl:call-template name="footer"/>
       </exsl:document>
-
     </xsl:if>
   </xsl:template>
 
 
+    <!-- sect1info -->
+  <xsl:template match="sect1info">
+      <!-- Build phase (base file name) to be used for PM -->
+    <xsl:param name="phase" select="foo"/>
+    <xsl:text>&#xA;PKG_PHASE=</xsl:text>
+    <xsl:value-of select="$phase"/>
+      <!-- Package name -->
+    <xsl:apply-templates select="productname"/>
+      <!-- Package version -->
+    <xsl:apply-templates select="productnumber"/>
+      <!-- Tarball name -->
+    <xsl:apply-templates select="address"/>
+    <xsl:text>&#xA;&#xA;</xsl:text>
+  </xsl:template>
 
 
+    <!-- productname -->
+  <xsl:template match="productname">
+    <xsl:text>&#xA;PACKAGE=</xsl:text>
+    <xsl:apply-templates/>
+  </xsl:template>
 
 
+    <!-- productnumber -->
+  <xsl:template match="productnumber">
+    <xsl:text>&#xA;VERSION=</xsl:text>
+    <xsl:apply-templates/>
+  </xsl:template>
+
+
+    <!-- address -->
+  <xsl:template match="address">
+    <xsl:text>&#xA;TARBALL=</xsl:text>
+    <xsl:call-template name="package_name">
+      <xsl:with-param name="url">
+        <xsl:apply-templates/>
+      </xsl:with-param>
+    </xsl:call-template>
+    <xsl:apply-templates select="otheraddr" mode="tarball"/>
+  </xsl:template>
+
+
+    <!-- otheraddr -->
+  <xsl:template match="otheraddr"/>
+  <xsl:template match="otheraddr" mode="tarball">
+    <xsl:text>&#xA;TARBALL_</xsl:text>
+    <xsl:value-of select="position()"/>
+    <xsl:text>=</xsl:text>
+    <xsl:call-template name="package_name">
+      <xsl:with-param name="url" select="."/>
+    </xsl:call-template>
+  </xsl:template>
+
+
+    <!-- screen -->
   <xsl:template match="screen">
     <xsl:if test="child::* = userinput and not(@role = 'nodump')">
-      <xsl:apply-templates select="userinput" mode="screen"/>
+      <xsl:apply-templates select="userinput"/>
     </xsl:if>
   </xsl:template>
 
-  <xsl:template match="userinput" mode="screen">
+
+    <!-- userinput -->
+  <xsl:template match="userinput">
     <xsl:choose>
       <!-- Estandarized package formats -->
       <xsl:when test="contains(string(),'tar.gz')">
