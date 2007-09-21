@@ -142,15 +142,6 @@
         <xsl:apply-templates/>
         <xsl:text>&#xA;fi&#xA;</xsl:text>
       </xsl:when>
-      <!-- Setting $LANG for /etc/profile -->
-      <xsl:when test="ancestor::sect1[@id='ch-scripts-profile'] and
-                contains(string(),'export LANG=')">
-        <xsl:value-of select="substring-before(string(),'export LANG=')"/>
-        <xsl:text>export LANG=</xsl:text>
-        <xsl:value-of select="$lang"/>
-        <xsl:value-of select="substring-after(string(),'modifiers>')"/>
-        <xsl:text>&#xA;</xsl:text>
-      </xsl:when>
       <!-- Copying the kernel config file -->
       <xsl:when test="string() = 'make mrproper'">
         <xsl:text>make mrproper&#xA;</xsl:text>
@@ -306,6 +297,9 @@
       </xsl:when>
       <xsl:when test="ancestor::sect1[@id='ch-system-groff']">
         <xsl:value-of select="$page"/>
+      </xsl:when>
+      <xsl:when test="contains(string(.),'&lt;ll&gt;_&lt;CC&gt;')">
+        <xsl:value-of select="$lang"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:text>**EDITME</xsl:text>
