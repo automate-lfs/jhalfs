@@ -17,25 +17,31 @@
        2 = all chapter06 testsuites
        3 = all chapter05 and chapter06 testsuites
   -->
-  <xsl:param name="testsuite" select="1"/>
+  <xsl:param name="testsuite">1</xsl:param>
 
   <!-- Bomb on test suites failures?
        n = no, I want to build the full system and review the logs
        y = yes, bomb at the first test suite failure to can review the build dir
   -->
-  <xsl:param name="bomb-testsuite" select="n"/>
+  <xsl:param name="bomb-testsuite">n</xsl:param>
 
   <!-- Install vim-lang package? -->
-  <xsl:param name="vim-lang" select="y"/>
+  <xsl:param name="vim-lang">y</xsl:param>
 
   <!-- Time zone -->
-  <xsl:param name="timezone" select="GMT"/>
+  <xsl:param name="timezone">GMT</xsl:param>
 
   <!-- Page size -->
-  <xsl:param name="page" select="letter"/>
+  <xsl:param name="page">letter</xsl:param>
 
   <!-- Locale setting -->
-  <xsl:param name="lang" select="C"/>
+  <xsl:param name="lang">C</xsl:param>
+
+  <!-- Custom tools support -->
+  <xsl:param name="custom-tools">n</xsl:param>
+
+  <!-- blfs-tool support -->
+  <xsl:param name="blfs-tool">n</xsl:param>
 
 
 <!-- ####################################################################### -->
@@ -57,6 +63,33 @@
     <!-- Hock for user footer additions -->
   <xsl:template name="user_footer">
     <xsl:text>&#xA;</xsl:text>
+  </xsl:template>
+
+
+    <!-- Hock for creating a custom tools directory containing scripts
+         to be run after the system has been built -->
+  <xsl:template name="custom-tools">
+      <!-- Fixed value -->
+    <xsl:variable name="basedir">custom-tools/20_</xsl:variable>
+      <!-- Add an exsl:document block for each script to be created,
+           This one is only a dummy example. You must replace "01" by
+           the proper build order and "dummy" by the script name -->
+    <exsl:document href="{$basedir}01-dummy" method="text">
+      <xsl:call-template name="header"/>
+      <xsl:text>
+PKG_PHASE=dummy
+PACKAGE=dummy
+VERSION=0.0.0
+TARBALL=dummy-0.0.0.tar.bz2
+
+cd $PKGDIR
+./configure --prefix=/usr
+make
+make check
+make install
+      </xsl:text>
+      <xsl:call-template name="footer"/>
+    </exsl:document>
   </xsl:template>
 
 
@@ -184,6 +217,31 @@
   </xsl:template>
 
 
+    <!-- Adds blfs-tool support scripts -->
+  <xsl:template name="blfs-tool">
+      <!-- Fixed values -->
+    <xsl:variable name="basedir">blfs-tool-deps/30_</xsl:variable>
+      <!-- One exsl:document block for each blfs-tool dependency
+           TO BE WRITTEN -->
+    <exsl:document href="{$basedir}01-dummy" method="text">
+      <xsl:call-template name="header"/>
+      <xsl:text>
+PKG_PHASE=dummy
+PACKAGE=dummy
+VERSION=0.0.0
+TARBALL=dummy-0.0.0.tar.bz2
+
+cd $PKGDIR
+./configure --prefix=/usr
+make
+make check
+make install
+      </xsl:text>
+      <xsl:call-template name="footer"/>
+    </exsl:document>
+  </xsl:template>
+
+
 <!-- ######################################################################## -->
 
 <!-- ############################# MATCH TEMPLATES ########################## -->
@@ -192,6 +250,14 @@
   <xsl:template match="/">
       <!-- Start processing at chapter level -->
     <xsl:apply-templates select="//chapter"/>
+      <!-- Process custom tools scripts -->
+    <xsl:if test="$custom-tools = 'y'">
+      <xsl:call-template name="custom-tools"/>
+    </xsl:if>
+      <!-- Process blfs-tool scripts -->
+    <xsl:if test="$blfs-tool = 'y'">
+      <xsl:call-template name="blfs-tool"/>
+    </xsl:if>
   </xsl:template>
 
 
