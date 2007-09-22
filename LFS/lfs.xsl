@@ -143,6 +143,34 @@
   </xsl:template>
 
 
+    <!-- Extra commads needed at the start of some screen block
+         to allow automatization -->
+  <xsl:template name="top_screen_build_fixes">
+      <!-- Fix Udev reinstallation after a build failure or on iterative builds -->
+    <xsl:if test="contains(string(),'firmware,udev')">
+      <xsl:text>if [[ ! -d /lib/udev/devices ]] ; then&#xA;</xsl:text>
+    </xsl:if>
+  </xsl:template>
+
+
+    <!-- Extra commads needed at the end of some screen block
+         to allow automatization -->
+  <xsl:template name="bottom_screen_build_fixes">
+      <!-- Fix Udev reinstallation after a build failure or on iterative builds -->
+    <xsl:if test="contains(string(),'firmware,udev')">
+      <xsl:text>&#xA;fi</xsl:text>
+    </xsl:if>
+      <!-- Copying the kernel config file -->
+    <xsl:if test="string() = 'make mrproper'">
+      <xsl:text>&#xA;cp -v ../kernel-config .config</xsl:text>
+    </xsl:if>
+      <!-- Don't stop on strip run -->
+    <xsl:if test="contains(string(),'strip --strip')">
+      <xsl:text> || true</xsl:text>
+    </xsl:if>
+  </xsl:template>
+
+
     <!-- Extract a package name from a package URL -->
   <xsl:template name="package_name">
     <xsl:param name="url" select="foo"/>
@@ -305,43 +333,73 @@
     <!-- screen -->
   <xsl:template match="screen">
     <xsl:if test="child::* = userinput and not(@role = 'nodump')">
-      <xsl:apply-templates select="userinput"/>
+      <xsl:call-template name="top_screen_build_fixes"/>
+      <xsl:apply-templates/>
+      <xsl:call-template name="bottom_screen_build_fixes"/>
+      <xsl:text>&#xA;</xsl:text>
     </xsl:if>
   </xsl:template>
 
 
-    <!-- userinput -->
+    <!-- userinput @remap='pre' -->
+  <xsl:template match="userinput[@remap='pre']">
+    <xsl:apply-templates select="." mode="pre"/>
+  </xsl:template>
+
+
+    <!-- userinput @remap='configure' -->
+  <xsl:template match="userinput[@remap='configure']">
+    <xsl:apply-templates select="." mode="configure"/>
+  </xsl:template>
+
+
+    <!-- userinput @remap='make' -->
+  <xsl:template match="userinput[@remap='make']">
+    <xsl:apply-templates select="." mode="make"/>
+  </xsl:template>
+
+
+    <!-- userinput @remap='test' -->
+  <xsl:template match="userinput[@remap='test']">
+    <xsl:apply-templates select="." mode="test"/>
+  </xsl:template>
+
+
+    <!-- userinput @remap='install' -->
+  <xsl:template match="userinput[@remap='install']">
+    <xsl:apply-templates select="." mode="install"/>
+  </xsl:template>
+
+
+    <!-- userinput @remap='adjust' -->
+  <xsl:template match="userinput[@remap='adjust']">
+    <xsl:apply-templates select="." mode="adjust"/>
+  </xsl:template>
+
+
+    <!-- userinput @remap='locale-test' -->
+  <xsl:template match="userinput[@remap='locale-test']">
+    <xsl:apply-templates select="." mode="locale-test"/>
+  </xsl:template>
+
+
+    <!-- userinput @remap='locale-full' -->
+  <xsl:template match="userinput[@remap='locale-full']">
+    <xsl:apply-templates select="." mode="locale-full"/>
+  </xsl:template>
+
+
+
+    <!-- userinput without @remap -->
   <xsl:template match="userinput">
     <xsl:choose>
-      <xsl:when test="@remap = 'pre'">
-        <xsl:apply-templates select="." mode="pre"/>
-      </xsl:when>
-      <xsl:when test="@remap = 'configure'">
-        <xsl:apply-templates select="." mode="configure"/>
-      </xsl:when>
-      <xsl:when test="@remap = 'make'">
-        <xsl:apply-templates select="." mode="make"/>
-      </xsl:when>
-      <xsl:when test="@remap = 'test'">
-        <xsl:apply-templates select="." mode="test"/>
-      </xsl:when>
-      <xsl:when test="@remap = 'install'">
-        <xsl:apply-templates select="." mode="install"/>
-      </xsl:when>
-      <xsl:when test="@remap = 'adjust'">
-        <xsl:apply-templates select="." mode="adjust"/>
-      </xsl:when>
-      <xsl:when test="@remap = 'locale-test'">
-        <xsl:apply-templates select="." mode="locale-test"/>
-      </xsl:when>
-      <xsl:when test="@remap = 'locale-full'">
-        <xsl:apply-templates select="." mode="locale-full"/>
+      <xsl:when test="ancestor::sect2[@role='configuration']">
+        <xsl:apply-templates select="." mode="configuration_section"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:apply-templates select="." mode="default"/>
+        <xsl:apply-templates select="." mode="no_remap"/>
       </xsl:otherwise>
     </xsl:choose>
-    <xsl:text>&#xA;</xsl:text>
   </xsl:template>
 
 
@@ -372,35 +430,6 @@
 <!-- ######################################################################## -->
 
 <!-- ############################# MODE TEMPLATES ########################### -->
-
-    <!-- mode default  -->
-  <xsl:template match="userinput" mode="default">
-      <!-- All ugly hacks required to fix automatization build issues,
-           except the ones related to testsuites, should go here,
-           no matter what @remap value have assigned -->
-    <xsl:choose>
-        <!-- Fix Udev reinstallation after a build failure -->
-      <xsl:when test="contains(string(),'firmware,udev')">
-        <xsl:text>if [[ ! -d /lib/udev/devices ]] ; then&#xA;</xsl:text>
-        <xsl:apply-templates/>
-        <xsl:text>&#xA;fi</xsl:text>
-      </xsl:when>
-        <!-- Copying the kernel config file -->
-      <xsl:when test="string() = 'make mrproper'">
-        <xsl:text>make mrproper&#xA;</xsl:text>
-        <xsl:text>cp -v ../kernel-config .config</xsl:text>
-      </xsl:when>
-        <!-- Don't stop on strip run -->
-      <xsl:when test="contains(string(),'strip --strip')">
-        <xsl:apply-templates/>
-        <xsl:text> || true</xsl:text>
-      </xsl:when>
-        <!-- The rest of commands -->
-      <xsl:otherwise>
-        <xsl:apply-templates/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
 
 
     <!-- mode test  -->
@@ -514,6 +543,24 @@
     <!-- mode locale-full  -->
   <xsl:template match="userinput" mode="locale-full">
     <xsl:apply-templates select="." mode="default"/>
+  </xsl:template>
+
+
+    <!-- mode configuration_section  -->
+  <xsl:template match="userinput" mode="configuration_section">
+    <xsl:apply-templates select="." mode="default"/>
+  </xsl:template>
+
+
+    <!-- mode no_remap  -->
+  <xsl:template match="userinput" mode="no_remap">
+    <xsl:apply-templates select="." mode="default"/>
+  </xsl:template>
+
+
+    <!-- mode default  -->
+  <xsl:template match="userinput" mode="default">
+    <xsl:apply-templates/>
   </xsl:template>
 
 </xsl:stylesheet>
