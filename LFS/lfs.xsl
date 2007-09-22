@@ -66,12 +66,79 @@
   </xsl:template>
 
 
+    <!-- Hock for inserting scripts before a selected one -->
+  <xsl:template name="insert_script_before">
+      <!-- Inherited values -->
+    <xsl:param name="reference" select="foo"/>
+    <xsl:param name="order" select="foo"/>
+      <!-- Add a string to be sure that this scripts are run
+           before the selected one -->
+    <xsl:variable name="insert_order" select="concat($order,'_0')"/>
+      <!-- Add an xsl:if block for each referenced sect1 you want
+           to insert scripts before -->
+    <xsl:if test="$reference = 'ID_of_selected_sect1'">
+        <!-- Add an exsl:document block for each script to be inserted
+             at this point of the build. This one is only a dummy example.
+             You must replace "dummy" by the script name and increase "01" -->
+      <exsl:document href="{$insert_order}01-dummy" method="text">
+        <xsl:call-template name="header"/>
+        <xsl:text>
+PKG_PHASE=dummy
+PACKAGE=dummy
+VERSION=0.0.0
+TARBALL=dummy-0.0.0.tar.bz2
+
+cd $PKGDIR
+./configure --prefix=/usr
+make
+make check
+make install
+        </xsl:text>
+        <xsl:call-template name="footer"/>
+      </exsl:document>
+    </xsl:if>
+  </xsl:template>
+
+
+    <!-- Hock for inserting scripts after a selected one -->
+  <xsl:template name="insert_script_after">
+      <!-- Inherited values -->
+    <xsl:param name="reference" select="foo"/>
+    <xsl:param name="order" select="foo"/>
+      <!-- Add a string to be sure that this scripts are run
+           after the selected one -->
+    <xsl:variable name="insert_order" select="concat($order,'_z')"/>
+      <!-- Add an xsl:if block for each referenced sect1 you want
+           to insert scripts after -->
+    <xsl:if test="$reference = 'ID_of_selected_sect1'">
+        <!-- Add an exsl:document block for each script to be inserted
+             at this point of the build. This one is only a dummy example. -->
+      <exsl:document href="{$insert_order}01-dummy" method="text">
+        <xsl:call-template name="header"/>
+        <xsl:text>
+PKG_PHASE=dummy
+PACKAGE=dummy
+VERSION=0.0.0
+TARBALL=dummy-0.0.0.tar.bz2
+
+cd $PKGDIR
+./configure --prefix=/usr
+make
+make check
+make install
+        </xsl:text>
+        <xsl:call-template name="footer"/>
+      </exsl:document>
+    </xsl:if>
+  </xsl:template>
+
+
     <!-- Hock for creating a custom tools directory containing scripts
          to be run after the system has been built -->
   <xsl:template name="custom-tools">
-      <!-- Fixed value -->
+      <!-- Fixed directory and ch_order values -->
     <xsl:variable name="basedir">custom-tools/20_</xsl:variable>
-      <!-- Add an exsl:document block for each script to be created,
+      <!-- Add an exsl:document block for each script to be created.
            This one is only a dummy example. You must replace "01" by
            the proper build order and "dummy" by the script name -->
     <exsl:document href="{$basedir}01-dummy" method="text">
@@ -219,7 +286,7 @@ make install
 
     <!-- Adds blfs-tool support scripts -->
   <xsl:template name="blfs-tool">
-      <!-- Fixed values -->
+      <!-- Fixed directory and ch_order values -->
     <xsl:variable name="basedir">blfs-tool-deps/30_</xsl:variable>
       <!-- One exsl:document block for each blfs-tool dependency
            TO BE WRITTEN -->
@@ -319,9 +386,14 @@ make install
         </xsl:choose>
       </xsl:variable>
         <!-- Script build order -->
-      <xsl:variable name="order" select="concat($ch_order,'_',$sect1_order)"/>
+      <xsl:variable name="order" select="concat($dirname,'/',$ch_order,'_',$sect1_order)"/>
+        <!-- Hock to insert scripts before the current one -->
+      <xsl:call-template name="insert_script_before">
+        <xsl:with-param name="reference" select="@id"/>
+        <xsl:with-param name="order" select="$order"/>
+      </xsl:call-template>
         <!-- Creating dirs and files -->
-      <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
+      <exsl:document href="{$order}-{$filename}" method="text">
         <xsl:call-template name="header"/>
         <xsl:call-template name="user_header"/>
         <xsl:apply-templates select="sect1info[@condition='script']">
@@ -334,6 +406,11 @@ make install
         <xsl:call-template name="user_footer"/>
         <xsl:call-template name="footer"/>
       </exsl:document>
+        <!-- Hock to insert scripts after the current one -->
+      <xsl:call-template name="insert_script_after">
+        <xsl:with-param name="reference" select="@id"/>
+        <xsl:with-param name="order" select="$order"/>
+      </xsl:call-template>
     </xsl:if>
   </xsl:template>
 
