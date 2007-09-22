@@ -221,8 +221,10 @@ make install
     <!-- Extra post commands needed by the book but not inside screen tags -->
   <xsl:template name="post_commands">
     <xsl:if test="$testsuite='3' and @id='ch-tools-glibc'">
-      <xsl:copy-of select="//userinput[@remap='locale-test']"/>
-      <xsl:text>&#xA;</xsl:text>
+      <xsl:variable name="content" select="//userinput[@remap='locale-test']"/>
+      <xsl:value-of select="substring-before($content,'/usr/lib/locale')"/>
+      <xsl:text>/tools/lib/locale</xsl:text>
+      <xsl:value-of select="substring-after($content,'/usr/lib/locale')"/>
     </xsl:if>
   </xsl:template>
 
