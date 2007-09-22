@@ -1,8 +1,4 @@
 <?xml version="1.0"?>
-<!DOCTYPE xsl:stylesheet [
- <!ENTITY % general-entities SYSTEM "FAKEDIR/general.ent">
-  %general-entities;
-]>
 
 <!-- $Id$ -->
 
