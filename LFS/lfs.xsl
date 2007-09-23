@@ -87,15 +87,17 @@ PKG_PHASE=dummy
 PACKAGE=dummy
 VERSION=0.0.0
 TARBALL=dummy-0.0.0.tar.bz2
-      </xsl:text>
-      <xsl:call-template name="unpack"/>
-      <xsl:text>
+        </xsl:text>
+        <xsl:call-template name="disk_usage"/>
+        <xsl:call-template name="unpack"/>
+        <xsl:text>
 cd $PKGDIR
 ./configure --prefix=/usr
 make
 make check
 make install
         </xsl:text>
+        <xsl:call-template name="disk_usage"/>
         <xsl:call-template name="clean_sources"/>
         <xsl:call-template name="footer"/>
       </exsl:document>
@@ -123,15 +125,17 @@ PKG_PHASE=dummy
 PACKAGE=dummy
 VERSION=0.0.0
 TARBALL=dummy-0.0.0.tar.bz2
-      </xsl:text>
-      <xsl:call-template name="unpack"/>
-      <xsl:text>
+        </xsl:text>
+        <xsl:call-template name="disk_usage"/>
+        <xsl:call-template name="unpack"/>
+        <xsl:text>
 cd $PKGDIR
 ./configure --prefix=/usr
 make
 make check
 make install
         </xsl:text>
+        <xsl:call-template name="disk_usage"/>
         <xsl:call-template name="clean_sources"/>
         <xsl:call-template name="footer"/>
       </exsl:document>
@@ -155,6 +159,7 @@ PACKAGE=dummy
 VERSION=0.0.0
 TARBALL=dummy-0.0.0.tar.bz2
       </xsl:text>
+      <xsl:call-template name="disk_usage"/>
       <xsl:call-template name="unpack"/>
       <xsl:text>
 cd $PKGDIR
@@ -163,6 +168,7 @@ make
 make check
 make install
       </xsl:text>
+      <xsl:call-template name="disk_usage"/>
       <xsl:call-template name="clean_sources"/>
       <xsl:call-template name="footer"/>
     </exsl:document>
@@ -194,29 +200,50 @@ make install
 
     <!-- Script header -->
   <xsl:template name="header">
-      <!-- Set the shabang -->
-    <xsl:choose>
-      <xsl:when test="@id='ch-system-creatingdirs' or
-                      @id='ch-system-createfiles' or
-                      @id='ch-system-strippingagain'">
-        <xsl:text>#!/tools/bin/bash&#xA;</xsl:text>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:text>#!/bin/bash&#xA;</xsl:text>
-      </xsl:otherwise>
-    </xsl:choose>
-      <!-- Set +h -->
-    <xsl:text>set +h&#xA;</xsl:text>
-      <!-- Set -e -->
-    <xsl:if test="not(@id='ch-tools-stripping') and
-                  not(@id='ch-system-strippingagain')">
-      <xsl:text>set -e&#xA;</xsl:text>
+    <xsl:if test="not(@id='ch-system-chroot') and
+                  not(@id='ch-system-revisedchroot')">
+        <!-- Set the shabang -->
+      <xsl:choose>
+        <xsl:when test="@id='ch-system-creatingdirs' or
+                        @id='ch-system-createfiles' or
+                        @id='ch-system-strippingagain'">
+          <xsl:text>#!/tools/bin/bash&#xA;</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:text>#!/bin/bash&#xA;</xsl:text>
+        </xsl:otherwise>
+      </xsl:choose>
+        <!-- Set +h -->
+      <xsl:text>set +h&#xA;</xsl:text>
+        <!-- Set -e -->
+      <xsl:if test="not(@id='ch-tools-stripping') and
+                    not(@id='ch-system-strippingagain')">
+        <xsl:text>set -e&#xA;</xsl:text>
+      </xsl:if>
+        <!-- Dump a time stamp -->
+      <xsl:text>&#xA;echo -e "\n`date`\n"&#xA;</xsl:text>
     </xsl:if>
-    <xsl:text>&#xA;</xsl:text>
   </xsl:template>
 
 
-    <!-- Enter to the sources dir, clean it, and unpack the tarball -->
+    <!-- Dump current disk usage -->
+  <xsl:template name="disk_usage">
+    <xsl:if test="not(@id='ch-system-chroot') and
+                  not(@id='ch-system-revisedchroot')">
+      <xsl:choose>
+        <xsl:when test="ancestor::chapter[@id='chapter-temporary-tools']">
+          <xsl:text>echo -e "\nKB: `du -skx --exclude=jhalfs --exclude=lost+found $LFS`\n"&#xA;</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:text>echo -e "\nKB: `du -skx --exclude=jhalfs --exclude=lost+found /`\n"&#xA;</xsl:text>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
+  </xsl:template>
+
+
+    <!-- Enter to the sources dir, clean it, unpack the tarball,
+         and reset the seconds counter -->
   <xsl:template name="unpack">
     <xsl:choose>
       <xsl:when test="ancestor::chapter[@id='chapter-temporary-tools']">
@@ -235,6 +262,7 @@ if [ -d ${PKGDIR%-*}-build ]; then
   rm -rf ${PKGDIR%-*}-build
 fi
 tar -xf $TARBALL
+SECONDS=0
     </xsl:text>
   </xsl:template>
 
@@ -261,7 +289,7 @@ tar -xf $TARBALL
   </xsl:template>
 
 
-    <!-- Remove sources and build dirs -->
+    <!-- Remove sources and build dirs, skipping it from seconds meassurament -->
   <xsl:template name="clean_sources">
     <xsl:choose>
       <xsl:when test="ancestor::chapter[@id='chapter-temporary-tools']">
@@ -272,21 +300,25 @@ tar -xf $TARBALL
       </xsl:otherwise>
     </xsl:choose>
     <xsl:text>
+SECS=$SECONDS
 rm -rf $PKGDIR
 rm -rf ${PKGDIR%-*}-build
+SECONDS=$SECS
     </xsl:text>
   </xsl:template>
 
 
     <!-- Script footer -->
   <xsl:template name="footer">
-      <!-- Dump the build time -->
+      <!-- Dump the build time and exit -->
     <xsl:if test="not(@id='ch-system-chroot') and
                   not(@id='ch-system-revisedchroot')">
-      <xsl:text>&#xA;&#xA;echo -e "\n\nTotalseconds: $SECONDS\n"&#xA;</xsl:text>
+      <xsl:text>
+echo -e "\n\nTotalseconds: $SECONDS\n"
+
+exit
+      </xsl:text>
     </xsl:if>
-      <!-- Exit -->
-    <xsl:text>&#xA;exit&#xA;</xsl:text>
   </xsl:template>
 
 
@@ -349,6 +381,7 @@ PACKAGE=dummy
 VERSION=0.0.0
 TARBALL=dummy-0.0.0.tar.bz2
       </xsl:text>
+      <xsl:call-template name="disk_usage"/>
       <xsl:call-template name="unpack"/>
       <xsl:text>
 cd $PKGDIR
@@ -357,6 +390,7 @@ make
 make check
 make install
       </xsl:text>
+      <xsl:call-template name="disk_usage"/>
       <xsl:call-template name="clean_sources"/>
       <xsl:call-template name="footer"/>
     </exsl:document>
@@ -453,6 +487,7 @@ make install
         <xsl:apply-templates select="sect1info[@condition='script']">
           <xsl:with-param name="phase" select="$filename"/>
         </xsl:apply-templates>
+        <xsl:call-template name="disk_usage"/>
         <xsl:if test="sect2[@role='installation']">
           <xsl:call-template name="unpack"/>
         </xsl:if>
@@ -461,6 +496,7 @@ make install
         <xsl:apply-templates select=".//screen"/>
         <xsl:call-template name="post_commands"/>
         <xsl:call-template name="user_footer"/>
+        <xsl:call-template name="disk_usage"/>
         <xsl:if test="sect2[@role='installation']">
           <xsl:call-template name="clean_sources"/>
         </xsl:if>
