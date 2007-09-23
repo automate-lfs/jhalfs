@@ -54,13 +54,14 @@
   </xsl:template>
 
 
-    <!-- Hock for user envars or extra commands before cd into the sources dir -->
+    <!-- Hock for user envars or extra commands after unpacking the tarball
+         but before cd into the sources dir -->
   <xsl:template name="user_pre_commands">
     <xsl:text>&#xA;</xsl:text>
   </xsl:template>
 
 
-    <!-- Hock for user footer additions -->
+    <!-- Hock for user footer additions before remove sources dir -->
   <xsl:template name="user_footer">
     <xsl:text>&#xA;</xsl:text>
   </xsl:template>
@@ -71,15 +72,14 @@
       <!-- Inherited values -->
     <xsl:param name="reference" select="foo"/>
     <xsl:param name="order" select="foo"/>
-      <!-- Add a string to be sure that this scripts are run
+      <!-- Added a string to be sure that this scripts are run
            before the selected one -->
     <xsl:variable name="insert_order" select="concat($order,'_0')"/>
       <!-- Add an xsl:if block for each referenced sect1 you want
            to insert scripts before -->
     <xsl:if test="$reference = 'ID_of_selected_sect1'">
         <!-- Add an exsl:document block for each script to be inserted
-             at this point of the build. This one is only a dummy example.
-             You must replace "dummy" by the script name and increase "01" -->
+             at this point of the build. This one is only a dummy example. -->
       <exsl:document href="{$insert_order}01-dummy" method="text">
         <xsl:call-template name="header"/>
         <xsl:text>
@@ -87,13 +87,16 @@ PKG_PHASE=dummy
 PACKAGE=dummy
 VERSION=0.0.0
 TARBALL=dummy-0.0.0.tar.bz2
-
+      </xsl:text>
+      <xsl:call-template name="unpack"/>
+      <xsl:text>
 cd $PKGDIR
 ./configure --prefix=/usr
 make
 make check
 make install
         </xsl:text>
+        <xsl:call-template name="clean_sources"/>
         <xsl:call-template name="footer"/>
       </exsl:document>
     </xsl:if>
@@ -105,7 +108,7 @@ make install
       <!-- Inherited values -->
     <xsl:param name="reference" select="foo"/>
     <xsl:param name="order" select="foo"/>
-      <!-- Add a string to be sure that this scripts are run
+      <!-- Added a string to be sure that this scripts are run
            after the selected one -->
     <xsl:variable name="insert_order" select="concat($order,'_z')"/>
       <!-- Add an xsl:if block for each referenced sect1 you want
@@ -120,13 +123,16 @@ PKG_PHASE=dummy
 PACKAGE=dummy
 VERSION=0.0.0
 TARBALL=dummy-0.0.0.tar.bz2
-
+      </xsl:text>
+      <xsl:call-template name="unpack"/>
+      <xsl:text>
 cd $PKGDIR
 ./configure --prefix=/usr
 make
 make check
 make install
         </xsl:text>
+        <xsl:call-template name="clean_sources"/>
         <xsl:call-template name="footer"/>
       </exsl:document>
     </xsl:if>
@@ -148,13 +154,16 @@ PKG_PHASE=dummy
 PACKAGE=dummy
 VERSION=0.0.0
 TARBALL=dummy-0.0.0.tar.bz2
-
+      </xsl:text>
+      <xsl:call-template name="unpack"/>
+      <xsl:text>
 cd $PKGDIR
 ./configure --prefix=/usr
 make
 make check
 make install
       </xsl:text>
+      <xsl:call-template name="clean_sources"/>
       <xsl:call-template name="footer"/>
     </exsl:document>
   </xsl:template>
@@ -207,13 +216,36 @@ make install
   </xsl:template>
 
 
+    <!-- Enter to the sources dir, clean it, and unpack the tarball -->
+  <xsl:template name="unpack">
+    <xsl:choose>
+      <xsl:when test="ancestor::chapter[@id='chapter-temporary-tools']">
+        <xsl:text>cd $SRCDIR</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>cd /sources</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
+    <xsl:text>
+PKGDIR=`tar -tf $TARBALL | head -n1 | sed -e 's@^./@@;s@/.*@@'`
+if [ -d $PKGDIR ]; then
+  rm -rf $PKGDIR
+fi
+if [ -d ${PKGDIR%-*}-build ]; then
+  rm -rf ${PKGDIR%-*}-build
+fi
+tar -xf $TARBALL
+    </xsl:text>
+  </xsl:template>
+
+
     <!-- Extra previous commands needed by the book but not inside screen tags -->
   <xsl:template name="pre_commands">
     <xsl:if test="sect2[@role='installation']">
       <xsl:text>cd $PKGDIR&#xA;</xsl:text>
     </xsl:if>
     <xsl:if test="@id='ch-system-vim' and $vim-lang = 'y'">
-      <xsl:text>tar -xvf ../$TARBALL_1 --strip-components=1&#xA;</xsl:text>
+      <xsl:text>tar -xf ../$TARBALL_1 --strip-components=1&#xA;</xsl:text>
     </xsl:if>
   </xsl:template>
 
@@ -226,6 +258,23 @@ make install
       <xsl:text>/tools/lib/locale</xsl:text>
       <xsl:value-of select="substring-after($content,'/usr/lib/locale')"/>
     </xsl:if>
+  </xsl:template>
+
+
+    <!-- Remove sources and build dirs -->
+  <xsl:template name="clean_sources">
+    <xsl:choose>
+      <xsl:when test="ancestor::chapter[@id='chapter-temporary-tools']">
+        <xsl:text>cd $SRCDIR</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>cd /sources</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
+    <xsl:text>
+rm -rf $PKGDIR
+rm -rf ${PKGDIR%-*}-build
+    </xsl:text>
   </xsl:template>
 
 
@@ -299,13 +348,16 @@ PKG_PHASE=dummy
 PACKAGE=dummy
 VERSION=0.0.0
 TARBALL=dummy-0.0.0.tar.bz2
-
+      </xsl:text>
+      <xsl:call-template name="unpack"/>
+      <xsl:text>
 cd $PKGDIR
 ./configure --prefix=/usr
 make
 make check
 make install
       </xsl:text>
+      <xsl:call-template name="clean_sources"/>
       <xsl:call-template name="footer"/>
     </exsl:document>
   </xsl:template>
@@ -401,11 +453,17 @@ make install
         <xsl:apply-templates select="sect1info[@condition='script']">
           <xsl:with-param name="phase" select="$filename"/>
         </xsl:apply-templates>
+        <xsl:if test="sect2[@role='installation']">
+          <xsl:call-template name="unpack"/>
+        </xsl:if>
         <xsl:call-template name="user_pre_commands"/>
         <xsl:call-template name="pre_commands"/>
         <xsl:apply-templates select=".//screen"/>
         <xsl:call-template name="post_commands"/>
         <xsl:call-template name="user_footer"/>
+        <xsl:if test="sect2[@role='installation']">
+          <xsl:call-template name="clean_sources"/>
+        </xsl:if>
         <xsl:call-template name="footer"/>
       </exsl:document>
         <!-- Hock to insert scripts after the current one -->
