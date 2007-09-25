@@ -20,14 +20,14 @@ chapter4_Makefiles() {       #
 # of their bash init files is made.
 (
     cat << EOF
-020-creatingtoolsdir:
+04_02-creatingtoolsdir:
 	@\$(call echo_message, Building)
 	@mkdir \$(MOUNT_PT)/tools && \\
 	rm -f /tools && \\
 	ln -s \$(MOUNT_PT)/tools /
 	@\$(call housekeeping)
 
-021-addinguser:  020-creatingtoolsdir
+04_03-addinguser:  020-creatingtoolsdir
 	@\$(call echo_message, Building)
 	@if [ ! -d \$(LUSER_HOME) ]; then \\
 		groupadd \$(LGROUP); \\
@@ -40,7 +40,7 @@ chapter4_Makefiles() {       #
 	chmod a+wt \$(SRCSDIR)
 	@\$(call housekeeping)
 
-022-settingenvironment:  021-addinguser
+04_04-settingenvironment:  021-addinguser
 	@\$(call echo_message, Building)
 	@if [ -f \$(LUSER_HOME)/.bashrc -a ! -f \$(LUSER_HOME)/.bashrc.XXX ]; then \\
 		mv \$(LUSER_HOME)/.bashrc \$(LUSER_HOME)/.bashrc.XXX; \\
@@ -51,6 +51,7 @@ chapter4_Makefiles() {       #
 	@echo "set +h" > \$(LUSER_HOME)/.bashrc && \\
 	echo "umask 022" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "LFS=\$(MOUNT_PT)" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "SRCDIR=\$(MOUNT_PT)/sources" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "LC_ALL=POSIX" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "PATH=/tools/bin:/bin:/usr/bin" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "export LFS LC_ALL PATH" >> \$(LUSER_HOME)/.bashrc && \\
@@ -62,7 +63,7 @@ chapter4_Makefiles() {       #
 EOF
 ) > $MKFILE.tmp
 
-  chapter4=" 020-creatingtoolsdir 021-addinguser 022-settingenvironment"
+  chapter4=" 04_02-creatingtoolsdir 04_03-addinguser 04_04-settingenvironment"
 }
 
 
@@ -77,14 +78,11 @@ chapter5_Makefiles() {
     this_script=`basename $file`
 
     # If no testsuites will be run, then TCL, Expect and DejaGNU aren't needed
-    # Fix also locales creation when running chapter05 testsuites (ugly)
     case "${this_script}" in
       *tcl)       [[ "${TEST}" = "0" ]] && continue ;;
       *expect)    [[ "${TEST}" = "0" ]] && continue ;;
       *dejagnu)   [[ "${TEST}" = "0" ]] && continue ;;
       *stripping) [[ "${STRIP}" = "n" ]] && continue ;;
-      *glibc)     [[ "${TEST}" = "3" ]] && \
-                  sed -i 's@/usr/lib/locale@/tools/lib/locale@' $file ;;
     esac
 
     # First append each name of the script files to a list (this will become
@@ -97,12 +95,11 @@ chapter5_Makefiles() {
                    *) chapter5="$chapter5 ${this_script}" ;;
     esac
 
-    # Grab the name of the target (minus the -pass1 or -pass2 in the case of gcc
-    # and binutils in chapter 5)
-    name=`echo ${this_script} | sed -e 's@[0-9]\{3\}-@@' -e 's@-pass[0-9]\{1\}@@'`
+    # Grab the package name, if the script is building a package
+    name=`grep "^PACKAGE=" ${file} | sed -e 's@PACKAGE=@@'`
 
     # Set the dependency for the first target.
-    if [ -z $PREV ] ; then PREV=022-settingenvironment ; fi
+    if [ -z $PREV ] ; then PREV=04_04-settingenvironment ; fi
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
@@ -112,33 +109,20 @@ chapter5_Makefiles() {
     # as a dependency. Also call the echo_message function.
     LUSER_wrt_target "${this_script}" "$PREV"
 
-    # Find the version of the command files, if it corresponds with the building of
-    # a specific package
-    pkg_tarball=$(get_package_tarball_name $name)
-
-    # If $pkg_tarball isn't empty, we've got a package...
-    if [ "$pkg_tarball" != "" ] ; then
-      # Insert instructions for unpacking the package and to set the PKGDIR variable.
-      LUSER_wrt_unpack "$pkg_tarball"
+    # If $name isn't empty, we've got a package...
+    if [ "$name" != "" ] ; then
       # If the testsuites must be run, initialize the log file
       [[ "$TEST" = "3" ]] && LUSER_wrt_test_log "${this_script}"
       # If using optimizations, write the instructions
       [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
 
-    # Insert date and disk usage at the top of the log file, the script run
-    # and date and disk usage again at the bottom of the log file.
+    # Run the script.
     # The changingowner script must be run as root.
     case "${this_script}" in
       *changingowner)  wrt_RunAsRoot "$file" ;;
       *)               LUSER_wrt_RunAsUser "$file" ;;
     esac
-
-    # Remove the build directory(ies) except if the package build fails
-    # (so we can review config.cache, config.log, etc.)
-    if [ "$pkg_tarball" != "" ] ; then
-      LUSER_RemoveBuildDirs "$name"
-    fi
 
     # Include a touch of the target name so make can check
     # if it's already been made.
@@ -174,8 +158,6 @@ chapter6_Makefiles() {
       # Rename the scripts
       mv ${script} ${script}$N
     done
-    # Remove Bzip2 binaries before make install (LFS-6.2 compatibility)
-    sed -e 's@make install@rm -vf /usr/bin/bz*\n&@' -i chapter06$N/*-bzip2$N
   fi
 
   echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter6$N     ( CHROOT ) ${R_arrow}"
@@ -194,14 +176,10 @@ chapter6_Makefiles() {
     esac
 
     # Grab the name of the target.
-    name=`echo ${this_script} | sed -e 's@[0-9]\{3\}-@@' -e 's,'$N',,'`
+    name=`grep "^PACKAGE=" ${file} | sed -e 's@PACKAGE=@@'`
 
-    # Find the version of the command files, if it corresponds with the building of
-    # a specific package. We need this here to can skip scripts not needed for
-    # iterations rebuilds
-    pkg_tarball=$(get_package_tarball_name $name)
-
-    if [[ "$pkg_tarball" = "" ]] && [[ -n "$N" ]] ; then
+    # Skip scripts not needed for iterations rebuilds
+    if [[ "$name" = "" ]] && [[ -n "$N" ]] ; then
       case "${this_script}" in
         *stripping*) ;;
         *)  continue ;;
@@ -229,15 +207,13 @@ chapter6_Makefiles() {
       *)        CHROOT_wrt_target "${this_script}" "$PREV" ;;
     esac
 
-    # If $pkg_tarball isn't empty, we've got a package...
-    # Insert instructions for unpacking the package and changing directories
-    if [ "$pkg_tarball" != "" ] ; then
+    # If $name isn't empty, we've got a package...
+    if [ "$name" != "" ] ; then
       # Touch timestamp file if installed files logs will be created.
       # But only for the firt build when running iterative builds.
       if [ "${INSTALL_LOG}" = "y" ] && [ "x${N}" = "x" ] ; then
         CHROOT_wrt_TouchTimestamp
       fi
-      CHROOT_Unpack "$pkg_tarball"
       # If the testsuites must be run, initialize the log file
       case $name in
         binutils | gcc | glibc )
@@ -258,13 +234,9 @@ chapter6_Makefiles() {
       *)        CHROOT_wrt_RunAsRoot "$file" ;;
     esac
 
-    # Write installed files log and remove the build directory(ies)
-    # except if the package build fails.
-    if [ "$pkg_tarball" != "" ] ; then
-      CHROOT_wrt_RemoveBuildDirs "$name"
-      if [ "${INSTALL_LOG}" = "y" ] && [ "x${N}" = "x" ] ; then
-        CHROOT_wrt_LogNewFiles "$name"
-      fi
+    # Write installed files log
+    if [ "$name" != "" ] && [ "${INSTALL_LOG}" = "y" ] && [ "x${N}" = "x" ] ; then
+      CHROOT_wrt_LogNewFiles "$name"
     fi
 
     # Include a touch of the target name so make can check
@@ -313,24 +285,11 @@ chapter78_Makefiles() {
     # as a dependency. Also call the echo_message function.
     CHROOT_wrt_target "${this_script}" "$PREV"
 
-    # Find the bootscripts and kernel package names
+    # For bootscripts and kernel, start INSTALL_LOG if requested
     case "${this_script}" in
-      *bootscripts)
-            name="lfs-bootscripts"
-            pkg_tarball=$(get_package_tarball_name $name)
-            if [ "${INSTALL_LOG}" = "y" ] ; then
-              CHROOT_wrt_TouchTimestamp
-            fi
-            CHROOT_Unpack "$pkg_tarball"
-        ;;
-      *kernel)
-            name="linux"
-            pkg_tarball=$(get_package_tarball_name $name)
-            if [ "${INSTALL_LOG}" = "y" ] ; then
-              CHROOT_wrt_TouchTimestamp
-            fi
-            CHROOT_Unpack "$pkg_tarball"
-       ;;
+      *bootscripts | *kernel ) if [ "${INSTALL_LOG}" = "y" ] ; then
+                                  CHROOT_wrt_TouchTimestamp
+                                fi ;;
     esac
 
       # Check if we have a real /etc/fstab file
@@ -346,13 +305,11 @@ chapter78_Makefiles() {
     esac
 
     case "${this_script}" in
-      *bootscripts)  CHROOT_wrt_RemoveBuildDirs "dummy"
-                     if [ "${INSTALL_LOG}" = "y" ] ; then
-                       CHROOT_wrt_LogNewFiles "$name"
+      *bootscripts)  if [ "${INSTALL_LOG}" = "y" ] ; then
+                       CHROOT_wrt_LogNewFiles "lfs-bootscripts"
                      fi ;;
-      *kernel)       CHROOT_wrt_RemoveBuildDirs "dummy"
-                     if [ "${INSTALL_LOG}" = "y" ] ; then
-                       CHROOT_wrt_LogNewFiles "$name"
+      *kernel)       if [ "${INSTALL_LOG}" = "y" ] ; then
+                       CHROOT_wrt_LogNewFiles "linux"
                      fi ;;
     esac
 
@@ -402,18 +359,12 @@ build_Makefile() {           #
   CHROOT_LOC="`whereis -b chroot | cut -d " " -f2`"
   i=1
   for file in chapter06/*chroot* ; do
-    chroot=`cat $file | \
+    chroot=`cat $file | tr -d '\n' | \
             sed -e "s@chroot@$CHROOT_LOC@" \
-                -e '/#!\/bin\/bash/d' \
-                -e 's@ \\\@ @g' | \
-            tr -d '\n' | \
-            sed -e 's/  */ /g' \
+                -e 's@ \\\@ @g' \
                 -e 's|\\$|&&|g' \
-                -e 's|exit||g' \
-                -e 's|$| -c|' \
                 -e 's|"$$LFS"|$(MOUNT_PT)|' \
-                -e 's|set -e||' \
-                -e 's|set +h||'`
+                -e 's|$| -c|'`
     echo -e "CHROOT$i= $chroot\n" >> $MKFILE
     i=`expr $i + 1`
   done
