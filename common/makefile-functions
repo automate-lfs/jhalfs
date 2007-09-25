@@ -56,66 +56,21 @@ define echo_message
   @echo $(BOLD)$(1) target $(BLUE)$@$(BOLD)$(WHITE)
 endef
 
+define housekeeping
+  @touch  $@ && \
+  sleep .25 && \
+  echo  -e "\n" $(BOLD)Target $(BLUE)$@ $(WHITE)$(BOLD)OK && \
+  echo --------------------------------------------------------------------------------$(WHITE) && \
+  if [ "$(BREAKPOINT)" = "$@" ] ; then \
+     echo $(tab_)$(RED)The build has been stopped at $(BLUE)$@ $(RED)as requested$(WHITE) ; \
+     false ; \
+  fi
+endef
+
 #=======================
 
 
-#=== BUILD FUNCTIONS ===
-
-define remove_existing_dirs
-  @PKG_PATH=`ls -t $(SRCSDIR)/$(1) | head -n1` && \
-  ROOT=`tar -tf $$PKG_PATH | head -n1 | sed -e 's@^./@@;s@/.*@@'` && \
-  [ -n "$$ROOT" ] && \
-  if [ -d $(SRCDIR)/$$ROOT ]; then \
-    rm -rf $(SRCSDIR)/$$ROOT && \
-    rm -rf $(SRCSDIR)/$${ROOT%-*}-build; \
-  fi;
-endef
-
-define remove_existing_dirs2
-  @PKG_PATH=`ls -t $(SRC)/$(1) | head -n1` && \
-  ROOT=`tar -tf $$PKG_PATH | head -n1 | sed -e 's@^./@@;s@/.*@@'` && \
-  [ -n "$$ROOT" ] && \
-  if [ -d $(SRC)/$$ROOT ]; then \
-    rm -rf $(SRC)/$$ROOT && \
-    rm -rf $(SRC)/$${ROOT%-*}-build; \
-  fi;
-endef
-
-#==#
-
-define unpack
-  @cd $(SRCSDIR) && \
-  tar -xvf `ls -t $(1) | head -n1` > $(PKG_LST)
-endef
-
-define unpack2
-  @cd $(SRC) && \
-  tar -xvf `ls -t $(1) | head -n1` > $(PKG_LST)
-endef
-
-#==#
-
-define get_pkg_root
-  @ROOT=`head -n1 $(SRCSDIR)/$(PKG_LST) | sed 's@^./@@;s@/.*@@'` && \
-  if [ "$(1)" != "nouser" ]; then \
-    echo "export PKGDIR=$(SRCSDIR)/$$ROOT" > envars; \
-    chown -R $(LUSER) $(SRCSDIR)/$$ROOT; \
-  else \
-    echo "export PKGDIR=$(crSRCSDIR)/$$ROOT" > envars; \
-  fi;
-endef
-
-define get_pkg_root2
-  @ROOT=`head -n1 $(SRC)/$(PKG_LST) | sed 's@^./@@;s@/.*@@'` && \
-  echo "export PKGDIR=$(SRC)/$$ROOT" > envars
-endef
-
-define get_pkg_root_LUSER
-  @ROOT=`head -n1 $(SRCSDIR)/$(PKG_LST) | sed 's@^./@@;s@/.*@@'` && \
-  echo "export PKGDIR=$(SRCSDIR)/$$ROOT" > envars
-endef
-
-#==#
+#=== INSTALL_LOG FUNCTIONS ===
 
 define touch_timestamp
   @touch $(SRC)/timestamp-marker && sleep 1
@@ -135,33 +90,6 @@ define log_new_files_LUSER
   @find $(BASEDIR) -xdev ! -path "$(BASEDIR)/$(SCRIPT_ROOT)/*" ! -path "$(BASEDIR)/tmp/*" ! -path "$(SRCSDIR)/*" \
   -newer $(SRCSDIR)/timestamp-marker -not -type d \
   -printf "%p\t%s\t%u:%g\t%m\t%l\n" | sort > $(BASEDIR)$(crFILELOGDIR)/$(1)
-endef
-
-#==@
-
-define remove_build_dirs
-  @ROOT=`head -n1 $(SRCSDIR)/$(PKG_LST) | sed 's@^./@@;s@/.*@@'` && \
-  rm -rf $(SRCSDIR)/$$ROOT && \
-  rm -rf $(SRCSDIR)/$(1)-build
-endef
-
-define remove_build_dirs2
-  @ROOT=`head -n1 $(SRC)/$(PKG_LST) | sed 's@^./@@;s@/.*@@'` && \
-  rm -rf $(SRC)/$$ROOT && \
-  rm -rf $(SRC)/$(1)-build
-endef
-
-#==#
-
-define housekeeping
-  @touch  $@ && \
-  sleep .25 && \
-  echo  -e "\n" $(BOLD)Target $(BLUE)$@ $(WHITE)$(BOLD)OK && \
-  echo --------------------------------------------------------------------------------$(WHITE) && \
-  if [ "$(BREAKPOINT)" = "$@" ] ; then \
-     echo $(tab_)$(RED)The build has been stopped at $(BLUE)$@ $(RED)as requested$(WHITE) ; \
-     false ; \
-  fi
 endef
 
 #=======================
