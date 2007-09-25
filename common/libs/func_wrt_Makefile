@@ -58,7 +58,7 @@ EOF
 #==== TARGET HEADER ====
 
 #----------------------------------#
-LUSER_wrt_target() {               # Create target and initialize envars file
+LUSER_wrt_target() {               # Create target
 #----------------------------------#
   local i=$1
   local PREV=$2
@@ -68,7 +68,6 @@ cat << EOF
 $i:  $PREV
 	@\$(call echo_message, Building)
 	@export BASHBIN=\$(SHELL) && \$(SHELL) progress_bar.sh \$@ \$\$PPID &
-	@rm -f envars && touch envars
 EOF
 ) >> $MKFILE.tmp
 }
@@ -84,36 +83,6 @@ cat << EOF
 $i:  $PREV
 	@\$(call echo_message, Building)
 	@export BASHBIN=\$(SHELL) && \$(SHELL) progress_bar.sh \$@ \$\$PPID &
-	@rm -f envars && touch envars
-EOF
-) >> $MKFILE.tmp
-}
-
-#=======================
-
-
-#===== TESTS LOGS ======
-
-#----------------------------------#
-LUSER_wrt_test_log() {             # Initialize testsuite log file
-#----------------------------------#
-  local TESTLOGFILE=$1
-(
-cat  << EOF
-	@echo "export  TEST_LOG=\$(TESTLOGDIR)/$TESTLOGFILE" >> envars && \\
-	echo "\$(nl_)\`date\`\$(nl_)" > \$(TESTLOGDIR)/\$@
-EOF
-) >> $MKFILE.tmp
-}
-
-#----------------------------------#
-CHROOT_wrt_test_log() {            #
-#----------------------------------#
-  local TESTLOGFILE=$1
-(
-cat  << EOF
-	@echo "export TEST_LOG=\$(crTESTLOGDIR)/$TESTLOGFILE" >> envars && \\
-	echo "\$(nl_)\`date\`\$(nl_)" > test-logs/\$@
 EOF
 ) >> $MKFILE.tmp
 }
@@ -152,7 +121,7 @@ LUSER_wrt_RunAsUser() {            #
 
 (
 cat << EOF
-	@source ~/.bashrc && \$(CMDSDIR)/`dirname $file`/\$@ > logs/\$@ 2>&1
+	@\$(CMDSDIR)/`dirname $file`/\$@ > logs/\$@ 2>&1
 EOF
 ) >> $MKFILE.tmp
 }
@@ -163,7 +132,7 @@ CHROOT_wrt_RunAsRoot() {           #
   local file=$1
 (
 cat << EOF
-	@source envars && \$(crCMDSDIR)/`dirname $file`/\$@ > logs/\$@ 2>&1
+	@\$(crCMDSDIR)/`dirname $file`/\$@ > logs/\$@ 2>&1
 EOF
 ) >> $MKFILE.tmp
 

@@ -51,14 +51,11 @@ chapter4_Makefiles() {       #
 	@echo "set +h" > \$(LUSER_HOME)/.bashrc && \\
 	echo "umask 022" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "LFS=\$(MOUNT_PT)" >> \$(LUSER_HOME)/.bashrc && \\
-	echo "SRCDIR=\$(MOUNT_PT)/sources" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "LC_ALL=POSIX" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "PATH=/tools/bin:/bin:/usr/bin" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "export LFS LC_ALL PATH" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "source $JHALFSDIR/envars" >> \$(LUSER_HOME)/.bashrc && \\
-	chown \$(LUSER):\$(LGROUP) \$(LUSER_HOME)/.bashrc && \\
-	touch envars && \\
-	chown \$(LUSER) envars
+	chown \$(LUSER):\$(LGROUP) \$(LUSER_HOME)/.bashrc
 	@\$(call housekeeping)
 EOF
 ) > $MKFILE.tmp
@@ -95,9 +92,6 @@ chapter5_Makefiles() {
                    *) chapter5="$chapter5 ${this_script}" ;;
     esac
 
-    # Grab the package name, if the script is building a package
-    name=`grep "^PACKAGE=" ${file} | sed -e 's@PACKAGE=@@'`
-
     # Set the dependency for the first target.
     if [ -z $PREV ] ; then PREV=04_04-settingenvironment ; fi
 
@@ -108,14 +102,6 @@ chapter5_Makefiles() {
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
     LUSER_wrt_target "${this_script}" "$PREV"
-
-    # If $name isn't empty, we've got a package...
-    if [ "$name" != "" ] ; then
-      # If the testsuites must be run, initialize the log file
-      [[ "$TEST" = "3" ]] && LUSER_wrt_test_log "${this_script}"
-      # If using optimizations, write the instructions
-      [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
-    fi
 
     # Run the script.
     # The changingowner script must be run as root.
@@ -175,7 +161,7 @@ chapter6_Makefiles() {
       *linux-headers*) [[ -n "$N" ]] && continue ;;
     esac
 
-    # Grab the name of the target.
+    # Grab the name of the package, if any.
     name=`grep "^PACKAGE=" ${file} | sed -e 's@PACKAGE=@@'`
 
     # Skip scripts not needed for iterations rebuilds
@@ -207,24 +193,10 @@ chapter6_Makefiles() {
       *)        CHROOT_wrt_target "${this_script}" "$PREV" ;;
     esac
 
-    # If $name isn't empty, we've got a package...
-    if [ "$name" != "" ] ; then
-      # Touch timestamp file if installed files logs will be created.
-      # But only for the firt build when running iterative builds.
-      if [ "${INSTALL_LOG}" = "y" ] && [ "x${N}" = "x" ] ; then
-        CHROOT_wrt_TouchTimestamp
-      fi
-      # If the testsuites must be run, initialize the log file
-      case $name in
-        binutils | gcc | glibc )
-          [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}"
-          ;;
-        * )
-          [[ "$TEST" = "2" ]] || [[ "$TEST" = "3" ]] && CHROOT_wrt_test_log "${this_script}"
-          ;;
-      esac
-      # If using optimizations, write the instructions
-      [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
+    # Touch timestamp file if installed files logs will be created.
+    # But only for the firt build when running iterative builds.
+    if [ "$name" != "" ] && [ "${INSTALL_LOG}" = "y" ] && [ "x${N}" = "x" ] ; then
+      CHROOT_wrt_TouchTimestamp
     fi
 
     # In the mount of kernel filesystems we need to set LFS
@@ -362,6 +334,7 @@ build_Makefile() {           #
     chroot=`cat $file | tr -d '\n' | \
             sed -e "s@chroot@$CHROOT_LOC@" \
                 -e 's@ \\\@ @g' \
+                -e 's/  */ /g' \
                 -e 's|\\$|&&|g' \
                 -e 's|"$$LFS"|$(MOUNT_PT)|' \
                 -e 's|$| -c|'`

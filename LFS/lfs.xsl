@@ -47,6 +47,7 @@
 <!-- ####################################################################### -->
 
 <!-- ########### NAMED USER TEMPLATES TO ALLOW CUSTOMIZATIONS ############## -->
+<!-- ############ Maybe should be placed on a separate file ################ -->
 
     <!-- Hock for user header additions -->
   <xsl:template name="user_header">
@@ -144,7 +145,8 @@ make install
 
 
     <!-- Hock for creating a custom tools directory containing scripts
-         to be run after the system has been built -->
+         to be run after the system has been built
+         (to be moved to a separate file) -->
   <xsl:template name="custom-tools">
       <!-- Fixed directory and ch_order values -->
     <xsl:variable name="basedir">custom-tools/20_</xsl:variable>
@@ -245,15 +247,11 @@ make install
     <!-- Enter to the sources dir, clean it, unpack the tarball,
          and reset the seconds counter -->
   <xsl:template name="unpack">
-    <xsl:choose>
-      <xsl:when test="ancestor::chapter[@id='chapter-temporary-tools']">
-        <xsl:text>cd $SRCDIR</xsl:text>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:text>cd /sources</xsl:text>
-      </xsl:otherwise>
-    </xsl:choose>
-    <xsl:text>
+    <xsl:text>cd </xsl:text>
+    <xsl:if test="ancestor::chapter[@id='chapter-temporary-tools']">
+      <xsl:text>$LFS</xsl:text>
+    </xsl:if>
+    <xsl:text>/sources
 PKGDIR=`tar -tf $TARBALL | head -n1 | sed -e 's@^./@@;s@/.*@@'`
 if [ -d $PKGDIR ]; then
   rm -rf $PKGDIR
@@ -291,15 +289,11 @@ SECONDS=0
 
     <!-- Remove sources and build dirs, skipping it from seconds meassurament -->
   <xsl:template name="clean_sources">
-    <xsl:choose>
-      <xsl:when test="ancestor::chapter[@id='chapter-temporary-tools']">
-        <xsl:text>cd $SRCDIR</xsl:text>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:text>cd /sources</xsl:text>
-      </xsl:otherwise>
-    </xsl:choose>
-    <xsl:text>
+    <xsl:text>cd </xsl:text>
+    <xsl:if test="ancestor::chapter[@id='chapter-temporary-tools']">
+      <xsl:text>$LFS</xsl:text>
+    </xsl:if>
+    <xsl:text>/sources
 SECS=$SECONDS
 rm -rf $PKGDIR
 rm -rf ${PKGDIR%-*}-build
@@ -367,7 +361,30 @@ exit
   </xsl:template>
 
 
-    <!-- Adds blfs-tool support scripts -->
+    <!-- Check if a package testsuite must be run -->
+  <xsl:template name="run_this_test">
+    <xsl:choose>
+      <xsl:when test=".//userinput[@remap='test']">
+        <xsl:choose>
+            <!-- No testsuites run on level 0 -->
+          <xsl:when test="$testsuite = '0'">0</xsl:when>
+            <!-- On level 1, only final system toolchain testsuites are run -->
+          <xsl:when test="$testsuite = '1' and
+                          not(@id='ch-system-gcc') and
+                          not(@id='ch-system-glibc') and
+                          not(@id='ch-system-binutils')">0</xsl:when>
+            <!-- On level 2, temp tools testsuites are not run -->
+          <xsl:when test="$testsuite = '2' and
+                          ../@id='chapter-temporary-tools'">0</xsl:when>
+          <xsl:otherwise>1</xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:otherwise>0</xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+
+    <!-- Adds blfs-tool support scripts (to be moved to a separate file) -->
   <xsl:template name="blfs-tool">
       <!-- Fixed directory and ch_order values -->
     <xsl:variable name="basedir">blfs-tool-deps/30_</xsl:variable>
@@ -475,6 +492,10 @@ make install
       </xsl:variable>
         <!-- Script build order -->
       <xsl:variable name="order" select="concat($dirname,'/',$ch_order,'_',$sect1_order)"/>
+        <!-- Must the package test suite, if any, be run? -->
+      <xsl:variable name="run_this_test">
+        <xsl:call-template name="run_this_test"/>
+      </xsl:variable>
         <!-- Hock to insert scripts before the current one -->
       <xsl:call-template name="insert_script_before">
         <xsl:with-param name="reference" select="@id"/>
@@ -486,6 +507,8 @@ make install
         <xsl:call-template name="user_header"/>
         <xsl:apply-templates select="sect1info[@condition='script']">
           <xsl:with-param name="phase" select="$filename"/>
+          <xsl:with-param name="run_this_test" select="$run_this_test"/>
+          <xsl:with-param name="testlogfile" select="concat($ch_order,'_',$sect1_order,'-',$filename)"/>
         </xsl:apply-templates>
         <xsl:call-template name="disk_usage"/>
         <xsl:if test="sect2[@role='installation']">
@@ -493,7 +516,9 @@ make install
         </xsl:if>
         <xsl:call-template name="user_pre_commands"/>
         <xsl:call-template name="pre_commands"/>
-        <xsl:apply-templates select=".//screen"/>
+        <xsl:apply-templates select=".//screen">
+          <xsl:with-param name="run_this_test" select="$run_this_test"/>
+        </xsl:apply-templates>
         <xsl:call-template name="post_commands"/>
         <xsl:call-template name="user_footer"/>
         <xsl:call-template name="disk_usage"/>
@@ -513,6 +538,9 @@ make install
 
     <!-- sect1info -->
   <xsl:template match="sect1info">
+      <!-- Used to set and initialize the testuite log file -->
+    <xsl:param name="testlogfile" select="foo"/>
+    <xsl:param name="run_this_test" select="foo"/>
       <!-- Build phase (base file name) to be used for PM -->
     <xsl:param name="phase" select="foo"/>
     <xsl:text>&#xA;PKG_PHASE=</xsl:text>
@@ -523,6 +551,15 @@ make install
     <xsl:apply-templates select="productnumber"/>
       <!-- Tarball name -->
     <xsl:apply-templates select="address"/>
+    <xsl:if test="$run_this_test = '1'">
+      <xsl:text>&#xA;TEST_LOG=</xsl:text>
+      <xsl:if test="ancestor::chapter[@id='chapter-temporary-tools']">
+        <xsl:text>$LFS</xsl:text>
+      </xsl:if>
+      <xsl:text>/jhalfs/test-logs/</xsl:text>
+      <xsl:value-of select="$testlogfile"/>
+      <xsl:text>&#xA;echo -e "\n`date`\n" > $TEST_LOG</xsl:text>
+    </xsl:if>
     <xsl:text>&#xA;&#xA;</xsl:text>
   </xsl:template>
 
@@ -567,12 +604,24 @@ make install
 
     <!-- screen -->
   <xsl:template match="screen">
+    <xsl:param name="run_this_test" select="foo"/>
     <xsl:if test="child::* = userinput and not(@role = 'nodump')">
       <xsl:call-template name="top_screen_build_fixes"/>
-      <xsl:apply-templates/>
+      <xsl:apply-templates>
+        <xsl:with-param name="run_this_test" select="$run_this_test"/>
+      </xsl:apply-templates>
       <xsl:call-template name="bottom_screen_build_fixes"/>
       <xsl:text>&#xA;</xsl:text>
     </xsl:if>
+  </xsl:template>
+
+
+    <!-- userinput @remap='test' -->
+  <xsl:template match="userinput[@remap='test']">
+    <xsl:param name="run_this_test" select="foo"/>
+    <xsl:apply-templates select="." mode="test">
+      <xsl:with-param name="run_this_test" select="$run_this_test"/>
+    </xsl:apply-templates>
   </xsl:template>
 
 
@@ -591,12 +640,6 @@ make install
     <!-- userinput @remap='make' -->
   <xsl:template match="userinput[@remap='make']">
     <xsl:apply-templates select="." mode="make"/>
-  </xsl:template>
-
-
-    <!-- userinput @remap='test' -->
-  <xsl:template match="userinput[@remap='test']">
-    <xsl:apply-templates select="." mode="test"/>
   </xsl:template>
 
 
@@ -669,73 +712,61 @@ make install
 
     <!-- mode test  -->
   <xsl:template match="userinput" mode="test">
-    <xsl:choose>
-        <!-- No testsuites run on level 0 -->
-      <xsl:when test="$testsuite = '0'"/>
-        <!-- On level 1, only final system toolchain testsuites are run -->
-      <xsl:when test="$testsuite = '1' and
-                      not(ancestor::sect1[@id='ch-system-gcc']) and
-                      not(ancestor::sect1[@id='ch-system-glibc']) and
-                      not(ancestor::sect1[@id='ch-system-binutils'])"/>
-        <!-- On level 2, temp tools testsuites are not run -->
-      <xsl:when test="$testsuite = '2' and
-                      ancestor::chapter[@id='chapter-temporary-tools']"/>
-        <!-- Start testsuites command fixes -->
-      <xsl:otherwise>
-        <xsl:choose>
-            <!-- Final system Glibc -->
-          <xsl:when test="contains(string(),'glibc-check-log')">
-            <xsl:value-of select="substring-before(string(),'2&gt;&amp;1')"/>
-            <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1 || true</xsl:text>
-          </xsl:when>
-            <!-- Module-Init-Tools -->
-          <xsl:when test="ancestor::sect1[@id='ch-system-module-init-tools']
-                          and contains(string(),'make check')">
-            <xsl:value-of select="substring-before(string(),' check')"/>
-            <xsl:if test="$bomb-testsuite = 'n'">
-              <xsl:text> -k</xsl:text>
-            </xsl:if>
-            <xsl:text> check &gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
-            <xsl:if test="$bomb-testsuite = 'n'">
-              <xsl:text> || true</xsl:text>
-            </xsl:if>
-            <xsl:value-of select="substring-after(string(),' check')"/>
-          </xsl:when>
-            <!-- If the book uses -k, the testsuite should never bomb -->
-          <xsl:when test="contains(string(),'make -k ')">
-            <xsl:apply-templates select="." mode="default"/>
-            <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true</xsl:text>
-          </xsl:when>
-            <!-- Extra commands in Binutils and GCC -->
-          <xsl:when test="contains(string(),'test_summary') or
-                          contains(string(),'expect -c')">
-            <xsl:apply-templates select="." mode="default"/>
-            <xsl:text> &gt;&gt; $TEST_LOG</xsl:text>
-          </xsl:when>
-            <!-- Remaining extra testsuite commads that don't need be hacked -->
-          <xsl:when test="not(contains(string(),'make '))">
-            <xsl:apply-templates select="." mode="default"/>
-          </xsl:when>
-            <!-- Normal testsites run -->
-          <xsl:otherwise>
-            <xsl:choose>
-                <!-- No bomb on failures -->
-              <xsl:when test="$bomb-testsuite = 'n'">
-                <xsl:value-of select="substring-before(string(),'make ')"/>
-                <xsl:text>make -k </xsl:text>
-                <xsl:value-of select="substring-after(string(),'make ')"/>
-                <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true</xsl:text>
-              </xsl:when>
-                <!-- Bomb at the first failure -->
-              <xsl:otherwise>
-                <xsl:apply-templates select="." mode="default"/>
-                <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:otherwise>
-    </xsl:choose>
+    <xsl:param name="run_this_test" select="foo"/>
+    <xsl:if test="$run_this_test = '1'">
+      <xsl:choose>
+          <!-- Final system Glibc -->
+        <xsl:when test="contains(string(),'glibc-check-log')">
+          <xsl:value-of select="substring-before(string(),'2&gt;&amp;1')"/>
+          <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1 || true</xsl:text>
+        </xsl:when>
+          <!-- Module-Init-Tools -->
+        <xsl:when test="ancestor::sect1[@id='ch-system-module-init-tools']
+                        and contains(string(),'make check')">
+          <xsl:value-of select="substring-before(string(),' check')"/>
+          <xsl:if test="$bomb-testsuite = 'n'">
+            <xsl:text> -k</xsl:text>
+          </xsl:if>
+          <xsl:text> check &gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
+          <xsl:if test="$bomb-testsuite = 'n'">
+            <xsl:text> || true</xsl:text>
+          </xsl:if>
+          <xsl:value-of select="substring-after(string(),' check')"/>
+        </xsl:when>
+          <!-- If the book uses -k, the testsuite should never bomb -->
+        <xsl:when test="contains(string(),'make -k ')">
+          <xsl:apply-templates select="." mode="default"/>
+          <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true</xsl:text>
+        </xsl:when>
+          <!-- Extra commands in Binutils and GCC -->
+        <xsl:when test="contains(string(),'test_summary') or
+                        contains(string(),'expect -c')">
+          <xsl:apply-templates select="." mode="default"/>
+          <xsl:text> &gt;&gt; $TEST_LOG</xsl:text>
+        </xsl:when>
+          <!-- Remaining extra testsuite commads that don't need be hacked -->
+        <xsl:when test="not(contains(string(),'make '))">
+          <xsl:apply-templates select="." mode="default"/>
+        </xsl:when>
+          <!-- Normal testsites run -->
+        <xsl:otherwise>
+          <xsl:choose>
+              <!-- No bomb on failures -->
+            <xsl:when test="$bomb-testsuite = 'n'">
+              <xsl:value-of select="substring-before(string(),'make ')"/>
+              <xsl:text>make -k </xsl:text>
+              <xsl:value-of select="substring-after(string(),'make ')"/>
+              <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true</xsl:text>
+            </xsl:when>
+              <!-- Bomb at the first failure -->
+            <xsl:otherwise>
+              <xsl:apply-templates select="." mode="default"/>
+              <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
   </xsl:template>
 
 
