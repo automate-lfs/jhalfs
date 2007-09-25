@@ -38,8 +38,6 @@ crFILELOGDIR   = /\$(SCRIPT_ROOT)/$FILELOGDIRBASE
 
 SU_LUSER       = su - \$(LUSER) -c
 LUSER_HOME     = \$(LHOME)/\$(LUSER)
-PRT_DU         = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) --exclude=lost+found \$(MOUNT_PT) \`\n"
-PRT_DU_CR      = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) --exclude=lost+found / \`\n"
 
 ADD_REPORT       = $REPORT
 ADD_CUSTOM_TOOLS = $CUSTOM_TOOLS
@@ -57,50 +55,10 @@ EOF
 #=======================
 
 
-#==== PACKAGES NAMES ===
-
-#----------------------------------#
-get_package_tarball_name() {       #
-#----------------------------------#
-  local script_name=`echo ${1} | sed -e 's@[0-9]\{1\}-@@'`
-
-   # The use of 'head' is necessary to limit the return value to the FIRST match..
-   # hopefully this will not cause problems.
-   #
-   case $script_name in
-     tcl) echo $(grep "^tcl" $JHALFSDIR/pkg_tarball_list | head -n1 )
-         ;;
-     powerpc-utils) echo $(grep "^powerpc-utils" $JHALFSDIR/pkg_tarball_list | head -n1 )
-         ;;
-     uClibc)
-         if [[ "${PROGNAME}" = "clfs3" ]]; then
-           echo $(grep "^uClibc-" $JHALFSDIR/pkg_tarball_list | head -n1 )
-         else
-           echo $(grep "^$script_name-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 )
-         fi
-         ;;
-     linux-headers)
-         if [[ "${PROGNAME}" = "lfs" ]] || [[ "${PROGNAME}" = "hlfs" ]] ; then
-           # Uses kernel headers directly
-           echo $(grep "^linux-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 )
-         else
-           # CLFS{,2,3} use massaged headers package
-           echo $(grep "^linux-headers-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 )
-         fi
-         ;;
-     *)  echo $(grep "^$script_name-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 )
-         ;;
-   esac
-
-}
-
-#=======================
-
-
 #==== TARGET HEADER ====
 
 #----------------------------------#
-LUSER_wrt_target() {               # Create target and initialize log file
+LUSER_wrt_target() {               # Create target and initialize envars file
 #----------------------------------#
   local i=$1
   local PREV=$2
@@ -110,14 +68,13 @@ cat << EOF
 $i:  $PREV
 	@\$(call echo_message, Building)
 	@export BASHBIN=\$(SHELL) && \$(SHELL) progress_bar.sh \$@ \$\$PPID &
-	@echo "\$(nl_)\`date\`\$(nl_)" >logs/\$@
-	@\$(PRT_DU) >>logs/\$@
+	@rm -f envars && touch envars
 EOF
 ) >> $MKFILE.tmp
 }
 
 #----------------------------------#
-CHROOT_wrt_target() {              # Create target and initialize log file
+CHROOT_wrt_target() {              #
 #----------------------------------#
   local i=$1
   local PREV=$2
@@ -127,56 +84,7 @@ cat << EOF
 $i:  $PREV
 	@\$(call echo_message, Building)
 	@export BASHBIN=\$(SHELL) && \$(SHELL) progress_bar.sh \$@ \$\$PPID &
-	@echo "\$(nl_)\`date\`\$(nl_)" >logs/\$@
-	@\$(PRT_DU_CR) >>logs/\$@
-EOF
-) >> $MKFILE.tmp
-}
-
-#=======================
-
-
-#======== UNPACK =======
-
-#----------------------------------#
-LUSER_wrt_unpack() {               # Unpack and set 'ROOT' var
-#----------------------------------#
-  local FILE=$1
-  local optSAVE_PREVIOUS=$2
-
-  if [[ "${optSAVE_PREVIOUS}" != "1" ]]; then
-(
-cat << EOF
-	@\$(call remove_existing_dirs,$FILE)
-EOF
-) >> $MKFILE.tmp
-  fi
-
-(
-cat << EOF
-	@\$(call unpack,$FILE)
-	@\$(call get_pkg_root_LUSER)
-EOF
-) >> $MKFILE.tmp
-}
-
-#----------------------------------#
-CHROOT_Unpack() {                  #
-#----------------------------------#
-  local FILE=$1
-  local optSAVE_PREVIOUS=$2
-
-  if [ "${optSAVE_PREVIOUS}" != "1" ]; then
-(
-cat << EOF
-	@\$(call remove_existing_dirs2,$FILE)
-EOF
-) >> $MKFILE.tmp
-  fi
-(
-cat  << EOF
-	@\$(call unpack2,$FILE)
-	@\$(call get_pkg_root2)
+	@rm -f envars && touch envars
 EOF
 ) >> $MKFILE.tmp
 }
@@ -193,7 +101,7 @@ LUSER_wrt_test_log() {             # Initialize testsuite log file
 (
 cat  << EOF
 	@echo "export  TEST_LOG=\$(TESTLOGDIR)/$TESTLOGFILE" >> envars && \\
-	echo "\$(nl_)\`date\`\$(nl_)" >\$(TESTLOGDIR)/\$@
+	echo "\$(nl_)\`date\`\$(nl_)" > \$(TESTLOGDIR)/\$@
 EOF
 ) >> $MKFILE.tmp
 }
@@ -205,7 +113,7 @@ CHROOT_wrt_test_log() {            #
 (
 cat  << EOF
 	@echo "export TEST_LOG=\$(crTESTLOGDIR)/$TESTLOGFILE" >> envars && \\
-	echo "\$(nl_)\`date\`\$(nl_)" >test-logs/\$@
+	echo "\$(nl_)\`date\`\$(nl_)" > test-logs/\$@
 EOF
 ) >> $MKFILE.tmp
 }
@@ -232,23 +140,19 @@ wrt_RunAsRoot() {                  # Some scripts must be run as root..
 
 (
 cat << EOF
-	@export ${MOUNT_ENV}=\$(MOUNT_PT) && \\
-	${PROGNAME}-commands/`dirname $file`/\$@ >>logs/\$@ 2>&1 && \\
-	\$(PRT_DU) >>logs/\$@
+	@export ${MOUNT_ENV}=\$(MOUNT_PT) && ${PROGNAME}-commands/`dirname $file`/\$@ > logs/\$@ 2>&1
 EOF
 ) >> $MKFILE.tmp
 }
 
 #----------------------------------#
-LUSER_wrt_RunAsUser() {            # Calculate time with perl, footer to log file
+LUSER_wrt_RunAsUser() {            #
 #----------------------------------#
   local file=$1
 
 (
 cat << EOF
-	@source ~/.bashrc && \\
-	\$(CMDSDIR)/`dirname $file`/\$@ >> logs/\$@ 2>&1 && \\
-	\$(PRT_DU) >>logs/\$@
+	@source ~/.bashrc && \$(CMDSDIR)/`dirname $file`/\$@ > logs/\$@ 2>&1
 EOF
 ) >> $MKFILE.tmp
 }
@@ -259,9 +163,7 @@ CHROOT_wrt_RunAsRoot() {           #
   local file=$1
 (
 cat << EOF
-	@source envars && \\
-	\$(crCMDSDIR)/`dirname $file`/\$@ >>logs/\$@ 2>&1 && \\
-	\$(PRT_DU_CR) >>logs/\$@
+	@source envars && \$(crCMDSDIR)/`dirname $file`/\$@ > logs/\$@ 2>&1
 EOF
 ) >> $MKFILE.tmp
 
@@ -277,8 +179,7 @@ LUSER_wrt_CopyFstab() {            #
 #----------------------------------#
 (
 cat << EOF
-	@cp -v \$(MOUNT_PT)/sources/fstab \$(MOUNT_PT)/etc/fstab >>logs/\$@ 2>&1 && \\
-	\$(PRT_DU) >>logs/\$@
+	@cp -v \$(MOUNT_PT)/sources/fstab \$(MOUNT_PT)/etc/fstab > logs/\$@ 2>&1
 EOF
 ) >> $MKFILE.tmp
 }
@@ -288,8 +189,7 @@ CHROOT_wrt_CopyFstab() {           #
 #----------------------------------#
 (
 cat << EOF
-	@cp -v /sources/fstab /etc/fstab >>logs/\$@ 2>&1 && \\
-	\$(PRT_DU_CR) >>logs/\$@
+	@cp -v /sources/fstab /etc/fstab > logs/\$@ 2>&1
 EOF
 ) >> $MKFILE.tmp
 }
@@ -337,33 +237,6 @@ CHROOT_wrt_LogNewFiles() {         #
 (
 cat << EOF
 	@\$(call log_new_files,$name)
-EOF
-) >> $MKFILE.tmp
-}
-
-#=======================
-
-
-#==== RM BUILD DIRS ====
-
-#----------------------------------#
-LUSER_RemoveBuildDirs() {          #
-#----------------------------------#
-  local name=$1
-(
-cat << EOF
-	@\$(call remove_build_dirs,$name)
-EOF
-) >> $MKFILE.tmp
-}
-
-#----------------------------------#
-CHROOT_wrt_RemoveBuildDirs() {     #
-#----------------------------------#
-  local name=$1
-(
-cat << EOF
-	@\$(call remove_build_dirs2,$name)
 EOF
 ) >> $MKFILE.tmp
 }
