@@ -54,7 +54,6 @@ chapter4_Makefiles() {       #
 	echo "LC_ALL=POSIX" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "PATH=/tools/bin:/bin:/usr/bin" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "export LFS LC_ALL PATH" >> \$(LUSER_HOME)/.bashrc && \\
-	echo "source $JHALFSDIR/envars" >> \$(LUSER_HOME)/.bashrc && \\
 	chown \$(LUSER):\$(LGROUP) \$(LUSER_HOME)/.bashrc
 	@\$(call housekeeping)
 EOF
