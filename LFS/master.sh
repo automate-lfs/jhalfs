@@ -27,7 +27,7 @@ chapter4_Makefiles() {       #
 	ln -s \$(MOUNT_PT)/tools /
 	@\$(call housekeeping)
 
-04_03-addinguser:  020-creatingtoolsdir
+04_03-addinguser:  04_02-creatingtoolsdir
 	@\$(call echo_message, Building)
 	@if [ ! -d \$(LUSER_HOME) ]; then \\
 		groupadd \$(LGROUP); \\
@@ -40,7 +40,7 @@ chapter4_Makefiles() {       #
 	chmod a+wt \$(SRCSDIR)
 	@\$(call housekeeping)
 
-04_04-settingenvironment:  021-addinguser
+04_04-settingenvironment:  04_03-addinguser
 	@\$(call echo_message, Building)
 	@if [ -f \$(LUSER_HOME)/.bashrc -a ! -f \$(LUSER_HOME)/.bashrc.XXX ]; then \\
 		mv \$(LUSER_HOME)/.bashrc \$(LUSER_HOME)/.bashrc.XXX; \\
