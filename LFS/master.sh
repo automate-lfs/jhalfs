@@ -161,8 +161,8 @@ chapter6_Makefiles() {
       *linux-headers*) [[ -n "$N" ]] && continue ;;
     esac
 
-    # Grab the name of the package, if any.
-    name=`grep "^PACKAGE=" ${file} | sed -e 's@PACKAGE=@@'`
+    # If building a package, grab the phase name to be used with INSTALL_LOG
+    name=`grep "^PKG_PHASE=" ${file} | sed -e 's@PKG_PHASE=@@'`
 
     # Skip scripts not needed for iterations rebuilds
     if [[ "$name" = "" ]] && [[ -n "$N" ]] ; then
