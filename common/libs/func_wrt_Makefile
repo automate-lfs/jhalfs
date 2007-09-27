@@ -108,7 +108,7 @@ wrt_RunAsRoot() {                  # Some scripts must be run as root..
 
 (
 cat << EOF
-	@export ${MOUNT_ENV}=\$(MOUNT_PT) && ${PROGNAME}-commands/`dirname $file`/\$@ > logs/\$@ 2>&1
+	@export ${MOUNT_ENV}=\$(MOUNT_PT) && ${PROGNAME}-commands/`dirname $file`/\$@ > $LOGDIRBASE/\$@ 2>&1
 EOF
 ) >> $MKFILE.tmp
 }
@@ -120,7 +120,7 @@ LUSER_wrt_RunAsUser() {            #
 
 (
 cat << EOF
-	@\$(CMDSDIR)/`dirname $file`/\$@ > logs/\$@ 2>&1
+	@\$(CMDSDIR)/`dirname $file`/\$@ > $LOGDIRBASE/\$@ 2>&1
 EOF
 ) >> $MKFILE.tmp
 }
@@ -131,7 +131,7 @@ CHROOT_wrt_RunAsRoot() {           #
   local file=$1
 (
 cat << EOF
-	@\$(crCMDSDIR)/`dirname $file`/\$@ > logs/\$@ 2>&1
+	@\$(crCMDSDIR)/`dirname $file`/\$@ > $LOGDIRBASE/\$@ 2>&1
 EOF
 ) >> $MKFILE.tmp
 
@@ -147,7 +147,7 @@ LUSER_wrt_CopyFstab() {            #
 #----------------------------------#
 (
 cat << EOF
-	@cp -v \$(MOUNT_PT)/sources/fstab \$(MOUNT_PT)/etc/fstab > logs/\$@ 2>&1
+	@cp -v \$(MOUNT_PT)/sources/fstab \$(MOUNT_PT)/etc/fstab > $LOGDIRBASE/\$@ 2>&1
 EOF
 ) >> $MKFILE.tmp
 }
@@ -157,7 +157,7 @@ CHROOT_wrt_CopyFstab() {           #
 #----------------------------------#
 (
 cat << EOF
-	@cp -v /sources/fstab /etc/fstab > logs/\$@ 2>&1
+	@cp -v /sources/fstab /etc/fstab > $LOGDIRBASE/\$@ 2>&1
 EOF
 ) >> $MKFILE.tmp
 }
