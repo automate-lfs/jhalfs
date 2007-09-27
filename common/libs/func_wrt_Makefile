@@ -17,26 +17,18 @@ wrt_Makefile_header() {            #
 
 SHELL = /bin/bash
 
-SRC            = /sources
 MOUNT_PT       = $BUILDDIR
+SCRIPT_ROOT    = $SCRIPT_ROOT
+CMDSDIR        = $PROGNAME-commands
+SRC            = /sources
+SRCSDIR        = \$(MOUNT_PT)\$(SRC)
+FILELOGDIR     = /\$(SCRIPT_ROOT)/$FILELOGDIRBASE
+
 LUSER          = $LUSER
 LGROUP         = $LGROUP
 LHOME          = $LHOME
-SCRIPT_ROOT    = $SCRIPT_ROOT
-
-BASEDIR        = \$(MOUNT_PT)
-SRCSDIR        = \$(BASEDIR)/sources
-CMDSDIR        = \$(BASEDIR)/\$(SCRIPT_ROOT)/$PROGNAME-commands
-LOGDIR         = \$(BASEDIR)/\$(SCRIPT_ROOT)/$LOGDIRBASE
-TESTLOGDIR     = \$(BASEDIR)/\$(SCRIPT_ROOT)/$TESTLOGDIRBASE
-
-crCMDSDIR      = /\$(SCRIPT_ROOT)/$PROGNAME-commands
-crLOGDIR       = /\$(SCRIPT_ROOT)/$LOGDIRBASE
-crTESTLOGDIR   = /\$(SCRIPT_ROOT)/$TESTLOGDIRBASE
-crFILELOGDIR   = /\$(SCRIPT_ROOT)/$FILELOGDIRBASE
-
-SU_LUSER       = su - \$(LUSER) -c
 LUSER_HOME     = \$(LHOME)/\$(LUSER)
+SU_LUSER       = su - \$(LUSER) -c
 
 ADD_REPORT       = $REPORT
 ADD_CUSTOM_TOOLS = $CUSTOM_TOOLS
@@ -57,22 +49,7 @@ EOF
 #==== TARGET HEADER ====
 
 #----------------------------------#
-LUSER_wrt_target() {               # Create target
-#----------------------------------#
-  local i=$1
-  local PREV=$2
-(
-cat << EOF
-
-$i:  $PREV
-	@\$(call echo_message, Building)
-	@export BASHBIN=\$(SHELL) && \$(SHELL) progress_bar.sh \$@ \$\$PPID &
-EOF
-) >> $MKFILE.tmp
-}
-
-#----------------------------------#
-CHROOT_wrt_target() {              #
+wrt_target() {                     # Create target
 #----------------------------------#
   local i=$1
   local PREV=$2
@@ -89,10 +66,10 @@ EOF
 #=======================
 
 
-#======== RUN AS =======
+#======== RUN THE SCRIPT =======
 
 #----------------------------------#
-wrt_RunAsRoot() {                  # Some scripts must be run as root..
+wrt_RunAsRoot() {                  # Some not-chroot scripts must be run as root..
 #----------------------------------#
   local MOUNT_ENV
   local file=$1
@@ -108,13 +85,13 @@ wrt_RunAsRoot() {                  # Some scripts must be run as root..
 
 (
 cat << EOF
-	@export ${MOUNT_ENV}=\$(MOUNT_PT) && ${PROGNAME}-commands/`dirname $file`/\$@ > $LOGDIRBASE/\$@ 2>&1
+	@export ${MOUNT_ENV}=\$(MOUNT_PT) && \$(CMDSDIR)/`dirname $file`/\$@ > $LOGDIRBASE/\$@ 2>&1
 EOF
 ) >> $MKFILE.tmp
 }
 
 #----------------------------------#
-LUSER_wrt_RunAsUser() {            #
+wrt_RunScript() {                  #
 #----------------------------------#
   local file=$1
 
@@ -125,25 +102,13 @@ EOF
 ) >> $MKFILE.tmp
 }
 
-#----------------------------------#
-CHROOT_wrt_RunAsRoot() {           #
-#----------------------------------#
-  local file=$1
-(
-cat << EOF
-	@\$(crCMDSDIR)/`dirname $file`/\$@ > $LOGDIRBASE/\$@ 2>&1
-EOF
-) >> $MKFILE.tmp
-
-}
-
 #=======================
 
 
 #====== COPY FSTAB =====
 
 #----------------------------------#
-LUSER_wrt_CopyFstab() {            #
+LUSER_wrt_CopyFstab() {            # Needed for CLFS Sysroot and Embedded
 #----------------------------------#
 (
 cat << EOF
@@ -153,7 +118,7 @@ EOF
 }
 
 #----------------------------------#
-CHROOT_wrt_CopyFstab() {           #
+wrt_CopyFstab() {                  #
 #----------------------------------#
 (
 cat << EOF
@@ -168,7 +133,7 @@ EOF
 #==== INSTALLED FILES LOGS ====
 
 #----------------------------------#
-LUSER_wrt_TouchTimestamp() {       #
+LUSER_wrt_TouchTimestamp() {       # Needed for CLFS Sysroot and Embedded
 #----------------------------------#
 (
 cat << EOF
@@ -178,7 +143,7 @@ EOF
 }
 
 #----------------------------------#
-CHROOT_wrt_TouchTimestamp() {      #
+wrt_TouchTimestamp() {             #
 #----------------------------------#
 (
 cat << EOF
@@ -188,7 +153,7 @@ EOF
 }
 
 #----------------------------------#
-LUSER_wrt_LogNewFiles() {          #
+LUSER_wrt_LogNewFiles() {          # Needed for CLFS Sysroot and Embedded
 #----------------------------------#
   local name=$1
 (
@@ -199,7 +164,7 @@ EOF
 }
 
 #----------------------------------#
-CHROOT_wrt_LogNewFiles() {         #
+wrt_LogNewFiles() {                #
 #----------------------------------#
   local name=$1
 (

@@ -100,13 +100,13 @@ chapter5_Makefiles() {
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    LUSER_wrt_target "${this_script}" "$PREV"
+    wrt_target "${this_script}" "$PREV"
 
     # Run the script.
     # The changingowner script must be run as root.
     case "${this_script}" in
       *changingowner)  wrt_RunAsRoot "$file" ;;
-      *)               LUSER_wrt_RunAsUser "$file" ;;
+      *)               wrt_RunScript "$file" ;;
     esac
 
     # Include a touch of the target name so make can check
@@ -185,29 +185,24 @@ chapter6_Makefiles() {
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    # In the mount of kernel filesystems we need to set LFS
-    # and not to use chroot.
-    case "${this_script}" in
-      *kernfs)  LUSER_wrt_target  "${this_script}" "$PREV" ;;
-      *)        CHROOT_wrt_target "${this_script}" "$PREV" ;;
-    esac
+    wrt_target  "${this_script}" "$PREV"
 
     # Touch timestamp file if installed files logs will be created.
     # But only for the firt build when running iterative builds.
     if [ "$name" != "" ] && [ "${INSTALL_LOG}" = "y" ] && [ "x${N}" = "x" ] ; then
-      CHROOT_wrt_TouchTimestamp
+      wrt_TouchTimestamp
     fi
 
     # In the mount of kernel filesystems we need to set LFS
     # and not to use chroot.
     case "${this_script}" in
-      *kernfs)  wrt_RunAsRoot  "$file" ;;
-      *)        CHROOT_wrt_RunAsRoot "$file" ;;
+      *kernfs)  wrt_RunAsRoot "$file" ;;
+      *)        wrt_RunScript "$file" ;;
     esac
 
     # Write installed files log
     if [ "$name" != "" ] && [ "${INSTALL_LOG}" = "y" ] && [ "x${N}" = "x" ] ; then
-      CHROOT_wrt_LogNewFiles "$name"
+      wrt_LogNewFiles "$name"
     fi
 
     # Include a touch of the target name so make can check
@@ -254,33 +249,31 @@ chapter78_Makefiles() {
     #
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    CHROOT_wrt_target "${this_script}" "$PREV"
+    wrt_target "${this_script}" "$PREV"
 
     # For bootscripts and kernel, start INSTALL_LOG if requested
     case "${this_script}" in
       *bootscripts | *kernel ) if [ "${INSTALL_LOG}" = "y" ] ; then
-                                  CHROOT_wrt_TouchTimestamp
-                                fi ;;
+                                 wrt_TouchTimestamp
+                               fi ;;
     esac
 
       # Check if we have a real /etc/fstab file
     case "${this_script}" in
       *fstab) if [[ -n $FSTAB ]]; then
-                CHROOT_wrt_CopyFstab
+                wrt_CopyFstab
               else
-                CHROOT_wrt_RunAsRoot "$file"
-              fi
-        ;;
-      *)        CHROOT_wrt_RunAsRoot "$file"
-        ;;
+                wrt_RunScript "$file"
+              fi ;;
+           *) wrt_RunScript "$file" ;;
     esac
 
     case "${this_script}" in
       *bootscripts)  if [ "${INSTALL_LOG}" = "y" ] ; then
-                       CHROOT_wrt_LogNewFiles "lfs-bootscripts"
+                       wrt_LogNewFiles "lfs-bootscripts"
                      fi ;;
       *kernel)       if [ "${INSTALL_LOG}" = "y" ] ; then
-                       CHROOT_wrt_LogNewFiles "linux"
+                       wrt_LogNewFiles "linux"
                      fi ;;
     esac
 

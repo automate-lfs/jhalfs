@@ -83,13 +83,13 @@ endef
 define log_new_files
   @find / -xdev ! -path "/$(SCRIPT_ROOT)/*" ! -path "/tmp/*" ! -path "$(SRC)/*" \
   -newer $(SRC)/timestamp-marker -not -type d \
-  -printf "%p\t%s\t%u:%g\t%m\t%l\n" | sort > $(crFILELOGDIR)/$(1)
+  -printf "%p\t%s\t%u:%g\t%m\t%l\n" | sort > $(FILELOGDIR)/$(1)
 endef
 
 define log_new_files_LUSER
-  @find $(BASEDIR) -xdev ! -path "$(BASEDIR)/$(SCRIPT_ROOT)/*" ! -path "$(BASEDIR)/tmp/*" ! -path "$(SRCSDIR)/*" \
+  @find $(MOUNT_PT) -xdev ! -path "$(MOUNT_PT)/$(SCRIPT_ROOT)/*" ! -path "$(MOUNT_PT)/tmp/*" ! -path "$(SRCSDIR)/*" \
   -newer $(SRCSDIR)/timestamp-marker -not -type d \
-  -printf "%p\t%s\t%u:%g\t%m\t%l\n" | sort > $(BASEDIR)$(crFILELOGDIR)/$(1)
+  -printf "%p\t%s\t%u:%g\t%m\t%l\n" | sort > $(MOUNT_PT)$(FILELOGDIR)/$(1)
 endef
 
 #=======================
@@ -101,8 +101,9 @@ define echo_report
   echo ; \
   echo $(BOLD) The report file $(BLUE)$(1)$(BOLD) has been created ; \
   echo ; \
-  echo $(WHITE)Please send the $(BOLD)$(MOUNT_PT)/jhalfs/$(1)$(WHITE) ; \
-  echo file to $(BOLD)manuel@linuxfromscratch.org$(WHITE) ; \
+  echo $(WHITE)If this is a development book build, please send the ; \
+  echo $(BOLD)$(MOUNT_PT)/$(SCRIPT_ROOT)/$(1)$(WHITE) file to ; \
+  echo $(BOLD)manuel@linuxfromscratch.org$(WHITE) ; \
   echo ; \
   echo That will help us to keep more accurate SBU and ; \
   echo disk usage values into the book. Thanks. ; \
@@ -167,7 +168,7 @@ define echo_boot_finished
   @echo  1.If it is necessary, transfer the newly created partition to the target machine
   @echo  2.Boot the new partition.
   @echo  3.Once you are logged in issue the following commands
-  @echo  $(tab_) $(BOLD)cd /jhalfs
+  @echo  $(tab_) $(BOLD)cd /$(SCRIPT_ROOT)
   @echo  $(tab_) $(BOLD)make makesys
   @echo  The build process should resume. Follow any instructions that appear.
   @echo --------------------------------------------------------------------------------
