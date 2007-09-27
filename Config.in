@@ -1087,10 +1087,6 @@ endif
 			string "XSL stylesheet"
 			default "$PROGNAME.xsl"
 
-		config	PKG_LST
-			string "Package contents list"
-			default "unpacked"
-
 	#--- End Internal Settings
 	endmenu
 

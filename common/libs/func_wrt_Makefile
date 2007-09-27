@@ -19,7 +19,6 @@ SHELL = /bin/bash
 
 SRC            = /sources
 MOUNT_PT       = $BUILDDIR
-PKG_LST        = $PKG_LST
 LUSER          = $LUSER
 LGROUP         = $LGROUP
 LHOME          = $LHOME
