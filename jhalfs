@@ -175,68 +175,6 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
        branch-* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-} ;;
               * )  BLFS_TREE=tags/${BLFS_BRANCH_ID} ;;
   esac
-  # Dependencies envars, to can update it more easy.
-  # Tidy and Unzip version are harcoded also in wrt_blfs_tool_targets()
-    # libxml2
-  LIBXML_PKG="libxml2-2.6.29.tar.gz"
-  LIBXML_URL="ftp://xmlsoft.org/libxml2/${LIBXML_PKG}"
-  LIBXML_MD5="8b99b6e8b08e838438d9e6b639d79ebd"
-    # libxslt
-  LIBXSLT_PKG="libxslt-1.1.21.tar.gz"
-  LIBXSLT_URL="ftp://xmlsoft.org/libxslt/${LIBXSLT_PKG}"
-  LIBXSLT_MD5="59fe34e85692f71df2a38c2ee291b3ca"
-    # tidy
-  TIDY_PKG="tidy-cvs_20070326.tar.bz2"
-  TIDY_URL="http://anduin.linuxfromscratch.org/files/BLFS/sources/${TIDY_PKG}"
-  TIDY_MD5="468bfaa5cf917a8ecbe7834c13a61376"
-    # unzip
-  UNZIP_PKG="unzip552.tar.gz"
-  UNZIP_URL="http://downloads.sourceforge.net/infozip/${UNZIP_PKG}"
-  UNZIP_MD5="9d23919999d6eac9217d1f41472034a9"
-    # unzip security patch
-  UNZIP_PATCH="unzip-5.52-security_fix-1.patch"
-  UNZIP_PATCH_URL="http://www.linuxfromscratch.org/patches/blfs/svn/${UNZIP_PATCH}"
-  UNZIP_PATCH_MD5="00ebf64fdda2ad54ddfc619f85f328bb"
-    # DocBook XML DTD
-  DBXML_PKG="docbook-xml-4.5.zip"
-  DBXML_URL="http://www.docbook.org/xml/4.5/${DBXML_PKG}"
-  DBXML_MD5="03083e288e87a7e829e437358da7ef9e"
-    # DocBook XSL
-#   DBXSL_PKG="docbook-xsl-1.69.1.tar.bz2"
-#   DBXSL_URL="http://prdownloads.sourceforge.net/docbook/${DBXSL_PKG}"
-#   DBXSL_MD5="6ebd29a67f2dcc3f2220f475ee6f6552"
-    # Links
-  LYNX_PKG="lynx2.8.6.tar.bz2"
-  LYNX_URL="http://lynx.isc.org/release/${LYNX_PKG}"
-  LYNX_MD5="dc80497b7dda6a28fd80404684d27548"
-    # sudo
-  SUDO_PKG="sudo-1.6.8p12.tar.gz"
-  SUDO_URL="http://anduin.linuxfromscratch.org/sources/BLFS/svn/s/${SUDO_PKG}"
-  SUDO_MD5="b29893c06192df6230dd5f340f3badf5"
-    # sudo envar fix patch
-  SUDO_PATCH="sudo-1.6.8p12-envvar_fix-1.patch"
-  SUDO_PATCH_URL="http://www.linuxfromscratch.org/patches/blfs/svn/${SUDO_PATCH}"
-  SUDO_PATCH_MD5="454925aedfe054dff8fe0d03b209f986"
-    # wget
-  WGET_PKG="wget-1.10.2.tar.gz"
-  WGET_URL="ftp://ftp.gnu.org/gnu/wget/${WGET_PKG}"
-  WGET_MD5="795fefbb7099f93e2d346b026785c4b8"
-    # Subversion
-  SVN_PKG="subversion-1.3.1.tar.bz2"
-  SVN_URL="http://subversion.tigris.org/tarballs/${SVN_PKG}"
-  SVN_MD5="07b95963968ae345541ca99d0e7bf082"
-    # GPM
-  GPM_PKG="gpm-1.20.1.tar.bz2"
-  GPM_URL="ftp://ftp.linux.ee/pub/gentoo/distfiles/distfiles/${GPM_PKG}"
-  GPM_MD5="2c63e827d755527950d9d13fe3d87692"
-    # GPM segfaul patch
-  GPM_PATCH_1="gpm-1.20.1-segfault-1.patch"
-  GPM_PATCH_1_URL="http://www.linuxfromscratch.org/patches/blfs/svn/${GPM_PATCH_1}"
-  GPM_PATCH_1_MD5="8c88f92990ba7613014fcd1db14ca7ac"
-    # GPM silent patch
-  GPM_PATCH_2="gpm-1.20.1-silent-1.patch"
-  GPM_PATCH_2_URL="http://www.linuxfromscratch.org/patches/blfs/svn/${GPM_PATCH_2}"
-  GPM_PATCH_2_MD5="bf6cbefe20c6f15b587f19ebc1c8a37a"
 fi
 
 #--- Envars not sourced from configuration
@@ -410,9 +348,6 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
     # Set some harcoded envars to their proper values
     sed -i 's,blfs-xml,'$BLFS_XML',' ${BUILDDIR}${BLFS_ROOT}/{update_book.sh,libs/book.xsl}
     sed -i 's,tracking-dir,'$TRACKING_DIR',' ${BUILDDIR}${BLFS_ROOT}/{update_book.sh,gen-makefile.sh}
-    # Copy the dependencies build scripts
-    cp -r $COMMON_DIR/blfs-tool-deps $JHALFSDIR/
-    rm -rf $JHALFSDIR/blfs-tool-deps/.svn
   fi
   #
 
@@ -436,7 +371,7 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
 
 fi
 
-# When regeneration the Makefile we need to know also the canonical book version
+# When regenerating the Makefile we need to know also the canonical book version
 if [[ "$REBUILD_MAKEFILE" = "y" ]] ; then
   case $PROGNAME in
     clfs | clfs2 | clfs3 )
