@@ -12,7 +12,7 @@
      used to customize the build scripts content, how each of the base system
      packages is build, or to insert scripts into the system build flow.
      Don't edit the templates directly here, this file is only for reference
-     and you changes will be lost if updating the jhalfs code.
+     and your changes will be lost if updating the jhalfs code.
      Select what of them you need and place it into you customization layout.-->
 
 
@@ -176,7 +176,7 @@ make install
 
 <!-- ############## STOCK MODE TEMPLATES USED ON SCREEN BLOCKS ############## -->
 
-<!-- NOTE: You can used this modes or create you own ones -->
+<!-- NOTE: You can use this modes or create you own ones -->
 
 
     <!-- mode pre  -->
