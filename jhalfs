@@ -337,13 +337,6 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
   fi
   #
 
-  # Copy custom tools config files, if requested
-  if [[ "${CUSTOM_TOOLS}" = "y" ]]; then
-    echo "Copying custom tool scripts to $JHALFSDIR"
-    mkdir -p $JHALFSDIR/custom-commands
-    cp -f custom/config/* $JHALFSDIR/custom-commands
-  fi
-  #
   # Install blfs-tool, if requested.
   if [[ "${BLFS_TOOL}" = "y" ]] ; then
     # Install the files
