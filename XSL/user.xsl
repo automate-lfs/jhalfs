@@ -52,6 +52,7 @@
     <xsl:if test="$reference = 'ID_of_selected_sect1'">
         <!-- Add an exsl:document block for each script to be inserted
              at this point of the build. This one is only a dummy example. -->
+        <!-- See blfs-tool.xsl for exsl:document examples -->
       <exsl:document href="{$insert_order}01-dummy" method="text">
         <xsl:call-template name="header"/>
         <xsl:text>
@@ -59,6 +60,11 @@ PKG_PHASE=dummy
 PACKAGE=dummy
 VERSION=0.0.0
 TARBALL=dummy-0.0.0.tar.bz2
+DOWNLOAD=http://www.example.com/sources/dummy-0.0.0.tar.bz2
+MD5SUM=b0c2f10c23b1d529725c8f9c693858cf
+
+PATCH="http://www.example.com/sources/dummy-0.0.0.fix1.patch 65c913efccffda4b9dc66e9002e8516e"
+PATCH="http://www.example.com/sources/dummy-0.0.0.fix2.patch fb411aae8d1eb8a733bb1def9266f2ba"
         </xsl:text>
         <xsl:call-template name="disk_usage"/>
         <xsl:call-template name="unpack"/>
@@ -90,6 +96,7 @@ make install
     <xsl:if test="$reference = 'ID_of_selected_sect1'">
         <!-- Add an exsl:document block for each script to be inserted
              at this point of the build. This one is only a dummy example. -->
+        <!-- See blfs-tool.xsl for exsl:document examples -->
       <exsl:document href="{$insert_order}01-dummy" method="text">
         <xsl:call-template name="header"/>
         <xsl:text>
@@ -97,6 +104,11 @@ PKG_PHASE=dummy
 PACKAGE=dummy
 VERSION=0.0.0
 TARBALL=dummy-0.0.0.tar.bz2
+DOWNLOAD=http://www.example.com/sources/dummy-0.0.0.tar.bz2
+MD5SUM=b0c2f10c23b1d529725c8f9c693858cf
+
+PATCH="http://www.example.com/sources/dummy-0.0.0.fix1.patch 65c913efccffda4b9dc66e9002e8516e"
+PATCH="http://www.example.com/sources/dummy-0.0.0.fix2.patch fb411aae8d1eb8a733bb1def9266f2ba"
         </xsl:text>
         <xsl:call-template name="disk_usage"/>
         <xsl:call-template name="unpack"/>

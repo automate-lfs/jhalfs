@@ -27,42 +27,6 @@ blfs_tool_clean_scripts() {        # Remove unselected dependencies scripts
   done
 }
 
-#----------------------------#
-add_blfs_deps_urls() {       #
-#----------------------------#
-  local saveIFS=$IFS
-  local IFS file line package tarball download md5sum patchurl patchname patchmd5
-
-  local BLFS_SERVER="${SERVER}/pub/blfs/conglomeration/"
-
-  for file in ${PROGNAME}-commands/blfs-tool-deps/* ; do
-    # Keep the script file name
-    this_script=`basename $file`
-
-    # Grab the package name, tarball, download URL and MD5SUM
-    package=`grep "^PACKAGE=" ${file} | sed -e 's@PACKAGE=@@'`
-    tarball=`grep "^TARBALL=" ${file} | sed -e 's@TARBALL=@@'`
-    download=`grep "^DOWNLOAD=" ${file} | sed -e 's@DOWNLOAD=@@'`
-    md5sum=`grep "^MD5SUM=" ${file} | sed -e 's@MD5SUM=@@'`
-
-    # Write the package entry
-    echo "${download} ${BLFS_SERVER}${package}/${tarball} ${md5sum}" >> ../sources/urls.lst
-
-    # Handle the patches, if any
-    IFS=$'\x0A'
-    for line in `grep "^PATCH=" ${file}` ; do
-      IFS=$saveIFS
-      patchurl=`echo ${line} | sed -e 's@PATCH="@@' -e 's@ .*@@'`
-      patchname=${patchurl##*/}
-      patchmd5=`echo ${line} | sed -e 's@.* @@' -e 's@"@@'`
-
-      # Write the patch entry
-      echo "${patchurl} ${BLFS_SERVER}${package}/${patchname} ${patchmd5}" >> ../sources/urls.lst
-    done
-
-  done
-}
-
 
 #----------------------------------#
 wrt_blfs_tool_targets() {          #

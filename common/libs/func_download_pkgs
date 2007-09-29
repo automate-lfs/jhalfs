@@ -139,7 +139,6 @@ create_urls() {              #
                  --stringparam family clfs \
                  -o $BUILDDIR/sources/urls.lst $CODE_DIR/XSL/urls.xsl \
                  $BOOK/materials/$ARCH-chapter.xml >>$LOGDIR/$LOG 2>&1
-        echo " ...OK"
       ;;
     clfs2)
         echo -n "Creating CLFS2 <${ARCH}> specific URLs file"
@@ -148,7 +147,6 @@ create_urls() {              #
                  --stringparam family clfs \
                  -o $BUILDDIR/sources/urls.lst $CODE_DIR/XSL/urls.xsl \
                  $BOOK/materials/$ARCH-chapter.xml >>$LOGDIR/$LOG 2>&1
-        echo " ...OK"
       ;;
     clfs3)
         echo -n "Creating CLFS3 <${ARCH}> specific URLs file"
@@ -157,7 +155,6 @@ create_urls() {              #
                  --stringparam family clfs \
                  -o $BUILDDIR/sources/urls.lst $CODE_DIR/XSL/urls.xsl \
                  $BOOK/materials/$ARCH-chapter.xml >>$LOGDIR/$LOG 2>&1
-        echo " ...OK"
       ;;
     hlfs)
         echo -n "Creating HLFS <${MODEL}> + <${KERNEL}> specific URLs file"
@@ -168,7 +165,6 @@ create_urls() {              #
                  --stringparam kernel $KERNEL \
                  -o $BUILDDIR/sources/urls.lst $CODE_DIR/XSL/urls.xsl \
                  $BOOK/chapter04/chapter04.xml >>$LOGDIR/$LOG 2>&1
-        echo " ...OK"
       ;;
     lfs)
         echo -n "Creating LFS specific URLs file"
@@ -177,19 +173,48 @@ create_urls() {              #
                  --stringparam family lfs \
                  -o ../sources/urls.lst $CODE_DIR/XSL/urls.xsl \
                  $BOOK/chapter03/chapter03.xml >>$LOGDIR/$LOG 2>&1
-        echo " ...OK"
       ;;
   esac
 
-  if [[ "${BLFS_TOOL}" = "y" ]]; then
-    add_blfs_deps_urls
-  fi
+  add_extra_urls
 
-  if [[ "${CUSTOM_TOOLS}" = "y" ]]; then
-    add_CustomToolsURLS
-  fi
+  echo " ...OK"
 
   cd $BUILDDIR/sources
 
 }
 
+#----------------------------# Add download URLs found in user added scripts,
+add_extra_urls() {           # blfs-tool-deps scripts, and custom-tools scripts
+#----------------------------#
+  local saveIFS=$IFS
+  local IFS file line package tarball download md5sum patchurl patchname patchmd5
+
+  local BLFS_SERVER="${SERVER}/pub/blfs/conglomeration/"
+
+  for file in ${PROGNAME}-commands/*/* ; do
+    # Grab the package name, tarball, download URL and MD5SUM
+    package=`grep "^PACKAGE=" ${file} | sed -e 's@PACKAGE=@@'`
+    tarball=`grep "^TARBALL=" ${file} | sed -e 's@TARBALL=@@'`
+    download=`grep "^DOWNLOAD=" ${file} | sed -e 's@DOWNLOAD=@@'`
+    md5sum=`grep "^MD5SUM=" ${file} | sed -e 's@MD5SUM=@@'`
+
+    # Be sure that we have a download URL and MD5SUM value
+    if [ -n "${download}" ] && [ -n "${md5sum}" ] ; then
+      # Write the package entry
+      echo "${download} ${BLFS_SERVER}${package}/${tarball} ${md5sum}" >> ../sources/urls.lst
+    fi
+
+    # Handle the patches, if any
+    IFS=$'\x0A'
+    for line in `grep "^PATCH=" ${file}` ; do
+      IFS=$saveIFS
+      patchurl=`echo ${line} | sed -e 's@PATCH="@@' -e 's@ .*@@'`
+      patchname=${patchurl##*/}
+      patchmd5=`echo ${line} | sed -e 's@.* @@' -e 's@"@@'`
+
+      # Write the patch entry
+      echo "${patchurl} ${BLFS_SERVER}${package}/${patchname} ${patchmd5}" >> ../sources/urls.lst
+    done
+  done
+}
