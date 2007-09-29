@@ -152,6 +152,8 @@ extract_commands() {         #
         exit 1 ;;
   esac
 
+  [[ "${BLFS_TOOL}" = "y" ]] && blfs_tool_clean_scripts
+
   echo "done"
 
   # Make the scripts executable.

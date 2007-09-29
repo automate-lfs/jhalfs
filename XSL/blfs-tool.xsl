@@ -17,12 +17,12 @@
     <exsl:document href="{$basedir}01-libxml2" method="text">
       <xsl:call-template name="header"/>
       <xsl:text>
-PKG_PHASE="libxml2"
-PACKAGE="libxml2"
-VERSION="2.6.29"
-TARBALL="${PACKAGE}-${VERSION}.tar.gz"
-DOWNLOAD="ftp://xmlsoft.org/libxml2/${TARBALL}"
-MD5SUM="8b99b6e8b08e838438d9e6b639d79ebd"
+PKG_PHASE=libxml2
+PACKAGE=libxml2
+VERSION=2.6.29
+TARBALL=${PACKAGE}-${VERSION}.tar.gz
+DOWNLOAD=ftp://xmlsoft.org/libxml2/${TARBALL}
+MD5SUM=8b99b6e8b08e838438d9e6b639d79ebd
       </xsl:text>
       <xsl:call-template name="disk_usage"/>
       <xsl:call-template name="unpack"/>
@@ -41,12 +41,12 @@ make install
     <exsl:document href="{$basedir}02-libxslt" method="text">
       <xsl:call-template name="header"/>
       <xsl:text>
-PKG_PHASE="libxslt"
-PACKAGE="libxslt"
-VERSION="1.1.21"
-TARBALL="${PACKAGE}-${VERSION}.tar.gz"
-DOWNLOAD="ftp://xmlsoft.org/libxslt/${TARBALL}"
-MD5SUM="59fe34e85692f71df2a38c2ee291b3ca"
+PKG_PHASE=libxslt
+PACKAGE=libxslt
+VERSION=1.1.21
+TARBALL=${PACKAGE}-${VERSION}.tar.gz
+DOWNLOAD=ftp://xmlsoft.org/libxslt/${TARBALL}
+MD5SUM=59fe34e85692f71df2a38c2ee291b3ca
       </xsl:text>
       <xsl:call-template name="disk_usage"/>
       <xsl:call-template name="unpack"/>
@@ -65,12 +65,12 @@ make install
     <exsl:document href="{$basedir}03-tidy" method="text">
       <xsl:call-template name="header"/>
       <xsl:text>
-PKG_PHASE="tidy"
-PACKAGE="tidy"
-VERSION="cvs_20070326"
-TARBALL="${PACKAGE}-${VERSION}.tar.bz2"
-DOWNLOAD="http://anduin.linuxfromscratch.org/files/BLFS/sources/${TARBALL}"
-MD5SUM="468bfaa5cf917a8ecbe7834c13a61376"
+PKG_PHASE=html-tidy
+PACKAGE=tidy
+VERSION=cvs_20070326
+TARBALL=${PACKAGE}-${VERSION}.tar.bz2
+DOWNLOAD=http://anduin.linuxfromscratch.org/files/BLFS/sources/${TARBALL}
+MD5SUM=468bfaa5cf917a8ecbe7834c13a61376
       </xsl:text>
       <xsl:call-template name="disk_usage"/>
       <xsl:call-template name="unpack"/>
@@ -90,12 +90,12 @@ make -C htmldoc install_apidocs
     <exsl:document href="{$basedir}04-unzip" method="text">
       <xsl:call-template name="header"/>
       <xsl:text>
-PKG_PHASE="unzip"
-PACKAGE="unzip"
-VERSION="552"
-TARBALL="${PACKAGE}${VERSION}.tar.gz"
-DOWNLOAD="http://downloads.sourceforge.net/infozip/${TARBALL}"
-MD5SUM="9d23919999d6eac9217d1f41472034a9"
+PKG_PHASE=unzip
+PACKAGE=unzip
+VERSION=552
+TARBALL=${PACKAGE}${VERSION}.tar.gz
+DOWNLOAD=http://downloads.sourceforge.net/infozip/${TARBALL}
+MD5SUM=9d23919999d6eac9217d1f41472034a9
 
 PATCH1="http://www.linuxfromscratch.org/patches/blfs/svn/unzip-5.52-security_fix-1.patch 00ebf64fdda2ad54ddfc619f85f328bb"
       </xsl:text>
@@ -116,12 +116,12 @@ make prefix=/usr install
     <exsl:document href="{$basedir}05-docbook-xml" method="text">
       <xsl:call-template name="header"/>
       <xsl:text>
-PKG_PHASE="docbook-xml"
-PACKAGE="docboo-xml"
-VERSION="4.5"
-TARBALL="${PACKAGE}-${VERSION}.zip"
-DOWNLOAD="http://www.docbook.org/xml/4.5/${TARBALL}"
-MD5SUM="03083e288e87a7e829e437358da7ef9e"
+PKG_PHASE=DocBook
+PACKAGE=docbook-xml
+VERSION=4.5
+TARBALL=${PACKAGE}-${VERSION}.zip
+DOWNLOAD=http://www.docbook.org/xml/4.5/${TARBALL}
+MD5SUM=03083e288e87a7e829e437358da7ef9e
       </xsl:text>
       <xsl:call-template name="disk_usage"/>
       <xsl:text>
@@ -239,12 +239,12 @@ SECONDS=$SECS
     <!--<exsl:document href="{$basedir}06-docbook-xsl" method="text">
       <xsl:call-template name="header"/>
       <xsl:text>
-PKG_PHASE="docbook-xsl"
-PACKAGE="docbook-xsl"
-VERSION=""
-TARBALL="${PACKAGE}-${VERSION}.tar.bz2"
-DOWNLOAD="http://prdownloads.sourceforge.net/docbook/${TARBALL}"
-MD5SUM=""
+PKG_PHASE=docbook-xsl
+PACKAGE=docbook-xsl
+VERSION=
+TARBALL=${PACKAGE}-${VERSION}.tar.bz2
+DOWNLOAD=http://prdownloads.sourceforge.net/docbook/${TARBALL}
+MD5SUM=
       </xsl:text>
       <xsl:call-template name="disk_usage"/>
       <xsl:call-template name="unpack"/>
@@ -260,12 +260,12 @@ cd $PKGDIR
     <exsl:document href="{$basedir}07-gpm" method="text">
       <xsl:call-template name="header"/>
       <xsl:text>
-PKG_PHASE="gpm"
-PACKAGE="gpm"
-VERSION="1.20.1"
-TARBALL="${PACKAGE}-${VERSION}.tar.bz2"
-DOWNLOAD="ftp://ftp.linux.ee/pub/gentoo/distfiles/distfiles/${TARBALL}"
-MD5SUM="2c63e827d755527950d9d13fe3d87692"
+PKG_PHASE=gpm
+PACKAGE=gpm
+VERSION=1.20.1
+TARBALL=${PACKAGE}-${VERSION}.tar.bz2
+DOWNLOAD=ftp://ftp.linux.ee/pub/gentoo/distfiles/distfiles/${TARBALL}
+MD5SUM=2c63e827d755527950d9d13fe3d87692
 
 PATCH1="http://www.linuxfromscratch.org/patches/blfs/svn/gpm-1.20.1-segfault-1.patch 8c88f92990ba7613014fcd1db14ca7ac"
 PATCH2="http://www.linuxfromscratch.org/patches/blfs/svn/gpm-1.20.1-silent-1.patch bf6cbefe20c6f15b587f19ebc1c8a37a"
@@ -291,12 +291,12 @@ ldconfig
     <exsl:document href="{$basedir}08-lynx" method="text">
       <xsl:call-template name="header"/>
       <xsl:text>
-PKG_PHASE="lynx"
-PACKAGE="lynx"
-VERSION="2.8.6"
-TARBALL="${PACKAGE}${VERSION}.tar.bz2"
-DOWNLOAD="http://lynx.isc.org/release/${TARBALL}"
-MD5SUM="dc80497b7dda6a28fd80404684d27548"
+PKG_PHASE=lynx
+PACKAGE=lynx
+VERSION=2.8.6
+TARBALL=${PACKAGE}${VERSION}.tar.bz2
+DOWNLOAD=http://lynx.isc.org/release/${TARBALL}
+MD5SUM=dc80497b7dda6a28fd80404684d27548
       </xsl:text>
       <xsl:call-template name="disk_usage"/>
       <xsl:call-template name="unpack"/>
@@ -322,12 +322,12 @@ chgrp -v -R root /usr/share/doc/lynx-2.8.6/lynx_doc
     <exsl:document href="{$basedir}09-sudo" method="text">
       <xsl:call-template name="header"/>
       <xsl:text>
-PKG_PHASE="sudo"
-PACKAGE="sudo"
-VERSION="1.6.8p12"
-TARBALL="${PACKAGE}-${VERSION}.tar.gz"
-DOWNLOAD="http://anduin.linuxfromscratch.org/sources/BLFS/svn/s/${TARBALL}"
-MD5SUM="b29893c06192df6230dd5f340f3badf5"
+PKG_PHASE=sudo
+PACKAGE=sudo
+VERSION=1.6.8p12
+TARBALL=${PACKAGE}-${VERSION}.tar.gz
+DOWNLOAD=http://anduin.linuxfromscratch.org/sources/BLFS/svn/s/${TARBALL}
+MD5SUM=b29893c06192df6230dd5f340f3badf5
 
 PATCH1="http://www.linuxfromscratch.org/patches/blfs/svn/sudo-1.6.8p12-envvar_fix-1.patch 454925aedfe054dff8fe0d03b209f986"
       </xsl:text>
@@ -351,12 +351,12 @@ make install
     <exsl:document href="{$basedir}10-wget" method="text">
       <xsl:call-template name="header"/>
       <xsl:text>
-PKG_PHASE="wget"
-PACKAGE="wget"
-VERSION="1.10.2"
-TARBALL="${PACKAGE}-${VERSION}.tar.gz"
-DOWNLOAD="ftp://ftp.gnu.org/gnu/wget/${TARBALL}"
-MD5SUM="795fefbb7099f93e2d346b026785c4b8"
+PKG_PHASE=wget
+PACKAGE=wget
+VERSION=1.10.2
+TARBALL=${PACKAGE}-${VERSION}.tar.gz
+DOWNLOAD=ftp://ftp.gnu.org/gnu/wget/${TARBALL}
+MD5SUM=795fefbb7099f93e2d346b026785c4b8
       </xsl:text>
       <xsl:call-template name="disk_usage"/>
       <xsl:call-template name="unpack"/>
@@ -375,12 +375,12 @@ make install
     <exsl:document href="{$basedir}11-subversion" method="text">
       <xsl:call-template name="header"/>
       <xsl:text>
-PKG_PHASE="subversion"
-PACKAGE="subversion"
-VERSION="1.3.1"
-TARBALL="${PACKAGE}-${VERSION}.tar.bz2"
-DOWNLOAD="http://subversion.tigris.org/tarballs/${TARBALL}"
-MD5SUM="07b95963968ae345541ca99d0e7bf082"
+PKG_PHASE=subversion
+PACKAGE=subversion
+VERSION=1.3.1
+TARBALL=${PACKAGE}-${VERSION}.tar.bz2
+DOWNLOAD=http://subversion.tigris.org/tarballs/${TARBALL}
+MD5SUM=07b95963968ae345541ca99d0e7bf082
       </xsl:text>
       <xsl:call-template name="disk_usage"/>
       <xsl:call-template name="unpack"/>
