@@ -20,8 +20,8 @@
 PKG_PHASE=libxml2
 PACKAGE=libxml2
 VERSION=2.6.29
-TARBALL=${PACKAGE}-${VERSION}.tar.gz
-DOWNLOAD=ftp://xmlsoft.org/libxml2/${TARBALL}
+TARBALL=libxml2-2.6.29.tar.gz
+DOWNLOAD=ftp://xmlsoft.org/libxml2/libxml2-2.6.29.tar.gz
 MD5SUM=8b99b6e8b08e838438d9e6b639d79ebd
       </xsl:text>
       <xsl:call-template name="disk_usage"/>
@@ -44,8 +44,8 @@ make install
 PKG_PHASE=libxslt
 PACKAGE=libxslt
 VERSION=1.1.21
-TARBALL=${PACKAGE}-${VERSION}.tar.gz
-DOWNLOAD=ftp://xmlsoft.org/libxslt/${TARBALL}
+TARBALL=libxslt-1.1.21.tar.gz
+DOWNLOAD=ftp://xmlsoft.org/libxslt/libxslt-1.1.21.tar.gz
 MD5SUM=59fe34e85692f71df2a38c2ee291b3ca
       </xsl:text>
       <xsl:call-template name="disk_usage"/>
@@ -68,8 +68,8 @@ make install
 PKG_PHASE=html-tidy
 PACKAGE=tidy
 VERSION=cvs_20070326
-TARBALL=${PACKAGE}-${VERSION}.tar.bz2
-DOWNLOAD=http://anduin.linuxfromscratch.org/files/BLFS/sources/${TARBALL}
+TARBALL=tidy-cvs_20070326.tar.bz2
+DOWNLOAD=http://anduin.linuxfromscratch.org/files/BLFS/sources/tidy-cvs_20070326
 MD5SUM=468bfaa5cf917a8ecbe7834c13a61376
       </xsl:text>
       <xsl:call-template name="disk_usage"/>
@@ -93,11 +93,11 @@ make -C htmldoc install_apidocs
 PKG_PHASE=unzip
 PACKAGE=unzip
 VERSION=552
-TARBALL=${PACKAGE}${VERSION}.tar.gz
-DOWNLOAD=http://downloads.sourceforge.net/infozip/${TARBALL}
+TARBALL=unzip552.tar.gz
+DOWNLOAD=http://downloads.sourceforge.net/infozip/unzip552.tar.gz
 MD5SUM=9d23919999d6eac9217d1f41472034a9
 
-PATCH1="http://www.linuxfromscratch.org/patches/blfs/svn/unzip-5.52-security_fix-1.patch 00ebf64fdda2ad54ddfc619f85f328bb"
+PATCH="http://www.linuxfromscratch.org/patches/blfs/svn/unzip-5.52-security_fix-1.patch 00ebf64fdda2ad54ddfc619f85f328bb"
       </xsl:text>
       <xsl:call-template name="disk_usage"/>
       <xsl:call-template name="unpack"/>
@@ -119,8 +119,8 @@ make prefix=/usr install
 PKG_PHASE=DocBook
 PACKAGE=docbook-xml
 VERSION=4.5
-TARBALL=${PACKAGE}-${VERSION}.zip
-DOWNLOAD=http://www.docbook.org/xml/4.5/${TARBALL}
+TARBALL=docbook-xml-4.5.zip
+DOWNLOAD=http://www.docbook.org/xml/4.5/docbook-xml-4.5.zip
 MD5SUM=03083e288e87a7e829e437358da7ef9e
       </xsl:text>
       <xsl:call-template name="disk_usage"/>
@@ -242,8 +242,8 @@ SECONDS=$SECS
 PKG_PHASE=docbook-xsl
 PACKAGE=docbook-xsl
 VERSION=
-TARBALL=${PACKAGE}-${VERSION}.tar.bz2
-DOWNLOAD=http://prdownloads.sourceforge.net/docbook/${TARBALL}
+TARBALL=
+DOWNLOAD=
 MD5SUM=
       </xsl:text>
       <xsl:call-template name="disk_usage"/>
@@ -263,12 +263,12 @@ cd $PKGDIR
 PKG_PHASE=gpm
 PACKAGE=gpm
 VERSION=1.20.1
-TARBALL=${PACKAGE}-${VERSION}.tar.bz2
-DOWNLOAD=ftp://ftp.linux.ee/pub/gentoo/distfiles/distfiles/${TARBALL}
+TARBALL=gpm-1.20.1.tar.bz2
+DOWNLOAD=ftp://ftp.linux.ee/pub/gentoo/distfiles/distfiles/gpm-1.20.1.tar.bz2
 MD5SUM=2c63e827d755527950d9d13fe3d87692
 
-PATCH1="http://www.linuxfromscratch.org/patches/blfs/svn/gpm-1.20.1-segfault-1.patch 8c88f92990ba7613014fcd1db14ca7ac"
-PATCH2="http://www.linuxfromscratch.org/patches/blfs/svn/gpm-1.20.1-silent-1.patch bf6cbefe20c6f15b587f19ebc1c8a37a"
+PATCH="http://www.linuxfromscratch.org/patches/blfs/svn/gpm-1.20.1-segfault-1.patch 8c88f92990ba7613014fcd1db14ca7ac"
+PATCH="http://www.linuxfromscratch.org/patches/blfs/svn/gpm-1.20.1-silent-1.patch bf6cbefe20c6f15b587f19ebc1c8a37a"
       </xsl:text>
       <xsl:call-template name="disk_usage"/>
       <xsl:call-template name="unpack"/>
@@ -294,8 +294,8 @@ ldconfig
 PKG_PHASE=lynx
 PACKAGE=lynx
 VERSION=2.8.6
-TARBALL=${PACKAGE}${VERSION}.tar.bz2
-DOWNLOAD=http://lynx.isc.org/release/${TARBALL}
+TARBALL=lynx2.8.6.tar.bz2
+DOWNLOAD=http://lynx.isc.org/release/lynx2.8.6.tar.bz2
 MD5SUM=dc80497b7dda6a28fd80404684d27548
       </xsl:text>
       <xsl:call-template name="disk_usage"/>
@@ -325,11 +325,11 @@ chgrp -v -R root /usr/share/doc/lynx-2.8.6/lynx_doc
 PKG_PHASE=sudo
 PACKAGE=sudo
 VERSION=1.6.8p12
-TARBALL=${PACKAGE}-${VERSION}.tar.gz
-DOWNLOAD=http://anduin.linuxfromscratch.org/sources/BLFS/svn/s/${TARBALL}
+TARBALL=sudo-1.6.8p12.tar.gz
+DOWNLOAD=http://anduin.linuxfromscratch.org/sources/BLFS/svn/s/sudo-1.6.8p12.tar.gz
 MD5SUM=b29893c06192df6230dd5f340f3badf5
 
-PATCH1="http://www.linuxfromscratch.org/patches/blfs/svn/sudo-1.6.8p12-envvar_fix-1.patch 454925aedfe054dff8fe0d03b209f986"
+PATCH="http://www.linuxfromscratch.org/patches/blfs/svn/sudo-1.6.8p12-envvar_fix-1.patch 454925aedfe054dff8fe0d03b209f986"
       </xsl:text>
       <xsl:call-template name="disk_usage"/>
       <xsl:call-template name="unpack"/>
@@ -354,8 +354,8 @@ make install
 PKG_PHASE=wget
 PACKAGE=wget
 VERSION=1.10.2
-TARBALL=${PACKAGE}-${VERSION}.tar.gz
-DOWNLOAD=ftp://ftp.gnu.org/gnu/wget/${TARBALL}
+TARBALL=wget-1.10.2.tar.gz
+DOWNLOAD=ftp://ftp.gnu.org/gnu/wget/wget-1.10.2.tar.gz
 MD5SUM=795fefbb7099f93e2d346b026785c4b8
       </xsl:text>
       <xsl:call-template name="disk_usage"/>
@@ -378,8 +378,8 @@ make install
 PKG_PHASE=subversion
 PACKAGE=subversion
 VERSION=1.3.1
-TARBALL=${PACKAGE}-${VERSION}.tar.bz2
-DOWNLOAD=http://subversion.tigris.org/tarballs/${TARBALL}
+TARBALL=subversion-1.3.1.tar.bz2
+DOWNLOAD=http://subversion.tigris.org/tarballs/subversion-1.3.1.tar.bz2
 MD5SUM=07b95963968ae345541ca99d0e7bf082
       </xsl:text>
       <xsl:call-template name="disk_usage"/>

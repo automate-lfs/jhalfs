@@ -181,8 +181,6 @@ create_urls() {              #
       ;;
   esac
 
-  cd $BUILDDIR/sources
-
   if [[ "${BLFS_TOOL}" = "y" ]]; then
     add_blfs_deps_urls
   fi
@@ -190,6 +188,8 @@ create_urls() {              #
   if [[ "${CUSTOM_TOOLS}" = "y" ]]; then
     add_CustomToolsURLS
   fi
+
+  cd $BUILDDIR/sources
 
 }
 
