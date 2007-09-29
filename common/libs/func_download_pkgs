@@ -137,7 +137,7 @@ create_urls() {              #
         xsltproc --nonet --xinclude \
                  --stringparam server $SERVER \
                  --stringparam family clfs \
-                 -o $BUILDDIR/sources/urls.lst urls.xsl \
+                 -o $BUILDDIR/sources/urls.lst $CODE_DIR/$COMMON_DIR/urls.xsl \
                  $BOOK/materials/$ARCH-chapter.xml >>$LOGDIR/$LOG 2>&1
         echo " ...OK"
       ;;
@@ -146,7 +146,7 @@ create_urls() {              #
         xsltproc --nonet --xinclude \
                  --stringparam server $SERVER \
                  --stringparam family clfs \
-                 -o $BUILDDIR/sources/urls.lst urls.xsl \
+                 -o $BUILDDIR/sources/urls.lst $CODE_DIR/$COMMON_DIR/urls.xsl \
                  $BOOK/materials/$ARCH-chapter.xml >>$LOGDIR/$LOG 2>&1
         echo " ...OK"
       ;;
@@ -155,7 +155,7 @@ create_urls() {              #
         xsltproc --nonet --xinclude \
                  --stringparam server $SERVER \
                  --stringparam family clfs \
-                 -o $BUILDDIR/sources/urls.lst urls.xsl \
+                 -o $BUILDDIR/sources/urls.lst $CODE_DIR/$COMMON_DIR/urls.xsl \
                  $BOOK/materials/$ARCH-chapter.xml >>$LOGDIR/$LOG 2>&1
         echo " ...OK"
       ;;
@@ -166,7 +166,7 @@ create_urls() {              #
                  --stringparam family lfs \
                  --stringparam model $MODEL \
                  --stringparam kernel $KERNEL \
-                 -o $BUILDDIR/sources/urls.lst urls.xsl \
+                 -o $BUILDDIR/sources/urls.lst $CODE_DIR/$COMMON_DIR/urls.xsl \
                  $BOOK/chapter04/chapter04.xml >>$LOGDIR/$LOG 2>&1
         echo " ...OK"
       ;;
@@ -175,7 +175,7 @@ create_urls() {              #
         xsltproc --nonet --xinclude \
                  --stringparam server $SERVER \
                  --stringparam family lfs \
-                 -o ../sources/urls.lst urls.xsl \
+                 -o ../sources/urls.lst $CODE_DIR/$COMMON_DIR/urls.xsl \
                  $BOOK/chapter03/chapter03.xml >>$LOGDIR/$LOG 2>&1
         echo " ...OK"
       ;;

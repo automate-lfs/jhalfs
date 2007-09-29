@@ -249,9 +249,13 @@ declare -r LOG=000-masterscript.log
 declare -r SVN_2="svn://svn.linuxfromscratch.org"
 
 # Set true internal variables
+CODE_DIR=`pwd`
 COMMON_DIR="common"
 PACKAGE_DIR=$(echo $PROGNAME | tr '[a-z]' '[A-Z]')
 MODULE=$PACKAGE_DIR/master.sh
+
+# Qick fix until have the new code ready
+XSL=$CODE_DIR/$PACKAGE_DIR/$XSL
 
 [[ $VERBOSITY > 0 ]] && echo -n "Loading common-functions module..."
 source $COMMON_DIR/common-functions
@@ -357,16 +361,9 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
   >$LOGDIR/$LOG
   #
   # Copy common helper files
-  cp $COMMON_DIR/{makefile-functions,progress_bar.sh,packages.xsl} $JHALFSDIR/
-  #
-  # Fix the XSL book parser
-  sed 's,FAKEDIR,'$BOOK',' $PACKAGE_DIR/$XSL > $JHALFSDIR/${XSL}
-  export XSL=$JHALFSDIR/${XSL}
+  cp $COMMON_DIR/{makefile-functions,progress_bar.sh} $JHALFSDIR/
   #
 
-  # Copy urls.xsl, if needed
-  [[ "$GETPKG" = "y" ]] && cp $COMMON_DIR/urls.xsl  $JHALFSDIR/
-  #
   # Create the test-log directory, if needed
   [[ "$TEST" != "0" ]] && [[ ! -d $TESTLOGDIR ]] && install -d -m 1777 $TESTLOGDIR
   #
