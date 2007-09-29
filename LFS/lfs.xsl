@@ -406,10 +406,10 @@
                   not(@id='ch-system-revisedchroot')">
       <xsl:choose>
         <xsl:when test="ancestor::chapter[@id='chapter-temporary-tools']">
-          <xsl:text>echo -e "\nKB: `du -skx --exclude=jhalfs --exclude=lost+found $LFS`\n"&#xA;</xsl:text>
+          <xsl:text>&#xA;echo -e "\nKB: `du -skx --exclude=jhalfs --exclude=lost+found $LFS`\n"&#xA;</xsl:text>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:text>echo -e "\nKB: `du -skx --exclude=jhalfs --exclude=lost+found /`\n"&#xA;</xsl:text>
+          <xsl:text>&#xA;echo -e "\nKB: `du -skx --exclude=jhalfs --exclude=lost+found /`\n"&#xA;</xsl:text>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:if>

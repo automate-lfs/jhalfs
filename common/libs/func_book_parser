@@ -80,7 +80,7 @@ extract_commands() {         #
   fi
   echo -n "Extracting commands for"
 
-  # Dump the commands in shell script form from the HLFS book.
+  # Dump the commands in shell script form from the book.
   case ${PROGNAME} in
     clfs)
         echo -n " ${L_arrow}${BOLD}$ARCH${R_arrow} target architecture... "
@@ -144,13 +144,13 @@ extract_commands() {         #
                  --stringparam timezone $TIMEZONE \
                  --stringparam page $PAGE \
                  --stringparam lang $LANG \
+                 --stringparam custom-tools $CUSTOM_TOOLS \
+                 --stringparam blfs-tool $BLFS_TOOL \
                  -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
       ;;
     *)  echo -n " ${L_arrow}${BOLD}${PROGNAME}${R_arrow} book invalid, terminate build... "
         exit 1 ;;
   esac
-
-  [[ "${BLFS_TOOL}" = "y" ]] && copy_blfs_deps_scripts
 
   echo "done"
 

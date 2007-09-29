@@ -12,6 +12,7 @@
   <xsl:template name="blfs-tool">
       <!-- Fixed directory and ch_order values -->
     <xsl:variable name="basedir">blfs-tool-deps/30_</xsl:variable>
+
       <!-- libxml2 -->
     <exsl:document href="{$basedir}01-libxml2" method="text">
       <xsl:call-template name="header"/>
@@ -35,6 +36,7 @@ make install
       <xsl:call-template name="clean_sources"/>
       <xsl:call-template name="footer"/>
     </exsl:document>
+
       <!-- libxslt -->
     <exsl:document href="{$basedir}02-libxslt" method="text">
       <xsl:call-template name="header"/>
@@ -58,6 +60,7 @@ make install
       <xsl:call-template name="clean_sources"/>
       <xsl:call-template name="footer"/>
     </exsl:document>
+
       <!-- tidy -->
     <exsl:document href="{$basedir}03-tidy" method="text">
       <xsl:call-template name="header"/>
@@ -82,6 +85,7 @@ make -C htmldoc install_apidocs
       <xsl:call-template name="clean_sources"/>
       <xsl:call-template name="footer"/>
     </exsl:document>
+
       <!-- unzip -->
     <exsl:document href="{$basedir}04-unzip" method="text">
       <xsl:call-template name="header"/>
@@ -107,6 +111,7 @@ make prefix=/usr install
       <xsl:call-template name="clean_sources"/>
       <xsl:call-template name="footer"/>
     </exsl:document>
+
       <!-- DocBook XML DTD -->
     <exsl:document href="{$basedir}05-docbook-xml" method="text">
       <xsl:call-template name="header"/>
@@ -124,6 +129,7 @@ cd /sources
 mkdir docbook-xml
 cd docbook-xml
 unzip ../docbook-xml-4.5.zip
+SECONDS=0
 install -v -d -m755 /usr/share/xml/docbook/xml-dtd-4.5
 install -v -d -m755 /etc/xml
 chown -R root:root .
@@ -221,11 +227,14 @@ done
       </xsl:text>
       <xsl:call-template name="disk_usage"/>
       <xsl:text>
+SECS=$SECONDS
 cd /sources
 rm -rf docbook-xml
+SECONDS=$SECS
       </xsl:text>
       <xsl:call-template name="footer"/>
     </exsl:document>
+
       <!-- DocBook XSL (empty and commented-out, it's not required for now) -->
     <!--<exsl:document href="{$basedir}06-docbook-xsl" method="text">
       <xsl:call-template name="header"/>
@@ -246,7 +255,8 @@ cd $PKGDIR
       <xsl:call-template name="clean_sources"/>
       <xsl:call-template name="footer"/>
     </exsl:document>-->
-      <!--  -->
+
+      <!-- gpm -->
     <exsl:document href="{$basedir}07-gpm" method="text">
       <xsl:call-template name="header"/>
       <xsl:text>
@@ -276,7 +286,8 @@ ldconfig
       <xsl:call-template name="clean_sources"/>
       <xsl:call-template name="footer"/>
     </exsl:document>
-      <!--  -->
+
+      <!-- lynx -->
     <exsl:document href="{$basedir}08-lynx" method="text">
       <xsl:call-template name="header"/>
       <xsl:text>
@@ -306,7 +317,8 @@ chgrp -v -R root /usr/share/doc/lynx-2.8.6/lynx_doc
       <xsl:call-template name="clean_sources"/>
       <xsl:call-template name="footer"/>
     </exsl:document>
-      <!--  -->
+
+      <!-- sudo -->
     <exsl:document href="{$basedir}09-sudo" method="text">
       <xsl:call-template name="header"/>
       <xsl:text>
@@ -334,7 +346,8 @@ make install
       <xsl:call-template name="clean_sources"/>
       <xsl:call-template name="footer"/>
     </exsl:document>
-      <!--  -->
+
+      <!-- wget -->
     <exsl:document href="{$basedir}10-wget" method="text">
       <xsl:call-template name="header"/>
       <xsl:text>
@@ -357,7 +370,8 @@ make install
       <xsl:call-template name="clean_sources"/>
       <xsl:call-template name="footer"/>
     </exsl:document>
-      <!--  -->
+
+      <!-- subversion -->
     <exsl:document href="{$basedir}11-subversion" method="text">
       <xsl:call-template name="header"/>
       <xsl:text>
