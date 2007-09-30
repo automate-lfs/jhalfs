@@ -10,9 +10,10 @@
 <!-- XSLT stylesheet to create shell scripts from LFS books. -->
 
     <!-- Including common extensions templates -->
-  <xsl:include href="../XSL/user.xsl"/>
-  <xsl:include href="../XSL/custom-tools.xsl"/>
   <xsl:include href="../XSL/blfs-tool.xsl"/>
+  <xsl:include href="../XSL/custom-tools.xsl"/>
+  <xsl:include href="../XSL/optimize.xsl"/>
+  <xsl:include href="../XSL/user.xsl"/>
 
 <!-- ####################### PARAMETERS ################################### -->
 
@@ -47,6 +48,13 @@
 
   <!-- blfs-tool support -->
   <xsl:param name="blfs-tool">n</xsl:param>
+
+  <!-- optimize support level
+       0 = none
+       1 = not for temporary tools
+       2 = all packages
+  -->
+  <xsl:param name="optimize">0</xsl:param>
 
 
 <!-- ####################################################################### -->
@@ -176,7 +184,7 @@
       <!-- Used to set and initialize the testuite log file -->
     <xsl:param name="testlogfile" select="foo"/>
     <xsl:param name="run_this_test" select="foo"/>
-      <!-- Build phase (base file name) to be used for PM -->
+      <!-- Build phase (base file name) to be used for PM and optimize -->
     <xsl:param name="phase" select="foo"/>
     <xsl:text>&#xA;PKG_PHASE=</xsl:text>
     <xsl:value-of select="$phase"/>
@@ -186,6 +194,17 @@
     <xsl:apply-templates select="productnumber"/>
       <!-- Tarball name -->
     <xsl:apply-templates select="address"/>
+      <!-- Add optimization envars -->
+    <xsl:choose>
+      <xsl:when test="$optimize = '0'"/>
+      <xsl:when test="$optimize = '1' and ancestor::chapter[@id='chapter-temporary-tools']"/>
+      <xsl:otherwise>
+        <xsl:call-template name="optimize">
+          <xsl:with-param name="package" select="$phase"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+      <!-- Set and initialize testsuite log file -->
     <xsl:if test="$run_this_test = '1'">
       <xsl:text>&#xA;TEST_LOG=</xsl:text>
       <xsl:if test="ancestor::chapter[@id='chapter-temporary-tools']">

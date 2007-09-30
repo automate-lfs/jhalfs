@@ -146,6 +146,7 @@ extract_commands() {         #
                  --stringparam lang $LANG \
                  --stringparam custom-tools $CUSTOM_TOOLS \
                  --stringparam blfs-tool $BLFS_TOOL \
+                 --stringparam optimize $OPTIMIZE \
                  -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
       ;;
     *)  echo -n " ${L_arrow}${BOLD}${PROGNAME}${R_arrow} book invalid, terminate build... "

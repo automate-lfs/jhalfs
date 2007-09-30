@@ -266,22 +266,6 @@ if [[ "$COMPARE" = "y" ]]; then
   [[ $VERBOSITY > 0 ]] && echo "OK"
 fi
 #
-# optimize module
-if [[ "$OPTIMIZE" != "0" ]]; then
-  [[ $VERBOSITY > 0 ]] && echo -n "Loading optimization module..."
-  source optimize/optimize_functions
-  [[ $? > 0 ]] && echo " optimize/optimize_functions did not load.." && exit
-  [[ $VERBOSITY > 0 ]] && echo "OK"
-  #
-  # optimize configurations
-  [[ $VERBOSITY > 0 ]] && echo -n "Loading optimization config..."
-  source optimize/opt_config
-  [[ $? > 0 ]] && echo " optimize/opt_config did not load.." && exit
-  [[ $VERBOSITY > 0 ]] && echo "OK"
-  # Validate optimize settings, if required
-  validate_opt_settings
-fi
-#
 
 if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
 
@@ -326,9 +310,6 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
     # This file will be used to create the REPORT header
     validate_config > $JHALFSDIR/jhalfs.config
   fi
-  #
-  # Copy optimize files, if needed
-  [[ "$OPTIMIZE" != "0" ]] && cp optimize/opt_override $JHALFSDIR/
   #
   # Copy compare files, if needed
   if [[ "$COMPARE" = "y" ]]; then
