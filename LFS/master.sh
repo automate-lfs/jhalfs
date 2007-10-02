@@ -2,12 +2,9 @@
 
 # $Id$
 
-###################################
-###	    FUNCTIONS		###
-###################################
-
-
-#############################################################
+#########################################
+### LFS MAKEFILE GENERATION FUNCTIONS ###
+#########################################
 
 
 #----------------------------#
@@ -60,12 +57,12 @@ EOF
 ) > $MKFILE.tmp
 
   chapter4=" 04_02-creatingtoolsdir 04_03-addinguser 04_04-settingenvironment"
+  PREV=04_04-settingenvironment
 }
 
 
-
 #----------------------------#
-chapter5_Makefiles() {
+chapter5_Makefiles() {       #
 #----------------------------#
   echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter5     ( LUSER ) ${R_arrow}"
 
@@ -81,18 +78,12 @@ chapter5_Makefiles() {
       *stripping) [[ "${STRIP}" = "n" ]] && continue ;;
     esac
 
-    # First append each name of the script files to a list (this will become
-    # the names of the targets in the Makefile
-    # DO NOT append the changingowner script, it need be run as root.
-    # A hack is necessary: create script in chap5 BUT run as a dependency for
-    # SUDO target
+    # Append the script name to the chapter dependencies list
+    # The changingowner script need be run as root into the SUDO target
     case "${this_script}" in
       *changingowner) runasroot="$runasroot ${this_script}" ;;
                    *) chapter5="$chapter5 ${this_script}" ;;
     esac
-
-    # Set the dependency for the first target.
-    if [ -z $PREV ] ; then PREV=04_04-settingenvironment ; fi
 
     #--------------------------------------------------------------------#
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
@@ -109,8 +100,7 @@ chapter5_Makefiles() {
       *)               wrt_RunScript "$file" ;;
     esac
 
-    # Include a touch of the target name so make can check
-    # if it's already been made.
+    # Write the target entry footer.
     wrt_touch
     #
     #--------------------------------------------------------------------#
@@ -124,7 +114,7 @@ chapter5_Makefiles() {
 
 
 #----------------------------#
-chapter6_Makefiles() {
+chapter6_Makefiles() {       #
 #----------------------------#
 
   # Set envars and scripts for iteration targets
@@ -151,9 +141,8 @@ chapter6_Makefiles() {
     # Keep the script file name
     this_script=`basename $file`
 
-    # We'll run the chroot commands differently than the others, so skip them in the
-    # dependencies and target creation.
-    # Skip also linux-headers in iterative builds.
+    # Chroot commands are set as envars in the Makefile header.
+    # Skip linux-headers in iterative builds.
     case "${this_script}" in
       *chroot)      continue ;;
       *stripping*) [[ "${STRIP}" = "n" ]] && continue ;;
@@ -171,9 +160,8 @@ chapter6_Makefiles() {
       esac
     fi
 
-    # Append each name of the script files to a list (this will become
-    # the names of the targets in the Makefile)
-    # The kernfs script must be run as part of SUDO target.
+    # Append the script name to the chapter dependencies list
+    # The kernfs script need be run as root into the SUDO target
     case "${this_script}" in
       *kernfs) runasroot="$runasroot ${this_script}" ;;
             *) chapter6="$chapter6 ${this_script}" ;;
@@ -193,8 +181,8 @@ chapter6_Makefiles() {
       wrt_TouchTimestamp
     fi
 
-    # In the mount of kernel filesystems we need to set LFS
-    # and not to use chroot.
+    # Run the script.
+    # The kernfs script must be run as root.
     case "${this_script}" in
       *kernfs)  wrt_RunAsRoot "$file" ;;
       *)        wrt_RunScript "$file" ;;
@@ -205,8 +193,7 @@ chapter6_Makefiles() {
       wrt_LogNewFiles "$name"
     fi
 
-    # Include a touch of the target name so make can check
-    # if it's already been made.
+    # Write the target entry footer.
     wrt_touch
     #
     #--------------------------------------------------------------------#
@@ -220,8 +207,9 @@ chapter6_Makefiles() {
   done # end for file in chapter06/*
 }
 
+
 #----------------------------#
-chapter78_Makefiles() {
+chapter78_Makefiles() {      #
 #----------------------------#
   echo "${tab_}${GREEN}Processing... ${L_arrow}Chapter7/8   ( BOOT ) ${R_arrow}"
 
@@ -234,13 +222,15 @@ chapter78_Makefiles() {
     # If no .config file is supplied, the kernel build is skipped
     case ${this_script} in
       *grub)    continue ;;
-      *fstab)   [[ ! -z ${FSTAB} ]] && cp ${FSTAB} $BUILDDIR/sources/fstab ;;
-      *kernel)  [[ -z ${CONFIG} ]] && continue
+      *fstab)   [[ -n "${FSTAB}" ]] && cp ${FSTAB} $BUILDDIR/sources/fstab ;;
+      *kernel)  [[ -z "${CONFIG}" ]] && continue
                 cp ${CONFIG} $BUILDDIR/sources/kernel-config  ;;
     esac
 
-    # First append each name of the script files to a list (this will become
-    # the names of the targets in the Makefile
+    # If building a package, grab the phase name to be used with INSTALL_LOG
+    name=`grep "^PKG_PHASE=" ${file} | sed -e 's@PKG_PHASE=@@'`
+
+    # Append the script name to the chapter dependencies list
     chapter78="$chapter78 ${this_script}"
 
     #--------------------------------------------------------------------#
@@ -251,14 +241,12 @@ chapter78_Makefiles() {
     # as a dependency. Also call the echo_message function.
     wrt_target "${this_script}" "$PREV"
 
-    # For bootscripts and kernel, start INSTALL_LOG if requested
-    case "${this_script}" in
-      *bootscripts | *kernel ) if [ "${INSTALL_LOG}" = "y" ] ; then
-                                 wrt_TouchTimestamp
-                               fi ;;
-    esac
+    # Touch timestamp file if installed files logs will be created.
+    if [ "$name" != "" ] && [ "${INSTALL_LOG}" = "y" ] ; then
+      wrt_TouchTimestamp
+    fi
 
-      # Check if we have a real /etc/fstab file
+    # Check if we have a real /etc/fstab file and run the scripts
     case "${this_script}" in
       *fstab) if [[ -n $FSTAB ]]; then
                 wrt_CopyFstab
@@ -268,17 +256,12 @@ chapter78_Makefiles() {
            *) wrt_RunScript "$file" ;;
     esac
 
-    case "${this_script}" in
-      *bootscripts)  if [ "${INSTALL_LOG}" = "y" ] ; then
-                       wrt_LogNewFiles "lfs-bootscripts"
-                     fi ;;
-      *kernel)       if [ "${INSTALL_LOG}" = "y" ] ; then
-                       wrt_LogNewFiles "linux"
-                     fi ;;
-    esac
+    # Write installed files log
+    if [ "$name" != "" ] && [ "${INSTALL_LOG}" = "y" ] ; then
+      wrt_LogNewFiles "$name"
+    fi
 
-    # Include a touch of the target name so make can check
-    # if it's already been made.
+    # Write the target entry footer.
     wrt_touch
     #
     #--------------------------------------------------------------------#
@@ -290,7 +273,6 @@ chapter78_Makefiles() {
   done  # for file in chapter0{7,8}/*
 
 }
-
 
 
 #----------------------------#
