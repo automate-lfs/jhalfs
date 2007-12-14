@@ -101,8 +101,10 @@
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
       <!-- Select Endian level for uClibc -->
+<!--
       <xsl:when test="$endian='xbig' and contains(string(),'LITTLE_ENDIAN')"/>
       <xsl:when test="$endian='xlittle' and contains(string(),'BIG_ENDIAN')"/>
+-->
       <!-- Setting $LANG for /etc/profile -->
       <xsl:when test="ancestor::sect1[@id='ch-scripts-profile'] and
                 contains(string(),'export LANG=')">

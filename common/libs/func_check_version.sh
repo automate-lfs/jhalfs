@@ -77,6 +77,10 @@ inline_doc
 check_prerequisites() {      #
 #----------------------------#
 
+  # Avoid translation of version strings
+  local LC_ALL=C
+  export LC_ALL
+
   # LFS/HLFS/CLFS prerequisites
   check_version "2.6.2"   "`uname -r`"          "KERNEL"
   check_version "3.0"     "$BASH_VERSION"       "BASH"
