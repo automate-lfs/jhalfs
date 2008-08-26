@@ -75,6 +75,10 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
       fi
     fi
 
+    # Deal with udev and bootscripts m5sum issue
+    [[ $BOOKMD5 = "BOOTSCRIPTS-MD5SUM" ]] && return
+    [[ $BOOKMD5 = "UDEV-MD5SUM" ]]        && return
+
       # IF the md5sum does not match the existing files
     if ! echo "$MD5" | md5sum -c - >/dev/null ; then
       [[ $fromARCHIVE = "1" ]] && echo "${BOLD}${YELLOW}MD5SUM did not match SRC_ARCHIVE copy${OFF}"
