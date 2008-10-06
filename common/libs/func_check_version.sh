@@ -88,7 +88,7 @@ check_prerequisites() {      #
   libcVer="`/lib/libc.so.6 | head -n1`"
   libcVer="${libcVer##*version }"
   check_version "2.2.5"   ${libcVer%%,*}        "GLIBC"
-  check_version "2.12"    "$(ld --version  | head -n1 | cut -d" " -f4)"        "BINUTILS"
+  check_version "2.12"    "$(ld --version  | head -n1 | awk '{print $NF}')"    "BINUTILS"
   check_version "1.15"    "$(tar --version | head -n1 | cut -d" " -f4)"        "TAR"
   bzip2Ver="$(bzip2 --version 2>&1 < /dev/null | head -n1 | cut -d" " -f8)"
   check_version "1.0.2"   "${bzip2Ver%%,*}"                                    "BZIP2"
