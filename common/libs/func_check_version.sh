@@ -102,6 +102,7 @@ check_prerequisites() {      #
   check_version "3.79.1"  "$(make --version  | head -n1 | cut -d " " -f3 | cut -c1-4)"  "MAKE"
   check_version "2.5.4"   "$(patch --version | head -n1 | cut -d" " -f2)"      "PATCH"
   check_version "3.0.2"   "$(sed --version   | head -n1 | cut -d" " -f4)"      "SED"
+  check_version "4.8"	  "$(makeinfo --version | head -n1 | awk '{ print$NF }')" "TEXINFO"
 
   # Check for minimum sudo version
   SUDO_LOC="$(whereis -b sudo | cut -d" " -f2)"
