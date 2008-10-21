@@ -437,6 +437,14 @@ ck_UID:
 	  exit 1; \\
 	fi
 
+ck_LFS:
+	@if [ \`echo \$(LFS)\`x = "x" ]; then \\
+	  echo "--------------------------------------------------"; \\
+	  echo "Enviroment variable LFS must be set";                \\
+	  echo "--------------------------------------------------"; \\
+	  exit 1; \
+	fi
+
 mk_SETUP:
 	@\$(call echo_SU_request)
 	@sudo make BREAKPOINT=\$(BREAKPOINT) SETUP
@@ -478,6 +486,26 @@ mk_BLFS_TOOL: mk_CUSTOM_TOOLS
 	fi;
 	@touch \$@
 
+devices: ck_LFS ck_UID
+	sudo mount -v --bind /dev \$(LFS)/dev
+	sudo mount -vt devpts devpts \$(LFS)/dev/pts
+	sudo mount -vt tmpfs shm \$(LFS)/dev/shm
+	sudo mount -vt proc proc \$(LFS)/proc
+	sudo mount -vt sysfs sysfs \$(LFS)/sys
+
+teardown: ck_LFS
+	sudo umount -v \$(LFS)/sys
+	sudo umount -v \$(LFS)/proc
+	sudo umount -v \$(LFS)/dev/shm
+	sudo umount -v \$(LFS)/dev/pts
+	sudo umount -v \$(LFS)/dev
+
+chroot: devices
+	sudo /usr/sbin/chroot \$(LFS) /tools/bin/env -i \\
+      HOME=/root TERM=\$(TERM) PS1='\\u:\\w\\\$\$ ' \\
+      PATH=/bin:/usr/bin:/sbin:/usr/sbin \\
+      /tools/bin/bash --login
+	\$(MAKE) teardown
 
 SETUP:        $chapter4
 LUSER:        $chapter5
