@@ -770,7 +770,7 @@ set -e
   # Add chroot commands
   if [ "$METHOD" = "chroot" ] ; then
     CHROOT_LOC="`whereis -b chroot | cut -d " " -f2`"
-    chroot=`cat chroot/*chroot* | \
+    chroot=`cat chroot/???-chroot | \
             sed  -e "s@chroot@$CHROOT_LOC@" \
                  -e '/#!\/bin\/bash/d' \
                  -e '/^export/d' \
