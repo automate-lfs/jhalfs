@@ -109,7 +109,7 @@ cat << EOF
 
 $i:  $PREV
 	@\$(call echo_message, Building)
-	@export BASHBIN=\$(SHELL) && \$(SHELL) progress_bar.sh \$@ \$\$PPID &
+${NO_PROGRESS}	@export BASHBIN=\$(SHELL) && \$(SHELL) progress_bar.sh \$@ \$\$PPID &
 	@echo "\$(nl_)\`date\`\$(nl_)" >logs/\$@
 	@\$(PRT_DU) >>logs/\$@
 EOF
@@ -126,7 +126,7 @@ cat << EOF
 
 $i:  $PREV
 	@\$(call echo_message, Building)
-	@export BASHBIN=\$(SHELL) && \$(SHELL) progress_bar.sh \$@ \$\$PPID &
+${NO_PROGRESS}	@export BASHBIN=\$(SHELL) && \$(SHELL) progress_bar.sh \$@ \$\$PPID &
 	@echo "\$(nl_)\`date\`\$(nl_)" >logs/\$@
 	@\$(PRT_DU_CR) >>logs/\$@
 EOF

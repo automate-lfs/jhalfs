@@ -914,6 +914,13 @@ menu "--- Build Settings"
 		help
 			#-- Install the optional vim-lang package
 
+	config	NO_PROGRESS_BAR
+		bool "DO NOT use/display progress_bar "
+		default n
+		help
+			#-- No not use the progress bar routine. On slower machines
+			#   this functions consumes precious CPU cycles.
+
 	config	TIMEZONE
 		string "TimeZone"
 		default "GMT"
