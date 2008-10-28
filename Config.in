@@ -19,8 +19,8 @@ menu "--- BOOK Settings"
 		config	BOOK_CLFS3
 			bool "Cross-Compiled Linux From Scratch (Embedded Systems)"
 
-		config	BOOK_HLFS
-			bool "Hardened Linux From Scratch"
+#		config	BOOK_HLFS
+#			bool "Hardened Linux From Scratch"
 
 		config	BOOK_BLFS
 			bool "Beyond Linux From Scratch"
