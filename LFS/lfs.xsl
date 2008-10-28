@@ -145,7 +145,9 @@
       <!-- Copying the kernel config file -->
       <xsl:when test="string() = 'make mrproper'">
         <xsl:text>make mrproper&#xA;</xsl:text>
-        <xsl:text>cp -v ../kernel-config .config&#xA;</xsl:text>
+	        <xsl:if test="ancestor::sect1[@id='ch-bootable-kernel']">
+          <xsl:text>cp -v ../kernel-config .config&#xA;</xsl:text>
+        </xsl:if>
       </xsl:when>
       <!-- The Bash, Coreutils, and Module-Init-Tools test suites are optional -->
       <xsl:when test="(ancestor::sect1[@id='ch-system-coreutils'] or
