@@ -84,7 +84,7 @@ check_prerequisites() {      #
   # LFS/HLFS/CLFS prerequisites
   check_version "2.6.2"   "`uname -r`"          "KERNEL"
   check_version "3.0"     "$BASH_VERSION"       "BASH"
-  check_version "3.0.1"   "`gcc -dumpversion`"  "GCC"
+  check_version "3.0.1"   "`gcc -dumpversion`"  "GCC"  
   libcVer="`/lib/libc.so.6 | head -n1`"
   libcVer="${libcVer##*version }"
   check_version "2.2.5"   ${libcVer%%,*}        "GLIBC"

@@ -52,8 +52,9 @@ chapter4_Makefiles() {       #
 	echo "umask 022" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "LFS=\$(MOUNT_PT)" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "LC_ALL=POSIX" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "LFS_TGT=`uname -m`-lfs-linux-gnu" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "PATH=/tools/bin:/bin:/usr/bin" >> \$(LUSER_HOME)/.bashrc && \\
-	echo "export LFS LC_ALL PATH" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "export LFS LC_ALL LFS_TGT PATH" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "source $JHALFSDIR/envars" >> \$(LUSER_HOME)/.bashrc && \\
 	chown \$(LUSER):\$(LGROUP) \$(LUSER_HOME)/.bashrc && \\
 	touch envars && \\
