@@ -132,7 +132,7 @@ if [[ $JHALFSDIR == $CWD ]]; then
     exit 2
 fi
 
-# Book surces envars
+# Book sources envars
 BRANCH_ID=${BRANCH_ID:=development}
 
 case $BRANCH_ID in
@@ -180,7 +180,7 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
        branch-* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-} ;;
               * )  BLFS_TREE=tags/${BLFS_BRANCH_ID} ;;
   esac
-  # Dependencies envars, to can update it more easy.
+  # Dependencies envars, more easy to update.
   # Tidy and Unzip version are harcoded also in wrt_blfs_tool_targets()
     # libxml2
   LIBXML_PKG="libxml2-2.6.29.tar.gz"
@@ -294,7 +294,7 @@ source $COMMON_DIR/libs/func_custom_pkgs
 ###          MAIN               ###
 ###################################
 
-# Check for build prereequisites.
+# Check for build prerequisites.
 echo
   check_prerequisites
 echo "${SD_BORDER}${nl_}"
@@ -444,7 +444,7 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
 
 fi
 
-# When regeneration the Makefile we need to know also the canonical book version
+# When regenerating the Makefile, we need to know also the canonical book version
 if [[ "$REBUILD_MAKEFILE" = "y" ]] ; then
   case $PROGNAME in
     clfs | clfs2 | clfs3 )
