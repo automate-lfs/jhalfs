@@ -71,14 +71,20 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
       echo "$FILE: -- copied from $SRC_ARCHIVE"
       fromARCHIVE=1
     else
-      echo "${BOLD}${YELLOW}$FILE: not found in ${SRC_ARCHIVE}${OFF}"
       fromARCHIVE=0
       # If the file does not exist yet in /sources download a fresh one
       if [ ! -f $FILE ] ; then
+	if [[ ! ("$SRC_ARCHIVE" = "") ]] ; then
+	  echo "${BOLD}${YELLOW}$FILE: not found in ${SRC_ARCHIVE} or /sources${OFF}"
+	else
+	  echo "${BOLD}${YELLOW}$FILE: not found in /sources${OFF}"
+	fi
         if ! wget $URL1 $WGETPARAM && ! wget $URL2 $WGETPARAM ; then
           gs_wrt_message "$FILE not found in the SRC_ARCHIVE or on any server..SKIPPING"
           continue
         fi
+	else
+	  echo "${BOLD}${YELLOW}$FILE: using cached file in /sources${OFF}"
       fi
     fi
 
