@@ -7,7 +7,14 @@
 get_sources() {              # Download file, write name to MISSING_FILES.DMP if an error
 #----------------------------#
   local saveIFS=$IFS
-  local IFS line URL1 URL2 FILE BOOKMD5 MD5 HAVEMD5 fromARCHIVE
+  local IFS line URL1 URL2 FILE BOOKMD5 MD5 HAVEMD5 fromARCHIVE WGETPARAM
+
+  WGETPARAM=""
+  if [[ "${RETRYSRCDOWNLOAD}" = "y" ]] ; then
+    WGETPARAM+="--retry-connrefused"
+  fi
+  WGETPARAM+=" --tries ${RETRYDOWNLOADCNT}"
+  WGETPARAM+=" --timeout ${DOWNLOADTIMEOUT}"
 
     # Test if the packages must be downloaded
   [ ! "$GETPKG" = "y" ] && return
@@ -68,7 +75,7 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
       fromARCHIVE=0
       # If the file does not exist yet in /sources download a fresh one
       if [ ! -f $FILE ] ; then
-        if ! wget $URL1 && ! wget $URL2 ; then
+        if ! wget $URL1 $WGETPARAM && ! wget $URL2 $WGETPARAM ; then
           gs_wrt_message "$FILE not found in the SRC_ARCHIVE or on any server..SKIPPING"
           continue
         fi
@@ -88,7 +95,7 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
         # Force storage in SRC_ARCHIVE
       fromARCHIVE=0;
         # Try to retrieve again the file. Servers in reverse order.
-      if ! wget $URL2 && ! wget $URL1 ; then
+      if ! wget $URL2 $WGETPARAM && ! wget $URL1 $WGETPARAM ; then
         gs_wrt_message "$FILE not found on the servers.. SKIPPING"
         continue
       fi

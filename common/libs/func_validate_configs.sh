@@ -23,7 +23,8 @@ inline_doc
   local -r     BOOK_common="BOOK CUSTOM_TOOLS"
   local -r      BOOK_clfsX="ARCH TARGET"
   local -r  GENERAL_common="LUSER LGROUP LHOME BUILDDIR CLEAN GETPKG SRC_ARCHIVE \
-                            SERVER GETKERNEL RUNMAKE"
+                            SERVER RETRYSRCDOWNLOAD RETRYDOWNLOADCNT DOWNLOADTIMEOUT \
+                            GETKERNEL RUNMAKE"
   local -r    BUILD_chroot="TEST BOMB_TEST STRIP"
   local -r    BUILD_common="FSTAB CONFIG TIMEZONE PAGE LANG INSTALL_LOG"
   local -r ADVANCED_chroot="COMPARE RUN_ICA RUN_FARCE ITERATIONS OPTIMIZE"
@@ -135,14 +136,17 @@ inline_doc
       GETKERNEL ) if [[ -z "$CONFIG" ]] && [[ -z "$BOOT_CONFIG" ]] ; then
                     [[ "$GETPKG" = "y" ]] && echo -e "`eval echo $PARAM_VALS`"
                   fi ;;
-      COMPARE)    [[ ! "$COMPARE" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
-      RUN_ICA)    [[ "$COMPARE" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
-      RUN_FARCE)  [[ "$COMPARE" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
-      ITERATIONS) [[ "$COMPARE" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
-      BOMB_TEST)  [[ ! "$TEST" = "0" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
-      TARGET32)   [[ -n "${TARGET32}" ]] &&  echo -e "`eval echo $PARAM_VALS`" ;;
-      MIPS_LEVEL) [[ "${ARCH}" = "mips" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
-      SERVER)     [[ "$GETPKG" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
+      COMPARE)          [[ ! "$COMPARE" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
+      RUN_ICA)          [[ "$COMPARE" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
+      RUN_FARCE)        [[ "$COMPARE" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
+      ITERATIONS)       [[ "$COMPARE" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
+      BOMB_TEST)        [[ ! "$TEST" = "0" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
+      TARGET32)         [[ -n "${TARGET32}" ]] &&  echo -e "`eval echo $PARAM_VALS`" ;;
+      MIPS_LEVEL)       [[ "${ARCH}" = "mips" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
+      SERVER)           [[ "$GETPKG" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
+      RETRYSRCDOWNLOAD) [[ "$GETPKG" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
+      RETRYDOWNLOADCNT) [[ "$GETPKG" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
+      DOWNLOADTIMEOUT)  [[ "$GETPKG" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
 
       # Envars that requires some validation
       LUSER)      echo -e "`eval echo $PARAM_VALS`"

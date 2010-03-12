@@ -746,6 +746,30 @@ menu "--- General Settings"
 			#   Any missing file will be downloaded and archived here,
 			#   if the user has the right priviledges.
 
+	config RETRYSRCDOWNLOAD
+		bool "Retry on 'connection refused' failure"
+		default n
+		depends GETPKG
+		help
+			#-- Attempt to download a source package again if it fails
+			#   with a 'connection refused' error. This can happen on
+			#   servers that are overloaded.
+
+	config RETRYDOWNLOADCNT
+		int "Number of retry attempts on download failures"
+		default 20
+		depends GETPKG
+		help
+			#-- Number of times to retry download a failed download.
+
+	config DOWNLOADTIMEOUT
+		int "Download timeout (in seconds)"
+		default 30
+		depends GETPKG
+		help
+			#-- Number of seconds to wait for a download to start before
+			#   timing out.
+
 	config SERVER
 		string "FTP mirror"
 		default "ftp://ftp.lfs-matrix.net"
