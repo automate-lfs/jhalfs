@@ -933,7 +933,7 @@ menu "--- Build Settings"
 
 	config	VIMLANG
 		bool "Install vim-lang package"
-		default y
+		default n
 		depends on !BOOK_HLFS && !BOOK_CLFS3
 		help
 			#-- Install the optional vim-lang package
