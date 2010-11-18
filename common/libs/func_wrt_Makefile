@@ -88,6 +88,8 @@ get_package_tarball_name() {       #
            echo $(grep "^linux-headers-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 )
          fi
          ;;
+     expect) echo $(grep "^expect" $JHALFSDIR/pkg_tarball_list | head -n1 )
+         ;;
      *)  echo $(grep "^$script_name-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 )
          ;;
    esac
