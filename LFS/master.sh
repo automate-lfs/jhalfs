@@ -138,7 +138,10 @@ chapter5_Makefiles() {
     # Remove the build directory(ies) except if the package build fails
     # (so we can review config.cache, config.log, etc.)
     if [ "$pkg_tarball" != "" ] ; then
-      LUSER_RemoveBuildDirs "$name"
+	case "${name}" in
+	*xz-utils) LUSER_RemoveBuildDirs "xz" ;;
+	*) LUSER_RemoveBuildDirs "$name" ;;
+	esac
     fi
 
     # Include a touch of the target name so make can check
@@ -262,7 +265,10 @@ chapter6_Makefiles() {
     # Write installed files log and remove the build directory(ies)
     # except if the package build fails.
     if [ "$pkg_tarball" != "" ] ; then
-      CHROOT_wrt_RemoveBuildDirs "$name"
+      case "${name}" in
+	*xz-utils) CHROOT_wrt_RemoveBuildDirs "xz" ;;
+	*) CHROOT_wrt_RemoveBuildDirs "$name" ;;
+      esac
       if [ "${INSTALL_LOG}" = "y" ] && [ "x${N}" = "x" ] ; then
         CHROOT_wrt_LogNewFiles "$name"
       fi

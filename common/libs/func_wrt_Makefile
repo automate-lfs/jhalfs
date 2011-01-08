@@ -90,6 +90,8 @@ get_package_tarball_name() {       #
          ;;
      expect) echo $(grep "^expect" $JHALFSDIR/pkg_tarball_list | head -n1 )
          ;;
+     xz-utils) echo $(grep "^xz" $JHALFSDIR/pkg_tarball_list | head -n1 )
+	 ;;
      *)  echo $(grep "^$script_name-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 )
          ;;
    esac
