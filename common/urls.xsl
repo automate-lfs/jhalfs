@@ -32,7 +32,8 @@
                   (ancestor::varlistentry[@vendor=$kernel]
                   or not(ancestor::varlistentry[@vendor])) and
                   (contains(@url, '.bz2') or contains(@url, '.tar.gz') or
-                  contains(@url, '.tgz') or contains(@url, '.patch')) and
+                  contains(@url, '.tgz') or contains(@url, '.patch') or
+                  contains(@url, '.xz')) and
                   not(ancestor-or-self::*/@condition = 'pdf')">
       <!-- Extract the package name -->
       <xsl:variable name="package">
