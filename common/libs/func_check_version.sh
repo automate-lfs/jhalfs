@@ -85,7 +85,12 @@ check_prerequisites() {      #
   check_version "2.6.2"   "`uname -r`"          "KERNEL"
   check_version "3.0"     "$BASH_VERSION"       "BASH"
   check_version "3.0.1"   "`gcc -dumpversion`"  "GCC"  
-  libcVer="`/lib/libc.so.6 | head -n1`"
+  if [ -f /lib/libc.so.6 ]; then
+    libcLoc=/lib;
+  elif [ -f /lib64/libc.so.6 ]; then
+    libcLoc=/lib64;
+  fi;
+  libcVer="`/${libcLoc}/libc.so.6 | head -n1`"
   libcVer="${libcVer##*version }"
   check_version "2.2.5"   ${libcVer%%,*}        "GLIBC"
   check_version "2.12"    "$(ld --version  | head -n1 | awk '{print $NF}')"    "BINUTILS"
