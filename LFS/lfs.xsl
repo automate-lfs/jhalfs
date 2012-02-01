@@ -311,8 +311,12 @@ exit
                   <xsl:when test="contains(string(), 'glibc-check-log')">
                     <xsl:value-of
                        select="substring-before(string(),'2&gt;&amp;1')"/>
-                    <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1 &#xA;</xsl:text>
+                    <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
                   </xsl:when>
+		  <xsl:when test="contains(string(), 'make -k')">
+		    <xsl:apply-templates/>
+		    <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
+		  </xsl:when>
                   <xsl:otherwise>
                     <xsl:apply-templates/>
                     <xsl:if test="not(contains(string(), '&gt;&gt;'))">
