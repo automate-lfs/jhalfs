@@ -65,7 +65,7 @@ define remove_existing_dirs
   @PKG_PATH=`ls -t $(SRCSDIR)/$(1) | head -n1` && \
   ROOT=`tar -tf $$PKG_PATH | head -n1 | sed -e 's@^./@@;s@/.*@@'` && \
   [ -n "$$ROOT" ] && \
-  if [ -d $(SRCDIR)/$$ROOT ]; then \
+  if [ -d $(SRCSDIR)/$$ROOT ]; then \
     rm -rf $(SRCSDIR)/$$ROOT && \
     rm -rf $(SRCSDIR)/$${ROOT%-*}-build; \
   fi;
