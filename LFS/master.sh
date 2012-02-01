@@ -244,7 +244,7 @@ chapter6_Makefiles() {
       CHROOT_Unpack "$pkg_tarball"
       # If the testsuites must be run, initialize the log file
       case $name in
-        binutils | gcc | glibc )
+        binutils | gcc | glibc | gmp | mpfr )
           [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}"
           ;;
         * )

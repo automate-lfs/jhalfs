@@ -1,0 +1,341 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+  "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY buildtime "Approximate build time">
+<!ENTITY diskspace "Required disk space">
+<!ENTITY dependencies "Installation depends on">
+<!ENTITY testsuites "Test suite depends on">
+<!ENTITY before "Must be installed before">
+<!ENTITY external "Optional dependencies">
+<!ENTITY debian-pool "http://ftp2.fr.debian.org/debian/pool/main/">
+<!ENTITY dpkg-version "1.16.1.2">
+<!ENTITY dpkg-size "5,236 KB">
+<!ENTITY dpkg-url "&debian-pool;d/dpkg/dpkg_&dpkg-version;.tar.bz2">
+<!ENTITY dpkg-md5 "068ae5e650e54968230de19d6c4e2241">
+<!ENTITY dpkg-home "http://wiki.debian.org/Teams/Dpkg">
+<!ENTITY dpkg-ch5-du "5 MB">
+<!ENTITY dpkg-ch5-sbu "0.4 SBU">
+<!ENTITY dpkg-ch6-du "5 MB">
+<!ENTITY dpkg-ch6-sbu "0.4 SBU">
+]>
+<article>
+
+<sect1 id="package">
+  <?dbhtml filename="packages.html"?>
+
+  <title>All Packages</title>
+
+  <para>Download or otherwise obtain the following packages:</para>
+
+  <variablelist role="materials">
+
+    <varlistentry>
+      <term>Dpkg (&dpkg-version;) - <token>&dpkg-size;</token>:</term>
+      <listitem>
+        <para>Home page: <ulink url="&dpkg-home;"/></para>
+        <para>Download: <ulink url="&dpkg-url;"/></para>
+        <para>MD5 sum: <literal>&dpkg-md5;</literal></para>
+      </listitem>
+    </varlistentry>
+
+  </variablelist>
+
+</sect1>
+<!-- If needed, uncomment and edit this:
+<sect1 id="patches">
+  <?dbhtml filename="patches.html"?>
+
+  <title>Needed Patches</title>
+
+  <para>In addition to the package(s), zero or more patches are also required.
+  These patches correct any mistakes in the packages that should be
+  fixed by the maintainer.  The patches also make small modifications to
+  make the packages easier to work with. The following patches will be
+  needed to build an LFS system:</para>
+
+  <variablelist role="materials">
+
+    <varlistentry>
+      <term>Dpkg Some Patch - <token>&dpkg-somepatche-size;</token>:</term>
+      <listitem>
+        <para>Download: <ulink url="&somepatch-url;"/></para>
+        <para>MD5 sum: <literal>&somepatch-md5;</literal></para>
+      </listitem>
+    </varlistentry>
+
+  </variablelist>
+
+</sect1>
+-->
+
+<sect1 id="ch-tools-pkgmngt" role="wrap">
+  <?dbhtml filename="dpkg.html"?>
+
+  <sect1info condition="script">
+    <productname>dpkg</productname>
+    <productnumber>&dpkg-version;</productnumber>
+    <address>&dpkg-url;</address>
+  </sect1info>
+
+  <title>Dpkg-&dpkg-version;</title>
+
+  <sect2 role="package">
+    <title/>
+
+    <para>This is my choice of package manager. Dpkg is the basic package
+    manager of Debian. It can be complemented by deselect (in the same
+    package), apt or aptitude. We use it in a very crude way.</para>
+    
+    <segmentedlist>
+      <segtitle>&buildtime;</segtitle>
+      <segtitle>&diskspace;</segtitle>
+
+      <seglistitem>
+        <seg>&dpkg-ch5-sbu;</seg>
+        <seg>&dpkg-ch5-du;</seg>
+      </seglistitem>
+    </segmentedlist>
+
+  </sect2>
+
+  <sect2 role="installation">
+    <title>Installation of Dpkg</title>
+
+    <para>Since Debian is shipping its own package, all patches have already
+    been applied. However, the <command>configure</command> script calls
+    <command>dpkg</command> itself, which is found only on Debian hosts. The
+    following <command>sed</command> command prevents that call:</para>
+
+    <screen><userinput remap="pre">sed '/\$v[{]DEB_BUILD/d' \
+          -i scripts/dpkg-architecture.pl</userinput></screen>
+
+    <para> Configure the package:</para>
+
+    <screen><userinput remap="configure">./configure --prefix=/tools \
+    --disable-nls --without-dselect \
+    --without-start-stop-daemon \
+    --without-update-alternatives \
+    --without-install-info \
+    --without-zlib --with-bz2=static --without-selinux</userinput></screen>
+
+    <variablelist>
+      <title>The meaning of the configure options:</title>
+
+      <varlistentry>
+        <term><parameter>--without-dselect</parameter></term>
+        <listitem>
+          <para>Avoids building <command>dselect</command>, an
+          awful thing!</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--without-start-stop-daemon</parameter></term>
+        <listitem>
+          <para>The utility <command>start-stop-daemon</command>
+          is not needed here.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--without-update-alternatives</parameter></term>
+        <listitem>
+          <para>Same for <command>update-alternatives</command>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--without-install-info</parameter></term>
+        <listitem>
+          <para>Debian <command>install-info</command> is a wrapper to
+          <command>install-info</command> installed by Texinfo. Not
+          needed either.</para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
+    <para>Compile the package:</para>
+
+    <screen><userinput remap="make">(cd lib  &amp;&amp; make)
+(cd src &amp;&amp; make)
+(cd dpkg-deb &amp;&amp; make)
+(cd dpkg-split &amp;&amp; make)</userinput></screen>
+
+    <para>This package does not come with a test suite.</para>
+
+    <para>Install only the needed files:</para>
+
+    <screen><userinput remap="install">cp src/dpkg src/dpkg-* /tools/bin
+cp dpkg-deb/dpkg-deb /tools/bin
+cp dpkg-split/dpkg-split /tools/bin
+mkdir -pv /tools/etc/dpkg/{,dpkg.cfg.d}
+cp debian/dpkg.cfg /tools/etc/dpkg</userinput></screen>
+
+    <para>Add a line in <filename>dpkg.cfg</filename> to
+    tell where to put administration files</para>
+
+    <screen><userinput>cat &gt;&gt; /tools/etc/dpkg/dpkg.cfg &lt;&lt; EOF
+# admindir on LFS system
+admindir /var/lib/dpkg
+EOF</userinput></screen>
+
+    <para>On a Debian system, <command>dpkg</command> relies on two other
+    files to be present. Since we do not install them, issue:</para>
+
+    <screen><userinput>cat &gt;&gt; /tools/etc/dpkg/dpkg.cfg &lt;&lt; EOF
+# disable fatal error on path checking
+force-bad-path
+EOF</userinput></screen>
+
+  </sect2>
+
+</sect1>
+
+<sect1 id="ch-system-pkgmngt-creatingdirs">
+  <?dbhtml filename="creatingdirs.html"?>
+
+  <title>Adding Directories for package management</title>
+
+  <para>Those directories should be added to the system.
+  <filename>/var/lib/dpkg</filename> and subdirectories are
+  adminitrative directories of <command>dpkg</command>.
+  <filename>/var/log</filename> is the log directory for
+  <command>dpkg</command>. <filename>/var/lib/packages</filename>
+  will be used to store our packages.deb files.</para>
+
+  <screen><userinput>mkdir -pv /var/{log,lib/dpkg/{info,updates}}
+mkdir -pv /var/lib/packages</userinput></screen>
+
+</sect1>
+
+<sect1 id="ch-system-pkgmngt-createfiles">
+  <?dbhtml filename="createfiles.html"?>
+
+  <title>Adding administrative files for Dpkg</title>
+  <para><command>dpkg</command> needs that some files exist to run
+  for the first time. The log file must exist in order to be
+  used.</para>
+
+  <screen><userinput>touch /var/lib/dpkg/{available,status}
+touch /var/log/dpkg.log</userinput></screen>
+
+</sect1>
+
+<sect1 id="ch-system-pkgmngt" role="wrap">
+  <?dbhtml filename="dpkg.html"?>
+
+  <sect1info condition="script">
+    <productname>dpkg</productname>
+    <productnumber>&dpkg-version;</productnumber>
+    <address>&dpkg-url;</address>
+  </sect1info>
+
+  <title>Dpkg-&dpkg-version;</title>
+
+  <sect2 role="package">
+    <title/>
+
+    <para>This is my choice of package manager. Dpkg is the basic package
+    manager of Debian. It can be complemented by deselect (in the same
+    package), apt or aptitude. We use it in a very crude way.</para>
+    
+    <segmentedlist>
+      <segtitle>&buildtime;</segtitle>
+      <segtitle>&diskspace;</segtitle>
+
+      <seglistitem>
+        <seg>&dpkg-ch6-sbu;</seg>
+        <seg>&dpkg-ch6-du;</seg>
+      </seglistitem>
+    </segmentedlist>
+
+  </sect2>
+
+  <sect2 role="installation">
+    <title>Installation of Dpkg</title>
+
+    <para>Since Debian is shipping its own package, all patches have already
+    been applied. We can go directly to configuring it:</para>
+
+    <screen><userinput remap="configure">./configure --prefix=/usr \
+        --sysconfdir=/etc \
+        --localstatedir=/var \
+        --without-dselect \
+        --without-start-stop-daemon \
+        --without-update-alternatives \
+        --without-install-info \
+        --without-selinux</userinput></screen>
+
+    <variablelist>
+      <title>The meaning of the configure options:</title>
+
+      <varlistentry>
+        <term><parameter>--without-dselect</parameter></term>
+        <listitem>
+          <para>Avoids building <command>dselect</command>, an
+          awful thing!</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--without-start-stop-daemon</parameter></term>
+        <listitem>
+          <para>The utility <command>start-stop-daemon</command>
+          is not needed here.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--without-update-alternatives</parameter></term>
+        <listitem>
+          <para>Same for <command>update-alternatives</command>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--without-install-info</parameter></term>
+        <listitem>
+          <para>Debian <command>install-info</command> is a wrapper to
+          <command>install-info</command> installed by Texinfo. Not
+          needed either.</para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
+    <para>Compile the package:</para>
+
+<screen><userinput remap="make">make</userinput></screen>
+
+    <para>This package does not come with a test suite.</para>
+
+    <para>Install the package:</para>
+
+<screen><userinput remap="install">mkdir -pv $PKG_DEST
+make DESTDIR=$PKG_DEST install
+mkdir -pv $PKG_DEST/etc/dpkg/{,dpkg.cfg.d}
+cp debian/dpkg.cfg $PKG_DEST/etc/dpkg</userinput></screen>
+
+    <para>Add a line in <filename>dpkg.cfg</filename> to
+    tell where to put administration files</para>
+
+<screen><userinput remap="install">cat &gt;&gt; $PKG_DEST/etc/dpkg/dpkg.cfg &lt;&lt; EOF
+# admindir on LFS system
+admindir /var/lib/dpkg
+EOF</userinput></screen>
+
+<!-- Is this needed in chapter 06 -->
+    <para>On a Debian system, <command>dpkg</command> relies on two other
+    files (<command>ldconfig</command> and maybe <command>update-rc.d</command>)
+    to be present. Since we do not install them, issue:</para>
+
+<screen><userinput>cat &gt;&gt; /etc/dpkg/dpkg.cfg &lt;&lt; EOF
+# disable fatal error on path checking
+force-bad-path
+EOF</userinput></screen>
+
+  </sect2>
+
+</sect1>
+</article>

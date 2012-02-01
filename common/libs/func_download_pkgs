@@ -39,13 +39,13 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
 
       # Skip some packages if they aren't needed
     case $line in
-        */tcl* | */expect* | */dejagnu* | */tree* | */gcc-testsuite* )
+      */check* | */tcl* | */expect* | */dejagnu* | */tree* | */gcc-testsuite* )
             [[ "$TEST" = "0" ]] && continue
           ;;
-        */vim-*-lang* )
+      */vim-*-lang* )
             [[ "$VIMLANG" = "0" ]] && continue
           ;;
-        *linux/linux-* )
+      *linux/linux-* )
             [[ -z "$CONFIG" ]] && [[ -z "$BOOT_CONFIG" ]] && \
             [[ "$GETKERNEL" = "n" ]] && continue
           ;;
@@ -75,16 +75,16 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
       # If the file does not exist yet in /sources download a fresh one
       if [ ! -f $FILE ] ; then
 	if [[ ! ("$SRC_ARCHIVE" = "") ]] ; then
-	  echo "${BOLD}${YELLOW}$FILE: not found in ${SRC_ARCHIVE} or /sources${OFF}"
+	  echo "${BOLD}${YELLOW}$FILE: not found in ${SRC_ARCHIVE} or ${BUILDDIR}/sources${OFF}"
 	else
-	  echo "${BOLD}${YELLOW}$FILE: not found in /sources${OFF}"
+	  echo "${BOLD}${YELLOW}$FILE: not found in ${BUILDDIR}/sources${OFF}"
 	fi
         if ! wget $URL1 $WGETPARAM && ! wget $URL2 $WGETPARAM ; then
           gs_wrt_message "$FILE not found in the SRC_ARCHIVE or on any server..SKIPPING"
           continue
         fi
-	else
-	  echo "${BOLD}${YELLOW}$FILE: using cached file in /sources${OFF}"
+      else
+	  echo "${BOLD}${YELLOW}$FILE: using cached file in ${BUILDDIR}/sources${OFF}"
       fi
     fi
 
@@ -121,7 +121,7 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
     fi
 
       # Good or bad we write the original md5sum to a file
-    echo "$MD5" >> MD5SUMS
+    echo "$MD5" >> MD5SUM
 
      # Copy the freshly downloaded file
      # to the source archive.
@@ -192,6 +192,7 @@ create_urls() {              #
         xsltproc --nonet --xinclude \
                  --stringparam server $SERVER \
                  --stringparam family lfs \
+                 --stringparam pkgmngt $PKGMNGT \
                  -o ../sources/urls.lst urls.xsl \
                  $BOOK/chapter03/chapter03.xml >>$LOGDIR/$LOG 2>&1
         echo " ...OK"

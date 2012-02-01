@@ -44,6 +44,7 @@ PRT_DU_CR      = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) --exclude=lo
 ADD_REPORT       = $REPORT
 ADD_CUSTOM_TOOLS = $CUSTOM_TOOLS
 ADD_BLFS_TOOLS   = $BLFS_TOOL
+PKGMNGT          = $PKGMNGT
 
 
 export PATH := \${PATH}:/usr/sbin
@@ -92,7 +93,9 @@ get_package_tarball_name() {       #
          ;;
      xz-utils) echo $(grep "^xz" $JHALFSDIR/pkg_tarball_list | head -n1 )
 	 ;;
-     *)  echo $(grep "^$script_name-[[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 )
+     sqlite) echo $(grep "^sqlite" $JHALFSDIR/pkg_tarball_list | head -n1 )
+	 ;;
+     *)  echo $(grep "^$script_name[_-][[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 )
          ;;
    esac
 

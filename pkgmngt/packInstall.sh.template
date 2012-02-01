@@ -1,0 +1,50 @@
+# $Id:$
+# function for packing and installing a tree. We only have access
+# to variables PKGDIR and PKG_DEST
+# Other variables can be passed on the command line, or in the environment
+
+packInstall() {
+
+# A proposed implementation for versions and package names.
+local PCKGVRS=$(basename $PKGDIR)
+local TGTPKG=$(basename $PKG_DEST)
+local PACKAGE=$(echo ${TGTPKG} | sed 's/^[0-9]\{3\}-//' |
+           sed 's/^[0-9]\{1\}-//')
+# version is only accessible from PKGDIR name. Since the format of the
+# name is not normalized, several hacks are necessary...
+case $PCKGVRS in
+  expect*|tcl*) local VERSION=$(echo $PCKGVRS | sed 's/^[^0-9]*//') ;;
+  vim*|unzip*) local VERSION=$(echo $PCKGVRS | sed 's/^[^0-9]*\([0-9]\)\([0-9]\)/\1.\2/') ;;
+  tidy*) local VERSION=$(echo $PCKGVRS | sed 's/^[^0-9]*\([0-9]*\)/\1cvs/') ;;
+  docbook-xml) local VERSION=4.5 ;;
+  *) local VERSION=$(echo ${PCKGVRS} | sed 's/^.*[-_]\([0-9]\)/\1/');;
+esac
+local ARCHIVE_NAME=$(dirname ${PKGDIR})/${PACKAGE}_${VERSION}.deb
+case $(uname -m) in
+  x86_64) local ARCH=amd64 ;;
+  *) local ARCH=i386 ;;
+esac
+
+pushd $PKG_DEST
+rm -fv ./usr/share/info/dir  # recommended since this directory is already there
+                             # on the system
+# The next lines are specific to dpkg, but usually all pacakge managers
+# need some information on the version and the package. 
+mkdir DEBIAN
+cat > DEBIAN/control <<EOF
+Package: $PACKAGE
+Version: $VERSION
+Maintainer: Pierre Labastie <lnimbus@club-internet.fr>
+Description: $PACKAGE
+Architecture: $ARCH
+EOF
+# Building the binary package
+dpkg-deb -b . $ARCHIVE_NAME
+# Installing it on LFS
+dpkg -i $ARCHIVE_NAME
+# Storing the package (recommended).
+mv -v $ARCHIVE_NAME /var/lib/packages
+popd                         # Since the $PKG_DEST directory is destroyed
+                             # immediately after the return of the function,
+                             # getting back to $PKGDIR is important...
+}

@@ -59,7 +59,7 @@ while true ; do
 
       # Detect rollover of the seconds.
     (( PREV_SEC > SEC )) && write_or_exit "${RESET_LINE}"
-    (( PREV_SEC = SEC ))
+    PREV_SEC=$SEC
 
       # Display the accumulated time. div minutes.. modulo seconds.
     write_or_exit "${TS_POSITION}$(($SECONDS / 60)) min. $SEC sec"

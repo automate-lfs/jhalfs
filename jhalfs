@@ -87,21 +87,22 @@ VERBOSITY=1
 
 [[ $VERBOSITY > 0 ]] && echo -n "Loading config params from <configuration>..."
 source configuration
-[[ $? > 0 ]] && echo "file:configuration did not load.." && exit 1
+[[ $? > 0 ]] && echo "file: configuration did not load.." && exit 1
 [[ $VERBOSITY > 0 ]] && echo "OK"
 
 # These are boolean vars generated from Config.in.
-# ISSUE: If a boolean parameter is not set <true> that
-# variable is not defined by the menu app. This can
-# cause a headache if you are not careful.
-#  The following parameters MUST be created and have a
-#  default value.
+# ISSUE: If a boolean parameter is not set to y(es) there
+# is no variable defined by the menu app. This can
+# cause a headache if you are not aware.
+#  The following variables MUST exist. If they don't, the
+#  default value is n(o).
 RUNMAKE=${RUNMAKE:-n}
 GETPKG=${GETPKG:-n}
 GETKERNEL=${GETKERNEL:-n}
 COMPARE=${COMPARE:-n}
 RUN_FARCE=${RUN_FARCE:-n}
 RUN_ICA=${RUN_ICA:-n}
+PKGMNGT=${PKGMNGT:-n}
 BOMB_TEST=${BOMB_TEST:-n}
 STRIP=${STRIP:=n}
 REPORT=${REPORT:=n}
@@ -180,28 +181,24 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
        branch-* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-} ;;
               * )  BLFS_TREE=tags/${BLFS_BRANCH_ID} ;;
   esac
-  # Dependencies envars, more easy to update.
+  # Dependencies envars, easier to update.
   # Tidy and Unzip version are harcoded also in wrt_blfs_tool_targets()
     # libxml2
-  LIBXML_PKG="libxml2-2.6.29.tar.gz"
+  LIBXML_PKG="libxml2-2.7.8.tar.gz"
   LIBXML_URL="ftp://xmlsoft.org/libxml2/${LIBXML_PKG}"
-  LIBXML_MD5="8b99b6e8b08e838438d9e6b639d79ebd"
+  LIBXML_MD5="8127a65e8c3b08856093099b52599c86"
     # libxslt
-  LIBXSLT_PKG="libxslt-1.1.21.tar.gz"
+  LIBXSLT_PKG="libxslt-1.1.26.tar.gz"
   LIBXSLT_URL="ftp://xmlsoft.org/libxslt/${LIBXSLT_PKG}"
-  LIBXSLT_MD5="59fe34e85692f71df2a38c2ee291b3ca"
+  LIBXSLT_MD5="e61d0364a30146aaa3001296f853b2b9"
     # tidy
-  TIDY_PKG="tidy-cvs_20070326.tar.bz2"
-  TIDY_URL="http://anduin.linuxfromscratch.org/files/BLFS/sources/${TIDY_PKG}"
-  TIDY_MD5="468bfaa5cf917a8ecbe7834c13a61376"
+  TIDY_PKG="tidy-cvs_20101110.tar.bz2"
+  TIDY_URL="http://anduin.linuxfromscratch.org/sources/BLFS/svn/t/${TIDY_PKG}"
+  TIDY_MD5="dd1fe109b4259ad3f364b175787ad5e9"
     # unzip
-  UNZIP_PKG="unzip552.tar.gz"
+  UNZIP_PKG="unzip60.tar.gz"
   UNZIP_URL="http://downloads.sourceforge.net/infozip/${UNZIP_PKG}"
-  UNZIP_MD5="9d23919999d6eac9217d1f41472034a9"
-    # unzip security patch
-  UNZIP_PATCH="unzip-5.52-security_fix-1.patch"
-  UNZIP_PATCH_URL="http://www.linuxfromscratch.org/patches/blfs/svn/${UNZIP_PATCH}"
-  UNZIP_PATCH_MD5="00ebf64fdda2ad54ddfc619f85f328bb"
+  UNZIP_MD5="62b490407489521db863b523a7f86375"
     # DocBook XML DTD
   DBXML_PKG="docbook-xml-4.5.zip"
   DBXML_URL="http://www.docbook.org/xml/4.5/${DBXML_PKG}"
@@ -210,53 +207,64 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
 #   DBXSL_PKG="docbook-xsl-1.69.1.tar.bz2"
 #   DBXSL_URL="http://prdownloads.sourceforge.net/docbook/${DBXSL_PKG}"
 #   DBXSL_MD5="6ebd29a67f2dcc3f2220f475ee6f6552"
-    # Links
-  LYNX_PKG="lynx2.8.6.tar.bz2"
-  LYNX_URL="http://lynx.isc.org/release/${LYNX_PKG}"
-  LYNX_MD5="dc80497b7dda6a28fd80404684d27548"
+    # Lynx
+  LYNX_PKG="lynx2.8.7rel.2.tar.bz2"
+  LYNX_URL="http://lynx.isc.org/current/${LYNX_PKG}"
+  LYNX_MD5="cb936aef812e4e463ab86cbbe14d4db9"
     # sudo
-  SUDO_PKG="sudo-1.6.8p12.tar.gz"
-  SUDO_URL="http://anduin.linuxfromscratch.org/sources/BLFS/svn/s/${SUDO_PKG}"
-  SUDO_MD5="b29893c06192df6230dd5f340f3badf5"
-    # sudo envar fix patch
-  SUDO_PATCH="sudo-1.6.8p12-envvar_fix-1.patch"
-  SUDO_PATCH_URL="http://www.linuxfromscratch.org/patches/blfs/svn/${SUDO_PATCH}"
-  SUDO_PATCH_MD5="454925aedfe054dff8fe0d03b209f986"
+  SUDO_PKG="sudo-1.8.2.tar.gz"
+  SUDO_URL="http://www.sudo.ws/sudo/dist/${SUDO_PKG}"
+  SUDO_MD5="000f458e7391be9fdf459a9ad6a4912a"
     # wget
-  WGET_PKG="wget-1.10.2.tar.gz"
+  WGET_PKG="wget-1.13.4.tar.xz"
   WGET_URL="ftp://ftp.gnu.org/gnu/wget/${WGET_PKG}"
-  WGET_MD5="795fefbb7099f93e2d346b026785c4b8"
+  WGET_MD5="7f518b3a71e9efd330e9a0c3714f8463"
+    # SQLite (for subversion)
+  SQLITE_PKG="sqlite-autoconf-3070800.tar.gz"
+  SQLITE_URL="http://sqlite.org/${SQLITE_PKG}"
+  SQLITE_MD5="6bfb46d73caaa1bbbcd2b52184b6c542"
+    # Apache Portable Runtime (for subversion)
+  APR_PKG="apr-1.4.5.tar.bz2"
+  APR_URL="http://mirror.speednetwork.de/apache/apr/$APR_PKG"
+  APR_MD5="8b53f5a5669d0597f2da889a2f576eb6"
+    # APR config patch
+  APR_PATCH_1="apr-1.4.5-config.patch"
+  APR_PATCH_1_URL="file:///sources/local-patches/${APR_PATCH_1}"
+  APR_PATCH_1_MD5="fff6eddf998f4e956915f8053c15e41e"
+    # Apache Portable Runtime Utilities (for subversion)
+  APR_U_PKG="apr-util-1.4.1.tar.bz2"
+  APR_U_URL="http://mirrors.ircam.fr/pub/apache/apr/$APR_U_PKG"
+  APR_U_MD5="52b31b33fb1aa16e65ddaefc76e41151"
+    # APR-util config patch
+  APR_U_PATCH_1="apr-util-1.4.1-config.patch"
+  APR_U_PATCH_1_URL="file:///sources/local-patches/${APR_U_PATCH_1}"
+  APR_U_PATCH_1_MD5="4c07cb0d298ae9ddc75cd2d5acdedb2b"
     # Subversion
-  SVN_PKG="subversion-1.3.1.tar.bz2"
-  SVN_URL="http://subversion.tigris.org/tarballs/${SVN_PKG}"
-  SVN_MD5="07b95963968ae345541ca99d0e7bf082"
+  SVN_PKG="subversion-1.7.1.tar.bz2"
+  SVN_URL="http://archive.apache.org/dist/subversion/${SVN_PKG}"
+  SVN_MD5="8a4fa74385df85a9702141b6b68b8307"
     # GPM
-  GPM_PKG="gpm-1.20.1.tar.bz2"
-  GPM_URL="ftp://ftp.linux.ee/pub/gentoo/distfiles/distfiles/${GPM_PKG}"
-  GPM_MD5="2c63e827d755527950d9d13fe3d87692"
-    # GPM segfaul patch
-  GPM_PATCH_1="gpm-1.20.1-segfault-1.patch"
-  GPM_PATCH_1_URL="http://www.linuxfromscratch.org/patches/blfs/svn/${GPM_PATCH_1}"
-  GPM_PATCH_1_MD5="8c88f92990ba7613014fcd1db14ca7ac"
-    # GPM silent patch
-  GPM_PATCH_2="gpm-1.20.1-silent-1.patch"
-  GPM_PATCH_2_URL="http://www.linuxfromscratch.org/patches/blfs/svn/${GPM_PATCH_2}"
-  GPM_PATCH_2_MD5="bf6cbefe20c6f15b587f19ebc1c8a37a"
+  GPM_PKG="gpm-1.20.6.tar.bz2"
+  GPM_URL="http://www.nico.schottelius.org/software/gpm/archives/$GPM_PKG"
+  GPM_MD5="6b534da16dc1b28ba828dea89e520f6f"
 fi
 
 #--- Envars not sourced from configuration
 case $PROGNAME in
-  clfs* ) declare -r SVN="http://svn.cross-lfs.org/svn/repos" ;;
+# TODO: clfs is now on git
+#  clfs* ) declare -r SVN="http://svn.cross-lfs.org/svn/repos" ;;
       * ) declare -r SVN="svn://svn.linuxfromscratch.org" ;;
 esac
 declare -r LOG=000-masterscript.log
-  # Needed to can fetch BLFS book sources when building CLFS
+  # Needed for fetching BLFS book sources when building CLFS
 declare -r SVN_2="svn://svn.linuxfromscratch.org"
 
 # Set true internal variables
 COMMON_DIR="common"
 PACKAGE_DIR=$(echo $PROGNAME | tr '[a-z]' '[A-Z]')
 MODULE=$PACKAGE_DIR/master.sh
+PKGMNGTDIR="pkgmngt"
+# The name packageManager.xml is hardcoded in *.xsl, so no variable.
 
 [[ $VERBOSITY > 0 ]] && echo -n "Loading common-functions module..."
 source $COMMON_DIR/common-functions
@@ -369,8 +377,17 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
   export XSL=$JHALFSDIR/${XSL}
   #
 
+  # Copy packageManager.xml, if needed
+  [[ "$PKGMNGT" = "y" ]] && [[ "$PROGNAME" = "lfs" ]] &&
+    cp $PKGMNGTDIR/packageManager.xml  $JHALFSDIR/ &&
+    cp $PKGMNGTDIR/packInstall.sh  $JHALFSDIR/
+  #
   # Copy urls.xsl, if needed
   [[ "$GETPKG" = "y" ]] && cp $COMMON_DIR/urls.xsl  $JHALFSDIR/
+  #
+  # Copy APR patches, if needed
+  [[ "$DEP_SVN" = "y" ]] &&
+         cp $COMMON_DIR/blfs-tool-deps/apr*.patch  $BUILDDIR/sources
   #
   # Create the test-log directory, if needed
   [[ "$TEST" != "0" ]] && [[ ! -d $TESTLOGDIR ]] && install -d -m 1777 $TESTLOGDIR
@@ -381,7 +398,7 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
   # Prepare report creation, if needed
   if [[ "$REPORT" = "y" ]]; then
     cp $COMMON_DIR/create-sbu_du-report.sh  $JHALFSDIR/
-    # After being sure that all looks sane, dump the settings to a file
+    # After making sure that all looks sane, dump the settings to a file
     # This file will be used to create the REPORT header
     validate_config > $JHALFSDIR/jhalfs.config
   fi

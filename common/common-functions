@@ -60,7 +60,7 @@ clean_builddir() {           #
       # Clean the build directory
       echo -n "Cleaning $BUILDDIR ..."
       # First delete proc and sys directories, if exist.
-      # Both should be empty, if not be sure to exit.
+      # Both should be empty. If not, be sure to exit.
       if [ -d $BUILDDIR/proc ] ; then
         sudo rmdir $BUILDDIR/proc || exit 1
       fi
@@ -72,7 +72,7 @@ clean_builddir() {           #
       echo -n "Cleaning $JHALFSDIR ..."
       sudo rm -rf $JHALFSDIR
       echo "done"
-      echo -n "Cleaning remainig extracted sources in $BUILDDIR/sources ..."
+      echo -n "Cleaning remaining extracted sources in $BUILDDIR/sources ..."
       sudo rm -rf `find $BUILDDIR/sources/* -maxdepth 0 -type d`
       echo "done"
     fi

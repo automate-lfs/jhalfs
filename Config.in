@@ -824,16 +824,16 @@ menu "--- Build Settings"
 		help
 			#-- Run test suites
 			#
-			#  You will can to select between:
+			#  You will have to select between:
 			#
 			#  - Only final system Glibc, GCC and Binutils testsuites
 			#  - All final system testsuites
 			#  - Both temporary tools and final system testsuites
 			#
-			#  HLFS and CLFS has no testsuites available in the
+			#  HLFS and CLFS have no testsuites available in the
 			#  temporary tools phase
 
-			#  You will be promt also about the "flavour" of the
+			#  You will be prompted also about the "flavour" of the
 			#  testsuites run:
 			#
 			#  - Don't stop on test suite failures
@@ -843,10 +843,10 @@ menu "--- Build Settings"
 	choice
 		prompt	"Tests level"
 		depends	 CONFIG_TESTS
-		default	TEST_1
+		default	TST_1
 
 		config	TST_1
-			bool	"Only final system Glibc, GCC and Binutils testsuites"
+			bool	"Only final system Glibc, GMP, MPFR, GCC and Binutils testsuites"
 
 		config	TST_2
 			bool	"All final system testsuites"
@@ -879,6 +879,28 @@ menu "--- Build Settings"
 		default	y if BOMB
 
 	#--- End Test Suites
+
+	#--- Package Management
+	config  PKGMNGT
+		bool    "Package management"
+		depends BOOK_LFS
+		default n
+		help
+			#-- Use package management
+			#
+			#  If set, the packages in the final phase are built
+			#  in a separate directory PKG_DEST.
+			#  You should provide a bash function for packing
+			#  and installing the package.
+			#  Also you have to provide the instructions
+			#  to build the package manager during the
+			#  temporary tools phase, in the form of a
+			#  sect1 of the book identical to a package
+			#  sect1. See README.PACKAGE_MANAGEMENT
+			#
+			#  For now, works only with LFS
+
+	#--- End package management
 
 	#--- Installed files logs
 	config	INSTALL_LOG
@@ -914,7 +936,7 @@ menu "--- Build Settings"
 			#
 			#   You will be prompted for the full path to the .config
 			#   file. It will be copied to the 'sources' directory and
-			#   rename kernel-config
+			#   renamed kernel-config
 
 	config	CONFIG
 		string	"Kernel config file"
@@ -937,13 +959,15 @@ menu "--- Build Settings"
 		depends on !BOOK_HLFS && !BOOK_CLFS3
 		help
 			#-- Install the optional vim-lang package
+			#   NOTE: This option is obsolete with the 7.3 release of Vim
+			#   which is included in all recent releases of LFS.
 
 	config	NO_PROGRESS_BAR
 		bool "DO NOT use/display progress_bar "
 		default n
 		help
-			#-- No not use the progress bar routine. On slower machines
-			#   this functions consumes precious CPU cycles.
+			#-- Do not use the progress bar routine. On slower machines
+			#   this function consumes precious CPU cycles.
 
 	config	TIMEZONE
 		string "TimeZone"
@@ -1135,7 +1159,7 @@ config REBUILD_MAKEFILE
 	help
 		#-- Rebuild the Makefile
 		#
-		#   This option alow to rebuild the Makefile after
+		#   This option allows to rebuild the Makefile after
 		#   customizing the base system build scripts.
 		#
 		#   See README.CUSTOM for more info about this feature.

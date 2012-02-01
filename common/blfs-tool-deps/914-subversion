@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# $Id$
+# $Id: $
 
 set -e
 cd $PKGDIR
 
-./configure --prefix=/usr --sysconfdir=/etc
+./configure --prefix=/usr
 make
 if ! [ -z $PKG_DEST ]; then
 	mkdir -pv $PKG_DEST/{lib,usr/{share/{man,doc,info},lib}}
@@ -15,14 +15,8 @@ if ! [ -z $PKG_DEST ]; then
 	esac
 fi
 make DESTDIR=$PKG_DEST install
-ln -v -s libgpm.so.2.1.0 $PKG_DEST/usr/lib/libgpm.so
-mkdir -pv $PKG_DEST/etc
-install -v -m644 conf/gpm-root.conf $PKG_DEST/etc
-install -v -m755 -d $PKG_DEST/usr/share/doc/gpm-1.20.6
-chmod   -v   755    doc/{changes,support}
-chmod   -v   644    doc/{changes/*,support/*,FAQ,HACK_GPM,README*}
-cp      -v -R       doc/{FAQ,HACK_GPM,README*,changes,support} \
-                    $PKG_DEST/usr/share/doc/gpm-1.20.6
+install -v -m755 -d $PKG_DEST/usr/share/doc/subversion-1.7.1
+cp -v -R doc/* $PKG_DEST/usr/share/doc/subversion-1.7.1
 if ! [ -z $PKG_DEST ]; then 
 	rm -fv $PKG_DEST/{,usr/}lib64 
 	rm -fv $PKG_DEST/usr/{man,doc,info}

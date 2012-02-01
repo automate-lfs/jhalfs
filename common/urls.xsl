@@ -19,12 +19,19 @@
   <!-- The kernel series used for HLFS -->
   <xsl:param name="kernel" select="2.6"/>
 
+  <!-- Do we use a package manager? -->
+  <xsl:param name="pkgmngt" select="n"/>
+
   <xsl:template match="/">
     <xsl:apply-templates select="//ulink"/>
+    <xsl:if test="$pkgmngt='y'">
+      <xsl:apply-templates
+        select="document('packageManager.xml')//ulink"/>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="ulink">
-      <!-- If some package don't have the predefined strings in their
+      <!-- If some package doesn't have the predefined strings in their
       name, the next test must be fixed to match it also. Skip possible
       duplicated URLs due that may be splitted for PDF output -->
     <xsl:if test="(ancestor::varlistentry[@condition=$model]

@@ -144,6 +144,7 @@ extract_commands() {         #
                  --stringparam timezone $TIMEZONE \
                  --stringparam page $PAGE \
                  --stringparam lang $LANG \
+                 --stringparam pkgmngt $PKGMNGT \
                  -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
       ;;
     *)  echo -n " ${L_arrow}${BOLD}${PROGNAME}${R_arrow} book invalid, terminate build... "
@@ -187,7 +188,9 @@ create_package_list() {      #
                  $BOOK/chapter04/chapter04.xml >>$LOGDIR/$LOG 2>&1
       ;;
     lfs)
-        xsltproc --nonet --xinclude -o pkg_tarball_list packages.xsl \
+        xsltproc --nonet --xinclude \
+                 --stringparam pkgmngt $PKGMNGT \
+                  -o pkg_tarball_list packages.xsl \
                  $BOOK/chapter03/chapter03.xml >>$LOGDIR/$LOG 2>&1
       ;;
   esac
@@ -204,6 +207,9 @@ $DBXSL_PKG
 $LYNX_PKG
 $SUDO_PKG
 $WGET_PKG
+$SQLITE_PKG
+$APR_PKG
+$APR_U_PKG
 $SVN_PKG
 $GPM_PKG
 EOF

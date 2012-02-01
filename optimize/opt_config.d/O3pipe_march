@@ -16,10 +16,10 @@
 # Inherit optimizations from O3pipe
 source optimize/opt_config.d/O3pipe
 
-CFLAGS_O3pipe_march=$CFLAGS_O3pipe" -march=pentium4"
-CXXFLAGS_O3pipe_march=$CFLAGS_O3pipe"  -march=pentium4"
+CFLAGS_O3pipe_march=$CFLAGS_O3pipe" -march=native"
+CXXFLAGS_O3pipe_march=$CFLAGS_O3pipe"  -march=native"
 LDFLAGS_O3pipe_march=$LDFLAGS_O3pipe
 
-OTHER_CFLAGS_O3pipe_march=$CFLAGS_O3pipe" -march=pentium4"
-OTHER_CXXFLAGS_O3pipe_march=$CXXFLAGS_O3pipe" -march=pentium4"
+OTHER_CFLAGS_O3pipe_march=$CFLAGS_O3pipe" -march=native"
+OTHER_CXXFLAGS_O3pipe_march=$CXXFLAGS_O3pipe" -march=native"
 OTHER_LDFLAGS_O3pipe_march=$LDFLAGS_O3pipe

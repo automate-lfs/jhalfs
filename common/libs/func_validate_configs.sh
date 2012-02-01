@@ -41,7 +41,7 @@ inline_doc
   local -r CLFS3_book="$BOOK_common                  $BOOK_clfsX PLATFORM MIPS_LEVEL"
 
   # Build Settings by book
-  local -r   LFS_build="$BUILD_chroot VIMLANG $BUILD_common"
+  local -r   LFS_build="$BUILD_chroot VIMLANG $BUILD_common PKGMNGT"
   local -r  HLFS_build="$BUILD_chroot         $BUILD_common"
   local -r  CLFS_build="$BUILD_chroot VIMLANG $BUILD_common"
   local -r CLFS2_build="STRIP         VIMLANG $BUILD_common"

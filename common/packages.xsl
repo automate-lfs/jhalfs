@@ -13,8 +13,15 @@
   <!-- The kernel series used for HLFS -->
   <xsl:param name="kernel" select="2.6"/>
 
+  <!-- Should we include a package manager -->
+  <xsl:param name="pkgmngt" select="n"/>
+
   <xsl:template match="/">
     <xsl:apply-templates select="//para"/>
+    <xsl:if test="$pkgmngt='y'">
+      <xsl:apply-templates
+        select="document('packageManager.xml')//sect1[@id='package']//para"/>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="para">
@@ -26,13 +33,12 @@
       <xsl:call-template name="package_name">
         <xsl:with-param name="url" select="ulink/@url"/>
       </xsl:call-template>
-      <xsl:text>&#xA;</xsl:text>
     </xsl:if>
   </xsl:template>
 
   <xsl:template name="package_name">
     <xsl:param name="url" select="foo"/>
-    <xsl:param name="sub-url" select="substring-after($url,'/')"/>
+    <xsl:variable name="sub-url" select="substring-after($url,'/')"/>
     <xsl:choose>
       <xsl:when test="contains($sub-url,'/')">
         <xsl:call-template name="package_name">
@@ -44,9 +50,11 @@
           <xsl:when test="contains($sub-url,'.patch')"/>
           <xsl:when test="contains($sub-url,'?')">
             <xsl:value-of select="substring-before($sub-url,'?')"/>
+            <xsl:text>&#xA;</xsl:text>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of select="$sub-url"/>
+            <xsl:text>&#xA;</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:otherwise>

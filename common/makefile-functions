@@ -27,7 +27,7 @@ endef
 define sh_echo_PHASE
   echo $(BOLD)--------------------------------------------------------------------------------;\
   echo  $(tab_)$(tab_)Executing $(BLUE)$(1)$(WHITE) scripts; \
-  echo $(BOLD)--------------------------------------------------------------------------------echo $(WHITE)
+  echo $(BOLD)--------------------------------------------------------------------------------$(WHITE)
 endef
 
 define echo_SU_request
@@ -79,6 +79,9 @@ define remove_existing_dirs2
     rm -rf $(SRC)/$$ROOT && \
     rm -rf $(SRC)/$${ROOT%-*}-build; \
   fi;
+  @if [ "$(PKGMNGT)" = "y" ] && [ -d $(SRC)/$@ ]; then \
+    rm -rf $(SRC)/$@ && rm -f $(SRC)/*.deb; \
+  fi;
 endef
 
 #==#
@@ -107,7 +110,12 @@ endef
 
 define get_pkg_root2
   @ROOT=`head -n1 $(SRC)/$(PKG_LST) | sed 's@^./@@;s@/.*@@'` && \
-  echo "export PKGDIR=$(SRC)/$$ROOT" > envars
+  echo "export PKGDIR=$(SRC)/$$ROOT" > envars; \
+  if [ "$(PKGMNGT)" = "y" ]; then \
+    echo "export PKG_DEST=$(SRC)/$@" >> envars; \
+    echo "source packInstall.sh" >> envars; \
+    echo "export -f packInstall" >> envars; \
+  fi;
 endef
 
 define get_pkg_root_LUSER

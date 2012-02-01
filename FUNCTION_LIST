@@ -1,0 +1,388 @@
+$Id:$
+
+This is the list of functions used in jhalfs, excluding BLFS tool functions
+and functions defined in {C,H}LFS/master.sh.
+I felt the need for documenting it when trying to add package management.
+Functions are listed in alphabetical order, with a short description and the
+file where they are defined.
+
+-----------------------------------------------------------------------------
+add_blfs_deps_urls():
+From common/libs/func_blfs_deps.
+Description:  Since the URLS and MD5 of BLFS dependencies are hardcoded,
+there is no easy way to extrat them. So this function adds them at the
+end of `urls.lst'.
+Called by: create_urls
+--------------------------------------------------------------------------
+copy_blfs_deps_scripts():
+From common/libs/func_blfs_deps.
+Description:  Copies the scriptlets from `blfs-tools-deps' to the
+subdirectory `blfs-tools-deps' in `${PROGNAME}-commands'. Must
+be called from `$JHALFSDIR' where `$COMMON/blfs-tools-deps' should have
+been copied first. Removes `$JHALFSDIR/blfs-tools-deps' at the end.
+Called by: extract_commands
+--------------------------------------------------------------------------
+wrt_blfs_tool_targets():
+From common/libs/func_blfs_deps.
+Description: Writes Makefile entries for BLFS tools dependencies.
+should be called from the `${PROGNAME}-commands' directory and
+with `$MKFILE' set.
+TODO: Notice that tidy, unzip, lynx and docbook versions are hardcoded there.
+TODO: This function does not implement the mechanism described in
+`README.CUSTOM' for the `ddd-d-scriptlet' naming scheme.
+Called by: build_Makefiles (from master.sh)
+Uses: makefile helper functions to write in makefile.
+--------------------------------------------------------------------------
+get_sources():
+From common/libs/func_download_pkgs.
+Description:  Downloads packages if `GETPKG' is `y'. Writes package name
+and md5 checksum to `MISSING_FILES.DMP' if a package cannot be found in
+`$SRC_ARCHIVE' and cannot be downloaded, or if md5 checksum does not agree
+book's one. If `MISSING_FILES.DMP' is not empty at the end of the process,
+disable the excution of the makefile.
+Actually, if `$BUILDDIR/sources' does not exist, it is not created if
+`GETPKG' is `n'. And an empty or non existent `$BUILDDIR/sources' is
+not flagged...
+If `GETPKG' is `y', removes `MD5SUMS', `MISSING_FILES.DMP', and `urls.lst'
+from `$BUILDDIR/sources' and generates them in the course of the process.
+Called by: get_book and extract_commands
+--------------------------------------------------------------------------
+gs_wrt_message():
+From common/libs/func_download_pkgs.
+Description: internal function in get_sources. Writes a message to the screen
+and a package name to `MISSING_FILES.DMP'.
+--------------------------------------------------------------------------
+create_urls():
+From common/libs/func_download_pkgs.
+Description: Runs xsltproc with stylesheet urls.xsl on chapter 3 of the
+book. Add BLFS dependencies and custom dependencies if `BLFS_TOOLS' is `y'
+and `CUSTOM_TOOLS' is `y' respectively. 
+Called by: get_sources
+--------------------------------------------------------------------------
+wrt_CustomTools_target():
+From common/libs/func_custom_pkgs.
+Description:  Add users supplied scripts to `$JHALFSDIR/custom-tools', with
+corresponding entry in the Makefile.
+TODO: Add package management (instructions to user and Makefile entry)
+Called by: All master.sh `build_Makefile'.
+--------------------------------------------------------------------------
+add_CustomToolsURLS():
+From common/libs/func_custom_pkgs.
+Description:  Add any users supplied scripts URL information to urls.lst
+Called by: create_urls
+--------------------------------------------------------------------------
+wrt_Makefile_header():
+From common/libs/func_wrt_Makefile.
+Description: Writes the beginning of the Makefile into $MKFILE, which created
+or erased before.
+Called by: All master.sh `build_Makefile'.
+--------------------------------------------------------------------------
+get_package_tarball_name():
+From common/libs/func_wrt_Makefile.
+Arguments: $1 contains the script_name
+Description: Retrieves the tarball name from `pkg_tarball_list' by comparing
+script-name to the beginning of a line in the list. Writes the name found
+to stdout.
+Implements the behavior described in README.CUSTOM, that is, if script_name
+begins with d-, strip that part.
+Called by: various functions in master.sh 
+--------------------------------------------------------------------------
+LUSER_wrt_target():
+From common/libs/func_wrt_Makefile.
+Arguments: $1 contains target name; $2 contains dependency(ies)
+Description:  Add lines in the Makefile, which create target and
+initialize log file.
+LUSER version uses $MOUNT_PT in absolute path names.
+Called by: chapter5_Makefiles and chapter6_Makefiles in LFS/master.sh
+and other master.sh
+--------------------------------------------------------------------------
+CHROOT_wrt_target():
+From common/libs/func_wrt_Makefile.
+Arguments: $1 contains target name; $2 contains dependency(ies)
+Description:  Add lines in the Makefile, which create target and
+initialize log file.
+CHROOT version uses / in absolute path names.
+Called by: chapter6_Makefiles and chapter78_Makefiles in LFS/master.sh
+and other functions in other master.sh
+--------------------------------------------------------------------------
+LUSER_wrt_unpack():
+From common/libs/func_wrt_Makefile.
+Arguments: $1 contains tarball name; $2 contains 1 if the existing directory
+is to be presserved.
+Description: Add lines in the Makefile, which unpack and set 'ROOT' var and
+remove existing dir if $2 != 1
+LUSER version uses $MOUNT_PT in absolute path names.
+Uses: Makefile functions remove_existing_dirs, unpack, get_pkg_root.
+--------------------------------------------------------------------------
+CHROOT_Unpack():
+From common/libs/func_wrt_Makefile.
+Arguments: $1 contains tarball name; $2 contains 1 if the existing directory
+is to be presserved.
+Description: Add lines in the Makefile, which unpack and set 'ROOT' var and
+remove existing dir if $2 != 1
+CHROOT version uses / in absolute path names.
+Uses: Makefile functions remove_existing_dirs2, unpack2, get_pkg_root2.
+--------------------------------------------------------------------------
+LUSER_wrt_test_log():
+From common/libs/func_wrt_Makefile.
+Description:  Add lines in the Makefile, which initialize testsuite
+log file.
+LUSER version uses $MOUNT_PT in absolute path names.
+--------------------------------------------------------------------------
+CHROOT_wrt_test_log():
+From common/libs/func_wrt_Makefile.
+Description:  Add lines in the Makefile, which initialize testsuite
+log file.
+CHROOT version uses / in absolute path names.
+--------------------------------------------------------------------------
+wrt_RunAsRoot():
+From common/libs/func_wrt_Makefile.
+Description:  Some scripts must be run as root..
+--------------------------------------------------------------------------
+LUSER_wrt_RunAsUser():
+From common/libs/func_wrt_Makefile.
+Description:  Calculate time with perl, footer to log file
+--------------------------------------------------------------------------
+CHROOT_wrt_RunAsRoot():
+From common/libs/func_wrt_Makefile.
+Description: 
+--------------------------------------------------------------------------
+LUSER_wrt_CopyFstab():
+From common/libs/func_wrt_Makefile.
+Description: 
+--------------------------------------------------------------------------
+CHROOT_wrt_CopyFstab():
+From common/libs/func_wrt_Makefile.
+Description: 
+--------------------------------------------------------------------------
+LUSER_wrt_TouchTimestamp():
+From common/libs/func_wrt_Makefile.
+Description: 
+--------------------------------------------------------------------------
+CHROOT_wrt_TouchTimestamp():
+From common/libs/func_wrt_Makefile.
+Description: 
+--------------------------------------------------------------------------
+LUSER_wrt_LogNewFiles():
+From common/libs/func_wrt_Makefile.
+Description: 
+--------------------------------------------------------------------------
+CHROOT_wrt_LogNewFiles():
+From common/libs/func_wrt_Makefile.
+Description: 
+--------------------------------------------------------------------------
+LUSER_RemoveBuildDirs():
+From common/libs/func_wrt_Makefile.
+Description: 
+--------------------------------------------------------------------------
+CHROOT_wrt_RemoveBuildDirs():
+From common/libs/func_wrt_Makefile.
+Description: 
+--------------------------------------------------------------------------
+wrt_touch():
+From common/libs/func_wrt_Makefile.
+Description: 
+--------------------------------------------------------------------------
+wrt_compare_targets():
+From common/libs/func_compare.sh.
+Description: 
+--------------------------------------------------------------------------
+wrt_system_build():
+From common/libs/func_compare.sh.
+Description: 
+--------------------------------------------------------------------------
+wrt_compare_work():
+From common/libs/func_compare.sh.
+Description: 
+--------------------------------------------------------------------------
+wrt_do_ica_work():
+From common/libs/func_compare.sh.
+Description: 
+--------------------------------------------------------------------------
+wrt_do_farce_work():
+From common/libs/func_compare.sh.
+Description: 
+--------------------------------------------------------------------------
+wrt_logs():
+From common/libs/func_compare.sh.
+Description: 
+--------------------------------------------------------------------------
+validate_config():
+From common/libs/func_validate_configs.sh.
+Description:  Are the config values sane (within reason)
+--------------------------------------------------------------------------
+  write_error_and_die():
+From common/libs/func_validate_configs.sh.
+Description: 
+--------------------------------------------------------------------------
+  validate_file():
+From common/libs/func_validate_configs.sh.
+Description: 
+--------------------------------------------------------------------------
+  validate_dir():
+From common/libs/func_validate_configs.sh.
+Description: 
+--------------------------------------------------------------------------
+get_book():
+From common/libs/func_book_parser.
+Description: 
+--------------------------------------------------------------------------
+extract_commands():
+From common/libs/func_book_parser.
+Description: 
+--------------------------------------------------------------------------
+create_package_list():
+From common/libs/func_book_parser.
+Description: 
+--------------------------------------------------------------------------
+check_version():
+From common/libs/func_check_version.sh.
+Description: 
+--------------------------------------------------------------------------
+  write_error_and_die():
+From common/libs/func_check_version.sh.
+Description: 
+--------------------------------------------------------------------------
+check_prerequisites():
+From common/libs/func_check_version.sh.
+Description: 
+--------------------------------------------------------------------------
+write_or_exit():
+From common/progress_bar.sh.
+Description: 
+--------------------------------------------------------------------------
+no_empty_builddir():
+From common/common-functions.
+Description: 
+--------------------------------------------------------------------------
+run_make():
+From common/common-functions.
+Description: 
+--------------------------------------------------------------------------
+clean_builddir():
+From common/common-functions.
+Description: 
+--------------------------------------------------------------------------
+function dohelp():
+From extras/farce.
+Description: 
+--------------------------------------------------------------------------
+function emessage():
+From extras/farce.
+Description: 
+--------------------------------------------------------------------------
+function expected():
+From extras/farce.
+Description: 
+--------------------------------------------------------------------------
+function failure():
+From extras/farce.
+Description: 
+--------------------------------------------------------------------------
+extras/farce:			emessage "internal error in failure() for TYPE $TYPE"
+function fatal():
+From extras/farce.
+Description: 
+--------------------------------------------------------------------------
+function filetype():
+From extras/farce.
+Description: 
+--------------------------------------------------------------------------
+function message():
+From extras/farce.
+Description: 
+--------------------------------------------------------------------------
+function onlyone():
+From extras/farce.
+Description: 
+--------------------------------------------------------------------------
+function testar():
+From extras/farce.
+Description: 
+--------------------------------------------------------------------------
+function testgzip():
+From extras/farce.
+Description: 
+--------------------------------------------------------------------------
+function testso():
+From extras/farce.
+Description: 
+--------------------------------------------------------------------------
+function tokenize():
+From extras/farce.
+Description: 
+--------------------------------------------------------------------------
+function tokenizeanddiff():
+From extras/farce.
+Description: 
+--------------------------------------------------------------------------
+function validateargs():
+From extras/farce.
+Description: 
+--------------------------------------------------------------------------
+process_toolchain():
+From HLFS/master.sh.
+Description:  embryo,cocoon and butterfly need special handling
+--------------------------------------------------------------------------
+chapter3_Makefiles():
+From HLFS/master.sh.
+Description:  Initialization of the system
+--------------------------------------------------------------------------
+chapter5_Makefiles():
+From HLFS/master.sh.
+Description:  Bootstrap or temptools phase
+--------------------------------------------------------------------------
+chapter6_Makefiles():
+From HLFS/master.sh.
+Description:  sysroot or chroot build phase
+--------------------------------------------------------------------------
+chapter7_Makefiles():
+From HLFS/master.sh.
+Description:  Create a bootable system.. kernel, bootscripts..etc
+--------------------------------------------------------------------------
+build_Makefile():
+From HLFS/master.sh.
+Description:  Construct a Makefile from the book scripts
+--------------------------------------------------------------------------
+simple_error():
+From jhalfs.
+Description:  Basic error trap.... JUST DIE
+--------------------------------------------------------------------------
+see_ya():
+From jhalfs.
+Description: 
+--------------------------------------------------------------------------
+jhalfs:  # Tidy and Unzip version are harcoded also in wrt_blfs_tool_targets()
+jhalfs:  # Create $BUILDDIR/sources even though it could be created by get_sources()
+chapter4_Makefiles():
+From LFS/master.sh.
+Description: 
+--------------------------------------------------------------------------
+chapter5_Makefiles():
+From LFS/master.sh.
+Description: 
+--------------------------------------------------------------------------
+chapter6_Makefiles():
+From LFS/master.sh.
+Description: 
+--------------------------------------------------------------------------
+chapter78_Makefiles():
+From LFS/master.sh.
+Description: 
+--------------------------------------------------------------------------
+build_Makefile():
+From LFS/master.sh.
+Description: 
+--------------------------------------------------------------------------
+validate_opt_settings():
+From optimize/optimize_functions.
+Description:  Show optimize setting and wait user agreement
+--------------------------------------------------------------------------
+wrt_optimize():
+From optimize/optimize_functions.
+Description:  Apply pkg specific opt's to build
+--------------------------------------------------------------------------
+wrt_makeflags():
+From optimize/optimize_functions.
+Description:  Apply MAKEFLAGS to build
+--------------------------------------------------------------------------

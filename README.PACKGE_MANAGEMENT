@@ -1,0 +1,63 @@
+TITLE : Package management in jhalfs
+ADDED : $Date:$
+BY    : Pierre Labastie
+
+1. INTRODUCTION:
+
+      There are several hints discussing package management for LFS, but
+  nothing under jhalfs. There used to be a patch for PACO that I cannot
+  find now. This is a modification, which allows to use a package manager
+  inside jhalfs. I hope it is flexible enough to support several package
+  managers. My implementation uses dpkg, from Debian, in a very crude way.
+  Debian has a sophisticated package management system, which I have not
+  tried to use here. For example, it should be usable with Pacman from
+  Arch Linux (http://www.archlinux.org), as far as I remember from my old
+  days with DIYL. I am sorry to say I have (almost) no experience with
+  rpm, so I cannot tell whether it would fit.
+
+2. OVERVIEW OF THE SYSTEM:
+
+      For now, package management is only available for LFS. I plan to
+  upgrade BLFS tools, but nothing usable right now. The other flavours of
+  LFS do not seem very active, so there is no point in updating jhalfs
+  for them.
+      The first thing to do is to modify the install instructions of the
+  chapter 6, 7 and 8 of the book so that the installed files end up in a
+  directory other than `/'. We choose to call this directory by the name
+  of the executed script, and to put the path to this directory in the
+  PKG_DEST variable which is made available to the scriplets.
+      Almost all the packages have a way to redirect the destination of
+  the files they install at the `make install' stage with the variable
+  DESTDIR. Furthermore, the authors of the book have been kind enough to
+  flag the installation instructions with `remap=install'. This allows an
+  xsl stylesheet to find those instructions. Then, places where `make '
+  occurs (make followed by a space) are replaced by `make DESTDIR=$PKG_DEST '.
+      Places where the book instructions move files into their destination
+  are harder to deal with: it is possible to change all occurences of ` /' or
+  `>/' (beginning of absolute paths) to `$PKG_DEST', but you end up moving
+  files to non existent directories. There is no simple way to automatically
+  create those directories, because you have sometimes to use the full path
+  (instructions of the form `cp file dir') and sometimes only the dirname
+  (instructions of the form `cp file1 file2'). So I am conservative and
+  create  a reasonable subset of the FHS hierarchy into the destination
+  directory. Empty directories should then be removed before packing the
+  binary package.
+      Supposing now that the scriptlets have been adequately modified, the
+  package manager installation instructions have to be added at the end of
+  chapter 5 and chapter 6. Furthermore, the administrative files and
+  directories have to be created during the `Creating Directories' and
+  `Creating Essential Files' stage. For all this, the user has to supply a
+  file in docbook format, with the necessary instructions and enough
+  information to download the tarball. A template is provided in the pkgmngt
+  subdirectory.
+      The last thing to do is to tell how to use the package manager. When
+  the binary package is ready, the scriptlets call a shell function named
+  `packInstall', which should pack the binary package and install it on the
+  system. Note that nothing has been done to manage configuration files, 
+  which are ususally treated specially by package managers. Depending on
+  the book layout, it is sometimes possible to create those files afterwards,
+  and sometimes not, which means that you have to check them after each
+  upgrade. The user has to provide his own function. A template is provided
+  in the pkgmngt subdirectory.
+
+

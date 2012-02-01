@@ -5,8 +5,38 @@
 set -e
 cd $PKGDIR
 
-patch -Np1 -i ../unzip-5.52-security_fix-1.patch
-make -f unix/Makefile LOCAL_UNZIP=-D_FILE_OFFSET_BITS=64 linux
-make prefix=/usr install
+case `uname -m` in
+  i?86)
+    sed -i -e 's/DASM"/DASM -DNO_LCHMOD"/' unix/Makefile
+    make -f unix/Makefile linux
+    ;;
+  *)
+    sed -i -e 's/CFLAGS="-O -Wall/& -DNO_LCHMOD/' unix/Makefile
+    make -f unix/Makefile linux_noasm
+    ;;
+esac
+if ! [ -z $PKG_DEST ]; then
+	mkdir -pv $PKG_DEST/{lib,usr/{share/{man,doc,info},lib}}
+	ln -sv share/{man,doc,info} $PKG_DEST/usr
+	case $(uname -m) in
+	 x86_64) ln -sv lib $PKG_DEST/lib64 && ln -sv lib $PKG_DEST/usr/lib64 ;;
+	esac
+fi
+make prefix=$PKG_DEST/usr install
+if ! [ -z $PKG_DEST ]; then 
+	rm -fv $PKG_DEST/{,usr/}lib64 
+	rm -fv $PKG_DEST/usr/{man,doc,info}
+        for dir in $PKG_DEST/usr/share/{doc,info,man}; do
+          [[ -z $(ls $dir) ]] && rmdir -v $dir
+        done
+        for dir in $PKG_DEST/usr/{lib,share}; do
+          [[ -z $(ls $dir) ]] && rmdir -v $dir
+        done
+        for dir in $PKG_DEST/{lib,usr}; do
+          [[ -z $(ls $dir) ]] && rmdir -v $dir
+        done
+	packInstall
+fi
+rm -rf $PKG_DEST
 
 exit

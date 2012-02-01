@@ -22,7 +22,6 @@ add_blfs_deps_urls() {       # No easy way to extract it.
 
   if [[ "${DEP_UNZIP}" = "y" ]] ; then
     echo "${UNZIP_URL} ${BLFS_SERVER}unzip/${UNZIP_PKG} ${UNZIP_MD5}" >> urls.lst
-    echo "${UNZIP_PATCH_URL} ${BLFS_SERVER}unzip/${UNZIP_PATCH} ${UNZIP_PATCH_MD5}" >> urls.lst
   fi
 
   if [[ "${DEP_DBXML}" = "y" ]] ; then
@@ -39,7 +38,6 @@ add_blfs_deps_urls() {       # No easy way to extract it.
 
   if [[ "${DEP_SUDO}" = "y" ]] ; then
     echo "${SUDO_URL} ${BLFS_SERVER}sudo/${SUDO_PKG} ${SUDO_MD5}" >> urls.lst
-    echo "${SUDO_PATCH_URL} ${BLFS_SERVER}sudo/${SUDO_PATCH} ${SUDO_PATCH_MD5}" >> urls.lst
   fi
 
   if [[ "${DEP_WGET}" = "y" ]] ; then
@@ -47,13 +45,20 @@ add_blfs_deps_urls() {       # No easy way to extract it.
   fi
 
   if [[ "${DEP_SVN}" = "y" ]] ; then
+    echo "${SQLITE_URL} ${BLFS_SERVER}sqlite/${SQLITE_PKG} ${SQLITE_MD5}" >> urls.lst
+    echo "${APR_URL} ${BLFS_SERVER}apr/${APR_PKG} ${APR_MD5}" >> urls.lst
+## Cannot use file:// with wget, so cannot download apr patches.
+## They have been put directly in $BUILDDIR/sources
+## The next line only for being able to check md5sum
+    echo "${APR_PATCH_1_URL} ${BLFS_SERVER}apr/${APR_PATCH_1} ${APR_PATCH_1_MD5}" >> urls.lst
+
+    echo "${APR_U_URL} ${BLFS_SERVER}apr-util/${APR_U_PKG} ${APR_U_MD5}" >> urls.lst
+    echo "${APR_U_PATCH_1_URL} ${BLFS_SERVER}apr-util/${APR_U_PATCH_1} ${APR_U_PATCH_1_MD5}" >> urls.lst
     echo "${SVN_URL} ${BLFS_SERVER}subversion/${SVN_PKG} ${SVN_MD5}" >> urls.lst
   fi
 
   if [[ "${DEP_GPM}" = "y" ]] ; then
     echo "${GPM_URL} ${BLFS_SERVER}gpm/${GPM_PKG} ${GPM_MD5}" >> urls.lst
-    echo "${GPM_PATCH_1_URL} ${BLFS_SERVER}gpm/${GPM_PATCH_1} ${GPM_PATCH_1_MD5}" >> urls.lst
-    echo "${GPM_PATCH_2_URL} ${BLFS_SERVER}gpm/${GPM_PATCH_2} ${GPM_PATCH_2_MD5}" >> urls.lst
   fi
 
 }
@@ -101,7 +106,10 @@ copy_blfs_deps_scripts() {   # method avoid to place the test on all
   fi
 
   if [[ "${DEP_SVN}" = "y" ]] ; then
-    mv blfs-tool-deps/911-subversion ${PROGNAME}-commands/blfs-tool-deps
+    mv blfs-tool-deps/911-sqlite ${PROGNAME}-commands/blfs-tool-deps
+    mv blfs-tool-deps/912-apr ${PROGNAME}-commands/blfs-tool-deps
+    mv blfs-tool-deps/913-apr-util ${PROGNAME}-commands/blfs-tool-deps
+    mv blfs-tool-deps/914-subversion ${PROGNAME}-commands/blfs-tool-deps
   fi
 
   if [[ "${DEP_GPM}" = "y" ]] ; then
@@ -156,7 +164,19 @@ wrt_blfs_tool_targets() {          #
     if [ "$PROGNAME" = "clfs2" ]; then
       [[ ! "$name" = "docbook-xml" ]] && LUSER_wrt_unpack "$pkg_tarball"
     else
-      [[ ! "$name" = "docbook-xml" ]] && CHROOT_Unpack "$pkg_tarball"
+      case "$name" in
+        *docbook*)
+           (
+           cat << EOF
+	@if [ "\$(PKGMNGT)" = "y" ]; then \\
+	echo "export PKG_DEST=\$(SRC)/\$@" > envars; \\
+	echo "source packInstall.sh" >> envars; \\
+	echo "export -f packInstall" >> envars; \\
+        fi;
+EOF
+            ) >> $MKFILE.tmp ;;
+        *) CHROOT_Unpack "$pkg_tarball" ;;
+      esac
     fi
 
     # Run the script.
@@ -176,9 +196,9 @@ wrt_blfs_tool_targets() {          #
     # Touch the tracking file.
     case $name in
       docbook-xml )  pkg_ver=DocBook-4.5 ;;
-      lynx )  pkg_ver=lynx-2.8.6 ;;
-      tidy )  pkg_ver=html-tidy-cvs_20070326 ;;
-      unzip ) pkg_ver=unzip-5.52 ;;
+      lynx )  pkg_ver=lynx-2.8.7 ;;
+      tidy )  pkg_ver=html-tidy-cvs_20101110 ;;
+      unzip ) pkg_ver=unzip-6.0 ;;
       * )     pkg_ver=$(echo $pkg_tarball | sed -e 's/.tar.*//;s/.tgz//;s/.zip//') ;;
     esac
     if [ "$PROGNAME" = "clfs2" ]; then

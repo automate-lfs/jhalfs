@@ -1,0 +1,20 @@
+#
+#$Id$
+# Pierre Labastie from O3pipe: 12/20/2011
+#####
+#
+# MODE O2pipe configuration
+#
+# Usage: - Apply optimization string to each variable
+#        - "unset" will cause the variable to be not set
+#          instead of just set to null.
+#
+#####
+
+CFLAGS_O2pipe="-O2 -pipe"
+CXXFLAGS_O2pipe=$CFLAGS_O2pipe
+LDFLAGS_O2pipe="unset"
+
+OTHER_CFLAGS_O2pipe=$CFLAGS_O2pipe
+OTHER_CXXFLAGS_O2pipe=$CXXFLAGS_O2pipe
+OTHER_LDFLAGS_O2pipe=$LDFLAGS_O2pipe

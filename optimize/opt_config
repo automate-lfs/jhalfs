@@ -16,7 +16,7 @@ MAKEFLAGS="-j3"
 #    This list may be different for you.
 #    If your MAKEFLAGS don't contains a -jX option, you can set
 #    a empty list here.
-BLACK_LIST="autoconf dejagnu gettext groff man-db"
+BLACK_LIST="autoconf dejagnu gettext groff man-db vim"
 
 #--- Default optimization mode
 #    This mode is overridden by definitions in opt_override;
@@ -26,7 +26,7 @@ BLACK_LIST="autoconf dejagnu gettext groff man-db"
 #
 #    Not set here combined modes of form defOpt_myMode.
 #    Combined modes of form modeA_modeB can be set here.
-DEF_OPT_MODE=O3pipe
+DEF_OPT_MODE=O2pipe
 
 
 #--- Active optimization variables
