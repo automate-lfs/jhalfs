@@ -121,7 +121,7 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
     fi
 
       # Good or bad we write the original md5sum to a file
-    echo "$MD5" >> MD5SUM
+    echo "$MD5" >> MD5SUMS
 
      # Copy the freshly downloaded file
      # to the source archive.

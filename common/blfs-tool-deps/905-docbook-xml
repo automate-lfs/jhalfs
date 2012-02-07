@@ -102,8 +102,10 @@ do
     "file:///etc/xml/docbook" \
     $PKG_DEST/etc/xml/catalog
 done
-export PKGDIR=/sources/docbook-xml
-packInstall
+if ! [ -z "$PKG_DEST" ]; then
+  export PKGDIR=/sources/docbook-xml
+  packInstall
+fi
 rm -rf $PKG_DEST
 cd ..
 rm -rf docbook-xml

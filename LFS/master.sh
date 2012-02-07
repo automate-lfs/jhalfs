@@ -172,9 +172,14 @@ chapter6_Makefiles() {
     cp chapter06/* chapter06$N
     for script in chapter06$N/* ; do
       # Overwrite existing symlinks, files, and dirs
-      sed -e 's/ln -sv/&f/g' \
-          -e 's/mv -v/&f/g' \
-          -e 's/mkdir -v/&p/g' -i ${script}
+      sed -e 's/ln *-sv/&f/g' \
+          -e 's/mv *-v/&f/g' \
+          -e 's/mkdir *-v/&p/g' -i ${script}
+      # Suppress the mod of "test-installation.pl" because now
+      # the library path points to /usr/lib
+      if [[ ${script} =~ glibc ]]; then
+          sed '/DL=/,/unset DL/d' -i ${script}
+      fi
       # Rename the scripts
       mv ${script} ${script}$N
     done
@@ -337,6 +342,9 @@ chapter78_Makefiles() {
               CHROOT_wrt_TouchTimestamp
             fi
             CHROOT_Unpack "$pkg_tarball"
+            # If using optimizations, use MAKEFLAGS (unless blacklisted)
+            # no setting of CFLAGS and friends.
+            [[ "$OPTIMIZE" != "0" ]] &&  wrt_makeflags "$name"
        ;;
     esac
 

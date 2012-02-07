@@ -196,9 +196,10 @@ EOF
     # Touch the tracking file.
     case $name in
       docbook-xml )  pkg_ver=DocBook-4.5 ;;
-      lynx )  pkg_ver=lynx-2.8.7 ;;
+      lynx )  pkg_ver=lynx-2.8.7rel.2 ;;
       tidy )  pkg_ver=html-tidy-cvs_20101110 ;;
       unzip ) pkg_ver=unzip-6.0 ;;
+      sqlite ) pkg_ver=sqlite-3.7.8 ;;
       * )     pkg_ver=$(echo $pkg_tarball | sed -e 's/.tar.*//;s/.tgz//;s/.zip//') ;;
     esac
     if [ "$PROGNAME" = "clfs2" ]; then
