@@ -175,9 +175,13 @@ packInstall
 rm -rf $PKG_DEST
 </xsl:text>
       </xsl:if>
-      <xsl:if test="$testsuite='3' and @id='ch-tools-glibc' or @id='ch-system-glibc'">
+      <xsl:if test="$testsuite='3' and @id='ch-tools-glibc'">
         <xsl:copy-of select="//userinput[@remap='locale-test']"/>
         <xsl:text>&#xA;</xsl:text>
+      </xsl:if>
+      <xsl:if test="@id='ch-system-glibc'">
+	<xsl:copy-of select="//userinput[@remap='locale-full']"/>
+	<xsl:text>&#xA;</xsl:text>
       </xsl:if>
       <xsl:apply-templates
          select=".//screen[
