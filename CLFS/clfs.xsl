@@ -216,9 +216,9 @@
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
-      <!-- Fixing toolchain test suites run -->
+      <!-- Fixing toolchain test suites run XXX more to fix -->
       <xsl:when test="string() = 'make check' or
-                string() = 'make -k check'">
+                contains(string(), 'make -k check')">
         <xsl:choose>
           <xsl:when test="$testsuite != '0'">
             <xsl:choose>
@@ -281,6 +281,9 @@
   <xsl:template match="replaceable">
     <xsl:choose>
       <xsl:when test="ancestor::sect1[@id='ch-system-glibc']">
+        <xsl:value-of select="$timezone"/>
+      </xsl:when>
+      <xsl:when test="ancestor::sect1[@id='ch-system-eglibc']">
         <xsl:value-of select="$timezone"/>
       </xsl:when>
       <xsl:when test="ancestor::sect1[@id='ch-system-groff']">

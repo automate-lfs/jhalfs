@@ -260,7 +260,7 @@ menu "--- BOOK Settings"
 		default	"hppa1.1-unknown-linux-gnu"	if  PROC_hppa1
 		default	"hppa2.0-unknown-linux-gnu"	if  PROC_hppa2
 
-		default	"arm-unknown-linux-gnu"		if  ARCH_ARM && BOOK_CLFS2
+		default	"arm-unknown-linux-gnueabi"	if  ARCH_ARM && BOOK_CLFS2
 
 		default "arm-unknown-linux-uclibc"	if  PROC_ARM
 		default "armv5l-unknown-linux-uclibc"	if  PROC_ARM5L

@@ -71,7 +71,8 @@
               <xsl:text>set -e&#xA;</xsl:text>
             </xsl:if>
             <xsl:text>&#xA;</xsl:text>
-            <xsl:if test="sect2[@role='installation']">
+            <xsl:if test="sect2[@role='installation'] and
+                          not(@id='ch-cross-tools-sysroot-wrapper')">
               <xsl:text>cd $PKGDIR&#xA;</xsl:text>
               <xsl:if test="@id='ch-system-vim' and $vim-lang = 'y'">
                 <xsl:text>tar -xvf ../vim-&vim-version;-lang.* --strip-components=1&#xA;</xsl:text>
@@ -136,6 +137,9 @@
   <xsl:template match="replaceable">
     <xsl:choose>
       <xsl:when test="ancestor::sect1[@id='ch-cross-tools-glibc']">
+        <xsl:value-of select="$timezone"/>
+      </xsl:when>
+      <xsl:when test="ancestor::sect1[@id='ch-cross-tools-eglibc']">
         <xsl:value-of select="$timezone"/>
       </xsl:when>
       <xsl:when test="ancestor::sect1[@id='ch-cross-tools-groff'] or

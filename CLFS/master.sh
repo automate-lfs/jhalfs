@@ -225,9 +225,46 @@ chroot_Makefiles() {                   #
     pkg_tarball=$(get_package_tarball_name $name)
 
     # This is very ugly:: util-linux is in /chroot but must be run under LUSER
+    # Same for e2fsprogs (in CLFS 1.1.0)
     # .. Customized makefile entry
     case "${this_script}" in
       *util-linux)
+         LUSER_wrt_target "${this_script}" "$PREV"
+         LUSER_wrt_unpack "$pkg_tarball"
+         [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
+         LUSER_wrt_RunAsUser "${file}"
+         LUSER_RemoveBuildDirs "${name}"
+         wrt_touch
+         temptools="$temptools $this_script"
+         continue ;;
+      *util-linux-ng)
+         LUSER_wrt_target "${this_script}" "$PREV"
+         LUSER_wrt_unpack "$pkg_tarball"
+         [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
+         LUSER_wrt_RunAsUser "${file}"
+         LUSER_RemoveBuildDirs "${name}"
+         wrt_touch
+         temptools="$temptools $this_script"
+         continue ;;
+      *util-linux-libs)
+         LUSER_wrt_target "${this_script}" "$PREV"
+         LUSER_wrt_unpack "$pkg_tarball"
+         [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
+         LUSER_wrt_RunAsUser "${file}"
+         LUSER_RemoveBuildDirs "${name}"
+         wrt_touch
+         temptools="$temptools $this_script"
+         continue ;;
+      *e2fsprogs)
+         LUSER_wrt_target "${this_script}" "$PREV"
+         LUSER_wrt_unpack "$pkg_tarball"
+         [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
+         LUSER_wrt_RunAsUser "${file}"
+         LUSER_RemoveBuildDirs "${name}"
+         wrt_touch
+         temptools="$temptools $this_script"
+         continue ;;
+      *e2fsprogs-libs)
          LUSER_wrt_target "${this_script}" "$PREV"
          LUSER_wrt_unpack "$pkg_tarball"
          [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
@@ -518,7 +555,7 @@ final_system_Makefiles() {             #
       CHROOT_Unpack "$pkg_tarball"
       # If the testsuites must be run, initialize the log file
       case $name in
-        binutils | gcc | glibc )
+        binutils | gcc | glibc | eglibc )
           [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}"
           ;;
         * )
@@ -631,6 +668,84 @@ bootscripts_Makefiles() {              #
     PREV=$this_script
 
   done  # for file in bootscripts/* ...
+}
+
+#--------------------------------------#
+network_Makefiles() {                  #
+#--------------------------------------#
+
+  if [[ "${METHOD}" = "chroot" ]]; then
+    echo "${tab_}${GREEN}Processing... ${L_arrow}(chroot) network   ( CHROOT ) ${R_arrow}"
+  else
+    echo "${tab_}${GREEN}Processing... ${L_arrow}(boot) network     ( ROOT ) ${R_arrow}"
+  fi
+
+  for file in network/* ; do
+    # Keep the script file name
+    this_script=`basename $file`
+
+    case $this_script in
+      *choose)   continue ;; # This is not a script but a commentary. 
+      *dhcp)    continue ;; # Assume static networking.
+      *dhcpcd)    continue ;; # Assume static networking.
+      *)  ;;
+    esac
+
+    # First append each name of the script files to a list (this will become
+    # the names of the targets in the Makefile
+    networktools="$networktools $this_script"
+
+    # Grab the name of the target, strip id number, XXX-script
+    name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'\
+                                  -e 's@-64bit@@' \
+                                  -e 's@-64@@' \
+                                  -e 's@64@@' \
+                                  -e 's@n32@@'`
+    case $name in
+      *network*) name=network-cross-lfs ;;
+    esac
+
+    pkg_tarball=$(get_package_tarball_name $name)
+
+    #--------------------------------------------------------------------#
+    #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
+    #--------------------------------------------------------------------#
+    #
+    # Drop in the name of the target on a new line, and the previous target
+    # as a dependency. Also call the echo_message function.
+    CHROOT_wrt_target "${this_script}" "$PREV"
+    #
+    # If $pkg_tarball isn't empty, we've got a package...
+    #
+    if [ "$pkg_tarball" != "" ] ; then
+      if [ "${INSTALL_LOG}" = "y" ] ; then
+        CHROOT_wrt_LogNewFiles "$name"
+      fi
+      CHROOT_Unpack "$pkg_tarball"
+    fi
+    #
+    CHROOT_wrt_RunAsRoot "${file}"
+    #
+    # Write installed files log and remove the build directory(ies)
+    # except if the package build fails.
+    if [ "$pkg_tarball" != "" ] ; then
+      CHROOT_wrt_RemoveBuildDirs "$name"
+      if [ "${INSTALL_LOG}" = "y" ] ; then
+        CHROOT_wrt_LogNewFiles "$name"
+      fi
+    fi
+    #
+    # Include a touch of the target name so make can check if it's already been made.
+    wrt_touch
+    #
+    #--------------------------------------------------------------------#
+    #              >>>>>>>> END OF Makefile ENTRY <<<<<<<<               #
+    #--------------------------------------------------------------------#
+    #
+    # Keep the script file name for Makefile dependencies.
+    PREV=$this_script
+
+  done  # for file in network/* ...
 }
 
 #--------------------------------------#
@@ -756,6 +871,9 @@ set -e
     # Add the iterations targets, if needed
   [[ "$COMPARE" = "y" ]] && wrt_compare_targets
   bootscripts_Makefiles          # mk_BOOTSCRIPT (CHROOT) $bootscripttools
+  if [ -d network ]; then 
+     network_Makefiles           # If present, process network setup.
+  fi
   bootable_Makefiles             # mk_BOOTABLE   (CHROOT) $bootabletools
 
   # Add the CUSTOM_TOOLS targets, if needed
