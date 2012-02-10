@@ -49,7 +49,7 @@ clean_builddir() {           #
 # Test if the clean must be done.
 if [ "${CLEAN}" = "y" ]; then
   # If empty (i.e. could contain lost+found), do not do anything
-  if $(ls $BUILDDIR/* > /dev/null 2>&1) &&
+  if $(ls -d $BUILDDIR/* > /dev/null 2>&1) &&
        [ "$(ls $BUILDDIR)" != "lost+found" ]; then
     # Test to make sure that the build directory was populated by jhalfs
     if [ ! -d $JHALFSDIR ] || [ ! -d $BUILDDIR/sources ] ; then
