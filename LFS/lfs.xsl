@@ -39,6 +39,9 @@
   
   <!-- Locale settings -->
   <xsl:param name="lang" select="C"/>
+
+  <!-- Install the whole set of locales -->
+  <xsl:param name='full-locale' select='n'/>
   
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
@@ -180,8 +183,27 @@ rm -rf $PKG_DEST
         <xsl:text>&#xA;</xsl:text>
       </xsl:if>
       <xsl:if test="@id='ch-system-glibc'">
-	<xsl:copy-of select="//userinput[@remap='locale-full']"/>
-	<xsl:text>&#xA;</xsl:text>
+        <xsl:choose>
+          <xsl:when test="$full-locale='y'">
+            <xsl:copy-of select="//userinput[@remap='locale-full']"/>
+            <xsl:text>&#xA;</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:copy-of select="//userinput[@remap='locale-test']"/>
+            <xsl:text>&#xA;</xsl:text>
+            <xsl:if test="not(contains(string(//userinput[@remap='locale-test']),$lang)) and $lang!='C' and $lang!='POSIX'">
+              <xsl:text>if LOCALE=`grep "</xsl:text>
+              <xsl:value-of select="$lang"/>
+              <xsl:text>/" $PKGDIR/localedata/SUPPORTED`; then
+  CHARMAP=`echo $LOCALE | sed 's,[^/]*/\([^ ]*\) [\],\1,'`
+  INPUT=`echo $LOCALE | sed 's,[/.].*,,'`
+  LOCALE=`echo $LOCALE | sed 's,/.*,,'`
+  localedef -i $INPUT -f $CHARMAP $LOCALE
+fi
+</xsl:text>
+            </xsl:if>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:if>
       <xsl:apply-templates
          select=".//screen[
