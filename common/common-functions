@@ -46,21 +46,25 @@ run_make() {                 #
 #----------------------------#
 clean_builddir() {           #
 #----------------------------#
-  # Test if the clean must be done.
-  if [ "${CLEAN}" = "y" ]; then
+# Test if the clean must be done.
+if [ "${CLEAN}" = "y" ]; then
+  # If empty (i.e. could contain lost+found), do not do anything
+  if $(ls $BUILDDIR/* > /dev/null 2>&1) &&
+       [ "$(ls $BUILDDIR)" != "lost+found" ]; then
     # Test to make sure that the build directory was populated by jhalfs
     if [ ! -d $JHALFSDIR ] || [ ! -d $BUILDDIR/sources ] ; then
       echo "Looks like $BUILDDIR was not populated by a previous jhalfs run."
       exit 1
     # Test that dev filesystems are not mounted in $BUILDDIR
     elif mount | grep $BUILDDIR/dev > /dev/null ; then
-      echo "Looks like kernel fylesystems are yet mounted on $BUILDDIR."
+      echo "Looks like kernel filesystems are still mounted on $BUILDDIR."
       exit 1
     else
       # Clean the build directory
       echo -n "Cleaning $BUILDDIR ..."
       # First delete proc and sys directories, if exist.
-      # Both should be empty. If not, be sure to exit.
+      # Both should be empty. If not, we exit, and the rmdir command
+      # has generated an error message
       if [ -d $BUILDDIR/proc ] ; then
         sudo rmdir $BUILDDIR/proc || exit 1
       fi
@@ -77,6 +81,7 @@ clean_builddir() {           #
       echo "done"
     fi
   fi
+fi
 }
 
 VERBOSITY2=$VERBOSITY
