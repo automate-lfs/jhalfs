@@ -98,7 +98,6 @@ source configuration
 #  default value is n(o).
 RUNMAKE=${RUNMAKE:-n}
 GETPKG=${GETPKG:-n}
-GETKERNEL=${GETKERNEL:-n}
 COMPARE=${COMPARE:-n}
 RUN_FARCE=${RUN_FARCE:-n}
 RUN_ICA=${RUN_ICA:-n}

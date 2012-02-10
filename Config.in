@@ -780,21 +780,6 @@ menu "--- General Settings"
 			#   As a last resort, the files will dowloaded from upstream,
                         #   if possible.
 
-	config	GETKERNEL
-		bool	"Always retrieve kernel package (see help)"
-		default	y if BOOK_LFS || BOOK_HLFS
-		depends GETPKG
-		help
-			#-- Get the kernel package and patches even if no kernel
-			#   configuration file has been supplied.
-
-			# NOTE:
-			#   The kernel package must be available when building
-			#   the SVN version of LFS or HLFS to can install the
-			#   headers files.
-			#
-			#   If building LFS-6.2 this setting can be disabled.
-
 	config	RUNMAKE
 		bool	"Run the makefile"
 		default n

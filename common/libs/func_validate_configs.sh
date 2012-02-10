@@ -24,7 +24,7 @@ inline_doc
   local -r      BOOK_clfsX="ARCH TARGET"
   local -r  GENERAL_common="LUSER LGROUP LHOME BUILDDIR CLEAN GETPKG SRC_ARCHIVE \
                             SERVER RETRYSRCDOWNLOAD RETRYDOWNLOADCNT DOWNLOADTIMEOUT \
-                            GETKERNEL RUNMAKE"
+                            RUNMAKE"
   local -r    BUILD_chroot="TEST BOMB_TEST STRIP"
   local -r    BUILD_common="FSTAB CONFIG TIMEZONE PAGE LANG INSTALL_LOG"
   local -r ADVANCED_chroot="COMPARE RUN_ICA RUN_FARCE ITERATIONS OPTIMIZE"
@@ -133,9 +133,6 @@ inline_doc
   for config_param in ${!PARAM_GROUP}; do
     case $config_param in
       # Envvars that depend on other settings to be displayed
-      GETKERNEL ) if [[ -z "$CONFIG" ]] && [[ -z "$BOOT_CONFIG" ]] ; then
-                    [[ "$GETPKG" = "y" ]] && echo -e "`eval echo $PARAM_VALS`"
-                  fi ;;
       COMPARE)          [[ ! "$COMPARE" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
       RUN_ICA)          [[ "$COMPARE" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
       RUN_FARCE)        [[ "$COMPARE" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
