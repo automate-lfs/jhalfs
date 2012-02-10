@@ -67,7 +67,7 @@ menu "--- BOOK Settings"
 		default	"**EDIT ME**"
 		depends	BRANCH
 		help
-			#-- A list of valid branches and stable books ID's is available here.
+			#-- A list of valid branches and stable book IDs is available here.
 			#   http://wiki.linuxfromscratch.org/alfs/wiki/SupportedBooks
 
 	config	BOOK
@@ -114,7 +114,7 @@ menu "--- BOOK Settings"
 		depends	BOOK_CLFS3 && ARCH_MIPS
 		default	PLATFORM_GENERIC
 		help
-			# Chose a destination platform
+			# Choose a destination platform
 			# Platform specific files will be included
 
 		config	PLATFORM_GENERIC
@@ -511,17 +511,16 @@ menu "--- BOOK Settings"
 			#    The blfs-tool files will be installed under
 			#    $BUILD_DIR/blfs_root.
 
-			#    After booting the new xLFS system you should to
-			#    create an user account and move the /blfs-root
-			#    directory to the user's home, making he the
-			#    directory and files owner, before start
-			#    using blfs-tool.
+			#    After booting the new xLFS system, but before using
+                        #    blfs-tool,  you should create a user account and
+                        #    move the /blfs-root directory to the user's home,
+			#    making them the directory and files owner.
 			#
-			#    Also, be sure to bring to that user read and write
-			#    privileges over the $TRACKING_DIR directory and
+			#    Also, be sure to give the user read and write
+			#    privileges on the $TRACKING_DIR directory and
 			#    the files that it contains.
 			#
-			#    And don't forget to configure sudo properly.
+			#    Don't forget to configure sudo properly.
 
 	choice
 		prompt	"BLFS Release"
@@ -535,7 +534,7 @@ menu "--- BOOK Settings"
 		config	BLFS_BRANCH
 			bool	"BLFS Branch or stable book"
 			help
-				#-- A supported SVN branch or stable released book
+				#-- A supported SVN branch or stable book release
 	endchoice
 
 	config	BLFS_BRANCH_ID
@@ -543,7 +542,7 @@ menu "--- BOOK Settings"
 		default	"**EDIT ME**"
 		depends on BLFS_BRANCH
 		help
-			#-- A list of valid branches and stable books ID's is available here.
+			#-- A list of valid branches and stable book IDs is available here.
 			#   http://wiki.linuxfromscratch.org/alfs/wiki/SupportedBooks
 
 	menu "blfs-tool dependencies"
@@ -590,7 +589,7 @@ menu "--- BOOK Settings"
 		bool	"GPM (optional, see help)"
 		default	y
 		help
-			#-- You MUST to install manually the gpm bootscript
+			#-- You MUST install the gpm bootscript manually
 			#   and create its configuration file.
 			#
 			#   An alternative is to unselect this option and
@@ -625,27 +624,27 @@ menu "--- BOOK Settings"
 		default "blfs-xml"
 		depends on BOOK_BLFS || BLFS_TOOL
 		help
-			#-- The directory name under $BLFS_ROOT where BLFS book
-			#   sources will be checkout.
+			#-- The directory name under $BLFS_ROOT where the BLFS
+                        #   book sources will be checkout.
 
 	config	TRACKING_DIR
 		string "Installed packages database directory"
 		default "/var/lib/jhalfs/BLFS"
 		depends on BOOK_BLFS || BLFS_TOOL || CUSTOM_TOOLS
 		help
-			#-- Full path to the directory where the installed
-			#   packages database will be created.
+			#-- Full path to the directory where the database of
+                        #   installed packages will be created.
 			#
 			#   If you are installing blfs-tool on a running xLFS system
-                        #   you MUST to create manually this directory.
+                        #   you MUST create this directory manually.
                         #
-                        #   If you are installing blfs-tool as part of a xLFS build
+                        #   If you are installing blfs-tool as part of an xLFS build
                         #   and/or using the customized scripts feature, you will
-                        #   need to fix that directory permissions after booting
+                        #   need to fix this directory's permissions after booting
                         #   the new system.
 			#
 			#   Note that the user that will build the packages must
-			#   have read and write privileges on that directory.
+			#   have read and write privileges on this directory.
 	#--- End BLFS specific params
 
 #--- End BOOK Settings
@@ -659,16 +658,16 @@ menu "--- General Settings"
 		bool	"Change the default user/group and homedir for this build"
 		default	n
 		help	#-- Unprivileged user and group name
-			#   If you do not have the priv to create/delete
-			#   users and groups you can specifiy your own
-			#   user id for the build
+			#   If you do not have the privilege to create/delete
+			#   users and groups you can specify your own
+			#   user ID for the build
 			#
 			# default values for each book
 			# LFS    lfs
 			# CLFS*  clfs
 			# HLFS   hlfs
 			#
-			# Also, if your host place users home dirs into a
+			# Also, if your host places users' home dirs into a
 			# directory other than /home you can specify it here.
 
 	config	DEF_USER
@@ -698,7 +697,7 @@ menu "--- General Settings"
 		depends	CONFIG_USER
 
 	config	SET_HOME
-		string	"Path to the directory where user home dir will be created"
+		string	"Path to the directory under which the user's home directory will be created"
 		depends	CONFIG_HOME
 		default	"/home"
 
@@ -731,20 +730,19 @@ menu "--- General Settings"
 		bool "Retrieve source files"
 		default n
 		help
-			#-- Download all packages and patches required by the book selected
+			#-- Download all packages and patches required by the selected book
 			#   NOTE: Looks for files in the local archive defined by SRC_ARCHIVE
-			#   first and if necessary retrieve them from the 'net.
-			#   Files will be transfered to $BUILDDIR/sources.
+			#   first and if necessary retrieves them from the 'net.
+			#   Files will be transferred to $BUILDDIR/sources.
 
 	config SRC_ARCHIVE
 		string "Package Archive Directory"
 		default "$SRC_ARCHIVE"
 		depends GETPKG
 		help
-			#-- A local archive for packages/file (not $BUILDDIR/sources)
-			#   Used only if GETPKG = 1
+			#-- A local archive for packages/files (not $BUILDDIR/sources)
 			#   Any missing file will be downloaded and archived here,
-			#   if the user has the right priviledges.
+			#   if the user has the right privileges.
 
 	config RETRYSRCDOWNLOAD
 		bool "Retry on 'connection refused' failure"
@@ -760,7 +758,7 @@ menu "--- General Settings"
 		default 20
 		depends GETPKG
 		help
-			#-- Number of times to retry download a failed download.
+			#-- Number of times to retry a failed download.
 
 	config DOWNLOADTIMEOUT
 		int "Download timeout (in seconds)"
@@ -777,7 +775,7 @@ menu "--- General Settings"
 		help
 			#-- FTP mirror to download packages and patches if not found
 			#   in $SRC_ARCHIVE
-			#   As a last resort, the files will dowloaded from upstream,
+			#   As a last resort, the files will downloaded from upstream,
                         #   if possible.
 
 	config	RUNMAKE
@@ -852,10 +850,10 @@ menu "--- Build Settings"
 		depends	CONFIG_TESTS
 
 		config	NO_BOMB
-			bool	"Don't stop on test suite failures"
+			bool	"Don't stop on testsuite failures"
 
 		config	BOMB
-			bool	"Abort the build at the first test suite failure"
+			bool	"Abort the build on the first testsuite failure"
 	endchoice
 
 	config	BOMB_TEST
@@ -874,22 +872,22 @@ menu "--- Build Settings"
 			#-- Use package management
 			#
 			#  If set, the packages in the final phase are built
-			#  in a separate directory PKG_DEST.
+			#  in a separate directory, PKG_DEST.
 			#  You should provide a bash function for packing
 			#  and installing the package.
-			#  Also you have to provide the instructions
+			#  Also, you have to provide the instructions
 			#  to build the package manager during the
 			#  temporary tools phase, in the form of a
 			#  sect1 of the book identical to a package
 			#  sect1. See README.PACKAGE_MANAGEMENT
 			#
-			#  For now, works only with LFS
+			#  For now, this only works with LFS
 
 	#--- End package management
 
 	#--- Installed files logs
 	config	INSTALL_LOG
-		bool	"Create installed files logs"
+		bool	"Create a log of installed files for each package"
 		default	n
 		help
 			#-- Select this if you want to create logs of the files
@@ -902,7 +900,8 @@ menu "--- Build Settings"
 		bool	"Use a custom fstab file"
 		default	n
 		help
-			#-- Select this if you have ready a proper fstab file
+			#-- Select this if you have an fstab file with entries
+                        #   for the target system
 
 	config	FSTAB
 		string	"Fstab file (optional)"
@@ -976,7 +975,7 @@ menu "--- Build Settings"
 			#-- If set to y, the full set of supported locales
 			#   will be installed. Otherwise, only the minimal set
 			#   necessary for the tests will be installed,
-			#   together with the locale associated to the
+			#   together with the locale associated with the
 			#   LANG you have chosen, if not in the minimal set.
 
 	#--- Groff page
@@ -1015,7 +1014,7 @@ menu "--- Advanced Features"
 		depends	!BOOK_CLFS2 && !BOOK_CLFS3
 		default n
 		help
-			#-- Should some iterative comparison analysis by made?
+			#-- Should an iterative comparison analysis be performed?
 			#
 			#   Unless you are familiar with ICA and/or FARCE do not
 			#   select this option
@@ -1056,8 +1055,8 @@ if !BOOK_CLFS2 && !BOOK_CLFS3
 		bool	"Use optimization (see help)"
 		default	n
 		help
-			#-- Actual optimzation flags MUST be defined in ./optimize/*
-			#   files before activate this option.
+			#-- Actual optimization flags MUST be defined in ./optimize/*
+			#   files before activating this option.
 			#
 			# WARNING: The use of build optimizations may be dangerous.
 			#   You should know what you are doing and be sure that the
