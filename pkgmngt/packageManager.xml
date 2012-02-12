@@ -192,7 +192,7 @@ EOF</userinput></screen>
 
 </sect1>
 
-<sect1 id="ch-system-pkgmngt-creatingdirs">
+<sect1 id="ch-pkgmngt-creatingdirs">
   <?dbhtml filename="creatingdirs.html"?>
 
   <title>Adding Directories for package management</title>
@@ -209,7 +209,7 @@ mkdir -pv /var/lib/packages</userinput></screen>
 
 </sect1>
 
-<sect1 id="ch-system-pkgmngt-createfiles">
+<sect1 id="ch-pkgmngt-createfiles">
   <?dbhtml filename="createfiles.html"?>
 
   <title>Adding administrative files for Dpkg</title>

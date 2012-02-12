@@ -84,17 +84,17 @@
     <!-- Inclusion of package manager scriptlets -->
     <xsl:if test="@id='ch-tools-stripping' and $pkgmngt='y'">
       <xsl:apply-templates
-              select="document('packageManager.xml')//sect1[@id='ch-tools-pkgmngt']"
+              select="document('packageManager.xml')//sect1[contains(@id,'ch-tools')]"
               mode="pkgmngt">
-        <xsl:with-param name="order" select="concat($order,'-1')"/>
+        <xsl:with-param name="order" select="$order"/>
         <xsl:with-param name="dirname" select="$dirname"/>
       </xsl:apply-templates>
     </xsl:if>
     <xsl:if test="@id='ch-system-strippingagain' and $pkgmngt='y'">
       <xsl:apply-templates
-              select="document('packageManager.xml')//sect1[@id='ch-system-pkgmngt']"
+              select="document('packageManager.xml')//sect1[contains(@id,'ch-system')]"
               mode="pkgmngt">
-        <xsl:with-param name="order" select="concat($order,'-1')"/>
+        <xsl:with-param name="order" select="$order"/>
         <xsl:with-param name="dirname" select="$dirname"/>
       </xsl:apply-templates>
     </xsl:if>
@@ -217,13 +217,13 @@ fi
       <xsl:if test="@id='ch-system-creatingdirs'">
         <xsl:apply-templates
            select="document('packageManager.xml')//sect1[
-                                       @id='ch-system-pkgmngt-creatingdirs'
+                                       @id='ch-pkgmngt-creatingdirs'
                                                         ]//userinput"/>
       </xsl:if>
       <xsl:if test="@id='ch-system-createfiles'">
         <xsl:apply-templates
            select="document('packageManager.xml')//sect1[
-                                       @id='ch-system-pkgmngt-createfiles'
+                                       @id='ch-pkgmngt-createfiles'
                                                         ]//userinput"/>
       </xsl:if>
       <xsl:if test="not(@id='ch-system-chroot') and
@@ -238,13 +238,13 @@ fi
 <xsl:template match="sect1" mode="pkgmngt">
     <xsl:param name="dirname" select="chapter05"/>
     <!-- The build order -->
-    <xsl:param name="order" select="062-1"/>
+    <xsl:param name="order" select="062"/>
 <!-- The file names -->
     <xsl:variable name="pi-file" select="processing-instruction('dbhtml')"/>
     <xsl:variable name="pi-file-value" select="substring-after($pi-file,'filename=')"/>
     <xsl:variable name="filename" select="substring-before(substring($pi-file-value,2),'.html')"/>
      <!-- Creating dirs and files -->
-    <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
+    <exsl:document href="{$dirname}/{$order}-{position()}-{$filename}" method="text">
       <xsl:text>#!/bin/bash
 set +h
 set -e
@@ -254,7 +254,7 @@ cd $PKGDIR
       <xsl:apply-templates
            select=".//screen[not(@role) or @role != 'nodump']/userinput[@remap != 'adjust']"
            mode="pkgmngt"/>
-      <xsl:if test="@id = 'ch-system-pkgmngt'">
+      <xsl:if test="$dirname = 'chapter06'">
         <xsl:text>packInstall
 rm -rf $PKG_DEST
 </xsl:text>

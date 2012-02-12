@@ -81,16 +81,16 @@ EOF</userinput></screen>
 <!-- Mandatory section for creating dirs. These instructions are added at the
 end of the creating dirs instructions of the book. Do not change the
 following line -->
-<sect1 id="ch-system-pkgmngt-creatingdirs">
+<sect1 id="ch-pkgmngt-creatingdirs">
 
-<!-- Put the create dir intructions there. fille free to add
+<!-- Put the create dir intructions there. feel free to add
 any explaining <title>Title</title> and <para>explanations</para> -->
 <screen><userinput>mkdir -pv /var/{log,lib/dpkg/{info,updates}}
 mkdir -pv /var/lib/packages</userinput></screen>
 
 </sect1>
 <!-- Same for files. Do not change the following line -->
-<sect1 id="ch-system-pkgmngt-createfiles">
+<sect1 id="ch-pkgmngt-createfiles">
 
 <screen><userinput>touch /var/lib/dpkg/{available,status}
 touch /var/log/dpkg.log</userinput></screen>
