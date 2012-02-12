@@ -336,7 +336,7 @@ EOF
 #----------------------------------#
 LUSER_wrt_LogNewFiles() {          #
 #----------------------------------#
-  local name=$1
+  local name=`echo ${1} | sed 's/[0-9]-//'`
 (
 cat << EOF
 	@\$(call log_new_files_LUSER,$name)
@@ -347,7 +347,7 @@ EOF
 #----------------------------------#
 CHROOT_wrt_LogNewFiles() {         #
 #----------------------------------#
-  local name=$1
+  local name=`echo ${1} | sed 's/[0-9]-//'`
 (
 cat << EOF
 	@\$(call log_new_files,$name)
@@ -363,7 +363,7 @@ EOF
 #----------------------------------#
 LUSER_RemoveBuildDirs() {          #
 #----------------------------------#
-  local name=$1
+  local name=`echo ${1} | sed 's/[0-9]-//'`
 (
 cat << EOF
 	@\$(call remove_build_dirs,$name)
@@ -374,7 +374,7 @@ EOF
 #----------------------------------#
 CHROOT_wrt_RemoveBuildDirs() {     #
 #----------------------------------#
-  local name=$1
+  local name=`echo ${1} | sed 's/[0-9]-//'`
 (
 cat << EOF
 	@\$(call remove_build_dirs2,$name)
