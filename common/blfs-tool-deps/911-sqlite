@@ -5,11 +5,8 @@
 set -e
 cd $PKGDIR
 
-CFLAGS="-g -O2 -DSQLITE_SECURE_DELETE -DSQLITE_ENABLE_UNLOCK_NOTIFY=1" \
-            ./configure --prefix=/usr \
-            --enable-threadsafe \
-            --enable-readline \
-            --enable-dynamic-extensions &&
+./configure --prefix=/usr --disable-static\
+CFLAGS="-g -O2 -DSQLITE_SECURE_DELETE=1 -DSQLITE_ENABLE_UNLOCK_NOTIFY=1" &&
 make
 if ! [ -z $PKG_DEST ]; then
 	mkdir -pv $PKG_DEST/{lib,usr/{share/{man,doc,info},lib}}

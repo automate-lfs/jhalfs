@@ -220,9 +220,9 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
   WGET_URL="ftp://ftp.gnu.org/gnu/wget/${WGET_PKG}"
   WGET_MD5="7f518b3a71e9efd330e9a0c3714f8463"
     # SQLite (for subversion)
-  SQLITE_PKG="sqlite-autoconf-3070800.tar.gz"
+  SQLITE_PKG="sqlite-autoconf-3071000.tar.gz"
   SQLITE_URL="http://sqlite.org/${SQLITE_PKG}"
-  SQLITE_MD5="6bfb46d73caaa1bbbcd2b52184b6c542"
+  SQLITE_MD5="9ed2ca93577b58cfa0d01f64b9312ab9"
     # Apache Portable Runtime (for subversion)
   APR_PKG="apr-1.4.5.tar.bz2"
   APR_URL="http://mirror.speednetwork.de/apache/apr/$APR_PKG"

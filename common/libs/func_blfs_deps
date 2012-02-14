@@ -199,7 +199,7 @@ EOF
       lynx )  pkg_ver=lynx-2.8.8dev.10 ;;
       tidy )  pkg_ver=html-tidy-cvs_20101110 ;;
       unzip ) pkg_ver=unzip-6.0 ;;
-      sqlite ) pkg_ver=sqlite-3.7.8 ;;
+      sqlite ) pkg_ver=sqlite-3.7.10 ;;
       * )     pkg_ver=$(echo $pkg_tarball | sed -e 's/.tar.*//;s/.tgz//;s/.zip//') ;;
     esac
     if [ "$PROGNAME" = "clfs2" ]; then
