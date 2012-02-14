@@ -7,7 +7,7 @@ cd $PKGDIR
 
 ./configure --prefix=/usr \
             --sysconfdir=/etc/lynx \
-            --datadir=/usr/share/doc/lynx-2.8.7rel.2 \
+            --datadir=/usr/share/doc/lynx-2.8.8dev.10 \
             --with-zlib \
             --with-bzlib \
             --with-screen=ncursesw \
@@ -21,7 +21,7 @@ if ! [ -z $PKG_DEST ]; then
 	esac
 fi
 make DESTDIR=$PKG_DEST install-full
-chgrp -v -R root $PKG_DEST/usr/share/doc/lynx-2.8.7rel.2/lynx_doc
+chgrp -v -R root $PKG_DEST/usr/share/doc/lynx-2.8.8dev.10/lynx_doc
 if ! [ -z $PKG_DEST ]; then 
 	rm -fv $PKG_DEST/{,usr/}lib64 
 	rm -fv $PKG_DEST/usr/{man,doc,info}

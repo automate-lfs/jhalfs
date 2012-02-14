@@ -196,7 +196,7 @@ EOF
     # Touch the tracking file.
     case $name in
       docbook-xml )  pkg_ver=DocBook-4.5 ;;
-      lynx )  pkg_ver=lynx-2.8.7rel.2 ;;
+      lynx )  pkg_ver=lynx-2.8.8dev.10 ;;
       tidy )  pkg_ver=html-tidy-cvs_20101110 ;;
       unzip ) pkg_ver=unzip-6.0 ;;
       sqlite ) pkg_ver=sqlite-3.7.8 ;;
