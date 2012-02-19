@@ -1,4 +1,4 @@
-# $Id:$
+# $Id$
 # function for packing and installing a tree. We only have access
 # to variables PKGDIR and PKG_DEST
 
