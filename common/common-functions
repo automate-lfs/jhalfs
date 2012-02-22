@@ -77,7 +77,7 @@ if [ "${CLEAN}" = "y" ]; then
       sudo rm -rf $JHALFSDIR
       echo "done"
       echo -n "Cleaning remaining extracted sources in $BUILDDIR/sources ..."
-      sudo rm -rf `find $BUILDDIR/sources/* -maxdepth 0 -type d`
+      sudo rm -rf `find $BUILDDIR/sources -maxdepth 1 -mindepth 1 -type d`
       echo "done"
     fi
   fi
