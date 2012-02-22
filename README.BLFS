@@ -2,7 +2,7 @@ $Id$
 
 1. INTRODUCTION::
 
-     If you want to add blfs-tool support into a xLFS base system build,
+     If you want to add blfs-tool support into an xLFS base system build,
   read the "BLFS_TOOL SUPPORT" section found in the README and be sure
   to follow the after-booting installation intructions.
 
@@ -36,7 +36,7 @@ $Id$
      Due the complexity of the BLFS book, the scripts and Makefile generation
   is done in several steps:
 
-  3.1  INSTALLED PACKAGES TRACKING SYSTEM
+  3.1  INSTALLED PACKAGES TRACKING SYSTEM::
 
        This tool includes a very simple tracking system to log which packages
     have been installed using the tool. It is used to skip installed packages
@@ -44,52 +44,49 @@ $Id$
     updated in the BLFS book. Do not rely on this feature as a package
     management tool.
 
-       The directory where tracking files will be stored needs to be created
-    before installing blfs-tool. You can place this directory anywhere, taking
-    care that the user must have read and write privileges on that directory
-    and on all files it contains.
+       The tracking system itself is an XML file: instpkg.xml. It is
+    initialized when make is first run in blfs_root. It resides in a directory
+    which is created when needed during the process of building custom tools
+    or blfs tools, after xLFS. You can specify that directory location in
+    the blfs tools submenu of jhalfs. You may need to update permissions
+    and/or ownership of this directory before using the blfs tool.
 
-       To use the default path set in the installation menu, run as root:
-
-    install -d -m1777 /var/lib/jhalfs/BLFS
+       The default location of the tracking directory is /var/lib/jhalfs/BLFS
 
   3.2  BLFS_TOOL INSTALLATION::
 
-       Run "make" to launch the jhalfs menuconfig interface. Select the BLFS
-    book and version. Then set the installation directory (default
-    $HOME/blfs_root), the BLFS sources directory (default blfs-xml), and
-    the installed packages tracking directory (default /var/lib/jhalfs/BLFS).
-
-       All required files will be placed in the installation directory and
-    BLFS XML sources will be installed in the named sub-directory.
-
-       Installed files:
+       The tools are installed just after the building of xLFS, if the
+    appropriate options have been selected in the building menu, as per
+    jhalfs README. If you forgot to select the options and xLFS has been
+    built, it is possible to go back to selecting the appropriate
+    BLFS tools options in the jhalfs menu, then tick `Run makefile'
+    and not `Rebuild files'. You obtain a /blfs_root directory in the
+    root directory of the new xLFS system, which contains the followings:
 
     blfs-xml/*         SVN tree of the selected BLFS book version
-    lib/*              functions libraries, xsl stylesheets, and auto-generated
-                       meta-packages dependencies tree files
+    lib/*              functions libraries 
     menu/*             lxdialog and menuconfig source code
+    xsl/*              XSL stylesheets used at several stages of the process
     README.BLFS        this file
-    TODO               developers notes
-    update_book.sh     update the XML book sources and regenerates packages
-                       database and meta-packages dependencies tree
-    gen_config.sh      regenerates Config.in
+    TODO               developers notes (well, not often updated)
     gen_pkg_book.sh    resolves dependencies and generates linear BLFS books
                        and build scripts
     gen-makefile.sh    generates the target Makefile
     progress_bar.sh    the target Makefile progress bar
-    Makefile           run gen_config.sh to update Config.in,
-                       then launch the menuconfig interface, and lastly run
+    gen-special.sh     Helper script for generating the package database
+    Makefile           Used by make to update the package database from the SVN
+                       tree, then launch the menuconfig interface, and run
                        gen_pkg_book.sh based on configuration settings
-    Config.in          menuconfig interface input file
-    packages           auto-generated packages database
+    packages.xml       auto-generated packages database
+    packdesc.dtd       a simple DTD describing the format of the package
+                       database
     envars.conf        envars needed when running the target build scripts
 
        From now on, all the work must be done from inside the installation
     root directory.
 
-       When finished the installation, the configuration and target selection
-    menu is launch.
+       You may move that directory to the $HOME of a non root user, or build
+    as root from that directory.
 
   3.3  UPDATING BOOK SOURCES::
 
@@ -97,7 +94,11 @@ $Id$
     installed packages to the latest version found in that book, you need to
     update the XML sources and packages database.
 
-       To do that run "./update_book.sh"
+       To do that run "make update". It may happen that the subversion
+    version of your building host is older than the version you just
+    built. This may generate weird errors like "'.' omitted". The easiest
+    thing to do in that case, is to completely remove the blfs-xml directory
+    and run "make update".
 
        On the next configuration run, packages already installed but listed
     with a new version in the book will be available for target selection
@@ -106,46 +107,53 @@ $Id$
   3.4  CONFIGURING AND PARSING THE BOOK::
 
        The next step is to create a book and build scripts in dependency
-    build order for a target package. A target can be a package or a
-    meta-package.
-
-    WARNING:
-           Only one target (meta-package or individual package) must be
-           selected on each configuration run.
-	   There is no way to solve dependencies properly when more
-           than one target are selected.
+    build order for one or several packages.
 
        Run <make> to launch the configuration interface. The main menu contains
-    three blocks: meta-package selection, individual package selection, and
-    build options.
-
-       When a meta-package is selected, it is possible to unselect unwanted
-    components. The unselected components will be skipped if no other components
-    depends on them.
+    two blocks: individual package selection, and build options.
 
        In the build options section, the dependencies level and default packages
-    used to solve alternatives are set. You can also select whether the build will
-    be made as a normal user or as root. That settings are saved to be reused in
-    future configuration runs.
+    used to solve alternatives are set (currently, only for the mTA). You can
+    also select whether the build will be made as a normal user or as root.
+    Those settings are saved to be reused in future configuration runs.
 
-       If, for example, your target selection is Xsoft-->Graphweb-->galeon, a
-    directory named "galeon" will be created. Inside that directory you will
-    find a directory named "HTML" that contains a galeon-based HTML book with
-    its dependencies in build order, and a "scripts" directory with build
-    scripts for that packages.
+       When you are done with the menu, a few checks occur, and the book is
+    generated. When circular dependencies are found, a 3 line message is
+    printed:
+           A is a dependency of B
+           C is a dependency of A
+           A is a dependency of C
+    and a question:
+           Do you want to build A first?
+    This means that the system has found the dependency chain: B->A->C->A.
+    You have therefore to choose whether A is built before C, or
+    C before A: the system cannot make that choice (well, maybe in a few
+    year, with an AI system able to understand the book). if you answer no,
+    C is built first. If you answer yes, C is put in place of A as a dependency
+    of B, then the tree dependency restarts from there, that is with the
+    layout B->C->... You may then hit the case B->C->A->C, for which you
+    should answer no, unless you want to enter an infinite (human driven) loop.
 
-       There are also two other directories ("dependencies" and "xincludes")
-    that contain files generated while resolving dependencies trees.
+       You end up with a book.xml file which contains the linearized book,
+    and a rendered HTML, in the directory book-html, which you can browse with
+    "lynx book-html/index.html" (or with any other browser).
+
+       Furthermore, there is a directory "scripts", which contains the generated
+    scriptlets.
+
+       There is also another directory, "dependencies" that contains files
+    generated while resolving dependencies.
 
   3.5  EDITING BUILD SCRIPTS
 
-       Now it is time to review the generated book and scripts, making any changes
-    to the scripts necessary to fix generation bugs or to suit your needs.
+       Now it is time to review the generated book and scripts, making any
+    changes to the scripts necessary to fix generation bugs or to suit your
+    needs.
 
        Scripts for additional packages (i.e., for non-BLFS packages) can be
     easily inserted. For example, if you want to install the external dependency
     "bar" before "foo" package and the "foo" script is named "064-z-foo", you
-    need to create a "064-y-bar" build script.
+    just need to create a "064-y-bar" build script.
 
       Remember, the package tracking system isn't a package management tool
     and knows nothing about packages not in the BLFS book.
@@ -156,43 +164,39 @@ $Id$
   3.6  CREATING THE MAKEFILE
 
        When the build scripts are ready to be run, the Makefile can be
-    created. Be sure that you cd into the "package" directory and run
-    ../gen-makefile.sh
+    created. Create an empty directory (for example "mkdir work") and cd
+    to that directory. Then run ../gen-makefile.sh
 
-    Review the Makefile, and, if all looks sane, start the build.
+    Review the Makefile, and, if all looks sane, start the build by running
+    "make".
 
 4. GENERATED BUILD SCRIPTS ISSUES::
 
       In this section, known issues with the generated build scripts are
-   discussed. They are due to build procedures and/or BLFS layout particularities
-   that we can't handle. In several cases, editing the build scripts is mandatory.
+   discussed. They are due to build procedures and/or BLFS layout
+   particularities that we can't handle. In several cases, editing the
+   build scripts is mandatory.
    You may also need to insert some build scripts created by you to resolve
    unhandled dependencies and/or to remove some script installing the affected
    package by hand.
 
    4.1  BLFS BOOTSCRIPTS
 
-        For now, bootscripts installation will fail. You will need to edit
-     the scripts for packages that install bootscripts and fix their
-     installation command. That could be fixed in the future.
+      Normally, bootscript installation should work. On the other hand, the
+   book does not give instruction for running them, so you might have to
+   manually insert /etc/init.d/<initscript> at some place during the build.
 
    4.2  PACKAGE CONFIGURATION
 
-        For those packages that have a "Configuration" section, you should
-     edit the build script to fit the needs of your system.
-
-   4.4  PDL, Perl modules, and Glib-Bindings.
-
-        The generated scripts for these packages are broken and can not
-     be fixed. You must rename it as the sub-package to be installed and
-     edit it to use the proper commads for that sub-package.
-
-        You may need to create additional scripts for these sub-package
-     dependencies, if any.
+      For those packages that have a "Configuration" section, you should
+   edit the build script to fit the needs of your system. Sometimes, the
+   bash startup files are modified (see for example the instructions for
+   llvm). You might have to insert something like "source /etc/bash_profile"
+   at some point during the build.
 
    4.4  GCC, JDK, Sane, and KDE-multimedia, freetype2, MesaLib and others
 
-        On the pages for these packages, the BLFS book actually has instructions
+        On the pages for those packages, the BLFS book actually has instructions
      to download and install two or more packages. You must edit the scripts to
      fix this.
 
@@ -200,7 +204,7 @@ $Id$
 
    4.5  XORG7
 
-        The generated scripts for Xorg7 pseudo-packages have $SRC_ARCHIVE
+        The generated scripts for Xorg7 packages have $SRC_ARCHIVE
      support for individual packages, but not for patches nor *.wget and *.md5
      files.
 
@@ -209,7 +213,7 @@ $Id$
 
        The *.wget and *.md5 files should be downladed always from inside
      the scripts to be sure that the most current individual packages are
-     used. Thus don't reuse previouly existing ones.
+     used. Thus don't reuse previously existing ones.
 
        In the script for xorg7-font, be sure to move the fonts directories
      symlinks creation to after the "for ... done" loop.

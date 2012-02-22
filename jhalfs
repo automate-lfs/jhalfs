@@ -437,11 +437,11 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
     cp README.BLFS ${BUILDDIR}${BLFS_ROOT}
     # Clean-up
     rm -rf ${BUILDDIR}${BLFS_ROOT}/libs/.svn
+    rm -rf ${BUILDDIR}${BLFS_ROOT}/xsl/.svn
     rm -rf ${BUILDDIR}${BLFS_ROOT}/menu/.svn
     rm -rf ${BUILDDIR}${BLFS_ROOT}/menu/lxdialog/.svn
     # Set some harcoded envars to their proper values
-    sed -i 's,blfs-xml,'$BLFS_XML',' ${BUILDDIR}${BLFS_ROOT}/{update_book.sh,libs/book.xsl}
-    sed -i 's,tracking-dir,'$TRACKING_DIR',' ${BUILDDIR}${BLFS_ROOT}/{update_book.sh,gen-makefile.sh}
+    sed -i 's,tracking-dir,'$TRACKING_DIR',' ${BUILDDIR}${BLFS_ROOT}/{Makefile,gen-makefile.sh}
     # Copy the dependencies build scripts
     cp -r $COMMON_DIR/blfs-tool-deps $JHALFSDIR/
     rm -rf $JHALFSDIR/blfs-tool-deps/.svn
