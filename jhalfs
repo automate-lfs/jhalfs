@@ -154,7 +154,14 @@ case $BRANCH_ID in
     ;;
   * )
     case $PROGNAME in
-      lfs | hlfs )
+      lfs )
+        LFSVRS=${BRANCH_ID}
+        TREE=tags/${BRANCH_ID}
+        if (( ${BRANCH_ID:0:1} < 7 )) ; then
+            TREE=${TREE}/BOOK
+        fi
+        ;;
+      hlfs )
         LFSVRS=${BRANCH_ID}
         TREE=tags/${BRANCH_ID}/BOOK
         ;;
