@@ -235,7 +235,7 @@ fi
     </xsl:if>
   </xsl:template>
 
-<xsl:template match="sect1" mode="pkgmngt">
+  <xsl:template match="sect1" mode="pkgmngt">
     <xsl:param name="dirname" select="chapter05"/>
     <!-- The build order -->
     <xsl:param name="order" select="062"/>
@@ -244,35 +244,39 @@ fi
     <xsl:variable name="pi-file-value" select="substring-after($pi-file,'filename=')"/>
     <xsl:variable name="filename" select="substring-before(substring($pi-file-value,2),'.html')"/>
      <!-- Creating dirs and files -->
-    <exsl:document href="{$dirname}/{$order}-{position()}-{$filename}" method="text">
-      <xsl:text>#!/bin/bash
+    <xsl:if test="count(descendant::screen/userinput) &gt; 0 and
+                  count(descendant::screen/userinput) &gt;
+                      count(descendant::screen[@role='nodump'])">
+      <exsl:document href="{$dirname}/{$order}-{position()}-{$filename}"
+                     method="text">
+        <xsl:text>#!/bin/bash
 set +h
 set -e
 
 cd $PKGDIR
 </xsl:text>
-      <xsl:apply-templates
-           select=".//screen[not(@role) or @role != 'nodump']/userinput[@remap != 'adjust']"
+        <xsl:apply-templates
+           select=".//screen[not(@role) or
+                            @role != 'nodump']/userinput[@remap != 'adjust']"
            mode="pkgmngt"/>
-      <xsl:if test="$dirname = 'chapter06'">
-        <xsl:text>packInstall
+        <xsl:if test="$dirname = 'chapter06'">
+          <xsl:text>packInstall
 rm -rf $PKG_DEST
 </xsl:text>
-      </xsl:if>
-      <xsl:apply-templates
-           select=".//screen[
-              not(@role) or
-              @role != 'nodump'
-                            ]/userinput[
-                                not(@remap) or
-                                @remap='adjust'
+        </xsl:if>
+        <xsl:apply-templates
+           select=".//screen[not(@role) or
+                             @role != 'nodump'
+                            ]/userinput[not(@remap) or
+                                        @remap='adjust'
                                        ]"
            mode="pkgmngt"/>
-      <xsl:text>
+        <xsl:text>
 echo -e "\n\nTotalseconds: $SECONDS\n"
 exit
 </xsl:text>
-    </exsl:document>
+      </exsl:document>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="userinput" mode="pkgmngt">
