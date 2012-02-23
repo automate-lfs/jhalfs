@@ -372,13 +372,20 @@ mv ../${sect_ver}.md5.orig ../${sect_ver}.md5&#xA;</xsl:text>
 
   <xsl:template match="screen">
     <xsl:if test="child::* = userinput and not(@role = 'nodump')">
-      <xsl:if test="@role = 'root' and $sudo = 'y'">
-        <xsl:text>sudo sh -c '</xsl:text>
-      </xsl:if>
-      <xsl:apply-templates select="userinput"/>
-      <xsl:if test="@role = 'root' and $sudo = 'y'">
-        <xsl:text>'</xsl:text>
-      </xsl:if>
+      <xsl:choose>
+        <xsl:when test="@role = 'root'">
+          <xsl:if test="$sudo = 'y'">
+            <xsl:text>sudo sh -c '</xsl:text>
+          </xsl:if>
+          <xsl:apply-templates select="userinput" mode="root"/>
+          <xsl:if test="$sudo = 'y'">
+            <xsl:text>'</xsl:text>
+          </xsl:if>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates select="userinput"/>
+        </xsl:otherwise>
+      </xsl:choose>
       <xsl:text>&#xA;</xsl:text>
     </xsl:if>
   </xsl:template>
@@ -434,6 +441,21 @@ popd</xsl:text>
 
   <xsl:template match="userinput">
     <xsl:apply-templates/>
+  </xsl:template>
+
+  <xsl:template match="userinput" mode="root">
+    <xsl:for-each select="child::node()">
+      <xsl:choose>
+        <xsl:when test="self::text() and contains(string(),'make')">
+          <xsl:value-of select="substring-before(string(),'make')"/>
+          <xsl:text>make -j1</xsl:text>
+          <xsl:value-of select="substring-after(string(),'make')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates select="self::node()"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:for-each>
   </xsl:template>
 
   <xsl:template match="replaceable">

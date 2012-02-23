@@ -74,6 +74,16 @@ cat >$SPECIAL_FILE << EOF
           </xsl:element>
         </xsl:if>
 <!-- Dependencies -->
+        <xsl:text>
+            </xsl:text>
+        <xsl:element name="dependency">
+          <xsl:attribute name="status">required</xsl:attribute>
+          <xsl:attribute name="name">
+            <xsl:value-of
+              select="preceding-sibling::sect1[1]/@id"/>
+          </xsl:attribute>
+          <xsl:attribute name="type">ref</xsl:attribute>
+        </xsl:element>
         <xsl:apply-templates select=".//para[@role='required' or
                                              @role='recommended' or
                                              @role='optional']"

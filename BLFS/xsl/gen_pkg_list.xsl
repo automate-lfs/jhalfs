@@ -202,6 +202,22 @@
             </xsl:element>
           </xsl:if>
 <!-- Dependencies -->
+<!-- If in Xorg chapter, consider that the preceding package is
+     the first dependency (not always noted in the book) -->
+          <xsl:if test="ancestor::chapter[@id='x-window-system'] and
+                        preceding-sibling::sect1[@id != 'xorg7']">
+            <xsl:text>
+            </xsl:text>
+            <xsl:element name="dependency">
+              <xsl:attribute name="status">required</xsl:attribute>
+              <xsl:attribute name="name">
+                <xsl:value-of
+                  select="preceding-sibling::sect1[1]/@id"/>
+              </xsl:attribute>
+              <xsl:attribute name="type">ref</xsl:attribute>
+            </xsl:element>
+
+          </xsl:if>
           <xsl:apply-templates select=".//para[@role='required' or
                                                @role='recommended' or
                                                @role='optional']"
