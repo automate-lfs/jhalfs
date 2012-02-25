@@ -7,11 +7,11 @@
 set -e
 
 TOPDIR=$1
-if test -z "TOPDIR"; then
+if test -z "$TOPDIR"; then
   TOPDIR=$(pwd)
 fi
 BLFS_FULL=$2
-if test -z "BLFS_FULL"; then
+if test -z "$BLFS_FULL"; then
   BLFS_FULL=${TOPDIR}/blfs-xml/tmp/blfs-full.xml
 fi
 declare -r ConfigFile="${TOPDIR}/configuration"
