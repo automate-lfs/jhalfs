@@ -78,6 +78,11 @@
                  That is no more true
             <xsl:if test="not(@id='mesalib')"> -->
               <xsl:text>cd $SRC_DIR/$PKG_DIR&#xA;</xsl:text>
+            <!-- In some case, some files in the build tree are owned
+                 by root -->
+              <xsl:if test="$sudo='y'">
+                <xsl:text>sudo </xsl:text>
+              </xsl:if>
               <xsl:text>rm -rf $UNPACKDIR unpacked&#xA;&#xA;</xsl:text>
             <!-- Same reason as preceding comment
             </xsl:if>
