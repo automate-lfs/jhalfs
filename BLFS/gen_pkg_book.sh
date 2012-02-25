@@ -166,11 +166,11 @@ xsltproc -o ${BookHtml}/ \
          ${BookXml}
 if [ ! -d ${BookHtml}/stylesheets ]
   then mkdir -p ${BookHtml}/stylesheets
-  cp ${BLFS_XML}/stylesheets/lfs-xsl/*.css book-html/stylesheets
+  cp ${BLFS_XML}/stylesheets/lfs-xsl/*.css ${BookHtml}/stylesheets
 fi
 if [ ! -d ${BookHtml}/images ]
   then mkdir -p ${BookHtml}/images
-  cp ${BLFS_XML}/images/*.png book-html/images
+  cp ${BLFS_XML}/images/*.png ${BookHtml}/images
 fi
 for ht in ${BookHtml}/*.html
   do sed -i 's@../stylesheets@stylesheets@' $ht
