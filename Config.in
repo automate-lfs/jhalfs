@@ -22,8 +22,8 @@ menu "--- BOOK Settings"
 #		config	BOOK_HLFS
 #			bool "Hardened Linux From Scratch"
 
-		config	BOOK_BLFS
-			bool "Beyond Linux From Scratch"
+#		config	BOOK_BLFS
+#			bool "Beyond Linux From Scratch"
 	endchoice
 
 	config	PROGNAME
@@ -33,12 +33,12 @@ menu "--- BOOK Settings"
 		default	"clfs2"		if BOOK_CLFS2
 		default	"clfs3"		if BOOK_CLFS3
 		default	"hlfs"		if BOOK_HLFS
-		default	"blfs"		if BOOK_BLFS
+#		default	"blfs"		if BOOK_BLFS
 
 	config	RUN_ME
 		string
-		default	"./jhalfs run"	if !BOOK_BLFS
-		default	"./blfs-tool"	if BOOK_BLFS
+		default	"./jhalfs run"#	if !BOOK_BLFS
+#		default	"./blfs-tool"	if BOOK_BLFS
 	#--- End BOOK/script
 
 	#--- Book version
@@ -52,7 +52,7 @@ menu "--- BOOK Settings"
 
 		config	WORKING_COPY
 			bool	"Working Copy"
-			depends on !BOOK_BLFS
+#			depends on !BOOK_BLFS
 			help
 				#-- A local working copy
 
@@ -491,7 +491,7 @@ menu "--- BOOK Settings"
 	config CUSTOM_TOOLS
 		bool	"Add custom tools support"
 		default	n
-		depends on !BOOK_BLFS
+#		depends on !BOOK_BLFS
 		help
 			#--- Activating this option additional packages you create
 			#    will be installed after finished the xLFS system build.
@@ -502,7 +502,8 @@ menu "--- BOOK Settings"
 	config BLFS_TOOL
 		bool	"Add blfs-tool support"
 		default	n
-		depends on !BOOK_BLFS && !BOOK_CLFS3
+#		depends on !BOOK_BLFS && !BOOK_CLFS3
+		depends on !BOOK_CLFS3
 		help
 			#--- Activating this option will install additional
 			#    packages needed to use blfs-tool when booting
@@ -612,9 +613,10 @@ menu "--- BOOK Settings"
 	#--- BLFS specific params
 	config	BLFS_ROOT
 		string "Directory root"
-		default "$HOME/blfs_root" if BOOK_BLFS
+#		default "$HOME/blfs_root" if BOOK_BLFS
 		default "/blfs_root" if BLFS_TOOL
-		depends on BOOK_BLFS || BLFS_TOOL
+#		depends on BOOK_BLFS || BLFS_TOOL
+		depends on BLFS_TOOL
 		help
 			#-- Full path to the directory where all required
 			#   files and scripts will be stored.
@@ -622,7 +624,8 @@ menu "--- BOOK Settings"
 	config	BLFS_XML
 		string "BLFS sources directory"
 		default "blfs-xml"
-		depends on BOOK_BLFS || BLFS_TOOL
+#		depends on BOOK_BLFS || BLFS_TOOL
+		depends BLFS_TOOL
 		help
 			#-- The directory name under $BLFS_ROOT where the BLFS
                         #   book sources will be checkout.
@@ -630,7 +633,8 @@ menu "--- BOOK Settings"
 	config	TRACKING_DIR
 		string "Installed packages database directory"
 		default "/var/lib/jhalfs/BLFS"
-		depends on BOOK_BLFS || BLFS_TOOL || CUSTOM_TOOLS
+#		depends on BOOK_BLFS || BLFS_TOOL || CUSTOM_TOOLS
+		depends on BLFS_TOOL || CUSTOM_TOOLS
 		help
 			#-- Full path to the directory where the database of
                         #   installed packages will be created.
@@ -651,7 +655,7 @@ menu "--- BOOK Settings"
 endmenu
 
 menu "--- General Settings"
-	depends on !BOOK_BLFS
+#	depends on !BOOK_BLFS
 
 	#--- Set User Account
 	config	CONFIG_USER
@@ -797,7 +801,7 @@ menu "--- General Settings"
 endmenu
 
 menu "--- Build Settings"
-	depends on !BOOK_BLFS
+#	depends on !BOOK_BLFS
 
 	#--- Test Suites
 	config	CONFIG_TESTS
@@ -1002,7 +1006,7 @@ menu "--- Build Settings"
 endmenu
 
 menu "--- Advanced Features"
-	depends on !BOOK_BLFS
+#	depends on !BOOK_BLFS
 
 	config	REPORT
 		bool "Create SBU and disk usage report"
@@ -1151,7 +1155,7 @@ endmenu
 config REBUILD_MAKEFILE
 	bool "Rebuild the Makefile (see help)"
 	default n
-	depends on !BOOK_BLFS
+#	depends on !BOOK_BLFS
 	help
 		#-- Rebuild the Makefile
 		#
