@@ -243,6 +243,10 @@ $Id$
      the scripts to be sure that the most current individual packages are
      used. Thus don't reuse previously existing ones.
 
+       In the script for xorg7-font, be sure to move the fonts directories
+     symlinks creation to after the "for ... done" loop.
+
+
    4.5  PATCHES
 
         By default, all required patches will be downloaded from the NET.
