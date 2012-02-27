@@ -28,11 +28,11 @@ BOOK_XML = $(TOPDIR)/book.xml
 TRACKFILE = $(TRACKING_DIR)/instpkg.xml
 
 define INITIAL_TRACK
-<?xml version="1.0" encoding="ISO-8859-1"?>\
-\
-<!DOCTYPE sublist SYSTEM "$(TOPDIR)/packdesc.dtd">\
-<sublist>\
-  <name>Installed</name>\
+<?xml version="1.0" encoding="ISO-8859-1"?>\n\
+\n\
+<!DOCTYPE sublist SYSTEM "$(TOPDIR)/packdesc.dtd">\n\
+<sublist>\n\
+  <name>Installed</name>\n\
 </sublist>
 endef
 
@@ -61,18 +61,24 @@ $(PACK_LIST): $(XSLDIR)/gen_pkg_list.xsl $(XSLDIR)/specialCases.xsl $(TRACKFILE)
 	$(Q)xmllint --postvalid --format -o $@ $@.tmp
 	$(Q)rm $@.tmp
 
+# Beware of the echo '$(INITIAL_TRACK)' command below:
+# if default shell is bash, needs echo -e
+# if default shell is sh : echo is enough
+# Don't ask me why
 $(TRACKFILE): $(TRACKING_DIR)
 	$(Q)if ! [ -f $@ ]; then \
 	echo Initializing $(TRACKFILE) && \
 	echo '$(INITIAL_TRACK)' > $@ && \
 	$(MAKE) $(PACK_LIST) && \
 	for track in $(TRACKING_DIR)/*-*; do \
+        if [ -f $track ]; then \
 	pack=$$(echo $$track | sed 's@.*/\(.*\)-[0-9c].*@\1@') && \
 	xsltproc --stringparam packages $(PACK_LIST) \
 	--stringparam package $$pack \
 	-o track.tmp $(XSLDIR)/bump.xsl $@ && \
 	sed -i 's@PACKDESC@$(TOPDIR)/packdesc.dtd@' track.tmp && \
 	xmllint --format --postvalid track.tmp > $@; \
+        fi; \
 	done; \
 	rm -f track.tmp; \
 	fi
