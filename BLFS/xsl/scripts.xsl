@@ -123,12 +123,18 @@ cd xc&#xA;</xsl:text>
       </xsl:when>
       <xsl:when test="@role = 'installation'">
         <xsl:text>
-if [[ -e unpacked ]] ; then
+if [ "${PACKAGE%.zip}" = "${PACKAGE}" ]; then
+ if [[ -e unpacked ]] ; then
   UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
   [[ -n $UNPACKDIR ]] &amp;&amp; [[ -d $UNPACKDIR ]] &amp;&amp; rm -rf $UNPACKDIR
+ fi
+ tar -xvf $PACKAGE > unpacked
+ UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
+else
+ UNPACKDIR=${PACKAGE%.zip}
+ [[ -n $UNPACKDIR ]] &amp;&amp; [[ -d $UNPACKDIR ]] &amp;&amp; rm -rf $UNPACKDIR
+ unzip -d $UNPACKDIR ${PACKAGE}
 fi
-tar -xvf $PACKAGE > unpacked
-UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
 cd $UNPACKDIR&#xA;</xsl:text>
         <xsl:apply-templates select=".//screen | .//para/command"/>
         <xsl:if test="$sudo = 'y'">
