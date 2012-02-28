@@ -51,7 +51,8 @@ free >> "$REPORT"
 BUILDLOGS="`grep -l "^Totalseconds:" ${LOGSDIR}/*`"
 
 # Match the first timed log to extract the SBU unit value from it
-BASELOG=`grep -l "^Totalseconds:" $LOGSDIR/* | head -n1`
+FIRSTLOG=`grep -l "^Totalseconds:" $LOGSDIR/* | head -n1`
+BASELOG=`grep -l "^Totalseconds:" $LOGSDIR/???-binutils* | head -n1`
 echo -e "\nUsing ${BASELOG#*[[:digit:]]-} to obtain the SBU unit value."
 SBU_UNIT=`sed -n 's/^Totalseconds:\s\([[:digit:]]*\)$/\1/p' $BASELOG`
 echo -e "\nThe SBU unit value is equal to $SBU_UNIT seconds.\n"
@@ -91,7 +92,7 @@ for log in $BUILDLOGS ; do
 
 # Append installed files disk usage to the previous entry,
 # except for the first parsed log
-  if [ "$log" != "$BASELOG" ] ; then
+  if [ "$log" != "$FIRSTLOG" ] ; then
     INSTALL=`perl -e 'print ('$DU1' - '$DU1PREV')';`
     INSTALLMB=`perl -e 'printf "%.3f" , ('$DU1MB' - '$DU1MBPREV')';`
     echo -e "Installed files disk usage:\t\t\t\t$INSTALL KB or $INSTALLMB MB\n" >> $REPORT
@@ -114,6 +115,18 @@ for log in $BUILDLOGS ; do
   echo -e "Required space to build the package:\t\t\t$REQUIRED1 KB or $REQUIRED2 MB" >> $REPORT
 
 done
+
+# For printing the last 'Installed files disk usage', we need to 'du' the
+# root dir, excluding the jhalfs directory (and lost+found). We assume
+# that the rootdir is $LOGSDIR/../..
+DU1=`du -skx --exclude=jhalfs --exclude=lost+found $LOGSDIR/../.. | cut -f1`
+DU1MB=`perl -e 'printf "%.3f" , ('$DU1' / '1024')';`
+INSTALL=`perl -e 'print ('$DU1' - '$DU1PREV')';`
+INSTALLMB=`perl -e 'printf "%.3f" , ('$DU1MB' - '$DU1MBPREV')';`
+echo -e "Installed files disk usage:\t\t\t\t$INSTALL KB or $INSTALLMB MB\n" >> $REPORT
+# Append install values for grand total
+INSTALL2=`perl -e 'printf "%.3f" , ('$INSTALL2' + '$INSTALL')';`
+INSTALLMB2=`perl -e 'printf "%.3f" , ('$INSTALLMB2' + '$INSTALLMB')';`
 
 # Dump grand totals
 echo -e "\n$LINE\n\nTotal time required to build the systen:\t\t$SBU2  SBU" >> $REPORT
