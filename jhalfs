@@ -352,12 +352,6 @@ fi
 
 if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
 
-  # If $BUILDDIR has subdirectories like tools/ or bin/, stop the run
-  # and notify the user about that.
-  if [ -d $BUILDDIR/tools -o -d $BUILDDIR/bin ] && [ -z $CLEAN ] ; then
-    eval "$no_empty_builddir"
-  fi
-
   # If requested, clean the build directory
   clean_builddir
 
@@ -469,7 +463,8 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
 
 fi
 
-# When regenerating the Makefile, we need to know also the canonical book version
+# When regenerating the Makefile, we need to know also the
+# canonical book version
 if [[ "$REBUILD_MAKEFILE" = "y" ]] ; then
   case $PROGNAME in
     clfs | clfs2 | clfs3 )
