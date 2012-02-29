@@ -4,8 +4,8 @@
 #
 set -e
 
-# TEMPORARY VARIABLES.. development use only
-declare TOPDIR=$(cd ..; pwd)
+declare TOPDIR='..'
+declare ATOPDIR=`cd $TOPDIR; pwd`
 declare MKFILE=Makefile
 declare PREV_PACKAGE=""
 declare BUILD_SCRIPTS=${TOPDIR}/scripts
@@ -58,7 +58,7 @@ cat << EOF
 	--stringparam package ${pkg_name#*-?-} \\
 	-o track.tmp \\
 	${BUMP} \$(TRACKING_FILE) && \\
-	sed -i 's@PACKDESC@${TOPDIR}/packdesc.dtd@' track.tmp && \\
+	sed -i 's@PACKDESC@${ATOPDIR}/packdesc.dtd@' track.tmp && \\
 	xmllint --format --postvalid track.tmp > \$(TRACKING_FILE) && \\
         rm track.tmp && \\
 	touch  \$@ && \\
@@ -160,8 +160,11 @@ if [[ ! -d ${BUILD_SCRIPTS} ]] ; then
   exit 1
 fi
 
+# Let us make a clean base:
+rm -rf *
+
 generate_Makefile
 
-cp ../progress_bar.sh .
+cp ${TOPDIR}/progress_bar.sh .
 
 mkdir -p logs
