@@ -220,8 +220,6 @@ mv ../${sect_ver}.md5.orig ../${sect_ver}.md5&#xA;</xsl:text>
           <xsl:when test="contains($sub-url,'?')">
             <xsl:value-of select="substring-before($sub-url,'?')"/>
           </xsl:when>
-<!-- Should never happen
-          <xsl:when test="contains($sub-url,'.patch')"/> -->
           <xsl:otherwise>
             <xsl:value-of select="$sub-url"/>
           </xsl:otherwise>
@@ -321,9 +319,23 @@ mv ../${sect_ver}.md5.orig ../${sect_ver}.md5&#xA;</xsl:text>
   <xsl:template match="para" mode="additional">
     <xsl:choose>
       <xsl:when test="contains(string(ulink/@url),'.patch')">
+        <xsl:variable name="patch">
+          <xsl:call-template name="package_name">
+            <xsl:with-param name="url" select="ulink/@url"/>
+          </xsl:call-template>
+        </xsl:variable>
+        <xsl:text>PATCH=</xsl:text>
+        <xsl:value-of select="$patch"/>
+        <xsl:text>&#xA;if [[ ! -f $PATCH ]] ; then&#xA;</xsl:text>
+         <!-- SRC_ARCHIVE may have subdirectories or not -->
+        <xsl:text>  if [[ -f $SRC_ARCHIVE/$PKG_DIR/$PATCH ]] ; then&#xA;</xsl:text>
+        <xsl:text>    cp $SRC_ARCHIVE/$PKG_DIR/$PATCH $PATCH&#xA;</xsl:text>
+        <xsl:text>  elif [[ -f $SRC_ARCHIVE/$PATCH ]] ; then&#xA;</xsl:text>
+        <xsl:text>    cp $SRC_ARCHIVE/$PATCH $PATCH&#xA;  else&#xA;</xsl:text>
         <xsl:text>wget -T 30 -t 5 </xsl:text>
         <xsl:value-of select="ulink/@url"/>
         <xsl:text>&#xA;</xsl:text>
+        <xsl:text>&#xA;  fi&#xA;fi&#xA;</xsl:text>
       </xsl:when>
       <xsl:when test="ulink">
         <xsl:if test="string-length(ulink/@url) &gt; '10'">
@@ -346,7 +358,7 @@ mv ../${sect_ver}.md5.orig ../${sect_ver}.md5&#xA;</xsl:text>
           <xsl:text>  elif [[ -f $SRC_ARCHIVE/$PACKAGE1 ]] ; then&#xA;</xsl:text>
           <xsl:text>    cp $SRC_ARCHIVE/$PACKAGE1 $PACKAGE1&#xA;  else&#xA;</xsl:text>
           <!-- The FTP_SERVER mirror -->
-          <xsl:text>    wget -T 30 -t 5 ${FTP_SERVER}blfs/svn/</xsl:text>
+          <xsl:text>    wget -T 30 -t 5 ${FTP_SERVER}svn/</xsl:text>
           <xsl:value-of select="$first_letter"/>
           <xsl:text>/$PACKAGE1</xsl:text>
           <xsl:text> || \&#xA;    wget -T 30 -t 5 </xsl:text>
