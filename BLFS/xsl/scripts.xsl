@@ -296,7 +296,11 @@ mv ../${sect_ver}.md5.orig ../${sect_ver}.md5&#xA;</xsl:text>
             </xsl:otherwise>
           </xsl:choose>
           <xsl:if test="not(contains(string(parent::listitem/following-sibling::listitem[1]/para),'FTP'))">
-            <xsl:text>&#xA;  fi&#xA;fi&#xA;</xsl:text>
+            <xsl:text>
+    cp $PACKAGE $SRC_ARCHIVE
+  fi
+fi
+</xsl:text>
           </xsl:if>
         </xsl:if>
       </xsl:when>
@@ -306,7 +310,11 @@ mv ../${sect_ver}.md5.orig ../${sect_ver}.md5&#xA;</xsl:text>
           <xsl:text> || \&#xA;    wget -T 30 -t 5 </xsl:text>
           <xsl:value-of select="ulink/@url"/>
         </xsl:if>
-        <xsl:text>&#xA;  fi&#xA;fi&#xA;</xsl:text>
+        <xsl:text>
+    cp $PACKAGE $SRC_ARCHIVE
+  fi
+fi
+</xsl:text>
       </xsl:when>
       <xsl:when test="contains(string(),'MD5')">
 <!-- some md5 sums are written with a LF -->
@@ -346,7 +354,11 @@ mv ../${sect_ver}.md5.orig ../${sect_ver}.md5&#xA;</xsl:text>
         <xsl:text>wget -T 30 -t 5 </xsl:text>
         <xsl:value-of select="ulink/@url"/>
         <xsl:text>&#xA;</xsl:text>
-        <xsl:text>&#xA;  fi&#xA;fi&#xA;</xsl:text>
+        <xsl:text>
+    cp $PATCH $SRC_ARCHIVE
+  fi
+fi
+</xsl:text>
       </xsl:when>
       <xsl:when test="ulink">
         <xsl:if test="string-length(ulink/@url) &gt; '10'">
@@ -374,7 +386,11 @@ mv ../${sect_ver}.md5.orig ../${sect_ver}.md5&#xA;</xsl:text>
           <xsl:text>/$PACKAGE1</xsl:text>
           <xsl:text> || \&#xA;    wget -T 30 -t 5 </xsl:text>
           <xsl:value-of select="ulink/@url"/>
-          <xsl:text>&#xA;  fi&#xA;fi&#xA;</xsl:text>
+          <xsl:text>
+    cp $PACKAGE1 $SRC_ARCHIVE
+  fi
+fi
+</xsl:text>
         </xsl:if>
       </xsl:when>
       <xsl:when test="contains(string(),'MD5')">
