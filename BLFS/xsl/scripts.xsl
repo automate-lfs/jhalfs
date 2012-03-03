@@ -394,8 +394,19 @@ fi
         </xsl:if>
       </xsl:when>
       <xsl:when test="contains(string(),'MD5')">
+<!-- some md5 sums are written with a LF -->
+        <xsl:variable name="md5">
+          <xsl:choose>
+            <xsl:when test="contains(string(),'&#xA;')">
+              <xsl:value-of select="substring-before(substring-after(string(),'sum: '),'&#xA;')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="substring-after(string(),'sum: ')"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
         <xsl:text>echo "</xsl:text>
-        <xsl:value-of select="substring-after(string(),'sum: ')"/>
+        <xsl:value-of select="$md5"/>
         <xsl:text>&#x20;&#x20;$PACKAGE1" | md5sum -c -&#xA;</xsl:text>
       </xsl:when>
     </xsl:choose>
