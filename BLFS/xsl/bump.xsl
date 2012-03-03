@@ -44,26 +44,4 @@
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template name="dirname">
-    <xsl:param name="filename" select="$packages"/>
-    <xsl:param name="dir" select="''"/>
-    <xsl:choose>
-      <xsl:when test="contains($filename,'/')">
-        <xsl:call-template name="dirname">
-          <xsl:with-param
-            name="filename"
-            select="substring-after($filename,'/')"/>
-          <xsl:with-param
-            name="dir"
-            select="concat(substring-before($filename,'/'),'/')"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:when test="not(contains($dir,'/'))">
-        <xsl:message>`packages' must be an absolute path</xsl:message>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="$dir"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
 </xsl:stylesheet>
