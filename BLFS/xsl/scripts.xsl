@@ -320,7 +320,7 @@ fi
 <!-- some md5 sums are written with a LF -->
         <xsl:variable name="md5">
           <xsl:choose>
-            <xsl:when test="contains(string(),'&#xA;')">
+            <xsl:when test="contains(substring-after(string(),'sum: '),'&#xA;')">
               <xsl:value-of select="substring-before(substring-after(string(),'sum: '),'&#xA;')"/>
             </xsl:when>
             <xsl:otherwise>
@@ -397,7 +397,7 @@ fi
 <!-- some md5 sums are written with a LF -->
         <xsl:variable name="md5">
           <xsl:choose>
-            <xsl:when test="contains(string(),'&#xA;')">
+            <xsl:when test="contains(substring-after(string(),'sum: '),'&#xA;')">
               <xsl:value-of select="substring-before(substring-after(string(),'sum: '),'&#xA;')"/>
             </xsl:when>
             <xsl:otherwise>
