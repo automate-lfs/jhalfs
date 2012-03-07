@@ -69,19 +69,21 @@ $(TRACKFILE): $(TRACKING_DIR)
 	$(Q)if ! [ -f $@ ]; then \
 	echo Initializing $(TRACKFILE) && \
 	echo '$(INITIAL_TRACK)' > $@ && \
-	$(MAKE) $(PACK_LIST) && \
-	for track in $(TRACKING_DIR)/*-*; do \
-        if [ -f $track ]; then \
+	$(MAKE) $(PACK_LIST); \
+	fi
+	@for track in $(TRACKING_DIR)/*-*; do \
+        if [ -f $$track ]; then \
 	pack=$$(echo $$track | sed 's@.*/\(.*\)-[0-9c].*@\1@') && \
+	version=$$(echo $$track | sed 's@.*-\([0-9c].*\)@\1@') && \
 	xsltproc --stringparam packages $(PACK_LIST) \
 	--stringparam package $$pack \
+	--stringparam version $$version \
 	-o track.tmp $(XSLDIR)/bump.xsl $@ && \
 	sed -i 's@PACKDESC@$(TOPDIR)/packdesc.dtd@' track.tmp && \
 	xmllint --format --postvalid track.tmp > $@; \
         fi; \
 	done; \
-	rm -f track.tmp; \
-	fi
+	rm -f track.tmp
 
 $(TRACKING_DIR):
 	@echo Creating $(TRACKING_DIR)
