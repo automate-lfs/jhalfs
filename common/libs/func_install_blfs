@@ -1,0 +1,156 @@
+#!/bin/bash
+
+# $Id$
+
+#----------------------------# Prepare BLFS_ROOT and extract
+install_blfs_tools() {       # the scriptlets to build
+#----------------------------# the dependency tools
+# Install the files
+[[ ! -d ${BUILDDIR}${BLFS_ROOT} ]] && mkdir -pv ${BUILDDIR}${BLFS_ROOT}
+cp -r BLFS/* ${BUILDDIR}${BLFS_ROOT}
+cp -r menu ${BUILDDIR}${BLFS_ROOT}
+cp $COMMON_DIR/progress_bar.sh ${BUILDDIR}${BLFS_ROOT}
+cp README.BLFS ${BUILDDIR}${BLFS_ROOT}
+
+# Clean-up
+make -C ${BUILDDIR}${BLFS_ROOT}/menu clean
+rm -rf ${BUILDDIR}${BLFS_ROOT}/libs/.svn
+rm -rf ${BUILDDIR}${BLFS_ROOT}/xsl/.svn
+rm -rf ${BUILDDIR}${BLFS_ROOT}/menu/.svn
+rm -rf ${BUILDDIR}${BLFS_ROOT}/menu/lxdialog/.svn
+
+# Set some harcoded envars to their proper values
+sed -i s@tracking-dir@$TRACKING_DIR@ \
+    ${BUILDDIR}${BLFS_ROOT}/{Makefile,gen-makefile.sh}
+
+# Downloads the book, initialize the tracking file and the package database
+make -j1 -C $BUILDDIR$BLFS_ROOT TRACKING_DIR=$BUILDDIR$TRACKING_DIR \
+    $BUILDDIR$BLFS_ROOT/packages.xml
+
+# Because the BLFS Makefile is supposed to be used in chroot (or booted)
+# mode, the tracking file has wrong path for DTD. Change it:
+sed -i s@$BUILDDIR@@ $BUILDDIR$TRACKING_DIR/instpkg.xml
+
+# Manually build a 'configuration' file
+if [ "$DEP_LIBXML" = y ]; then
+  LINE_LIBXML='CONFIG_libxml2=y'
+else
+  LINE_LIBXML='#CONFIG_libxml2 is not set'
+fi
+if [ "$DEP_LIBXSLT" = y ]; then
+  LINE_LIBXSLT='CONFIG_libxslt=y'
+else
+  LINE_LIBXSLT='#CONFIG_libxslt is not set'
+fi
+if [ "$DEP_TIDY" = y ]; then
+  LINE_TIDY='CONFIG_html-tidy=y'
+else
+  LINE_TIDY='#CONFIG_html-tidy is not set'
+fi
+if [ "$DEP_DBXML" = y ]; then
+  LINE_DBXML='CONFIG_DocBook=y'
+else
+  LINE_DBXML='#CONFIG_DocBook is not set'
+fi
+if [ "$DEP_LYNX" = y ]; then
+  LINE_LYNX='CONFIG_lynx=y'
+else
+  LINE_LYNX='#CONFIG_lynx is not set'
+fi
+if [ "$DEP_SUDO" = y ]; then
+  LINE_SUDO='CONFIG_sudo=y'
+else
+  LINE_SUDO='#CONFIG_sudo is not set'
+fi
+if [ "$DEP_WGET" = y ]; then
+  LINE_WGET='CONFIG_wget=y'
+else
+  LINE_WGET='#CONFIG_wget is not set'
+fi
+if [ "$DEP_GPM" = y ]; then
+  LINE_GPM='CONFIG_gpm=y'
+else
+  LINE_GPM='#CONFIG_gpm is not set'
+fi
+if [ "$DEP_SVN" = y ]; then
+  LINE_SVN='CONFIG_subversion=y'
+else
+  LINE_SVN='#CONFIG_subversion is not set'
+fi
+
+cat >$BUILDDIR$BLFS_ROOT/configuration <<EOF
+$LINE_LIBXML
+$LINE_LIBXSLT
+$LINE_WGET
+$LINE_TIDY
+$LINE_DBXML
+$LINE_SVN
+$LINE_GPM
+$LINE_LYNX
+$LINE_SUDO
+MAIL_SERVER=sendmail
+optDependency=2
+SUDO=n
+EOF
+
+# Generates the scripts for the blfs tools dependencies (in ./scripts)
+yes "yes" | $BUILDDIR$BLFS_ROOT/gen_pkg_book.sh  $BUILDDIR$BLFS_ROOT
+
+# Move the scriptlets where they should be
+rm -rf $BUILDDIR$BLFS_ROOT/scripts
+mv scripts $BUILDDIR$BLFS_ROOT
+
+# Generates a list containing download and copying instructions for tarballs
+echo -e '#!/bin/bash\nset -e\n' > $BUILDDIR$BLFS_ROOT/download_script
+sed -n -e '/PACKAGE=/,/md5sum/p' \
+       -e '/PACKAGE1=/,/^fi/p' \
+       -e '/PATCH=/,/^fi/p' \
+       -e '/URL=/,/unpacked/p' \
+    $BUILDDIR$BLFS_ROOT/scripts/* >> $BUILDDIR$BLFS_ROOT/download_script
+chmod u+x $BUILDDIR$BLFS_ROOT/download_script
+
+# Downloads (or copy) to build_dir/sources
+pushd $BUILDDIR/sources
+FTP_SERVER=$SERVER/pub/blfs/ SRC_ARCHIVE=$SRC_ARCHIVE $BUILDDIR$BLFS_ROOT/download_script
+# The blfs-bootscripts package is at the wrong location
+mkdir -p blfs-bootscripts
+mv blfs-bootscripts*tar* blfs-bootscripts
+popd
+rm -v $BUILDDIR$BLFS_ROOT/download_script
+
+# Suppresses unneeded parts of the scriptlets
+if [ "$DEP_WGET" = y ]; then
+  sed -i s'/-ssl=.*/out-ssl/' $BUILDDIR$BLFS_ROOT/scripts/*wget
+fi
+if [ "$DEP_SUDO" = y ]; then
+  sed -i '/pam.d/i mkdir -p /etc/pam.d' $BUILDDIR$BLFS_ROOT/scripts/*sudo
+fi
+if [ "$DEP_SVN" = y ]; then
+  sed -i -e /javahl/d -e /swig/d $BUILDDIR$BLFS_ROOT/scripts/*subversion
+fi
+
+# At last generates the build Makefile
+mkdir -p $BUILDDIR$BLFS_ROOT/work
+pushd $BUILDDIR$BLFS_ROOT/work
+../gen-makefile.sh
+sed -i -e '/xsltproc/,+6d' \
+       -e '/^all/s@$@ update@' \
+       -e 's/touch/@touch/' Makefile
+cat >> Makefile << EOF
+update:
+	@echo Updating the tracking file
+	@for file in *-*; do \\
+	xsltproc --stringparam packages ../packages.xml \\
+	--stringparam package \$\${file##*z-} \\
+	-o track.tmp \\
+	../xsl/bump.xsl \$(TRACKING_FILE); \\
+	sed -i 's@PACKDESC@$BLFS_ROOT/packdesc.dtd@' track.tmp; \\
+	xmllint --format --postvalid track.tmp > \$(TRACKING_FILE); \\
+	rm track.tmp; \\
+	done
+	@touch \$@
+	@echo -e "\n\n "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK
+	@echo --------------------------------------------------------------------------------\$(WHITE)
+EOF
+popd
+}
