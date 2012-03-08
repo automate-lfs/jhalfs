@@ -83,10 +83,9 @@ $Id$
      blfs-tool support' in jhalfs configuration menu, the tools are
      installed in $BLFS_ROOT (default /blfs_root) on the xLFS system,
      and a few dependencies (which you may select) are built at the
-     end of the jhalfs run. The pre-made build dependencies
-     scripts has been written based on a LFS build. For CLFS and HLFS
-     builds you may need to adjust those scripts, that are found into the
-     common/blfs-tool-deps directory in the jhalfs sources tree.
+     end of the jhalfs run, before the custom tools. As of March 8, 2012,
+     works only with LFS. The instructions for building the dependencies
+     are taken from the BLFS book.
 
      (TODO: is this relevant to present CLFS?)
      WARNING:: If you add blfs-tool support on a CLFS Sysroot build
@@ -107,7 +106,7 @@ $Id$
          directory and the files that it contains.
 
        - If you think that you may need the libxml2/libxslt Python modules,
-         remove the libxml2 and libxslt trackin files found in $TRACKING_DIR.
+         remove the libxml2 and libxslt entries found in $TRACKING_FILE.
 
        - Configure sudo, adding the needed privileges for the user. For
          newer sudo version, do not forget to add a line Defaults secure_path=

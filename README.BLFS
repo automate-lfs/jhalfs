@@ -33,8 +33,8 @@ $Id$
 
 3. USAGE::
 
-     Due the complexity of the BLFS book, the scripts and Makefile generation
-  is done in several steps:
+     Due to the complexity of the BLFS book, the scripts and Makefile
+     generation is done in several steps:
 
   3.1  INSTALLED PACKAGES TRACKING SYSTEM::
 
@@ -54,7 +54,10 @@ $Id$
 
        The default location of the tracking directory is /var/lib/jhalfs/BLFS.
     NB : after the initial build, that directory is only used to contain
-    instpkg.xml
+    instpkg.xml, unless custom tools have been built. In the latter case,
+    it also contains empty files whose name are $PKG-$VERSION for each
+    versionned package built. The information about those packages is
+    included into instpkg.xml the next time the tool is run.
 
   3.2  BLFS_TOOL INSTALLATION::
 
@@ -118,11 +121,12 @@ $Id$
     update the XML sources and packages database. This is not necessary if
     you just built xLFS, and you can skip to step 3.4.
 
-       To do that run "make update". It may happen that the subversion
+       To do that, run "make update". It may happen that the subversion
     version of your building host is older than the version you just
     built. This may generate weird errors like "'.' omitted". The easiest
     thing to do in that case, is to completely remove the blfs-xml directory
-    and run "make update".
+    and run "make update". With recent versions of subversion, you can also
+    run "svn upgrade" from inside the blfs-xml directory.
 
        On the next configuration run, packages already installed but listed
     with a new version in the book will be available for target selection
@@ -160,7 +164,8 @@ $Id$
     C is built first. If you answer yes, C is put in place of A as a dependency
     of B, then the tree dependency restarts from there, that is with the
     layout B->C->... You may then hit the case B->C->A->C, for which you
-    should answer no, unless you want to enter an infinite (human driven) loop.
+    should answer no, unless you want to enter an infinite (human driven)
+    loop;-)
 
        You end up with a book.xml file which contains the linearized book,
     and a rendered HTML, in the directory book-html, which you can browse with
@@ -212,15 +217,15 @@ $Id$
 
       Normally, bootscript installation should work. On the other hand, the
    book does not give instruction for running them, so you might have to
-   manually insert /etc/init.d/rd.d/<initscript> at some place during the build.
+   manually insert /etc/init.d/rc.d/<initscript> at some place during the build.
 
    4.2  PACKAGE CONFIGURATION::
 
       For those packages that have a "Configuration" section, you should
    edit the build script to fit the needs of your system. Sometimes, the
    bash startup files are modified (see for example the instructions for
-   llvm). You might have to insert something like "source /etc/bash_profile"
-   at some point during the build.
+   llvm). The shipped 'envars.conf' contains a line 'source /etc/profile',
+   which ensures that the proper environment variables are used.
 
    4.3  GCC, JDK, Sane, and KDE-multimedia, freetype2, MesaLib and others
 
@@ -249,13 +254,9 @@ $Id$
 
    4.5  PATCHES
 
-        By default, all required patches will be downloaded from the NET.
-
-        If you have previously downloaded the patches, you must edit the
-     scripts to use your local patches.
-
-        Also, be sure that all scripts have the commands to download/apply the
-     required patches. Due to book layout issues, some patches may be missing.
+        Please, make sure that all scripts have the commands to download/apply
+     the required patches. Due to book layout issues, some patches may be
+     missing.
 
    4.6  ROOT COMMANDS
 
@@ -266,7 +267,10 @@ $Id$
      fragile construct:
        sudo bash -c '<commands to be executed as root>'
      which fail if the commands to be executed contain themselves a ' or access
-     a bash variable $XXX. So carefully review them.
+     a bash variable $XXX. So carefully review them. When you want to use
+     environment variables, it is sometimes better to replace simple quotes
+     with double quotes, but beware the construct is even more fragile.
+     Carefully check it...
 
         Due to book layout issues, some sudo commands may be missing.
 
@@ -275,7 +279,3 @@ $Id$
         There may be other issues that we are not aware of. If you find
      any, please report it to <alfs-discuss@linuxfromscratch.org>.
 
-        Presently, there is an error in the book in file
-     x/installing/x7proto.xml. You should change the role='required' to
-     role='optional' in the optional dependencies, if you plan to build
-     X.
