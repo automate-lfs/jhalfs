@@ -565,17 +565,12 @@ menu "--- BOOK Settings"
 		bool	"DocBook XML DTD (required)"
 		default	y
 
-		config	DEP_UNZIP
-		bool	"UnZip (required to install DocBook XML DTD)"
-		default	y
-		depends on DEP_DBXML
-
 		#config	DEP_DBXSL
 		#bool	"DocBook XSL (required)"
 		#default	y
 
 		config	DEP_LYNX
-		bool	"lynx (required)"
+		bool	"lynx (optional, for reading the generated book)"
 		default	y
 
 		config	DEP_SUDO
@@ -590,23 +585,18 @@ menu "--- BOOK Settings"
 		bool	"GPM (optional, see help)"
 		default	y
 		help
-			#-- You MUST install the gpm bootscript manually
-			#   and create its configuration file.
-			#
-			#   An alternative is to unselect this option and
-			#   install gpm, its configuration file, and its
-			#   bootscript using the custom tools support.
+			#-- if you install gpm, it will be started
+			#   automatically on boot. You'll have to edit
+			#   /etc/sysconfig/mouse for your system
 
 		config	DEP_SVN
 		bool	"SVN client (optional, see help)"
 		default	n
 		help
-			#-- Subversion-1.3.1 will be installed. This version is
-			#   old but does not rely on additional packages to be
-			#   built.
-			#
-			#   If you are happy with this old version and don't
-			#   need extra features, select this option.
+			#-- Subversion is needed for updating the book
+			#   sources. It is built without ssl support,
+			#   so you may have to rebuild it afterwards.
+
 	endmenu
 	#--- End blfs-tool Support
 

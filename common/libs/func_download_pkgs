@@ -197,10 +197,6 @@ create_urls() {              #
 
   cd $BUILDDIR/sources
 
-  if [[ "${BLFS_TOOL}" = "y" ]]; then
-    add_blfs_deps_urls
-  fi
-
   if [[ "${CUSTOM_TOOLS}" = "y" ]]; then
     add_CustomToolsURLS
   fi

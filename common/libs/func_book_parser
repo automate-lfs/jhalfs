@@ -155,8 +155,6 @@ extract_commands() {         #
         exit 1 ;;
   esac
 
-  [[ "${BLFS_TOOL}" = "y" ]] && copy_blfs_deps_scripts
-
   echo "done"
 
   # Make the scripts executable.
