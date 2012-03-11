@@ -11,8 +11,11 @@ else
   Q = @
 endif
 
+# Known behavior
 LANG=C
 LC_ALL=C
+
+# The right-hand side is updated by jhalfs
 TRACKING_DIR = tracking-dir
 TOPDIR=$(shell pwd)
 BLFS_XML = $(TOPDIR)/blfs-xml
@@ -62,13 +65,14 @@ $(PACK_LIST): $(XSLDIR)/gen_pkg_list.xsl $(XSLDIR)/specialCases.xsl $(TRACKFILE)
 	$(Q)rm $@.tmp
 
 # Beware of the echo '$(INITIAL_TRACK)' command below:
-# if default shell is bash, needs echo -e
-# if default shell is sh : echo is enough
+# if shell is bash or sh linked to bash, needs echo -e
+# if shell is dash or sh linked to dash: echo is enough
 # Don't ask me why
+# So use /bin/echo (needs -e)
 $(TRACKFILE): $(TRACKING_DIR)
 	$(Q)if ! [ -f $@ ]; then \
 	echo Initializing $(TRACKFILE) && \
-	echo '$(INITIAL_TRACK)' > $@ && \
+	/bin/echo -e echo '$(INITIAL_TRACK)' > $@ && \
 	$(MAKE) $(PACK_LIST); \
 	fi
 	@for track in $(TRACKING_DIR)/*-*; do \
