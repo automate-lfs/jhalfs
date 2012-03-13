@@ -72,7 +72,7 @@ $(PACK_LIST): $(XSLDIR)/gen_pkg_list.xsl $(XSLDIR)/specialCases.xsl $(TRACKFILE)
 $(TRACKFILE): $(TRACKING_DIR)
 	$(Q)if ! [ -f $@ ]; then \
 	echo Initializing $(TRACKFILE) && \
-	/bin/echo -e echo '$(INITIAL_TRACK)' > $@ && \
+	/bin/echo -e '$(INITIAL_TRACK)' > $@ && \
 	$(MAKE) $(PACK_LIST); \
 	fi
 	@for track in $(TRACKING_DIR)/*-*; do \
