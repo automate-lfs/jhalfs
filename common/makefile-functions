@@ -33,9 +33,8 @@ endef
 define echo_SU_request
   @echo $(BOLD)--------------------------------------------------------------------------------
   @echo $(BLUE)$@
-  @echo $(WHITE)ROOT privilege is required to perform a number commands
-  @echo sudo will request a password to all high privilege cmds to execute correctly
-endef
+  @echo $(WHITE)ROOT privilege is required to perform a number of commands
+  @echo sudo will request a password in order to execute all high privilege commands
 
 define echo_SULUSER_request
   @echo $(BOLD)--------------------------------------------------------------------------------
