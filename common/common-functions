@@ -71,7 +71,10 @@ if [ "${CLEAN}" = "y" ]; then
       if [ -d $BUILDDIR/sys ] ; then
         sudo rmdir $BUILDDIR/sys || exit 1
       fi
-      sudo rm -rf $BUILDDIR/{bin,boot,dev,etc,home,lib,media,mnt,opt,root,sbin,srv,tmp,tools,cross-tools,usr,var,$BLFS_ROOT}
+      sudo rm -rf $BUILDDIR/{bin,boot,dev,etc,home,lib,media,mnt,opt,root,sbin,srv,tmp,tools,cross-tools,usr,var}
+      if [[ "${BLFS_TOOL}" = "y" ]] ; then 
+        sudo rm -rf $BUILDDIR/$BLFS_ROOT
+      fi
       echo "done"
       echo -n "Cleaning $JHALFSDIR ..."
       sudo rm -rf $JHALFSDIR
