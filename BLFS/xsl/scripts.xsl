@@ -436,11 +436,11 @@ fi
       <xsl:choose>
         <xsl:when test="@role = 'root'">
           <xsl:if test="$sudo = 'y'">
-            <xsl:text>sudo sh -c '</xsl:text>
+            <xsl:text>sudo sh &lt;&lt; ROOT_EOF&#xA;</xsl:text>
           </xsl:if>
           <xsl:apply-templates select="userinput" mode="root"/>
           <xsl:if test="$sudo = 'y'">
-            <xsl:text>'</xsl:text>
+            <xsl:text>&#xA;ROOT_EOF</xsl:text>
           </xsl:if>
         </xsl:when>
         <xsl:otherwise>
@@ -507,10 +507,10 @@ popd</xsl:text>
   <xsl:template match="userinput" mode="root">
     <xsl:for-each select="child::node()">
       <xsl:choose>
-        <xsl:when test="self::text() and contains(string(),'make')">
-          <xsl:value-of select="substring-before(string(),'make')"/>
-          <xsl:text>make -j1</xsl:text>
-          <xsl:value-of select="substring-after(string(),'make')"/>
+        <xsl:when test="self::text()">
+          <xsl:call-template name="output-root">
+            <xsl:with-param name="out-string" select="string()"/>
+          </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>
           <xsl:apply-templates select="self::node()"/>
@@ -519,18 +519,52 @@ popd</xsl:text>
     </xsl:for-each>
   </xsl:template>
 
-  <xsl:template match="replaceable">
-<!-- Not needed anymore
+  <xsl:template name="output-root">
+    <xsl:param name="out-string" select="''"/>
     <xsl:choose>
-      <xsl:when test="ancestor::sect1[@id='xorg7-server']">
-        <xsl:text>$SRC_DIR/MesaLib</xsl:text>
+      <xsl:when test="contains($out-string,'make')">
+        <xsl:call-template name="output-root">
+          <xsl:with-param name="out-string"
+                          select="substring-before($out-string,'make')"/>
+        </xsl:call-template>
+        <xsl:text>make -j1</xsl:text>
+        <xsl:call-template name="output-root">
+          <xsl:with-param name="out-string"
+                          select="substring-after($out-string,'make')"/>
+        </xsl:call-template>
       </xsl:when>
-      <xsl:otherwise> -->
+      <xsl:when test="contains($out-string,'`')">
+        <xsl:call-template name="output-root">
+          <xsl:with-param name="out-string"
+                          select="substring-before($out-string,'`')"/>
+        </xsl:call-template>
+        <xsl:text>\`</xsl:text>
+        <xsl:call-template name="output-root">
+          <xsl:with-param name="out-string"
+                          select="substring-after($out-string,'`')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($out-string,'\')">
+        <xsl:call-template name="output-root">
+          <xsl:with-param name="out-string"
+                          select="substring-before($out-string,'\')"/>
+        </xsl:call-template>
+        <xsl:text>\\</xsl:text>
+        <xsl:call-template name="output-root">
+          <xsl:with-param name="out-string"
+                          select="substring-after($out-string,'\')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$out-string"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="replaceable">
         <xsl:text>**EDITME</xsl:text>
         <xsl:apply-templates/>
         <xsl:text>EDITME**</xsl:text>
-<!--      </xsl:otherwise>
-    </xsl:choose> -->
   </xsl:template>
 
 </xsl:stylesheet>
