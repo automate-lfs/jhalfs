@@ -59,7 +59,7 @@ inline_doc
   local -r blfs_tool_PARAM_LIST="BLFS_BRANCH_ID BLFS_ROOT BLFS_XML TRACKING_DIR \
                                  DEP_LIBXML DEP_LIBXSLT DEP_TIDY \
                                  DEP_DBXML DEP_LYNX DEP_SUDO DEP_WGET \
-                                 DEP_SVN DEP_GPM"
+                                 DEP_SVN DEP_GPM DEP_OPENSSL DEP_PYTHON"
   local -r custom_tool_PARAM_LIST="TRACKING_DIR"
 
   # Internal variables
