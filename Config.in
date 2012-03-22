@@ -583,7 +583,7 @@ menu "--- BOOK Settings"
 
 		config	DEP_GPM
 		bool	"GPM (optional, see help)"
-		default	y
+		default	n
 		help
 			#-- if you install gpm, it will be started
 			#   automatically on boot. You'll have to edit
@@ -594,8 +594,24 @@ menu "--- BOOK Settings"
 		default	n
 		help
 			#-- Subversion is needed for updating the book
-			#   sources. It is built without ssl support,
-			#   so you may have to rebuild it afterwards.
+			#   sources. If you want ssl support, select
+			#   OPENSSL below.
+
+		config	DEP_OPENSSL
+		bool	"OPENSSL (optional, see help)"
+		default	n
+		help
+			#-- selecting OPENSSL here allows to build
+			#   subversion with ssl support, avoiding a later
+			#   recompilation
+
+		config	DEP_PYTHON
+		bool	"PYTHON 2 (optional, see help)"
+		default	n
+		help
+			#-- selecting PYTHON 2 here allows to build
+			#   the libxml2 and libxslt python modules,
+			#   avoiding a later recompilation
 
 	endmenu
 	#--- End blfs-tool Support

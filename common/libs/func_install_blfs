@@ -79,13 +79,25 @@ if [ "$DEP_SVN" = y ]; then
 else
   LINE_SVN='#CONFIG_subversion is not set'
 fi
+if [ "$DEP_OPENSSL" = y ]; then
+  LINE_OPENSSL='CONFIG_openssl=y'
+else
+  LINE_OPENSSL='#CONFIG_openssl is not set'
+fi
+if [ "$DEP_PYTHON" = y ]; then
+  LINE_PYTHON='CONFIG_python2=y'
+else
+  LINE_PYTHON='#CONFIG_python2 is not set'
+fi
 
 cat >$BUILDDIR$BLFS_ROOT/configuration <<EOF
+$LINE_PYTHON
 $LINE_LIBXML
 $LINE_LIBXSLT
 $LINE_WGET
 $LINE_TIDY
 $LINE_DBXML
+$LINE_OPENSSL
 $LINE_SVN
 $LINE_GPM
 $LINE_LYNX
@@ -129,6 +141,12 @@ if [ "$DEP_SUDO" = y ]; then
 fi
 if [ "$DEP_SVN" = y ]; then
   sed -i -e /javahl/d -e /swig/d $BUILDDIR$BLFS_ROOT/scripts/*subversion
+fi
+if [ "$DEP_PYTHON" = y ]; then
+  sed -i -e '/^make.*Doc/d' -e '/^chmod/{n;N;d}' $BUILDDIR$BLFS_ROOT/scripts/*python2
+fi
+if [ "$DEP_OPENSSL" = y ]; then
+  sed -i 's/^make$/make -j1/' $BUILDDIR$BLFS_ROOT/scripts/*openssl
 fi
 
 # At last generates the build Makefile
