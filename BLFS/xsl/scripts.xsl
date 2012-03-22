@@ -533,7 +533,7 @@ popd</xsl:text>
                           select="substring-after($out-string,'make')"/>
         </xsl:call-template>
       </xsl:when>
-      <xsl:when test="contains($out-string,'`')">
+      <xsl:when test="contains($out-string,'`') and $sudo = 'y'">
         <xsl:call-template name="output-root">
           <xsl:with-param name="out-string"
                           select="substring-before($out-string,'`')"/>
@@ -544,7 +544,7 @@ popd</xsl:text>
                           select="substring-after($out-string,'`')"/>
         </xsl:call-template>
       </xsl:when>
-      <xsl:when test="contains($out-string,'\')">
+      <xsl:when test="contains($out-string,'\') and $sudo = 'y'">
         <xsl:call-template name="output-root">
           <xsl:with-param name="out-string"
                           select="substring-before($out-string,'\')"/>
