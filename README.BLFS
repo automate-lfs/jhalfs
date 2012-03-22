@@ -13,7 +13,7 @@ $Id$
   change based on what dependencies will be used, etc.
 
      That being said, the goal of the blfs-tool is to help you solve package
-  dependencies, create build scripts and a Makefile. Few of the auto-generated
+  dependencies, create build scripts and a Makefile. Not all the auto-generated
   build scripts and Makefile will work "as is", thus, as a general rule,
   you will need to review and edit the scripts while reading the book.
 
@@ -61,6 +61,7 @@ $Id$
 
   3.2  BLFS_TOOL INSTALLATION::
 
+    3.2.1 Normal install
        The tools are installed just after the building of xLFS, if the
     appropriate options have been selected in the building menu, as per
     jhalfs README. If you forgot to select the options and xLFS has been
@@ -98,7 +99,16 @@ $Id$
                             database and the tracking file.
     envars.conf             envars needed when running the target build scripts
 
-  Several files are generated during the process:
+    3.2.2 Install to an already running LFS/BLFS system
+       If you forgot to install the tools when building xLFS, or want to try
+    the tools, you can just run the install-blfs-tools.sh script. It will
+    create the above hierarchy in your home directory and intialize the
+    tracking file. You have first to make sure that the tracking dir exists
+    and is writable by the user. You may also populate it with (empty) files
+    whose names are of the form package-version, for installed packages, so
+    that they are included into the tracking file.
+    3.3.3 Working files
+        Several files are generated during the process:
 
     packages.xml            auto-generated packages database
     Config.in               input file for the menu driven choices
