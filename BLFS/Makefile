@@ -75,7 +75,7 @@ $(TRACKFILE): $(TRACKING_DIR)
 	/bin/echo -e '$(INITIAL_TRACK)' > $@ && \
 	$(MAKE) $(PACK_LIST); \
 	fi
-	@for track in $(TRACKING_DIR)/*-*; do \
+	$(Q)for track in $(TRACKING_DIR)/*-*; do \
         if [ -f $$track ]; then \
 	pack=$$(echo $$track | sed 's@.*/\(.*\)-[0-9c].*@\1@') && \
 	version=$$(echo $$track | sed 's@.*-\([0-9c].*\)@\1@') && \
