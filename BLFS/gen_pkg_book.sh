@@ -173,7 +173,7 @@ for ht in ${BookHtml}/*.html
   do sed -i 's@../stylesheets@stylesheets@' $ht
   sed -i 's@../images@images@' $ht
 done
-echo -en "\n\tGenerating the build scripts ..."
+echo -en "\n\tGenerating the build scripts ...\n"
 rm -rf scripts
 xsltproc --xinclude --nonet \
          --stringparam sudo $SUDO \
