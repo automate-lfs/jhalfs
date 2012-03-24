@@ -43,10 +43,7 @@ parse_configuration() {    #
     case "${REPLY}" in
       # Create global variables for these parameters.
       optDependency=* | \
-      PRINT_SERVER=*  | \
       MAIL_SERVER=*   | \
-      GHOSTSCRIPT=*   | \
-      KBR5=*  | \
       SUDO=*  )  eval ${REPLY} # Define/set a global variable..
                       continue ;;
     esac
@@ -71,7 +68,7 @@ parse_configuration() {    #
 validate_configuration() { #
 #--------------------------#
   local -r dotSTR=".................."
-  local -r PARAM_LIST="DEP_LEVEL SUDO PRINT_SERVER MAIL_SERVER GHOSTSCRIPT KBR5"
+  local -r PARAM_LIST="DEP_LEVEL SUDO MAIL_SERVER"
   local -r PARAM_VALS='${config_param}${dotSTR:${#config_param}} ${L_arrow}${BOLD}${!config_param}${OFF}${R_arrow}'
   local config_param
   local -i index
