@@ -408,8 +408,6 @@ build_Makefile() {           #
   chapter78_Makefiles
   # Add the CUSTOM_TOOLS targets, if needed
   [[ "$CUSTOM_TOOLS" = "y" ]] && wrt_CustomTools_target
-  # Add the BLFS_TOOL targets, if needed
-  [[ "$BLFS_TOOL" = "y" ]] && wrt_blfs_tool_targets
 
   # Add a header, some variables and include the function file
   # to the top of the real Makefile.
@@ -440,7 +438,7 @@ build_Makefile() {           #
 (
     cat << EOF
 
-all:	ck_UID mk_SETUP mk_LUSER mk_SUDO mk_CHROOT mk_BOOT create-sbu_du-report mk_CUSTOM_TOOLS mk_BLFS_TOOL
+all:	ck_UID mk_SETUP mk_LUSER mk_SUDO mk_CHROOT mk_BOOT create-sbu_du-report mk_BLFS_TOOL mk_CUSTOM_TOOLS
 	@sudo make do_housekeeping
 	@echo "$VERSION - jhalfs build" > lfs-release && \\
 	sudo mv lfs-release \$(MOUNT_PT)/etc
@@ -487,19 +485,18 @@ mk_BOOT: mk_CHROOT
 	@( sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) BOOT")
 	@touch \$@
 
-mk_CUSTOM_TOOLS: create-sbu_du-report
+mk_BLFS_TOOL: create-sbu_du-report
+	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
+	  \$(call sh_echo_PHASE,Building BLFS_TOOL); \\
+	  (sudo \$(CHROOT2) "make -C $BLFS_ROOT/work"); \\
+	fi;
+	@touch \$@
+
+mk_CUSTOM_TOOLS: mk_BLFS_TOOL
 	@if [ "\$(ADD_CUSTOM_TOOLS)" = "y" ]; then \\
 	  \$(call sh_echo_PHASE,Building CUSTOM_TOOLS); \\
 	  sudo mkdir -p ${BUILDDIR}${TRACKING_DIR}; \\
 	  (sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) CUSTOM_TOOLS"); \\
-	fi;
-	@touch \$@
-
-mk_BLFS_TOOL: mk_CUSTOM_TOOLS
-	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
-	  \$(call sh_echo_PHASE,Building BLFS_TOOL); \\
-	  sudo mkdir -p $BUILDDIR$TRACKING_DIR; \\
-	  (sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) BLFS_TOOL"); \\
 	fi;
 	@touch \$@
 
@@ -531,13 +528,12 @@ CHROOT:       SHELL=/tools/bin/bash
 CHROOT:       $chapter6
 BOOT:         $chapter78
 CUSTOM_TOOLS: $custom_list
-BLFS_TOOL:    $blfs_tool
 
 
 create-sbu_du-report:  mk_BOOT
 	@\$(call echo_message, Building)
 	@if [ "\$(ADD_REPORT)" = "y" ]; then \\
-	  ./create-sbu_du-report.sh logs $VERSION; \\
+	  sudo ./create-sbu_du-report.sh logs $VERSION; \\
 	  \$(call echo_report,$VERSION-SBU_DU-$(date --iso-8601).report); \\
 	fi;
 	@touch  \$@
