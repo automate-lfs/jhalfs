@@ -108,7 +108,7 @@ check_prerequisites() {      #
   check_version "5.8.8"   "$(perl -V:version | cut -f2 -d\')"                  "PERL"
   check_version "4.1.5"   "$(sed --version   | head -n1 | cut -d" " -f4)"      "SED"
   check_version "4.9"	  "$(makeinfo --version | head -n1 | awk '{ print$NF }')" "TEXINFO"
-  check_version "5.0.3"   "$(xz --version | head -n1 | cut -d" " -f4)"         "XZ"
+  check_version "5.0.0"   "$(xz --version | head -n1 | cut -d" " -f4)"         "XZ"
   # Check for minimum sudo version
   SUDO_LOC="$(whereis -b sudo | cut -d" " -f2)"
   if [ -x $SUDO_LOC ]; then
