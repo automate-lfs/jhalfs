@@ -61,7 +61,7 @@ inline_doc
   set -- $tst_version # Set positional parameters to test version values
   # Values beginning with zero are taken as octal, so that for example
   # 2.07.08 gives an error because 08 cannot be octal. The ## stuff supresses
-  # leading sero's
+  # leading zero's
   major=${1##*(0)}; minor=${2##*(0)}; revision=${3##*(0)}
   #
   # Compare against minimum acceptable version..
@@ -108,7 +108,7 @@ check_prerequisites() {      #
   check_version "5.8.8"   "$(perl -V:version | cut -f2 -d\')"                  "PERL"
   check_version "4.1.5"   "$(sed --version   | head -n1 | cut -d" " -f4)"      "SED"
   check_version "4.9"	  "$(makeinfo --version | head -n1 | awk '{ print$NF }')" "TEXINFO"
-  check_version "5.0.3"   "$(xz --version | head -n1 | cut -d" " -f4)"         "XZ"
+  check_version "5.0.0"   "$(xz --version | head -n1 | cut -d" " -f4)"         "XZ"
   # Check for minimum sudo version
   SUDO_LOC="$(whereis -b sudo | cut -d" " -f2)"
   if [ -x $SUDO_LOC ]; then
