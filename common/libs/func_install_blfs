@@ -94,10 +94,10 @@ cat >$BUILDDIR$BLFS_ROOT/configuration <<EOF
 $LINE_PYTHON
 $LINE_LIBXML
 $LINE_LIBXSLT
-$LINE_WGET
 $LINE_TIDY
 $LINE_DBXML
 $LINE_OPENSSL
+$LINE_WGET
 $LINE_SVN
 $LINE_GPM
 $LINE_LYNX
@@ -133,7 +133,7 @@ popd
 rm -v $BUILDDIR$BLFS_ROOT/download_script
 
 # Suppresses unneeded parts of the scriptlets
-if [ "$DEP_WGET" = y ]; then
+if [ "$DEP_WGET" = y ] && ! [ "$DEP_OPENSSL" = y ]; then
   sed -i s'/-ssl=.*/out-ssl/' $BUILDDIR$BLFS_ROOT/scripts/*wget
 fi
 if [ "$DEP_SUDO" = y ]; then
