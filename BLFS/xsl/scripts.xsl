@@ -436,9 +436,9 @@ fi
       <xsl:choose>
         <xsl:when test="@role = 'root'">
           <xsl:if test="$sudo = 'y'">
-            <xsl:text>sudo sh &lt;&lt; ROOT_EOF&#xA;</xsl:text>
+            <xsl:text>sudo -E sh &lt;&lt; ROOT_EOF&#xA;</xsl:text>
           </xsl:if>
-          <xsl:apply-templates select="userinput" mode="root"/>
+          <xsl:apply-templates mode="root"/>
           <xsl:if test="$sudo = 'y'">
             <xsl:text>&#xA;ROOT_EOF</xsl:text>
           </xsl:if>
@@ -504,19 +504,10 @@ popd</xsl:text>
     <xsl:apply-templates/>
   </xsl:template>
 
-  <xsl:template match="userinput" mode="root">
-    <xsl:for-each select="child::node()">
-      <xsl:choose>
-        <xsl:when test="self::text()">
-          <xsl:call-template name="output-root">
-            <xsl:with-param name="out-string" select="string()"/>
-          </xsl:call-template>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:apply-templates select="self::node()"/>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:for-each>
+  <xsl:template match="text()" mode="root">
+    <xsl:call-template name="output-root">
+      <xsl:with-param name="out-string" select="string()"/>
+    </xsl:call-template>
   </xsl:template>
 
   <xsl:template name="output-root">
@@ -531,6 +522,17 @@ popd</xsl:text>
         <xsl:call-template name="output-root">
           <xsl:with-param name="out-string"
                           select="substring-after($out-string,'make')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($out-string,'$') and $sudo = 'y'">
+        <xsl:call-template name="output-root">
+          <xsl:with-param name="out-string"
+                          select="substring-before($out-string,'$')"/>
+        </xsl:call-template>
+        <xsl:text>\$</xsl:text>
+        <xsl:call-template name="output-root">
+          <xsl:with-param name="out-string"
+                          select="substring-after($out-string,'$')"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:when test="contains($out-string,'`') and $sudo = 'y'">
@@ -562,6 +564,12 @@ popd</xsl:text>
   </xsl:template>
 
   <xsl:template match="replaceable">
+        <xsl:text>**EDITME</xsl:text>
+        <xsl:apply-templates/>
+        <xsl:text>EDITME**</xsl:text>
+  </xsl:template>
+
+  <xsl:template match="replaceable" mode="root">
         <xsl:text>**EDITME</xsl:text>
         <xsl:apply-templates/>
         <xsl:text>EDITME**</xsl:text>

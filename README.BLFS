@@ -273,14 +273,20 @@ $Id$
         If building as a normal user (the default setting), be sure that all
      commands that require root privileges are run using sudo. Also make sure
      necessary root privilege commands are visible in your PATH. Or use
-     the `Defaults secure_path=' in /etc/sudoers. Also, the scripts use a
-     fragile construct:
-       sudo bash -c '<commands to be executed as root>'
-     which fail if the commands to be executed contain themselves a ' or access
-     a bash variable $XXX. So carefully review them. When you want to use
-     environment variables, it is sometimes better to replace simple quotes
-     with double quotes, but beware the construct is even more fragile.
-     Carefully check it...
+     the `Defaults secure_path=' in /etc/sudoers.
+        For commands necessitating root privileges, the generated scripts wrap
+     them with the construct:
+       sudo -E sh << ROOT_EOF
+         <commands to be executed as root with `$', ``', and `\' escaped>
+       ROOT_EOF
+     The -E switch ensures the whole environment is passed to the
+     commands to be run with root privileges. It is effective only if the
+     /etc/sudoers file contains `Defaults setenv', or SETENV in the user
+     attributes. If you think it is a security issue, you may forbid this
+     flag in /etc/sudoers, but then, you have to un-escape `$' for variables
+     coming from the environment in the instructions.
+        Although this construct is rather strong, it can fail in some corner
+     cases, so carefully review those instructions.
 
         Due to book layout issues, some sudo commands may be missing.
 
