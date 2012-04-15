@@ -132,7 +132,7 @@ depends MENU_</xsl:text>
         <xsl:text>]</xsl:text>
       </xsl:if>
       <xsl:text>"
-&#9;&#9;default&#9;y
+&#9;&#9;default&#9;n
 
 </xsl:text>
     </xsl:if>
@@ -179,7 +179,7 @@ depends MENU_</xsl:text>
         <xsl:text>]</xsl:text>
       </xsl:if>
       <xsl:text>"
-&#9;&#9;&#9;default&#9;y
+&#9;&#9;&#9;default&#9;n
 
 </xsl:text>
     </xsl:if>
