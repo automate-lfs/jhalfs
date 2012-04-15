@@ -204,8 +204,9 @@
 <!-- Dependencies -->
 <!-- If in Xorg chapter, consider that the preceding package is
      the first dependency (not always noted in the book) -->
-          <xsl:if test="ancestor::chapter[@id='x-window-system'] and
-                        preceding-sibling::sect1[@id != 'xorg7']">
+          <xsl:if test="ancestor::chapter[@id='kde4-core'] or
+                       (ancestor::chapter[@id='x-window-system'] and
+                        preceding-sibling::sect1[@id != 'xorg7'])">
             <xsl:text>
             </xsl:text>
             <xsl:element name="dependency">
