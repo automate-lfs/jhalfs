@@ -3,7 +3,7 @@
 
 set -e
 
-# Be sure that we know the taget name
+# Be sure that we know the target name
 [[ -z $1 ]] && exit
 TARGET=$1  # Remember the target build we are looking for
 MAKE_PPID=$2
@@ -26,8 +26,10 @@ declare -i  PREV_SEC=0
 # Prevent segfault on stripping phases
 if [[ "$BASHBIN" = "/tools/bin/bash" ]] ; then
   SLEEP=/tools/bin/sleep
-else
+elif [ -x /bin/sleep ] ; then
   SLEEP=/bin/sleep
+else
+  SLEEP=/usr/bin/sleep
 fi
 
 write_or_exit() {
