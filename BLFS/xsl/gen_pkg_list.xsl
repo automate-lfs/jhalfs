@@ -202,7 +202,7 @@
             </xsl:element>
           </xsl:if>
 <!-- Dependencies -->
-<!-- If in Xorg chapter, consider that the preceding package is
+<!-- If in Xorg or KDE chapter, consider that the preceding package is
      the first dependency (not always noted in the book) -->
           <xsl:if test="ancestor::chapter[@id='kde4-core'] or
                        (ancestor::chapter[@id='x-window-system'] and
@@ -212,8 +212,13 @@
             <xsl:element name="dependency">
               <xsl:attribute name="status">required</xsl:attribute>
               <xsl:attribute name="name">
-                <xsl:value-of
-                  select="preceding-sibling::sect1[1]/@id"/>
+                <xsl:choose>
+                  <xsl:when test="@id='xterm2'">xorg7-driver</xsl:when>
+                  <xsl:otherwise>
+                    <xsl:value-of
+                      select="preceding-sibling::sect1[1]/@id"/>
+                  </xsl:otherwise>
+                </xsl:choose>
               </xsl:attribute>
               <xsl:attribute name="type">ref</xsl:attribute>
             </xsl:element>
