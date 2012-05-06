@@ -10,7 +10,7 @@
 <!-- XSLT stylesheet to create shell scripts from "linear build" BLFS books. -->
 
   <!-- Build as user (y) or as root (n)? -->
-  <xsl:param name="sudo" select="y"/>
+  <xsl:param name="sudo" select="'y'"/>
 
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
