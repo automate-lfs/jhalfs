@@ -441,7 +441,8 @@ build_Makefile() {           #
 all:	ck_UID mk_SETUP mk_LUSER mk_SUDO mk_CHROOT mk_BOOT create-sbu_du-report mk_BLFS_TOOL mk_CUSTOM_TOOLS
 	@sudo make do_housekeeping
 	@echo "$VERSION - jhalfs build" > lfs-release && \\
-	sudo mv lfs-release \$(MOUNT_PT)/etc
+	sudo mv lfs-release \$(MOUNT_PT)/etc && \\
+	sudo chown root:root \$(MOUNT_PT)/etc/lfs-release
 	@\$(call echo_finished,$VERSION)
 
 ck_UID:
