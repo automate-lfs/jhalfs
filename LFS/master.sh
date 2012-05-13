@@ -440,9 +440,17 @@ build_Makefile() {           #
 
 all:	ck_UID mk_SETUP mk_LUSER mk_SUDO mk_CHROOT mk_BOOT create-sbu_du-report mk_BLFS_TOOL mk_CUSTOM_TOOLS
 	@sudo make do_housekeeping
-	@echo "$VERSION - jhalfs build" > lfs-release && \\
+	@echo $VERSION > lfs-release && \\
 	sudo mv lfs-release \$(MOUNT_PT)/etc && \\
 	sudo chown root:root \$(MOUNT_PT)/etc/lfs-release
+	@/bin/echo -e -n \\
+	DISTRIB_ID=\\"Linux From Scratch\\"\\\\n\\
+	DISTRIB_RELEASE=\\"$VERSION\\"\\\\n\\
+	DISTRIB_CODENAME=\\"$(whoami)-jhalfs\\"\\\\n\\
+	DISTRIB_DESCRIPTION=\\"Linux From Scratch\\"\\\\n\\
+	> lsb-release && \\
+	sudo mv lsb-release \$(MOUNT_PT)/etc && \\
+	sudo chown root:root \$(MOUNT_PT)/etc/lsb-release
 	@\$(call echo_finished,$VERSION)
 
 ck_UID:
