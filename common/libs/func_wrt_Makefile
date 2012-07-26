@@ -99,9 +99,11 @@ get_package_tarball_name() {       #
      util-linux-libs) echo $(grep "^util-linux" $JHALFSDIR/pkg_tarball_list | head -n1 )
          ;;
      xz-utils) echo $(grep "^xz" $JHALFSDIR/pkg_tarball_list | head -n1 )
-	 ;;
+         ;;
      sqlite) echo $(grep "^sqlite" $JHALFSDIR/pkg_tarball_list | head -n1 )
-	 ;;
+         ;;
+     udev) echo $(grep "^systemd" $JHALFSDIR/pkg_tarball_list | head -n1 )
+         ;;
      *)  echo $(grep "^$script_name[_-][[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 )
          ;;
    esac
