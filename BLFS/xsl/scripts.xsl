@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+﻿<?xml version="1.0"?>
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:exsl="http://exslt.org/common"
@@ -88,7 +88,7 @@
             </xsl:if>
             <xsl:if test="@id='xorg7-server'">
               <xsl:text>cd $SRC_DIR/MesaLib
-UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
+UNPACKDIR=`grep '[^./]\+' unpacked | head -n1 | sed 's@^./@@;s@/.*@@'`
 rm -rf $UNPACKDIR unpacked&#xA;&#xA;</xsl:text>
             </xsl:if> -->
           </xsl:when>
@@ -125,11 +125,11 @@ cd xc&#xA;</xsl:text>
         <xsl:text>
 if [ "${PACKAGE%.zip}" = "${PACKAGE}" ]; then
  if [[ -e unpacked ]] ; then
-  UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
+  UNPACKDIR=`grep '[^./]\+' unpacked | head -n1 | sed 's@^./@@;s@/.*@@'`
   [[ -n $UNPACKDIR ]] &amp;&amp; [[ -d $UNPACKDIR ]] &amp;&amp; rm -rf $UNPACKDIR
  fi
  tar -xvf $PACKAGE > unpacked
- UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
+ UNPACKDIR=`grep '[^./]\+' unpacked | head -n1 | sed 's@^./@@;s@/.*@@'`
 else
  UNPACKDIR=${PACKAGE%.zip}
  [[ -n $UNPACKDIR ]] &amp;&amp; [[ -d $UNPACKDIR ]] &amp;&amp; rm -rf $UNPACKDIR
@@ -150,56 +150,24 @@ cd $UNPACKDIR&#xA;</xsl:text>
 
   <xsl:template match="sect2" mode="xorg7">
     <xsl:choose>
-      <xsl:when test="@role = 'package'">
+ <!--     <xsl:when test="@role = 'package'">
         <xsl:apply-templates select="itemizedlist/listitem/para" mode="xorg7"/>
-      </xsl:when>
+      </xsl:when>-->
       <xsl:when test="not(@role)">
-<!-- Useless        <xsl:text>SRC_ARCHIVE=$SRC_ARCHIVE
-FTP_SERVER=$FTP_SERVER&#xA;</xsl:text> -->
-        <xsl:apply-templates select=".//screen" mode="sect-ver"/>
-        <xsl:text>mkdir -p ${section}&#xA;cd ${section}&#xA;</xsl:text>
-        <xsl:apply-templates select="../sect2[@role='package']/itemizedlist/listitem/para" mode="xorg7-patch"/>
-        <xsl:text>for line in $(grep -v '^#' ../${sect_ver}.wget) ; do
-  if [[ ! -f ${line} ]] ; then
-    if [[ -f $SRC_ARCHIVE/Xorg/${section}/${line} ]] ; then
-      cp $SRC_ARCHIVE/Xorg/${section}/${line} ${line}
-    elif [[ -f $SRC_ARCHIVE/Xorg/${line} ]] ; then
-      cp $SRC_ARCHIVE/Xorg/${line} ${line}
-    elif [[ -f $SRC_ARCHIVE/${section}/${line} ]] ; then
-      cp $SRC_ARCHIVE/${section}/${line} ${line}
-    elif [[ -f $SRC_ARCHIVE/${line} ]] ; then
-      cp $SRC_ARCHIVE/${line} ${line}
-    else
-      wget -T 30 -t 5 ${FTP_X_SERVER}pub/individual/${section}/${line} || \
-      wget -T 30 -t 5 http://xorg.freedesktop.org/releases/individual/${section}/${line}
-    fi
-  fi
-done
-md5sum -c ../${sect_ver}.md5
-cp ../${sect_ver}.wget ../${sect_ver}.wget.orig
-cp ../${sect_ver}.md5 ../${sect_ver}.md5.orig&#xA;</xsl:text>
+<!-- This is the packages download instructions> -->
+        <xsl:apply-templates select=".//screen" mode="xorg7"/>
       </xsl:when>
       <xsl:when test="@role = 'installation'">
-        <xsl:text>for package in $(grep -v '^#' ../${sect_ver}.wget) ; do
-  packagedir=$(echo $package | sed 's/.tar.bz2//')
-  tar -xf ${package}
-  cd ${packagedir}&#xA;</xsl:text>
-        <xsl:apply-templates select=".//screen | .//para/command"/>
-        <xsl:text>  cd ..
-  rm -rf ${packagedir}
-  sed -i "/${package}/d" ../${sect_ver}.wget
-  sed -i "/${package}/d" ../${sect_ver}.md5
-done
-mv ../${sect_ver}.wget.orig ../${sect_ver}.wget
-mv ../${sect_ver}.md5.orig ../${sect_ver}.md5&#xA;</xsl:text>
+        <xsl:apply-templates select=".//screen" mode="xorg7"/>
         <xsl:if test="$sudo = 'y'">
           <xsl:text>sudo /sbin/</xsl:text>
         </xsl:if>
         <xsl:text>ldconfig&#xA;&#xA;</xsl:text>
       </xsl:when>
       <xsl:when test="@role = 'configuration'">
+        <xsl:text>if [[ $XORG_PREFIX != /usr ]] ; then&#xA;</xsl:text>
         <xsl:apply-templates select=".//screen"/>
-        <xsl:text>&#xA;</xsl:text>
+        <xsl:text>fi&#xA;</xsl:text>
       </xsl:when>
     </xsl:choose>
   </xsl:template>
@@ -272,7 +240,7 @@ mv ../${sect_ver}.md5.orig ../${sect_ver}.md5&#xA;</xsl:text>
              select="following-sibling::itemizedlist[1]/listitem/para"
              mode="package"/>
       </xsl:when>
-      <xsl:when test="string()='Additional Downloads'">
+      <xsl:when test="contains(string(),'Additional')">
         <xsl:apply-templates
              select="following-sibling::itemizedlist[1]/listitem/para"
              mode="additional"/>
@@ -451,6 +419,13 @@ fi
     </xsl:if>
   </xsl:template>
 
+  <xsl:template match="screen" mode="xorg7">
+    <xsl:if test="child::* = userinput and not(@role = 'nodump')">
+      <xsl:apply-templates select="userinput" mode="xorg7"/>
+      <xsl:text>&#xA;</xsl:text>
+    </xsl:if>
+  </xsl:template>
+
   <xsl:template match="screen" mode="config">
     <xsl:if test="preceding-sibling::para[1]/xref[@linkend='bootscripts']">
       <xsl:text>[[ ! -d $SRC_DIR/blfs-bootscripts ]] &amp;&amp; mkdir $SRC_DIR/blfs-bootscripts
@@ -502,6 +477,69 @@ popd</xsl:text>
 
   <xsl:template match="userinput">
     <xsl:apply-templates/>
+  </xsl:template>
+
+  <xsl:template match="userinput" mode="xorg7">
+    <xsl:apply-templates mode="xorg7"/>
+  </xsl:template>
+
+  <xsl:template match="text()" mode="xorg7">
+    <xsl:call-template name="output-text">
+      <xsl:with-param name="out-string" select="string()"/>
+    </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template name="output-text">
+    <xsl:param name="out-string" select="''"/>
+    <xsl:choose>
+      <xsl:when test="contains($out-string,'bash -e')">
+        <xsl:call-template name="output-text">
+          <xsl:with-param name="out-string"
+                          select="substring-before($out-string,'bash -e')"/>
+        </xsl:call-template>
+        <xsl:text># bash -e</xsl:text>
+        <xsl:call-template name="output-text">
+          <xsl:with-param name="out-string"
+                          select="substring-after($out-string,'bash -e')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($out-string,'exit')">
+        <xsl:call-template name="output-text">
+          <xsl:with-param name="out-string"
+                          select="substring-before($out-string,'exit')"/>
+        </xsl:call-template>
+        <xsl:text># exit</xsl:text>
+        <xsl:call-template name="output-text">
+          <xsl:with-param name="out-string"
+                          select="substring-after($out-string,'exit')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($out-string,'mkdir')">
+        <xsl:call-template name="output-text">
+          <xsl:with-param name="out-string"
+                          select="substring-before($out-string,'mkdir')"/>
+        </xsl:call-template>
+        <xsl:text>mkdir -p</xsl:text>
+        <xsl:call-template name="output-text">
+          <xsl:with-param name="out-string"
+                          select="substring-after($out-string,'mkdir')"/>
+        </xsl:call-template>
+      </xsl:when>
+       <xsl:when test="contains($out-string,'rm -r ')">
+        <xsl:call-template name="output-text">
+          <xsl:with-param name="out-string"
+                          select="substring-before($out-string,'rm -r ')"/>
+        </xsl:call-template>
+        <xsl:text>rm -rf </xsl:text>
+        <xsl:call-template name="output-text">
+          <xsl:with-param name="out-string"
+                          select="substring-after($out-string,'rm -r ')"/>
+        </xsl:call-template>
+      </xsl:when>
+     <xsl:otherwise>
+        <xsl:value-of select="$out-string"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="text()" mode="root">

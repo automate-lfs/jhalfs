@@ -42,8 +42,8 @@
   <xsl:template match="dependency">
     <xsl:variable name="depname">
       <xsl:choose>
-        <xsl:when test="@name='x-window-system'">xterm2</xsl:when>
-        <xsl:when test="@name='xorg7'">xterm2</xsl:when>
+        <xsl:when test="@name='x-window-system'">xinit</xsl:when>
+        <xsl:when test="@name='xorg7'">xinit</xsl:when>
         <xsl:when test="@name='server-mail'">
           <xsl:value-of select="$MTA"/>
         </xsl:when>

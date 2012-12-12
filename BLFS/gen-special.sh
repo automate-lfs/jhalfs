@@ -13,7 +13,7 @@ if test -z "${SPECIAL_FILE}"; then SPECIAL_FILE=specialCases.xsl;fi
 EXCEPTIONS=$(grep 'ENTITY.*version[ ]*"[^0-9"&.].*[0-9]' $BLFS_XML |
              sed 's@^[^"]*"\([^"]*\)".*@\1@')
 # Version for X Window packages without a version in the book
-XVERSION=$(grep 'ENTITY xorg7-release' $BLFS_XML |
+XVERSION=$(grep 'ENTITY xorg-version' $BLFS_XML |
            sed 's@^[^"]*"\([^"]*\)".*@\1@')
 # The case of udev
 # Set PATH to be sure to find udevadm
