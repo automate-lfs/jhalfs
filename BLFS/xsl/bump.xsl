@@ -13,7 +13,8 @@
     <xsl:choose>
       <xsl:when test="$version='N'">
         <xsl:value-of select=
-            "document($packages)//package[string(name)=$package]/version"/>
+            "document($packages)//*[self::package or self::module]
+                                   [string(name)=$package]/version"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="$version"/>

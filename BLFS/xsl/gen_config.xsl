@@ -63,7 +63,8 @@ config  SUDO
 
   <xsl:template match="list">
     <xsl:if
-      test=".//package[(version and not(inst-version)) or
+      test=".//*[self::package or self::module]
+                    [(version and not(inst-version)) or
                       string(version) != string(inst-version)]">
       <xsl:text>config&#9;MENU_</xsl:text>
       <xsl:value-of select="@id"/>
@@ -90,7 +91,8 @@ depends MENU_</xsl:text>
 
   <xsl:template match="sublist">
     <xsl:if
-      test=".//package[(version and not(inst-version)) or
+      test=".//*[self::package or self::module]
+                    [(version and not(inst-version)) or
                       string(version) != string(inst-version)]">
       <xsl:text>&#9;config&#9;MENU_</xsl:text>
       <xsl:value-of select="@id"/>
