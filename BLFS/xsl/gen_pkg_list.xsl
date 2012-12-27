@@ -151,21 +151,19 @@
 <!-- Dependencies -->
 <!-- First the case of python modules or d-bus bindings -->
           <xsl:if test="self::sect2">
-<!-- Python modules have a building order which we have to indicate
-     as dependencies. The preceding module has to be the first
-     dependency. -->
+<!-- dependencies  -->
+            <xsl:apply-templates select=".//para[@role='required' or
+                                                 @role='recommended' or
+                                                 @role='optional']"
+                                 mode="dependency"/>
+          </xsl:if>
+<!-- For python modules, the preceding module is an optional dep -->
             <xsl:if test="ancestor::sect1[@id='python-modules']">
               <xsl:apply-templates
                   select="preceding-sibling::sect2[@role='package']
                            //listitem[para/xref/@linkend=current()/@id]"
                   mode="prec-dep"/>
             </xsl:if>
-<!-- The other dependencies (for Python modules) or dependencies (for DBus) -->
-            <xsl:apply-templates select=".//para[@role='required' or
-                                                 @role='recommended' or
-                                                 @role='optional']"
-                                 mode="dependency"/>
-          </xsl:if>
 <!-- Now the case of perl modules: let us test our XSLT abilities.
      Well, "use the sibling, Luke" -->
           <xsl:if test="self::bridgehead">
@@ -277,7 +275,9 @@
       <xsl:text>
             </xsl:text>
       <xsl:element name="dependency">
-        <xsl:attribute name="status">required</xsl:attribute>
+<!-- the dep on the preceding package used to be required for python.
+     It seems optional now -->
+        <xsl:attribute name="status">optional</xsl:attribute>
         <xsl:attribute name="name">
           <xsl:value-of select="preceding-sibling::listitem[1]//@linkend"/>
         </xsl:attribute>
