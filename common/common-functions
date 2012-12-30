@@ -71,7 +71,8 @@ if [ "${CLEAN}" = "y" ]; then
       if [ -d $BUILDDIR/sys ] ; then
         sudo rmdir $BUILDDIR/sys || exit 1
       fi
-      sudo rm -rf $BUILDDIR/{bin,boot,dev,etc,home,lib,media,mnt,opt,root,sbin,srv,tmp,tools,cross-tools,usr,var}
+      sudo rm -rf $BUILDDIR/{bin,boot,dev,etc,home,lib{,64},media,mnt}
+      sudo rm -rf $BUILDDIR/{opt,root,sbin,srv,tmp,tools,cross-tools,usr,var}
       echo "done"
       echo -n "Cleaning $JHALFSDIR ..."
       sudo rm -rf $JHALFSDIR
