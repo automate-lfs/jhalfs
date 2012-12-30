@@ -512,15 +512,28 @@ mk_CUSTOM_TOOLS: mk_BLFS_TOOL
 devices: ck_LFS ck_UID
 	sudo mount -v --bind /dev \$(LFS)/dev
 	sudo mount -vt devpts devpts \$(LFS)/dev/pts
-	sudo mount -vt tmpfs shm \$(LFS)/dev/shm
 	sudo mount -vt proc proc \$(LFS)/proc
 	sudo mount -vt sysfs sysfs \$(LFS)/sys
+	if [ -h \$(LFS)/dev/shm ]; then \\
+	  link=\$\$(readlink \$(LFS)/dev/shm); \\
+	  sudo mkdir -p \$(LFS)/\$\$link; \\
+	  sudo mount -vt tmpfs shm \$(LFS)/\$\$link; \\
+	  unset link; \\
+	else \\
+	  sudo mount -vt tmpfs shm \$(LFS)/dev/shm; \\
+	fi
 
 teardown: ck_LFS
 	sudo umount -v \$(LFS)/sys
 	sudo umount -v \$(LFS)/proc
-	sudo umount -v \$(LFS)/dev/shm
 	sudo umount -v \$(LFS)/dev/pts
+	if [ -h \$(LFS)/dev/shm ]; then \\
+	  link=\$\$(readlink \$(LFS)/dev/shm); \\
+	  sudo umount -v \$(LFS)/\$\$link; \\
+	  unset link; \\
+	else \\
+	  sudo umount -v \$(LFS)/dev/shm; \\
+	fi
 	sudo umount -v \$(LFS)/dev
 
 chroot: devices
@@ -561,7 +574,13 @@ restore-luser-env:
 do_housekeeping:
 	@-umount \$(MOUNT_PT)/sys
 	@-umount \$(MOUNT_PT)/proc
-	@-umount \$(MOUNT_PT)/dev/shm
+	@-if [ -h \$(MOUNT_PT)/dev/shm ]; then \\
+	  link=\$\$(readlink \$(MOUNT_PT)/dev/shm); \\
+	  umount \$(MOUNT_PT)/\$\$link; \\
+	  unset link; \\
+	else \\
+	  umount \$(MOUNT_PT)/dev/shm; \\
+	fi
 	@-umount \$(MOUNT_PT)/dev/pts
 	@-umount \$(MOUNT_PT)/dev
 	@-rm /tools
