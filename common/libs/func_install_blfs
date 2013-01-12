@@ -5,6 +5,7 @@
 #----------------------------# Prepare BLFS_ROOT and extract
 install_blfs_tools() {       # the scriptlets to build
 #----------------------------# the dependency tools
+set -e
 # Install the files
 [[ ! -d ${BUILDDIR}${BLFS_ROOT} ]] && mkdir -pv ${BUILDDIR}${BLFS_ROOT}
 cp -r BLFS/* ${BUILDDIR}${BLFS_ROOT}
@@ -111,7 +112,7 @@ EOF
 yes "yes" | $BUILDDIR$BLFS_ROOT/gen_pkg_book.sh  $BUILDDIR$BLFS_ROOT
 
 # Move the scriptlets where they should be
-rm -rf $BUILDDIR$BLFS_ROOT/scripts
+sudo rm -rf $BUILDDIR$BLFS_ROOT/scripts
 mv scripts $BUILDDIR$BLFS_ROOT
 
 # Generates a list containing download and copying instructions for tarballs
@@ -125,10 +126,12 @@ chmod u+x $BUILDDIR$BLFS_ROOT/download_script
 
 # Downloads (or copy) to build_dir/sources
 pushd $BUILDDIR/sources
+# Remove `unpacked' files if some have been left
+sudo find . -name unpacked -exec rm \{\} \;
 FTP_SERVER=$SERVER/pub/blfs/ SRC_ARCHIVE=$SRC_ARCHIVE $BUILDDIR$BLFS_ROOT/download_script
 # The blfs-bootscripts package is at the wrong location
 mkdir -p blfs-bootscripts
-mv blfs-bootscripts*tar* blfs-bootscripts
+cp blfs-bootscripts*tar* blfs-bootscripts
 popd
 rm -v $BUILDDIR$BLFS_ROOT/download_script
 
@@ -141,6 +144,7 @@ if [ "$DEP_SUDO" = y ]; then
 fi
 if [ "$DEP_SVN" = y ]; then
   sed -i -e /javahl/d -e /swig/d $BUILDDIR$BLFS_ROOT/scripts/*subversion
+  sed -i -e '/pushd/,/popd/d' -e /tea/d $BUILDDIR$BLFS_ROOT/scripts/*sqlite
 fi
 if [ "$DEP_PYTHON" = y ]; then
   sed -i -e '/^make.*Doc/d' -e '/^chmod/{n;N;d}' $BUILDDIR$BLFS_ROOT/scripts/*python2
@@ -148,7 +152,6 @@ fi
 if [ "$DEP_OPENSSL" = y ]; then
   sed -i 's/^make$/make -j1/' $BUILDDIR$BLFS_ROOT/scripts/*openssl
 fi
-
 # At last generates the build Makefile
 mkdir -p $BUILDDIR$BLFS_ROOT/work
 pushd $BUILDDIR$BLFS_ROOT/work
