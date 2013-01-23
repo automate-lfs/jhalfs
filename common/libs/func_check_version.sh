@@ -113,7 +113,7 @@ check_prerequisites() {      #
   SUDO_LOC="$(whereis -b sudo | cut -d" " -f2)"
   if [ -x $SUDO_LOC ]; then
     sudoVer="$(sudo -V | head -n1 | cut -d" " -f3)"
-    check_version "1.6.8"  "${sudoVer}"      "SUDO"
+    check_version "1.7.0"  "${sudoVer}"      "SUDO"
   else
     echo "${nl_}\"${RED}sudo${OFF}\" ${BOLD}must be installed on your system for jhalfs to run"
     exit 1
