@@ -29,7 +29,7 @@ chapter4_Makefiles() {       #
 
 021-addinguser:  020-creatingtoolsdir
 	@\$(call echo_message, Building)
-	@if [ ! -d \$(LUSER_HOME) ]; then \\
+	@-if [ ! -d \$(LUSER_HOME) ]; then \\
 		groupadd \$(LGROUP); \\
 		useradd -s /bin/bash -g \$(LGROUP) -m -k /dev/null \$(LUSER); \\
 	else \\
