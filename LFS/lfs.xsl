@@ -315,6 +315,12 @@ exit
                        select="substring-before(string(),'2&gt;&amp;1')"/>
                     <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
                   </xsl:when>
+                  <!-- special case for procps-ng -->
+                  <xsl:when test="contains(string(), 'pushd')">
+                    <xsl:text>{ </xsl:text>
+                    <xsl:apply-templates/>
+                    <xsl:text>; } &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
+                  </xsl:when>
                   <xsl:when test="contains(string(), 'make -k')">
                     <xsl:apply-templates/>
                     <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
@@ -343,10 +349,17 @@ exit
                        select="substring-before(string(),'2&gt;&amp;1')"/>
                     <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
                   </xsl:when>
+                  <!-- special case for gmp -->
                   <xsl:when test="contains(string(), 'tee gmp-check-log')">
                     <xsl:text>(</xsl:text>
                     <xsl:apply-templates/>
                     <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1 &amp;&amp; exit $PIPESTATUS)&#xA;</xsl:text>
+                  </xsl:when>
+                  <!-- special case for procps-ng -->
+                  <xsl:when test="contains(string(), 'pushd')">
+                    <xsl:text>{ </xsl:text>
+                    <xsl:apply-templates/>
+                    <xsl:text>; } &gt;&gt; $TEST_LOG 2&gt;&amp;1&#xA;</xsl:text>
                   </xsl:when>
 		  <xsl:when test="contains(string(), 'make -k')">
 		    <xsl:apply-templates/>

@@ -119,6 +119,16 @@ check_prerequisites() {      #
     exit 1
   fi
 
+  # Check for minimum wget version
+  WGET_LOC="$(whereis -b wget | cut -d" " -f2)"
+  if [ -x $WGET_LOC ]; then
+    wgetVer="$(wget --version | head -n1 | cut -d" " -f3)"
+    check_version "1.0.0"  "${wgetVer}"      "WGET"
+  else
+    echo "${nl_}\"${RED}wget${OFF}\" ${BOLD}must be installed on your system for jhalfs to run"
+    exit 1
+  fi
+
   # Check for minimum libxml2 and libxslt versions
   xsltprocVer=$(xsltproc -V | head -n1 )
   libxmlVer=$(echo $xsltprocVer | cut -d " " -f3)
