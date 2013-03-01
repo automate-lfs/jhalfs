@@ -209,11 +209,11 @@ define echo_finished
   @echo  $(tab_)- Set a password for the root user.
   @echo
   @echo  $(tab_)- Edit or create /etc/fstab,
-  @echo  $(tab_)                 /etc/hosts,
-  @echo  $(tab_)                 /etc/sysconfig/clock,
-  @echo  $(tab_)                 /etc/sysconfig/console,
-  @echo  $(tab_)                 /etc/sysconfig/network,
-  @echo  $(tab_)                 /etc/sysconfig/ifconfig.eth0
+  @echo  $(tab_) "                /etc/hosts,"
+  @echo  $(tab_) "                /etc/sysconfig/clock,"
+  @echo  $(tab_) "                /etc/sysconfig/console,"
+  @echo  $(tab_) "                /etc/sysconfig/network,"
+  @echo  $(tab_) "                /etc/sysconfig/ifconfig.eth0"
   @echo  $(tab_)and any other configuration file required to suit your needs.
   @echo
   @echo  $(tab_)- Set-up the boot loader, except if building CLFS with METHOD=boot.
@@ -221,7 +221,7 @@ define echo_finished
   @echo  $(tab_)You can set-up the new boot-loader installed on the new system
   @echo  $(tab_)or the host bootloader.
   @echo
-  @echo  $(tab_) If the last, it is better to exit first from the chroot.
+  @echo  $(tab_)If the last, it is better to exit first from the chroot.
   @echo
   @echo  $(tab_)- Exit from the chroot and umount the filesystems.
   @echo
