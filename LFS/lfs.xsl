@@ -118,102 +118,9 @@
       <xsl:if test="sect2[@role='installation']">
         <xsl:text>cd $PKGDIR&#xA;</xsl:text>
       </xsl:if>
-      <xsl:apply-templates
-        select=".//screen[not(@role) or
-                          @role != 'nodump']/userinput[
-                               @remap = 'pre' or
-                               @remap = 'configure' or
-                               @remap = 'make' or
-                               @remap = 'test' and
-                                not(current()/@id='ch-tools-dejagnu')]"/>
-      <xsl:if
-           test="ancestor::chapter[@id != 'chapter-temporary-tools'] and
-                 $pkgmngt = 'y' and
-                 descendant::screen[not(@role) or
-                                    @role != 'nodump']/userinput[
-                                                      @remap='install']">
-        <xsl:text>mkdir -pv $PKG_DEST/{boot,etc,lib,bin,sbin}
-mkdir -pv $PKG_DEST/usr/{lib,bin,sbin,include}
-mkdir -pv $PKG_DEST/usr/share/{doc,info,man}
-mkdir -pv $PKG_DEST/usr/share/man/man{1..8}
-ln -sv share/{man,doc,info} $PKG_DEST/usr
-case $(uname -m) in
- x86_64) ln -sv lib $PKG_DEST/lib64 &amp;&amp; ln -sv lib $PKG_DEST/usr/lib64 ;;
-esac
-</xsl:text>
-      </xsl:if>
-      <xsl:if test="@id = 'ch-system-glibc' and
-                            $pkgmngt = 'y'">
-        <xsl:text>mkdir -pv $PKG_DEST/usr/include/{rpc,rpcsvc}
-</xsl:text>
-      </xsl:if>
-      <xsl:apply-templates 
-           select=".//screen[not(@role) or
-                             @role != 'nodump']/userinput[@remap = 'install']"/>
-      <xsl:if test="ancestor::chapter[@id != 'chapter-temporary-tools'] and
-                    $pkgmngt = 'y' and
-                    descendant::screen[not(@role) or
-                                       @role != 'nodump']/userinput[
-                                                         @remap='install']">
-        <xsl:if test="@id = 'ch-system-man-pages'">
-<!-- those files are provided by the shadow package -->
-  <xsl:text>rm -fv $PKG_DEST/usr/share/man/{man3/getspnam.3,man5/passwd.5}
-</xsl:text>
-        </xsl:if>
-        <xsl:text>rm -fv $PKG_DEST/{,usr/}lib64
-rm -fv $PKG_DEST/usr/{man,doc,info}
-for dir in $PKG_DEST/usr/share/man/man{1..8}; do
-  [[ -z $(ls $dir) ]] &amp;&amp; rmdir -v $dir
-done
-for dir in $PKG_DEST/usr/share/{doc,info,man}; do
-  [[ -z $(ls $dir) ]] &amp;&amp; rmdir -v $dir
-done
-for dir in $PKG_DEST/usr/{lib,bin,sbin,include}; do
-  [[ -z $(ls $dir) ]] &amp;&amp; rmdir -v $dir
-done
-for dir in $PKG_DEST/{boot,etc,lib,bin,sbin}; do
-  [[ -z $(ls $dir) ]] &amp;&amp; rmdir -v $dir
-done
-packInstall
-rm -rf $PKG_DEST
-</xsl:text>
-      </xsl:if>
-      <xsl:if test="$testsuite='3' and @id='ch-tools-glibc'">
-        <xsl:copy-of select="//userinput[@remap='locale-test']"/>
-        <xsl:text>&#xA;</xsl:text>
-      </xsl:if>
-      <xsl:if test="@id='ch-system-glibc'">
-        <xsl:choose>
-          <xsl:when test="$full-locale='y'">
-            <xsl:copy-of select="//userinput[@remap='locale-full']"/>
-            <xsl:text>&#xA;</xsl:text>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:copy-of select="//userinput[@remap='locale-test']"/>
-            <xsl:text>&#xA;</xsl:text>
-            <xsl:if test="not(contains(string(//userinput[@remap='locale-test']),$lang)) and $lang!='C' and $lang!='POSIX'">
-              <xsl:text>if LOCALE=`grep "</xsl:text>
-              <xsl:value-of select="$lang"/>
-              <xsl:text>/" $PKGDIR/localedata/SUPPORTED`; then
-  CHARMAP=`echo $LOCALE | sed 's,[^/]*/\([^ ]*\) [\],\1,'`
-  INPUT=`echo $LOCALE | sed 's,[/.].*,,'`
-  LOCALE=`echo $LOCALE | sed 's,/.*,,'`
-  localedef -i $INPUT -f $CHARMAP $LOCALE
-fi
-</xsl:text>
-            </xsl:if>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:if>
-      <xsl:apply-templates
-         select=".//screen[
-                   not(@role) or
-                   @role != 'nodump'
-                          ]/userinput[
-                            not(@remap) or
-                            @remap='adjust' or
-                            @remap='test' and current()/@id='ch-tools-dejagnu'
-                                     ]"/>
+      <xsl:apply-templates select="sect2|
+                                   screen[not(@role) or
+                                          @role!='nodump']/userinput"/>
       <xsl:if test="@id='ch-system-creatingdirs'">
         <xsl:apply-templates
            select="document('packageManager.xml')//sect1[
@@ -235,7 +142,119 @@ fi
     </xsl:if>
   </xsl:template>
 
-<xsl:template match="sect1" mode="pkgmngt">
+
+
+
+
+
+
+
+
+
+
+
+  <xsl:template match="sect2">
+    <xsl:apply-templates
+      select=".//screen[not(@role) or
+                        @role != 'nodump']/userinput[
+                             @remap = 'pre' or
+                             @remap = 'configure' or
+                             @remap = 'make' or
+                             @remap = 'test' and
+                             not(current()/../@id='ch-tools-dejagnu')]"/>
+    <xsl:if
+         test="ancestor::chapter[@id != 'chapter-temporary-tools'] and
+               $pkgmngt = 'y' and
+               descendant::screen[not(@role) or
+                                  @role != 'nodump']/userinput[
+                                                    @remap='install']">
+      <xsl:text>mkdir -pv $PKG_DEST/{boot,etc,lib,bin,sbin}
+mkdir -pv $PKG_DEST/usr/{lib,bin,sbin,include}
+mkdir -pv $PKG_DEST/usr/share/{doc,info,man}
+mkdir -pv $PKG_DEST/usr/share/man/man{1..8}
+ln -sv share/{man,doc,info} $PKG_DEST/usr
+case $(uname -m) in
+ x86_64) ln -sv lib $PKG_DEST/lib64 &amp;&amp; ln -sv lib $PKG_DEST/usr/lib64 ;;
+esac
+</xsl:text>
+    </xsl:if>
+    <xsl:if test="../@id = 'ch-system-glibc' and
+                          $pkgmngt = 'y'">
+      <xsl:text>mkdir -pv $PKG_DEST/usr/include/{rpc,rpcsvc}
+</xsl:text>
+    </xsl:if>
+    <xsl:apply-templates
+         select=".//screen[not(@role) or
+                           @role != 'nodump']/userinput[@remap = 'install']"/>
+    <xsl:if test="ancestor::chapter[@id != 'chapter-temporary-tools'] and
+                  $pkgmngt = 'y' and
+                  descendant::screen[not(@role) or
+                                     @role != 'nodump']/userinput[
+                                                       @remap='install']">
+      <xsl:if test="../@id = 'ch-system-man-pages'">
+<!-- those files are provided by the shadow package -->
+  <xsl:text>rm -fv $PKG_DEST/usr/share/man/{man3/getspnam.3,man5/passwd.5}
+</xsl:text>
+      </xsl:if>
+      <xsl:text>rm -fv $PKG_DEST/{,usr/}lib64
+rm -fv $PKG_DEST/usr/{man,doc,info}
+for dir in $PKG_DEST/usr/share/man/man{1..8}; do
+  [[ -z $(ls $dir) ]] &amp;&amp; rmdir -v $dir
+done
+for dir in $PKG_DEST/usr/share/{doc,info,man}; do
+  [[ -z $(ls $dir) ]] &amp;&amp; rmdir -v $dir
+done
+for dir in $PKG_DEST/usr/{lib,bin,sbin,include}; do
+  [[ -z $(ls $dir) ]] &amp;&amp; rmdir -v $dir
+done
+for dir in $PKG_DEST/{boot,etc,lib,bin,sbin}; do
+  [[ -z $(ls $dir) ]] &amp;&amp; rmdir -v $dir
+done
+packInstall
+rm -rf $PKG_DEST
+</xsl:text>
+    </xsl:if>
+    <xsl:if test="$testsuite='3' and
+            ../@id='ch-tools-glibc' and
+            @role='installation'">
+      <xsl:copy-of select="//userinput[@remap='locale-test']"/>
+      <xsl:text>&#xA;</xsl:text>
+    </xsl:if>
+    <xsl:if test="../@id='ch-system-glibc' and @role='installation'">
+      <xsl:choose>
+        <xsl:when test="$full-locale='y'">
+          <xsl:copy-of select="//userinput[@remap='locale-full']"/>
+          <xsl:text>&#xA;</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:copy-of select="//userinput[@remap='locale-test']"/>
+          <xsl:text>&#xA;</xsl:text>
+          <xsl:if test="not(contains(string(//userinput[@remap='locale-test']),$lang)) and $lang!='C' and $lang!='POSIX'">
+            <xsl:text>if LOCALE=`grep "</xsl:text>
+            <xsl:value-of select="$lang"/>
+            <xsl:text>/" $PKGDIR/localedata/SUPPORTED`; then
+  CHARMAP=`echo $LOCALE | sed 's,[^/]*/\([^ ]*\) [\],\1,'`
+  INPUT=`echo $LOCALE | sed 's,[/.].*,,'`
+  LOCALE=`echo $LOCALE | sed 's,/.*,,'`
+  localedef -i $INPUT -f $CHARMAP $LOCALE
+fi
+</xsl:text>
+          </xsl:if>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
+    <xsl:apply-templates
+       select=".//screen[
+                 not(@role) or
+                 @role != 'nodump'
+                        ]/userinput[
+                          not(@remap) or
+                          @remap='adjust' or
+                          @remap='test' and current()/../@id='ch-tools-dejagnu'
+                                   ]"/>
+  </xsl:template>
+
+  <xsl:template match="sect1" mode="pkgmngt">
     <xsl:param name="dirname" select="chapter05"/>
     <!-- The build order -->
     <xsl:param name="order" select="062"/>
