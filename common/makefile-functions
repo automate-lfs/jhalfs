@@ -182,7 +182,7 @@ define echo_report
   echo $(BOLD) The report file $(BLUE)$(1)$(BOLD) has been created ; \
   echo ; \
   echo $(WHITE)Please send the $(BOLD)$(MOUNT_PT)/jhalfs/$(1)$(WHITE) ; \
-  echo file to $(BOLD)manuel@linuxfromscratch.org$(WHITE) ; \
+  echo file to $(BOLD)jhalfs-reports@linuxfromscratch.org$(WHITE) ; \
   echo ; \
   echo That will help us to keep more accurate SBU and ; \
   echo disk usage values into the book. Thanks. ; \
@@ -200,26 +200,30 @@ define echo_finished
   @echo To be able to boot your new system you need to follow
   @echo the next steps:$(WHITE)
   @echo
+  @echo  $(tab_)- Mount the virtual kernel file systems.
+  @echo
   @echo  $(tab_)- Enter to the chroot using the command found
   @echo  $(tab_)in the section -Entering the Chroot Environment-
   @echo  $(tab_)except if building CLFS with METHOD=boot.
   @echo
   @echo  $(tab_)- Set a password for the root user.
   @echo
-  @echo  $(tab_)- Edit or create /etc/fstab, /etc/hosts, /etc/sysconfig/clock,
-  @echo  $(tab_)/etc/sysconfig/console, /etc/sysconfig/network,
-  @echo  $(tab_)/etc/sysconfig//network-devices/ifconfig.eth0/ipv4 and
-  @echo  $(tab_)any other configuration file required to suit your needs.
-  @echo
-  @echo  $(tab_)- Exit from the chroot.
+  @echo  $(tab_)- Edit or create /etc/fstab,
+  @echo  $(tab_) "                /etc/hosts,"
+  @echo  $(tab_) "                /etc/sysconfig/clock,"
+  @echo  $(tab_) "                /etc/sysconfig/console,"
+  @echo  $(tab_) "                /etc/sysconfig/network,"
+  @echo  $(tab_) "                /etc/sysconfig/ifconfig.eth0"
+  @echo  $(tab_)and any other configuration file required to suit your needs.
   @echo
   @echo  $(tab_)- Set-up the boot loader, except if building CLFS with METHOD=boot.
-  @echo  $(tab_)You can set-up the host bootloader or the new boot-loader
-  @echo  $(tab_)installed on the new system.
-  @echo  $(tab_)If the last, you must to mount the virtual filesystems, re-enter
-  @echo  $(tab_)the chroot and be sure that /dev is populated with the
-  @echo  $(tab_)required devices before configure the boot-loader. When ready,
-  @echo  $(tab_)exit from the chroot and umount the filesystems
+  @echo
+  @echo  $(tab_)You can set-up the new boot-loader installed on the new system
+  @echo  $(tab_)or the host bootloader.
+  @echo
+  @echo  $(tab_)If the last, it is better to exit first from the chroot.
+  @echo
+  @echo  $(tab_)- Exit from the chroot and umount the filesystems.
   @echo
   @echo If you are an experienced LFS user, several of those steps can be
   @echo skipped or done in a different way. But then, that is something

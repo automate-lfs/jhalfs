@@ -96,6 +96,8 @@ get_package_tarball_name() {       #
          ;;
      e2fsprogs-libs) echo $(grep "^e2fsprogs" $JHALFSDIR/pkg_tarball_list | head -n1 )
          ;;
+     libcap) echo $(grep "^libcap" $JHALFSDIR/pkg_tarball_list | head -n1 )
+         ;;
      util-linux-libs) echo $(grep "^util-linux" $JHALFSDIR/pkg_tarball_list | head -n1 )
          ;;
      xz-utils) echo $(grep "^xz" $JHALFSDIR/pkg_tarball_list | head -n1 )
