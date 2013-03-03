@@ -137,7 +137,7 @@ extract_commands() {         #
     lfs)
         echo -n " ${L_arrow}${BOLD}LFS${R_arrow} build... "
         pushd $BOOK > /dev/null
-        if [ -f process.scripts.sh ]; then
+        if [ -f process-scripts.sh ]; then
           bash process-scripts.sh >> $LOGDIR/$LOG 2>&1
         fi
         popd > /dev/null
