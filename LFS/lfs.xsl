@@ -179,7 +179,8 @@ esac
 </xsl:text>
     </xsl:if>
     <xsl:if test="../@id = 'ch-system-glibc' and
-                          $pkgmngt = 'y'">
+                  @role='installation' and
+                  $pkgmngt = 'y'">
       <xsl:text>mkdir -pv $PKG_DEST/usr/include/{rpc,rpcsvc}
 </xsl:text>
     </xsl:if>
