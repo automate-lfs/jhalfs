@@ -152,6 +152,15 @@ fi
 if [ "$DEP_OPENSSL" = y ]; then
   sed -i 's/^make$/make -j1/' $BUILDDIR$BLFS_ROOT/scripts/*openssl
 fi
+if [ "$DEP_LYNX" = y ]; then
+  if [ "$DEP_WGET" = y ]; then
+    sed -i -e 's/configure/& --with-ssl --with-gnutls/' \
+      $BUILDDIR$BLFS_ROOT/scripts/*lynx
+  elif [ "$DEP_OPENSSL" = y ]; then
+    sed -i -e 's/configure/& --with-ssl/' \
+      $BUILDDIR$BLFS_ROOT/scripts/*lynx
+  fi
+fi
 # At last generates the build Makefile
 mkdir -p $BUILDDIR$BLFS_ROOT/work
 pushd $BUILDDIR$BLFS_ROOT/work
