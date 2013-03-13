@@ -192,8 +192,14 @@ esac
                                      @role != 'nodump']/userinput[
                                                        @remap='install']">
       <xsl:if test="../@id = 'ch-system-man-pages'">
-<!-- those files are provided by the shadow package -->
+<!-- these files are provided by the shadow package -->
   <xsl:text>rm -fv $PKG_DEST/usr/share/man/{man3/getspnam.3,man5/passwd.5}
+</xsl:text>
+      </xsl:if>
+<!-- Attr man/man2 pages are already installed by man-pages. As of
+     March 2013, they are the same pages. Check it sometimes... -->
+      <xsl:if test="../@id = 'ch-system-attr'">
+        <xsl:text>rm -fv $PKG_DEST/usr/share/man/man2/*
 </xsl:text>
       </xsl:if>
       <xsl:text>rm -fv $PKG_DEST/{,usr/}lib64
@@ -423,13 +429,11 @@ exit
             <xsl:choose>
               <xsl:when test="./literal">
                 <xsl:call-template name="outputpkgdest">
-                  <xsl:with-param name="outputstring"
-                                select="text()[1]"/>
+                  <xsl:with-param name="outputstring" select="text()[1]"/>
                 </xsl:call-template>
                 <xsl:apply-templates select="literal"/>
                 <xsl:call-template name="outputpkgdest">
-                  <xsl:with-param name="outputstring"
-                                select="text()[2]"/>
+                  <xsl:with-param name="outputstring" select="text()[2]"/>
                 </xsl:call-template>
               </xsl:when>
               <xsl:otherwise>
@@ -523,13 +527,20 @@ exit
                                         'install')"/>
              <xsl:text>install&#xA;</xsl:text>
             </xsl:when>
+            <xsl:when test="ancestor::sect1[@id='ch-system-attr']">
+              <xsl:text>DIST_ROOT=$PKG_DEST make</xsl:text>
+              <xsl:call-template name="outputpkgdest">
+                <xsl:with-param name="outputstring"
+                                select="substring-after($outputstring,'make')"/>
+              </xsl:call-template>
+            </xsl:when>
             <xsl:otherwise>
-             <xsl:text>make DESTDIR=$PKG_DEST</xsl:text>
-             <xsl:call-template name="outputpkgdest">
-               <xsl:with-param
+              <xsl:text>make DESTDIR=$PKG_DEST</xsl:text>
+              <xsl:call-template name="outputpkgdest">>
+                <xsl:with-param
                     name="outputstring"
                     select="substring-after($outputstring,'make')"/>
-             </xsl:call-template>
+              </xsl:call-template>
             </xsl:otherwise>
            </xsl:choose>
           </xsl:otherwise>
