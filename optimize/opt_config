@@ -16,7 +16,8 @@ MAKEFLAGS="-j3"
 #    This list may be different for you.
 #    If your MAKEFLAGS don't contains a -jX option, you can set
 #    a empty list here.
-BLACK_LIST="autoconf dejagnu gettext groff man-db vim"
+BLACK_LIST="attr autoconf dejagnu gettext groff man-db vim"
+#    Rationale for attr: the tests do not pass with -jX
 
 #--- Default optimization mode
 #    This mode is overridden by definitions in opt_override;
