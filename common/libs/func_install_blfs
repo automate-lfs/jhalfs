@@ -153,11 +153,9 @@ if [ "$DEP_OPENSSL" = y ]; then
   sed -i 's/^make$/make -j1/' $BUILDDIR$BLFS_ROOT/scripts/*openssl
 fi
 if [ "$DEP_LYNX" = y ]; then
-  if [ "$DEP_WGET" = y ]; then
-    sed -i -e 's/configure/& --with-ssl --with-gnutls/' \
-      $BUILDDIR$BLFS_ROOT/scripts/*lynx
-  elif [ "$DEP_OPENSSL" = y ]; then
+  if [ "$DEP_OPENSSL" = y -o "$DEP_WGET" = y ]; then
     sed -i -e 's/configure/& --with-ssl/' \
+           -e '/make$/i echo "#define USE_OPENSSL_INCL 1" >> lynx_cfg.h &&' \
       $BUILDDIR$BLFS_ROOT/scripts/*lynx
   fi
 fi
