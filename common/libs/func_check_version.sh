@@ -129,6 +129,22 @@ check_prerequisites() {      #
     exit 1
   fi
 
+  # Before checking libmxl2 and libxslt version information, ensure tools needed from those
+  # packages are actually available. Avoids a small cosmetic bug of book version information
+  # not being retrieved if xmllint is unavailable, especially when on recent non-LFS hosts.
+
+  XMLLINT_LOC="$(whereis -b xmllint | cut -d" " -f2)"
+  XSLTPROC_LOC="$(whereis -b xsltproc | cut -d" " -f2)"
+  XML_NOTE_MSG="${nl_} ${BOLD} This can happen when running jhalfs on non-LFS hosts. ${OFF}"
+  
+  if [ ! -x $XMLLINT_LOC ]; then
+    echo "${nl_}\"${RED}xmllint${OFF}\" ${BOLD}must be installed on your system for jhalfs to run"
+    echo ${XML_NOTE_MSG}
+    exit 1
+  fi
+
+  if [ -x $XSLTPROC_LOC ]; then
+
   # Check for minimum libxml2 and libxslt versions
   xsltprocVer=$(xsltproc -V | head -n1 )
   libxmlVer=$(echo $xsltprocVer | cut -d " " -f3)
@@ -137,7 +153,12 @@ check_prerequisites() {      #
   # Version numbers are packed strings not xx.yy.zz format.
   check_version "2.06.20"  "${libxmlVer:0:1}.${libxmlVer:1:2}.${libxmlVer:3:2}"     "LIBXML2"
   check_version "1.01.14"  "${libxsltVer:0:1}.${libxsltVer:1:2}.${libxsltVer:3:2}"  "LIBXSLT"
-
+  
+  else
+    echo "${nl_}\"${RED}xsltproc${OFF}\" ${BOLD}must be installed on your system for jhalfs to run"
+    echo ${XML_NOTE_MSG}
+    exit 1
+  fi
   # The next versions checks are required only when BLFS_TOOL is set and
   # this dependencies has not be selected for installation
   if [[ "$BLFS_TOOL" = "y" ]] ; then
