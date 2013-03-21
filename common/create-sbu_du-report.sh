@@ -129,6 +129,6 @@ INSTALL2=`perl -e 'printf "%.3f" , ('$INSTALL2' + '$INSTALL')';`
 INSTALLMB2=`perl -e 'printf "%.3f" , ('$INSTALLMB2' + '$INSTALLMB')';`
 
 # Dump grand totals
-echo -e "\n$LINE\n\nTotal time required to build the systen:\t\t$SBU2  SBU" >> $REPORT
+echo -e "\n$LINE\n\nTotal time required to build the system:\t\t$SBU2  SBU" >> $REPORT
 # Total disk usage: including /tools but not /sources.
 echo -e "Total Installed files disk usage:\t\t\t$INSTALL2 KB or $INSTALLMB2 MB" >> $REPORT
