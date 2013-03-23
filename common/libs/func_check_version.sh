@@ -61,7 +61,7 @@ inline_doc
   set -- $tst_version # Set positional parameters to test version values
   # Values beginning with zero are taken as octal, so that for example
   # 2.07.08 gives an error because 08 cannot be octal. The ## stuff supresses
-  # leading sero's
+  # leading zero's
   major=${1##*(0)}; minor=${2##*(0)}; revision=${3##*(0)}
   #
   # Compare against minimum acceptable version..
