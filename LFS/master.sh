@@ -102,7 +102,9 @@ chapter5_Makefiles() {
 
     # Grab the name of the target (minus the -pass1 or -pass2 in the case of gcc
     # and binutils in chapter 5)
-    name=`echo ${this_script} | sed -e 's@[0-9]\{3\}-@@' -e 's@-pass[0-9]\{1\}@@'`
+    name=`echo ${this_script} | sed -e 's@[0-9]\{3\}-@@' \
+                                    -e 's@-pass[0-9]\{1\}@@' \
+                                    -e 's@-libstdc++@@'`
 
     # Set the dependency for the first target.
     if [ -z $PREV ] ; then PREV=022-settingenvironment ; fi
