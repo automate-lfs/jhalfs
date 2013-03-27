@@ -8,7 +8,13 @@ CONFIG = menu
 
 all: menuconfig
 #	@clear
-	@`grep RUN_ME configuration | sed -e 's@RUN_ME=\"@@' -e 's@\"@@' `
+	@echo -n "Do you want tu run jhalfs (y)? "
+	@read ANSWER; \
+	if [ x$ANSWER != xn -and x$ANSWER != xno ]; then \
+	  `grep RUN_ME configuration | sed -e 's@RUN_ME=\"@@' -e 's@\"@@' `; \
+	else
+	  echo Exiting gracefully; \
+	fi
 
 $(CONFIG)/conf:
 	$(MAKE) -C $(CONFIG) conf
