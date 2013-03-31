@@ -34,25 +34,45 @@
     </book>
   </xsl:template>
 
-<!-- apply-templates for each id in the list.
+<!-- apply-templates for each item in the list.
+     Normally, those items are id of nodes.
      Those nodes can be sect1 (normal case),
      sect2 (python modules or DBus bindings)
      bridgehead (perl modules)
      para (dependency of perl modules).
-     The templates after this one treat each of those cases-->
+     The templates after this one treat each of those cases.
+     However, some items are xorg package names, and not id.
+     We need special instructions in that case.
+     The difficulty is that some of those names *are* id's,
+     because they are referenced in the index.
+     Hopefully, none of those id's are sect{1,2}, bridgehead or para...-->
   <xsl:template name="apply-list">
     <xsl:param name="list" select="''"/>
     <xsl:if test="string-length($list) &gt; 0">
       <xsl:choose>
         <xsl:when test="contains($list,' ')">
-          <xsl:apply-templates select="id(substring-before($list,' '))"/>
+          <xsl:call-template name="apply-list">
+            <xsl:with-param name="list"
+                            select="substring-before($list,' ')"/>
+          </xsl:call-template>
           <xsl:call-template name="apply-list">
             <xsl:with-param name="list"
                             select="substring-after($list,' ')"/>
           </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:apply-templates select="id($list)"/>
+          <xsl:choose>
+            <xsl:when test="not(id($list)/self::sect1|sect2|para|bridgehead)">
+              <xsl:apply-templates
+                   select="//sect1[contains(string(.//userinput),$list)]"
+                   mode="xorg">
+                <xsl:with-param name="package" select="$list"/>
+              </xsl:apply-templates>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:apply-templates select="id($list)"/>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:if>
@@ -264,5 +284,157 @@
         </xsl:if>
       </xsl:for-each>
     </sect2>
+  </xsl:template>
+
+<!-- we have got an xorg package. We are at the installation page
+     but now we need to make an autonomous page from the global
+     one -->
+  <xsl:template match="sect1" mode="xorg">
+    <xsl:param name="package"/>
+    <xsl:variable name="tarball">
+      <xsl:call-template name="tarball">
+        <xsl:with-param name="package" select="$package"/>
+        <xsl:with-param name="cat-md5"
+                        select="string(.//userinput[starts-with(string(),'cat')])"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="md5sum">
+      <xsl:call-template name="md5sum">
+        <xsl:with-param name="package" select="$package"/>
+        <xsl:with-param name="cat-md5"
+                        select=".//userinput[starts-with(string(),'cat')]"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="install-instructions">
+      <xsl:call-template name="inst-instr">
+        <xsl:with-param name="inst-instr"
+                        select=".//userinput[starts-with(string(),'for')]"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:element name="sect1">
+      <xsl:attribute name="id"><xsl:value-of select="$package"/></xsl:attribute>
+      <xsl:processing-instruction name="dbhtml">
+         filename="<xsl:value-of select='$package'/>.html"
+      </xsl:processing-instruction>
+      <title><xsl:value-of select="$package"/></title>
+      <sect2 role="package">
+        <title>Introduction to <xsl:value-of select="$package"/></title>
+        <bridgehead renderas="sect3">Package Information</bridgehead>
+        <itemizedlist spacing="compact">
+          <listitem>
+            <para>Download (HTTP): <xsl:element name="ulink">
+              <xsl:attribute name="url">
+                <xsl:value-of
+                   select=".//para[contains(string(),'(HTTP)')]/ulink/@url"/>
+                <xsl:value-of select="$tarball"/>
+              </xsl:attribute>
+             </xsl:element>
+            </para>
+          </listitem>
+          <listitem>
+            <para>Download (FTP): <xsl:element name="ulink">
+              <xsl:attribute name="url">
+                <xsl:value-of
+                   select=".//para[contains(string(),'(FTP)')]/ulink/@url"/>
+                <xsl:value-of select="$tarball"/>
+              </xsl:attribute>
+             </xsl:element>
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              Download MD5 sum: <xsl:value-of select="$md5sum"/>
+            </para>
+          </listitem>
+        </itemizedlist>
+      </sect2>
+      <sect2 role="installation">
+        <title>Installation of <xsl:value-of select="$package"/></title>
+
+        <para>
+          Install <application><xsl:value-of select="$package"/></application>
+          by running the following commands:
+        </para>
+
+        <screen><userinput>packagedir=<xsl:value-of
+                    select="substring-before($tarball,'.tar.bz2')"/>
+          <xsl:text>&#xA;</xsl:text>
+          <xsl:value-of select="substring-before($install-instructions,
+                                                 'as_root')"/>
+        </userinput></screen>
+
+        <para>
+          Now as the <systemitem class="username">root</systemitem> user:
+        </para>
+        <screen role='root'>
+          <userinput><xsl:value-of select="substring-after(
+                                                 $install-instructions,
+                                                 'as_root')"/>
+          </userinput>
+        </screen>
+      </sect2>
+    </xsl:element><!-- sect1 -->
+
+  </xsl:template>
+
+<!-- get the tarball name from the text that comes from the .md5 file -->
+  <xsl:template name="tarball">
+    <xsl:param name="package"/>
+    <xsl:param name="cat-md5"/>
+<!-- DEBUG
+<xsl:message><xsl:text>Entering "tarball" template:
+  package is: </xsl:text>
+<xsl:value-of select="$package"/><xsl:text>
+  cat-md5 is: </xsl:text>
+<xsl:value-of select="$cat-md5"/>
+</xsl:message>
+END DEBUG -->
+    <xsl:choose>
+      <xsl:when test="contains(substring-before($cat-md5,$package),'&#xA;')">
+        <xsl:call-template name="tarball">
+          <xsl:with-param name="package" select="$package"/>
+          <xsl:with-param name="cat-md5"
+                          select="substring-after($cat-md5,'&#xA;')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy-of select="substring-after(
+                                 substring-before($cat-md5,'&#xA;'),'  ')"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+<!-- same for md5sum -->
+  <xsl:template name="md5sum">
+    <xsl:param name="package"/>
+    <xsl:param name="cat-md5"/>
+    <xsl:choose>
+      <xsl:when test="contains(substring-before($cat-md5,$package),'&#xA;')">
+        <xsl:call-template name="md5sum">
+          <xsl:with-param name="package" select="$package"/>
+          <xsl:with-param name="cat-md5"
+                          select="substring-after($cat-md5,'&#xA;')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy-of select="substring-before($cat-md5,'  ')"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="inst-instr">
+    <xsl:param name="inst-instr"/>
+    <xsl:choose>
+      <xsl:when test="contains($inst-instr,'pushd')">
+        <xsl:call-template name="inst-instr">
+          <xsl:with-param name="inst-instr"
+                          select="substring-after(
+                                   substring-after($inst-instr,'pushd'),
+                                   '&#xA;')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy-of select="substring-before($inst-instr,'popd')"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 </xsl:stylesheet>

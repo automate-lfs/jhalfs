@@ -181,9 +181,19 @@ depends MENU_</xsl:text>
         <xsl:text>]</xsl:text>
       </xsl:if>
       <xsl:text>"
-&#9;&#9;&#9;default&#9;n
+&#9;&#9;&#9;default&#9;</xsl:text>
+      <xsl:choose>
+        <xsl:when test="contains(../name,'xorg')">
+          <xsl:text>y
 
 </xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:text>n
+
+</xsl:text>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:if>
   </xsl:template>
 

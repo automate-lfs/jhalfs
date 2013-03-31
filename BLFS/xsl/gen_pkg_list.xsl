@@ -256,17 +256,31 @@
     <xsl:variable name="status" select="./@role"/>
 <!-- No ulink for now (see special case for Perl modules) -->
     <xsl:for-each select="./xref">
-      <xsl:text>
+      <xsl:choose>
+        <xsl:when test="contains(@linkend,'xorg7-')">
+          <xsl:call-template name="expand-deps">
+            <xsl:with-param name="section">
+              <xsl:value-of select="@linkend"/>
+            </xsl:with-param>
+            <xsl:with-param name="status">
+              <xsl:value-of select="$status"/>
+            </xsl:with-param>
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:text>
             </xsl:text>
-      <xsl:element name="dependency">
-        <xsl:attribute name="status">
-          <xsl:value-of select="$status"/>
-        </xsl:attribute>
-        <xsl:attribute name="name">
-          <xsl:value-of select="@linkend"/>
-        </xsl:attribute>
-        <xsl:attribute name="type">ref</xsl:attribute>
-      </xsl:element>
+          <xsl:element name="dependency">
+            <xsl:attribute name="status">
+              <xsl:value-of select="$status"/>
+            </xsl:attribute>
+            <xsl:attribute name="name">
+              <xsl:value-of select="@linkend"/>
+            </xsl:attribute>
+            <xsl:attribute name="type">ref</xsl:attribute>
+          </xsl:element>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:for-each>
   </xsl:template>
 
