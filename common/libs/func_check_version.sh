@@ -89,7 +89,8 @@ check_prerequisites() {      #
   # LFS/HLFS/CLFS prerequisites
   check_version "2.6.25"  "`uname -r`"          "KERNEL"
   check_version "3.2"     "$BASH_VERSION"       "BASH"
-  check_version "4.1.2"   "`gcc -dumpversion`"  "GCC"  
+  check_version "4.1.2"   "`gcc -dumpversion`"  "GCC"
+  check_version "4.1.2"   "`g++ -dumpversion`"  "G++"
   check_version "2.5.1"   "$(ldd --version  | head -n1 | awk '{print $NF}')"        "GLIBC"
   check_version "2.17"    "$(ld --version  | head -n1 | awk '{print $NF}')"    "BINUTILS"
   check_version "1.18"    "$(tar --version | head -n1 | cut -d" " -f4)"        "TAR"
