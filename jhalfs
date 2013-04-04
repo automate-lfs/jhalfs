@@ -83,6 +83,19 @@ case $1 in
     ;;
 esac
 
+# If the user has not saved his configuration file, let's ask
+# if he or she really wants to run this stuff
+if [ $(ls -l --time-style='+%Y%m%d%H%M%S' configuration.old | cut -d' ' -f 6) \
+ -ge $(ls -l --time-style='+%Y%m%d%H%M%S' configuration | cut -d' ' -f 6) ]
+  then echo -n "Do you want to run jhalfs? yes/no (yes): "
+  read ANSWER
+  if [ x${ANSWER:0:1} = "xn" -o x${ANSWER:0:1} = "xN" ] ; then
+    echo "${nl_}Exiting gracefully.${nl_}"
+    exit
+  fi
+fi
+
+# Change this to 0 to suppress almost all messages
 VERBOSITY=1
 
 [[ $VERBOSITY > 0 ]] && echo -n "Loading config params from <configuration>..."
