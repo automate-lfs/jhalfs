@@ -187,7 +187,7 @@ case $BRANCH_ID in
 esac
 
 # Set the document location...
-BOOK=${BOOK:=$PROGNAME-$LFSVRS}
+BOOK=${BOOK:=$JHALFSDIR/$PROGNAME-$LFSVRS}
 
 # blfs-tool envars
 BLFS_TOOL=${BLFS_TOOL:-n}
@@ -322,10 +322,6 @@ source $COMMON_DIR/libs/func_custom_pkgs
 ###          MAIN               ###
 ###################################
 
-# Check for build prerequisites.
-echo
-  check_prerequisites
-echo "${SD_BORDER}${nl_}"
 
 validate_config
 echo "${SD_BORDER}${nl_}"
@@ -461,7 +457,9 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
   fi
   #
 
+# Download or updates the book source
   get_book
+  extract_commands
   echo "${SD_BORDER}${nl_}"
 
   # Get the BLFS book, if requested.
@@ -495,4 +493,10 @@ build_Makefile
 
 echo "${SD_BORDER}${nl_}"
 
+# Check for build prerequisites.
+  echo
+  cd $CWD
+  check_prerequisites
+  echo "${SD_BORDER}${nl_}"
+# All is well, run the build (if requested)
 run_make

@@ -25,36 +25,17 @@ get_book() {                 #
     # Grab a fresh book if it's missing, otherwise, update it from the
     # repo. If we've already extracted the commands, move on to getting the
     # sources.
-    if [ -d ${PROGNAME}-$LFSVRS ] ; then
-      cd ${PROGNAME}-$LFSVRS
-      if LC_ALL=C svn up | grep -q At && \
-         test -d $JHALFSDIR/${PROGNAME}-commands && \
-         test -f $JHALFSDIR/pkg_tarball_list ; then
-        # Set the canonical book version
-        echo -ne "done\n"
-        cd $JHALFSDIR
-        case $PROGNAME in
-          clfs | clfs2 | clfs3 )
-            VERSION=$(xmllint --noent $BOOK/prologue/$ARCH/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
-          *)
-            VERSION=$(xmllint --noent $BOOK/prologue/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//')  ;;
-        esac
-        get_sources
-      else
-        echo -ne "done\n"
-        extract_commands
-      fi
-    else
+    if ! [ -d ${PROGNAME}-$LFSVRS ] || ! [ -d ${PROGNAME}-$LFSVRS/.svn ]; then
       svn co $SVN/${svn_root}/${TREE} ${PROGNAME}-$LFSVRS >>$LOGDIR/$LOG 2>&1
-      echo -ne "done\n"
-      extract_commands
+    else
+      cd ${PROGNAME}-$LFSVRS
+      svn up >>$LOGDIR/$LOG 2>&1
     fi
+    echo -ne "done\n"
 
   else
     echo -ne "Using $BOOK as book's sources ...\n"
-    extract_commands
   fi
-  echo -ne " Document version ${L_arrow}${BOLD}${VERSION}${R_arrow}\n"
 }
 
 #----------------------------#
