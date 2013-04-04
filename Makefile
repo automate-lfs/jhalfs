@@ -17,6 +17,7 @@ $(CONFIG)/mconf:
 	$(MAKE) -C $(CONFIG) ncurses conf mconf
 
 menuconfig: $(CONFIG)/mconf
+	-@cp -a configuration configuration.old
 	@$(CONFIG)/mconf $(CONFIG_CONFIG_IN)
 
 config: $(CONFIG)/conf
