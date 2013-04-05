@@ -97,8 +97,12 @@ check_prerequisites() {      #
   # LFS/HLFS/CLFS prerequisites
   check_version "$MIN_Kernel_VER"    "`uname -r`"          "KERNEL"
   check_version "$MIN_Bash_VER"      "$BASH_VERSION"       "BASH"
-  check_version "$MIN_GCC_VER"       "`gcc -dumpversion`"  "GCC"
-  check_version "$MIN_GCC_VER"       "`g++ -dumpversion`"  "G++"
+  if [ ! -z $MIN_GCC_VER ]; then
+    check_version "$MIN_GCC_VER"     "`gcc -dumpversion`"  "GCC"
+    check_version "$MIN_GCC_VER"     "`g++ -dumpversion`"  "G++"
+  elif [ ! -z $MIN_Gcc_VER ]; then
+    check_version "$MIN_Gcc_VER"     "`gcc -dumpversion`"  "GCC"
+  fi
   check_version "$MIN_Glibc_VER"     "$(ldd --version  | head -n1 | awk '{print $NF}')"   "GLIBC"
   check_version "$MIN_Binutils_VER"  "$(ld --version  | head -n1 | awk '{print $NF}')"    "BINUTILS"
   check_version "$MIN_Tar_VER"       "$(tar --version | head -n1 | cut -d" " -f4)"        "TAR"
