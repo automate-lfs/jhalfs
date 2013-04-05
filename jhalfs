@@ -187,7 +187,7 @@ case $BRANCH_ID in
 esac
 
 # Set the document location...
-BOOK=${BOOK:=$PROGNAME-$LFSVRS}
+BOOK=${BOOK:=$JHALFSDIR/$PROGNAME-$LFSVRS}
 
 
 #--- Envars not sourced from configuration
@@ -260,10 +260,6 @@ fi
 ###          MAIN               ###
 ###################################
 
-# Check for build prerequisites.
-echo
-  check_prerequisites
-echo "${SD_BORDER}${nl_}"
 
 validate_config
 echo "${SD_BORDER}${nl_}"
@@ -375,7 +371,9 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
   fi
   #
 
+# Download or updates the book source
   get_book
+  extract_commands
   echo "${SD_BORDER}${nl_}"
 
 fi
@@ -395,4 +393,10 @@ build_Makefile
 
 echo "${SD_BORDER}${nl_}"
 
+# Check for build prerequisites.
+  echo
+  cd $CWD
+  check_prerequisites
+  echo "${SD_BORDER}${nl_}"
+# All is well, run the build (if requested)
 run_make

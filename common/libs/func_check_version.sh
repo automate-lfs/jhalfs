@@ -22,7 +22,7 @@ inline_doc
 
   declare -i major minor revision change
   declare -i ref_major ref_minor ref_revision ref_change
-  declare -r spaceSTR="         "
+  declare -r spaceSTR="                   "
 
   shopt -s extglob	#needed for ${x##*(0)} below
 
@@ -65,13 +65,19 @@ inline_doc
   major=${1##*(0)}; minor=${2##*(0)}; revision=${3##*(0)}
   #
   # Compare against minimum acceptable version..
-  (( major > ref_major )) && echo " ${spaceSTR:${#tst_version}}${GREEN}OK${OFF}" && return
+  (( major > ref_major )) &&
+    echo " ${spaceSTR:${#tst_version}}${GREEN}OK${OFF} (Min version: ${ref_version})" &&
+    return
   (( major < ref_major )) && write_error_and_die
     # major=ref_major
   (( minor < ref_minor )) && write_error_and_die
-  (( minor > ref_minor )) && echo " ${spaceSTR:${#tst_version}}${GREEN}OK${OFF}" && return
+  (( minor > ref_minor )) &&
+    echo " ${spaceSTR:${#tst_version}}${GREEN}OK${OFF} (Min version: ${ref_version})" &&
+    return
     # minor=ref_minor
-  (( revision >= ref_revision )) && echo " ${spaceSTR:${#tst_version}}${GREEN}OK${OFF}" && return
+  (( revision >= ref_revision )) &&
+    echo " ${spaceSTR:${#tst_version}}${GREEN}OK${OFF} (Min version: ${ref_version})" &&
+    return
 
   # oops.. write error msg and die
   write_error_and_die
@@ -82,34 +88,36 @@ inline_doc
 check_prerequisites() {      #
 #----------------------------#
 
+  # Maybe we should check xsltproc first?
+  eval $(xsltproc $COMMON_DIR/hostreqs.xsl $BOOK/prologue/hostreqs.xml)
   # Avoid translation of version strings
   local LC_ALL=C
   export LC_ALL
 
   # LFS/HLFS/CLFS prerequisites
-  check_version "2.6.25"  "`uname -r`"          "KERNEL"
-  check_version "3.2"     "$BASH_VERSION"       "BASH"
-  check_version "4.1.2"   "`gcc -dumpversion`"  "GCC"
-  check_version "4.1.2"   "`g++ -dumpversion`"  "G++"
-  check_version "2.5.1"   "$(ldd --version  | head -n1 | awk '{print $NF}')"        "GLIBC"
-  check_version "2.17"    "$(ld --version  | head -n1 | awk '{print $NF}')"    "BINUTILS"
-  check_version "1.18"    "$(tar --version | head -n1 | cut -d" " -f4)"        "TAR"
+  check_version "$MIN_Kernel_VER"    "`uname -r`"          "KERNEL"
+  check_version "$MIN_Bash_VER"      "$BASH_VERSION"       "BASH"
+  check_version "$MIN_GCC_VER"       "`gcc -dumpversion`"  "GCC"
+  check_version "$MIN_GCC_VER"       "`g++ -dumpversion`"  "G++"
+  check_version "$MIN_Glibc_VER"     "$(ldd --version  | head -n1 | awk '{print $NF}')"   "GLIBC"
+  check_version "$MIN_Binutils_VER"  "$(ld --version  | head -n1 | awk '{print $NF}')"    "BINUTILS"
+  check_version "$MIN_Tar_VER"       "$(tar --version | head -n1 | cut -d" " -f4)"        "TAR"
   bzip2Ver="$(bzip2 --version 2>&1 < /dev/null | head -n1 | cut -d" " -f8)"
-  check_version "1.0.4"   "${bzip2Ver%%,*}"                                    "BZIP2"
-  check_version "2.3"     "$(bison --version | head -n1 | cut -d" " -f4)"      "BISON"
-  check_version "6.9"     "$(chown --version | head -n1 | cut -d")" -f2)"      "COREUTILS"
-  check_version "2.8.1"   "$(diff --version  | head -n1 | cut -d" " -f4)"      "DIFF"
-  check_version "4.2.31"  "$(find --version  | head -n1 | cut -d" " -f4)"      "FIND"
-  check_version "3.1.5"   "$(gawk --version  | head -n1 | cut -d" " -f3)"      "GAWK"
-  check_version "2.5.1a"  "$(grep --version  | head -n1 | awk '{print $NF}')"  "GREP"
-  check_version "1.3.12"  "$(gzip --version 2>&1 | head -n1 | cut -d" " -f2)"  "GZIP"
-  check_version "1.4.10"  "$(m4 --version 2>&1 | head -n1 | awk '{print $NF}')" "M4"
-  check_version "3.81"    "$(make --version  | head -n1 | cut -d " " -f3 | cut -c1-4)"  "MAKE"
-  check_version "2.5.4"   "$(patch --version | head -n1 | sed 's/.*patch //')"      "PATCH"
-  check_version "5.8.8"   "$(perl -V:version | cut -f2 -d\')"                  "PERL"
-  check_version "4.1.5"   "$(sed --version   | head -n1 | cut -d" " -f4)"      "SED"
-  check_version "4.9"	  "$(makeinfo --version | head -n1 | awk '{ print$NF }')" "TEXINFO"
-  check_version "5.0.0"   "$(xz --version | head -n1 | cut -d" " -f4)"         "XZ"
+  check_version "$MIN_Bzip2_VER"     "${bzip2Ver%%,*}"     "BZIP2"
+  check_version "$MIN_Bison_VER"     "$(bison --version | head -n1 | cut -d" " -f4)"      "BISON"
+  check_version "$MIN_Coreutils_VER" "$(chown --version | head -n1 | cut -d")" -f2)"      "COREUTILS"
+  check_version "$MIN_Diffutils_VER" "$(diff --version  | head -n1 | cut -d" " -f4)"      "DIFF"
+  check_version "$MIN_Findutils_VER" "$(find --version  | head -n1 | cut -d" " -f4)"      "FIND"
+  check_version "$MIN_Gawk_VER"      "$(gawk --version  | head -n1 | cut -d" " -f3)"      "GAWK"
+  check_version "$MIN_Grep_VER"      "$(grep --version  | head -n1 | awk '{print $NF}')"  "GREP"
+  check_version "$MIN_Gzip_VER"      "$(gzip --version 2>&1 | head -n1 | cut -d" " -f2)"  "GZIP"
+  check_version "$MIN_M4_VER"        "$(m4 --version 2>&1 | head -n1 | awk '{print $NF}')" "M4"
+  check_version "$MIN_Make_VER"      "$(make --version  | head -n1 | cut -d " " -f3 | cut -c1-4)" "MAKE"
+  check_version "$MIN_Patch_VER"     "$(patch --version | head -n1 | sed 's/.*patch //')" "PATCH"
+  check_version "$MIN_Perl_VER"      "$(perl -V:version | cut -f2 -d\')"                  "PERL"
+  check_version "$MIN_Sed_VER"       "$(sed --version   | head -n1 | cut -d" " -f4)"      "SED"
+  check_version "$MIN_Texinfo_VER"   "$(makeinfo --version | head -n1 | awk '{ print$NF }')" "TEXINFO"
+  check_version "$MIN_Xz_VER"        "$(xz --version | head -n1 | cut -d" " -f4)"         "XZ"
   # Check for minimum sudo version
   SUDO_LOC="$(whereis -b sudo | cut -d" " -f2)"
   if [ -x $SUDO_LOC ]; then
