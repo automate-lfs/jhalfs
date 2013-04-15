@@ -62,9 +62,11 @@
         </xsl:when>
         <xsl:otherwise>
           <xsl:choose>
-            <xsl:when test="not(id($list)/self::sect1|sect2|para|bridgehead)">
+            <xsl:when test="not(id($list)[self::sect1 or self::sect2 or self::para or self::bridgehead])">
               <xsl:apply-templates
-                   select="//sect1[contains(@id,'xorg7') and contains(string(.//userinput),$list)]"
+                   select="//sect1[contains(@id,'xorg7')
+                               and contains(string(.//userinput),
+                                            concat($list,'-'))]"
                    mode="xorg">
                 <xsl:with-param name="package" select="$list"/>
               </xsl:apply-templates>
@@ -293,22 +295,22 @@
     <xsl:param name="package"/>
     <xsl:variable name="tarball">
       <xsl:call-template name="tarball">
-        <xsl:with-param name="package" select="$package"/>
+        <xsl:with-param name="package" select="concat($package,'-')"/>
         <xsl:with-param name="cat-md5"
-                        select="string(.//userinput[starts-with(string(),'cat')])"/>
+                        select="string(.//userinput[starts-with(string(),'cat ')])"/>
       </xsl:call-template>
     </xsl:variable>
     <xsl:variable name="md5sum">
       <xsl:call-template name="md5sum">
-        <xsl:with-param name="package" select="$package"/>
+        <xsl:with-param name="package" select="concat($package,'-')"/>
         <xsl:with-param name="cat-md5"
-                        select=".//userinput[starts-with(string(),'cat')]"/>
+                        select=".//userinput[starts-with(string(),'cat ')]"/>
       </xsl:call-template>
     </xsl:variable>
     <xsl:variable name="install-instructions">
       <xsl:call-template name="inst-instr">
         <xsl:with-param name="inst-instr"
-                        select=".//userinput[starts-with(string(),'for')]"/>
+                        select=".//userinput[starts-with(string(),'for ')]"/>
       </xsl:call-template>
     </xsl:variable>
     <xsl:element name="sect1">
