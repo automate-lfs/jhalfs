@@ -64,7 +64,7 @@
           <xsl:choose>
             <xsl:when test="not(id($list)/self::sect1|sect2|para|bridgehead)">
               <xsl:apply-templates
-                   select="//sect1[contains(string(.//userinput),$list)]"
+                   select="//sect1[contains(@id,'xorg7') and contains(string(.//userinput),$list)]"
                    mode="xorg">
                 <xsl:with-param name="package" select="$list"/>
               </xsl:apply-templates>
