@@ -295,14 +295,14 @@
     <xsl:param name="package"/>
     <xsl:variable name="tarball">
       <xsl:call-template name="tarball">
-        <xsl:with-param name="package" select="concat($package,'-')"/>
+        <xsl:with-param name="package" select="concat(' ',$package,'-')"/>
         <xsl:with-param name="cat-md5"
                         select="string(.//userinput[starts-with(string(),'cat ')])"/>
       </xsl:call-template>
     </xsl:variable>
     <xsl:variable name="md5sum">
       <xsl:call-template name="md5sum">
-        <xsl:with-param name="package" select="concat($package,'-')"/>
+        <xsl:with-param name="package" select="concat(' ',$package,'-')"/>
         <xsl:with-param name="cat-md5"
                         select=".//userinput[starts-with(string(),'cat ')]"/>
       </xsl:call-template>
