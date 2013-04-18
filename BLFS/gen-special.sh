@@ -97,9 +97,15 @@ EOF
   cat >> tmpfile << EOF
       <xsl:when test="\$section='$id'">
 EOF
-# In the list, the preceding package is a dependency of the following,
-# except the first:
-  precpack=NONE
+# We extract the list of packages for an xorg page from
+# the version part of the .xml file. Seems that
+# the order is not always the same as in the "cat" command.
+# So we have to read that command too, since it may be assumed
+# that the preceding package is a dependency of the following,
+# except the first.
+  list_cat="$(sed -n '/>cat/,/EOF</p' $file | grep -v 'cat\|EOF' |
+                 sed 's/^[^ ]*\ *\([^&]*\).*/\1/' | sed 's/-$//')"
+
 # Rationale for the sed below: the following for breaks words at spaces (unless
 # we tweak IFS). So replace spaces with commas in lines so that only newlines
 # are separators.
@@ -107,6 +113,12 @@ EOF
       $(grep 'ENTITY.*version' $file | sed 's/[ ]\+/,/g'); do
     packname=$(echo $pack | sed s'@.*ENTITY,\(.*\)-version.*@\1@')
     packversion=$(echo $pack | sed 's@[^"]*"\([^"]*\).*@\1@')
+    precpack=NONE
+    for i in $list_cat; do
+      if [ "$i" = "$packname" ]; then break; fi
+      precpack=$i
+    done
+
     cat >>$SPECIAL_FILE << EOF
         <module><xsl:text>&#xA;          </xsl:text>
           <xsl:element name="name">$packname</xsl:element>
@@ -149,7 +161,6 @@ EOF
           <xsl:attribute name="type">ref</xsl:attribute>
         </xsl:element>
 EOF
-    precpack=$packname
   done
   cat >>$SPECIAL_FILE << EOF
      </package>
