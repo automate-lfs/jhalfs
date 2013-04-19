@@ -207,20 +207,32 @@
                         preceding-sibling::sect1[@id != 'xorg7'])">
             <xsl:text>
             </xsl:text>
-            <xsl:element name="dependency">
-              <xsl:attribute name="status">required</xsl:attribute>
-              <xsl:attribute name="name">
-                <xsl:choose>
-                  <xsl:when test="@id='xterm2'">xorg7-driver</xsl:when>
-                  <xsl:otherwise>
-                    <xsl:value-of
-                      select="preceding-sibling::sect1[1]/@id"/>
-                  </xsl:otherwise>
-                </xsl:choose>
-              </xsl:attribute>
-              <xsl:attribute name="type">ref</xsl:attribute>
-            </xsl:element>
-
+            <xsl:choose>
+              <xsl:when test="contains(preceding-sibling::sect1[1]/@id,
+                                       'xorg7-') and not(@id='printproto')">
+                <xsl:call-template name="expand-deps">
+                  <xsl:with-param name="section">
+                    <xsl:value-of select="preceding-sibling::sect1[1]/@id"/>
+                  </xsl:with-param>
+                  <xsl:with-param name="status" select="'required'"/>
+                </xsl:call-template>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:element name="dependency">
+                  <xsl:attribute name="status">required</xsl:attribute>
+                  <xsl:attribute name="name">
+                    <xsl:choose>
+                      <xsl:when test="@id='printproto'">xorg-server</xsl:when>
+                      <xsl:otherwise>
+                        <xsl:value-of
+                          select="preceding-sibling::sect1[1]/@id"/>
+                      </xsl:otherwise>
+                    </xsl:choose>
+                  </xsl:attribute>
+                  <xsl:attribute name="type">ref</xsl:attribute>
+                </xsl:element>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:if>
           <xsl:apply-templates select=".//para[@role='required' or
                                                @role='recommended' or
