@@ -85,8 +85,9 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
     fi
 
     # Deal with udev and bootscripts m5sum issue
-    [[ $BOOKMD5 = "BOOTSCRIPTS-MD5SUM" ]] && continue
-    [[ $BOOKMD5 = "UDEV-MD5SUM" ]]        && continue
+    [[ $BOOKMD5 = "BOOTSCRIPTS-MD5SUM" ]]    && continue
+    [[ $BOOKMD5 = "UDEV-MD5SUM" ]]           && continue
+    [[ $BOOKMD5 = "LFS-NETSCRIPTS-MD5SUM" ]] && continue
 
       # IF the md5sum does not match the existing files
     if ! echo "$MD5" | md5sum -c - >/dev/null ; then
