@@ -145,14 +145,15 @@
   <xsl:template match="sect2">
     <!--XML::Parser is on the same page as Perl. The present code is OK
         except for PKG_DEST and PKGDIR, which would be the same as for Perl.
-        so set them to valid values.-->
+        so set them to valid values.
+        Since rev 10281, that is no more true. So comment out.
     <xsl:if test="contains(string(./title),'XML::Parser')">
       <xsl:text>PKGDIR=$(dirname $PKGDIR)/</xsl:text>
       <xsl:copy-of select="substring-after(.//userinput[@remap='pre'], 'cd ')"/>
       <xsl:text>
 PKG_DEST=$(dirname $PKGDIR)/000-xml-parser
 </xsl:text>
-    </xsl:if>
+    </xsl:if>-->
     <xsl:apply-templates
       select=".//screen[not(@role) or
                         @role != 'nodump']/userinput[

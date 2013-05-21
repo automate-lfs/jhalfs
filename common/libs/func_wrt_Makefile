@@ -106,6 +106,10 @@ get_package_tarball_name() {       #
          ;;
      udev) echo $(grep "^systemd" $JHALFSDIR/pkg_tarball_list | head -n1 )
          ;;
+     xml-parser) echo $(grep "^XML" $JHALFSDIR/pkg_tarball_list | head -n1 )
+         ;;
+     libdbus) echo $(grep "^dbus" $JHALFSDIR/pkg_tarball_list | head -n1 )
+         ;;
      *)  echo $(grep "^$script_name[_-][[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 )
          ;;
    esac
