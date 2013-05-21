@@ -145,14 +145,15 @@
   <xsl:template match="sect2">
     <!--XML::Parser is on the same page as Perl. The present code is OK
         except for PKG_DEST and PKGDIR, which would be the same as for Perl.
-        so set them to valid values.-->
+        so set them to valid values.
+        Since rev 10281, that is no more true. So comment out.
     <xsl:if test="contains(string(./title),'XML::Parser')">
       <xsl:text>PKGDIR=$(dirname $PKGDIR)/</xsl:text>
       <xsl:copy-of select="substring-after(.//userinput[@remap='pre'], 'cd ')"/>
       <xsl:text>
 PKG_DEST=$(dirname $PKGDIR)/000-xml-parser
 </xsl:text>
-    </xsl:if>
+    </xsl:if>-->
     <xsl:apply-templates
       select=".//screen[not(@role) or
                         @role != 'nodump']/userinput[
@@ -269,35 +270,39 @@ fi
     <xsl:variable name="pi-file-value" select="substring-after($pi-file,'filename=')"/>
     <xsl:variable name="filename" select="substring-before(substring($pi-file-value,2),'.html')"/>
      <!-- Creating dirs and files -->
-    <exsl:document href="{$dirname}/{$order}-{position()}-{$filename}" method="text">
-      <xsl:text>#!/bin/bash
+    <xsl:if test="count(descendant::screen/userinput) &gt; 0 and
+                  count(descendant::screen/userinput) &gt;
+                      count(descendant::screen[@role='nodump'])">
+      <exsl:document href="{$dirname}/{$order}-{position()}-{$filename}"
+                     method="text">
+        <xsl:text>#!/bin/bash
 set +h
 set -e
 
 cd $PKGDIR
 </xsl:text>
-      <xsl:apply-templates
-           select=".//screen[not(@role) or @role != 'nodump']/userinput[@remap != 'adjust']"
+        <xsl:apply-templates
+           select=".//screen[not(@role) or
+                            @role != 'nodump']/userinput[@remap != 'adjust']"
            mode="pkgmngt"/>
-      <xsl:if test="$dirname = 'chapter06'">
-        <xsl:text>packInstall
+        <xsl:if test="$dirname = 'chapter06'">
+          <xsl:text>packInstall
 rm -rf $PKG_DEST
 </xsl:text>
-      </xsl:if>
-      <xsl:apply-templates
-           select=".//screen[
-              not(@role) or
-              @role != 'nodump'
-                            ]/userinput[
-                                not(@remap) or
-                                @remap='adjust'
+        </xsl:if>
+        <xsl:apply-templates
+           select=".//screen[not(@role) or
+                             @role != 'nodump'
+                            ]/userinput[not(@remap) or
+                                        @remap='adjust'
                                        ]"
            mode="pkgmngt"/>
-      <xsl:text>
+        <xsl:text>
 echo -e "\n\nTotalseconds: $SECONDS\n"
 exit
 </xsl:text>
-    </exsl:document>
+      </exsl:document>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="userinput" mode="pkgmngt">
