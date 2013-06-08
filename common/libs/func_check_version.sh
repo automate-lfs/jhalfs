@@ -112,7 +112,7 @@ check_prerequisites() {      #
   check_version "$MIN_Coreutils_VER" "$(chown --version | head -n1 | cut -d")" -f2)"      "COREUTILS"
   check_version "$MIN_Diffutils_VER" "$(diff --version  | head -n1 | cut -d" " -f4)"      "DIFF"
   check_version "$MIN_Findutils_VER" "$(find --version  | head -n1 | cut -d" " -f4)"      "FIND"
-  check_version "$MIN_Gawk_VER"      "$(gawk --version  | head -n1 | cut -d" " -f3)"      "GAWK"
+  check_version "$MIN_Gawk_VER"      "$(gawk --version  | head -n1 | awk -F'[ ,]+' '{print $3}')" "GAWK"
   check_version "$MIN_Grep_VER"      "$(grep --version  | head -n1 | awk '{print $NF}')"  "GREP"
   check_version "$MIN_Gzip_VER"      "$(gzip --version 2>&1 | head -n1 | cut -d" " -f2)"  "GZIP"
   check_version "$MIN_M4_VER"        "$(m4 --version 2>&1 | head -n1 | awk '{print $NF}')" "M4"
