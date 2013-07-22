@@ -213,7 +213,7 @@ define echo_finished
   @echo  $(tab_) "                /etc/sysconfig/clock,"
   @echo  $(tab_) "                /etc/sysconfig/console,"
   @echo  $(tab_) "                /etc/sysconfig/network,"
-  @echo  $(tab_) "                /etc/sysconfig/ifconfig.eth0"
+  @echo  $(tab_) "                /etc/sysconfig/ifconfig.eth0,"
   @echo  $(tab_) "                /etc/resolv.conf"
   @echo  $(tab_)and any other configuration file required to suit your needs.
   @echo
