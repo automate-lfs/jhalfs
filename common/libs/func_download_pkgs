@@ -146,31 +146,13 @@ create_urls() {              #
   cd $JHALFSDIR
 
   case ${PROGNAME} in
-    clfs)
+    clfs*)
         echo -n "Creating CLFS <${ARCH}> specific URLs file"
         xsltproc --nonet --xinclude \
                  --stringparam server $SERVER \
                  --stringparam family clfs \
                  -o $BUILDDIR/sources/urls.lst urls.xsl \
-                 $BOOK/materials/$ARCH-chapter.xml >>$LOGDIR/$LOG 2>&1
-        echo " ...OK"
-      ;;
-    clfs2)
-        echo -n "Creating CLFS2 <${ARCH}> specific URLs file"
-        xsltproc --nonet --xinclude \
-                 --stringparam server $SERVER \
-                 --stringparam family clfs \
-                 -o $BUILDDIR/sources/urls.lst urls.xsl \
-                 $BOOK/materials/$ARCH-chapter.xml >>$LOGDIR/$LOG 2>&1
-        echo " ...OK"
-      ;;
-    clfs3)
-        echo -n "Creating CLFS3 <${ARCH}> specific URLs file"
-        xsltproc --nonet --xinclude \
-                 --stringparam server $SERVER \
-                 --stringparam family clfs \
-                 -o $BUILDDIR/sources/urls.lst urls.xsl \
-                 $BOOK/materials/$ARCH-chapter.xml >>$LOGDIR/$LOG 2>&1
+                 $BOOK/BOOK/materials/$ARCH-chapter.xml >>$LOGDIR/$LOG 2>&1
         echo " ...OK"
       ;;
     hlfs)
