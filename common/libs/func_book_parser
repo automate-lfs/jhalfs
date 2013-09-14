@@ -16,20 +16,30 @@ get_book() {                 #
     case $PROGNAME in
       lfs) svn_root="LFS" ;;
       hlfs) svn_root="HLFS" ;;
-      clfs) svn_root="cross-lfs" ;;
-      clfs2) svn_root="cross-lfs" ;;
-      clfs3) svn_root="cross-lfs" ;;
+      clfs*) svn_root="cross-lfs" ;;
       *) echo "BOOK not defined in function <get_book>"
           exit 1 ;;
     esac
     # Grab a fresh book if it's missing, otherwise, update it from the
     # repo. If we've already extracted the commands, move on to getting the
     # sources.
-    if ! [ -d ${PROGNAME}-$LFSVRS ] || ! [ -d ${PROGNAME}-$LFSVRS/.svn ]; then
-      svn co $SVN/${svn_root}/${TREE} ${PROGNAME}-$LFSVRS >>$LOGDIR/$LOG 2>&1
+    if [ $PROGNAME == "lfs" ] || [ $PROGNAME == "hlfs" ] && [ ! -d ${PROGNAME}-${LFSVRS}/.svn ]; then
+        svn co $SVN/${svn_root}/${TREE} ${PROGNAME}-$LFSVRS >>$LOGDIR/$LOG 2>&1
+    elif [ $PROGNAME == "clfs" ]  || [ $PROGNAME == "clfs2" ] || [ $PROGNAME == "clfs3" ] && [ ! -d ${PROGNAME}-${LFSVRS}/.git ]; then
+        echo $TREE
+        git clone $GIT ${PROGNAME}-$LFSVRS >>$LOGDIR/$LOG 2>&1
+        if [ ! $TREE == "development" ]; then
+           cd ${PROGNAME}-$LFSVRS
+           echo "Checking out $LFSVRS at $PWD in $TREE"
+           git checkout ${TREE} >>$LOGDIR/$LOG 2>&1
+        fi
     else
       cd ${PROGNAME}-$LFSVRS
-      svn up >>$LOGDIR/$LOG 2>&1
+      case $PROGNAME in
+        clfs*)  git pull >>$LOGDIR/$LOG 2>&1 ;;
+        lfs | hlfs) svn up >>$LOGDIR/$LOG 2>&1 ;;
+        *) ;;
+      esac
     fi
     echo -ne "done\n"
 
@@ -48,8 +58,8 @@ extract_commands() {         #
 
   cd $JHALFSDIR
   case $PROGNAME in
-    clfs | clfs2 | clfs3 )
-      VERSION=$(xmllint --noent $BOOK/prologue/$ARCH/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
+    clfs*)
+      VERSION=$(xmllint --noent BOOK/prologue/$ARCH/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
     *)
       VERSION=$(xmllint --noent $BOOK/prologue/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//')  ;;
   esac
@@ -75,7 +85,7 @@ extract_commands() {         #
                  --stringparam page $PAGE \
                  --stringparam lang $LANG \
                  --stringparam sparc $SPARC64_PROC \
-                 -o ./${PROGNAME}-commands/ $XSL $BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
+                 -o ./${PROGNAME}-commands/ $XSL $BOOK/BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
       ;;
 
     clfs2)
@@ -86,7 +96,7 @@ extract_commands() {         #
                  --stringparam timezone $TIMEZONE \
                  --stringparam page $PAGE \
                  --stringparam lang $LANG \
-                 -o ./${PROGNAME}-commands/ $XSL $BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
+                 -o ./${PROGNAME}-commands/ $XSL $BOOK/BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
       ;;
 
     clfs3)
@@ -97,7 +107,7 @@ extract_commands() {         #
                  --stringparam timezone $TIMEZONE \
                  --stringparam page $PAGE \
                  --stringparam lang $LANG \
-                 -o ./${PROGNAME}-commands/ $XSL $BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
+                 -o ./${PROGNAME}-commands/ $XSL $BOOK/BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
       ;;
 
     hlfs)
@@ -161,9 +171,9 @@ create_package_list() {      #
   if [ ! -z $ARCH ] ; then echo -n " $ARCH" ; fi
   echo -n "... "
   case ${PROGNAME} in
-    clfs | clfs2 | clfs3 )
+    clfs*)
         xsltproc --nonet --xinclude -o pkg_tarball_list packages.xsl \
-                 $BOOK/materials/${ARCH}-chapter.xml >>$LOGDIR/$LOG 2>&1
+                 $BOOK/BOOK/materials/${ARCH}-chapter.xml >>$LOGDIR/$LOG 2>&1
       ;;
     hlfs)
         xsltproc --nonet --xinclude \
@@ -178,6 +188,7 @@ create_package_list() {      #
                   -o pkg_tarball_list packages.xsl \
                  $BOOK/chapter03/chapter03.xml >>$LOGDIR/$LOG 2>&1
       ;;
+    *)
   esac
 
   if [[ "${BLFS_TOOL}" = "y" ]] ; then
