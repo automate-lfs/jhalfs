@@ -18,6 +18,8 @@ MAKEFLAGS="-j3"
 #    a empty list here.
 BLACK_LIST="attr autoconf coreutils dejagnu gettext gperf groff man-db vim"
 #    Rationale for attr, coreutils, gperf: the tests do not pass with -jX
+#    CLFS packages
+BLACK_LIST="$BLACK_LIST libee"
 
 #--- Default optimization mode
 #    This mode is overridden by definitions in opt_override;
