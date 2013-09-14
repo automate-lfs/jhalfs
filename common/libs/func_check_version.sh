@@ -89,7 +89,12 @@ check_prerequisites() {      #
 #----------------------------#
 
   # Maybe we should check xsltproc first?
-  eval $(xsltproc $COMMON_DIR/hostreqs.xsl $BOOK/prologue/hostreqs.xml)
+    case $PROGNAME in
+      clfs | clfs2 | clfs3) HOSTREQS="BOOK/prologue/common/hostreqs.xml" ;;
+      *) HOSTREQS="prologue/hostreqs.xml" ;;
+    esac
+
+  eval $(xsltproc $COMMON_DIR/hostreqs.xsl $BOOK/$HOSTREQS)
   # Avoid translation of version strings
   local LC_ALL=C
   export LC_ALL

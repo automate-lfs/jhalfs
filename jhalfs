@@ -152,8 +152,7 @@ BRANCH_ID=${BRANCH_ID:=development}
 case $BRANCH_ID in
   development )
     case $PROGNAME in
-      clfs2 ) TREE=branches/clfs-sysroot/BOOK ;;
-      clfs3 ) TREE=branches/clfs-embedded/BOOK ;;
+      clfs* ) TREE="" ;;
            *) TREE=trunk/BOOK ;;
     esac
     LFSVRS=development
@@ -178,10 +177,11 @@ case $BRANCH_ID in
         LFSVRS=${BRANCH_ID}
         TREE=tags/${BRANCH_ID}/BOOK
         ;;
-      clfs | clfs2 | clfs3)
+      clfs* )
         LFSVRS=${BRANCH_ID}
-        TREE=tags/${BRANCH_ID}
+        TREE=tags/clfs-${BRANCH_ID}
         ;;
+      * )
     esac
     ;;
 esac
@@ -272,8 +272,10 @@ fi
 #--- Envars not sourced from configuration
 case $PROGNAME in
 # TODO: clfs is now on git
-#  clfs* ) declare -r SVN="http://svn.cross-lfs.org/svn/repos" ;;
-      * ) declare -r SVN="svn://svn.linuxfromscratch.org" ;;
+      clfs ) declare -r GIT="git://git.cross-lfs.org/cross-lfs" ;;
+      clfs2 ) declare -r GIT="git://git.cross-lfs.org/clfs-sysroot" ;;
+      clfs3 ) declare -r GIT="git://git.cross-lfs.org/clfs-embedded" ;;
+      *) declare -r SVN="svn://svn.linuxfromscratch.org" ;;
 esac
 declare -r LOG=000-masterscript.log
   # Needed for fetching BLFS book sources when building CLFS
@@ -389,7 +391,11 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
   cp $COMMON_DIR/{makefile-functions,progress_bar.sh,packages.xsl} $JHALFSDIR/
   #
   # Fix the XSL book parser
-  sed 's,FAKEDIR,'$BOOK',' $PACKAGE_DIR/$XSL > $JHALFSDIR/${XSL}
+  case $PROGNAME in
+    clfs* ) sed 's,FAKEDIR,'${BOOK}/BOOK',' ${PACKAGE_DIR}/${XSL} > $JHALFSDIR/${XSL} ;;
+    lfs | hlfs ) sed 's,FAKEDIR,'$BOOK',' $PACKAGE_DIR/$XSL > $JHALFSDIR/${XSL} ;;
+    * ) ;;
+  esac
   export XSL=$JHALFSDIR/${XSL}
   #
 
@@ -482,7 +488,7 @@ fi
 # When regenerating the Makefile, we need to know also the canonical book version
 if [[ "$REBUILD_MAKEFILE" = "y" ]] ; then
   case $PROGNAME in
-    clfs | clfs2 | clfs3 )
+    clfs* )
       VERSION=$(xmllint --noent $JHALFSDIR/$BOOK/prologue/$ARCH/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
     *)
       VERSION=$(xmllint --noent $JHALFSDIR/$BOOK/prologue/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//')  ;;
