@@ -23,6 +23,8 @@ rm -rf ${BUILDDIR}${BLFS_ROOT}/menu/lxdialog/.svn
 # Set some harcoded envars to their proper values
 sed -i s@tracking-dir@$TRACKING_DIR@ \
     ${BUILDDIR}${BLFS_ROOT}/{Makefile,gen-makefile.sh}
+sed -i s@trunk/BOOK@$BLFS_TREE@ \
+    ${BUILDDIR}${BLFS_ROOT}/Makefile
 
 # Downloads the book, initialize the tracking file and the package database
 # sudo is needed if $BUILDDIR/var/lib is owned by root and /var/lib/jhalfs
