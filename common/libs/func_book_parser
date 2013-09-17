@@ -59,7 +59,7 @@ extract_commands() {         #
   cd $JHALFSDIR
   case $PROGNAME in
     clfs*)
-      VERSION=$(xmllint --noent BOOK/prologue/$ARCH/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
+      VERSION=$(xmllint --noent $BOOK/BOOK/prologue/$ARCH/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
     *)
       VERSION=$(xmllint --noent $BOOK/prologue/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//')  ;;
   esac
