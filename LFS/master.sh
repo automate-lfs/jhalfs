@@ -78,13 +78,13 @@ chapter5_Makefiles() {
     this_script=`basename $file`
 
     # If no testsuites are run, then TCL, Expect, DejaGNU and Check
-    # aren't needed.
+    # aren't needed (but building them does not hurt).
     # Fix also locales creation when running chapter05 testsuites (ugly)
     case "${this_script}" in
-      *tcl)       [[ "${TEST}" = "0" ]] && continue ;;
-      *expect)    [[ "${TEST}" = "0" ]] && continue ;;
-      *dejagnu)   [[ "${TEST}" = "0" ]] && continue ;;
-      *check)     [[ "${TEST}" = "0" ]] && continue ;;
+#      *tcl)       [[ "${TEST}" = "0" ]] && continue ;;
+#      *expect)    [[ "${TEST}" = "0" ]] && continue ;;
+#      *dejagnu)   [[ "${TEST}" = "0" ]] && continue ;;
+#      *check)     [[ "${TEST}" = "0" ]] && continue ;;
       *stripping) [[ "${STRIP}" = "n" ]] && continue ;;
       *glibc)     [[ "${TEST}" = "3" ]] && \
                   sed -i 's@/usr/lib/locale@/tools/lib/locale@' $file ;;

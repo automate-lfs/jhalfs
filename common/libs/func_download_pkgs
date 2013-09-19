@@ -39,7 +39,7 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
 
       # Skip some packages if they aren't needed
     case $line in
-      */check* | */tcl* | */expect* | */dejagnu* | */tree* | */gcc-testsuite* )
+      */tree* | */gcc-testsuite* ) #unneeded now?
             [[ "$TEST" = "0" ]] && continue
           ;;
       */vim-*-lang* )
