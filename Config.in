@@ -44,11 +44,19 @@ menu "--- BOOK Settings"
 	#--- Book version
 	choice
 		prompt	"Release"
-		default	relSVN
+		default	relSVN	if BOOK_LFS || BOOK_HLFS
+		default	relGIT	if BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3
 		config	relSVN
 			bool	"SVN"
+			depends on BOOK_LFS || BOOK_HLFS
 			help
 				#-- Current development version as in trunk
+
+		config	relGIT
+			bool	"GIT"
+			depends on BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3
+			help
+				#-- Current development git master branch
 
 		config	WORKING_COPY
 			bool	"Working Copy"
@@ -59,7 +67,7 @@ menu "--- BOOK Settings"
 		config	BRANCH
 			bool	"Branch or stable book" if !BOOK_CLFS2 && !BOOK_CLFS3
 			help
-				#-- A supported SVN branch or stable released book
+				#-- A supported SVN/GIT branch or stable released book
 	endchoice
 
 	config	BRANCH_ID
@@ -135,7 +143,7 @@ menu "--- BOOK Settings"
 			bool	"32-bit"
 
 		config	DATA_64
-			bool	"64-bit"	if !ARCH_PPC
+			bool	"64-bit"
 
 		config	DATA_MULTI
 			bool	"multilib"	if !(BOOK_CLFS3 && ARCH_MIPS )
@@ -250,8 +258,8 @@ menu "--- BOOK Settings"
 		default "mips64el-unknown-linux-uclibc"	if  BOOK_CLFS3 && PROC_mipsel && DATA_64
 		default "mips64-unknown-linux-uclibc"	if  BOOK_CLFS3 && PROC_mips   && DATA_64
 
-		default	"powerpc-unknown-linux-gnu"	if  ARCH_PPC   && DATA_32
-		default "powerpc64-unknown-linux-gnu"	if  ARCH_PPC   && DATA_MULTI
+		default	"powerpc-unknown-linux-gnu"	if  ARCH_PPC && DATA_32
+		default "powerpc64-unknown-linux-gnu"	if  ARCH_PPC && (DATA_MULTI || DATA-64)
 
 		default "sparc-unknown-linux-gnu"	if  ARCH_SPARC && DATA_32
 		default "sparc64-unknown-linux-gnu"	if  ARCH_SPARC && (DATA_64 || DATA_MULTI)
@@ -311,6 +319,7 @@ menu "--- BOOK Settings"
 
 		default	"ppc"		if ARCH_PPC   && DATA_32
 		default	"ppc64"		if ARCH_PPC   && DATA_MULTI
+		default	"ppc64-64"	if ARCH_PPC   && DATA_64
 
 		default	"sparc"		if ARCH_SPARC && DATA_32
 		default	"sparc64"	if ARCH_SPARC && DATA_MULTI
