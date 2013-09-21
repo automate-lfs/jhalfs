@@ -54,7 +54,7 @@ inline_doc
   echo -ne "${TXT}${dotSTR:${#TXT}} ${L_arrow}${BOLD}${tst_version}${OFF}${R_arrow}"
 
 #  echo -ne "$TXT:\t${L_arrow}${BOLD}${tst_version}${OFF}${R_arrow}"
-  IFS=".-(pa"   # Split up w.x.y.z as well as w.x.y-rc  (catch release candidates)
+  IFS=".-(pab"   # Split up w.x.y.z as well as w.x.y-rc  (catch release candidates)
   set -- $ref_version # set positional parameters to minimum ver values
   ref_major=$1; ref_minor=$2; ref_revision=$3
   #
@@ -100,7 +100,7 @@ check_prerequisites() {      #
   export LC_ALL
 
   # LFS/HLFS/CLFS prerequisites
-  check_version "$MIN_Kernel_VER"    "`uname -r`"          "KERNEL"
+  check_version "$MIN_Linux_VER"     "`uname -r`"          "KERNEL"
   check_version "$MIN_Bash_VER"      "$BASH_VERSION"       "BASH"
   if [ ! -z $MIN_GCC_VER ]; then
     check_version "$MIN_GCC_VER"     "`gcc -dumpversion`"  "GCC"
@@ -128,10 +128,11 @@ check_prerequisites() {      #
   check_version "$MIN_Texinfo_VER"   "$(makeinfo --version | head -n1 | awk '{ print$NF }')" "TEXINFO"
   check_version "$MIN_Xz_VER"        "$(xz --version | head -n1 | cut -d" " -f4)"         "XZ"
   # Check for minimum sudo version
+  if [ -z $MIN_Sudo_VER ]; then MIN_Sudo_VER=1.7.0; fi
   SUDO_LOC="$(whereis -b sudo | cut -d" " -f2)"
   if [ -x $SUDO_LOC ]; then
     sudoVer="$(sudo -V | head -n1 | cut -d" " -f3)"
-    check_version "1.7.0"  "${sudoVer}"      "SUDO"
+    check_version "$MIN_Sudo_VER"  "${sudoVer}"      "SUDO"
   else
     echo "${nl_}\"${RED}sudo${OFF}\" ${BOLD}must be installed on your system for jhalfs to run"
     exit 1
