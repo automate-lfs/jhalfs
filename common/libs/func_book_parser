@@ -31,12 +31,17 @@ get_book() {                 #
         if [ ! $TREE == "development" ]; then
            cd ${PROGNAME}-$LFSVRS
            echo "Checking out $LFSVRS at $PWD in $TREE"
-           git checkout ${TREE} >>$LOGDIR/$LOG 2>&1
+           git checkout -b ${TREE} ${TREE} >>$LOGDIR/$LOG 2>&1
         fi
     else
       cd ${PROGNAME}-$LFSVRS
       case $PROGNAME in
-        clfs*)  git pull >>$LOGDIR/$LOG 2>&1 ;;
+        clfs*)  git checkout master >>$LOGDIR/$LOG 2>&1
+                git pull >>$LOGDIR/$LOG 2>&1
+                if [ ! $TREE == "development" ]; then
+                   git checkout ${TREE} >>$LOGDIR/$LOG 2>&1
+                fi
+        ;;
         lfs | hlfs) svn up >>$LOGDIR/$LOG 2>&1 ;;
         *) ;;
       esac
