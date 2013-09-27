@@ -1096,6 +1096,9 @@ if !BOOK_CLFS2 && !BOOK_CLFS3
 
 		config	OPT_2
 			bool	"Both temp tools and final system"
+
+		config	OPT_3
+			bool	"Cross tools (only MAKEFLAGS), temp tools and final system" if BOOK_CLFS
 	endchoice
 
 	config	OPTIMIZE
@@ -1103,6 +1106,7 @@ if !BOOK_CLFS2 && !BOOK_CLFS3
 		default	"0"	if !CONFIG_OPTIMIZE
 		default	"1"	if OPT_1
 		default	"2"	if OPT_2
+		default	"3"	if OPT_3
 endif
 	#--- End Optimizations
 

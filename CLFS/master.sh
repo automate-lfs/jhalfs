@@ -120,6 +120,7 @@ cross_tools_Makefiles() {              #
     # If $pkg_tarball isn't empty, we've got a package...
     #
     [[ "$pkg_tarball" != "" ]] && LUSER_wrt_unpack "$pkg_tarball"
+    [[ "$pkg_tarball" != "" ]] && [[ "$OPTIMIZE" = 3 ]] && wrt_makeflags "${name}"
     #
     LUSER_wrt_RunAsUser "${file}"
     #
@@ -178,7 +179,7 @@ temptools_Makefiles() {                #
     # Insert instructions for unpacking the package and to set the PKGDIR variable.
     #
     [[ "$pkg_tarball" != "" ]] && LUSER_wrt_unpack "$pkg_tarball"
-    [[ "$pkg_tarball" != "" ]] && [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
+    [[ "$pkg_tarball" != "" ]] && [[ "$OPTIMIZE" -ge "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     #
     LUSER_wrt_RunAsUser "${file}"
     #
@@ -231,7 +232,7 @@ chroot_Makefiles() {                   #
       *util-linux)
          LUSER_wrt_target "${this_script}" "$PREV"
          LUSER_wrt_unpack "$pkg_tarball"
-         [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
+         [[ "$OPTIMIZE" -ge "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
          LUSER_wrt_RunAsUser "${file}"
          LUSER_RemoveBuildDirs "${name}"
          wrt_touch
@@ -240,7 +241,7 @@ chroot_Makefiles() {                   #
       *util-linux-ng)
          LUSER_wrt_target "${this_script}" "$PREV"
          LUSER_wrt_unpack "$pkg_tarball"
-         [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
+         [[ "$OPTIMIZE" -ge "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
          LUSER_wrt_RunAsUser "${file}"
          LUSER_RemoveBuildDirs "${name}"
          wrt_touch
@@ -249,7 +250,7 @@ chroot_Makefiles() {                   #
       *util-linux-libs)
          LUSER_wrt_target "${this_script}" "$PREV"
          LUSER_wrt_unpack "$pkg_tarball"
-         [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
+         [[ "$OPTIMIZE" -ge "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
          LUSER_wrt_RunAsUser "${file}"
          LUSER_RemoveBuildDirs "${name}"
          wrt_touch
@@ -258,7 +259,7 @@ chroot_Makefiles() {                   #
       *e2fsprogs)
          LUSER_wrt_target "${this_script}" "$PREV"
          LUSER_wrt_unpack "$pkg_tarball"
-         [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
+         [[ "$OPTIMIZE" -ge "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
          LUSER_wrt_RunAsUser "${file}"
          LUSER_RemoveBuildDirs "${name}"
          wrt_touch
@@ -267,7 +268,7 @@ chroot_Makefiles() {                   #
       *e2fsprogs-libs)
          LUSER_wrt_target "${this_script}" "$PREV"
          LUSER_wrt_unpack "$pkg_tarball"
-         [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
+         [[ "$OPTIMIZE" -ge "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
          LUSER_wrt_RunAsUser "${file}"
          LUSER_RemoveBuildDirs "${name}"
          wrt_touch
@@ -289,7 +290,7 @@ chroot_Makefiles() {                   #
     #
     if [ "$pkg_tarball" != "" ] ; then
       CHROOT_Unpack "$pkg_tarball"
-      [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
+      [[ "$OPTIMIZE" -ge "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
     #
     # Select a script execution method
@@ -377,7 +378,7 @@ boot_Makefiles() {                     #
     # Insert instructions for unpacking the package and changing directories
     #
     [[ "$pkg_tarball" != "" ]] && LUSER_wrt_unpack "$pkg_tarball"
-    [[ "$pkg_tarball" != "" ]] && [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
+    [[ "$pkg_tarball" != "" ]] && [[ "$OPTIMIZE" -ge "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     #
     # Select a script execution method
     case $this_script in
@@ -448,7 +449,7 @@ testsuite_tools_Makefiles() {          #
     CHROOT_wrt_target "${this_script}" "$PREV"
     #
     CHROOT_Unpack "$pkg_tarball"
-    [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
+    [[ "$OPTIMIZE" -ge "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     #
     CHROOT_wrt_RunAsRoot "${file}"
     #
