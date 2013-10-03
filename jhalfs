@@ -179,7 +179,7 @@ case $BRANCH_ID in
         ;;
       clfs* )
         LFSVRS=${BRANCH_ID}
-        TREE=tags/clfs-${BRANCH_ID}
+        TREE=clfs-${BRANCH_ID}
         ;;
       * )
     esac
