@@ -58,7 +58,7 @@ EOF
 #=======================
 
 
-#==== PACKAGES NAMES ===
+#==== PACKAGES NAMES AND VERSIONS ====
 
 #----------------------------------#
 get_package_tarball_name() {       #
@@ -116,6 +116,41 @@ get_package_tarball_name() {       #
 
 }
 
+#----------------------------------#
+get_package_version() {            #
+#----------------------------------#
+# Those hacks may change depending on the invention of devs for tarball names.
+# Normally, we expect -digit to signal the beginning of the version field
+# but it may happen that there is no '-' (tcl, expect), that the version
+# field is ddd-d (pkg-config-lite-028-1, since sed is greedy, it finds only
+# the second dash) or that the first character of the version is not a digit
+# (iputils-s20121221)...
+  case ${1} in
+     tcl*|expect*|tzdata*|xmlts*|unzip*|lynx*)
+                           echo ${1} | sed -e 's@^[^[:digit:]]*@@' \
+                                           -e 's@\(-src\)*\.tar.*@@'
+        ;;
+     iputils*)             echo ${1} | sed -e 's@^.*-@@' \
+                                           -e 's@\.tar.*@@'
+        ;;
+     LVM*)                 echo ${1} | sed -e 's@^[^.]*\.@@' \
+                                           -e 's@\.tgz.*@@'
+        ;;
+     iproute*)             echo ${1} | sed -e 's@^[^-]*-@@' \
+                                           -e 's@\.tar.*@@'
+        ;;
+     pkg*|udev*|Singular*)
+                           echo ${1} | sed -e 's@^.*[a-z]-\([[:digit:]]\)@\1@' \
+                                           -e 's@\.tar.*@@' \
+                                           -e 's@\.zip.*@@'
+        ;;
+     *)                    echo ${1} | sed -e 's@^.*[-_]\([[:digit:]]\)@\1@' \
+                                           -e 's@\.tar.*@@' \
+                                           -e 's@\.zip.*@@'
+        ;;
+  esac
+
+}
 #=======================
 
 
@@ -126,14 +161,18 @@ LUSER_wrt_target() {               # Create target and initialize log file
 #----------------------------------#
   local i=$1
   local PREV=$2
+  local version
+  if [ "$3" != "" ]; then
+    version=-$3
+  fi
 (
 cat << EOF
 
 $i:  $PREV
 	@\$(call echo_message, Building)
 ${NO_PROGRESS}	@export BASHBIN=\$(SHELL) && \$(SHELL) progress_bar.sh \$@ \$\$PPID &
-	@echo "\$(nl_)\`date\`\$(nl_)" >logs/\$@
-	@\$(PRT_DU) >>logs/\$@
+	@echo "\$(nl_)\`date\`\$(nl_)" >logs/\$@$version
+	@\$(PRT_DU) >>logs/\$@$version
 EOF
 ) >> $MKFILE.tmp
 }
@@ -143,14 +182,18 @@ CHROOT_wrt_target() {              # Create target and initialize log file
 #----------------------------------#
   local i=$1
   local PREV=$2
+  local version
+  if [ "$3" != "" ]; then
+    version=-$3
+  fi
 (
 cat << EOF
 
 $i:  $PREV
 	@\$(call echo_message, Building)
 ${NO_PROGRESS}	@export BASHBIN=\$(SHELL) && \$(SHELL) progress_bar.sh \$@ \$\$PPID &
-	@echo "\$(nl_)\`date\`\$(nl_)" >logs/\$@
-	@\$(PRT_DU_CR) >>logs/\$@
+	@echo "\$(nl_)\`date\`\$(nl_)" >logs/\$@$version
+	@\$(PRT_DU_CR) >>logs/\$@$version
 EOF
 ) >> $MKFILE.tmp
 }
@@ -211,11 +254,15 @@ EOF
 #----------------------------------#
 LUSER_wrt_test_log() {             # Initialize testsuite log file
 #----------------------------------#
-  local TESTLOGFILE=$1
+  local version
+  if [ "$2" != "" ]; then
+    version=-$2
+  fi
+  local TESTLOGFILE=$1$version
 (
 cat  << EOF
 	@echo "export  TEST_LOG=\$(TESTLOGDIR)/$TESTLOGFILE" >> envars && \\
-	echo "\$(nl_)\`date\`\$(nl_)" >\$(TESTLOGDIR)/\$@
+	echo "\$(nl_)\`date\`\$(nl_)" >\$(TESTLOGDIR)/$TESTLOGFILE
 EOF
 ) >> $MKFILE.tmp
 }
@@ -223,11 +270,15 @@ EOF
 #----------------------------------#
 CHROOT_wrt_test_log() {            #
 #----------------------------------#
-  local TESTLOGFILE=$1
+  local version
+  if [ "$2" != "" ]; then
+    version=-$2
+  fi
+  local TESTLOGFILE=$1$version
 (
 cat  << EOF
 	@echo "export TEST_LOG=\$(crTESTLOGDIR)/$TESTLOGFILE" >> envars && \\
-	echo "\$(nl_)\`date\`\$(nl_)" >test-logs/\$@
+	echo "\$(nl_)\`date\`\$(nl_)" >\$(crTESTLOGDIR)/$TESTLOGFILE
 EOF
 ) >> $MKFILE.tmp
 }
@@ -241,6 +292,10 @@ EOF
 wrt_RunAsRoot() {                  # Some scripts must be run as root..
 #----------------------------------#
   local MOUNT_ENV
+  local version
+  if [ "$2" != "" ]; then
+    version=-$2
+  fi
   local file=$1
 
   case ${PROGNAME} in
@@ -255,8 +310,8 @@ wrt_RunAsRoot() {                  # Some scripts must be run as root..
 (
 cat << EOF
 	@export ${MOUNT_ENV}=\$(MOUNT_PT) && \\
-	${PROGNAME}-commands/`dirname $file`/\$@ >>logs/\$@ 2>&1 && \\
-	\$(PRT_DU) >>logs/\$@
+	${PROGNAME}-commands/`dirname $file`/\$@ >>logs/\$@$version 2>&1 && \\
+	\$(PRT_DU) >>logs/\$@$version
 EOF
 ) >> $MKFILE.tmp
 }
@@ -265,12 +320,16 @@ EOF
 LUSER_wrt_RunAsUser() {            # Calculate time with perl, footer to log file
 #----------------------------------#
   local file=$1
+  local version
+  if [ "$2" != "" ]; then
+    version=-$2
+  fi
 
 (
 cat << EOF
 	@source ~/.bashrc && \\
-	\$(CMDSDIR)/`dirname $file`/\$@ >> logs/\$@ 2>&1 && \\
-	\$(PRT_DU) >>logs/\$@
+	\$(CMDSDIR)/`dirname $file`/\$@ >> logs/\$@$version 2>&1 && \\
+	\$(PRT_DU) >>logs/\$@$version
 EOF
 ) >> $MKFILE.tmp
 }
@@ -279,11 +338,15 @@ EOF
 CHROOT_wrt_RunAsRoot() {           #
 #----------------------------------#
   local file=$1
+  local version
+  if [ "$2" != "" ]; then
+    version=-$2
+  fi
 (
 cat << EOF
 	@source envars && \\
-	\$(crCMDSDIR)/`dirname $file`/\$@ >>logs/\$@ 2>&1 && \\
-	\$(PRT_DU_CR) >>logs/\$@
+	\$(crCMDSDIR)/`dirname $file`/\$@ >>logs/\$@$version 2>&1 && \\
+	\$(PRT_DU_CR) >>logs/\$@$version
 EOF
 ) >> $MKFILE.tmp
 
