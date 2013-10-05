@@ -113,20 +113,20 @@ chapter5_Makefiles() {
     #         >>>>>>>> START BUILDING A Makefile ENTRY <<<<<<<<          #
     #--------------------------------------------------------------------#
     #
+    # Find the name of the tarball and the version of the package
+    pkg_tarball=$(get_package_tarball_name $name)
+    pkg_version=$(get_package_version $pkg_tarball)
+
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
-    LUSER_wrt_target "${this_script}" "$PREV"
-
-    # Find the version of the command files, if it corresponds with the building of
-    # a specific package
-    pkg_tarball=$(get_package_tarball_name $name)
+    LUSER_wrt_target "${this_script}" "$PREV" "$pkg_version"
 
     # If $pkg_tarball isn't empty, we've got a package...
     if [ "$pkg_tarball" != "" ] ; then
       # Insert instructions for unpacking the package and to set the PKGDIR variable.
       LUSER_wrt_unpack "$pkg_tarball"
       # If the testsuites must be run, initialize the log file
-      [[ "$TEST" = "3" ]] && LUSER_wrt_test_log "${this_script}"
+      [[ "$TEST" = "3" ]] && LUSER_wrt_test_log "${this_script}" "$pkg_version"
       # If using optimizations, write the instructions
       [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
@@ -135,8 +135,8 @@ chapter5_Makefiles() {
     # and date and disk usage again at the bottom of the log file.
     # The changingowner script must be run as root.
     case "${this_script}" in
-      *changingowner)  wrt_RunAsRoot "$file" ;;
-      *)               LUSER_wrt_RunAsUser "$file" ;;
+      *changingowner)  wrt_RunAsRoot "$file" "$pkg_version" ;;
+      *)               LUSER_wrt_RunAsUser "$file" "$pkg_version" ;;
     esac
 
     # Remove the build directory(ies) except if the package build fails
@@ -213,6 +213,7 @@ chapter6_Makefiles() {
     # a specific package. We need this here to can skip scripts not needed for
     # iterations rebuilds
     pkg_tarball=$(get_package_tarball_name $name)
+    pkg_version=$(get_package_version $pkg_tarball)
 
     if [[ "$pkg_tarball" = "" ]] && [[ -n "$N" ]] ; then
       case "${this_script}" in
@@ -238,8 +239,8 @@ chapter6_Makefiles() {
     # In the mount of kernel filesystems we need to set LFS
     # and not to use chroot.
     case "${this_script}" in
-      *kernfs)  LUSER_wrt_target  "${this_script}" "$PREV" ;;
-      *)        CHROOT_wrt_target "${this_script}" "$PREV" ;;
+      *kernfs)  LUSER_wrt_target  "${this_script}" "$PREV" "$pkg_version" ;;
+      *)        CHROOT_wrt_target "${this_script}" "$PREV" "$pkg_version" ;;
     esac
 
     # If $pkg_tarball isn't empty, we've got a package...
@@ -254,10 +255,10 @@ chapter6_Makefiles() {
       # If the testsuites must be run, initialize the log file
       case $name in
         binutils | gcc | glibc | gmp | mpfr )
-          [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}"
+          [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}" "$pkg_version"
           ;;
         * )
-          [[ "$TEST" = "2" ]] || [[ "$TEST" = "3" ]] && CHROOT_wrt_test_log "${this_script}"
+          [[ "$TEST" = "2" ]] || [[ "$TEST" = "3" ]] && CHROOT_wrt_test_log "${this_script}" "$pkg_version"
           ;;
       esac
       # If using optimizations, write the instructions
@@ -267,8 +268,8 @@ chapter6_Makefiles() {
     # In the mount of kernel filesystems we need to set LFS
     # and not to use chroot.
     case "${this_script}" in
-      *kernfs)  wrt_RunAsRoot  "$file" ;;
-      *)        CHROOT_wrt_RunAsRoot "$file" ;;
+      *kernfs)  wrt_RunAsRoot  "$file" "$pkg_version" ;;
+      *)        CHROOT_wrt_RunAsRoot "$file" "$pkg_version" ;;
     esac
 
     # Write installed files log and remove the build directory(ies)
