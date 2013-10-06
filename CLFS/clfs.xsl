@@ -270,6 +270,14 @@
         <xsl:apply-templates/>
         <xsl:text> || true&#xA;</xsl:text>
       </xsl:when>
+      <!-- Add -j1 to make install commands -->
+      <xsl:when test="contains(string(),'make ') and
+                      contains(string(),'install')">
+        <xsl:value-of select="substring-before(string(),'make ')"/>
+        <xsl:text>make -j1 </xsl:text>
+        <xsl:value-of select="substring-after(string(),'make ')"/>
+        <xsl:text>&#xA;</xsl:text>
+      </xsl:when>
       <!-- The rest of commands -->
       <xsl:otherwise>
         <xsl:apply-templates/>
