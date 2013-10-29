@@ -189,85 +189,6 @@ esac
 # Set the document location...
 BOOK=${BOOK:=$JHALFSDIR/$PROGNAME-$LFSVRS}
 
-# blfs-tool envars
-BLFS_TOOL=${BLFS_TOOL:-n}
-if [[ "${BLFS_TOOL}" = "y" ]] ; then
-  BLFS_BRANCH_ID=${BLFS_BRANCH_ID:=development}
-  case $BLFS_BRANCH_ID in
-    development )  BLFS_TREE=trunk/BOOK ;;
-         *EDIT* )  echo " You forgot to set the BLFS branch or stable book version."
-                   echo " Please rerun make and fix the configuration."
-                   exit 2 ;;
-       branch-* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-} ;;
-              * )  BLFS_TREE=tags/${BLFS_BRANCH_ID} ;;
-  esac
-  # Dependencies envars, easier to update.
-  # Tidy and Unzip version are harcoded also in wrt_blfs_tool_targets()
-    # libxml2
-  LIBXML_PKG="libxml2-2.7.8.tar.gz"
-  LIBXML_URL="ftp://xmlsoft.org/libxml2/${LIBXML_PKG}"
-  LIBXML_MD5="8127a65e8c3b08856093099b52599c86"
-    # libxslt
-  LIBXSLT_PKG="libxslt-1.1.26.tar.gz"
-  LIBXSLT_URL="ftp://xmlsoft.org/libxslt/${LIBXSLT_PKG}"
-  LIBXSLT_MD5="e61d0364a30146aaa3001296f853b2b9"
-    # tidy
-  TIDY_PKG="tidy-cvs_20101110.tar.bz2"
-  TIDY_URL="http://anduin.linuxfromscratch.org/sources/BLFS/svn/t/${TIDY_PKG}"
-  TIDY_MD5="dd1fe109b4259ad3f364b175787ad5e9"
-    # unzip
-  UNZIP_PKG="unzip60.tar.gz"
-  UNZIP_URL="http://downloads.sourceforge.net/infozip/${UNZIP_PKG}"
-  UNZIP_MD5="62b490407489521db863b523a7f86375"
-    # DocBook XML DTD
-  DBXML_PKG="docbook-xml-4.5.zip"
-  DBXML_URL="http://www.docbook.org/xml/4.5/${DBXML_PKG}"
-  DBXML_MD5="03083e288e87a7e829e437358da7ef9e"
-    # DocBook XSL
-#   DBXSL_PKG="docbook-xsl-1.69.1.tar.bz2"
-#   DBXSL_URL="http://prdownloads.sourceforge.net/docbook/${DBXSL_PKG}"
-#   DBXSL_MD5="6ebd29a67f2dcc3f2220f475ee6f6552"
-    # Lynx
-  LYNX_PKG="lynx2.8.8dev.10.tar.bz2"
-  LYNX_URL="http://lynx.isc.org/current/${LYNX_PKG}"
-  LYNX_MD5="1c9ef3746520c69914b461f88de6b12e"
-    # sudo
-  SUDO_PKG="sudo-1.8.2.tar.gz"
-  SUDO_URL="http://www.sudo.ws/sudo/dist/${SUDO_PKG}"
-  SUDO_MD5="000f458e7391be9fdf459a9ad6a4912a"
-    # wget
-  WGET_PKG="wget-1.13.4.tar.xz"
-  WGET_URL="ftp://ftp.gnu.org/gnu/wget/${WGET_PKG}"
-  WGET_MD5="7f518b3a71e9efd330e9a0c3714f8463"
-    # SQLite (for subversion)
-  SQLITE_PKG="sqlite-autoconf-3071000.tar.gz"
-  SQLITE_URL="http://sqlite.org/${SQLITE_PKG}"
-  SQLITE_MD5="9ed2ca93577b58cfa0d01f64b9312ab9"
-    # Apache Portable Runtime (for subversion)
-  APR_PKG="apr-1.4.5.tar.bz2"
-  APR_URL="http://mirror.speednetwork.de/apache/apr/$APR_PKG"
-  APR_MD5="8b53f5a5669d0597f2da889a2f576eb6"
-    # APR config patch
-  APR_PATCH_1="apr-1.4.5-config.patch"
-  APR_PATCH_1_URL="file:///sources/local-patches/${APR_PATCH_1}"
-  APR_PATCH_1_MD5="fff6eddf998f4e956915f8053c15e41e"
-    # Apache Portable Runtime Utilities (for subversion)
-  APR_U_PKG="apr-util-1.4.1.tar.bz2"
-  APR_U_URL="http://mirrors.ircam.fr/pub/apache/apr/$APR_U_PKG"
-  APR_U_MD5="52b31b33fb1aa16e65ddaefc76e41151"
-    # APR-util config patch
-  APR_U_PATCH_1="apr-util-1.4.1-config.patch"
-  APR_U_PATCH_1_URL="file:///sources/local-patches/${APR_U_PATCH_1}"
-  APR_U_PATCH_1_MD5="4c07cb0d298ae9ddc75cd2d5acdedb2b"
-    # Subversion
-  SVN_PKG="subversion-1.7.1.tar.bz2"
-  SVN_URL="http://archive.apache.org/dist/subversion/${SVN_PKG}"
-  SVN_MD5="8a4fa74385df85a9702141b6b68b8307"
-    # GPM
-  GPM_PKG="gpm-1.20.6.tar.bz2"
-  GPM_URL="http://www.nico.schottelius.org/software/gpm/archives/$GPM_PKG"
-  GPM_MD5="6b534da16dc1b28ba828dea89e520f6f"
-fi
 
 #--- Envars not sourced from configuration
 case $PROGNAME in
@@ -319,6 +240,23 @@ source $COMMON_DIR/libs/func_custom_pkgs
 
 [[ $VERBOSITY > 0 ]] && echo "${SD_BORDER}${nl_}"
 
+# blfs-tool envars
+BLFS_TOOL=${BLFS_TOOL:-n}
+if [[ "${BLFS_TOOL}" = "y" ]] ; then
+  BLFS_BRANCH_ID=${BLFS_BRANCH_ID:=development}
+  case $BLFS_BRANCH_ID in
+    development )  BLFS_TREE=trunk/BOOK ;;
+         *EDIT* )  echo " You forgot to set the BLFS branch or stable book version."
+                   echo " Please rerun make and fix the configuration."
+                   exit 2 ;;
+       branch-* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-} ;;
+              * )  BLFS_TREE=tags/${BLFS_BRANCH_ID} ;;
+  esac
+  [[ $VERBOSITY > 0 ]] && echo -n "Loading blfs tools installation function..."
+  source $COMMON_DIR/libs/func_install_blfs
+  [[ $? > 0 ]] && echo "function module did not load.." && exit 1
+  [[ $VERBOSITY > 0 ]] && echo "OK"
+fi
 
 ###################################
 ###          MAIN               ###
@@ -363,12 +301,6 @@ fi
 
 if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
 
-  # If $BUILDDIR has subdirectories like tools/ or bin/, stop the run
-  # and notify the user about that.
-  if [ -d $BUILDDIR/tools -o -d $BUILDDIR/bin ] && [ -z $CLEAN ] ; then
-    eval "$no_empty_builddir"
-  fi
-
   # If requested, clean the build directory
   clean_builddir
 
@@ -407,10 +339,6 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
   # Copy urls.xsl, if needed
   [[ "$GETPKG" = "y" ]] && cp $COMMON_DIR/urls.xsl  $JHALFSDIR/
   #
-  # Copy APR patches, if needed
-  [[ "$DEP_SVN" = "y" ]] &&
-         cp $COMMON_DIR/blfs-tool-deps/apr*.patch  $BUILDDIR/sources
-  #
   # Create the test-log directory, if needed
   [[ "$TEST" != "0" ]] && [[ ! -d $TESTLOGDIR ]] && install -d -m 1777 $TESTLOGDIR
   #
@@ -434,7 +362,6 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
     cp extras/* $JHALFSDIR/extras
   fi
   #
-
   # Copy custom tools config files, if requested
   if [[ "${CUSTOM_TOOLS}" = "y" ]]; then
     echo "Copying custom tool scripts to $JHALFSDIR"
@@ -444,22 +371,9 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
   #
   # Install blfs-tool, if requested.
   if [[ "${BLFS_TOOL}" = "y" ]] ; then
-    # Install the files
-    [[ ! -d ${BUILDDIR}${BLFS_ROOT} ]] && mkdir -p ${BUILDDIR}${BLFS_ROOT}
-    cp -r BLFS/* ${BUILDDIR}${BLFS_ROOT}
-    cp -r menu ${BUILDDIR}${BLFS_ROOT}
-    cp $COMMON_DIR/progress_bar.sh ${BUILDDIR}${BLFS_ROOT}
-    cp README.BLFS ${BUILDDIR}${BLFS_ROOT}
-    # Clean-up
-    rm -rf ${BUILDDIR}${BLFS_ROOT}/libs/.svn
-    rm -rf ${BUILDDIR}${BLFS_ROOT}/menu/.svn
-    rm -rf ${BUILDDIR}${BLFS_ROOT}/menu/lxdialog/.svn
-    # Set some harcoded envars to their proper values
-    sed -i 's,blfs-xml,'$BLFS_XML',' ${BUILDDIR}${BLFS_ROOT}/{update_book.sh,libs/book.xsl}
-    sed -i 's,tracking-dir,'$TRACKING_DIR',' ${BUILDDIR}${BLFS_ROOT}/{update_book.sh,gen-makefile.sh}
-    # Copy the dependencies build scripts
-    cp -r $COMMON_DIR/blfs-tool-deps $JHALFSDIR/
-    rm -rf $JHALFSDIR/blfs-tool-deps/.svn
+    echo Downloading and validating the BLFS book
+    echo '(may take some time...)'
+    install_blfs_tools 2>&1 | tee -a $LOGDIR/$LOG
   fi
   #
 
@@ -468,24 +382,10 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
   extract_commands
   echo "${SD_BORDER}${nl_}"
 
-  # Get the BLFS book, if requested.
-  if [[ "${BLFS_TOOL}" = "y" ]] ; then
-    echo -n "Downloading the BLFS document, $BLFS_BRANCH_ID version... "
-    if [[ ! -d ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} ]] ; then
-      mkdir -p ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML}
-      svn co $SVN_2/BLFS/$BLFS_TREE ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} >>$LOGDIR/$LOG 2>&1
-    else
-      pushd ${BUILDDIR}${BLFS_ROOT}/${BLFS_XML} 1> /dev/null
-        svn up >>$LOGDIR/$LOG 2>&1
-      popd 1> /dev/null
-    fi
-    echo -ne "done\n"
-    echo "${SD_BORDER}${nl_}"
-  fi
-
 fi
 
-# When regenerating the Makefile, we need to know also the canonical book version
+# When regenerating the Makefile, we need to know also the
+# canonical book version
 if [[ "$REBUILD_MAKEFILE" = "y" ]] ; then
   case $PROGNAME in
     clfs* )

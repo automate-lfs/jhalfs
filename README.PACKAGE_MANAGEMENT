@@ -60,4 +60,17 @@ BY    : Pierre Labastie
   upgrade. The user has to provide his own function. A template is provided
   in the pkgmngt subdirectory.
 
+3. DETAILED INSTRUCTIONS:
 
+      Before beginning, you should know which package manager you want, where
+  to get the sources, and how to use it for:
+  a) Making a package from a directory tree. Usually, there is some control
+     file containing the version, pacakager, build system (32 or 64 bits at
+     least) or other more or less usefull but mandatory bits of information
+     which you should understand.
+  b) Unpack the package.
+
+      Second, you ought to have a basic knowledge of bash scripting and
+  docbook-xml writing, because you have to write a bash function for packing
+  and unpacking the package, and a set of instructions to install the PM.
+  

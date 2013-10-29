@@ -2,436 +2,195 @@
 #
 # $Id$
 #
-set -e
 
-declare -i cntr=0
+# A string of spaces for indenting:
 declare -a spaceSTR="                                                                   "
+declare -a exchange_triplet
+
+# In case we find a cirdular dependency, it has the form :
+# parent->dependency_0->...->dependency_n->dependency_0
+# If we want to build dependency_n before dependency_0,
+# no problem: we just prune the tree at dependency_n.
+# If we want to build first dependency_0, we need to
+# put dependency_n as a dependency of parent. The triplet
+# above shall contain (parent dependency_0 dependency_n)
 
 #----------------------------#
 generate_dependency_tree() { #
 #----------------------------#
 : <<inline_doc
-    function:   Create a dependency tree for the TARGET
-    input vars: none
-    externals:  vars: TARGET
-                      PKGXML
+    function:   Create a subtree of the dependency tree
+                (recursive function)
+    input vars: $1 : file with a list of targets
+		     the first line of the file is an array
+                     of links
+    externals:  vars: BLFS_XML
 		      DEP_LEVEL
-                func: do_dependencies
-    modifies:   vars: PKGXML
-                      BLFS_XML
+    modifies:   vars: none
     returns:    nothing
-    output:     files: $TARGET.dep
-                       $TARGET-index.xml.tmp
-                       depure.txt
+    output:     files: for each pkg with dependencies in $1,
+                       a file pkg.dep and its dependencies
     on error:   nothing
     on success: nothing
 inline_doc
 
-  local ENTRY_START
-  local ENTRY_END
+local DepFile=$1
+local -a rootlink
+local -a otherlink
+local -i depth
+local -i count=0
+local id_of_dep
+local parent
+local lines_to_remove=
+local srootlink
+local dep_level
 
-  #---------------------
-  # Create the working directory and cd into it
-  if [[ -d $TARGET ]] ; then
-    echo -e "\tERROR: Looks like $TARGET has been already processed."
-    echo -e "\tPlease delete or rename the $TARGET directory.\n"
-    exit 1
-  else
-    mkdir $TARGET && cd $TARGET
+{
+# BEWARE : the order of options matters : read -a -u6 rootlink hangs forever
+# (actually, the doc says -a array -u fd)
+# We use fd number 6 for input from DepFile, because we need 0 for user input
+read -u6 -a rootlink
+depth=${#rootlink[*]}
+dep_level=$DEP_LEVEL
+if (( $DEP_LEVEL > 2 )) && (( $depth > 1 )); then dep_level=2; fi
+srootlink="${rootlink[*]} "
+# start of Depfile
+echo -en "\nNode: $depth${spaceSTR:0:$depth}${RED}$DepFile${OFF}"
+
+while read -u6 id_of_dep; do
+# count entries in file
+  (( count++ ))
+# Has this entry already been seen?
+  if [ -f ${id_of_dep}.dep ]; then # found ${id_of_dep}.dep already in tree
+    otherlink=($(head -n 1 ${id_of_dep}.dep))
+    if [ -z "${otherlink[*]}" ] 
+      then echo otherlink empty for $id_of_dep.dep
+      echo This should not happen, but happens to happen...
+      exit 1
+    fi
+# Do not use "${rootlink[*]}" =~ "${otherlink[*]}": case rootlink=(1 11)
+# and otherlink=(1 1)
+    if [[ ${srootlink#"${otherlink[*]} "} != ${srootlink} ]]; then # circular dep
+# First look for the other parent of this dependency.
+# The parent has the same link without the last entry.
+# We do not need otherlink anymore so just destroy the last element
+      unset otherlink[${#otherlink[*]}-1]
+      parent=$(grep ^"${otherlink[*]}"\$ -l *)
+      parent=${parent%.dep}
+      echo -en "\nCirc: $depth${spaceSTR:0:$depth}${BLUE}Circular dependency detected:${OFF}"
+      echo -en "\nCirc: $depth${spaceSTR:0:$depth}${BOLD}${id_of_dep}${OFF} is a dependency \
+of ${BOLD}${parent}${OFF}"
+      echo -en "\nCirc: $depth${spaceSTR:0:$depth}${BOLD}${DepFile%.dep}${OFF} is a dependency \
+of ${BOLD}${id_of_dep}${OFF}"
+      echo -en "\nCirc: $depth${spaceSTR:0:$depth}${BOLD}${id_of_dep}${OFF} is a dependency \
+of ${BOLD}${DepFile%.dep}${OFF}"
+# If idofdep is the parent of DepFile, we can exchange them if required
+#      if grep -q ${DepFile%.dep} ${id_of_dep}.dep; then
+# we propose exchange always
+        echo -en "\nCirc: $depth${spaceSTR:0:$depth}Do you want to build ${id_of_dep} first? yes/no (no):"
+        read ANSWER
+        if [ x$ANSWER = "xyes" ] ; then  # exchange:
+# set triplet and return 1
+          exchange_triplet=($parent $id_of_dep ${DepFile%.dep})
+          return 1
+        else # no exchange: prune
+          lines_to_remove="$lines_to_remove $id_of_dep"
+        fi
+#      else
+#        lines_to_remove="$lines_to_remove $id_of_dep"
+#      fi
+    else # not circular: prune
+      lines_to_remove="$lines_to_remove $id_of_dep"
+    fi
+    continue
   fi
+  flag=true
+  while [ $flag = true ]; do
+    flag=false
+    xsltproc --stringparam dependencies ${dep_level} \
+        --stringparam idofdep $id_of_dep \
+        -o ${id_of_dep}.dep \
+        ../xsl/dependencies.xsl ../packages.xml
 
-  #---------------------
-  # XML file of the target package
-  PKGXML=`grep "^$TARGET[[:space:]]" ../packages | cut -f2`
-
-  #---------------------
-  # The BLFS sources directory.
-  BLFS_XML=`echo $PKGXML | sed -e 's,/.*,,'`
-
-  if [[ ! -d ../$BLFS_XML ]] ; then
-    echo -e "\tThe BLFS book sources directory is missing.\n"
-    echo -e "\tExecution aborted.\n"
-    cd .. && rmdir $TARGET
-    exit 1
-  fi
-
-  #---------------------
-  # XInclude stuff
-  ENTRY_START="<xi:include xmlns:xi=\"http://www.w3.org/2003/XInclude\" href=\"../"
-  ENTRY_END="\"/>"
-
-  echo -e "\tGenerating $TARGET dependencies tree ..."
-
-  mkdir dependencies
-
-  #---------------------
-  # Create target package dependencies list
-  case $TARGET in
-    # Skip the creation when all dependencies are circular.
-    alsa-lib | cracklib | libexif | unixodbc ) ;;
-
-    # Meta-packages at target level
-    alsa )
-      cp ../libs/alsa.dep dependencies/
-      ;;
-    gnome-core )
-      cp ../libs/gnome-core.dep dependencies/
-      ;;
-    gnome-full )
-      cp ../libs/gnome-{core,full}.dep dependencies/
-      ;;
-    kde-core )
-      cp ../libs/kde-core.dep dependencies/
-      ;;
-    kde-full )
-      cp ../libs/kde-{core,full}.dep dependencies/
-      ;;
-    kde-koffice )
-      cp ../libs/kde-{core,full,koffice}.dep dependencies/
-      ;;
-    xorg7 )
-      cp ../libs/xorg7.dep dependencies/
-      ;;
-    * ) # Default
-      xsltproc --stringparam dependencies $DEP_LEVEL \
-               -o dependencies/$TARGET.dep \
-               ../libs/dependencies.xsl ../$PKGXML
-      ;;
-  esac
-
-  #---------------------
-  # Start with a clean $TARGET-index.xml.tmp file
-  > $TARGET-index.xml.tmp
-
-  #---------------------
-  # Write the XInclude
-  case $TARGET in
-    # If there is no usefull XML page, skip it.
-    alsa | gnome-core | gnome-full | kde-core | kde-full | kde-koffice | xorg7) ;;
-    * )
-      echo -e "    $ENTRY_START$PKGXML$ENTRY_END" >> $TARGET-index.xml.tmp
-      ;;
-  esac
-
-  #---------------------
-  # If have dependencies, write its XInclude and find sub-dependencies
-  if [[ -f dependencies/$TARGET.dep ]]; then
-    mkdir xincludes && do_dependencies $TARGET
-  fi
-
-  echo -e "\n\t... done"
+    if [[ -f ${id_of_dep}.dep ]]; then
+      sed -i "1i${rootlink[*]} $count" ${id_of_dep}.dep
+      generate_dependency_tree ${id_of_dep}.dep
+# Test return value, in case we exchange dependencies
+      case $? in
+       0) # Normal return
+         ;;
+       1) # We are backing up to parent
+         if [[ ${exchange_triplet} == ${DepFile%.dep} ]]
+           then tree_erase ${id_of_dep}.dep
+# Just doing a sed -i "s@${id_of_dep}@${exchange_triplet[2]}@" $DepFile
+# is not good if $DepFile contains several times the same line
+# so first find the first line and then sed
+           lineno=$(sed -n /${id_of_dep}/= $DepFile | head -n1)
+           sed -i "${lineno}s@${id_of_dep}@${exchange_triplet[2]}@" $DepFile
+           id_of_dep=${exchange_triplet[2]}
+           flag=true
+         else
+# echo backing up to ${exchange_triplet} at ${DepFile%.dep}
+           return 1
+         fi
+         ;;
+      esac
+    else
+      echo "${rootlink[*]} $count" > ${id_of_dep}.dep
+    fi
+  done
+done
+echo -en "\n End: $depth${spaceSTR:0:$depth}${GREEN}$DepFile${OFF}"
+} 6<$DepFile
+# It may happen that a file is created with several times
+# the same line. Normally, all those lines but one
+# would be flagged to be removed (or all of them if
+# the dependency appeared before). a simple sed /$line/d
+# destroys all the lines. We should instead remove
+# only one for each appearance of it in lines_to_remove.
+# so first get the number of first line and then delete
+# that line
+for line in $lines_to_remove
+  do lineno=$(sed -n /^$line\$/= $DepFile | head -n1)
+  sed -i ${lineno}d $DepFile
+done
+return 0
 }
 
+#---------------#
+tree_browse() { #
+#---------------#
+local file=$1
+local f
 
-
-#-----------------------#
-do_dependencies()  {    #  Loop to find sub-dependencies  :::WARNING::: THIS IS A RECURVISE FUNCTION
-#-----------------------#
-: <<inline_doc
-    function:   Loop through all the packages and create a sub-dependency tree
-    input vars: $1, package name
-    externals:  vars:  $DEP_LEVEL
-                       $TARGET
-                       $PRINT_SERVER
-                       $KBR5
-                       $GHOSTSCRIPT
-                       $MAILSERVER
-                file:  depure.txt
-                       $TARGET-index.xml.tmp
-                       $PKG.dep
-                       $PKG.inc
-    modifies:   files
-    returns:    nothing
-    output:     file:  $PKG-xinc.tmp
-                       depure.txt
-                       $TARGET-index.xml.tmp
-    on error:   exit
-    on success:
-inline_doc
-
-  set -e
-  local PKG=$1
-  local saveIFS=$IFS
-  local DEP_LV=$DEP_LEVEL
-  local line line2 DEP pkg_ver inst_ver
-
-  #------------------
-  #  If a premade xinclude file exists, use it. If not, create one
-  if [[ -f xincludes/$PKG.xinc ]] ; then
-    IFS=$'\x0A'
-    for line in `cat xincludes/$PKG.xinc` ; do
-      IFS=$saveIFS
-      # Remove the Xinclude entry if found. We want the most newer one.
-      # Using double quotes to let bash expand variables.
-      # Remove also the empty line created. Can not be done in one step
-      # due that d requires the pattner between /, but we have a lot of /
-      # inside the pattner.
-      sed -e "s,^[[:space:]]*$line,," -e '/./!d' -i $TARGET-index.xml.tmp
-      # Write the XInclude
-      echo -e "$line" >> $TARGET-index.xml.tmp
-    done
-    return
+#echo file=$file
+for f in $(grep '[^0-9 ]' $file); do
+#  echo f=$f
+  if grep -q '[^0-9 ]' ${f}.dep ; then
+    tree_browse ${f}.dep
   fi
+  echo $f
+done
+}
 
-  #------------------
-  # Start with a clean $PKG.xinc.tmp file
-  > xincludes/$PKG.xinc.tmp
-  for DEP in `cat dependencies/$PKG.dep`; do
+#--------------#
+tree_erase() { #
+#--------------#
+local file=$1
+local f
+local -a rootlink
+local -a rootlink2
 
-    # Special packages that need be remaped
-    case $DEP in
-
-      db ) continue ;; # The proper version of DB is installed in LFS
-
-        # Don't have their own XML file
-      hal-requirements | hal-runtime-dependencies ) continue ;;
-      perl-* | tk-perl )         DEP=perl-modules ;;
-      dbus-* )                   DEP=dbus-bindings ;;
-      pyxml | pycairo | pygobject | pygtk | pyorbit | \
-      gnome-python | gnome-python-desktop ) DEP=python-modules ;;
-
-        # Orphan links (proper link must be created when generating the book)
-      arts )                     DEP=aRts ;;
-      kde )                      DEP=kde-core ;;
-
-        # Set values for alternative packages
-      LPRng | cups )             DEP=$PRINT_SERVER ;;
-      mitkrb | heimdal )         DEP=$KBR5 ;;
-      gs | espgs )               DEP=$GHOSTSCRIPT ;;
-      server-mail )              DEP=$MAIL_SERVER ;;
-      x-window-system )
-        case $X11 in
-          xorg7 ) DEP=xorg7 ;;
-              * )
-                  pkg_ver=$(grep "^${X11}[[:space:]]" ../packages | cut -f3)
-                  inst_ver=$(grep "^${X11}[[:space:]]" ../packages | cut -f4)
-                  [ -n "${pkg_ver}" ] && [[ "x${pkg_ver}" = "x${inst_ver}" ]] && continue
-                  [ -n "${pkg_ver}" ] && [[ "x${pkg_ver}" < "x${inst_ver}" ]] && continue
-                  ;;
-        esac
-        ;;
-    esac
-
-    # If DEP has been previouly installed, skip it
-    pkg_ver=$(grep "^${DEP}[[:space:]]" ../packages | cut -f3)
-    inst_ver=$(grep "^${DEP}[[:space:]]" ../packages | cut -f4)
-    [ -n "${pkg_ver}" ] && [[ "x${pkg_ver}" = "x${inst_ver}" ]] && continue
-    [ -n "${pkg_ver}" ] && [[ "x${pkg_ver}" < "x${inst_ver}" ]] && continue
-
-    #------------------
-    # Prevent circular dependencies
-    # If all dependencies are circular, the creation of the *.dep file
-    # must be skipped, not placed here, to avoid that the script will bomb
-    # due empty *.xinc files
-    case $DEP in
-      akode )
-        # Both are in the same page
-        [[ "$PKG" = "kdemultimedia" ]] && continue
-        ;;
-      aRts )
-        # esound-->aRts-->esound
-        [[ "$PKG" = "esound" ]] && continue
-        ;;
-      dbus-bindings )
-        # True circular dependecy
-        [[ "$PKG" = "dbus-bindings" ]] && continue
-        ;;
-      DocBook )
-        # Used to rebuild the documentation
-        [[ "$PKG" = "linux-pam" ]] && continue
-        ;;
-      docbook-xsl )
-        # Used to rebuild the documentation
-        [[ "$PKG" = "linux-pam" ]] && continue
-        ;;
-      doxygen )
-        # Used to rebuild the documentation
-        [[ "$PKG" = "dbus" ]] && continue
-        [[ "$PKG" = "libdvdcss" ]] && continue
-        [[ "$PKG" = "libusb" ]] && continue
-        [[ "$PKG" = "libxcb" ]] && continue
-        ;;
-      espgs )
-        # Used to rebuild the documentation
-        [[ "$PKG" = "$MAIL_SERVER" ]] && continue
-        ;;
-      ffmpeg )
-        # alsa-plugins-->ffmpeg-->several-->alsa-plugins
-        [[ "$PKG" = "alsa-plugins" ]] && continue
-        ;;
-      fop )
-        # Used to rebuild the documentation
-        [[ "$PKG" = "linux-pam" ]] && continue
-        ;;
-      graphviz )
-        # Used to build the API documentation
-        [[ "$PKG" = "libusb" ]] && continue
-        ;;
-      GTK )
-        # deprecated GTK version
-        [[ "$PKG" = "alsa-tools" ]] && continue
-        ;;
-      gtk2 )
-        # Testsuite only
-        [[ "$PKG" = "cairo" ]] && continue
-        ;;
-      jadetex )
-        # Runtime only
-        [[ "$PKG" = "docbook-utils" ]] && continue
-        ;;
-      $KBR5 )
-        # cyrus-sasl-->postgresql-->$KBR5-->openldap-->cyrus-sasl
-        [[ "$PKG" = "cyrus-sasl" ]] && continue
-        ;;
-      librsvg )
-        # Testsuite only
-        [[ "$PKG" = "cairo" ]] && continue
-        ;;
-      libxslt )
-        # libxml2-->libxslt-->libxml2
-        [[ "$PKG" = "libxml2" ]] && continue
-        ;;
-      Links )
-        # Runtime only
-        [[ "$PKG" = "docbook-utils" ]] && continue
-        ;;
-      lynx )
-        # Runtime only
-        [[ "$PKG" = "docbook-utils" ]] && continue
-        ;;
-      openldap )
-        # cyrus-sasl-->postgresql-->$KBR5-->openldap-->cyrus-sasl
-        [[ "$PKG" = "cyrus-sasl" ]] && continue
-        ;;
-      poppler )
-        # Testsuite only
-        [[ "$PKG" = "cairo" ]] && continue
-        ;;
-      postgresql )
-        # cyrus-sasl-->postgresql-->$KBR5-->openldap-->cyrus-sasl
-        [[ "$PKG" = "cyrus-sasl" ]] && continue
-        ;;
-      python-modules )
-        # True circular dependecy
-        [[ "$PKG" = "python-modules" ]] && continue
-        # libgsf-->python-modules-->several combinations-->libgsf
-        [[ "$PKG" = "libgsf" ]] && continue
-        # gimp-->python-modules-->several combinations-->gimp
-        [[ "$PKG" = "gimp" ]] && continue
-        # Used to rebuild the documentation
-        [[ "$PKG" = "gstreamer" ]] && continue
-        [[ "$PKG" = "gst-plugins-base" ]] && continue
-        [[ "$PKG" = "gst-plugins-good" ]] && continue
-        ;;
-      tk )
-        # python-->tk-->xorg7-->several combinations-->libxslt-->python
-        [[ "$PKG" = "python" ]] && continue
-        ;;
-      w3m )
-        # Runtime only
-        [[ "$PKG" = "docbook-utils" ]] && continue
-        # Used to rebuild the documentation
-        [[ "$PKG" = "linux-pam" ]] && continue
-        ;;
-    esac
-
-    #------------------
-    # XML file of dependency package
-    DEP_XML=`grep "^$DEP[[:space:]]" ../packages | cut -f2`
-    case $DEP in
-      x-window-system | alsa ) ;; # No page for that (proper link must be created when generating the book)
-      xorg7 ) ;; # This page will be dump in the xorg7.xinc file
-      gnome-core | kde-core | kde-full ) ;; # Invented packages
-      * )
-        # Remove the Xinclude entry if found
-        sed -e "s,^[[:space:]]*$ENTRY_START$DEP_XML$ENTRY_END,," \
-            -e '/./!d' -i xincludes/$PKG.xinc.tmp
-        # Write the XInclude
-        echo -e "    $ENTRY_START$DEP_XML$ENTRY_END" >> xincludes/$PKG.xinc.tmp
-        ;;
-    esac
-
-    #------------------
-    # If not already created, create its dependencies list
-    if [[ ! -f dependencies/$DEP.dep ]] ; then
-      case $DEP in
-        # Skip the creation when all dependencies are circular.
-        alsa-lib | cracklib | libexif | unixodbc ) ;;
-        # Meta-packages at dependency level
-        alsa )
-          cp ../libs/alsa.dep dependencies/
-          ;;
-        kde-core )
-          cp ../libs/kde-core.dep dependencies/
-          ;;
-        x-window-system ) # When X11 is not Xorg7
-          echo -e "x-config\nx-setup\n$X11" > dependencies/x-window-system.dep
-          ;;
-        xorg7 )
-          cp ../libs/xorg7.dep dependencies/
-          ;;
-        * ) xsltproc --stringparam dependencies $DEP_LV \
-               -o dependencies/$DEP.dep ../libs/dependencies.xsl ../$DEP_XML
-          ;;
-      esac
+#echo file=$file
+rootlink=($(head -n1 $file))
+for f in $(grep '[^0-9 ]' $file); do
+#  echo "    f"=$f
+  if [ -f ${f}.dep ]; then
+    rootlink2=($(head -n1 ${f}.dep))
+    if [[ "${rootlink2[*]}" =~ "${rootlink[*]}" ]] ; then
+      tree_erase ${f}.dep
     fi
-
-    #------------------
-    # If needed, process its dependencies
-    if [[ -f dependencies/$DEP.dep ]] ; then
-      # If a premade xinclude file esist, include it
-      if [[ -f xincludes/$DEP.xinc ]] ; then
-        IFS=$'\x0A'
-        for line2 in `cat xincludes/$DEP.xinc` ; do
-          IFS=$saveIFS
-          # Remove the Xinclude entry if found
-          sed -e "s,^[[:space:]]*$line2,," -e '/./!d' -i xincludes/$PKG.xinc.tmp
-          # Write the XInclude
-          echo -e "$line2" >> xincludes/$PKG.xinc.tmp
-        done
-      #------------------
-      # Create the xinclude file
-      else
-	#
-	# >>>>>> THIS IS A RECURSIVE FUNCTION CALL.. BEWARE OF GREMLINS. <<<<<<
-	#
-	# If the recursion depth is not too great this is an acceptable methodology for a script language
-	# However, uncontrolled recursion will cause a seg-fault due to stack issues with local variables.
-	#
-        set +e
-         [[ "${VERBOSITY}" > 0 ]] && echo -ne "\ncall: $((++cntr))${spaceSTR:0:$cntr}${RED}$DEP${OFF}"
-            do_dependencies $DEP
-         [[ "${VERBOSITY}" > 0 ]] && echo -ne "\n ret: $cntr${spaceSTR:0:$((cntr--))}${GREEN}$DEP${OFF}  Using $DEP Xinc to solve $PKG"
-        set -e
-
-        # Include it when done
-        IFS=$'\x0A'
-        for line2 in `cat xincludes/$DEP.xinc` ; do
-          IFS=$saveIFS
-          # Remove the Xinclude entry if found
-          sed -e "s,^[[:space:]]*$line2,," -e '/./!d' -i xincludes/$PKG.xinc.tmp
-          # Write the XInclude
-          echo -e "$line2" >> xincludes/$PKG.xinc.tmp
-        done
-      fi
-    fi
-  done
-
-  #------------------
-  if [[ "$PKG" = "xorg7" ]] ; then
-    # Add their XInclude
-    PKG_XML=${BLFS_XML}/x/installing/xorg7.xml
-    echo -e "    $ENTRY_START$PKG_XML$ENTRY_END" >> xincludes/$PKG.xinc.tmp
   fi
-
-  #------------------
-  mv xincludes/$PKG.xinc.tmp xincludes/$PKG.xinc
-  IFS=$'\x0A'
-  for line in `cat xincludes/$PKG.xinc` ; do
-    IFS=$saveIFS
-    # Remove the Xinclude entry if found.
-    sed -e "s,^[[:space:]]*$line,," -e '/./!d' -i $TARGET-index.xml.tmp
-    # Write the XInclude
-    echo -e "$line" >> $TARGET-index.xml.tmp
-  done
+done
+rm -f $file
 }

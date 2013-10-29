@@ -22,8 +22,8 @@ menu "--- BOOK Settings"
 #		config	BOOK_HLFS
 #			bool "Hardened Linux From Scratch"
 
-		config	BOOK_BLFS
-			bool "Beyond Linux From Scratch"
+#		config	BOOK_BLFS
+#			bool "Beyond Linux From Scratch"
 	endchoice
 
 	config	PROGNAME
@@ -33,12 +33,12 @@ menu "--- BOOK Settings"
 		default	"clfs2"		if BOOK_CLFS2
 		default	"clfs3"		if BOOK_CLFS3
 		default	"hlfs"		if BOOK_HLFS
-		default	"blfs"		if BOOK_BLFS
+#		default	"blfs"		if BOOK_BLFS
 
 	config	RUN_ME
 		string
-		default	"./jhalfs run"	if !BOOK_BLFS
-		default	"./blfs-tool"	if BOOK_BLFS
+		default	"./jhalfs run"#	if !BOOK_BLFS
+#		default	"./blfs-tool"	if BOOK_BLFS
 	#--- End BOOK/script
 
 	#--- Book version
@@ -60,7 +60,7 @@ menu "--- BOOK Settings"
 
 		config	WORKING_COPY
 			bool	"Working Copy"
-			depends on !BOOK_BLFS
+#			depends on !BOOK_BLFS
 			help
 				#-- A local working copy
 
@@ -500,7 +500,7 @@ menu "--- BOOK Settings"
 	config CUSTOM_TOOLS
 		bool	"Add custom tools support"
 		default	n
-		depends on !BOOK_BLFS
+#		depends on !BOOK_BLFS
 		help
 			#--- Activating this option additional packages you create
 			#    will be installed after finished the xLFS system build.
@@ -511,7 +511,8 @@ menu "--- BOOK Settings"
 	config BLFS_TOOL
 		bool	"Add blfs-tool support"
 		default	n
-		depends on !BOOK_BLFS && !BOOK_CLFS3
+#		depends on !BOOK_BLFS && !BOOK_CLFS3
+		depends on !BOOK_CLFS3
 		help
 			#--- Activating this option will install additional
 			#    packages needed to use blfs-tool when booting
@@ -573,17 +574,12 @@ menu "--- BOOK Settings"
 		bool	"DocBook XML DTD (required)"
 		default	y
 
-		config	DEP_UNZIP
-		bool	"UnZip (required to install DocBook XML DTD)"
-		default	y
-		depends on DEP_DBXML
-
 		#config	DEP_DBXSL
 		#bool	"DocBook XSL (required)"
 		#default	y
 
 		config	DEP_LYNX
-		bool	"lynx (required)"
+		bool	"lynx (optional, for reading the generated book)"
 		default	y
 
 		config	DEP_SUDO
@@ -596,34 +592,46 @@ menu "--- BOOK Settings"
 
 		config	DEP_GPM
 		bool	"GPM (optional, see help)"
-		default	y
+		default	n
 		help
-			#-- You MUST install the gpm bootscript manually
-			#   and create its configuration file.
-			#
-			#   An alternative is to unselect this option and
-			#   install gpm, its configuration file, and its
-			#   bootscript using the custom tools support.
+			#-- if you install gpm, it will be started
+			#   automatically on boot. You'll have to edit
+			#   /etc/sysconfig/mouse for your system
 
 		config	DEP_SVN
 		bool	"SVN client (optional, see help)"
 		default	n
 		help
-			#-- Subversion-1.3.1 will be installed. This version is
-			#   old but does not rely on additional packages to be
-			#   built.
-			#
-			#   If you are happy with this old version and don't
-			#   need extra features, select this option.
+			#-- Subversion is needed for updating the book
+			#   sources. If you want ssl support, select
+			#   OPENSSL below.
+
+		config	DEP_OPENSSL
+		bool	"OPENSSL (optional, see help)"
+		default	n
+		help
+			#-- selecting OPENSSL here allows to build
+			#   subversion with ssl support, avoiding a later
+			#   recompilation
+
+		config	DEP_PYTHON
+		bool	"PYTHON 2 (optional, see help)"
+		default	n
+		help
+			#-- selecting PYTHON 2 here allows to build
+			#   the libxml2 and libxslt python modules,
+			#   avoiding a later recompilation
+
 	endmenu
 	#--- End blfs-tool Support
 
 	#--- BLFS specific params
 	config	BLFS_ROOT
 		string "Directory root"
-		default "$HOME/blfs_root" if BOOK_BLFS
+#		default "$HOME/blfs_root" if BOOK_BLFS
 		default "/blfs_root" if BLFS_TOOL
-		depends on BOOK_BLFS || BLFS_TOOL
+#		depends on BOOK_BLFS || BLFS_TOOL
+		depends on BLFS_TOOL
 		help
 			#-- Full path to the directory where all required
 			#   files and scripts will be stored.
@@ -631,7 +639,8 @@ menu "--- BOOK Settings"
 	config	BLFS_XML
 		string "BLFS sources directory"
 		default "blfs-xml"
-		depends on BOOK_BLFS || BLFS_TOOL
+#		depends on BOOK_BLFS || BLFS_TOOL
+		depends BLFS_TOOL
 		help
 			#-- The directory name under $BLFS_ROOT where the BLFS
                         #   book sources will be checkout.
@@ -639,7 +648,8 @@ menu "--- BOOK Settings"
 	config	TRACKING_DIR
 		string "Installed packages database directory"
 		default "/var/lib/jhalfs/BLFS"
-		depends on BOOK_BLFS || BLFS_TOOL || CUSTOM_TOOLS
+#		depends on BOOK_BLFS || BLFS_TOOL || CUSTOM_TOOLS
+		depends on BLFS_TOOL || CUSTOM_TOOLS
 		help
 			#-- Full path to the directory where the database of
                         #   installed packages will be created.
@@ -660,7 +670,7 @@ menu "--- BOOK Settings"
 endmenu
 
 menu "--- General Settings"
-	depends on !BOOK_BLFS
+#	depends on !BOOK_BLFS
 
 	#--- Set User Account
 	config	CONFIG_USER
@@ -806,7 +816,7 @@ menu "--- General Settings"
 endmenu
 
 menu "--- Build Settings"
-	depends on !BOOK_BLFS
+#	depends on !BOOK_BLFS
 
 	#--- Test Suites
 	config	CONFIG_TESTS
@@ -1011,7 +1021,7 @@ menu "--- Build Settings"
 endmenu
 
 menu "--- Advanced Features"
-	depends on !BOOK_BLFS
+#	depends on !BOOK_BLFS
 
 	config	REPORT
 		bool "Create SBU and disk usage report"
@@ -1164,7 +1174,7 @@ endmenu
 config REBUILD_MAKEFILE
 	bool "Rebuild the Makefile (see help)"
 	default n
-	depends on !BOOK_BLFS
+#	depends on !BOOK_BLFS
 	help
 		#-- Rebuild the Makefile
 		#

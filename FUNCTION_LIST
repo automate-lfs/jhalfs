@@ -6,32 +6,15 @@ I felt the need for documenting it when trying to add package management.
 Functions are listed in alphabetical order, with a short description and the
 file where they are defined.
 
------------------------------------------------------------------------------
-add_blfs_deps_urls():
-From common/libs/func_blfs_deps.
-Description:  Since the URLS and MD5 of BLFS dependencies are hardcoded,
-there is no easy way to extrat them. So this function adds them at the
-end of `urls.lst'.
-Called by: create_urls
 --------------------------------------------------------------------------
-copy_blfs_deps_scripts():
-From common/libs/func_blfs_deps.
-Description:  Copies the scriptlets from `blfs-tools-deps' to the
-subdirectory `blfs-tools-deps' in `${PROGNAME}-commands'. Must
-be called from `$JHALFSDIR' where `$COMMON/blfs-tools-deps' should have
-been copied first. Removes `$JHALFSDIR/blfs-tools-deps' at the end.
-Called by: extract_commands
---------------------------------------------------------------------------
-wrt_blfs_tool_targets():
-From common/libs/func_blfs_deps.
-Description: Writes Makefile entries for BLFS tools dependencies.
-should be called from the `${PROGNAME}-commands' directory and
-with `$MKFILE' set.
-TODO: Notice that tidy, unzip, lynx and docbook versions are hardcoded there.
-TODO: This function does not implement the mechanism described in
-`README.CUSTOM' for the `ddd-d-scriptlet' naming scheme.
-Called by: build_Makefiles (from master.sh)
-Uses: makefile helper functions to write in makefile.
+install_blfs_tools():
+From common/libs/func_install_blfs.
+Description: Copy the needed files to `BLFS_ROOT'. Initialize
+the package tracking. Generates a `configuration' file from
+the tool dependencies settings, and use it to generate
+scriptlets from the blfs book. Uses those scriptlets to download the
+needed tarballs. Then generates a Makefile for building the dependencies.
+Called by: jhalfs
 --------------------------------------------------------------------------
 get_sources():
 From common/libs/func_download_pkgs.
@@ -279,7 +262,6 @@ function failure():
 From extras/farce.
 Description: 
 --------------------------------------------------------------------------
-extras/farce:			emessage "internal error in failure() for TYPE $TYPE"
 function fatal():
 From extras/farce.
 Description: 
@@ -352,8 +334,6 @@ see_ya():
 From jhalfs.
 Description: 
 --------------------------------------------------------------------------
-jhalfs:  # Tidy and Unzip version are harcoded also in wrt_blfs_tool_targets()
-jhalfs:  # Create $BUILDDIR/sources even though it could be created by get_sources()
 chapter4_Makefiles():
 From LFS/master.sh.
 Description: 

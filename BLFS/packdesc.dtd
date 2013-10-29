@@ -1,0 +1,22 @@
+<!-- Top level element -->
+<!ELEMENT princList (list+)>
+<!-- list corresponds to parts of the book -->
+<!ELEMENT list (name,sublist+)>
+<!ATTLIST list id ID #IMPLIED>
+<!-- sublist corresponds to chapters of the book -->
+<!ELEMENT sublist (name,package*)>
+<!ATTLIST sublist id ID #IMPLIED>
+<!-- information on package -->
+<!ELEMENT package (name,((version,inst-version?,dependency*)|module+))>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT version (#PCDATA)>
+<!ELEMENT inst-version (#PCDATA)>
+<!-- Modules -->
+<!ELEMENT module (name,version,inst-version?,dependency*)>
+<!-- dependencies -->
+<!ELEMENT dependency (dependency*)>
+<!-- subdependencies of a dependency are defined for example in Perl
+     modules -->
+<!ATTLIST dependency status (required|recommended|optional) "recommended"
+                     name CDATA #REQUIRED
+                     type (ref|link) "ref">
