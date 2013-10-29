@@ -3,7 +3,7 @@
 # Additional changes: George Boudreau <georgeb@linuxfromscratch.org>
 #                     Pierre Labastie <pierre.labastie at neuf.fr>
 
-# $Id: Makefile 36 2012-02-22 13:01:46Z labastie $
+# $Id$
 
 ifdef V
   Q =
