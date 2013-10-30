@@ -433,7 +433,18 @@ pushd $SRC_DIR/blfs-bootscripts
 URL=</xsl:text>
       <xsl:value-of select="id('bootscripts')//itemizedlist//ulink/@url"/><xsl:text>
 BOOTPACKG=$(basename $URL)
-[[ ! -f "$BOOTPACKG" ]] &amp;&amp; { wget -T 30 -t 5 $URL; rm -f unpacked; }
+if [[ ! -f $BOOTPACKG ]] ; then
+  if [[ -f $SRC_ARCHIVE/$PKG_DIR/$BOOTPACKG ]] ; then
+    cp $SRC_ARCHIVE/$PKG_DIR/$BOOTPACKG $BOOTPACKG
+  elif [[ -f $SRC_ARCHIVE/$BOOTPACKG ]] ; then
+    cp $SRC_ARCHIVE/$BOOTPACKG $BOOTPACKG
+  else
+    wget -T 30 -t 5 $URL
+    cp $BOOTPACKG $SRC_ARCHIVE
+  fi
+  rm -f unpacked
+fi
+
 if [[ -e unpacked ]] ; then
   UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
   if ! [[ -d $UNPACKDIR ]]; then

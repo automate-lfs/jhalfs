@@ -122,7 +122,7 @@ echo -e '#!/bin/bash\nset -e\n' > $BUILDDIR$BLFS_ROOT/download_script
 sed -n -e '/PACKAGE=/,/md5sum/p' \
        -e '/PACKAGE1=/,/^fi/p' \
        -e '/PATCH=/,/^fi/p' \
-       -e '/URL=/,/unpacked/p' \
+       -e '/URL=/,/^fi/p' \
     $BUILDDIR$BLFS_ROOT/scripts/* >> $BUILDDIR$BLFS_ROOT/download_script
 chmod u+x $BUILDDIR$BLFS_ROOT/download_script
 
