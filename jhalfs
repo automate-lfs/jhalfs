@@ -1,6 +1,8 @@
 #!/bin/bash
 # $Id$
 set -e
+# Pass trap handlers to functions
+set -E
 
 # VT100 colors
 declare -r  BLACK=$'\e[1;30m'
@@ -37,8 +39,14 @@ simple_error() {        # Basic error trap.... JUST DIE
 #-----------------------#
   # If +e then disable text output
   if [[ "$-" =~ e ]]; then
-    echo -e "\n${RED}ERROR:${GREEN} basic error trapped!${OFF}\n" >&2
+    LASTLINE="$1"
+    LASTERR="$2"
+    LASTFUNC="$3"
+    LASTSOURCE="$4"
+#    echo -e "\n${RED}ERROR:${GREEN} basic error trapped!${OFF}\n" >&2
+    echo -e "\n${RED}ERROR:${GREEN} Error $LASTERR at $LASTSOURCE line ${LASTLINE}!${OFF}\n" >&2
   fi
+  exit $LASTERR
 }
 
 see_ya() {
@@ -57,7 +65,7 @@ see_ya() {
 #####
 set -e
 trap see_ya 0
-trap simple_error ERR
+trap 'simple_error "${LINENO}" "$?" "${FUNCNAME}" "${BASH_SOURCE}"' ERR
 trap 'echo -e "\n\n${RED}INTERRUPT${OFF} trapped\n" &&  exit 2'  1 2 3 15 17 18 23
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -374,6 +382,7 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
     echo Downloading and validating the BLFS book
     echo '(may take some time...)'
     install_blfs_tools 2>&1 | tee -a $LOGDIR/$LOG
+    [[ ${PIPESTATUS[0]} != 0 ]] && exit 1
   fi
   #
 
