@@ -67,9 +67,12 @@ $Id$
      If you accepted the displayed settings jhalfs will proceed to create the
      Makefile, optionally download packages.
 
-     ::NEWS::
+     IMPORTANT::
          You must be logged as a normal user with sudo privileges to run
-         the Makefile.
+         the Makefile. Furthermore, you are supposed to have enough privilege
+         to become any user. If you are not bothered about security issues,
+         the entry for the user "jhalfs_user" in /etc/sudoers could be
+         jhalfs_user ALL=(ALL) NOPASSWD:ALL
 
      NOTE::
          If you run the jhalfs script directly the only function you can select

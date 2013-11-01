@@ -479,7 +479,7 @@ mk_SETUP:
 
 mk_LUSER: mk_SETUP
 	@\$(call echo_SULUSER_request)
-	@( sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) LUSER" )
+	@( \$(SU_LUSER) "make -C \$(MOUNT_PT)/\$(SCRIPT_ROOT) BREAKPOINT=\$(BREAKPOINT) LUSER" )
 	@sudo make restore-luser-env
 	@touch \$@
 
