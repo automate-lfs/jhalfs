@@ -845,17 +845,11 @@ bootable_Makefiles() {                 #
 #--------------------------------------#
 build_Makefile() {                     # Construct a Makefile from the book scripts
 #--------------------------------------#
-  #
-  # Script crashes if error trapping is on
-  #
-set +e
-  declare -f  method_cmds
-set -e
 
   echo "...Creating Makefile... ${BOLD}START${OFF}"
 
   cd $JHALFSDIR/${PROGNAME}-commands
-  # Start with a clean files
+  # Start with clean files
   >$MKFILE
   >$MKFILE.tmp
 
@@ -935,7 +929,7 @@ mk_SETUP:
 #---------------AS LUSER
 mk_CROSS: mk_SETUP
 	@\$(call echo_PHASE,Cross and Temporary Tools)
-	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) AS_LUSER" )
+	@( \$(SU_LUSER) "make -C \$(MOUNT_PT)/\$(SCRIPT_ROOT) BREAKPOINT=\$(BREAKPOINT) AS_LUSER" )
 	@sudo make restore-luser-env
 	@touch \$@
 
@@ -1026,7 +1020,7 @@ ck_UID:
 	  echo "|However, if this is the boot environment          |"; \\
 	  echo "| the command you are looking for is               |"; \\
 	  echo "|   make makesys                                   |"; \\
-	  echo "| to finish off the build                          |"; \\
+	  echo "| to complete the build                            |"; \\
 	  echo "+--------------------------------------------------+"; \\
 	  exit 1; \\
 	fi
@@ -1042,7 +1036,7 @@ mk_SETUP:
 
 mk_CROSS: mk_SETUP
 	@\$(call echo_PHASE,Cross Tool)
-	@(sudo \$(SU_LUSER) "source .bashrc && cd \$(MOUNT_PT)/\$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) AS_LUSER" )
+	@( \$(SU_LUSER) "make -C \$(MOUNT_PT)/\$(SCRIPT_ROOT) BREAKPOINT=\$(BREAKPOINT) AS_LUSER" )
 	@touch \$@
 
 mk_SUDO: mk_CROSS
