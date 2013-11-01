@@ -36,7 +36,7 @@ crLOGDIR       = /\$(SCRIPT_ROOT)/$LOGDIRBASE
 crTESTLOGDIR   = /\$(SCRIPT_ROOT)/$TESTLOGDIRBASE
 crFILELOGDIR   = /\$(SCRIPT_ROOT)/$FILELOGDIRBASE
 
-SU_LUSER       = su - \$(LUSER) -c
+SU_LUSER       = sudo -u \$(LUSER) -i sh -c
 LUSER_HOME     = \$(LHOME)/\$(LUSER)
 PRT_DU         = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) --exclude=lost+found \$(MOUNT_PT) \`\n"
 PRT_DU_CR      = echo -e "\nKB: \`du -skx --exclude=\$(SCRIPT_ROOT) --exclude=lost+found / \`\n"
