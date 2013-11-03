@@ -18,14 +18,14 @@ host_prep_Makefiles() {                #
 cat << EOF
 023-creatingtoolsdir:
 	@\$(call echo_message, Building)
-	@mkdir \$(MOUNT_PT)/tools && \\
+	@install -dv \$(MOUNT_PT)/tools && \\
 	rm -f /tools && \\
 	ln -s \$(MOUNT_PT)/tools /
 	@\$(call housekeeping)
 
 024-creatingcrossdir: 023-creatingtoolsdir
 	@\$(call echo_message, Building)
-	@mkdir -v \$(MOUNT_PT)/cross-tools && \\
+	@install -dv \$(MOUNT_PT)/cross-tools && \\
 	rm -f /cross-tools && \\
 	ln -s \$(MOUNT_PT)/cross-tools /
 	@\$(call housekeeping)
@@ -33,13 +33,15 @@ cat << EOF
 025-addinguser:  024-creatingcrossdir
 	@\$(call echo_message, Building)
 	@if [ ! -d \$(LUSER_HOME) ]; then \\
-		groupadd \$(LGROUP); \\
-		useradd -s /bin/bash -g \$(LGROUP) -m -k /dev/null \$(LUSER); \\
+	    groupadd \$(LGROUP); \\
+	    useradd -s /bin/bash -g \$(LGROUP) -d \$(LUSER_HOME) \$(LUSER); \\
+	    mkdir -pv \$(LUSER_HOME); \\
+	    chown -v \$(LUSER):\$(LGROUP) \$(LUSER_HOME); \\
 	else \\
-		touch luser-exist; \\
-	fi;
-	@chown \$(LUSER) \$(MOUNT_PT)/tools && \\
-	chown \$(LUSER) \$(MOUNT_PT)/cross-tools && \\
+	    touch luser-exist; \\
+	fi
+	@chown -v \$(LUSER) \$(MOUNT_PT)/tools && \\
+	chown -v \$(LUSER) \$(MOUNT_PT)/cross-tools && \\
 	chmod -R a+wt \$(MOUNT_PT)/\$(SCRIPT_ROOT) && \\
 	chmod a+wt \$(SRCSDIR)
 	@\$(call housekeeping)
@@ -48,7 +50,7 @@ cat << EOF
 	@\$(call echo_message, Building)
 	@if [ -f \$(LUSER_HOME)/.bashrc -a ! -f \$(LUSER_HOME)/.bashrc.XXX ]; then \\
 		mv \$(LUSER_HOME)/.bashrc \$(LUSER_HOME)/.bashrc.XXX; \\
-	fi;
+	fi
 	@if [ -f \$(LUSER_HOME)/.bash_profile  -a ! -f \$(LUSER_HOME)/.bash_profile.XXX ]; then \\
 		mv \$(LUSER_HOME)/.bash_profile \$(LUSER_HOME)/.bash_profile.XXX; \\
 	fi;
@@ -556,7 +558,7 @@ final_system_Makefiles() {             #
       CHROOT_Unpack "$pkg_tarball"
       # If the testsuites must be run, initialize the log file
       case $name in
-        binutils | gcc | glibc | eglibc )
+        binutils | gcc | glibc | eglibc | gmp | mpfr | mpc | isl | cloog )
           [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}"
           ;;
         * )
@@ -873,8 +875,6 @@ build_Makefile() {                     # Construct a Makefile from the book scri
 
   # Add the CUSTOM_TOOLS targets, if needed
   [[ "$CUSTOM_TOOLS" = "y" ]] && wrt_CustomTools_target
-  # Add the BLFS_TOOL targets, if needed
-  [[ "$BLFS_TOOL" = "y" ]] && wrt_blfs_tool_targets
 
   # Add a header, some variables and include the function file
   # to the top of the real Makefile.
@@ -909,7 +909,8 @@ cat << EOF
 all: ck_UID mk_SETUP mk_CROSS mk_SUDO mk_SYSTOOLS create-sbu_du-report mk_CUSTOM_TOOLS mk_BLFS_TOOL
 	@sudo make do-housekeeping
 	@echo "$VERSION - jhalfs build" > clfs-release && \\
-	sudo mv clfs-release \$(MOUNT_PT)/etc
+	sudo mv clfs-release \$(MOUNT_PT)/etc && \\
+	sudo chown root:root \$(MOUNT_PT)/etc/clfs-release
 	@\$(call echo_finished,$VERSION)
 
 ck_UID:
@@ -945,19 +946,18 @@ mk_SYSTOOLS: mk_SUDO
 	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) CHROOT_JAIL")
 	@touch \$@
 
-mk_CUSTOM_TOOLS: create-sbu_du-report
+mk_BLFS_TOOL: create-sbu_du-report
+	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
+	  \$(call sh_echo_PHASE,Building BLFS_TOOL); \\
+	  (sudo \$(CHROOT1) "make -C $BLFS_ROOT/work"); \\
+	fi;
+	@touch \$@
+
+mk_CUSTOM_TOOLS: mk_BLFS_TOOL
 	@if [ "\$(ADD_CUSTOM_TOOLS)" = "y" ]; then \\
 	  \$(call sh_echo_PHASE,Building CUSTOM_TOOLS); \\
 	  sudo mkdir -p ${BUILDDIR}${TRACKING_DIR}; \\
 	  (sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) CUSTOM_TOOLS"); \\
-	fi;
-	@touch \$@
-
-mk_BLFS_TOOL: mk_CUSTOM_TOOLS
-	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
-	  \$(call sh_echo_PHASE,Building BLFS_TOOL); \\
-	  sudo mkdir -p $BUILDDIR$TRACKING_DIR; \\
-	  sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) BLFS_TOOL"; \\
 	fi;
 	@touch \$@
 
@@ -969,7 +969,6 @@ PREP_CHROOT_JAIL: ${chroottools}
 CHROOT_JAIL:       SHELL=/tools/bin/bash
 CHROOT_JAIL:      $testsuitetools $basicsystem  $bootscripttools  $bootabletools
 CUSTOM_TOOLS:     $custom_list
-BLFS_TOOL:        $blfs_tool
 
 
 create-sbu_du-report:  mk_SYSTOOLS
@@ -982,7 +981,13 @@ create-sbu_du-report:  mk_SYSTOOLS
 
 do-housekeeping:
 	@-umount \$(MOUNT_PT)/dev/pts
-	@-umount \$(MOUNT_PT)/dev/shm
+	@-if [ -h \$(MOUNT_PT)/dev/shm ]; then \\
+	  link=\$\$(readlink \$(MOUNT_PT)/dev/shm); \\
+	  umount \$(MOUNT_PT)/\$\$link; \\
+	  unset link; \\
+	else \\
+	  umount \$(MOUNT_PT)/dev/shm; \\
+	fi
 	@-umount \$(MOUNT_PT)/dev
 	@-umount \$(MOUNT_PT)/sys
 	@-umount \$(MOUNT_PT)/proc
@@ -1050,20 +1055,19 @@ mk_FINAL:
 	@( source /root/.bash_profile && make BREAKPOINT=\$(BREAKPOINT) AS_ROOT )
 	@touch \$@
 
-mk_CUSTOM_TOOLS: mk_FINAL
+mk_BLFS_TOOL: mk_FINAL
+        @if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
+          \$(call sh_echo_PHASE,Building BLFS_TOOL); \\
+          ( make -C $BLFS_ROOT/work ); \\
+        fi;
+        @touch \$@
+
+mk_CUSTOM_TOOLS: mk_BLFS_TOOL
 	@if [ "\$(ADD_CUSTOM_TOOLS)" = "y" ]; then \\
 	  \$(call sh_echo_PHASE,Building CUSTOM_TOOLS); \\
 	  mkdir -p ${TRACKING_DIR}; \\
 	  ( source /root/.bash_profile && make BREAKPOINT=\$(BREAKPOINT) CUSTOM_TOOLS ); \\
 	fi;
-	@touch \$@
-
-mk_BLFS_TOOL: mk_CUSTOM_TOOLS
-	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
-	  \$(call sh_echo_PHASE,Building BLFS_TOOL); \\
-	  mkdir -p $TRACKING_DIR; \\
-	  ( source /root/.bash_profile && make BREAKPOINT=\$(BREAKPOINT) BLFS_TOOL ); \\
-	fi
 	@touch \$@
 
 SETUP:        $host_prep
@@ -1072,7 +1076,6 @@ SUDO:	      $orphan_scripts
 AS_ROOT:      SHELL=/tools/bin/bash
 AS_ROOT:      $testsuitetools $basicsystem $bootscripttools $bootabletools
 CUSTOM_TOOLS: $custom_list
-BLFS_TOOL:    $blfs_tool
 
 do-housekeeping:
 	@-rm /tools /cross-tools
