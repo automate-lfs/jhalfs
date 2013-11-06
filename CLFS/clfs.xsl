@@ -6,7 +6,8 @@
 
 <!-- $Id$ -->
 
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+<xsl:stylesheet
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:exsl="http://exslt.org/common"
     extension-element-prefixes="exsl"
     version="1.0">
@@ -30,8 +31,8 @@
   -->
   <xsl:param name="bomb-testsuite" select="n"/>
 
-  <!-- Install vim-lang package? -->
-  <xsl:param name="vim-lang" select="y"/>
+  <!-- Install vim-lang package? OBSOLETE should always be 'n'-->
+  <xsl:param name="vim-lang" select="n"/>
 
   <!-- Time zone -->
   <xsl:param name="timezone" select="GMT"/>
@@ -217,6 +218,25 @@
         </xsl:choose>
       </xsl:when>
       <!-- Fixing toolchain test suites run XXX more to fix -->
+      <xsl:when test="contains(string(),'glibc-check-log')">
+        <xsl:choose>
+          <xsl:when test="$testsuite != '0'">
+            <xsl:value-of select="substring-before(string(),'2&gt;')"/>
+            <xsl:choose>
+              <xsl:when test="$bomb-testsuite = 'n'">
+                <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
+                <xsl:if test="contains(string(),' -k ')">
+                  <xsl:text> || true</xsl:text>
+                </xsl:if>
+                <xsl:text>&#xA;</xsl:text>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:when>
+        </xsl:choose>
+      </xsl:when>
       <xsl:when test="string() = 'make check' or
                 contains(string(), 'make -k check')">
         <xsl:choose>
@@ -228,25 +248,6 @@
               <xsl:otherwise>
                 <xsl:apply-templates/>
                 <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
-                <xsl:if test="contains(string(),' -k ')">
-                  <xsl:text> || true</xsl:text>
-                </xsl:if>
-                <xsl:text>&#xA;</xsl:text>
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:when>
-        </xsl:choose>
-      </xsl:when>
-      <xsl:when test="contains(string(),'glibc-check-log')">
-        <xsl:choose>
-          <xsl:when test="$testsuite != '0'">
-            <xsl:value-of select="substring-before(string(),'&gt;g')"/>
-            <xsl:choose>
-              <xsl:when test="$bomb-testsuite = 'n'">
-                <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
                 <xsl:if test="contains(string(),' -k ')">
                   <xsl:text> || true</xsl:text>
                 </xsl:if>
@@ -277,6 +278,13 @@
         <xsl:text>make -j1 </xsl:text>
         <xsl:value-of select="substring-after(string(),'make ')"/>
         <xsl:text>&#xA;</xsl:text>
+      </xsl:when>
+      <!-- Avoid calling hostname in chroot -->
+      <xsl:when test="ancestor::note[@os='a00']">
+        <xsl:if test="$method='boot'">
+          <xsl:apply-templates/>
+          <xsl:text>&#xA;</xsl:text>
+        </xsl:if>
       </xsl:when>
       <!-- The rest of commands -->
       <xsl:otherwise>

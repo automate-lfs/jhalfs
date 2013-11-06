@@ -209,7 +209,9 @@
             </xsl:text>
             <xsl:choose>
               <xsl:when test="contains(preceding-sibling::sect1[1]/@id,
-                                       'xorg7-') and not(@id='printproto')">
+                                       'xorg7-') and
+                              not(contains(preceding-sibling::sect1[1]/@id,
+                                       'driver'))">
                 <xsl:call-template name="expand-deps">
                   <xsl:with-param name="section">
                     <xsl:value-of select="preceding-sibling::sect1[1]/@id"/>
