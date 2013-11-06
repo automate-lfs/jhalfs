@@ -69,9 +69,9 @@ cat << EOF
 	echo "export CLFS_TARGET32=\"${TARGET32}\"" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "source $JHALFSDIR/envars" >> \$(LUSER_HOME)/.bashrc
 	@chown \$(LUSER):\$(LGROUP) \$(LUSER_HOME)/.bashrc && \\
+	chmod a+wt \$(MOUNT_PT) && \\
 	touch envars && \\
-	chmod -R a+wt \$(MOUNT_PT) && \\
-	chown -R \$(LUSER) \$(MOUNT_PT)/\$(SCRIPT_ROOT)
+	chown \$(LUSER):\$(LGROUP) envars
 	@\$(call housekeeping)
 EOF
 ) >> $MKFILE.tmp
@@ -1056,11 +1056,11 @@ mk_FINAL:
 	@touch \$@
 
 mk_BLFS_TOOL: mk_FINAL
-        @if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
-          \$(call sh_echo_PHASE,Building BLFS_TOOL); \\
-          ( make -C $BLFS_ROOT/work ); \\
-        fi;
-        @touch \$@
+	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
+	  \$(call sh_echo_PHASE,Building BLFS_TOOL); \\
+	  ( make -C $BLFS_ROOT/work ); \\
+	fi;
+	@touch \$@
 
 mk_CUSTOM_TOOLS: mk_BLFS_TOOL
 	@if [ "\$(ADD_CUSTOM_TOOLS)" = "y" ]; then \\
