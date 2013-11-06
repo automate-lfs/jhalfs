@@ -32,11 +32,6 @@ sed -i s@trunk/BOOK@$BLFS_TREE@ \
 sudo make -j1 -C $BUILDDIR$BLFS_ROOT TRACKING_DIR=$BUILDDIR$TRACKING_DIR \
     $BUILDDIR$BLFS_ROOT/packages.xml
 
-# Now /var and /var/lib are owned by root. This is an issue when building
-# CLFS with method=boot, because system dirs creation is made by user, who
-# then cannot create /var/lock and the such.
-sudo chown -R $LUSER $BUILDDIR/var
-
 # Because the BLFS Makefile is supposed to be used in chroot (or booted)
 # mode, the tracking file has wrong path for DTD. Change it:
 sudo sed -i s@$BUILDDIR@@ $BUILDDIR$TRACKING_DIR/instpkg.xml

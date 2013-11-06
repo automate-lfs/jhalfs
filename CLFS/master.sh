@@ -70,6 +70,9 @@ cat << EOF
 	echo "source $JHALFSDIR/envars" >> \$(LUSER_HOME)/.bashrc
 	@chown \$(LUSER):\$(LGROUP) \$(LUSER_HOME)/.bashrc && \\
 	chmod a+wt \$(MOUNT_PT) && \\
+	if [ -d \$(MOUNT_PT)/var ]; then \\
+	  chown -R \$(LUSER) \$(MOUNT_PT)/var; \\
+	fi && \\
 	touch envars && \\
 	chown \$(LUSER):\$(LGROUP) envars
 	@\$(call housekeeping)
