@@ -259,7 +259,7 @@ menu "--- BOOK Settings"
 		default "mips64-unknown-linux-uclibc"	if  BOOK_CLFS3 && PROC_mips   && DATA_64
 
 		default	"powerpc-unknown-linux-gnu"	if  ARCH_PPC && DATA_32
-		default "powerpc64-unknown-linux-gnu"	if  ARCH_PPC && (DATA_MULTI || DATA-64)
+		default "powerpc64-unknown-linux-gnu"	if  ARCH_PPC && (DATA_MULTI || DATA_64)
 
 		default "sparc-unknown-linux-gnu"	if  ARCH_SPARC && DATA_32
 		default "sparc64-unknown-linux-gnu"	if  ARCH_SPARC && (DATA_64 || DATA_MULTI)
