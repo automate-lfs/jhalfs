@@ -26,9 +26,11 @@ get_sources() {              # Download file, write name to MISSING_FILES.DMP if
     # Housekeeping
   [[ ! -d $BUILDDIR/sources ]] && mkdir $BUILDDIR/sources
   cd $BUILDDIR/sources
-  [[ -f MD5SUMS ]] && rm MD5SUMS
-  [[ -f MISSING_FILES.DMP ]] && rm MISSING_FILES.DMP
-  [[ -f urls.lst ]] && rm urls.lst
+    # If using CLFS, /sources is writable by all, but with sticky bit,
+    # and user does not hold MD5SUMS nor the other files, so use sudo
+  [[ -f MD5SUMS ]] && sudo rm MD5SUMS
+  [[ -f MISSING_FILES.DMP ]] && sudo rm MISSING_FILES.DMP
+  [[ -f urls.lst ]] && sudo rm urls.lst
 
     # Generate URLs file
   create_urls
