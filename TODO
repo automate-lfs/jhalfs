@@ -5,16 +5,17 @@
 MASTER SCRIPT
 -------------
 
-  - Nothing for now.
+  - Add a way to choose the network configuration (ip, gateway, etc).
+  - [CLFS] Add a switch to choose between static or DHCP network configuration
+    for CLFS.
 
 
 xLFS MODULES
 ------------
 
-  - To develop a new "restart" Makefile target code to allow resuming
-  a stopped build after a host reboot, if possible.
-  - Eliminate the use of and the need for the LFS variable for "devices",
-  "chroot" and "teardown" targets
+  - Add a way to choose the network configuration (ip, gateway, etc).
+  - [CLFS] Add a switch to choose between static or DHCP network configuration
+    for CLFS.
 
 
 BLFS MODULE (See BLFS/TODO)

@@ -464,14 +464,6 @@ ck_UID:
 	  exit 1; \\
 	fi
 
-ck_LFS:
-	@if [ \`echo \$(LFS)\`x = "x" ]; then \\
-	  echo "--------------------------------------------------"; \\
-	  echo "Enviroment variable LFS must be set";                \\
-	  echo "--------------------------------------------------"; \\
-	  exit 1; \
-	fi
-
 mk_SETUP:
 	@\$(call echo_SU_request)
 	@sudo make BREAKPOINT=\$(BREAKPOINT) SETUP
@@ -512,35 +504,35 @@ mk_CUSTOM_TOOLS: mk_BLFS_TOOL
 	fi;
 	@touch \$@
 
-devices: ck_LFS ck_UID
-	sudo mount -v --bind /dev \$(LFS)/dev
-	sudo mount -vt devpts devpts \$(LFS)/dev/pts
-	sudo mount -vt proc proc \$(LFS)/proc
-	sudo mount -vt sysfs sysfs \$(LFS)/sys
-	if [ -h \$(LFS)/dev/shm ]; then \\
-	  link=\$\$(readlink \$(LFS)/dev/shm); \\
-	  sudo mkdir -p \$(LFS)/\$\$link; \\
-	  sudo mount -vt tmpfs shm \$(LFS)/\$\$link; \\
+devices: ck_UID
+	sudo mount -v --bind /dev \$(MOUNT_PT)/dev
+	sudo mount -vt devpts devpts \$(MOUNT_PT)/dev/pts
+	sudo mount -vt proc proc \$(MOUNT_PT)/proc
+	sudo mount -vt sysfs sysfs \$(MOUNT_PT)/sys
+	if [ -h \$(MOUNT_PT)/dev/shm ]; then \\
+	  link=\$\$(readlink \$(MOUNT_PT)/dev/shm); \\
+	  sudo mkdir -p \$(MOUNT_PT)/\$\$link; \\
+	  sudo mount -vt tmpfs shm \$(MOUNT_PT)/\$\$link; \\
 	  unset link; \\
 	else \\
-	  sudo mount -vt tmpfs shm \$(LFS)/dev/shm; \\
+	  sudo mount -vt tmpfs shm \$(MOUNT_PT)/dev/shm; \\
 	fi
 
-teardown: ck_LFS
-	sudo umount -v \$(LFS)/sys
-	sudo umount -v \$(LFS)/proc
-	sudo umount -v \$(LFS)/dev/pts
-	if [ -h \$(LFS)/dev/shm ]; then \\
-	  link=\$\$(readlink \$(LFS)/dev/shm); \\
-	  sudo umount -v \$(LFS)/\$\$link; \\
+teardown: 
+	sudo umount -v \$(MOUNT_PT)/sys
+	sudo umount -v \$(MOUNT_PT)/proc
+	sudo umount -v \$(MOUNT_PT)/dev/pts
+	if [ -h \$(MOUNT_PT)/dev/shm ]; then \\
+	  link=\$\$(readlink \$(MOUNT_PT)/dev/shm); \\
+	  sudo umount -v \$(MOUNT_PT)/\$\$link; \\
 	  unset link; \\
 	else \\
-	  sudo umount -v \$(LFS)/dev/shm; \\
+	  sudo umount -v \$(MOUNT_PT)/dev/shm; \\
 	fi
-	sudo umount -v \$(LFS)/dev
+	sudo umount -v \$(MOUNT_PT)/dev
 
 chroot: devices
-	sudo /usr/sbin/chroot \$(LFS) /tools/bin/env -i \\
+	sudo /usr/sbin/chroot \$(MOUNT_PT) /tools/bin/env -i \\
       HOME=/root TERM=\$(TERM) PS1='\\u:\\w\\\$\$ ' \\
       PATH=/bin:/usr/bin:/sbin:/usr/sbin \\
       /tools/bin/bash --login
