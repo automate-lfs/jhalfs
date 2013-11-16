@@ -26,7 +26,12 @@ sed -i s@tracking-dir@$TRACKING_DIR@ \
 sed -i s@trunk/BOOK@$BLFS_TREE@ \
     ${BUILDDIR}${BLFS_ROOT}/Makefile
 
-# Downloads the book, initialize the tracking file and the package database
+# If we have a working copy, copy it:
+if [[ "$BLFS_WORKING_COPY" = "y" ]]; then
+  cp -r $BLFS_WC_LOCATION ${BUILDDIR}${BLFS_ROOT}/blfs-xml
+fi
+# Downloads the book if necessary, initialize the tracking file and the
+# package database.
 # sudo is needed if $BUILDDIR/var/lib is owned by root and /var/lib/jhalfs
 # has to be created
 sudo make -j1 -C $BUILDDIR$BLFS_ROOT TRACKING_DIR=$BUILDDIR$TRACKING_DIR \

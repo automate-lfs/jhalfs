@@ -200,7 +200,6 @@ BOOK=${BOOK:=$JHALFSDIR/$PROGNAME-$LFSVRS}
 
 #--- Envars not sourced from configuration
 case $PROGNAME in
-# TODO: clfs is now on git
       clfs ) declare -r GIT="git://git.cross-lfs.org/cross-lfs" ;;
       clfs2 ) declare -r GIT="git://git.cross-lfs.org/clfs-sysroot" ;;
       clfs3 ) declare -r GIT="git://git.cross-lfs.org/clfs-embedded" ;;
@@ -251,15 +250,35 @@ source $COMMON_DIR/libs/func_custom_pkgs
 # blfs-tool envars
 BLFS_TOOL=${BLFS_TOOL:-n}
 if [[ "${BLFS_TOOL}" = "y" ]] ; then
-  BLFS_BRANCH_ID=${BLFS_BRANCH_ID:=development}
-  case $BLFS_BRANCH_ID in
-    development )  BLFS_TREE=trunk/BOOK ;;
-         *EDIT* )  echo " You forgot to set the BLFS branch or stable book version."
-                   echo " Please rerun make and fix the configuration."
-                   exit 2 ;;
-       branch-* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-} ;;
-              * )  BLFS_TREE=tags/${BLFS_BRANCH_ID} ;;
-  esac
+  BLFS_SVN=${BLFS_SVN:-n}
+  BLFS_WORKING_COPY=${BLFS_WORKING_COPY:-n}
+  BLFS_BRANCH=${BLFS_BRANCH:-n}
+  if [[ "${BLFS_SVN}" = "y" ]]; then
+    BLFS_BRANCH_ID=development
+    BLFS_TREE=trunk/BOOK
+  elif [[ "${BLFS_WORKING_COPY}" = "y" ]]; then
+    [[ -d "$BLFS_WC_LOCATION" ]] &&
+    [[ -d "$BLFS_WC_LOCATION/postlfs" ]] || {
+      echo " BLFS tools: This is not a working copy: $BLFS_WC_LOCATION."
+      echo " Please rerun make and fix the configuration."
+      exit 2
+      }
+    BLFS_TREE=$(cd $BLFS_WC_LOCATION; svn info | grep URL | sed 's@.*BLFS/@@')
+    BLFS_BRANCH_ID=$(echo $BLFS_TREE | sed -e 's@trunk/BOOK@development@' \
+                                           -e 's@branches/@branch-@' \
+                                           -e 's@tags/@@' \
+                                           -e 's@/BOOK@@')
+  elif [["${BLFS_BRANCH}" = "y" ]] ; then
+    case $BLFS_BRANCH_ID in
+           *EDIT* )  echo " You forgot to set the BLFS branch or stable book version."
+                     echo " Please rerun make and fix the configuration."
+                     exit 2 ;;
+   branch-systemd )  BLFS_TREE=branches/systemd ;;
+         branch-* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-}/BOOK ;;
+      6.2* | 7.4* )  BLFS_TREE=tags/${BLFS_BRANCH_ID} ;;
+                * )  BLFS_TREE=tags/${BLFS_BRANCH_ID}/BOOK ;;
+    esac
+  fi
   [[ $VERBOSITY > 0 ]] && echo -n "Loading blfs tools installation function..."
   source $COMMON_DIR/libs/func_install_blfs
   [[ $? > 0 ]] && echo "function module did not load.." && exit 1
@@ -302,6 +321,8 @@ if [[ "$OPTIMIZE" != "0" ]]; then
   source optimize/opt_config
   [[ $? > 0 ]] && echo " optimize/opt_config did not load.." && exit
   [[ $VERBOSITY > 0 ]] && echo "OK"
+  # The number of parallel jobs is taken from configuration now
+  MAKEFLAGS="-j${N_PARALLEL}"
   # Validate optimize settings, if required
   validate_opt_settings
 fi
