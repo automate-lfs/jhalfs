@@ -277,7 +277,7 @@ echo -n "Are you happy with these settings? yes/no (no): "
 read ANSWER
 if [ x$ANSWER != "xyes" ] ; then
   echo "${nl_}Rerun make to fix the configuration options.${nl_}"
-  exit 1
+  exit
 fi
 echo "${nl_}${SD_BORDER}${nl_}"
 
