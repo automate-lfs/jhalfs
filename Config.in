@@ -21,9 +21,6 @@ menu "--- BOOK Settings"
 
 #		config	BOOK_HLFS
 #			bool "Hardened Linux From Scratch"
-
-#		config	BOOK_BLFS
-#			bool "Beyond Linux From Scratch"
 	endchoice
 
 	config	PROGNAME
@@ -33,12 +30,10 @@ menu "--- BOOK Settings"
 		default	"clfs2"		if BOOK_CLFS2
 		default	"clfs3"		if BOOK_CLFS3
 		default	"hlfs"		if BOOK_HLFS
-#		default	"blfs"		if BOOK_BLFS
 
 	config	RUN_ME
 		string
-		default	"./jhalfs run"#	if !BOOK_BLFS
-#		default	"./blfs-tool"	if BOOK_BLFS
+		default	"./jhalfs run"
 	#--- End BOOK/script
 
 	#--- Book version
@@ -60,7 +55,6 @@ menu "--- BOOK Settings"
 
 		config	WORKING_COPY
 			bool	"Working Copy"
-#			depends on !BOOK_BLFS
 			help
 				#-- A local working copy
 
@@ -259,7 +253,7 @@ menu "--- BOOK Settings"
 		default "mips64-unknown-linux-uclibc"	if  BOOK_CLFS3 && PROC_mips   && DATA_64
 
 		default	"powerpc-unknown-linux-gnu"	if  ARCH_PPC && DATA_32
-		default "powerpc64-unknown-linux-gnu"	if  ARCH_PPC && (DATA_MULTI || DATA-64)
+		default "powerpc64-unknown-linux-gnu"	if  ARCH_PPC && (DATA_MULTI || DATA_64)
 
 		default "sparc-unknown-linux-gnu"	if  ARCH_SPARC && DATA_32
 		default "sparc64-unknown-linux-gnu"	if  ARCH_SPARC && (DATA_64 || DATA_MULTI)
@@ -428,79 +422,10 @@ menu "--- BOOK Settings"
 		default	"2.6"		if KERNEL_26
 		default	"2.4"		if KERNEL_24
 
-#         menu	"HLFS Additional Features"
-# 		depends on BOOK_HLFS
-#
-# 		config	SET_SSP
-# 		bool	"Stack-smashing protector"
-# 		default	y
-#
-# 		config	SET_ASLR
-# 		bool	"Address-space layout randomization"
-# 		default	y
-#
-# 		config	SET_PAX
-# 		bool	"PaX-aware ELF executables and kernel"
-# 		default	y
-#
-# 		config	SET_HARDENED_TMP
-# 		bool	"Hardened temporary files creation"
-# 		default	y
-#
-# 		config	SET_WARNINGS
-# 		bool	"Additional warnings"
-# 		default	y
-#
-# 		config	SET_MISC
-# 		bool	"Miscellaneous features"
-# 		default	y
-#
-# 		config	SET_BLOWFISH
-# 		bool	"Blowfish passwords"
-# 		default	y
-# 	endmenu
-
-	config	SSP
-#		depends on SET_SSP
-		string
-		default ",ssp,"
-
-	config	ASLR
-#		depends on SET_ASLR
-		string
-		default ",aslr,"
-
-	config	PAX
-#		depends on SET_PAX
-		string
-		default ",pax,"
-
-	config	HARDENED_TMP
-#		depends on SET_HARDENED_TMP
-		string
-		default ",hardened_tmp,"
-
-	config	WARNINGS
-#		depends on SET_WARNINGS
-		string
-		default ",warnings,"
-
-	config	MISC
-#		depends on SET_MISC
-		string
-		default ",misc,"
-
-	config	BLOWFISH
-#		depends on SET_BLOWFISH
-		string
-		default ",blowfish,"
-	#--- End HLFS specific params
-
 	#--- Custom Tools support
 	config CUSTOM_TOOLS
 		bool	"Add custom tools support"
 		default	n
-#		depends on !BOOK_BLFS
 		help
 			#--- Activating this option additional packages you create
 			#    will be installed after finished the xLFS system build.
@@ -511,7 +436,6 @@ menu "--- BOOK Settings"
 	config BLFS_TOOL
 		bool	"Add blfs-tool support"
 		default	n
-#		depends on !BOOK_BLFS && !BOOK_CLFS3
 		depends on !BOOK_CLFS3
 		help
 			#--- Activating this option will install additional
@@ -541,11 +465,23 @@ menu "--- BOOK Settings"
 			help
 				#-- Current development version as in trunk
 
+		config	BLFS_WORKING_COPY
+			bool	"BLFS working copy"
+			help
+				#-- A local working copy of the BLFS book.
+
 		config	BLFS_BRANCH
 			bool	"BLFS Branch or stable book"
 			help
 				#-- A supported SVN branch or stable book release
 	endchoice
+
+	config	BLFS_WC_LOCATION
+		string	"Location of the local BLFS working copy (mandatory)"
+		default	"**EDIT ME**"
+		depends on BLFS_WORKING_COPY
+		help
+			#-- Full path to the BLFS book working copy"
 
 	config	BLFS_BRANCH_ID
 		string	"BLFS Book Version (mandatory)"
@@ -628,9 +564,7 @@ menu "--- BOOK Settings"
 	#--- BLFS specific params
 	config	BLFS_ROOT
 		string "Directory root"
-#		default "$HOME/blfs_root" if BOOK_BLFS
-		default "/blfs_root" if BLFS_TOOL
-#		depends on BOOK_BLFS || BLFS_TOOL
+		default "/blfs_root"
 		depends on BLFS_TOOL
 		help
 			#-- Full path to the directory where all required
@@ -639,7 +573,6 @@ menu "--- BOOK Settings"
 	config	BLFS_XML
 		string "BLFS sources directory"
 		default "blfs-xml"
-#		depends on BOOK_BLFS || BLFS_TOOL
 		depends BLFS_TOOL
 		help
 			#-- The directory name under $BLFS_ROOT where the BLFS
@@ -648,7 +581,6 @@ menu "--- BOOK Settings"
 	config	TRACKING_DIR
 		string "Installed packages database directory"
 		default "/var/lib/jhalfs/BLFS"
-#		depends on BOOK_BLFS || BLFS_TOOL || CUSTOM_TOOLS
 		depends on BLFS_TOOL || CUSTOM_TOOLS
 		help
 			#-- Full path to the directory where the database of
@@ -670,7 +602,6 @@ menu "--- BOOK Settings"
 endmenu
 
 menu "--- General Settings"
-#	depends on !BOOK_BLFS
 
 	#--- Set User Account
 	config	CONFIG_USER
@@ -816,7 +747,6 @@ menu "--- General Settings"
 endmenu
 
 menu "--- Build Settings"
-#	depends on !BOOK_BLFS
 
 	#--- Test Suites
 	config	CONFIG_TESTS
@@ -1021,7 +951,6 @@ menu "--- Build Settings"
 endmenu
 
 menu "--- Advanced Features"
-#	depends on !BOOK_BLFS
 
 	config	REPORT
 		bool "Create SBU and disk usage report"
@@ -1071,23 +1000,29 @@ menu "--- Advanced Features"
 	#--- Optimizations
 if !BOOK_CLFS2 && !BOOK_CLFS3
 	config	CONFIG_OPTIMIZE
-		bool	"Use optimization (see help)"
+		bool	"Optimization and parallelization"
 		default	n
 		help
-			#-- Actual optimization flags MUST be defined in ./optimize/*
-			#   files before activating this option.
+			#   Opens a menu for various optimization settings:
+			#   Actual optimization flags MUST be defined in ./optimize/*
+			#   before activating this option.
 			#
-			# WARNING: The use of build optimizations may be dangerous.
-			#   You should know what you are doing and be sure that the
-			#   optimization settings listed below are what you want.
-			#   It there are build issues or the system doesn't work as
-			#   expected, please rebuild without optimizations before
-			#   asking for support.
+			# WARNING: The use of build optimizations may lead to build issues.
+			#   If the system doesn't work as expected, please rebuild
+			#   without optimizations before asking for support.
+	menu	"Optimization settings"
+		depends on CONFIG_OPTIMIZE
+
+	config	N_PARALLEL
+		int "Number of parallel `make' jobs"
+		default 1
+		help
+			#-- The usual recommandation is (number of CPU cores)+1
+			#   Do not set for meaningful SBU calculations.
 
 	choice
 		prompt "Optimization level "
 		default OPT_1
-		depends	CONFIG_OPTIMIZE
 		help
 			#-- Optimization values are set in optimize/* files
 
@@ -1100,7 +1035,7 @@ if !BOOK_CLFS2 && !BOOK_CLFS3
 		config	OPT_3
 			bool	"Cross tools (only MAKEFLAGS), temp tools and final system" if BOOK_CLFS
 	endchoice
-
+endmenu
 	config	OPTIMIZE
 		int
 		default	"0"	if !CONFIG_OPTIMIZE
@@ -1111,7 +1046,7 @@ endif
 	#--- End Optimizations
 
 	#-- Internal Settings
-	menu "--- Internal Settings (WARNING: for jhalfs developers only)"
+	menu "Internal Settings (WARNING: for jhalfs developers only)"
 
 		config	SCRIPT_ROOT
 			string	"Scripts root"
@@ -1174,7 +1109,6 @@ endmenu
 config REBUILD_MAKEFILE
 	bool "Rebuild the Makefile (see help)"
 	default n
-#	depends on !BOOK_BLFS
 	help
 		#-- Rebuild the Makefile
 		#

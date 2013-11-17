@@ -38,7 +38,7 @@ validate_opt_settings() {          # Show optimize setting and wait user agreeme
   read ANSWER
   if [ x$ANSWER != "xyes" ] ; then
     echo "${nl_}Fix the optimization options and rerun the script.${nl_}"
-    exit 1
+    exit
   fi
   echo "${nl_}${SD_BORDER}${nl_}"
 }

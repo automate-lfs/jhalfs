@@ -53,13 +53,13 @@ inline_doc
   local -r  clfs_PARAM_LIST="$CLFS_book  $GENERAL_common $CLFS_build  $ADVANCED_chroot $ADVANCED_common"
   local -r clfs2_PARAM_LIST="$CLFS2_book $GENERAL_common $CLFS2_build                  $ADVANCED_common"
   local -r clfs3_PARAM_LIST="$CLFS3_book $GENERAL_common $CLFS3_build                  $ADVANCED_common"
-  local -r  blfs_PARAM_LIST="BRANCH_ID BLFS_ROOT BLFS_XML TRACKING_DIR"
+#  local -r  blfs_PARAM_LIST="BRANCH_ID BLFS_ROOT BLFS_XML TRACKING_DIR"
 
-  # Additional variables (add DEP_DBXSL when required again)
-  local -r blfs_tool_PARAM_LIST="BLFS_BRANCH_ID BLFS_ROOT BLFS_XML TRACKING_DIR \
-                                 DEP_LIBXML DEP_LIBXSLT DEP_TIDY \
-                                 DEP_DBXML DEP_LYNX DEP_SUDO DEP_WGET \
-                                 DEP_SVN DEP_GPM DEP_OPENSSL DEP_PYTHON"
+  # Additional variables
+  local -r blfs_tool_PARAM_LIST="\
+     BLFS_TREE BLFS_BRANCH_ID BLFS_ROOT BLFS_XML TRACKING_DIR \
+     DEP_LIBXML DEP_LIBXSLT DEP_TIDY DEP_DBXML DEP_LYNX DEP_SUDO DEP_WGET \
+     DEP_SVN DEP_GPM DEP_OPENSSL DEP_PYTHON"
   local -r custom_tool_PARAM_LIST="TRACKING_DIR"
 
   # Internal variables
@@ -183,10 +183,6 @@ inline_doc
                  write_error_and_die
                echo
                ;;
-
-      # BLFS params.
-      BRANCH_ID | BLFS_ROOT | BLFS_XML )  echo "`eval echo $PARAM_VALS`" ;;
-      TRACKING_DIR ) validate_dir -z -d -w ;;
 
       # Display non-validated envars found in ${PROGNAME}_PARAM_LIST
       * ) echo -e "`eval echo $PARAM_VALS`" ;;

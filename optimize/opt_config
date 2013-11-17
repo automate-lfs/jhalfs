@@ -7,15 +7,8 @@
 #$Id$
 #
 
-#--- Extra flags passed to the packages make commands
-#    "unset" will cause the variable to be not set
-#    instead of just set to null.
-MAKEFLAGS="-j3"
-
-#--- List of packages that have issues with jobs control.
+#--- List of packages that have issues with parallelization.
 #    This list may be different for you.
-#    If your MAKEFLAGS don't contains a -jX option, you can set
-#    a empty list here.
 BLACK_LIST="attr autoconf coreutils dejagnu gettext gperf groff man-db vim"
 #    Rationale for attr, coreutils, gperf: the tests do not pass with -jX
 #    CLFS packages
