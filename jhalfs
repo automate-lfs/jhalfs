@@ -268,7 +268,7 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
                                            -e 's@branches/@branch-@' \
                                            -e 's@tags/@@' \
                                            -e 's@/BOOK@@')
-  elif [["${BLFS_BRANCH}" = "y" ]] ; then
+  elif [[ "${BLFS_BRANCH}" = "y" ]] ; then
     case $BLFS_BRANCH_ID in
            *EDIT* )  echo " You forgot to set the BLFS branch or stable book version."
                      echo " Please rerun make and fix the configuration."
