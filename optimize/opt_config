@@ -22,7 +22,7 @@ BLACK_LIST="$BLACK_LIST libee"
 #
 #    Not set here combined modes of form defOpt_myMode.
 #    Combined modes of form modeA_modeB can be set here.
-DEF_OPT_MODE=O2pipe
+DEF_OPT_MODE=noOpt
 
 
 #--- Active optimization variables
