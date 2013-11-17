@@ -28,7 +28,9 @@ sed -i s@trunk/BOOK@$BLFS_TREE@ \
 
 # If we have a working copy, copy it:
 if [[ "$BLFS_WORKING_COPY" = "y" ]]; then
-  cp -r $BLFS_WC_LOCATION ${BUILDDIR}${BLFS_ROOT}/blfs-xml
+# -r: recursive; -u: only if newer; -T: otherwise, would copy to a subdirectory
+# of blfs-xml, if blfs-xml already exists
+  cp -ruT $BLFS_WC_LOCATION ${BUILDDIR}${BLFS_ROOT}/blfs-xml
 fi
 # Downloads the book if necessary, initialize the tracking file and the
 # package database.
