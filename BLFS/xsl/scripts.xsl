@@ -479,9 +479,12 @@ popd</xsl:text>
     <xsl:if test="(contains(string(),'test') or
             contains(string(),'check'))">
       <xsl:text>#</xsl:text>
-      <xsl:value-of select="substring-before(string(),'make')"/>
-      <xsl:text>make -k</xsl:text>
-      <xsl:value-of select="substring-after(string(),'make')"/>
+      <xsl:value-of select="substring-before(string(),'make ')"/>
+      <xsl:text>make </xsl:text>
+      <xsl:if test="not(contains(string(),'-k'))">
+        <xsl:text>-k </xsl:text>
+      </xsl:if>
+      <xsl:value-of select="substring-after(string(),'make ')"/>
       <xsl:text> || true&#xA;</xsl:text>
     </xsl:if>
   </xsl:template>
@@ -562,15 +565,15 @@ popd</xsl:text>
   <xsl:template name="output-root">
     <xsl:param name="out-string" select="''"/>
     <xsl:choose>
-      <xsl:when test="contains($out-string,'make')">
+      <xsl:when test="contains($out-string,'make ')">
         <xsl:call-template name="output-root">
           <xsl:with-param name="out-string"
-                          select="substring-before($out-string,'make')"/>
+                          select="substring-before($out-string,'make ')"/>
         </xsl:call-template>
-        <xsl:text>make -j1</xsl:text>
+        <xsl:text>make -j1 </xsl:text>
         <xsl:call-template name="output-root">
           <xsl:with-param name="out-string"
-                          select="substring-after($out-string,'make')"/>
+                          select="substring-after($out-string,'make ')"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:when test="contains($out-string,'$') and $sudo = 'y'">
