@@ -34,11 +34,11 @@ inline_doc
   local IFS
 
   write_error_and_die() {
-     echo -e "\n\t\t$TXT version -->${tst_version}<-- is too old.
+     echo -e "\n\t\t$TXT is missing or version -->${tst_version}<-- is too old.
 		    This script requires ${ref_version} or greater\n"
    # Ask the user instead of bomb, to make happy that packages which version
    # ouput don't follow our expectations
-    echo "If you are sure that you have instaled a proper version of ${BOLD}$TXT${OFF}"
+    echo "If you are sure that you have installed a proper version of ${BOLD}$TXT${OFF}"
     echo "but jhalfs has failed to detect it, press 'c' and 'ENTER' keys to continue,"
     echo -n "otherwise press 'ENTER' key to stop jhalfs.  "
     read ANSWER
@@ -88,11 +88,10 @@ inline_doc
 check_prerequisites() {      #
 #----------------------------#
 
-  # Maybe we should check xsltproc first?
-    case $PROGNAME in
-      clfs | clfs2 | clfs3) HOSTREQS="BOOK/prologue/common/hostreqs.xml" ;;
-      *) HOSTREQS="prologue/hostreqs.xml" ;;
-    esac
+  case $PROGNAME in
+    clfs | clfs2 | clfs3) HOSTREQS="BOOK/prologue/common/hostreqs.xml" ;;
+    *) HOSTREQS="prologue/hostreqs.xml" ;;
+  esac
 
   eval $(xsltproc $COMMON_DIR/hostreqs.xsl $BOOK/$HOSTREQS)
   # Avoid translation of version strings
@@ -127,18 +126,30 @@ check_prerequisites() {      #
   check_version "$MIN_Sed_VER"       "$(sed --version   | head -n1 | cut -d" " -f4)"      "SED"
   check_version "$MIN_Texinfo_VER"   "$(makeinfo --version | head -n1 | awk '{ print$NF }')" "TEXINFO"
   check_version "$MIN_Xz_VER"        "$(xz --version | head -n1 | cut -d" " -f4)"         "XZ"
+}
+
+#----------------------------#
+check_alfs_tools() {         #
+#----------------------------#
+: << inline_doc
+Those tools are needed for the proper operation of jhalfs
+inline_doc
+
+  # Avoid translation of version strings
+  local LC_ALL=C
+  export LC_ALL
+
   # Check for minimum sudo version
-  if [ -z $MIN_Sudo_VER ]; then MIN_Sudo_VER=1.7.0; fi
   SUDO_LOC="$(whereis -b sudo | cut -d" " -f2)"
   if [ -x $SUDO_LOC ]; then
     sudoVer="$(sudo -V | head -n1 | cut -d" " -f3)"
-    check_version "$MIN_Sudo_VER"  "${sudoVer}"      "SUDO"
+    check_version "1.7.0"  "${sudoVer}"      "SUDO"
   else
     echo "${nl_}\"${RED}sudo${OFF}\" ${BOLD}must be installed on your system for jhalfs to run"
     exit 1
   fi
 
-  # Check for minimum wget version
+  # Check for wget presence (using a dummy version)
   WGET_LOC="$(whereis -b wget | cut -d" " -f2)"
   if [ -x $WGET_LOC ]; then
     wgetVer="$(wget --version | head -n1 | cut -d" " -f3)"
@@ -148,47 +159,53 @@ check_prerequisites() {      #
     exit 1
   fi
 
-  # Before checking libmxl2 and libxslt version information, ensure tools needed from those
-  # packages are actually available. Avoids a small cosmetic bug of book version information
-  # not being retrieved if xmllint is unavailable, especially when on recent non-LFS hosts.
+  # Before checking libxml2 and libxslt version information, ensure tools
+  # needed from those packages are actually available. Avoids a small
+  # cosmetic bug of book version information not being retrieved if
+  # xmllint is unavailable, especially when on recent non-LFS hosts.
 
   XMLLINT_LOC="$(whereis -b xmllint | cut -d" " -f2)"
   XSLTPROC_LOC="$(whereis -b xsltproc | cut -d" " -f2)"
-  XML_NOTE_MSG="${nl_} ${BOLD} This can happen when running jhalfs on non-LFS hosts. ${OFF}"
   
   if [ ! -x $XMLLINT_LOC ]; then
     echo "${nl_}\"${RED}xmllint${OFF}\" ${BOLD}must be installed on your system for jhalfs to run"
-    echo ${XML_NOTE_MSG}
     exit 1
   fi
 
   if [ -x $XSLTPROC_LOC ]; then
 
-  # Check for minimum libxml2 and libxslt versions
-  xsltprocVer=$(xsltproc -V | head -n1 )
-  libxmlVer=$(echo $xsltprocVer | cut -d " " -f3)
-  libxsltVer=$(echo $xsltprocVer | cut -d " " -f5)
+    # Check for minimum libxml2 and libxslt versions
+    xsltprocVer=$(xsltproc -V | head -n1 )
+    libxmlVer=$(echo $xsltprocVer | cut -d " " -f3)
+    libxsltVer=$(echo $xsltprocVer | cut -d " " -f5)
 
-  # Version numbers are packed strings not xx.yy.zz format.
-  check_version "2.06.20"  "${libxmlVer:0:1}.${libxmlVer:1:2}.${libxmlVer:3:2}"     "LIBXML2"
-  check_version "1.01.14"  "${libxsltVer:0:1}.${libxsltVer:1:2}.${libxsltVer:3:2}"  "LIBXSLT"
+    # Version numbers are packed strings not xx.yy.zz format.
+    check_version "2.06.20"  "${libxmlVer:0:1}.${libxmlVer:1:2}.${libxmlVer:3:2}"     "LIBXML2"
+    check_version "1.01.14"  "${libxsltVer:0:1}.${libxsltVer:1:2}.${libxsltVer:3:2}"  "LIBXSLT"
   
   else
     echo "${nl_}\"${RED}xsltproc${OFF}\" ${BOLD}must be installed on your system for jhalfs to run"
-    echo ${XML_NOTE_MSG}
     exit 1
   fi
-  # The next versions checks are required only when BLFS_TOOL is set and
-  # this dependencies has not be selected for installation
-  if [[ "$BLFS_TOOL" = "y" ]] ; then
+}
 
-    if [[ -z "$DEP_TIDY" ]] ; then
-      tidyVer=$(tidy -V | cut -d " " -f9)
-      check_version "2004" "${tidyVer}" "TIDY"
-    fi
+#----------------------------#
+check_blfs_tools() {         #
+#----------------------------#
+: << inline_doc
+In addition to the tools needed for the LFS part, tidy and docbook-xml
+are needed for installing the BLFS tools
+inline_doc
 
-    # Check if the proper DocBook-XML-DTD and DocBook-XSL are correctly installed
-XML_FILE="<?xml version='1.0' encoding='ISO-8859-1'?>
+  # Avoid translation of version strings
+  local LC_ALL=C
+  export LC_ALL
+
+  tidyVer=$(tidy -V | cut -d " " -f9)
+  check_version "2004" "${tidyVer}" "TIDY"
+
+  # Minimal docbook-xml code for testing
+  XML_FILE="<?xml version='1.0' encoding='ISO-8859-1'?>
 <?xml-stylesheet type='text/xsl' href='http://docbook.sourceforge.net/release/xsl/1.69.1/xhtml/docbook.xsl'?>
 <!DOCTYPE article PUBLIC '-//OASIS//DTD DocBook XML V4.5//EN'
   'http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd'>
@@ -200,24 +217,10 @@ XML_FILE="<?xml version='1.0' encoding='ISO-8859-1'?>
   </sect1>
 </article>"
 
-    if [[ -z "$DEP_DBXML" ]] ; then
-      if `echo $XML_FILE | xmllint -noout -postvalid - 2>/dev/null` ; then
-        check_version "4.5" "4.5" "DocBook XML DTD"
-      else
-        echo "Warning: not found a working DocBook XML DTD 4.5 installation"
-        exit 2
-      fi
-    fi
-
-#     if [[ -z "$DEP_DBXSL" ]] ; then
-#       if `echo $XML_FILE | xsltproc --noout - 2>/dev/null` ; then
-#         check_version "1.69.1" "1.69.1" "DocBook XSL"
-#       else
-#         echo "Warning: not found a working DocBook XSL 1.69.1 installation"
-#         exit 2
-#       fi
-#     fi
-
-  fi # end BLFS_TOOL=Y
-
+  if `echo $XML_FILE | xmllint -nonet -noout -postvalid - 2>/dev/null` ; then
+    check_version "4.5" "4.5" "DocBook XML DTD"
+  else
+    echo "Error: you need docbook for installing BLFS tools"
+    exit 2
+  fi
 }

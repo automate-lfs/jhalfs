@@ -247,9 +247,17 @@ source $COMMON_DIR/libs/func_custom_pkgs
 
 [[ $VERBOSITY > 0 ]] && echo "${SD_BORDER}${nl_}"
 
+[[ $VERBOSITY > 0 ]] && echo Checking tools required for jhalfs
+check_alfs_tools
+
+[[ $VERBOSITY > 0 ]] && echo "${SD_BORDER}${nl_}"
+
 # blfs-tool envars
 BLFS_TOOL=${BLFS_TOOL:-n}
 if [[ "${BLFS_TOOL}" = "y" ]] ; then
+  [[ $VERBOSITY > 0 ]] && echo Checking supplementary tools for installing BLFS
+  check_blfs_tools
+  [[ $VERBOSITY > 0 ]] && echo "${SD_BORDER}${nl_}"
   BLFS_SVN=${BLFS_SVN:-n}
   BLFS_WORKING_COPY=${BLFS_WORKING_COPY:-n}
   BLFS_BRANCH=${BLFS_BRANCH:-n}
@@ -400,8 +408,7 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
   #
   # Install blfs-tool, if requested.
   if [[ "${BLFS_TOOL}" = "y" ]] ; then
-    echo Downloading and validating the BLFS book
-    echo '(may take some time...)'
+    echo Installing BLFS book and tools
     install_blfs_tools 2>&1 | tee -a $LOGDIR/$LOG
     [[ ${PIPESTATUS[0]} != 0 ]] && exit 1
   fi
