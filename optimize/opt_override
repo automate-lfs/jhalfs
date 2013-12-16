@@ -1,3 +1,2 @@
 gcc            noOpt
 grub           noOpt
-zlib           defOpt_fPIC

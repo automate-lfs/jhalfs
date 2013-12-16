@@ -28,9 +28,13 @@ sed -i s@trunk/BOOK@$BLFS_TREE@ \
 
 # If we have a working copy, copy it:
 if [[ "$BLFS_WORKING_COPY" = "y" ]]; then
+echo "copying the local BLFS working copy (may take some time)"
 # -r: recursive; -u: only if newer; -T: otherwise, would copy to a subdirectory
-# of blfs-xml, if blfs-xml already exists
-  cp -ruT $BLFS_WC_LOCATION ${BUILDDIR}${BLFS_ROOT}/blfs-xml
+# of blfs-xml, if blfs-xml already exists; --preserve=timestamps: if the local
+# book has already been validated, tmp is posterior to the others, and
+# validation will not be done again.
+  cp -ruT --preserve=timestamps $BLFS_WC_LOCATION \
+                                ${BUILDDIR}${BLFS_ROOT}/blfs-xml
 fi
 # Downloads the book if necessary, initialize the tracking file and the
 # package database.
@@ -138,28 +142,15 @@ pushd $BUILDDIR/sources
 # Remove `unpacked' files if some have been left
 sudo find . -name unpacked -exec rm \{\} \;
 FTP_SERVER=$SERVER/pub/blfs/ SRC_ARCHIVE=$SRC_ARCHIVE $BUILDDIR$BLFS_ROOT/download_script
-# The blfs-bootscripts package is at the wrong location
-mkdir -p blfs-bootscripts
-cp blfs-bootscripts*tar* blfs-bootscripts
 popd
 rm -v $BUILDDIR$BLFS_ROOT/download_script
 
 # Suppresses unneeded parts of the scriptlets
-if [ "$DEP_WGET" = y ] && ! [ "$DEP_OPENSSL" = y ]; then
-  sed -i s'/-ssl=.*/out-ssl/' $BUILDDIR$BLFS_ROOT/scripts/*wget
-fi
 if [ "$DEP_SUDO" = y ]; then
   sed -i '/pam.d/i mkdir -p /etc/pam.d' $BUILDDIR$BLFS_ROOT/scripts/*sudo
 fi
 if [ "$DEP_SVN" = y ]; then
   sed -i -e /javahl/d -e /swig/d $BUILDDIR$BLFS_ROOT/scripts/*subversion
-  sed -i -e '/pushd/,/popd/d' -e /tea/d $BUILDDIR$BLFS_ROOT/scripts/*sqlite
-fi
-if [ "$DEP_PYTHON" = y ]; then
-  sed -i -e '/^make.*Doc/d' -e '/^chmod/{n;N;d}' $BUILDDIR$BLFS_ROOT/scripts/*python2
-fi
-if [ "$DEP_OPENSSL" = y ]; then
-  sed -i 's/^make$/make -j1/' $BUILDDIR$BLFS_ROOT/scripts/*openssl
 fi
 if [ "$DEP_LYNX" = y ]; then
   if [ "$DEP_OPENSSL" = y -o "$DEP_WGET" = y ]; then
