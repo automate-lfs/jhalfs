@@ -330,10 +330,19 @@ chapter78_Makefiles() {
     # as a dependency. Also call the echo_message function.
     CHROOT_wrt_target "${this_script}" "$PREV"
 
-    # Find the bootscripts and kernel package names
+    # Find the bootscripts or networkscripts (for systemd)
+    # and kernel package names
     case "${this_script}" in
       *bootscripts)
             name="lfs-bootscripts"
+            pkg_tarball=$(get_package_tarball_name $name)
+            if [ "${INSTALL_LOG}" = "y" ] ; then
+              CHROOT_wrt_TouchTimestamp
+            fi
+            CHROOT_Unpack "$pkg_tarball"
+        ;;
+      *network-scripts)
+            name="lfs-network-scripts"
             pkg_tarball=$(get_package_tarball_name $name)
             if [ "${INSTALL_LOG}" = "y" ] ; then
               CHROOT_wrt_TouchTimestamp
@@ -366,14 +375,18 @@ chapter78_Makefiles() {
     esac
 
     case "${this_script}" in
-      *bootscripts)  CHROOT_wrt_RemoveBuildDirs "dummy"
-                     if [ "${INSTALL_LOG}" = "y" ] ; then
-                       CHROOT_wrt_LogNewFiles "$name"
-                     fi ;;
-      *kernel)       CHROOT_wrt_RemoveBuildDirs "dummy"
-                     if [ "${INSTALL_LOG}" = "y" ] ; then
-                       CHROOT_wrt_LogNewFiles "$name"
-                     fi ;;
+      *bootscripts)      CHROOT_wrt_RemoveBuildDirs "dummy"
+                         if [ "${INSTALL_LOG}" = "y" ] ; then
+                           CHROOT_wrt_LogNewFiles "$name"
+                         fi ;;
+      *network-scripts)  CHROOT_wrt_RemoveBuildDirs "dummy"
+                         if [ "${INSTALL_LOG}" = "y" ] ; then
+                           CHROOT_wrt_LogNewFiles "$name"
+                         fi ;;
+      *kernel)           CHROOT_wrt_RemoveBuildDirs "dummy"
+                         if [ "${INSTALL_LOG}" = "y" ] ; then
+                           CHROOT_wrt_LogNewFiles "$name"
+                         fi ;;
     esac
 
     # Include a touch of the target name so make can check
