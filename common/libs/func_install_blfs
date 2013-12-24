@@ -63,11 +63,12 @@ if [ "$DEP_TIDY" = y ]; then
 else
   LINE_TIDY='#CONFIG_html-tidy is not set'
 fi
-if [ "$DEP_DBXML" = y ]; then
-  LINE_DBXML='CONFIG_DocBook=y'
-else
-  LINE_DBXML='#CONFIG_DocBook is not set'
-fi
+# DocBook is a rec dep of libxslt
+# if [ "$DEP_DBXML" = y ]; then
+#   LINE_DBXML='CONFIG_DocBook=y'
+# else
+#   LINE_DBXML='#CONFIG_DocBook is not set'
+# fi
 if [ "$DEP_LYNX" = y ]; then
   LINE_LYNX='CONFIG_lynx=y'
 else
@@ -109,7 +110,6 @@ $LINE_PYTHON
 $LINE_LIBXML
 $LINE_LIBXSLT
 $LINE_TIDY
-$LINE_DBXML
 $LINE_OPENSSL
 $LINE_WGET
 $LINE_SVN
@@ -146,6 +146,20 @@ popd
 rm -v $BUILDDIR$BLFS_ROOT/download_script
 
 # Suppresses unneeded parts of the scriptlets
+if [ "$DEP_LIBXSLT" = y ]; then
+  # libxslt pulls docbook-xsl in. Sorry for sed synthax.
+  # I do not know how to delete lines between 2 addresses excluding those
+  # two lines.
+  sed -i '\@^[[:space:]]*/etc/xml/catalog$@{
+n
+:a
+\@/etc/xml/catalog$@bb
+N
+ba
+:b
+d}' \
+      $BUILDDIR$BLFS_ROOT/scripts/*docbook-xsl
+fi
 if [ "$DEP_SUDO" = y ]; then
   sed -i '/pam.d/i mkdir -p /etc/pam.d' $BUILDDIR$BLFS_ROOT/scripts/*sudo
 fi
