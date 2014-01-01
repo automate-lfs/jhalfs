@@ -200,41 +200,18 @@
             </xsl:element>
           </xsl:if>
 <!-- Dependencies -->
-<!-- If in Xorg or KDE chapter, consider that the preceding package is
-     the first dependency (not always noted in the book) -->
-          <xsl:if test="ancestor::chapter[@id='kde4-core'] or
-                       (ancestor::chapter[@id='x-window-system'] and
-                        preceding-sibling::sect1[@id != 'xorg7'])">
+<!-- If in Xorg (not anymore) or KDE chapter, consider that the preceding
+     package is the first dependency (not always noted in the book)-->
+          <xsl:if test="ancestor::chapter[@id='kde4-core']">
             <xsl:text>
             </xsl:text>
-            <xsl:choose>
-              <xsl:when test="contains(preceding-sibling::sect1[1]/@id,
-                                       'xorg7-') and
-                              not(contains(preceding-sibling::sect1[1]/@id,
-                                       'driver'))">
-                <xsl:call-template name="expand-deps">
-                  <xsl:with-param name="section">
-                    <xsl:value-of select="preceding-sibling::sect1[1]/@id"/>
-                  </xsl:with-param>
-                  <xsl:with-param name="status" select="'required'"/>
-                </xsl:call-template>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:element name="dependency">
-                  <xsl:attribute name="status">required</xsl:attribute>
-                  <xsl:attribute name="name">
-                    <xsl:choose>
-                      <xsl:when test="@id='printproto'">xorg-server</xsl:when>
-                      <xsl:otherwise>
-                        <xsl:value-of
-                          select="preceding-sibling::sect1[1]/@id"/>
-                      </xsl:otherwise>
-                    </xsl:choose>
-                  </xsl:attribute>
-                  <xsl:attribute name="type">ref</xsl:attribute>
-                </xsl:element>
-              </xsl:otherwise>
-            </xsl:choose>
+            <xsl:element name="dependency">
+              <xsl:attribute name="status">required</xsl:attribute>
+              <xsl:attribute name="name">
+                <xsl:value-of select="preceding-sibling::sect1[1]/@id"/>
+              </xsl:attribute>
+              <xsl:attribute name="type">ref</xsl:attribute>
+            </xsl:element>
           </xsl:if>
           <xsl:apply-templates select=".//para[@role='required' or
                                                @role='recommended' or

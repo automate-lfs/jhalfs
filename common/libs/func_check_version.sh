@@ -99,33 +99,73 @@ check_prerequisites() {      #
   export LC_ALL
 
   # LFS/HLFS/CLFS prerequisites
-  check_version "$MIN_Linux_VER"     "`uname -r`"          "KERNEL"
-  check_version "$MIN_Bash_VER"      "$BASH_VERSION"       "BASH"
+  if [ -n "$MIN_Linux_VER" ]; then
+    check_version "$MIN_Linux_VER"     "`uname -r`"          "KERNEL"
+  fi
+  if [ -n "$MIN_Bash_VER" ]; then
+    check_version "$MIN_Bash_VER"      "$BASH_VERSION"       "BASH"
+  fi
   if [ ! -z $MIN_GCC_VER ]; then
     check_version "$MIN_GCC_VER"     "`gcc -dumpversion`"  "GCC"
     check_version "$MIN_GCC_VER"     "`g++ -dumpversion`"  "G++"
   elif [ ! -z $MIN_Gcc_VER ]; then
     check_version "$MIN_Gcc_VER"     "`gcc -dumpversion`"  "GCC"
   fi
-  check_version "$MIN_Glibc_VER"     "$(ldd --version  | head -n1 | awk '{print $NF}')"   "GLIBC"
-  check_version "$MIN_Binutils_VER"  "$(ld --version  | head -n1 | awk '{print $NF}')"    "BINUTILS"
-  check_version "$MIN_Tar_VER"       "$(tar --version | head -n1 | cut -d" " -f4)"        "TAR"
+  if [ -n "$MIN_Glibc_VER" ]; then
+    check_version "$MIN_Glibc_VER"     "$(ldd --version  | head -n1 | awk '{print $NF}')"   "GLIBC"
+  fi
+  if [ -n "$MIN_Binutils_VER" ]; then
+    check_version "$MIN_Binutils_VER"  "$(ld --version  | head -n1 | awk '{print $NF}')"    "BINUTILS"
+  fi
+  if [ -n "$MIN_Tar_VER" ]; then
+    check_version "$MIN_Tar_VER"       "$(tar --version | head -n1 | cut -d" " -f4)"        "TAR"
+  fi
+  if [ -n "$MIN_Bzip2_VER" ]; then
   bzip2Ver="$(bzip2 --version 2>&1 < /dev/null | head -n1 | cut -d" " -f8)"
-  check_version "$MIN_Bzip2_VER"     "${bzip2Ver%%,*}"     "BZIP2"
-  check_version "$MIN_Bison_VER"     "$(bison --version | head -n1 | cut -d" " -f4)"      "BISON"
-  check_version "$MIN_Coreutils_VER" "$(chown --version | head -n1 | cut -d")" -f2)"      "COREUTILS"
-  check_version "$MIN_Diffutils_VER" "$(diff --version  | head -n1 | cut -d" " -f4)"      "DIFF"
-  check_version "$MIN_Findutils_VER" "$(find --version  | head -n1 | cut -d" " -f4)"      "FIND"
-  check_version "$MIN_Gawk_VER"      "$(gawk --version  | head -n1 | awk -F'[ ,]+' '{print $3}')" "GAWK"
-  check_version "$MIN_Grep_VER"      "$(grep --version  | head -n1 | awk '{print $NF}')"  "GREP"
-  check_version "$MIN_Gzip_VER"      "$(gzip --version 2>&1 | head -n1 | cut -d" " -f2)"  "GZIP"
-  check_version "$MIN_M4_VER"        "$(m4 --version 2>&1 | head -n1 | awk '{print $NF}')" "M4"
-  check_version "$MIN_Make_VER"      "$(make --version  | head -n1 | cut -d " " -f3 | cut -c1-4)" "MAKE"
-  check_version "$MIN_Patch_VER"     "$(patch --version | head -n1 | sed 's/.*patch //')" "PATCH"
-  check_version "$MIN_Perl_VER"      "$(perl -V:version | cut -f2 -d\')"                  "PERL"
-  check_version "$MIN_Sed_VER"       "$(sed --version   | head -n1 | cut -d" " -f4)"      "SED"
-  check_version "$MIN_Texinfo_VER"   "$(makeinfo --version | head -n1 | awk '{ print$NF }')" "TEXINFO"
-  check_version "$MIN_Xz_VER"        "$(xz --version | head -n1 | cut -d" " -f4)"         "XZ"
+    check_version "$MIN_Bzip2_VER"     "${bzip2Ver%%,*}"     "BZIP2"
+  fi
+  if [ -n "$MIN_Bison_VER" ]; then
+    check_version "$MIN_Bison_VER"     "$(bison --version | head -n1 | cut -d" " -f4)"      "BISON"
+  fi
+  if [ -n "$MIN_Coreutils_VER" ]; then
+    check_version "$MIN_Coreutils_VER" "$(chown --version | head -n1 | cut -d" " -f4)"      "COREUTILS"
+  fi
+  if [ -n "$MIN_Diffutils_VER" ]; then
+    check_version "$MIN_Diffutils_VER" "$(diff --version  | head -n1 | cut -d" " -f4)"      "DIFF"
+  fi
+  if [ -n "$MIN_Findutils_VER" ]; then
+    check_version "$MIN_Findutils_VER" "$(find --version  | head -n1 | cut -d" " -f4)"      "FIND"
+  fi
+  if [ -n "$MIN_Gawk_VER" ]; then
+    check_version "$MIN_Gawk_VER"      "$(gawk --version  | head -n1 | awk -F'[ ,]+' '{print $3}')" "GAWK"
+  fi
+  if [ -n "$MIN_Grep_VER" ]; then
+    check_version "$MIN_Grep_VER"      "$(grep --version  | head -n1 | awk '{print $NF}')"  "GREP"
+  fi
+  if [ -n "$MIN_Gzip_VER" ]; then
+    check_version "$MIN_Gzip_VER"      "$(gzip --version 2>&1 | head -n1 | cut -d" " -f2)"  "GZIP"
+  fi
+  if [ -n "$MIN_M4_VER" ]; then
+    check_version "$MIN_M4_VER"        "$(m4 --version 2>&1 | head -n1 | awk '{print $NF}')" "M4"
+  fi
+  if [ -n "$MIN_Make_VER" ]; then
+    check_version "$MIN_Make_VER"      "$(make --version  | head -n1 | cut -d " " -f3 | cut -c1-4)" "MAKE"
+  fi
+  if [ -n "$MIN_Patch_VER" ]; then
+    check_version "$MIN_Patch_VER"     "$(patch --version | head -n1 | sed 's/.*patch //')" "PATCH"
+  fi
+  if [ -n "$MIN_Perl_VER" ]; then
+    check_version "$MIN_Perl_VER"      "$(perl -V:version | cut -f2 -d\')"                  "PERL"
+  fi
+  if [ -n "$MIN_Sed_VER" ]; then
+    check_version "$MIN_Sed_VER"       "$(sed --version   | head -n1 | cut -d" " -f4)"      "SED"
+  fi
+  if [ -n "$MIN_Texinfo_VER" ]; then
+    check_version "$MIN_Texinfo_VER"   "$(makeinfo --version | head -n1 | awk '{ print$NF }')" "TEXINFO"
+  fi
+  if [ -n "$MIN_Xz_VER" ]; then
+    check_version "$MIN_Xz_VER"        "$(xz --version | head -n1 | cut -d" " -f4)"         "XZ"
+  fi
 }
 
 #----------------------------#

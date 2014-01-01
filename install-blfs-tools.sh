@@ -2,6 +2,25 @@
 # $Id$
 set -e
 
+: << inline_doc
+Installs a set-up to build BLFS packages.
+You can set these variables:
+TRACKING_DIR  : where the installed package file is kept.
+                 (default /var/lib/jhalfs/BLFS)
+BLFS_ROOT     : where the installed tools will be installed, relative to $HOME.
+                Must start with a '/' (default /blfs_root)
+BLFS_BRANCH_ID: development, branch-xxx, xxx (where xxx is a valid tag)
+                (default development)
+Examples:
+1 - If you plan to use the tools to build BLFS on top of LFS, but you did not
+use jhalfs, or forgot to include the jhalfs-blfs tools:
+(as root) mkdir -p /var/lib/jhalfs/BLFS && chown -R user /var/lib/jhalfs
+(as user) ./install-blfs-tools
+2 - To install with only user privileges:
+TRACKING_DIR=/home/user/blfs_root/trackdir ./install-blfs-tools
+inline_doc
+
+
 # VT100 colors
 declare -r  BLACK=$'\e[1;30m'
 declare -r  DK_GRAY=$'\e[0;30m'
@@ -35,8 +54,8 @@ VERBOSITY=1
 COMMON_DIR="common"
 BLFS_TOOL='y'
 BUILDDIR=$(cd ~;pwd)
-BLFS_ROOT="/blfs_root"
-TRACKING_DIR="/var/lib/jhalfs/BLFS"
+BLFS_ROOT="${BLFS_ROOT:=/blfs_root}"
+TRACKING_DIR="${TRACKING_DIR:=/var/lib/jhalfs/BLFS}"
 
 [[ $VERBOSITY > 0 ]] && echo "${SD_BORDER}${nl_}"
 
@@ -58,7 +77,8 @@ esac
 
 # Check for build prerequisites.
 echo
-  check_prerequisites
+  check_alfs_tools
+  check_blfs_tools
 echo "${SD_BORDER}${nl_}"
 
 # Install the files
@@ -81,6 +101,12 @@ rm -rf ${BUILDDIR}${BLFS_ROOT}/menu/lxdialog/.svn
 # Set some harcoded envars to their proper values
 sed -i s@tracking-dir@$TRACKING_DIR@ \
     ${BUILDDIR}${BLFS_ROOT}/{Makefile,gen-makefile.sh}
+
+# Ensures the tracking directory exists.
+# Throws an error if it does not exist and the user does not
+# have write permission to create it.
+# If it exists, does nothing.
+mkdir -p $TRACKING_DIR
 [[ $VERBOSITY > 0 ]] && echo "... OK"
 
 [[ $VERBOSITY > 0 ]] && echo -n "Downloading and validating the book (may take some time)"
