@@ -16,7 +16,7 @@ get_book() {                 #
     case $PROGNAME in
       lfs) svn_root="LFS" ;;
       hlfs) svn_root="HLFS" ;;
-      clfs*) svn_root="cross-lfs" ;;
+      clfs*) ;;
       *) echo "BOOK not defined in function <get_book>"
           exit 1 ;;
     esac
@@ -56,10 +56,6 @@ get_book() {                 #
 extract_commands() {         #
 #----------------------------#
 
-  # Check for libxslt instead of just letting the script hit 'xsltproc' and fail.
-  test `type -p xsltproc` || eval "echo \"This feature requires libxslt.\"
-  exit 1"
-
   cd $JHALFSDIR
   case $PROGNAME in
     clfs*)
@@ -68,14 +64,11 @@ extract_commands() {         #
       VERSION=$(xmllint --noent $BOOK/prologue/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//')  ;;
   esac
 
-  # Start clean
-  if [ -d ${PROGNAME}-commands ]; then
-    rm -rf ${PROGNAME}-commands
-    mkdir -v ${PROGNAME}-commands
-  fi
-  echo -n "Extracting commands for"
+  # Clean
+  rm -rf ${PROGNAME}-commands
 
-  # Dump the commands in shell script form from the HLFS book.
+  # Extract the commands
+  echo -n "Extracting commands for"
   case ${PROGNAME} in
     clfs)
         echo -n " ${L_arrow}${BOLD}$ARCH${R_arrow} target architecture... "
@@ -148,7 +141,7 @@ extract_commands() {         #
                  --stringparam pkgmngt $PKGMNGT \
                  -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
       ;;
-    *)  echo -n " ${L_arrow}${BOLD}${PROGNAME}${R_arrow} book invalid, terminate build... "
+    *)  echo -n " ${L_arrow}${PROGNAME}${R_arrow} book invalid, terminate build... "
         exit 1 ;;
   esac
 
@@ -159,6 +152,7 @@ extract_commands() {         #
 
   # Create the packages file. We need it for proper Makefile creation
   create_package_list
+  create_chroot_scripts
 
   # Done. Moving on...
   get_sources
@@ -195,28 +189,36 @@ create_package_list() {      #
     *)
   esac
 
-  if [[ "${BLFS_TOOL}" = "y" ]] ; then
-(
-cat << EOF
-$LIBXML_PKG
-$LIBXSLT_PKG
-$TIDY_PKG
-$UNZIP_PKG
-$DBXML_PKG
-$DBXSL_PKG
-$LYNX_PKG
-$SUDO_PKG
-$WGET_PKG
-$SQLITE_PKG
-$APR_PKG
-$APR_U_PKG
-$SVN_PKG
-$GPM_PKG
-EOF
-) >> pkg_tarball_list
-  fi
-
   echo "done"
 
 }
 
+#----------------------------#
+create_chroot_scripts() {      #
+#----------------------------#
+
+  rm -rf chroot_scripts
+  echo -n "Creating chroot commands scripts from $BOOK"
+  if [ ! -z $ARCH ] ; then echo -n " $ARCH" ; fi
+  echo -n "... "
+  case ${PROGNAME} in
+    clfs*)
+      xsltproc --nonet --xinclude \
+               -o chroot-scripts/ chroot.xsl \
+               $BOOK/BOOK/${ARCH}-index.xml >> $LOGDIR/$LOG 2>&1
+      ;;
+    hlfs)
+      xsltproc --nonet --xinclude \
+               -o chroot-scripts/ chroot.xsl \
+               $BOOK/index.xml >> $LOGDIR/$LOG 2>&1
+      ;;
+    lfs)
+      xsltproc --nonet --xinclude \
+               -o chroot-scripts/ chroot.xsl \
+               $BOOK/chapter06/chapter06.xml >> $LOGDIR/$LOG 2>&1
+      ;;
+    *)
+  esac
+  echo "done"
+
+}

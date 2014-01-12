@@ -357,7 +357,9 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
   >$LOGDIR/$LOG
   #
   # Copy common helper files
-  cp $COMMON_DIR/{makefile-functions,progress_bar.sh,packages.xsl} $JHALFSDIR/
+  cp $COMMON_DIR/{makefile-functions,progress_bar.sh} $JHALFSDIR/
+  # Copy needed stylesheets
+  cp $COMMON_DIR/{packages.xsl,chroot.xsl} $JHALFSDIR/
   #
   # Fix the XSL book parser
   case $PROGNAME in

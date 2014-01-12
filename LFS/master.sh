@@ -197,11 +197,9 @@ chapter6_Makefiles() {
     # Keep the script file name
     this_script=`basename $file`
 
-    # We'll run the chroot commands differently than the others, so skip them in the
-    # dependencies and target creation.
+    # Skip the "stripping" scripts if the user does not want to strip.
     # Skip also linux-headers in iterative builds.
     case "${this_script}" in
-      *chroot)      continue ;;
       *stripping*) [[ "${STRIP}" = "n" ]] && continue ;;
       *linux-headers*) [[ -n "$N" ]] && continue ;;
     esac
@@ -209,9 +207,8 @@ chapter6_Makefiles() {
     # Grab the name of the target.
     name=`echo ${this_script} | sed -e 's@[0-9]\{3\}-@@' -e 's,'$N',,'`
 
-    # Find the version of the command files, if it corresponds with the building of
-    # a specific package. We need this here to can skip scripts not needed for
-    # iterations rebuilds
+    # Find the tarball corresponding to our script.
+    # If it doesn't, we skip it in iterations rebuilds (except stripping).
     pkg_tarball=$(get_package_tarball_name $name)
     pkg_version=$(get_package_version $pkg_tarball)
 
@@ -255,10 +252,12 @@ chapter6_Makefiles() {
       # If the testsuites must be run, initialize the log file
       case $name in
         binutils | gcc | glibc | gmp | mpfr )
-          [[ "$TEST" != "0" ]] && CHROOT_wrt_test_log "${this_script}" "$pkg_version"
+          [[ "$TEST" != "0" ]] &&
+             CHROOT_wrt_test_log "${this_script}" "$pkg_version"
           ;;
         * )
-          [[ "$TEST" = "2" ]] || [[ "$TEST" = "3" ]] && CHROOT_wrt_test_log "${this_script}" "$pkg_version"
+          [[ "$TEST" = "2" ]] || [[ "$TEST" = "3" ]] &&
+             CHROOT_wrt_test_log "${this_script}" "$pkg_version"
           ;;
       esac
       # If using optimizations, write the instructions
@@ -432,7 +431,7 @@ build_Makefile() {           #
   # Add chroot commands
   CHROOT_LOC="`whereis -b chroot | cut -d " " -f2`"
   i=1
-  for file in chapter06/*chroot* ; do
+  for file in ../chroot-scripts/*chroot* ; do
     chroot=`cat $file | \
             sed -e "s@chroot@$CHROOT_LOC@" \
                 -e '/#!\/bin\/bash/d' \
@@ -441,7 +440,6 @@ build_Makefile() {           #
             sed -e 's/  */ /g' \
                 -e 's|\\$|&&|g' \
                 -e 's|exit||g' \
-                -e 's|$| -c|' \
                 -e 's|"$$LFS"|$(MOUNT_PT)|' \
                 -e 's|set -e||' \
                 -e 's|set +h||'`
@@ -494,18 +492,18 @@ mk_SUDO: mk_LUSER
 
 mk_CHROOT: mk_SUDO
 	@\$(call echo_CHROOT_request)
-	@( sudo \$(CHROOT1) "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) CHROOT")
+	@( sudo \$(CHROOT1) -c "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) CHROOT")
 	@touch \$@
 
 mk_BOOT: mk_CHROOT
 	@\$(call echo_CHROOT_request)
-	@( sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) BOOT")
+	@( sudo \$(CHROOT2) -c "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) BOOT")
 	@touch \$@
 
 mk_BLFS_TOOL: create-sbu_du-report
 	@if [ "\$(ADD_BLFS_TOOLS)" = "y" ]; then \\
 	  \$(call sh_echo_PHASE,Building BLFS_TOOL); \\
-	  (sudo \$(CHROOT2) "make -C $BLFS_ROOT/work"); \\
+	  (sudo \$(CHROOT2) -c "make -C $BLFS_ROOT/work"); \\
 	fi;
 	@touch \$@
 
@@ -513,7 +511,7 @@ mk_CUSTOM_TOOLS: mk_BLFS_TOOL
 	@if [ "\$(ADD_CUSTOM_TOOLS)" = "y" ]; then \\
 	  \$(call sh_echo_PHASE,Building CUSTOM_TOOLS); \\
 	  sudo mkdir -p ${BUILDDIR}${TRACKING_DIR}; \\
-	  (sudo \$(CHROOT2) "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) CUSTOM_TOOLS"); \\
+	  (sudo \$(CHROOT2) -c "cd \$(SCRIPT_ROOT) && make BREAKPOINT=\$(BREAKPOINT) CUSTOM_TOOLS"); \\
 	fi;
 	@touch \$@
 
@@ -545,10 +543,7 @@ teardown:
 	sudo umount -v \$(MOUNT_PT)/dev
 
 chroot: devices
-	sudo /usr/sbin/chroot \$(MOUNT_PT) /tools/bin/env -i \\
-      HOME=/root TERM=\$(TERM) PS1='\\u:\\w\\\$\$ ' \\
-      PATH=/bin:/usr/bin:/sbin:/usr/sbin \\
-      /tools/bin/bash --login
+	sudo \$(CHROOT2)
 	\$(MAKE) teardown
 
 SETUP:        $chapter4
