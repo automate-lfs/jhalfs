@@ -512,20 +512,23 @@ final_system_Makefiles() {             #
     this_script=`basename $file`
 
     # Test if the stripping phase must be skipped.
-    # Skip alsp temp-perl for iterative runs
+    # Skip also temp-perl for iterative runs
     case $this_script in
       *stripping*) [[ "$STRIP" = "n" ]] && continue ;;
       *temp-perl*) [[ -n "$N" ]] && continue ;;
     esac
 
-    # Grab the name of the target, strip id number, XXX-script
-    name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' \
-                                  -e 's@temp-@@' \
-                                  -e 's@-64bit@@' \
-                                  -e 's@-64@@' \
-                                  -e 's@64@@' \
-                                  -e 's@n32@@' \
-                                  -e 's,'$N',,'`
+    # Grab the name of the target, strip id number, XXX-script.
+    # name1 is partially stripped and should be used for logging files.
+    # name is completely stripped and is used for grabbing
+    # the package name.
+    name1=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' \
+                                   -e 's,'$N',,'`
+    name=`echo $name1 | sed -e 's@temp-@@' \
+                            -e 's@-64bit@@' \
+                            -e 's@-64@@' \
+                            -e 's@64@@' \
+                            -e 's@n32@@'`
 
     # Find the version of the command files, if it corresponds with the building of
     # a specific package. We need this here to can skip scripts not needed for
@@ -579,7 +582,7 @@ final_system_Makefiles() {             #
     if [ "$pkg_tarball" != "" ] ; then
       CHROOT_wrt_RemoveBuildDirs "$name"
       if [ "${INSTALL_LOG}" = "y" ] && [ "x${N}" = "x" ] ; then
-        CHROOT_wrt_LogNewFiles "$name"
+        CHROOT_wrt_LogNewFiles "$name1"
       fi
     fi
     #
@@ -622,12 +625,15 @@ bootscripts_Makefiles() {              #
     # the names of the targets in the Makefile
     bootscripttools="$bootscripttools $this_script"
 
-    # Grab the name of the target, strip id number, XXX-script
-    name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'\
-                                  -e 's@-64bit@@' \
-                                  -e 's@-64@@' \
-                                  -e 's@64@@' \
-                                  -e 's@n32@@'`
+    # Grab the name of the target, strip id number, XXX-script.
+    # name1 is partially stripped and should be used for logging files.
+    # name is completely stripped and is used for grabbing
+    # the package name.
+    name1=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'`
+    name=`echo $name1 | sed -e 's@-64bit@@' \
+                            -e 's@-64@@' \
+                            -e 's@64@@' \
+                            -e 's@n32@@'`
     case $name in
       *bootscripts*) name=bootscripts-cross-lfs ;;
       *udev-rules)   name=udev-cross-lfs ;;
@@ -647,7 +653,7 @@ bootscripts_Makefiles() {              #
     #
     if [ "$pkg_tarball" != "" ] ; then
       if [ "${INSTALL_LOG}" = "y" ] ; then
-        CHROOT_wrt_LogNewFiles "$name"
+        CHROOT_wrt_TouchTimestamp
       fi
       CHROOT_Unpack "$pkg_tarball"
     fi
@@ -659,7 +665,7 @@ bootscripts_Makefiles() {              #
     if [ "$pkg_tarball" != "" ] ; then
       CHROOT_wrt_RemoveBuildDirs "$name"
       if [ "${INSTALL_LOG}" = "y" ] ; then
-        CHROOT_wrt_LogNewFiles "$name"
+        CHROOT_wrt_LogNewFiles "$name1"
       fi
     fi
     #
@@ -702,11 +708,14 @@ network_Makefiles() {                  #
     networktools="$networktools $this_script"
 
     # Grab the name of the target, strip id number, XXX-script
-    name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'\
-                                  -e 's@-64bit@@' \
-                                  -e 's@-64@@' \
-                                  -e 's@64@@' \
-                                  -e 's@n32@@'`
+    # name1 is partially stripped and should be used for logging files.
+    # name is completely stripped and is used for grabbing
+    # the package name.
+    name1=`echo $this_script | sed -e 's@[0-9]\{3\}-@@'`
+    name=`echo $name1 | sed -e 's@-64bit@@' \
+                            -e 's@-64@@' \
+                            -e 's@64@@' \
+                            -e 's@n32@@'`
     case $name in
       *network*) name=network-cross-lfs ;;
     esac
@@ -725,7 +734,7 @@ network_Makefiles() {                  #
     #
     if [ "$pkg_tarball" != "" ] ; then
       if [ "${INSTALL_LOG}" = "y" ] ; then
-        CHROOT_wrt_LogNewFiles "$name"
+        CHROOT_wrt_TouchTimestamp
       fi
       CHROOT_Unpack "$pkg_tarball"
     fi
@@ -737,7 +746,7 @@ network_Makefiles() {                  #
     if [ "$pkg_tarball" != "" ] ; then
       CHROOT_wrt_RemoveBuildDirs "$name"
       if [ "${INSTALL_LOG}" = "y" ] ; then
-        CHROOT_wrt_LogNewFiles "$name"
+        CHROOT_wrt_LogNewFiles "$name1"
       fi
     fi
     #
@@ -806,7 +815,7 @@ bootable_Makefiles() {                 #
     #
     if [ "$pkg_tarball" != "" ] ; then
       if [ "${INSTALL_LOG}" = "y" ] ; then
-        CHROOT_wrt_LogNewFiles "$name"
+        CHROOT_wrt_TouchTimestamp
       fi
       CHROOT_Unpack "$pkg_tarball"
     fi
