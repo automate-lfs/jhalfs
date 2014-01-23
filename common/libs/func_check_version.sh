@@ -260,7 +260,7 @@ inline_doc
   if `echo $XML_FILE | xmllint -nonet -noout -postvalid - 2>/dev/null` ; then
     check_version "4.5" "4.5" "DocBook XML DTD"
   else
-    echo "Error: you need docbook for installing BLFS tools"
+    echo "Error: you need the Docbook XML DTD for installing BLFS tools"
     exit 2
   fi
 }
