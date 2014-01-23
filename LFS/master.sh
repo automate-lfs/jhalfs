@@ -520,20 +520,18 @@ devices: ck_UID
 	sudo mount -vt devpts devpts \$(MOUNT_PT)/dev/pts
 	sudo mount -vt proc proc \$(MOUNT_PT)/proc
 	sudo mount -vt sysfs sysfs \$(MOUNT_PT)/sys
+	sudo mount -vt tmpfs tmpfs \$(MOUNT_PT)/run
 	if [ -h \$(MOUNT_PT)/dev/shm ]; then \\
-	  link=\$\$(readlink \$(MOUNT_PT)/dev/shm); \\
-	  sudo mkdir -p \$(MOUNT_PT)/\$\$link; \\
-	  sudo mount -vt tmpfs shm \$(MOUNT_PT)/\$\$link; \\
-	  unset link; \\
-	else \\
-	  sudo mount -vt tmpfs shm \$(MOUNT_PT)/dev/shm; \\
+	  sudo mkdir -p \$(MOUNT_PT)/\$\$(readlink \$(MOUNT_PT)/dev/shm); \\
 	fi
 
 teardown: 
 	sudo umount -v \$(MOUNT_PT)/sys
 	sudo umount -v \$(MOUNT_PT)/proc
 	sudo umount -v \$(MOUNT_PT)/dev/pts
-	if [ -h \$(MOUNT_PT)/dev/shm ]; then \\
+	if mountpoint -q \$(MOUNT_POINT)/run; then \\
+	  sudo umount -v \$(MOUNT_POINT)/run; \\
+	elif [ -h \$(MOUNT_PT)/dev/shm ]; then \\
 	  link=\$\$(readlink \$(MOUNT_PT)/dev/shm); \\
 	  sudo umount -v \$(MOUNT_PT)/\$\$link; \\
 	  unset link; \\
@@ -577,7 +575,9 @@ restore-luser-env:
 do_housekeeping:
 	@-umount \$(MOUNT_PT)/sys
 	@-umount \$(MOUNT_PT)/proc
-	@-if [ -h \$(MOUNT_PT)/dev/shm ]; then \\
+	@-if mountpoint -q \$(MOUNT_PT)/run; then \\
+	  umount \$(MOUNT_PT)/run; \\
+	elif [ -h \$(MOUNT_PT)/dev/shm ]; then \\
 	  link=\$\$(readlink \$(MOUNT_PT)/dev/shm); \\
 	  umount \$(MOUNT_PT)/\$\$link; \\
 	  unset link; \\
