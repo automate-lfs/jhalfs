@@ -717,7 +717,7 @@ network_Makefiles() {                  #
                             -e 's@64@@' \
                             -e 's@n32@@'`
     case $name in
-      *network*) name=network-cross-lfs ;;
+      network-scripts) name=clfs-network-scripts ;;
     esac
 
     pkg_tarball=$(get_package_tarball_name $name)
