@@ -529,8 +529,8 @@ teardown:
 	sudo umount -v \$(MOUNT_PT)/sys
 	sudo umount -v \$(MOUNT_PT)/proc
 	sudo umount -v \$(MOUNT_PT)/dev/pts
-	if mountpoint -q \$(MOUNT_POINT)/run; then \\
-	  sudo umount -v \$(MOUNT_POINT)/run; \\
+	if mountpoint -q \$(MOUNT_PT)/run; then \\
+	  sudo umount -v \$(MOUNT_PT)/run; \\
 	elif [ -h \$(MOUNT_PT)/dev/shm ]; then \\
 	  link=\$\$(readlink \$(MOUNT_PT)/dev/shm); \\
 	  sudo umount -v \$(MOUNT_PT)/\$\$link; \\
