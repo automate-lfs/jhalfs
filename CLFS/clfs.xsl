@@ -184,41 +184,100 @@
       </xsl:when>
       <!-- No interactive commands are needed if the .config file is the proper one -->
       <xsl:when test="contains(string(),'menuconfig')"/>
-      <!-- The Coreutils and Module-Init-Tools test suites are optional -->
-      <xsl:when test="(ancestor::sect1[@id='ch-system-coreutils'] or
-                ancestor::sect1[@id='ch-system-module-init-tools']) and
-                (contains(string(),'check') or
-                contains(string(),'dummy'))">
+<!-- test instructions -->
+       <xsl:when test="@remap = 'test'">
         <xsl:choose>
-          <xsl:when test="$testsuite = '0' or $testsuite = '1'"/>
+          <xsl:when test="$testsuite = '0'"/>
+          <xsl:when test="$testsuite = '1' and
+                          not(ancestor::sect1[@id='ch-system-gcc']) and
+                          not(ancestor::sect1[@id='ch-system-eglibc']) and
+                          not(ancestor::sect1[@id='ch-system-gmp']) and
+                          not(ancestor::sect1[@id='ch-system-mpfr']) and
+                          not(ancestor::sect1[@id='ch-system-mpc']) and
+                          not(ancestor::sect1[@id='ch-system-ppl']) and
+                          not(ancestor::sect1[@id='ch-system-isl']) and
+                          not(ancestor::sect1[@id='ch-system-cloog']) and
+                          not(ancestor::sect1[@id='ch-system-cloog-ppl']) and
+                          not(ancestor::sect1[@id='ch-system-binutils'])"/>
+          <xsl:when test="$testsuite = '2' and
+                          ancestor::chapter[@id='ch-temp-system']"/>
           <xsl:otherwise>
-            <xsl:if test="not(contains(string(),'check'))">
-              <xsl:apply-templates/>
-              <xsl:text>&#xA;</xsl:text>
-            </xsl:if>
-            <xsl:if test="contains(string(),'check')">
-              <xsl:choose>
-                <xsl:when test="$bomb-testsuite = 'n'">
-                  <xsl:value-of select="substring-before(string(),'check')"/>
-                  <xsl:text>-k check</xsl:text>
-                  <xsl:value-of select="substring-after(string(),'check')"/>
-                  <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
-                </xsl:when>
-                <xsl:otherwise>
-                  <xsl:apply-templates/>
-                  <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
-                  <xsl:if test="contains(string(),' -k ')">
-                    <xsl:text> || true</xsl:text>
-                  </xsl:if>
-                  <xsl:text>&#xA;</xsl:text>
-                </xsl:otherwise>
-              </xsl:choose>
-            </xsl:if>
+            <xsl:choose>
+              <xsl:when test="$bomb-testsuite = 'n'">
+                <xsl:choose>
+                  <!-- special case for eglibc -->
+                  <xsl:when test="contains(string(), 'eglibc-check-log')">
+                    <xsl:value-of
+                       select="substring-before(string(),'2&gt;&amp;1')"/>
+                    <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
+                  </xsl:when>
+                  <!-- special case for procps-ng -->
+                  <xsl:when test="contains(string(), 'pushd')">
+                    <xsl:text>{ </xsl:text>
+                    <xsl:apply-templates/>
+                    <xsl:text>; } &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
+                  </xsl:when>
+                  <xsl:when test="contains(string(), 'make -k')">
+                    <xsl:apply-templates/>
+                    <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
+                  </xsl:when>
+                  <xsl:when test="contains(string(), 'make')">
+                    <xsl:value-of select="substring-before(string(),'make')"/>
+                    <xsl:text>make -k</xsl:text>
+                    <xsl:value-of select="substring-after(string(),'make')"/>
+                    <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:apply-templates/>
+                    <xsl:if test="not(contains(string(), '&gt;&gt;'))">
+                      <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
+                    </xsl:if>
+                    <xsl:text>&#xA;</xsl:text>
+                  </xsl:otherwise>
+                </xsl:choose>
+              </xsl:when>
+              <xsl:otherwise>
+                <!-- bomb-testsuite != 'n'-->
+                <xsl:choose>
+                  <!-- special case for eglibc -->
+                  <xsl:when test="contains(string(), 'eglibc-check-log')">
+                    <xsl:value-of
+                       select="substring-before(string(),'2&gt;&amp;1')"/>
+                    <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
+                  </xsl:when>
+                  <!-- special case for gmp -->
+                  <xsl:when test="contains(string(), 'tee gmp-check-log')">
+                    <xsl:text>(</xsl:text>
+                    <xsl:apply-templates/>
+                    <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1 &amp;&amp; exit $PIPESTATUS)&#xA;</xsl:text>
+                  </xsl:when>
+                  <!-- special case for procps-ng -->
+                  <xsl:when test="contains(string(), 'pushd')">
+                    <xsl:text>{ </xsl:text>
+                    <xsl:apply-templates/>
+                    <xsl:text>; } &gt;&gt; $TEST_LOG 2&gt;&amp;1&#xA;</xsl:text>
+                  </xsl:when>
+		  <xsl:when test="contains(string(), 'make -k')">
+		    <xsl:apply-templates/>
+		    <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
+		  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:apply-templates/>
+                    <xsl:if test="not(contains(string(), '&gt;&gt;'))">
+                      <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
+                    </xsl:if>
+                    <xsl:text>&#xA;</xsl:text>
+                  </xsl:otherwise>
+                </xsl:choose>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
+<!-- End of test instructions -->
+
       <!-- Fixing toolchain test suites run XXX more to fix -->
-      <xsl:when test="contains(string(),'glibc-check-log')">
+      <xsl:when test="contains(string(),'eglibc-check-log')">
         <xsl:choose>
           <xsl:when test="$testsuite != '0'">
             <xsl:value-of select="substring-before(string(),'2&gt;')"/>

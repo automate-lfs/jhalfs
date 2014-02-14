@@ -777,8 +777,8 @@ menu "--- Build Settings"
 		depends	 CONFIG_TESTS
 		default	TST_1
 
-		config	TST_1
-			bool	"Only final system Glibc, GMP, MPFR, GCC and Binutils testsuites"
+		config  TST_1
+			bool	"Only final critical testsuites" if !BOOK_CLFS2 && !BOOK_CLFS3
 
 		config	TST_2
 			bool	"All final system testsuites"
