@@ -271,7 +271,7 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
       echo " Please rerun make and fix the configuration."
       exit 2
       }
-    BLFS_TREE=$(cd $BLFS_WC_LOCATION; svn info | grep URL | sed 's@.*BLFS/@@')
+    BLFS_TREE=$(cd $BLFS_WC_LOCATION; svn info | grep '^URL' | sed 's@.*BLFS/@@')
     BLFS_BRANCH_ID=$(echo $BLFS_TREE | sed -e 's@trunk/BOOK@development@' \
                                            -e 's@branches/@branch-@' \
                                            -e 's@tags/@@' \
