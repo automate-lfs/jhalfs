@@ -187,26 +187,28 @@
 <!-- test instructions -->
        <xsl:when test="@remap = 'test'">
         <xsl:choose>
+          <!-- Avoid executing the note before perl tests while in 'chroot' -->
+          <xsl:when test="ancestor::note[@os='a00'] and $method='chroot'"/>
           <xsl:when test="$testsuite = '0'"/>
-          <xsl:when test="$testsuite = '1' and
-                          not(ancestor::sect1[@id='ch-system-gcc']) and
-                          not(ancestor::sect1[@id='ch-system-eglibc']) and
-                          not(ancestor::sect1[@id='ch-system-gmp']) and
-                          not(ancestor::sect1[@id='ch-system-mpfr']) and
-                          not(ancestor::sect1[@id='ch-system-mpc']) and
-                          not(ancestor::sect1[@id='ch-system-ppl']) and
-                          not(ancestor::sect1[@id='ch-system-isl']) and
-                          not(ancestor::sect1[@id='ch-system-cloog']) and
-                          not(ancestor::sect1[@id='ch-system-cloog-ppl']) and
-                          not(ancestor::sect1[@id='ch-system-binutils'])"/>
-          <xsl:when test="$testsuite = '2' and
-                          ancestor::chapter[@id='ch-temp-system']"/>
+          <xsl:when test=
+            "$testsuite = '1' and
+              not(ancestor::sect1[@id='ch-system-gcc']) and
+              not(ancestor::sect1[contains(@id,'ch-system-eglibc')]) and
+              not(ancestor::sect1[contains(@id,'ch-system-glibc')]) and
+              not(ancestor::sect1[contains(@id,'ch-system-gmp')]) and
+              not(ancestor::sect1[contains(@id,'ch-system-mpfr')]) and
+              not(ancestor::sect1[contains(@id,'ch-system-mpc')]) and
+              not(ancestor::sect1[contains(@id,'ch-system-ppl')]) and
+              not(ancestor::sect1[contains(@id,'ch-system-isl')]) and
+              not(ancestor::sect1[contains(@id,'ch-system-cloog')]) and
+              not(ancestor::sect1[contains(@id,'ch-system-cloog-ppl')]) and
+              not(ancestor::sect1[@id='ch-system-binutils'])"/>
           <xsl:otherwise>
             <xsl:choose>
               <xsl:when test="$bomb-testsuite = 'n'">
                 <xsl:choose>
-                  <!-- special case for eglibc -->
-                  <xsl:when test="contains(string(), 'eglibc-check-log')">
+                  <!-- special case for (e)glibc -->
+                  <xsl:when test="contains(string(), 'glibc-check-log')">
                     <xsl:value-of
                        select="substring-before(string(),'2&gt;&amp;1')"/>
                     <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
@@ -239,8 +241,8 @@
               <xsl:otherwise>
                 <!-- bomb-testsuite != 'n'-->
                 <xsl:choose>
-                  <!-- special case for eglibc -->
-                  <xsl:when test="contains(string(), 'eglibc-check-log')">
+                  <!-- special case for (e)glibc -->
+                  <xsl:when test="contains(string(), 'glibc-check-log')">
                     <xsl:value-of
                        select="substring-before(string(),'2&gt;&amp;1')"/>
                     <xsl:text>&gt;&gt; $TEST_LOG 2&gt;&amp;1 || true&#xA;</xsl:text>
@@ -277,7 +279,7 @@
 <!-- End of test instructions -->
 
       <!-- Fixing toolchain test suites run XXX more to fix -->
-      <xsl:when test="contains(string(),'eglibc-check-log')">
+      <xsl:when test="contains(string(),'glibc-check-log')">
         <xsl:choose>
           <xsl:when test="$testsuite != '0'">
             <xsl:value-of select="substring-before(string(),'2&gt;')"/>
@@ -337,13 +339,6 @@
         <xsl:text>make -j1 </xsl:text>
         <xsl:value-of select="substring-after(string(),'make ')"/>
         <xsl:text>&#xA;</xsl:text>
-      </xsl:when>
-      <!-- Avoid calling hostname in chroot -->
-      <xsl:when test="ancestor::note[@os='a00']">
-        <xsl:if test="$method='boot'">
-          <xsl:apply-templates/>
-          <xsl:text>&#xA;</xsl:text>
-        </xsl:if>
       </xsl:when>
       <!-- The rest of commands -->
       <xsl:otherwise>
