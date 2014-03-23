@@ -248,6 +248,9 @@
 <!-- No ulink for now (see special case for Perl modules) -->
     <xsl:for-each select="./xref">
       <xsl:choose>
+<!-- Avoid depending of myself -->
+        <xsl:when test="ancestor::*[@id=current()/@linkend]"/>
+<!-- Call list expansion when we have an xorg7 series of packages -->
         <xsl:when test="contains(@linkend,'xorg7-')">
           <xsl:call-template name="expand-deps">
             <xsl:with-param name="section">
