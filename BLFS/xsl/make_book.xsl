@@ -349,6 +349,14 @@
             </para>
           </listitem>
         </itemizedlist>
+        <!-- If there is an additional download, we need to output that -->
+        <xsl:if test=".//bridgehead[contains(string(),'Additional')]">
+          <xsl:copy-of
+                 select=".//bridgehead[contains(string(),'Additional')]"/>
+          <xsl:copy-of
+                 select=".//bridgehead[contains(string(),'Additional')]
+                         /following-sibling::itemizedlist[1]"/>
+        </xsl:if>
       </sect2>
       <sect2 role="installation">
         <title>Installation of <xsl:value-of select="$package"/></title>

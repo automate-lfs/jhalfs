@@ -56,50 +56,21 @@
         <xsl:text>#!/bin/bash&#xA;set -e&#xA;&#xA;</xsl:text>
         <xsl:choose>
           <!-- Package page -->
-          <xsl:when test="sect2[@role='package'] and not(@id = 'xorg7-app' or
-                          @id = 'xorg7-data' or @id = 'xorg7-driver' or
-                          @id = 'xorg7-font' or @id = 'xorg7-lib' or
-                          @id = 'xorg7-proto' or @id = 'xorg7-util')">
-            <!-- Variables -->
-            <!-- These three lines  could be important if SRC_ARCHIVE,
-                 FTP_SERVER and SRCDIR were not set in the environment.
-                 But they are not tested for length or anything later,
-                 so not needed
-            <xsl:text>SRC_ARCHIVE=$SRC_ARCHIVE&#xA;</xsl:text>
-            <xsl:text>FTP_SERVER=$FTP_SERVER&#xA;</xsl:text>
-            <xsl:text>SRC_DIR=$SRC_DIR&#xA;&#xA;</xsl:text>-->
-            <xsl:text>&#xA;PKG_DIR=</xsl:text>
+          <xsl:when test="sect2[@role='package']">
+            <!-- We build in a subdirectory -->
+            <xsl:text>PKG_DIR=</xsl:text>
             <xsl:value-of select="$filename"/>
             <xsl:text>&#xA;</xsl:text>
             <!-- Download code and build commands -->
             <xsl:apply-templates select="sect2"/>
             <!-- Clean-up -->
-            <!-- xorg7-server used to require mesalib tree being present.
-                 That is no more true
-            <xsl:if test="not(@id='mesalib')"> -->
-              <xsl:text>cd $SRC_DIR/$PKG_DIR&#xA;</xsl:text>
+            <xsl:text>cd $SRC_DIR/$PKG_DIR&#xA;</xsl:text>
             <!-- In some case, some files in the build tree are owned
                  by root -->
-              <xsl:if test="$sudo='y'">
-                <xsl:text>sudo </xsl:text>
-              </xsl:if>
-              <xsl:text>rm -rf $UNPACKDIR unpacked&#xA;&#xA;</xsl:text>
-            <!-- Same reason as preceding comment
+            <xsl:if test="$sudo='y'">
+              <xsl:text>sudo </xsl:text>
             </xsl:if>
-            <xsl:if test="@id='xorg7-server'">
-              <xsl:text>cd $SRC_DIR/MesaLib
-UNPACKDIR=`grep '[^./]\+' unpacked | head -n1 | sed 's@^./@@;s@/.*@@'`
-rm -rf $UNPACKDIR unpacked&#xA;&#xA;</xsl:text>
-            </xsl:if> -->
-          </xsl:when>
-          <!-- Xorg7 pseudo-packages -->
-          <xsl:when test="contains(@id,'xorg7') and not(@id = 'xorg7-server')">
-            <xsl:text># Useless SRC_DIR=$SRC_DIR
-
-cd $SRC_DIR
-mkdir -p xc
-cd xc&#xA;</xsl:text>
-            <xsl:apply-templates select="sect2" mode="xorg7"/>
+            <xsl:text>rm -rf $UNPACKDIR unpacked&#xA;&#xA;</xsl:text>
           </xsl:when>
           <!-- Non-package page -->
           <xsl:otherwise>
@@ -118,6 +89,7 @@ cd xc&#xA;</xsl:text>
       <xsl:when test="@role = 'package'">
         <xsl:text>mkdir -p $SRC_DIR/$PKG_DIR&#xA;</xsl:text>
         <xsl:text>cd $SRC_DIR/$PKG_DIR&#xA;</xsl:text>
+        <!-- Download information is in bridgehead tags -->
         <xsl:apply-templates select="bridgehead[@renderas='sect3']"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
@@ -135,7 +107,7 @@ else
  [[ -n $UNPACKDIR ]] &amp;&amp; [[ -d $UNPACKDIR ]] &amp;&amp; rm -rf $UNPACKDIR
  unzip -d $UNPACKDIR ${PACKAGE}
 fi
-cd $UNPACKDIR&#xA;</xsl:text>
+cd $UNPACKDIR&#xA;&#xA;</xsl:text>
         <xsl:apply-templates select=".//screen | .//para/command"/>
         <xsl:if test="$sudo = 'y'">
           <xsl:text>sudo /sbin/</xsl:text>
@@ -148,32 +120,12 @@ cd $UNPACKDIR&#xA;</xsl:text>
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template match="sect2" mode="xorg7">
-    <xsl:choose>
- <!--     <xsl:when test="@role = 'package'">
-        <xsl:apply-templates select="itemizedlist/listitem/para" mode="xorg7"/>
-      </xsl:when>-->
-      <xsl:when test="not(@role)">
-<!-- This is the packages download instructions> -->
-        <xsl:apply-templates select=".//screen" mode="xorg7"/>
-      </xsl:when>
-      <xsl:when test="@role = 'installation'">
-        <xsl:apply-templates select=".//screen" mode="xorg7"/>
-        <xsl:if test="$sudo = 'y'">
-          <xsl:text>sudo /sbin/</xsl:text>
-        </xsl:if>
-        <xsl:text>ldconfig&#xA;&#xA;</xsl:text>
-      </xsl:when>
-      <xsl:when test="@role = 'configuration'">
-        <xsl:text>if [[ $XORG_PREFIX != /usr ]] ; then&#xA;</xsl:text>
-        <xsl:apply-templates select=".//screen"/>
-        <xsl:text>fi&#xA;</xsl:text>
-      </xsl:when>
-    </xsl:choose>
-  </xsl:template>
-
 <!--==================== Download code =======================-->
 
+  <!-- template for extracting the filename from an url in the form:
+       proto://internet.name/dir1/.../dirn/filename?condition.
+       Needed, because substring-after(...,'/') returns only the
+       substring after the first '/'. -->
   <xsl:template name="package_name">
     <xsl:param name="url" select="foo"/>
     <xsl:param name="sub-url" select="substring-after($url,'/')"/>
@@ -196,207 +148,208 @@ cd $UNPACKDIR&#xA;</xsl:text>
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template match="bridgehead">
-    <xsl:choose>
-      <xsl:when test="string()='Package Information'">
-        <xsl:variable name="url">
+  <!-- Generates the code to download a package, an additional package or
+       a patch. -->
+  <xsl:template name="download-file">
+    <xsl:param name="httpurl" select="''"/>
+    <xsl:param name="ftpurl" select="''"/>
+    <xsl:param name="md5" select="''"/>
+    <xsl:param name="varname" select="''"/>
+    <xsl:variable name="package">
+      <xsl:call-template name="package_name">
+        <xsl:with-param name="url">
           <xsl:choose>
-            <xsl:when
-              test="string-length(
-                following-sibling::itemizedlist[1]/listitem[1]/para/ulink/@url)
-                    &gt; 10">
-              <xsl:value-of select=
-            "following-sibling::itemizedlist[1]/listitem[1]/para/ulink/@url"/>
+            <xsl:when test="string-length($httpurl) &gt; 10">
+              <xsl:value-of select="$httpurl"/>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:value-of select=
-            "following-sibling::itemizedlist[1]/listitem[2]/para/ulink/@url"/>
+              <xsl:value-of select="$ftpurl"/>
             </xsl:otherwise>
           </xsl:choose>
-        </xsl:variable>
-        <xsl:variable name="package">
-          <xsl:call-template name="package_name">
-            <xsl:with-param name="url" select="$url"/>
-          </xsl:call-template>
-        </xsl:variable>
-        <xsl:variable
-          name="first_letter"
-          select="translate(substring($package,1,1),
-                            'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-                            'abcdefghijklmnopqrstuvwxyz')"/>
-        <xsl:text>PACKAGE=</xsl:text>
-        <xsl:value-of select="$package"/>
-        <xsl:text>&#xA;if [[ ! -f $PACKAGE ]] ; then&#xA;</xsl:text>
-        <!-- SRC_ARCHIVE may have subdirectories or not -->
-        <xsl:text>  if [[ -f $SRC_ARCHIVE/$PKG_DIR/$PACKAGE ]] ; then&#xA;</xsl:text>
-        <xsl:text>    cp $SRC_ARCHIVE/$PKG_DIR/$PACKAGE $PACKAGE&#xA;</xsl:text>
-        <xsl:text>  elif [[ -f $SRC_ARCHIVE/$PACKAGE ]] ; then&#xA;</xsl:text>
-        <xsl:text>    cp $SRC_ARCHIVE/$PACKAGE $PACKAGE&#xA;  else&#xA;</xsl:text>
-        <!-- The FTP_SERVER mirror -->
-        <xsl:text>    wget -T 30 -t 5 ${FTP_SERVER}svn/</xsl:text>
-        <xsl:value-of select="$first_letter"/>
-        <xsl:text>/$PACKAGE</xsl:text>
-        <xsl:apply-templates
-             select="following-sibling::itemizedlist[1]/listitem/para"
-             mode="package"/>
+        </xsl:with-param>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="first_letter"
+                  select="translate(substring($package,1,1),
+                                    'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+                                    'abcdefghijklmnopqrstuvwxyz')"/>
+    <xsl:text>&#xA;</xsl:text>
+    <xsl:value-of select="$varname"/>
+    <xsl:text>=</xsl:text>
+    <xsl:value-of select="$package"/>
+    <xsl:text>&#xA;if [[ ! -f $</xsl:text>
+    <xsl:value-of select="$varname"/>
+    <xsl:text> ]] ; then&#xA;</xsl:text>
+    <!-- SRC_ARCHIVE may have subdirectories or not -->
+    <xsl:text>  if [[ -f $SRC_ARCHIVE/$PKG_DIR/$</xsl:text>
+    <xsl:value-of select="$varname"/>
+    <xsl:text> ]] ; then&#xA;</xsl:text>
+    <xsl:text>    cp $SRC_ARCHIVE/$PKG_DIR/$</xsl:text>
+    <xsl:value-of select="$varname"/>
+    <xsl:text> $</xsl:text>
+    <xsl:value-of select="$varname"/>
+    <xsl:text>&#xA;</xsl:text>
+    <xsl:text>  elif [[ -f $SRC_ARCHIVE/$</xsl:text>
+    <xsl:value-of select="$varname"/>
+    <xsl:text> ]] ; then&#xA;</xsl:text>
+    <xsl:text>    cp $SRC_ARCHIVE/$</xsl:text>
+    <xsl:value-of select="$varname"/>
+    <xsl:text> $</xsl:text>
+    <xsl:value-of select="$varname"/>
+    <xsl:text>&#xA;  else&#xA;</xsl:text>
+    <!-- The FTP_SERVER mirror -->
+    <xsl:text>    wget -T 30 -t 5 ${FTP_SERVER}svn/</xsl:text>
+    <xsl:value-of select="$first_letter"/>
+    <xsl:text>/$</xsl:text>
+    <xsl:value-of select="$varname"/>
+    <xsl:if test="string-length($httpurl) &gt; 10">
+      <xsl:text> ||
+    wget -T 30 -t 5 </xsl:text>
+      <xsl:value-of select="$httpurl"/>
+    </xsl:if>
+    <xsl:if test="string-length($ftpurl) &gt; 10">
+      <xsl:text> ||
+    wget -T 30 -t 5 </xsl:text>
+      <xsl:value-of select="$ftpurl"/>
+    </xsl:if>
+    <xsl:text>
+    cp $</xsl:text>
+    <xsl:value-of select="$varname"/>
+    <xsl:text> $SRC_ARCHIVE
+  fi
+fi
+</xsl:text>
+    <xsl:if test="string-length($md5) &gt; 10">
+      <xsl:text>echo "</xsl:text>
+      <xsl:value-of select="$md5"/>
+      <xsl:text>&#x20;&#x20;$</xsl:text>
+      <xsl:value-of select="$varname"/>
+      <xsl:text>" | md5sum -c -
+</xsl:text>
+    </xsl:if>
+  </xsl:template>
+
+  <!-- Extract the MD5 sum information -->
+  <xsl:template match="para" mode="md5">
+    <xsl:choose>
+      <xsl:when test="contains(substring-after(string(),'sum: '),'&#xA;')">
+        <xsl:value-of select="substring-before(substring-after(string(),'sum: '),'&#xA;')"/>
       </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="substring-after(string(),'sum: ')"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <!-- We have several templates itemizedlist, depending on whether we
+       expect the package information, or additional package(s) or patch(es)
+       information. Select the appropriate mode here. -->
+  <xsl:template match="bridgehead">
+    <xsl:choose>
+      <!-- Special case for Openjdk -->
+      <xsl:when test="contains(string(),'Source Package Information')">
+        <xsl:apply-templates
+             select="following-sibling::itemizedlist[1]//simplelist">
+          <xsl:with-param name="varname" select="'PACKAGE'"/>
+        </xsl:apply-templates>
+        <xsl:apply-templates select="following-sibling::itemizedlist
+                             [preceding-sibling::bridgehead[1]=current()
+                              and position() &gt;1]//simplelist">
+          <xsl:with-param name="varname" select="'PACKAGE1'"/>
+        </xsl:apply-templates>
+      </xsl:when>
+      <!-- Package information -->
+      <xsl:when test="contains(string(),'Package Information')">
+        <xsl:apply-templates select="following-sibling::itemizedlist
+                             [preceding-sibling::bridgehead[1]=current()]"
+                             mode="package"/>
+      </xsl:when>
+      <!-- Additional package information -->
       <xsl:when test="contains(string(),'Additional')">
-        <xsl:apply-templates
-             select="following-sibling::itemizedlist[1]/listitem/para"
-             mode="additional"/>
+        <xsl:apply-templates select="following-sibling::itemizedlist"
+                             mode="additional"/>
       </xsl:when>
+      <!-- Do not do anything if the dev has created another type of
+           bridgehead. -->
       <xsl:otherwise/>
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template match="para" mode="package">
-    <xsl:choose>
-      <xsl:when test="contains(string(),'HTTP')">
-        <!-- Upstream HTTP URL -->
-        <xsl:if test="string-length(ulink/@url) &gt; '10'">
-          <xsl:text> || \&#xA;    wget -T 30 -t 5 </xsl:text>
-          <xsl:choose>
-            <xsl:when test="contains(ulink/@url,'?')">
-              <xsl:value-of select="substring-before(ulink/@url,'?')"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="ulink/@url"/>
-            </xsl:otherwise>
-          </xsl:choose>
-          <xsl:if test="not(contains(string(parent::listitem/following-sibling::listitem[1]/para),'FTP'))">
-            <xsl:text>
-    cp $PACKAGE $SRC_ARCHIVE
-  fi
-fi
-</xsl:text>
-          </xsl:if>
-        </xsl:if>
-      </xsl:when>
-      <xsl:when test="contains(string(),'FTP')">
-        <!-- Upstream FTP URL -->
-        <xsl:if test="string-length(ulink/@url) &gt; '10'">
-          <xsl:text> || \&#xA;    wget -T 30 -t 5 </xsl:text>
-          <xsl:value-of select="ulink/@url"/>
-        </xsl:if>
-        <xsl:text>
-    cp $PACKAGE $SRC_ARCHIVE
-  fi
-fi
-</xsl:text>
-      </xsl:when>
-      <xsl:when test="contains(string(),'MD5')">
-<!-- some md5 sums are written with a LF -->
-        <xsl:variable name="md5">
-          <xsl:choose>
-            <xsl:when test="contains(substring-after(string(),'sum: '),'&#xA;')">
-              <xsl:value-of select="substring-before(substring-after(string(),'sum: '),'&#xA;')"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="substring-after(string(),'sum: ')"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>
-        <xsl:text>echo "</xsl:text>
-        <xsl:value-of select="$md5"/>
-        <xsl:text>&#x20;&#x20;$PACKAGE" | md5sum -c -&#xA;</xsl:text>
-      </xsl:when>
-    </xsl:choose>
+  <!-- Call the download code template with appropriate parameters -->
+  <xsl:template match="itemizedlist" mode="package">
+    <xsl:call-template name="download-file">
+      <xsl:with-param name="httpurl">
+        <xsl:value-of select="./listitem[1]/para/ulink/@url"/>
+      </xsl:with-param>
+      <xsl:with-param name="ftpurl">
+        <xsl:value-of select="./listitem/para[contains(string(),'FTP')]/ulink/@url"/>
+      </xsl:with-param>
+      <xsl:with-param name="md5">
+        <xsl:apply-templates select="./listitem/para[contains(string(),'MD5')]"
+                             mode="md5"/>
+      </xsl:with-param>
+      <xsl:with-param name="varname" select="'PACKAGE'"/>
+    </xsl:call-template>
   </xsl:template>
 
-  <xsl:template match="para" mode="additional">
-    <xsl:choose>
-      <xsl:when test="contains(string(ulink/@url),'.patch')">
-        <xsl:variable name="patch">
-          <xsl:call-template name="package_name">
-            <xsl:with-param name="url" select="ulink/@url"/>
+  <xsl:template match="itemizedlist" mode="additional">
+  <!-- The normal layout is "one listitem"<->"one url", but some devs
+       find amusing to have FTP and/or MD5sum listitems, or to
+       enclose the download information inside a simplelist tag... -->
+    <xsl:for-each select="listitem[.//ulink]">
+      <xsl:choose>
+        <!-- hopefully, there was a HTTP line before -->
+        <xsl:when test="contains(string(./para),'FTP')"/>
+        <xsl:when test=".//simplelist">
+          <xsl:apply-templates select=".//simplelist">
+            <xsl:with-param name="varname" select="'PACKAGE1'"/>
+          </xsl:apply-templates>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:call-template name="download-file">
+            <xsl:with-param name="httpurl">
+              <xsl:value-of select="./para/ulink/@url"/>
+            </xsl:with-param>
+            <xsl:with-param name="ftpurl">
+              <xsl:value-of
+                   select="following-sibling::listitem[1]/
+                           para[contains(string(),'FTP')]/ulink/@url"/>
+            </xsl:with-param>
+            <xsl:with-param name="md5">
+              <xsl:apply-templates
+                   select="following-sibling::listitem[position()&lt;3]/
+                           para[contains(string(),'MD5')]"
+                   mode="md5"/>
+            </xsl:with-param>
+            <xsl:with-param name="varname">
+              <xsl:choose>
+                <xsl:when test="contains(./para/ulink/@url,'.patch')">
+                  <xsl:text>PATCH</xsl:text>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:text>PACKAGE1</xsl:text>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:with-param>
           </xsl:call-template>
-        </xsl:variable>
-        <xsl:text>PATCH=</xsl:text>
-        <xsl:value-of select="$patch"/>
-        <xsl:text>&#xA;if [[ ! -f $PATCH ]] ; then&#xA;</xsl:text>
-         <!-- SRC_ARCHIVE may have subdirectories or not -->
-        <xsl:text>  if [[ -f $SRC_ARCHIVE/$PKG_DIR/$PATCH ]] ; then&#xA;</xsl:text>
-        <xsl:text>    cp $SRC_ARCHIVE/$PKG_DIR/$PATCH $PATCH&#xA;</xsl:text>
-        <xsl:text>  elif [[ -f $SRC_ARCHIVE/$PATCH ]] ; then&#xA;</xsl:text>
-        <xsl:text>    cp $SRC_ARCHIVE/$PATCH $PATCH&#xA;  else&#xA;</xsl:text>
-        <xsl:text>wget -T 30 -t 5 </xsl:text>
-        <xsl:value-of select="ulink/@url"/>
-        <xsl:text>&#xA;</xsl:text>
-        <xsl:text>
-    cp $PATCH $SRC_ARCHIVE
-  fi
-fi
-</xsl:text>
-      </xsl:when>
-      <xsl:when test="ulink">
-        <xsl:if test="string-length(ulink/@url) &gt; '10'">
-          <xsl:variable name="package">
-            <xsl:call-template name="package_name">
-              <xsl:with-param name="url" select="ulink/@url"/>
-            </xsl:call-template>
-          </xsl:variable> 
-          <xsl:variable
-            name="first_letter"
-            select="translate(substring($package,1,1),
-                              'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-                              'abcdefghijklmnopqrstuvwxyz')"/>
-          <xsl:text>PACKAGE1=</xsl:text>
-          <xsl:value-of select="$package"/>
-          <xsl:text>&#xA;if [[ ! -f $PACKAGE1 ]] ; then&#xA;</xsl:text>
-          <!-- SRC_ARCHIVE may have subdirectories or not -->
-          <xsl:text>  if [[ -f $SRC_ARCHIVE/$PKG_DIR/$PACKAGE1 ]] ; then&#xA;</xsl:text>
-          <xsl:text>    cp $SRC_ARCHIVE/$PKG_DIR/$PACKAGE1 $PACKAGE1&#xA;</xsl:text>
-          <xsl:text>  elif [[ -f $SRC_ARCHIVE/$PACKAGE1 ]] ; then&#xA;</xsl:text>
-          <xsl:text>    cp $SRC_ARCHIVE/$PACKAGE1 $PACKAGE1&#xA;  else&#xA;</xsl:text>
-          <!-- The FTP_SERVER mirror -->
-          <xsl:text>    wget -T 30 -t 5 ${FTP_SERVER}svn/</xsl:text>
-          <xsl:value-of select="$first_letter"/>
-          <xsl:text>/$PACKAGE1</xsl:text>
-          <xsl:text> || \&#xA;    wget -T 30 -t 5 </xsl:text>
-          <xsl:value-of select="ulink/@url"/>
-          <xsl:text>
-    cp $PACKAGE1 $SRC_ARCHIVE
-  fi
-fi
-</xsl:text>
-        </xsl:if>
-      </xsl:when>
-      <xsl:when test="contains(string(),'MD5')">
-<!-- some md5 sums are written with a LF -->
-        <xsl:variable name="md5">
-          <xsl:choose>
-            <xsl:when test="contains(substring-after(string(),'sum: '),'&#xA;')">
-              <xsl:value-of select="substring-before(substring-after(string(),'sum: '),'&#xA;')"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="substring-after(string(),'sum: ')"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>
-        <xsl:text>echo "</xsl:text>
-        <xsl:value-of select="$md5"/>
-        <xsl:text>&#x20;&#x20;$PACKAGE1" | md5sum -c -&#xA;</xsl:text>
-      </xsl:when>
-    </xsl:choose>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:for-each>
   </xsl:template>
 
-  <xsl:template match="itemizedlist/listitem/para" mode="xorg7">
-    <xsl:if test="contains(string(ulink/@url),'.md5') or
-                  contains(string(ulink/@url),'.wget')">
-      <xsl:text>wget -T 30 -t 5 </xsl:text>
-      <xsl:value-of select="ulink/@url"/>
-      <xsl:text>&#xA;</xsl:text>
-    </xsl:if>
+  <!-- the simplelist case. Hopefully, the layout is one member for
+       url, one for md5 and others for various information, that we do not
+       use -->
+  <xsl:template match="simplelist">
+    <xsl:param name="varname" select="'PACKAGE1'"/>
+    <xsl:call-template name="download-file">
+      <xsl:with-param name="httpurl" select=".//ulink/@url"/>
+      <xsl:with-param name="md5">
+        <xsl:value-of select="substring-after(member[contains(string(),'MD5')],'sum: ')"/>
+      </xsl:with-param>
+      <xsl:with-param name="varname" select="$varname"/>
+    </xsl:call-template>
   </xsl:template>
-
-  <xsl:template match="itemizedlist/listitem/para" mode="xorg7-patch">
-    <xsl:if test="contains(string(ulink/@url),'.patch')">
-      <xsl:text>wget -T 30 -t 5 </xsl:text>
-      <xsl:value-of select="ulink/@url"/>
-      <xsl:text>&#xA;</xsl:text>
-    </xsl:if>
-  </xsl:template>
-
 <!--======================== Commands code ==========================-->
 
   <xsl:template match="screen">
@@ -415,13 +368,6 @@ fi
           <xsl:apply-templates select="userinput"/>
         </xsl:otherwise>
       </xsl:choose>
-      <xsl:text>&#xA;</xsl:text>
-    </xsl:if>
-  </xsl:template>
-
-  <xsl:template match="screen" mode="xorg7">
-    <xsl:if test="child::* = userinput and not(@role = 'nodump')">
-      <xsl:apply-templates select="userinput" mode="xorg7"/>
       <xsl:text>&#xA;</xsl:text>
     </xsl:if>
   </xsl:template>
@@ -467,14 +413,6 @@ popd</xsl:text>
     <xsl:text>&#xA;</xsl:text>
   </xsl:template>
 
-  <xsl:template match="screen" mode="sect-ver">
-    <xsl:text>section=</xsl:text>
-    <xsl:value-of select="substring-before(substring-after(string(),'mkdir '),' &amp;')"/>
-    <xsl:text>&#xA;sect_ver=</xsl:text>
-    <xsl:value-of select="substring-before(substring-after(string(),'-c ../'),'.md5')"/>
-    <xsl:text>&#xA;</xsl:text>
-  </xsl:template>
-
   <xsl:template match="para/command">
     <xsl:if test="(contains(string(),'test') or
             contains(string(),'check'))">
@@ -491,69 +429,6 @@ popd</xsl:text>
 
   <xsl:template match="userinput">
     <xsl:apply-templates/>
-  </xsl:template>
-
-  <xsl:template match="userinput" mode="xorg7">
-    <xsl:apply-templates mode="xorg7"/>
-  </xsl:template>
-
-  <xsl:template match="text()" mode="xorg7">
-    <xsl:call-template name="output-text">
-      <xsl:with-param name="out-string" select="string()"/>
-    </xsl:call-template>
-  </xsl:template>
-
-  <xsl:template name="output-text">
-    <xsl:param name="out-string" select="''"/>
-    <xsl:choose>
-      <xsl:when test="contains($out-string,'bash -e')">
-        <xsl:call-template name="output-text">
-          <xsl:with-param name="out-string"
-                          select="substring-before($out-string,'bash -e')"/>
-        </xsl:call-template>
-        <xsl:text># bash -e</xsl:text>
-        <xsl:call-template name="output-text">
-          <xsl:with-param name="out-string"
-                          select="substring-after($out-string,'bash -e')"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:when test="contains($out-string,'exit')">
-        <xsl:call-template name="output-text">
-          <xsl:with-param name="out-string"
-                          select="substring-before($out-string,'exit')"/>
-        </xsl:call-template>
-        <xsl:text># exit</xsl:text>
-        <xsl:call-template name="output-text">
-          <xsl:with-param name="out-string"
-                          select="substring-after($out-string,'exit')"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:when test="contains($out-string,'mkdir')">
-        <xsl:call-template name="output-text">
-          <xsl:with-param name="out-string"
-                          select="substring-before($out-string,'mkdir')"/>
-        </xsl:call-template>
-        <xsl:text>mkdir -p</xsl:text>
-        <xsl:call-template name="output-text">
-          <xsl:with-param name="out-string"
-                          select="substring-after($out-string,'mkdir')"/>
-        </xsl:call-template>
-      </xsl:when>
-       <xsl:when test="contains($out-string,'rm -r ')">
-        <xsl:call-template name="output-text">
-          <xsl:with-param name="out-string"
-                          select="substring-before($out-string,'rm -r ')"/>
-        </xsl:call-template>
-        <xsl:text>rm -rf </xsl:text>
-        <xsl:call-template name="output-text">
-          <xsl:with-param name="out-string"
-                          select="substring-after($out-string,'rm -r ')"/>
-        </xsl:call-template>
-      </xsl:when>
-     <xsl:otherwise>
-        <xsl:value-of select="$out-string"/>
-      </xsl:otherwise>
-    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="text()" mode="root">
