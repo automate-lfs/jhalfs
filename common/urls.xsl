@@ -117,7 +117,7 @@
   <xsl:template name="package.name">
     <xsl:param name="url"/>
     <xsl:choose>
-      <xsl:when test="contains($url, '/')">
+      <xsl:when test="contains($url, '/') and not (substring-after($url,'/')='')">
         <xsl:call-template name="package.name">
           <xsl:with-param name="url" select="substring-after($url, '/')"/>
         </xsl:call-template>
