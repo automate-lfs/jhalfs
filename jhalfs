@@ -161,7 +161,7 @@ case $BRANCH_ID in
   development )
     case $PROGNAME in
       clfs* ) TREE="" ;;
-           *) TREE=trunk/BOOK ;;
+          * ) TREE=trunk/BOOK ;;
     esac
     LFSVRS=development
     ;;
@@ -169,8 +169,16 @@ case $BRANCH_ID in
             echo " Please rerun make and fix the configuration."
             exit 2 ;;
   branch-* )
-    LFSVRS=${BRANCH_ID}
-    TREE=branches/${BRANCH_ID#branch-}/BOOK
+    case $PROGNAME in
+      lfs )
+        LFSVRS=${BRANCH_ID}
+        TREE=branches/${BRANCH_ID#branch-}/BOOK
+        ;;
+      clfs* )
+        LFSVRS=${BRANCH_ID}
+        TREE=${BRANCH_ID#branch-}
+        ;;
+    esac
     ;;
   * )
     case $PROGNAME in

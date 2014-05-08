@@ -65,12 +65,14 @@ menu "--- BOOK Settings"
 	endchoice
 
 	config	BRANCH_ID
-		string	"Book Version (mandatory)"
+		string	"Stable Version or branch (preceded by branch-)"
 		default	"**EDIT ME**"
 		depends	BRANCH
 		help
-			#-- A list of valid branches and stable book IDs is available here.
+			#-- A list of valid branches and stable book IDs is available here:
 			#   http://wiki.linuxfromscratch.org/alfs/wiki/SupportedBooks
+			#   Enter branch-XXX for branch XXX, and just YYY for tag YYY or
+			#   stable YYY version
 
 	config	BOOK
 		string	"Loc of working copy (mandatory)"
