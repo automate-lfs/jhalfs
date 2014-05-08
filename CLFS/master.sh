@@ -358,6 +358,7 @@ boot_Makefiles() {                     #
     case $this_script in
       *kernel)        name=linux                   ;;
       *bootscripts)   name="bootscripts-cross-lfs" ;;
+      *boot-scripts)   name="boot-scripts-cross-lfs" ;;
       *udev-rules)    name="udev-cross-lfs"        ;;
       *grub-build)    name=grub                    ;;
       *-aboot-build)  name=aboot                   ;;
@@ -605,13 +606,22 @@ final_system_Makefiles() {             #
 bootscripts_Makefiles() {              #
 #--------------------------------------#
 
-  if [[ "${METHOD}" = "chroot" ]]; then
-    echo "${tab_}${GREEN}Processing... ${L_arrow}(chroot) bootscripts   ( CHROOT ) ${R_arrow}"
+# New versions of the book do not have bootscripts anymore
+# (use systemd configuration files)
+# Define a variable to be used for the right script directory to parse
+  if [ -d bootscripts ]; then
+    config="bootscripts"
   else
-    echo "${tab_}${GREEN}Processing... ${L_arrow}(boot) bootscripts     ( ROOT ) ${R_arrow}"
+    config="system-config"
   fi
 
-  for file in bootscripts/* ; do
+  if [[ "${METHOD}" = "chroot" ]]; then
+    echo "${tab_}${GREEN}Processing... ${L_arrow}(chroot) $config   ( CHROOT ) ${R_arrow}"
+  else
+    echo "${tab_}${GREEN}Processing... ${L_arrow}(boot) $config     ( ROOT ) ${R_arrow}"
+  fi
+
+  for file in $config/* ; do
     # Keep the script file name
     this_script=`basename $file`
 
