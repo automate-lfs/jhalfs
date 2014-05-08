@@ -40,7 +40,8 @@
     <xsl:param name="url" select="foo"/>
     <xsl:variable name="sub-url" select="substring-after($url,'/')"/>
     <xsl:choose>
-      <xsl:when test="contains($sub-url,'/')">
+      <xsl:when test="contains($sub-url,'/') and
+                      not(substring-after($sub-url,'/')='')">
         <xsl:call-template name="package_name">
           <xsl:with-param name="url" select="$sub-url"/>
         </xsl:call-template>
@@ -50,6 +51,10 @@
           <xsl:when test="contains($sub-url,'.patch')"/>
           <xsl:when test="contains($sub-url,'?')">
             <xsl:value-of select="substring-before($sub-url,'?')"/>
+            <xsl:text>&#xA;</xsl:text>
+          </xsl:when>
+          <xsl:when test="contains($sub-url,'/')">
+            <xsl:value-of select="substring-before($sub-url,'/')"/>
             <xsl:text>&#xA;</xsl:text>
           </xsl:when>
           <xsl:otherwise>
