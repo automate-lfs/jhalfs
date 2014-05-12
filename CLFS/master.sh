@@ -337,6 +337,7 @@ boot_Makefiles() {                     #
     # A little housekeeping on the scripts
     case $this_script in
       *grub | *aboot | *colo | *silo | *arcload | *lilo | *introduction ) continue ;;
+      *how-to-view*) continue  ;;
       *whatnext*) continue     ;;
       *fstab)   [[ ! -z ${FSTAB} ]] && cp ${FSTAB} $BUILDDIR/sources/fstab ;;
       *kernel)  # if there is no kernel config file do not build the kernel
@@ -347,26 +348,66 @@ boot_Makefiles() {                     #
     esac
     #
     # First append each name of the script files to a list (this will become
-    # the names of the targets in the Makefile
-    case "${this_script}" in
-      *changingowner)  orphan_scripts="${orphan_scripts} ${this_script}"  ;;
-      *devices)        orphan_scripts="${orphan_scripts} ${this_script}"  ;;
-      *)               boottools="$boottools $this_script" ;;
-    esac
+    # the names of the targets in the Makefile). Those names differ depending
+    # on the version of the book. What makes the difference between those
+    # versions is the presence of "how-to-view" in the boot chapter.
+    if [ -f boot/*how-to-view ]; then
+      case "${this_script}" in
+        *changingowner)
+           orphan_scripts="${orphan_scripts} ${this_script}"
+           ;;
+        *creatingdirs)
+           orphan_scripts="${orphan_scripts} ${this_script}"
+           ;;
+        *createfiles)
+           orphan_scripts="${orphan_scripts} ${this_script}"
+           ;;
+        *devices)
+           orphan_scripts="${orphan_scripts} ${this_script}"
+           ;;
+        *flags)
+           orphan_scripts="${orphan_scripts} ${this_script}"
+           ;;
+        *fstab)
+           orphan_scripts="${orphan_scripts} ${this_script}"
+           ;;
+        *pwdgroup)
+           orphan_scripts="${orphan_scripts} ${this_script}"
+           ;;
+        *settingenvironment)
+           orphan_scripts="${orphan_scripts} ${this_script}"
+           ;;
+        *)
+           boottools="$boottools $this_script"
+           ;;
+      esac
+    else
+      case "${this_script}" in
+        *changingowner)
+           orphan_scripts="${orphan_scripts} ${this_script}"
+           ;;
+        *devices)
+           orphan_scripts="${orphan_scripts} ${this_script}"
+           ;;
+        *)
+           boottools="$boottools $this_script"
+           ;;
+      esac
+    fi
     #
     # Grab the name of the target, strip id number and misc words.
     case $this_script in
-      *kernel)        name=linux                   ;;
-      *bootscripts)   name="bootscripts-cross-lfs" ;;
-      *boot-scripts)   name="boot-scripts-cross-lfs" ;;
-      *udev-rules)    name="udev-cross-lfs"        ;;
-      *grub-build)    name=grub                    ;;
-      *-aboot-build)  name=aboot                   ;;
-      *yaboot-build)  name=yaboot                  ;;
-      *colo-build)    name=colo                    ;;
-      *silo-build)    name=silo                    ;;
-      *arcload-build) name=arcload                 ;;
-      *lilo-build)    name=lilo                    ;;
+      *kernel)        name=linux                    ;;
+      *bootscripts)   name="bootscripts-cross-lfs"  ;;
+      *boot-scripts)  name="boot-scripts-cross-lfs" ;;
+      *udev-rules)    name="udev-cross-lfs"         ;;
+      *grub-build)    name=grub                     ;;
+      *-aboot-build)  name=aboot                    ;;
+      *yaboot-build)  name=yaboot                   ;;
+      *colo-build)    name=colo                     ;;
+      *silo-build)    name=silo                     ;;
+      *arcload-build) name=arcload                  ;;
+      *lilo-build)    name=lilo                     ;;
       *)              name=`echo $this_script | sed -e 's@[0-9]\{3\}-@@' -e 's@-build@@' ` ;;
     esac
       # Identify the unique version naming scheme for the clfs bootscripts..(bad boys)
@@ -387,19 +428,44 @@ boot_Makefiles() {                     #
     [[ "$pkg_tarball" != "" ]] && [[ "$OPTIMIZE" -ge "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     #
     # Select a script execution method
-    case $this_script in
-       # The following 2 scripts are defined in the /boot directory but need
-       # to be run as a root user. Set them up here but run them in another phase
-      *changingowner*)  wrt_RunAsRoot "${file}"    ;;
-      *devices*)        wrt_RunAsRoot "${file}"    ;;
-      *fstab*)   if [[ -n "$FSTAB" ]]; then
-                   LUSER_wrt_CopyFstab
-                 else
-                   LUSER_wrt_RunAsUser  "${file}"
-                 fi
-         ;;
-      *)         LUSER_wrt_RunAsUser  "${file}"       ;;
-    esac
+    if [ -f boot/*how-to-view ]; then
+      case $this_script in
+        # The following 8 scripts are defined in the /boot directory but need
+        # to be run as a root user. Set them up here but run them in another
+        # phase
+        *changingowner)      wrt_RunAsRoot "${file}"    ;;
+        *creatingdirs)       wrt_RunAsRoot "${file}"    ;;
+        *createfiles)        wrt_RunAsRoot "${file}"    ;;
+        *devices)            wrt_RunAsRoot "${file}"    ;;
+        *flags)              wrt_RunAsRoot "${file}"    ;;
+        *fstab)
+           if [[ -n "$FSTAB" ]]; then
+               LUSER_wrt_CopyFstab
+           else
+               wrt_RunAsRoot  "${file}"
+           fi
+           ;;
+        *pwdgroup)           wrt_RunAsRoot "${file}"    ;;
+        *settingenvironment) wrt_RunAsRoot "${file}"    ;;
+        *)               LUSER_wrt_RunAsUser  "${file}" ;;
+      esac
+    else
+      case $this_script in
+        # The following 2 scripts are defined in the /boot directory but need
+        # to be run as a root user. Set them up here but run them in another
+        # phase
+        *changingowner)   wrt_RunAsRoot "${file}"    ;;
+        *devices)         wrt_RunAsRoot "${file}"    ;;
+        *fstab)
+           if [[ -n "$FSTAB" ]]; then
+               LUSER_wrt_CopyFstab
+           else
+               LUSER_wrt_RunAsUser  "${file}"
+           fi
+           ;;
+        *)            LUSER_wrt_RunAsUser  "${file}" ;;
+      esac
+    fi
     #
     # Housekeeping...remove any build directory(ies) except if the package build fails.
     [[ "$pkg_tarball" != "" ]] && LUSER_RemoveBuildDirs "${name}"
