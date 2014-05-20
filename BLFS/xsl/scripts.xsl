@@ -265,6 +265,12 @@ fi
                              mode="package"/>
       </xsl:when>
       <!-- Additional package information -->
+      <!-- special case for llvm -->
+      <xsl:when test="contains(string(),'Optional Download')">
+        <xsl:apply-templates select="following-sibling::itemizedlist"
+                             mode="additional"/>
+      </xsl:when>
+      <!-- All other additional packages have "Additional" -->
       <xsl:when test="contains(string(),'Additional')">
         <xsl:apply-templates select="following-sibling::itemizedlist"
                              mode="additional"/>
