@@ -63,7 +63,7 @@ EOF
 #----------------------------------#
 get_package_tarball_name() {       #
 #----------------------------------#
-  local script_name=`echo ${1} | sed -e 's@[0-9]\{1\}-@@'`
+  local script_name=`echo ${1} | sed -e 's@^[0-9]\{1\}-@@'`
 
    # The use of 'head' is necessary to limit the return value to the FIRST match..
    # hopefully this will not cause problems.
