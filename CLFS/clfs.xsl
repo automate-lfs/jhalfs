@@ -46,6 +46,12 @@
   <!-- Sparc64 processor type -->
   <xsl:param name="sparc" select="none"/>
 
+  <!-- x86 32 bit target triplet -->
+  <xsl:param name="x86" select="i686-pc-linux-gnu"/>
+
+  <!-- mips target triplet -->
+  <xsl:param name="mips" select="mips-unknown-linux-gnu"/>
+
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
   </xsl:template>
@@ -53,8 +59,7 @@
   <xsl:template match="sect1">
     <xsl:choose>
       <xsl:when test="../@id='chapter-partitioning' or
-                      ../@id='chapter-getting-materials' or
-                      ../@id='chapter-final-preps'"/>
+                      ../@id='chapter-getting-materials'"/>
       <xsl:when test="../@id='chapter-testsuite-tools' and $testsuite='0'"/>
       <xsl:when test="../@id='chapter-boot' and $method='chroot'"/>
       <xsl:when test="../@id='chapter-chroot' and $method='boot'"/>
@@ -361,6 +366,46 @@
       </xsl:when>
       <xsl:when test="ancestor::sect1[@id='ch-cross-tools-flags']">
         <xsl:choose>
+          <xsl:when test="contains(string(),'BUILD32')">
+            <xsl:choose>
+              <xsl:when test="$sparc = '1' or $sparc = '2'">
+                <xsl:text>-m32 -mcpu=ultrasparc -mtune=ultrasparc</xsl:text>
+              </xsl:when>
+              <xsl:when test="$sparc = '3'">
+                <xsl:text>-m32 -mcpu=ultrasparc3 -mtune=ultrasparc3</xsl:text>
+              </xsl:when>
+            </xsl:choose>
+          </xsl:when>
+          <xsl:when test="contains(string(),'BUILD64')">
+            <xsl:choose>
+              <xsl:when test="$sparc = '1' or $sparc = '2'">
+                <xsl:text>-m64 -mcpu=ultrasparc -mtune=ultrasparc</xsl:text>
+              </xsl:when>
+              <xsl:when test="$sparc = '3'">
+                <xsl:text>-m64 -mcpu=ultrasparc3 -mtune=ultrasparc3</xsl:text>
+              </xsl:when>
+            </xsl:choose>
+          </xsl:when>
+          <xsl:when test="contains(string(),'GCCTARGET')">
+            <xsl:choose>
+              <xsl:when test="$sparc = '1' or $sparc = '2'">
+                <xsl:text>-mcpu=ultrasparc -mtune=ultrasparc</xsl:text>
+              </xsl:when>
+              <xsl:when test="$sparc = '3'">
+                <xsl:text>-mcpu=ultrasparc3 -mtune=ultrasparc3</xsl:text>
+              </xsl:when>
+            </xsl:choose>
+          </xsl:when>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:when test="ancestor::sect1[@id='ch-final-preps-variables']">
+        <xsl:choose>
+          <xsl:when test="contains(string(),'target triplet')">
+            <xsl:value-of select="$x86"/>
+          </xsl:when>
+          <xsl:when test="contains(string(),'mips')">
+            <xsl:value-of select="$mips"/>
+          </xsl:when>
           <xsl:when test="contains(string(),'BUILD32')">
             <xsl:choose>
               <xsl:when test="$sparc = '1' or $sparc = '2'">

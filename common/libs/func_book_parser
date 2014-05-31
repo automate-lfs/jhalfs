@@ -82,6 +82,8 @@ extract_commands() {         #
                  --stringparam page $PAGE \
                  --stringparam lang $LANG \
                  --stringparam sparc $SPARC64_PROC \
+                 --stringparam x86 $TARGET \
+                 --stringparam mips $TARGET \
                  -o ./${PROGNAME}-commands/ $XSL $BOOK/BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
       ;;
 

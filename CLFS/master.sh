@@ -64,9 +64,19 @@ cat << EOF
 	echo "unset CFLAGS" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "unset CXXFLAGS" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "" >> \$(LUSER_HOME)/.bashrc && \\
+EOF
+) >> $MKFILE.tmp
+if ! [ -e final-preps/*variables ]; then
+  (
+  cat << EOF
 	echo "export CLFS_HOST=\"${CLFS_HOST}\"" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "export CLFS_TARGET=\"${TARGET}\"" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "export CLFS_TARGET32=\"${TARGET32}\"" >> \$(LUSER_HOME)/.bashrc && \\
+EOF
+  ) >> $MKFILE.tmp
+fi
+(
+cat << EOF
 	echo "source $JHALFSDIR/envars" >> \$(LUSER_HOME)/.bashrc
 	@chown \$(LUSER):\$(LGROUP) \$(LUSER_HOME)/.bashrc && \\
 	chmod a+wt \$(MOUNT_PT) && \\
@@ -80,6 +90,33 @@ EOF
 ) >> $MKFILE.tmp
   host_prep=" 023-creatingtoolsdir 024-creatingcrossdir 026-settingenvironment"
 
+}
+
+#--------------------------------------#
+final_preps_Makefiles() {
+#--------------------------------------#
+  echo "${tab_}${GREEN}Processing... ${L_arrow}variables  ( LUSER ) ${R_arrow}"
+  for file in final-preps/* ; do
+    this_script=`basename $file`
+    case $this_script in
+      *variables )
+         ;;
+      *) continue; ;;
+    esac
+    # Set the dependency for the first target.
+    if [ -z $PREV ] ; then PREV=026-settingenvironment ; fi
+
+    # First append each name of the script files to a list (this will become
+    # the names of the targets in the Makefile
+    final_preps="$final_preps $this_script"
+
+    # No need to grab the package name
+
+    LUSER_wrt_target "${this_script}" "$PREV"
+    LUSER_wrt_RunAsUser "${file}"
+    wrt_touch
+    PREV=$this_script
+  done # for file in ....
 }
 
 #--------------------------------------#
@@ -946,6 +983,7 @@ build_Makefile() {                     # Construct a Makefile from the book scri
   method_cmds=${METHOD}_Makefiles
 
   host_prep_Makefiles        # mk_SETUP      (SETUP)  $host_prep
+  final_preps_Makefiles      # mk_F_PREPS    (LUSER)  $final_preps
   cross_tools_Makefiles      # mk_CROSS      (LUSER)  $cross_tools
   temptools_Makefiles        # mk_TEMP       (LUSER)  $temptools
   $method_cmds               # mk_SYSTOOLS   (CHROOT) $chroottools/$boottools
@@ -994,7 +1032,7 @@ if [[ "${METHOD}" = "chroot" ]]; then
 (
 cat << EOF
 
-all: ck_UID mk_SETUP mk_CROSS mk_SUDO mk_SYSTOOLS create-sbu_du-report mk_CUSTOM_TOOLS mk_BLFS_TOOL
+all: ck_UID mk_SETUP mk_F_PREPS mk_SUDO mk_SYSTOOLS create-sbu_du-report mk_CUSTOM_TOOLS mk_BLFS_TOOL
 	@sudo make do-housekeeping
 	@echo "$VERSION - jhalfs build" > clfs-release && \\
 	sudo mv clfs-release \$(MOUNT_PT)/etc && \\
@@ -1016,13 +1054,13 @@ mk_SETUP:
 	@touch \$@
 
 #---------------AS LUSER
-mk_CROSS: mk_SETUP
-	@\$(call echo_PHASE,Cross and Temporary Tools)
+mk_F_PREPS: mk_SETUP
+	@\$(call echo_PHASE,Final Preparations Cross and Temporary Tools)
 	@( \$(SU_LUSER) "make -C \$(MOUNT_PT)/\$(SCRIPT_ROOT) BREAKPOINT=\$(BREAKPOINT) AS_LUSER" )
 	@sudo make restore-luser-env
 	@touch \$@
 
-mk_SUDO: mk_CROSS
+mk_SUDO: mk_F_PREPS
 	@sudo make BREAKPOINT=\$(BREAKPOINT) SUDO
 	@touch \$@
 
@@ -1050,7 +1088,7 @@ mk_CUSTOM_TOOLS: mk_BLFS_TOOL
 	@touch \$@
 
 SETUP:            $host_prep
-AS_LUSER:         $cross_tools $temptools
+AS_LUSER:         $final_preps $cross_tools $temptools
 SUDO:	          $orphan_scripts
 PREP_CHROOT_JAIL:  SHELL=/tools/bin/bash
 PREP_CHROOT_JAIL: ${chroottools}
@@ -1096,7 +1134,7 @@ if [[ "${METHOD}" = "boot" ]]; then
 (
 cat << EOF
 
-all:	ck_UID mk_SETUP mk_CROSS mk_SUDO
+all:	ck_UID mk_SETUP mk_F_PREPS mk_SUDO
 	@sudo make restore-luser-env
 	@sudo make do-housekeeping
 	@\$(call echo_boot_finished,$VERSION)
@@ -1127,12 +1165,12 @@ mk_SETUP:
 
 #---------------AS LUSER
 
-mk_CROSS: mk_SETUP
-	@\$(call echo_PHASE,Cross Tool)
+mk_F_PREPS: mk_SETUP
+	@\$(call echo_PHASE,Final Preparations and Cross Tools)
 	@( \$(SU_LUSER) "make -C \$(MOUNT_PT)/\$(SCRIPT_ROOT) BREAKPOINT=\$(BREAKPOINT) AS_LUSER" )
 	@touch \$@
 
-mk_SUDO: mk_CROSS
+mk_SUDO: mk_F_PREPS
 	@sudo make BREAKPOINT=\$(BREAKPOINT) SUDO
 	@touch \$@
 
@@ -1159,7 +1197,7 @@ mk_CUSTOM_TOOLS: mk_BLFS_TOOL
 	@touch \$@
 
 SETUP:        $host_prep
-AS_LUSER:     $cross_tools $temptools ${boottools}
+AS_LUSER:     $final_preps $cross_tools $temptools ${boottools}
 SUDO:	      $orphan_scripts
 AS_ROOT:      SHELL=/tools/bin/bash
 AS_ROOT:      $testsuitetools $basicsystem $bootscripttools $bootabletools
