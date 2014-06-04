@@ -731,6 +731,8 @@ bootscripts_Makefiles() {              #
     case $this_script in
       *udev)     continue ;; # This is not a script but a commentary, we want udev-rules
       *console*) continue ;; # Use the files that came with the bootscripts
+# fstab is now here (for 3.x.y)
+      *fstab)  [[ ! -z ${FSTAB} ]] && cp ${FSTAB} $BUILDDIR/sources/fstab ;;
       *)  ;;
     esac
 
@@ -771,7 +773,16 @@ bootscripts_Makefiles() {              #
       CHROOT_Unpack "$pkg_tarball"
     fi
     #
-    CHROOT_wrt_RunAsRoot "${file}"
+    case $this_script in
+      *fstab*)   if [[ -n "$FSTAB" ]]; then
+                   CHROOT_wrt_CopyFstab
+                 else
+                   CHROOT_wrt_RunAsRoot  "${file}"
+                 fi
+        ;;
+      *) CHROOT_wrt_RunAsRoot "${file}"
+        ;;
+    esac
     #
     # Write installed files log and remove the build directory(ies)
     # except if the package build fails.
