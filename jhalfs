@@ -172,7 +172,10 @@ case $BRANCH_ID in
     case $PROGNAME in
       lfs )
         LFSVRS=${BRANCH_ID}
-        TREE=branches/${BRANCH_ID#branch-}/BOOK
+        TREE=branches/${BRANCH_ID#branch-}
+        if [ ${BRANCH_ID#branch-} = 6 ]; then
+            TREE=${TREE}/BOOK
+        fi
         ;;
       clfs* )
         LFSVRS=${BRANCH_ID}
