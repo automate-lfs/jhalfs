@@ -433,16 +433,12 @@ build_Makefile() {           #
   i=1
   for file in ../chroot-scripts/*chroot* ; do
     chroot=`cat $file | \
-            sed -e "s@chroot@$CHROOT_LOC@" \
-                -e '/#!\/bin\/bash/d' \
-                -e 's@ \\\@ @g' | \
-            tr -d '\n' | \
-            sed -e 's/  */ /g' \
+            perl -pe 's|\\\\\n||g' | \
+            tr -s [:space:] | \
+            grep chroot | \
+            sed -e "s|chroot|$CHROOT_LOC|" \
                 -e 's|\\$|&&|g' \
-                -e 's|exit||g' \
-                -e 's|"$$LFS"|$(MOUNT_PT)|' \
-                -e 's|set -e||' \
-                -e 's|set +h||'`
+                -e 's|"$$LFS"|$(MOUNT_PT)|'`
     echo -e "CHROOT$i= $chroot\n" >> $MKFILE
     i=`expr $i + 1`
   done
