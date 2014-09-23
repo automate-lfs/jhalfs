@@ -14,10 +14,10 @@ BLFS_BRANCH_ID: development, branch-xxx, xxx (where xxx is a valid tag)
 Examples:
 1 - If you plan to use the tools to build BLFS on top of LFS, but you did not
 use jhalfs, or forgot to include the jhalfs-blfs tools:
-(as root) mkdir -p /var/lib/jhalfs/BLFS && chown -R user /var/lib/jhalfs
-(as user) ./install-blfs-tools
+(as root) mkdir -p /var/lib/jhalfs/BLFS && chown -R <user> /var/lib/jhalfs
+(as user) ./install-blfs-tools.sh
 2 - To install with only user privileges:
-TRACKING_DIR=/home/user/blfs_root/trackdir ./install-blfs-tools
+TRACKING_DIR=$HOME/blfs_root/trackdir ./install-blfs-tools.sh
 inline_doc
 
 
@@ -97,6 +97,8 @@ rm -rf ${BUILDDIR}${BLFS_ROOT}/libs/.svn
 rm -rf ${BUILDDIR}${BLFS_ROOT}/xsl/.svn
 rm -rf ${BUILDDIR}${BLFS_ROOT}/menu/.svn
 rm -rf ${BUILDDIR}${BLFS_ROOT}/menu/lxdialog/.svn
+# We do not want to keep an old version of the book:
+rm -rf ${BUILDDIR}${BLFS_ROOT}/blfs-xml
 
 # Set some harcoded envars to their proper values
 sed -i s@tracking-dir@$TRACKING_DIR@ \
@@ -110,7 +112,9 @@ mkdir -p $TRACKING_DIR
 [[ $VERBOSITY > 0 ]] && echo "... OK"
 
 [[ $VERBOSITY > 0 ]] && echo -n "Downloading and validating the book (may take some time)"
-make -j1 -C $BUILDDIR$BLFS_ROOT TRACKING_DIR=$TRACKING_DIR \
-    $BUILDDIR$BLFS_ROOT/packages.xml
+make -j1 -C $BUILDDIR$BLFS_ROOT \
+     TRACKING_DIR=$TRACKING_DIR \
+     SVN=svn://svn.linuxfromscratch.org/BLFS/$BLFS_TREE \
+     $BUILDDIR$BLFS_ROOT/packages.xml
 [[ $VERBOSITY > 0 ]] && echo "... OK"
 
