@@ -398,17 +398,17 @@ if [[ ! -f $BOOTPACKG ]] ; then
 fi
 
 if [[ -e unpacked ]] ; then
-  UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
-  if ! [[ -d $UNPACKDIR ]]; then
+  BOOTUNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
+  if ! [[ -d $BOOTUNPACKDIR ]]; then
     rm unpacked
     tar -xvf $BOOTPACKG > unpacked
-    UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
+    BOOTUNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
   fi
 else
   tar -xvf $BOOTPACKG > unpacked
-  UNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
+  BOOTUNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
 fi
-cd $UNPACKDIR
+cd $BOOTUNPACKDIR
 </xsl:text>
     </xsl:if>
     <xsl:apply-templates select='.'/>
