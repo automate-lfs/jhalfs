@@ -420,15 +420,16 @@ popd</xsl:text>
   </xsl:template>
 
   <xsl:template match="para/command">
-    <xsl:if test="(contains(string(),'test') or
-            contains(string(),'check'))">
+    <xsl:variable name="ns" select="normalize-space(string())"/>
+    <xsl:if test="(contains($ns,'test') or
+            contains($ns,'check'))">
       <xsl:text>#</xsl:text>
-      <xsl:value-of select="substring-before(string(),'make ')"/>
+      <xsl:value-of select="substring-before($ns,'make ')"/>
       <xsl:text>make </xsl:text>
-      <xsl:if test="not(contains(string(),'-k'))">
+      <xsl:if test="not(contains($ns,'-k'))">
         <xsl:text>-k </xsl:text>
       </xsl:if>
-      <xsl:value-of select="substring-after(string(),'make ')"/>
+      <xsl:value-of select="substring-after($ns,'make ')"/>
       <xsl:text> || true&#xA;</xsl:text>
     </xsl:if>
   </xsl:template>
