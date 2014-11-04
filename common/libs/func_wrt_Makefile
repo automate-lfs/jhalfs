@@ -98,7 +98,7 @@ get_package_tarball_name() {       #
          ;;
      libcap) echo $(grep "^libcap" $JHALFSDIR/pkg_tarball_list | head -n1 )
          ;;
-     util-linux-libs) echo $(grep "^util-linux" $JHALFSDIR/pkg_tarball_list | head -n1 )
+     util-linux-libs | util-linux-pass1) echo $(grep "^util-linux" $JHALFSDIR/pkg_tarball_list | head -n1 )
          ;;
      xz-utils) echo $(grep "^xz" $JHALFSDIR/pkg_tarball_list | head -n1 )
          ;;

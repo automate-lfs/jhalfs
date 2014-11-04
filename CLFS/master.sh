@@ -148,7 +148,8 @@ cross_tools_Makefiles() {              #
                                   -e 's@-static@@' \
                                   -e 's@-final@@' \
                                   -e 's@-64@@' \
-                                  -e 's@-n32@@'`
+                                  -e 's@-n32@@' \
+                                  -e 's@-pass1@@'`
     pkg_tarball=$(get_package_tarball_name $name)
 
     #--------------------------------------------------------------------#
