@@ -170,8 +170,8 @@ if [ ! -d ${BookHtml}/images ]
   cp ${BLFS_XML}/images/*.png ${BookHtml}/images
 fi
 for ht in ${BookHtml}/*.html
-  do sed -i 's@../stylesheets@stylesheets@' $ht
-  sed -i 's@../images@images@' $ht
+  do sed -i 's@\.\./stylesheets@stylesheets@' $ht
+  sed -i 's@\.\./images@images@' $ht
 done
 echo -en "\n\tGenerating the build scripts ...\n"
 rm -rf scripts
