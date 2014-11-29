@@ -126,17 +126,19 @@
       <xsl:apply-templates select="sect2|
                                    screen[not(@role) or
                                           @role!='nodump']/userinput"/>
-      <xsl:if test="@id='ch-system-creatingdirs'">
+      <xsl:if test="@id='ch-system-creatingdirs' and $pkgmngt='y'">
         <xsl:apply-templates
            select="document('packageManager.xml')//sect1[
                                        @id='ch-pkgmngt-creatingdirs'
-                                                        ]//userinput"/>
+                                                        ]//userinput"
+           mode="pkgmngt"/>
       </xsl:if>
-      <xsl:if test="@id='ch-system-createfiles'">
+      <xsl:if test="@id='ch-system-createfiles' and $pkgmngt='y'">
         <xsl:apply-templates
            select="document('packageManager.xml')//sect1[
                                        @id='ch-pkgmngt-createfiles'
-                                                        ]//userinput"/>
+                                                        ]//userinput"
+           mode="pkgmngt"/>
       </xsl:if>
       <xsl:text>echo -e "\n\nTotalseconds: $SECONDS\n"&#xA;</xsl:text>
       <xsl:text>exit&#xA;</xsl:text>
@@ -532,7 +534,7 @@ exit
             </xsl:when>
             <xsl:otherwise>
               <xsl:text>make DESTDIR=$PKG_DEST</xsl:text>
-              <xsl:call-template name="outputpkgdest">>
+              <xsl:call-template name="outputpkgdest">
                 <xsl:with-param
                     name="outputstring"
                     select="substring-after($outputstring,'make')"/>
