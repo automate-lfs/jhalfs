@@ -196,6 +196,12 @@ esac
         <xsl:text>rm -fv $PKG_DEST/usr/share/man/man2/*
 </xsl:text>
       </xsl:if>
+<!-- nologin is installed by util-linux. remove it from shadow -->
+      <xsl:if test="../@id = 'ch-system-shadow'">
+        <xsl:text>rm -fv $PKG_DEST/usr/share/man/man8/nologin.8
+rm -fv $PKG_DEST/sbin/nologin
+</xsl:text>
+      </xsl:if>
       <xsl:text>rm -fv $PKG_DEST/{,usr/}lib64
 rm -fv $PKG_DEST/usr/{man,doc,info}
 for dir in $PKG_DEST/usr/share/man/man{1..8}; do
