@@ -139,7 +139,7 @@ get_package_version() {            #
      iproute*)             echo ${1} | sed -e 's@^[^-]*-@@' \
                                            -e 's@\.tar.*@@'
         ;;
-     pkg*|udev*|Singular*)
+     pkg*|udev*|Singular*|XML*)
                            echo ${1} | sed -e 's@^.*[a-z]-\([[:digit:]]\)@\1@' \
                                            -e 's@\.tar.*@@' \
                                            -e 's@\.zip.*@@'
