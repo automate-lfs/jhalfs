@@ -449,6 +449,31 @@ exit
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
+      <!-- if package management, we should make an independant package for
+           tzdata. -->
+      <xsl:when test="contains(string(),'tzdata') and $pkgmngt='y'">
+        <xsl:text>
+OLD_PKG_DEST=$PKG_DEST
+OLD_PKGDIR=$PKGDIR
+PKG_DEST=$(dirname $OLD_PKG_DEST)/tzdata
+PKGDIR=$(dirname $PKGDIR)/tzdata-</xsl:text>
+        <xsl:copy-of select="substring-before(
+                               substring-after(string(),'tzdata'),
+                               '.tar')"/>
+        <xsl:text>
+</xsl:text>
+        <xsl:copy-of select="substring-before(string(),'ZONEINFO=')"/>
+        <xsl:text>ZONEINFO=$PKG_DEST</xsl:text>
+        <xsl:copy-of select="substring-after(string(),'ZONEINFO=')"/>
+        <xsl:text>
+packInstall
+rm -rf $PKG_DEST
+PKG_DEST=$OLD_PKG_DEST
+unset OLD_PKG_DEST
+PKGDIR=$OLD_PKGDIR
+unset OLD_PKGDIR
+</xsl:text>
+      </xsl:when><!-- addition for tzdata + package management -->
       <!-- End addition for package management -->
       <!-- The rest of commands -->
       <xsl:otherwise>
