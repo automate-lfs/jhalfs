@@ -13,7 +13,9 @@ case $PCKGVRS in
   vim*|unzip*) local VERSION=$(echo $PCKGVRS | sed 's/^[^0-9]*\([0-9]\)\([0-9]\)/\1.\2/') ;;
   tidy*) local VERSION=$(echo $PCKGVRS | sed 's/^[^0-9]*\([0-9]*\)/\1cvs/') ;;
   docbook-xml) local VERSION=4.5 ;;
-  *) local VERSION=$(echo ${PCKGVRS} | sed 's/^.*-\([0-9]\)/\1/');;
+  *) local VERSION=$(echo ${PCKGVRS} | sed 's/^.*-\([0-9]\)/\1/' |
+                   sed 's/_/./g');;
+# the last sed above is because dpkg does not want a '_' in version.
 esac
 local ARCHIVE_NAME=$(dirname ${PKGDIR})/${PACKAGE}_${VERSION}.deb
 case $(uname -m) in
@@ -31,7 +33,7 @@ Maintainer: Pierre Labastie <lnimbus@club-internet.fr>
 Description: $PACKAGE
 Architecture: $ARCH
 EOF
-dpkg-deb -b . $ARCHIVE_NAME
+dpkg-deb -z9 -b . $ARCHIVE_NAME
 dpkg -i $ARCHIVE_NAME
 mv -v $ARCHIVE_NAME /var/lib/packages
 popd

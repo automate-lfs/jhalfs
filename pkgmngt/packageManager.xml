@@ -9,15 +9,15 @@
 <!ENTITY before "Must be installed before">
 <!ENTITY external "Optional dependencies">
 <!ENTITY debian-pool "http://ftp2.fr.debian.org/debian/pool/main/">
-<!ENTITY dpkg-version "1.16.1.2">
-<!ENTITY dpkg-size "5,236 KB">
-<!ENTITY dpkg-url "&debian-pool;d/dpkg/dpkg_&dpkg-version;.tar.bz2">
-<!ENTITY dpkg-md5 "068ae5e650e54968230de19d6c4e2241">
+<!ENTITY dpkg-version "1.17.22">
+<!ENTITY dpkg-size "4,259 KB">
+<!ENTITY dpkg-url "&debian-pool;d/dpkg/dpkg_&dpkg-version;.tar.xz">
+<!ENTITY dpkg-md5 "c9c46c5318c98c9162fbd03d24f2f95b">
 <!ENTITY dpkg-home "http://wiki.debian.org/Teams/Dpkg">
-<!ENTITY dpkg-ch5-du "5 MB">
-<!ENTITY dpkg-ch5-sbu "0.4 SBU">
-<!ENTITY dpkg-ch6-du "5 MB">
-<!ENTITY dpkg-ch6-sbu "0.4 SBU">
+<!ENTITY dpkg-ch5-du "54 MB">
+<!ENTITY dpkg-ch5-sbu "0.3 SBU">
+<!ENTITY dpkg-ch6-du "63 MB">
+<!ENTITY dpkg-ch6-sbu "0.5 SBU">
 ]>
 <article>
 
@@ -103,27 +103,24 @@
     <title>Installation of Dpkg</title>
 
     <para>Since Debian is shipping its own package, all patches have already
-    been applied. However, the <command>configure</command> script calls
-    <command>dpkg</command> itself, which is found only on Debian hosts. The
-    following <command>sed</command> command prevents that call:</para>
+    been applied. Nevertheless there is either a bug or something
+    I do not understand... Apply this:</para>
 
-    <screen><userinput remap="pre">sed '/\$v[{]DEB_BUILD/d' \
-          -i scripts/dpkg-architecture.pl</userinput></screen>
+    <screen><userinput remap="pre">sed -i '/compress_filter(s/,/va_start/s/^$/compressor_fixup_params(params);\n/' lib/dpkg/compress.c</userinput></screen>
 
     <para> Configure the package:</para>
 
     <screen><userinput remap="configure">./configure --prefix=/tools \
-    --disable-nls --without-dselect \
-    --without-start-stop-daemon \
-    --without-update-alternatives \
-    --without-install-info \
-    --without-zlib --with-bz2=static --without-selinux</userinput></screen>
+    --disable-nls --disable-dselect \
+    --disable-start-stop-daemon \
+    --disable-update-alternatives \
+    --without-zlib --with-liblzma=static --without-selinux</userinput></screen>
 
     <variablelist>
       <title>The meaning of the configure options:</title>
 
       <varlistentry>
-        <term><parameter>--without-dselect</parameter></term>
+        <term><parameter>--disable-dselect</parameter></term>
         <listitem>
           <para>Avoids building <command>dselect</command>, an
           awful thing!</para>
@@ -131,7 +128,7 @@
       </varlistentry>
 
       <varlistentry>
-        <term><parameter>--without-start-stop-daemon</parameter></term>
+        <term><parameter>--disable-start-stop-daemon</parameter></term>
         <listitem>
           <para>The utility <command>start-stop-daemon</command>
           is not needed here.</para>
@@ -139,18 +136,34 @@
       </varlistentry>
 
       <varlistentry>
-        <term><parameter>--without-update-alternatives</parameter></term>
+        <term><parameter>--disable-update-alternatives</parameter></term>
         <listitem>
           <para>Same for <command>update-alternatives</command>.</para>
         </listitem>
       </varlistentry>
 
       <varlistentry>
-        <term><parameter>--without-install-info</parameter></term>
+        <term><parameter>--without-zlib</parameter></term>
         <listitem>
-          <para>Debian <command>install-info</command> is a wrapper to
-          <command>install-info</command> installed by Texinfo. Not
-          needed either.</para>
+          <para>Use <command>gzip</command> for compression of binary
+          packages instead of the zlib library, which is not installed
+          in chapter 5.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--with-liblzma=static</parameter></term>
+        <listitem>
+          <para>Use statically linked <command>liblzma</command> for compression
+          of binary packages.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--without-selinux</parameter></term>
+        <listitem>
+          <para>Disable building for <application>selinux</application>, which
+          is not used woth LFS/BLFS.</para>
         </listitem>
       </varlistentry>
 
@@ -257,22 +270,21 @@ touch /var/log/dpkg.log</userinput></screen>
     <title>Installation of Dpkg</title>
 
     <para>Since Debian is shipping its own package, all patches have already
-    been applied. We can go directly to configuring it:</para>
+    been applied. We do not need more in chapter 6. Configure it:</para>
 
     <screen><userinput remap="configure">./configure --prefix=/usr \
         --sysconfdir=/etc \
         --localstatedir=/var \
-        --without-dselect \
-        --without-start-stop-daemon \
-        --without-update-alternatives \
-        --without-install-info \
+        --disable-dselect \
+        --disable-start-stop-daemon \
+        --disable-update-alternatives \
         --without-selinux</userinput></screen>
 
     <variablelist>
       <title>The meaning of the configure options:</title>
 
       <varlistentry>
-        <term><parameter>--without-dselect</parameter></term>
+        <term><parameter>--disable-dselect</parameter></term>
         <listitem>
           <para>Avoids building <command>dselect</command>, an
           awful thing!</para>
@@ -280,7 +292,7 @@ touch /var/log/dpkg.log</userinput></screen>
       </varlistentry>
 
       <varlistentry>
-        <term><parameter>--without-start-stop-daemon</parameter></term>
+        <term><parameter>--disable-start-stop-daemon</parameter></term>
         <listitem>
           <para>The utility <command>start-stop-daemon</command>
           is not needed here.</para>
@@ -288,18 +300,16 @@ touch /var/log/dpkg.log</userinput></screen>
       </varlistentry>
 
       <varlistentry>
-        <term><parameter>--without-update-alternatives</parameter></term>
+        <term><parameter>--disable-update-alternatives</parameter></term>
         <listitem>
           <para>Same for <command>update-alternatives</command>.</para>
         </listitem>
       </varlistentry>
 
       <varlistentry>
-        <term><parameter>--without-install-info</parameter></term>
+        <term><parameter>--without-selinux</parameter></term>
         <listitem>
-          <para>Debian <command>install-info</command> is a wrapper to
-          <command>install-info</command> installed by Texinfo. Not
-          needed either.</para>
+          <para>Selinux is not used in LFS.</para>
         </listitem>
       </varlistentry>
 
