@@ -455,7 +455,7 @@ exit
         <xsl:text>
 OLD_PKG_DEST=$PKG_DEST
 OLD_PKGDIR=$PKGDIR
-PKG_DEST=$(dirname $OLD_PKG_DEST)/tzdata
+PKG_DEST=$(dirname $OLD_PKG_DEST)/001-tzdata
 PKGDIR=$(dirname $PKGDIR)/tzdata-</xsl:text>
         <xsl:copy-of select="substring-before(
                                substring-after(string(),'tzdata'),

@@ -109,7 +109,7 @@
       <xsl:value-of select="$package"/>
       <!-- Write MD5SUM value -->
       <xsl:text> </xsl:text>
-      <xsl:value-of select="../..//para/literal"/>
+      <xsl:value-of select="../following-sibling::para/literal"/>
       <xsl:text>&#x0a;</xsl:text>
     </xsl:if>
   </xsl:template>
