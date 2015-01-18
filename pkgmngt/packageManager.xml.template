@@ -100,7 +100,7 @@ touch /var/log/dpkg.log</userinput></screen>
 
 <!-- Last but not least : Final instructions for installing the
 package manager at the end of chapter 6. Again, the scriptlet file name is
-taken from the dbhtml instruction, with digits added before and .html cut 
+taken from the dbhtml instruction, with digits added before and .html cut
 and the tarball name is formed from this name + version. So the file
 here _must_ be the same as in chapter 5. If rendering in html, both
 sets of instructions end up in the same file, which is usually not a problem.

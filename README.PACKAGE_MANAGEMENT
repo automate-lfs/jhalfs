@@ -17,59 +17,43 @@ BY    : Pierre Labastie (work in progress)
 2. OVERVIEW OF THE SYSTEM:
 
       For now, package management is only available for LFS. I plan to
-  upgrade BLFS tools, but nothing usable right now. The other flavours of
-  LFS do not seem very active, so there is no point in updating jhalfs
-  for them.
-      The first thing to do is to modify the install instructions of the
-  chapter 6, 7 and 8 of the book so that the installed files end up in a
-  directory other than `/'. We choose to call this directory by the name
-  of the executed script, and to put the path to this directory in the
-  PKG_DEST variable which is made available to the scriplets.
-      Almost all the packages have a way to redirect the destination of
-  the files they install at the `make install' stage with the variable
-  DESTDIR. Furthermore, the authors of the book have been kind enough to
-  flag the installation instructions with `remap=install'. This allows an
-  xsl stylesheet to find those instructions. Then, places where `make '
-  occurs (make followed by a space) are replaced by `make DESTDIR=$PKG_DEST '.
-      Places where the book instructions move files into their destination
-  are harder to deal with: it is possible to change all occurences of ` /' or
-  `>/' (beginning of absolute paths) to `$PKG_DEST', but you end up moving
+  upgrade BLFS tools, but nothing usable right now. I have not attempted
+  to adapt this tool for the other flavours of LFS.
+      This system performs basically a "DESTDIR install" for all pages
+  in chapter 6, 7 and 8 of the book. The name of the DESTDIR directory is the
+  same as the one of the executed script. The path to this directory is
+  available to the scriplets through the PKG_DEST variable.
+      The XSL stylesheet used for generating the scriptlets, automatically
+  adds DESTDIR install instructions when "package management" is selected.
+  Also all the paths beginning with " /" or ">/" (absolute paths) are prepended
+  with $PKG_DEST. This has the default that you might want to move
   files to non existent directories. There is no simple way to automatically
   create those directories, because you have sometimes to use the full path
   (instructions of the form `cp file dir') and sometimes only the dirname
-  (instructions of the form `cp file1 file2'). So I am conservative and
-  create  a reasonable subset of the FHS hierarchy into the destination
-  directory. Empty directories should then be removed before packing the
+  (instructions of the form `cp file1 file2'). So the XSL stylesheet
+  creates a reasonable subset of the FHS hierarchy into the destination
+  directory. Empty directories are then removed before packing the
   binary package.
-      Supposing now that the scriptlets have been adequately modified, the
-  package manager installation instructions have to be added at the end of
-  chapter 5 and chapter 6. Furthermore, the administrative files and
-  directories have to be created during the `Creating Directories' and
-  `Creating Essential Files' stage. For all this, the user has to supply a
-  file in docbook format, with the necessary instructions and enough
-  information to download the tarball. A template is provided in the pkgmngt
-  subdirectory.
+      In order to use the package manager, it has to be installed at the end of
+  chapter 5 (temporary installation in /tools) and chapter 6 (final install).
+  Furthermore, the administrative files and directories have to be created
+  during the `Creating Directories' and `Creating Essential Files' stages.
+  For all this, the user has to supply a file in docbook XML format, with
+  the necessary instructions and enough information to download the tarball.
+  This file should reside in the `pkgmngt' directory and be named
+  `packageManager.xml'. A template named `packageManager.xml.template' is
+  provided in the `pkgmngt' subdirectory. There are also two XML files for
+  dpkg and pacman, respectively `packageManager.xml.dpkg' and
+  `packageManager.xml.pacman', that you can copy to `packageManager.xml'.
+  They are not updated often, so the versions used can be rather old.
       The last thing to do is to tell how to use the package manager. When
   the binary package is ready, the scriptlets call a shell function named
   `packInstall', which should pack the binary package and install it on the
   system. Note that nothing has been done to manage configuration files, 
-  which are ususally treated specially by package managers. Depending on
+  which are ususally treated specially by package managers: depending on
   the book layout, it is sometimes possible to create those files afterwards,
   and sometimes not, which means that you have to check them after each
-  upgrade. The user has to provide his own function. A template is provided
-  in the pkgmngt subdirectory.
-
-3. DETAILED INSTRUCTIONS:
-
-      Before beginning, you should know which package manager you want, where
-  to get the sources, and how to use it for:
-  a) Making a package from a directory tree. Usually, there is some control
-     file containing the version, pacakager, build system (32 or 64 bits at
-     least) or other more or less usefull but mandatory bits of information
-     which you should understand.
-  b) Unpack the package.
-
-      Second, you ought to have a basic knowledge of bash scripting and
-  docbook-xml writing, because you have to write a bash function for packing
-  and unpacking the package, and a set of instructions to install the PM.
-  
+  upgrade. The user has to write his own `packInstall' function. The shell
+  function should be defined in a file named `packInstall.sh', residing in
+  the `pkgmngt' directory. A template is provided, as well as two example
+  scripts for dpkg and pacman.

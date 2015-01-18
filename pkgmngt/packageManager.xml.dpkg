@@ -86,7 +86,7 @@
     <para>This is my choice of package manager. Dpkg is the basic package
     manager of Debian. It can be complemented by deselect (in the same
     package), apt or aptitude. We use it in a very crude way.</para>
-    
+
     <segmentedlist>
       <segtitle>&buildtime;</segtitle>
       <segtitle>&diskspace;</segtitle>
@@ -253,7 +253,7 @@ touch /var/log/dpkg.log</userinput></screen>
     <para>This is my choice of package manager. Dpkg is the basic package
     manager of Debian. It can be complemented by deselect (in the same
     package), apt or aptitude. We use it in a very crude way.</para>
-    
+
     <segmentedlist>
       <segtitle>&buildtime;</segtitle>
       <segtitle>&diskspace;</segtitle>

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Above is a mandatory header for xml files. It must be the first
+line in the file. Change encoding to the one you use on your computer -->
+<!-- $Id$ -->
+<!-- Mandatory DOCTYPE declaration. Fill free to add entities,
+but no external entities in local files, since they would not
+be accessible from JHALFSDIR. Change the document type `article' to
+book if you prefer. That slightly changes the aspect if you render
+it in html -->
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+  "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" >
+
+<!-- The first markup should be the one defined in the DOCTYPE DECLARATION -->
+<article>
+
+<!-- First section for the tarball download address.
+Only the next four lines are mandatory, but you can add anything
+to make the text look more like the LFS book.
+Do not change  anything, except the url and the md5 checksum. -->
+<sect1 id="package">
+        <para>Download: <ulink url="http://curl.haxx.se/download/curl-7.39.0.tar.lzma"/></para>
+        <para>MD5 sum: <literal>e9aa6dec29920eba8ef706ea5823bad7</literal></para>
+        <para>Download: <ulink url="http://www.libarchive.org/downloads/libarchive-3.1.2.tar.gz"/></para>
+        <para>MD5 sum: <literal>efad5a503f66329bb9d2f4308b5de98a</literal></para>
+        <para>Download: <ulink url="ftp://ftp.archlinux.org/other/pacman/pacman-4.1.2.tar.gz"/></para>
+        <para>MD5 sum: <literal>063c8b0ff6bdf903dc235445525627cd</literal></para>
+</sect1>
+
+<!-- If needed, uncomment and edit this:
+<sect1 id="patches">
+        <para>Download: <ulink url="somepatch-url"/></para>
+        <para>MD5 sum: <literal>somepatch-md5</literal></para>
+</sect1>
+-->
+
+<!-- Do not change the next line. The name of the scriptlet will be taken
+from the dbhtml instruction: it is the name of the file less .html, with
+xxx-x-added before (x, digits). Furthermore, the tarball name must be in the form
+name_x.y.z(.extension) or name-x.y.z(.extension) if the dbhtml
+instruction  contains file="name.html" -->
+<sect1 id="ch-tools-libarchive" role="wrap">
+  <?dbhtml filename="libarchive.html"?>
+  <sect2 role="installation">
+<screen><userinput remap="configure">./configure --prefix=/tools \
+            --without-bz2lib \
+            --enable-bsdtar=static \
+            --enable-bsdcpio=static</userinput></screen>
+<screen><userinput remap="make">make</userinput></screen>
+<screen><userinput remap="install">make install</userinput></screen>
+  </sect2>
+
+</sect1>
+<sect1 id="ch-tools-curl" role="wrap">
+  <?dbhtml filename="curl.html"?>
+  <sect2 role="installation">
+<screen><userinput remap="configure">./configure --prefix=/tools \
+            --disable-static</userinput></screen>
+<screen><userinput remap="make">make</userinput></screen>
+<screen><userinput remap="install">make install</userinput></screen>
+  </sect2>
+
+</sect1>
+
+<sect1 id="ch-tools-pkgmngt" role="wrap">
+  <?dbhtml filename="pacman.html"?>
+<!-- next line mandatory without change, but feel free to add any title,
+other sect2 (with different role), sectinfo and so on -->
+  <sect2 role="installation">
+<!-- You can use any number of remap="pre", "configure", "make", "test", "install"
+<screen><userinput remap="something">Instructions</userinput></screen>.
+They are executed in that order. "pre" can be used for patching for example.
+In case testing is enabled, the instructions flagged test are logged to a different
+file (test-log). If testing is not enabled, they are not executed at all. Do not
+put line breaks before and after your instructions. <userinput> without
+remap attribute are considered configuration instructions and executed last. You
+can also use remap="adjust" for the same purpose. -->
+<screen><userinput remap="configure">./configure --prefix=/tools \
+    PKG_CONFIG_PATH=/tools/lib/pkgconfig \
+    DUPATH=/tools/bin/du</userinput></screen>
+
+<screen><userinput remap="make">make</userinput></screen>
+
+<screen><userinput remap="install">make install</userinput></screen>
+
+<screen><userinput>sed -e 's@/usr@/tools@g' \
+    -e 's/\([^!]\)strip/\1!strip/' \
+    -e 's/\([^!]\)zipman/\1!zipman/' \
+    -i /tools/etc/makepkg.conf
+cat &gt;&gt; /tools/etc/makepkg.conf &lt;&lt; EOF
+BUILDDIR=/sources
+PKGDEST=/var/lib/packages
+PACKAGER="Pierre Labastie &lt;lnimbus@club-internet.fr&gt;"
+EOF
+cat &gt;&gt; /tools/etc/pacman.conf &lt;&lt; EOF
+DBPath   = /var/lib/pacman/
+CacheDir = /var/cache/pacman/pkg/
+LogFile  = /var/log/pacman.log
+SigLevel = Never
+# Repository: do not add one now: repo-add needs openssl.
+EOF</userinput></screen>
+
+  </sect2>
+
+</sect1>
+
+<!-- Mandatory section for creating dirs. These instructions are added at the
+end of the creating dirs instructions of the book. Do not change the
+following line -->
+<sect1 id="ch-pkgmngt-creatingdirs">
+
+<!-- Put the create dir intructions there. feel free to add
+any explaining <title>Title</title> and <para>explanations</para> -->
+<screen><userinput>mkdir -pv /var/{lib/{packages,pacman},cache/pkg}</userinput></screen>
+
+</sect1>
+<!-- Same for files. Do not change the following line -->
+<sect1 id="ch-pkgmngt-createfiles">
+
+<para>No file?</para>
+
+</sect1>
+
+<!-- Last but not least : Final instructions for installing the
+package manager at the end of chapter 6. Again, the scriptlet file name is
+taken from the dbhtml instruction, with digits added before and .html cut
+and the tarball name is formed from this name + version. So the file
+here _must_ be the same as in chapter 5. If rendering in html, both
+sets of instructions end up in the same file, which is usually not a problem.
+-->
+<sect1 id="ch-system-libarchive" role="wrap">
+  <?dbhtml filename="libarchive.html"?>
+  <sect2 role="installation">
+<screen><userinput remap="configure">./configure --prefix=/usr \
+            --disable-static</userinput></screen>
+<screen><userinput remap="make">make</userinput></screen>
+<screen><userinput remap="install">make DESTDIR=$PKG_DEST install</userinput></screen>
+  </sect2>
+
+</sect1>
+<sect1 id="ch-system-curl" role="wrap">
+  <?dbhtml filename="curl.html"?>
+  <sect2 role="installation">
+<screen><userinput remap="configure">./configure --prefix=/usr \
+            --disable-static \
+            --enable-threaded-resolver</userinput></screen>
+<screen><userinput remap="make">make</userinput></screen>
+<screen><userinput remap="install">make DESTDIR=$PKG_DEST install
+find docs \( -name "Makefile*" -o -name "*.1" -o -name "*.3" \) -exec rm {} \;
+install -v -d -m755 $PKG_DEST/usr/share/doc/curl-7.39.0
+cp -v -R docs/*     $PKG_DEST/usr/share/doc/curl-7.39.0</userinput></screen>
+  </sect2>
+
+</sect1>
+<sect1 id="ch-system-pkgmngt" role="wrap">
+  <?dbhtml filename="pacman.html"?>
+
+  <sect2 role="installation">
+
+<screen><userinput remap="configure">./configure --prefix=/usr \
+            --sysconfdir=/etc \
+            --localstatedir=/var</userinput></screen>
+
+<screen><userinput remap="make">make</userinput></screen>
+
+<!-- Those instructions are executed with PKG_DEST set. They are not processed
+in any way to add $PKG_DEST at some place, and the PKG_DEST directory is not
+populated before, so it is basically empty. You have thus to create any directory
+needed in $PKG_DEST and not otherwise created by the make install command. -->
+<screen><userinput remap="install">make DESTDIR=$PKG_DEST install</userinput></screen>
+
+<screen><userinput>sed -e 's/\([^!]\)strip/\1!strip/' \
+    -e 's/\([^!]\)zipman/\1!zipman/' \
+    -i /etc/makepkg.conf
+cat &gt;&gt; /etc/makepkg.conf &lt;&lt; EOF
+BUILDDIR=/sources
+PKGDEST=/var/lib/packages
+PACKAGER="Pierre Labastie &lt;lnimbus@club-internet.fr&lt;"
+EOF
+cat &gt;&gt; /etc/pacman.conf &lt;&lt; EOF
+DBPath   = /var/lib/pacman/
+CacheDir = /var/cache/pacman/pkg/
+LogFile  = /var/log/pacman.log
+SigLevel = Never
+EOF</userinput></screen>
+
+  </sect2>
+
+</sect1>
+</article>
