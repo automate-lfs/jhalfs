@@ -154,7 +154,8 @@
                              @remap = 'configure' or
                              @remap = 'make' or
                              @remap = 'test' and
-                             not(current()/../@id='ch-tools-dejagnu')]"/>
+                             not(current()/../@id='ch-tools-dejagnu') and
+                             not(current()/../@id='ch-system-systemd')]"/>
     <xsl:if
          test="ancestor::chapter[@id != 'chapter-temporary-tools'] and
                $pkgmngt = 'y' and
@@ -254,9 +255,10 @@ fi
                  not(@role) or
                  @role != 'nodump'
                         ]/userinput[
-                          not(@remap) or
-                          @remap='adjust' or
-                          @remap='test' and current()/../@id='ch-tools-dejagnu'
+                       not(@remap) or
+                       @remap='adjust' or
+                       @remap='test' and current()/../@id='ch-tools-dejagnu' or
+                       @remap='test' and current()/../@id='ch-system-systemd'
                                    ]"/>
   </xsl:template>
 
