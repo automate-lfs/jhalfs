@@ -202,7 +202,10 @@
 <!-- Dependencies -->
 <!-- If in Xorg (not anymore) or KDE chapter, consider that the preceding
      package is the first dependency (not always noted in the book)-->
-          <xsl:if test="ancestor::chapter[@id='kde4-core']">
+          <xsl:if test="ancestor::chapter[@id='kde4-core'
+                                       or @id='xfce-core'
+                                       or @id='lxde-desktop']
+                    and preceding-sibling::sect1[1]">
             <xsl:text>
             </xsl:text>
             <xsl:element name="dependency">

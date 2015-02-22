@@ -113,7 +113,6 @@ of ${BOLD}${DepFile%.dep}${OFF}"
         ../xsl/dependencies.xsl ../packages.xml
 
     if [[ -f ${id_of_dep}.dep ]]; then
-      sort ${id_of_dep}.dep -o ${id_of_dep}.dep
       sed -i "1i${rootlink[*]} $count" ${id_of_dep}.dep
       generate_dependency_tree ${id_of_dep}.dep
 # Test return value, in case we exchange dependencies
@@ -152,7 +151,7 @@ echo -en "\n End: $depth${spaceSTR:0:$depth}${GREEN}$DepFile${OFF}"
 # so first get the number of first line and then delete
 # that line
 for line in $lines_to_remove
-  do lineno=$(sed -n /^$line\$/= $DepFile | head -n1)
+  do lineno=$(sed -n /^$line\$/= $DepFile | tail -n1)
   sed -i ${lineno}d $DepFile
 done
 return 0
