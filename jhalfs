@@ -294,7 +294,7 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
                      exit 2 ;;
    branch-systemd )  BLFS_TREE=branches/systemd ;;
          branch-* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-}/BOOK ;;
-      6.2* | 7.4* )  BLFS_TREE=tags/${BLFS_BRANCH_ID} ;;
+       6.2* | 7.* )  BLFS_TREE=tags/${BLFS_BRANCH_ID} ;;
                 * )  BLFS_TREE=tags/${BLFS_BRANCH_ID}/BOOK ;;
     esac
   fi
