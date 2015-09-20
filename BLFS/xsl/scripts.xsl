@@ -93,6 +93,9 @@
         <xsl:apply-templates select="bridgehead[@renderas='sect3']"/>
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
+      <xsl:when test="@role = 'qt4-prefix' or @role = 'qt5-prefix'">
+        <xsl:apply-templates select=".//screen"/>
+      </xsl:when>
       <xsl:when test="@role = 'installation'">
         <xsl:text>
 if [ "${PACKAGE%.zip}" = "${PACKAGE}" ]; then
