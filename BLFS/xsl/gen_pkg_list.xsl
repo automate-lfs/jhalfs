@@ -204,6 +204,7 @@
      package is the first dependency (not always noted in the book)-->
           <xsl:if test="ancestor::chapter[@id='kde4-core'
                                        or @id='xfce-core'
+                                       or @id='lxqt-desktop'
                                        or @id='lxde-desktop']
                     and preceding-sibling::sect1[1]">
             <xsl:text>
