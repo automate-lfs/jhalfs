@@ -125,7 +125,7 @@ zconf.tab.o: zconf.tab.c lex.zconf.c $(srcdir)/confdata.c $(srcdir)/expr.c \
 .PHONY: ncurses
 
 ncurses:
-	@echo "main() {}" > lxtemp.c
+	@echo "int main() {}" > lxtemp.c
 	@if $(HOSTCC) lxtemp.c $(LIBS) ; then \
 		rm -f lxtemp.c a.out; \
 	else \

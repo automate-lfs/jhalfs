@@ -117,7 +117,9 @@ dialog_textbox (const char *title, const char *file, int height, int width)
 	waddstr (dialog, (char *)title);
 	waddch (dialog, ' ');
     }
+    wbkgdset (dialog, 0);
     print_button (dialog, " Exit ", height - 2, width / 2 - 4, TRUE);
+    wbkgdset (dialog, dialog_attr & A_COLOR);
     wnoutrefresh (dialog);
     getyx (dialog, cur_y, cur_x);	/* Save cursor position */
 

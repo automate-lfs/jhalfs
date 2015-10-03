@@ -269,7 +269,9 @@ dialog_menu (const char *title, const char *prompt, int height, int width,
     print_arrows(dialog, item_no, scroll,
 		 box_y, box_x+item_x+1, menu_height);
 
+    wbkgdset (dialog, 0);
     print_buttons (dialog, height, width, 0);
+    wbkgdset (dialog, dialog_attr & A_COLOR);
     wmove (menu, choice, item_x+1);
     wrefresh (menu);
 
@@ -390,7 +392,9 @@ dialog_menu (const char *title, const char *prompt, int height, int width,
 	    button = ((key == KEY_LEFT ? --button : ++button) < 0)
 			? 2 : (button > 2 ? 0 : button);
 
+	    wbkgdset (dialog, 0);
 	    print_buttons(dialog, height, width, button);
+	    wbkgdset (dialog, dialog_attr & A_COLOR);
 	    wrefresh (menu);
 	    break;
 	case ' ':
