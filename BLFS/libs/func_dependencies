@@ -3,6 +3,26 @@
 # $Id$
 #
 
+#---------------------------------------------------------------------------#
+# This is a set of (recursive) functions for manipulating a dependency      #
+# tree. Everything would be "simple" without circular dependencies. We      #
+# would just have to build the tree using the packages.xml file, and to     #
+# a function for browsing it. But we need to be able to detect circular     #
+# dependencies and to possibly change the tree depending on the user        #
+# decision. This is why we keep with each node a record of the path from    #
+# the root to the node, which we call *link*.                               #
+# Layout of the tree:                                                       #
+# Each node is a file <nodeName>.dep, which contains the names of the       #
+# child nodes, one per line, except the first line is the *link*:           #
+# the link is a series of numbers (n1 n2 ... nN), describing the path from  #
+# the root to <nodeName>: n1 is the position of the first node of the path  #
+# in root.dep, n2 is the position of the second node of the path in         #
+# <node1>.dep and so on. The link is not needed for normal tree operations  #
+# (building a subtree or browsing the tree), but it allows to               #
+# check whether a dependency is circular, and to find its parent.           #
+#---------------------------------------------------------------------------#
+
+# Global variables:
 # A string of spaces for indenting:
 declare -a spaceSTR="                                                                   "
 declare -a exchange_triplet
@@ -12,7 +32,8 @@ declare -a exchange_triplet
 # If we want to build dependency_n before dependency_0,
 # no problem: we just prune the tree at dependency_n.
 # If we want to build first dependency_0, we need to
-# put dependency_n as a dependency of parent. The triplet
+# put dependency_n as a dependency of parent and build
+# the subtree from there. In this case, the triplet
 # above shall contain (parent dependency_0 dependency_n)
 
 #----------------------------#
@@ -22,14 +43,14 @@ generate_dependency_tree() { #
     function:   Create a subtree of the dependency tree
                 (recursive function)
     input vars: $1 : file with a list of targets
-		     the first line of the file is an array
-                     of links
+		     the first line of the file is the link
     externals:  vars: BLFS_XML
 		      DEP_LEVEL
-    modifies:   vars: none
-    returns:    nothing
-    output:     files: for each pkg with dependencies in $1,
-                       a file pkg.dep and its dependencies
+    modifies:   vars: exchange_triplet cointains the triplet when return is 1
+    returns:    0 if the tree has been successfully created
+                1 if we are backing up to the parent of a circular dep
+    output:     files: for each <pkg> with dependencies in $1,
+                       a file <pkg>.dep and its dependencies
     on error:   nothing
     on success: nothing
 inline_doc
@@ -46,12 +67,11 @@ local srootlink
 local dep_level
 
 {
-# BEWARE : the order of options matters : read -a -u6 rootlink hangs forever
-# (actually, the doc says -a array -u fd)
 # We use fd number 6 for input from DepFile, because we need 0 for user input
 read -u6 -a rootlink
 depth=${#rootlink[*]}
 dep_level=$DEP_LEVEL
+# For now, process only optional deps for the root packages.
 if (( $DEP_LEVEL > 2 )) && (( $depth > 1 )); then dep_level=2; fi
 srootlink="${rootlink[*]} "
 # start of Depfile
@@ -70,7 +90,7 @@ while read -u6 id_of_dep; do
     fi
 # Do not use "${rootlink[*]}" =~ "${otherlink[*]}": case rootlink=(1 11)
 # and otherlink=(1 1)
-    if [[ ${srootlink#"${otherlink[*]} "} != ${srootlink} ]]; then # circular dep
+    if [[ ${srootlink#"${otherlink[*]} "} != ${srootlink} ]]; then # cir. dep
 # First look for the other parent of this dependency.
 # The parent has the same link without the last entry.
 # We do not need otherlink anymore so just destroy the last element
@@ -84,26 +104,25 @@ of ${BOLD}${parent}${OFF}"
 of ${BOLD}${id_of_dep}${OFF}"
       echo -en "\nCirc: $depth${spaceSTR:0:$depth}${BOLD}${id_of_dep}${OFF} is a dependency \
 of ${BOLD}${DepFile%.dep}${OFF}"
-# If idofdep is the parent of DepFile, we can exchange them if required
-#      if grep -q ${DepFile%.dep} ${id_of_dep}.dep; then
 # we propose exchange always
-        echo -en "\nCirc: $depth${spaceSTR:0:$depth}Do you want to build ${id_of_dep} first? yes/no (no):"
-        read ANSWER
-        if [ x$ANSWER = "xyes" ] ; then  # exchange:
+      echo -en "\nCirc: $depth${spaceSTR:0:$depth}Do you want to build ${id_of_dep} first? yes/no (no):"
+      read ANSWER
+      if [ x$ANSWER = "xyes" ] ; then  # exchange:
 # set triplet and return 1
-          exchange_triplet=($parent $id_of_dep ${DepFile%.dep})
-          return 1
-        else # no exchange: prune
-          lines_to_remove="$lines_to_remove $id_of_dep"
-        fi
-#      else
-#        lines_to_remove="$lines_to_remove $id_of_dep"
-#      fi
+        exchange_triplet=($parent $id_of_dep ${DepFile%.dep})
+        return 1
+      else # no exchange: prune
+        lines_to_remove="$lines_to_remove $id_of_dep"
+      fi
     else # not circular: prune
       lines_to_remove="$lines_to_remove $id_of_dep"
-    fi
-    continue
-  fi
+    fi # circular or not
+    continue # this dependency has already been seen, and the associated
+             # subtree computed. We are done
+  fi # Has this entry already been seen?
+# So, this entry has not already been seen. Let's build the corresponding
+# subtree. Since decisions about circular deps can lead us to start again
+# dependencies, we restart until the flag is false.
   flag=true
   while [ $flag = true ]; do
     flag=false
@@ -112,31 +131,35 @@ of ${BOLD}${DepFile%.dep}${OFF}"
         -o ${id_of_dep}.dep \
         ../xsl/dependencies.xsl ../packages.xml
 
-    if [[ -f ${id_of_dep}.dep ]]; then
-      sed -i "1i${rootlink[*]} $count" ${id_of_dep}.dep
+    if [[ -f ${id_of_dep}.dep ]]; then # this dependency has dependencies
+      sed -i "1i${rootlink[*]} $count" ${id_of_dep}.dep # add the link
       generate_dependency_tree ${id_of_dep}.dep
 # Test return value, in case we exchange dependencies
       case $? in
        0) # Normal return
          ;;
        1) # We are backing up to parent
-         if [[ ${exchange_triplet} == ${DepFile%.dep} ]]
+         if [[ ${exchange_triplet} == ${DepFile%.dep} ]] # we are the parent
            then tree_erase ${id_of_dep}.dep
+# We want that our direct dep be ${exchange_triplet[2]} and that id_of_dep
+# be pulled in as an indirect dep, so exchange.
 # Just doing a sed -i "s@${id_of_dep}@${exchange_triplet[2]}@" $DepFile
 # is not good if $DepFile contains several times the same line
 # so first find the first line and then sed
            lineno=$(sed -n /${id_of_dep}/= $DepFile | head -n1)
            sed -i "${lineno}s@${id_of_dep}@${exchange_triplet[2]}@" $DepFile
            id_of_dep=${exchange_triplet[2]}
-           flag=true
-         else
+           flag=true # we have to regenerate the tree for the new dependency
+         else # we are not the parent. let's just back up one step
 # echo backing up to ${exchange_triplet} at ${DepFile%.dep}
            return 1
          fi
          ;;
       esac
-    else
+    else # id_of_dep has no dependencies, just record the link in a file
+         # and print
       echo "${rootlink[*]} $count" > ${id_of_dep}.dep
+      echo -en "\nLeaf: $(($depth+1))${spaceSTR:0:$(($depth+1))}${CYAN}${id_of_dep}${OFF}"
     fi
   done
 done
@@ -145,10 +168,10 @@ echo -en "\n End: $depth${spaceSTR:0:$depth}${GREEN}$DepFile${OFF}"
 # It may happen that a file is created with several times
 # the same line. Normally, all those lines but one
 # would be flagged to be removed (or all of them if
-# the dependency appeared before). a simple sed /$line/d
+# the dependency appeared before). A simple sed /$line/d
 # destroys all the lines. We should instead remove
 # only one for each appearance of it in lines_to_remove.
-# so first get the number of first line and then delete
+# so first get the position of last line and then delete
 # that line
 for line in $lines_to_remove
   do lineno=$(sed -n /^$line\$/= $DepFile | tail -n1)
