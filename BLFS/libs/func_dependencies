@@ -7,10 +7,10 @@
 # This is a set of (recursive) functions for manipulating a dependency      #
 # tree. Everything would be "simple" without circular dependencies. We      #
 # would just have to build the tree using the packages.xml file, and to     #
-# a function for browsing it. But we need to be able to detect circular     #
-# dependencies and to possibly change the tree depending on the user        #
-# decision. This is why we keep with each node a record of the path from    #
-# the root to the node, which we call *link*.                               #
+# provide a function for browsing it. But we need to be able to detect      #
+# circular dependencies and to possibly change the tree depending on the    #
+# user # decision. This is why we keep with each node a record of the path  #
+# from the root to the node, which we call *link*.                          #
 # Layout of the tree:                                                       #
 # Each node is a file <nodeName>.dep, which contains the names of the       #
 # child nodes, one per line, except the first line is the *link*:           #
@@ -42,13 +42,13 @@ generate_dependency_tree() { #
 : <<inline_doc
     function:   Create a subtree of the dependency tree
                 (recursive function)
-    input vars: $1 : file with a list of targets
+    input vars: $1 : file with a list of targets (child nodes)
 		     the first line of the file is the link
     externals:  vars: BLFS_XML
 		      DEP_LEVEL
-    modifies:   vars: exchange_triplet cointains the triplet when return is 1
     returns:    0 if the tree has been successfully created
                 1 if we are backing up to the parent of a circular dep
+    modifies:   vars: exchange_triplet contains the triplet when return is 1
     output:     files: for each <pkg> with dependencies in $1,
                        a file <pkg>.dep and its dependencies
     on error:   nothing
