@@ -71,7 +71,7 @@ local dep_level
 read -u6 -a rootlink
 depth=${#rootlink[*]}
 dep_level=$DEP_LEVEL
-# For now, process only optional deps for the root packages.
+# For now, process optional deps only for the root packages.
 if (( $DEP_LEVEL > 2 )) && (( $depth > 1 )); then dep_level=2; fi
 srootlink="${rootlink[*]} "
 # start of Depfile
