@@ -20,6 +20,18 @@
 # <node1>.dep and so on. The link is not needed for normal tree operations  #
 # (building a subtree or browsing the tree), but it allows to               #
 # check whether a dependency is circular, and to find its parent.           #
+# Circular dependencies:                                                    #
+# In case we find a cirdular dependency, it has the form :                  #
+# parent->dependency_0->...->dependency_n->dependency_0                     #
+# If we want to build dependency_n before dependency_0, no problem:         #
+# we just prune the tree at dependency_n. If we want to build first         #
+# dependency_0, we need to put dependency_n as a dependency of parent,      #
+# then erase and rebuild the subtree from there. Now, we may have met       #
+# another circular dependency in the subtree, and erasing the tree makes    #
+# us forget the decision which was made. So, after first generating the     #
+# list of dependencies from packages.xml, we keep the generated list in     #
+# a file <nodeName>.odep, which we modify according to the decision which   #
+# was made.                                                                 #
 #---------------------------------------------------------------------------#
 
 # Global variables:
@@ -27,14 +39,8 @@
 declare -a spaceSTR="                                                                   "
 declare -a exchange_triplet
 
-# In case we find a cirdular dependency, it has the form :
-# parent->dependency_0->...->dependency_n->dependency_0
-# If we want to build dependency_n before dependency_0,
-# no problem: we just prune the tree at dependency_n.
-# If we want to build first dependency_0, we need to
-# put dependency_n as a dependency of parent and build
-# the subtree from there. In this case, the triplet
-# above shall contain (parent dependency_0 dependency_n)
+# When we are backing up from a circular dependency, `exchange_triplet'
+# shall contain (parent dependency_0 dependency_n)
 
 #----------------------------#
 generate_dependency_tree() { #
@@ -74,7 +80,7 @@ dep_level=$DEP_LEVEL
 # For now, process optional deps only for the root packages.
 if (( $DEP_LEVEL > 2 )) && (( $depth > 1 )); then dep_level=2; fi
 srootlink="${rootlink[*]} "
-# start of Depfile
+# start of DepFile
 echo -en "\nNode: $depth${spaceSTR:0:$depth}${RED}$DepFile${OFF}"
 
 while read -u6 id_of_dep; do
@@ -111,8 +117,9 @@ of ${BOLD}${DepFile%.dep}${OFF}"
 # set triplet and return 1
         exchange_triplet=($parent $id_of_dep ${DepFile%.dep})
         return 1
-      else # no exchange: prune
+      else # no exchange: prune and remove the line(s) from odep...
         lines_to_remove="$lines_to_remove $id_of_dep"
+        sed -i "/$id_of_dep/d" ${DepFile/.dep/.odep}
       fi
     else # not circular: prune
       lines_to_remove="$lines_to_remove $id_of_dep"
@@ -126,13 +133,18 @@ of ${BOLD}${DepFile%.dep}${OFF}"
   flag=true
   while [ $flag = true ]; do
     flag=false
-    xsltproc --stringparam dependencies ${dep_level} \
+    if [ ! -f "${id_of_dep}.odep" ]; then
+      xsltproc --stringparam dependencies ${dep_level} \
         --stringparam idofdep $id_of_dep \
-        -o ${id_of_dep}.dep \
+        -o ${id_of_dep}.odep \
         ../xsl/dependencies.xsl ../packages.xml
+    fi
 
-    if [[ -f ${id_of_dep}.dep ]]; then # this dependency has dependencies
-      sed -i "1i${rootlink[*]} $count" ${id_of_dep}.dep # add the link
+# Use -s, because it may happen that after removing lines, .odep exists
+# but is empty.
+    if [[ -s ${id_of_dep}.odep ]]; then # this dependency has dependencies
+      sed "1i${rootlink[*]} $count" < ${id_of_dep}.odep \
+                                    > ${id_of_dep}.dep # add the link
       generate_dependency_tree ${id_of_dep}.dep
 # Test return value, in case we exchange dependencies
       case $? in
@@ -148,6 +160,10 @@ of ${BOLD}${DepFile%.dep}${OFF}"
 # so first find the first line and then sed
            lineno=$(sed -n /${id_of_dep}/= $DepFile | head -n1)
            sed -i "${lineno}s@${id_of_dep}@${exchange_triplet[2]}@" $DepFile
+# Do the same for the odep file:
+           local OdepFile=${DepFile/.dep/.odep}
+           lineno=$(sed -n /${id_of_dep}/= $OdepFile | head -n1)
+           sed -i "${lineno}s@${id_of_dep}@${exchange_triplet[2]}@" $OdepFile
            id_of_dep=${exchange_triplet[2]}
            flag=true # we have to regenerate the tree for the new dependency
          else # we are not the parent. let's just back up one step
