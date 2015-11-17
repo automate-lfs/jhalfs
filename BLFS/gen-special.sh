@@ -11,7 +11,10 @@
 #  - If a package is part of a group of xorg packages (proto, fonts, etc)
 #    there is no easy way to extract it from the xml. We use the ENTITY at
 #    the top of each file x7*.xml
-#  - If a pacakge is versioned but the version is not mentioned in the book
+#  - Some non-versioned packages are needed as dependencies of others: we
+#    attribute version 1.0.0 to them. It is just used to know if the package
+#    is installed, by checking inst-version.
+#  - If a package is versioned but the version is not mentioned in the book
 #    (currently only udev), we retrieve the version by other means
 #-------------------------------------------------------------------------
 # Arguments:
@@ -33,6 +36,10 @@ if test -z "${BLFS_DIR}"; then BLFS_DIR=$(cd $(dirname ${BLFS_XML})/.. ; pwd);fi
 # Packages whose version does not begin with a number
 EXCEPTIONS=$(grep 'ENTITY.*version[ ]*"[^0-9"&.].*[0-9]' $BLFS_XML |
              sed 's@^[^"]*"\([^"]*\)".*@\1@')
+
+# Non-versioned packages:
+NV_LIST="cacerts xorg-env kde-pre-install-config kf5-intro lxqt-pre-install \
+ojdk-conf tex-path"
 
 # Set PATH to be sure to find udevadm
 SAVPATH=$PATH
@@ -74,6 +81,36 @@ cat >$SPECIAL_FILE << EOF
 <!-- Although versioned, this page is not a package -->
     <xsl:when test="@id='xorg7'"/>
 EOF
+
+# Non-versionned packages. Add to NV_LIST if you need more.
+for nv_id in $NV_LIST; do
+  cat >>$SPECIAL_FILE << EOF
+    <xsl:when test="@id='$nv_id'">
+      <xsl:text>      </xsl:text>
+      <package><xsl:text>&#xA;        </xsl:text>
+        <xsl:element name="name">$nv_id</xsl:element>
+        <xsl:text>&#xA;        </xsl:text>
+        <xsl:element name="version">1.0.0</xsl:element>
+        <xsl:if
+            test="document(\$installed-packages)//package[name=current()/@id]">
+          <xsl:text>&#xA;        </xsl:text>
+          <xsl:element name="inst-version">
+            <xsl:value-of
+              select="document(\$installed-packages
+                              )//package[name=current()/@id]/version"/>
+          </xsl:element>
+        </xsl:if>
+<!-- Dependencies -->
+        <xsl:apply-templates select=".//para[@role='required' or
+                                             @role='recommended' or
+                                             @role='optional']"
+                             mode="dependency"/>
+<!-- End dependencies -->
+        <xsl:text>&#xA;      </xsl:text>
+      </package><xsl:text>&#xA;</xsl:text>
+    </xsl:when>
+EOF
+done
 
 # Taking packages inside x7proto etc, as versionned modules.
 # We also write a dependency expansion when a dep is of the form
