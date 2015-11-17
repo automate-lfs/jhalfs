@@ -90,11 +90,13 @@ generate_deps() {        #
 
   local -i index
   local DepDir=$1
-  rm -f $DepDir/*.dep
-  echo 1 > $DepDir/root.dep
+  rm -f $DepDir/*.{o,}dep
   for (( index=0 ; index < ${#TARGET[*]} ; index ++ )); do
-    echo ${TARGET[${index}]} >> $DepDir/root.dep
+    echo 1 ${TARGET[${index}]} >> $DepDir/root.odep
   done
+  echo 1 > $DepDir/root.dep
+  echo 1 >> $DepDir/root.dep
+  cat $DepDir/root.odep >> $DepDir/root.dep
 }
 
 #
@@ -145,7 +147,7 @@ mkdir $DepDir
 generate_deps $DepDir
 pushd $DepDir > /dev/null
 set +e
-generate_dependency_tree root.dep
+generate_dependency_tree root.dep 1
 echo
 LIST="$(tree_browse root.dep)"
 set -e

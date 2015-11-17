@@ -8,19 +8,33 @@
 # tree. Everything would be "simple" without circular dependencies. We      #
 # would just have to build the tree using the packages.xml file, and to     #
 # provide a function for browsing it. But we need to be able to detect      #
-# circular dependencies and to possibly change the tree depending on the    #
-# user # decision. This is why we keep with each node a record of the path  #
-# from the root to the node, which we call *link*.                          #
+# circular dependencies and to possibly change the tree depending on        #
+# priorities. This is why we keep with each node a record of the path       #
+# from the root to the node, which we call *link* and a record of the       #
+# successive priorities which we call *priolink*.                           #
+#                                                                           #
 # Layout of the tree:                                                       #
-# Each node is a file <nodeName>.dep, which contains the names of the       #
-# child nodes, one per line, except the first line is the *link*:           #
-# the link is a series of numbers (n1 n2 ... nN), describing the path from  #
-# the root to <nodeName>: n1 is the position of the first node of the path  #
-# in root.dep, n2 is the position of the second node of the path in         #
-# <node1>.dep and so on. The link is not needed for normal tree operations  #
-# (building a subtree or browsing the tree), but it allows to               #
-# check whether a dependency is circular, and to find its parent.           #
+#                                                                           #
+# A node of the tree is represented by a file <nodeName>.dep. We keep all   #
+# those files in the same directory. The root node file is "root.dep".      #
+# Files <nodeName>.dep have the following layout:                           #
+#   - the first line is the link: the link is an array of numbers           #
+#     (n1 n2 ... nN), describing the path from the root to <nodeName>: n1   #
+#     is the position of the first node of the path in root.dep, n2 is the  #
+#     position of the second node of the path in <node1>.dep and so on. The #
+#     link is not needed for normal tree operations (building a subtree or  #
+#     browsing the tree), but it allows to check whether a dependency is    #
+#     circular, and to find its parent.                                     #
+#   - the second line is an array of priorities (p1 p2 ... pN), giving the  #
+#     priority (1=required, 2=recommended, 3=optional) of each dependency   #
+#     in the link.                                                          #
+#   - each subsequent line is of the form "p <depname>", where p is the     #
+#     priority as above, and <depname> is the name of the dependency. The   #
+#     position which is recorded in the link is the number of the line      #
+#     minus 2.                                                              #
+#                                                                           #
 # Circular dependencies:                                                    #
+#                                                                           #
 # In case we find a cirdular dependency, it has the form :                  #
 # parent->dependency_0->...->dependency_n->dependency_0                     #
 # If we want to build dependency_n before dependency_0, no problem:         #
@@ -37,10 +51,9 @@
 # Global variables:
 # A string of spaces for indenting:
 declare -a spaceSTR="                                                                   "
-declare -a exchange_triplet
-
 # When we are backing up from a circular dependency, `exchange_triplet'
-# shall contain (parent dependency_0 dependency_n)
+# shall contain (parent dependency_0 dependency_n):
+declare -a exchange_triplet
 
 #----------------------------#
 generate_dependency_tree() { #
@@ -50,8 +63,11 @@ generate_dependency_tree() { #
                 (recursive function)
     input vars: $1 : file with a list of targets (child nodes)
 		     the first line of the file is the link
-    externals:  vars: BLFS_XML
-		      DEP_LEVEL
+                $2 : priority (1=req, 2=rec, 3=opt)
+    externals:  vars: DEP_LEVEL contains the 1 if we want to build the
+                                tree only for required dependencies,
+                                2 if we want also recommended ones,
+                                and 3 if we want optional ones too.
     returns:    0 if the tree has been successfully created
                 1 if we are backing up to the parent of a circular dep
     modifies:   vars: exchange_triplet contains the triplet when return is 1
@@ -62,7 +78,9 @@ generate_dependency_tree() { #
 inline_doc
 
 local DepFile=$1
+local priority=$2
 local -a rootlink
+local -a priolink
 local -a otherlink
 local -i depth
 local -i count=0
@@ -71,19 +89,33 @@ local parent
 local lines_to_remove=
 local srootlink
 local dep_level
+local priostring
+local dpriostring
+local i
 
 {
 # We use fd number 6 for input from DepFile, because we need 0 for user input
 read -u6 -a rootlink
 depth=${#rootlink[*]}
+read -u6 -a priolink
 dep_level=$DEP_LEVEL
 # For now, process optional deps only for the root packages.
 if (( $DEP_LEVEL > 2 )) && (( $depth > 1 )); then dep_level=2; fi
 srootlink="${rootlink[*]} "
+case $priority in
+    1) priostring=required ;;
+    2) priostring=recommended ;;
+    3) priostring=optional ;;
+esac
 # start of DepFile
-echo -en "\nNode: $depth${spaceSTR:0:$depth}${RED}$DepFile${OFF}"
+echo -en "\nNode: $depth${spaceSTR:0:$depth}${RED}$DepFile${OFF} $priostring"
 
-while read -u6 id_of_dep; do
+while read -u6 prio_of_dep id_of_dep; do
+case $prio_of_dep in
+    1) dpriostring=required ;;
+    2) dpriostring=recommended ;;
+    3) dpriostring=optional ;;
+esac
 # count entries in file
   (( count++ ))
 # Has this entry already been seen?
@@ -97,31 +129,27 @@ while read -u6 id_of_dep; do
 # Do not use "${rootlink[*]}" =~ "${otherlink[*]}": case rootlink=(1 11)
 # and otherlink=(1 1)
     if [[ ${srootlink#"${otherlink[*]} "} != ${srootlink} ]]; then # cir. dep
+      echo -en "\nCirc: $((depth+1))${spaceSTR:0:$((depth+1))}${YELLOW}${id_of_dep}${OFF} $dpriostring"
 # First look for the other parent of this dependency.
 # The parent has the same link without the last entry.
 # We do not need otherlink anymore so just destroy the last element
-      unset otherlink[${#otherlink[*]}-1]
+      unset otherlink[-1]
       parent=$(grep ^"${otherlink[*]}"\$ -l *)
       parent=${parent%.dep}
-      echo -en "\nCirc: $depth${spaceSTR:0:$depth}${BLUE}Circular dependency detected:${OFF}"
-      echo -en "\nCirc: $depth${spaceSTR:0:$depth}${BOLD}${id_of_dep}${OFF} is a dependency \
-of ${BOLD}${parent}${OFF}"
-      echo -en "\nCirc: $depth${spaceSTR:0:$depth}${BOLD}${DepFile%.dep}${OFF} is a dependency \
-of ${BOLD}${id_of_dep}${OFF}"
-      echo -en "\nCirc: $depth${spaceSTR:0:$depth}${BOLD}${id_of_dep}${OFF} is a dependency \
-of ${BOLD}${DepFile%.dep}${OFF}"
-# we propose exchange always
-      echo -en "\nCirc: $depth${spaceSTR:0:$depth}Do you want to build ${id_of_dep} first? yes/no (no):"
-      read ANSWER
-      if [ x$ANSWER = "xyes" ] ; then  # exchange:
-# set triplet and return 1
-        exchange_triplet=($parent $id_of_dep ${DepFile%.dep})
-        return 1
-      else # no exchange: prune and remove the line(s) from odep...
+# Find lowest priority in branch from parent to DepFile:
+      p2=0
+      for (( i=${#otherlink[*]}; i < $depth ; i++ )) ; do
+        if (( ${priolink[i]} > $p2 )); then p2=${priolink[i]}; fi
+      done
+      if (( $prio_of_dep >= $p2 )); then # prune
         lines_to_remove="$lines_to_remove $id_of_dep"
         sed -i "/$id_of_dep/d" ${DepFile/.dep/.odep}
+      else #backup with prio priority
+        exchange_triplet=($parent $id_of_dep ${DepFile%.dep})
+        return $priority
       fi
-    else # not circular: prune
+    else # not circular: prune tree (but not .odep, since it may happen that
+         # the tree is destroyed and rebuilt in another order
       lines_to_remove="$lines_to_remove $id_of_dep"
     fi # circular or not
     continue # this dependency has already been seen, and the associated
@@ -143,16 +171,25 @@ of ${BOLD}${DepFile%.dep}${OFF}"
 # Use -s, because it may happen that after removing lines, .odep exists
 # but is empty.
     if [[ -s ${id_of_dep}.odep ]]; then # this dependency has dependencies
-      sed "1i${rootlink[*]} $count" < ${id_of_dep}.odep \
-                                    > ${id_of_dep}.dep # add the link
-      generate_dependency_tree ${id_of_dep}.dep
+      sed "1i${rootlink[*]} $count\\
+${priolink[*]} $prio_of_dep" < ${id_of_dep}.odep \
+                             > ${id_of_dep}.dep # add link and priolink
+      generate_dependency_tree ${id_of_dep}.dep $prio_of_dep
 # Test return value, in case we exchange dependencies
-      case $? in
+      p2=$?
+      case $p2 in
        0) # Normal return
          ;;
-       1) # We are backing up to parent
-         if [[ ${exchange_triplet} == ${DepFile%.dep} ]] # we are the parent
-           then tree_erase ${id_of_dep}.dep
+       [123]) # We are backing up to parent
+         if [[ ${exchange_triplet} == ${DepFile%.dep} ]] ; then
+# We are the parent!
+# First, we have to find the parent of our new direct dep, and remove
+# the new direct dep from the parent.odep:
+           otherlink=($(head -n1 ${exchange_triplet[2]}.dep))
+           unset otherlink[-1]
+           parent=$(grep -l ^"${otherlink[*]}"\$ *.dep)
+           sed -i /[[:digit:]]\ ${exchange_triplet[2]}\$/d ${parent/.dep/.odep}
+           tree_erase ${id_of_dep}.dep
 # We want that our direct dep be ${exchange_triplet[2]} and that id_of_dep
 # be pulled in as an indirect dep, so exchange.
 # Just doing a sed -i "s@${id_of_dep}@${exchange_triplet[2]}@" $DepFile
@@ -166,16 +203,23 @@ of ${BOLD}${DepFile%.dep}${OFF}"
            sed -i "${lineno}s@${id_of_dep}@${exchange_triplet[2]}@" $OdepFile
            id_of_dep=${exchange_triplet[2]}
            flag=true # we have to regenerate the tree for the new dependency
-         else # we are not the parent. let's just back up one step
-# echo backing up to ${exchange_triplet} at ${DepFile%.dep}
-           return 1
+         else
+# We are not the parent. If our priority is greater than p2
+# we have to change the triplet and return priority, else return current p2.
+# echo (DEBUG) backing up to ${exchange_triplet} at ${DepFile%.dep}
+           if (( $priority > $p2 )); then
+             exchange_triplet[2]=${DepFile%.dep}
+             return $priority
+           else
+             return $p2
+           fi
          fi
          ;;
       esac
     else # id_of_dep has no dependencies, just record the link in a file
          # and print
       echo "${rootlink[*]} $count" > ${id_of_dep}.dep
-      echo -en "\nLeaf: $(($depth+1))${spaceSTR:0:$(($depth+1))}${CYAN}${id_of_dep}${OFF}"
+      echo -en "\nLeaf: $(($depth+1))${spaceSTR:0:$(($depth+1))}${CYAN}${id_of_dep}${OFF} $dpriostring"
     fi
   done
 done
@@ -190,7 +234,7 @@ echo -en "\n End: $depth${spaceSTR:0:$depth}${GREEN}$DepFile${OFF}"
 # so first get the position of last line and then delete
 # that line
 for line in $lines_to_remove
-  do lineno=$(sed -n /^$line\$/= $DepFile | tail -n1)
+  do lineno=$(sed -n /^[[:digit:]]\ $line\$/= $DepFile | tail -n1)
   sed -i ${lineno}d $DepFile
 done
 return 0
@@ -203,7 +247,7 @@ local file=$1
 local f
 
 #echo file=$file
-for f in $(grep '[^0-9 ]' $file); do
+for f in $(grep '[^0-9 ]' $file | sed 's/.* //'); do
 #  echo f=$f
   if grep -q '[^0-9 ]' ${f}.dep ; then
     tree_browse ${f}.dep
@@ -222,7 +266,7 @@ local -a rootlink2
 
 #echo file=$file
 rootlink=($(head -n1 $file))
-for f in $(grep '[^0-9 ]' $file); do
+for f in $(grep '[^0-9 ]' $file | sed 's/.* //'); do
 #  echo "    f"=$f
   if [ -f ${f}.dep ]; then
     rootlink2=($(head -n1 ${f}.dep))
