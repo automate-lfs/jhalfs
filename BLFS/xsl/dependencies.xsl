@@ -55,7 +55,6 @@
     <xsl:param name="priority"/>
     <xsl:variable name="depname">
       <xsl:choose>
-        <xsl:when test="@name='xorg-env'"/>
         <xsl:when test="@name='x-window-system'">xinit</xsl:when>
         <xsl:when test="@name='xorg7'">xinit</xsl:when>
         <xsl:when test="@name='server-mail'">

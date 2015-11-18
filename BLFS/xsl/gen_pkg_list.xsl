@@ -64,7 +64,7 @@
           <xsl:value-of select="title"/>
         </xsl:element>
         <xsl:text>&#xA;</xsl:text>
-        <xsl:apply-templates select=".//sect1[@xreflabel]">
+        <xsl:apply-templates select=".//sect1">
           <xsl:sort select="@id"/>
         </xsl:apply-templates>
       <xsl:text>    </xsl:text>
@@ -92,17 +92,14 @@
             <xsl:value-of select="title"/>
             </xsl:element>
           <xsl:text>&#xA;</xsl:text>
-<!-- Do not use .//*, which would include self.
-     Calls the template of specialCases.xsl,
-     which calls the "normal" template when the
-     case is normal. -->
+<!-- Do not use .//*, which would include self. -->
           <xsl:apply-templates
             select="descendant::node()[contains(translate(@xreflabel,
                                                          '123456789',
                                                          '000000000'),
                                                 '-0')    
                                       ]"
-            mode="special">
+            mode="normal">
             <xsl:sort select="@id"/>
           </xsl:apply-templates>
           <xsl:text>      </xsl:text>

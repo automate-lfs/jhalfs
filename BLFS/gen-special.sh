@@ -78,8 +78,13 @@ cat >$SPECIAL_FILE << EOF
         <xsl:text>&#xA;      </xsl:text>
       </package><xsl:text>&#xA;</xsl:text>
     </xsl:when>
-<!-- Although versioned, this page is not a package -->
-    <xsl:when test="@id='xorg7'"/>
+<!-- Although versioned, this page is not a package. But
+     the sect2 with id "xorg-env" is referred to at several
+     places in the book. We have added it to the list of non
+     versioned packages. -->
+    <xsl:when test="@id='xorg7'">
+      <xsl:apply-templates select="child::sect2" mode="special"/>
+    </xsl:when>
 EOF
 
 # Non-versionned packages. Add to NV_LIST if you need more.
