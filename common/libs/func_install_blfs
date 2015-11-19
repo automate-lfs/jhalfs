@@ -128,9 +128,16 @@ yes "yes" | $BUILDDIR$BLFS_ROOT/gen_pkg_book.sh  $BUILDDIR$BLFS_ROOT
 sudo rm -rf $BUILDDIR$BLFS_ROOT/scripts
 mv scripts $BUILDDIR$BLFS_ROOT
 
+# The  book instructions for CA certificates contains downloading
+# instructions, which should not be used here, so:
+if test -f $BUILDDIR$BLFS_ROOT/scripts/*cacerts; then
+  sed -i '/URL=/,/^unset/d' $BUILDDIR$BLFS_ROOT/scripts/*cacerts
+fi
+
 # Generates a list containing download and copying instructions for tarballs
 echo -e '#!/bin/bash\nset -e\n' > $BUILDDIR$BLFS_ROOT/download_script
-sed -n -e '/PACKAGE=/,/md5sum/p' \
+sed -n -e '/PACKAGE=/,/^fi/p' \
+       -e '/|[ ]*md5sum/p' \
        -e '/PACKAGE1=/,/^fi/p' \
        -e '/PATCH=/,/^fi/p' \
        -e '/URL=/,/^fi/p' \
