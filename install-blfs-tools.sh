@@ -76,6 +76,7 @@ case $BLFS_BRANCH_ID in
 esac
 
 # Check for build prerequisites.
+declare -r dotSTR=".................." # needed for proper display of versions
 echo
   check_alfs_tools
   check_blfs_tools
