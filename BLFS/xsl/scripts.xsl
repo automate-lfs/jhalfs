@@ -98,19 +98,30 @@
       </xsl:when>
       <xsl:when test="@role = 'installation'">
         <xsl:text>
-if [ "${PACKAGE%.zip}" = "${PACKAGE}" ]; then
- if [[ -e unpacked ]] ; then
-  UNPACKDIR=`grep '[^./]\+' unpacked | head -n1 | sed 's@^./@@;s@/.*@@'`
-  [[ -n $UNPACKDIR ]] &amp;&amp; [[ -d $UNPACKDIR ]] &amp;&amp; rm -rf $UNPACKDIR
- fi
- tar -xvf $PACKAGE > unpacked
- UNPACKDIR=`grep '[^./]\+' unpacked | head -n1 | sed 's@^./@@;s@/.*@@'`
-else
- UNPACKDIR=${PACKAGE%.zip}
- [[ -n $UNPACKDIR ]] &amp;&amp; [[ -d $UNPACKDIR ]] &amp;&amp; rm -rf $UNPACKDIR
- unzip -d $UNPACKDIR ${PACKAGE}
-fi
-cd $UNPACKDIR&#xA;&#xA;</xsl:text>
+find . -maxdepth 1 -mindepth 1 -type d | xargs sudo rm -rf
+case $PACKAGE in
+  *.tar.gz|*.tar.bz2|*.tar.xz|*.tgz)
+     tar -xvf $PACKAGE &gt; unpacked
+     UNPACKDIR=`grep '[^./]\+' unpacked | head -n1 | sed 's@^./@@;s@/.*@@'`
+     ;;
+  *.zip)
+     zipinfo -1 $PACKAGE &gt; unpacked
+     UNPACKDIR="$(sed 's@/.*@@' unpacked | uniq )"
+     if test $(wc -w &lt;&lt;&lt; $UNPACKDIR) -eq 1; then
+       unzip $PACKAGE
+     else
+       UNPACKDIR=${PACKAGE%.zip}
+       unzip -d $UNPACKDIR $PACKAGE
+     fi
+     ;;
+  *)
+     UNPACKDIR=$PKG_DIR-build
+     mkdir $UNPACKDIR
+     cp $PACKAGE $UNPACKDIR
+     ;;
+esac
+cd $UNPACKDIR&#xA;
+</xsl:text>
         <xsl:apply-templates select=".//screen | .//para/command"/>
         <xsl:if test="$sudo = 'y'">
           <xsl:text>sudo /sbin/</xsl:text>
