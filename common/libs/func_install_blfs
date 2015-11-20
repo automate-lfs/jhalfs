@@ -131,7 +131,7 @@ mv scripts $BUILDDIR$BLFS_ROOT
 # The  book instructions for CA certificates contains downloading
 # instructions, which should not be used here, so:
 if test -f $BUILDDIR$BLFS_ROOT/scripts/*cacerts; then
-  sed -i '/URL=/,/^unset/d' $BUILDDIR$BLFS_ROOT/scripts/*cacerts
+  sed -i '/URL=/,/^wget/d' $BUILDDIR$BLFS_ROOT/scripts/*cacerts
 fi
 
 # Generates a list containing download and copying instructions for tarballs
