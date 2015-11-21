@@ -246,7 +246,7 @@
 
   <xsl:template match="para" mode="dependency">
     <xsl:variable name="status" select="./@role"/>
-<!-- No ulink for now (see special case for Perl modules) -->
+<!-- First internal dependencies -->
     <xsl:for-each select="./xref">
       <xsl:choose>
 <!-- Avoid depending of myself -->
@@ -276,6 +276,20 @@
           </xsl:element>
         </xsl:otherwise>
       </xsl:choose>
+    </xsl:for-each>
+<!-- then external dependencies -->
+    <xsl:for-each select="./ulink">
+      <xsl:text>
+            </xsl:text>
+      <xsl:element name="dependency">
+        <xsl:attribute name="status">
+          <xsl:value-of select="$status"/>
+        </xsl:attribute>
+        <xsl:attribute name="name">
+          <xsl:value-of select="normalize-space(text())"/>
+        </xsl:attribute>
+        <xsl:attribute name="type">link</xsl:attribute>
+      </xsl:element>
     </xsl:for-each>
   </xsl:template>
 
