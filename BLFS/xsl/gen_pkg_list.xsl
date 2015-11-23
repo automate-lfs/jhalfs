@@ -286,8 +286,8 @@
           <xsl:value-of select="$status"/>
         </xsl:attribute>
         <xsl:attribute name="name">
-          <xsl:value-of select="normalize-space(text())"/>
         </xsl:attribute>
+          <xsl:value-of select="translate(normalize-space(text()),' ','-')"/>
         <xsl:attribute name="type">link</xsl:attribute>
       </xsl:element>
     </xsl:for-each>
