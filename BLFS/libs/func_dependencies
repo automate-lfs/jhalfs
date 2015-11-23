@@ -64,10 +64,15 @@ generate_dependency_tree() { #
     input vars: $1 : file with a list of targets (child nodes)
 		     the first line of the file is the link
                 $2 : priority (1=req, 2=rec, 3=opt)
-    externals:  vars: DEP_LEVEL contains the 1 if we want to build the
-                                tree only for required dependencies,
-                                2 if we want also recommended ones,
-                                and 3 if we want optional ones too.
+    externals:  vars:  DEP_LEVEL   contains 1 if we want to build the
+                                   tree only for required dependencies,
+                                   2 if we want also recommended ones,
+                                   and 3 if we want optional ones too.
+                       MAIL_SERVER contains the name of the MTA we want to use.
+                files: ../xsl/dependencies.xsl: stylesheet for creating the
+                                               .dep files
+                       ../packages.xml:         Files containing packages id
+                                                and dependencies
     returns:    0 if the tree has been successfully created
                 1 if we are backing up to the parent of a circular dep
     modifies:   vars: exchange_triplet contains the triplet when return is 1
@@ -149,7 +154,7 @@ esac
         return $priority
       fi
     else # not circular: prune tree (but not .odep, since it may happen that
-         # the tree is destroyed and rebuilt in another order
+         # the tree is destroyed and rebuilt in another order)
       lines_to_remove="$lines_to_remove $id_of_dep"
     fi # circular or not
     continue # this dependency has already been seen, and the associated
@@ -164,6 +169,7 @@ esac
     if [ ! -f "${id_of_dep}.odep" ]; then
       xsltproc --stringparam dependencies ${dep_level} \
         --stringparam idofdep $id_of_dep \
+        --stringparam MTA $MAIL_SERVER   \
         -o ${id_of_dep}.odep \
         ../xsl/dependencies.xsl ../packages.xml
     fi
