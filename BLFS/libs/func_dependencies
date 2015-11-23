@@ -71,7 +71,7 @@ generate_dependency_tree() { #
                        MAIL_SERVER contains the name of the MTA we want to use.
                 files: ../xsl/dependencies.xsl: stylesheet for creating the
                                                .dep files
-                       ../packages.xml:         Files containing packages id
+                       ../packages.xml:         File containing packages id
                                                 and dependencies
     returns:    0 if the tree has been successfully created
                 1 if we are backing up to the parent of a circular dep
@@ -111,6 +111,7 @@ case $priority in
     1) priostring=required ;;
     2) priostring=recommended ;;
     3) priostring=optional ;;
+    4) priostring=external ;;
 esac
 # start of DepFile
 echo -en "\nNode: $depth${spaceSTR:0:$depth}${RED}$DepFile${OFF} $priostring"
@@ -120,6 +121,7 @@ case $prio_of_dep in
     1) dpriostring=required ;;
     2) dpriostring=recommended ;;
     3) dpriostring=optional ;;
+    4) dpriostring=external ;;
 esac
 # count entries in file
   (( count++ ))
@@ -160,7 +162,14 @@ esac
     continue # this dependency has already been seen, and the associated
              # subtree computed. We are done
   fi # Has this entry already been seen?
-# So, this entry has not already been seen. Let's build the corresponding
+# So, this entry has not already been seen.
+# If this is an external dep, just display it and go to next dep:
+  if [ "$prio_of_dep" -eq 4 ]; then
+    echo "${rootlink[*]} $count" > ${id_of_dep}.dep
+    echo -en "\nLeaf: $(($depth+1))${spaceSTR:0:$(($depth+1))}${CYAN}${id_of_dep}${OFF} $dpriostring"
+    continue
+  fi
+# Otherwise, let's build the corresponding
 # subtree. Since decisions about circular deps can lead us to start again
 # dependencies, we restart until the flag is false.
   flag=true

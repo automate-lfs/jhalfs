@@ -83,7 +83,14 @@
       <xsl:with-param name="priority" select="1"/>
     </xsl:apply-templates>
     <xsl:if test="number($install_it)">
-      <xsl:value-of select="$priority"/>
+      <xsl:choose>
+        <xsl:when test="@type='link'">
+          <xsl:text>4</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$priority"/>
+        </xsl:otherwise>
+      </xsl:choose>
       <xsl:text> </xsl:text>
       <xsl:value-of select="$depname"/>
       <xsl:text>&#xA;</xsl:text>
