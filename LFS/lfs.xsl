@@ -192,9 +192,12 @@ esac
 </xsl:text>
       </xsl:if>
 <!-- Attr man/man2 pages are already installed by man-pages. As of
-     March 2013, they are the same pages. Check it sometimes... -->
+     March 2013, they are the same pages.
+     November 2015: now they are more accurate
+     in man-pages, and the man5 section is also in man-pages... -->
       <xsl:if test="../@id = 'ch-system-attr'">
         <xsl:text>rm -fv $PKG_DEST/usr/share/man/man2/*
+rm -fv $PKG_DEST/usr/share/man/man5/*
 </xsl:text>
       </xsl:if>
 <!-- nologin is installed by util-linux. remove it from shadow -->
