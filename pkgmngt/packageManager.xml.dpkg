@@ -9,15 +9,15 @@
 <!ENTITY before "Must be installed before">
 <!ENTITY external "Optional dependencies">
 <!ENTITY debian-pool "http://ftp2.fr.debian.org/debian/pool/main/">
-<!ENTITY dpkg-version "1.17.22">
-<!ENTITY dpkg-size "4,259 KB">
+<!ENTITY dpkg-version "1.18.3">
+<!ENTITY dpkg-size "4,258 KB">
 <!ENTITY dpkg-url "&debian-pool;d/dpkg/dpkg_&dpkg-version;.tar.xz">
-<!ENTITY dpkg-md5 "c9c46c5318c98c9162fbd03d24f2f95b">
+<!ENTITY dpkg-md5 "a5ca138121cc37c8fb0083462a3b4d47">
 <!ENTITY dpkg-home "http://wiki.debian.org/Teams/Dpkg">
-<!ENTITY dpkg-ch5-du "54 MB">
-<!ENTITY dpkg-ch5-sbu "0.3 SBU">
-<!ENTITY dpkg-ch6-du "63 MB">
-<!ENTITY dpkg-ch6-sbu "0.5 SBU">
+<!ENTITY dpkg-ch5-du "56 MB">
+<!ENTITY dpkg-ch5-sbu "0.2 SBU">
+<!ENTITY dpkg-ch6-du "66 MB">
+<!ENTITY dpkg-ch6-sbu "0.3 SBU">
 ]>
 <article>
 
@@ -103,10 +103,7 @@
     <title>Installation of Dpkg</title>
 
     <para>Since Debian is shipping its own package, all patches have already
-    been applied. Nevertheless there is either a bug or something
-    I do not understand... Apply this:</para>
-
-    <screen><userinput remap="pre">sed -i '/compress_filter(s/,/va_start/s/^$/compressor_fixup_params(params);\n/' lib/dpkg/compress.c</userinput></screen>
+    been applied.</para>
 
     <para> Configure the package:</para>
 

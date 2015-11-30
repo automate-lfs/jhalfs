@@ -98,7 +98,11 @@
       </xsl:when>
       <xsl:when test="@role = 'installation'">
         <xsl:text>
-find . -maxdepth 1 -mindepth 1 -type d | xargs sudo rm -rf
+find . -maxdepth 1 -mindepth 1 -type d | xargs </xsl:text>
+        <xsl:if test="$sudo='y'">
+          <xsl:text>sudo </xsl:text>
+        </xsl:if>
+        <xsl:text>rm -rf
 case $PACKAGE in
   *.tar.gz|*.tar.bz2|*.tar.xz|*.tgz)
      tar -xvf $PACKAGE &gt; unpacked
