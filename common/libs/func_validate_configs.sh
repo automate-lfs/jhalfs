@@ -47,8 +47,11 @@ inline_doc
   local -r CLFS2_build="STRIP         VIMLANG $BUILD_common"
   local -r CLFS3_build="                      $BUILD_common"
 
+  # System Settings by book (only LFS for now)
+  local -r LFS_system="HOSTNAME INTERFACE IP_ADDR GATEWAY PREFIX BROADCAST DOMAIN DNS1 DNS2 FONT CONSOLE_MAP UNICODE KEYMAP"
+
   # Full list of books settings
-  local -r   lfs_PARAM_LIST="$LFS_book   $GENERAL_common $LFS_build   $ADVANCED_chroot $ADVANCED_common"
+  local -r   lfs_PARAM_LIST="$LFS_book   $GENERAL_common $LFS_build $LFS_system  $ADVANCED_chroot $ADVANCED_common"
   local -r  hlfs_PARAM_LIST="$HLFS_book  $GENERAL_common $HLFS_build  $ADVANCED_chroot $ADVANCED_common"
   local -r  clfs_PARAM_LIST="$CLFS_book  $GENERAL_common $CLFS_build  $ADVANCED_chroot $ADVANCED_common"
   local -r clfs2_PARAM_LIST="$CLFS2_book $GENERAL_common $CLFS2_build                  $ADVANCED_common"
@@ -183,6 +186,11 @@ inline_doc
                  write_error_and_die
                echo
                ;;
+
+        # Treatment of HOSTNAME
+      HOSTNAME)  echo -e "`eval echo $PARAM_VALS`"
+                 [[ "${!config_param}" = "**EDIT ME**" ]] && write_error_and_die
+                 ;;
 
       # Display non-validated envars found in ${PROGNAME}_PARAM_LIST
       * ) echo -e "`eval echo $PARAM_VALS`" ;;

@@ -8,6 +8,8 @@
       extension-element-prefixes="exsl"
       version="1.0">
 
+<!-- Parameters -->
+
   <!-- use package management ?
        n = no, original behavior
        y = yes, add PKG_DEST to scripts in install commands of chapter06-08
@@ -16,7 +18,7 @@
  
   <!-- Run test suites?
        0 = none
-       1 = only chapter06 Glibc, GCC and Binutils testsuites
+       1 = only chapter06 critical testsuites
        2 = all chapter06 testsuites
        3 = all chapter05 and chapter06 testsuites
   -->
@@ -43,6 +45,22 @@
   <!-- Install the whole set of locales -->
   <xsl:param name='full-locale' select='n'/>
   
+  <!-- Hostname -->
+  <xsl:param name='hostname' select='"HOSTNAME"'/>
+
+  <!-- Network parameters: interface, ip, gateway, prefix, broadcast, domain
+       and nameservers -->
+  <xsl:param name='interface'   select='eth0'/>
+  <xsl:param name='ip'          select='"10.0.2.9"'/>
+  <xsl:param name='gateway'     select='"10.0.2.2"'/>
+  <xsl:param name='prefix'      select='24'/>
+  <xsl:param name='broadcast'   select='"10.0.2.255"'/>
+  <xsl:param name='domain'      select='"lfs.org"'/>
+  <xsl:param name='nameserver1' select='"10.0.2.3"'/>
+  <xsl:param name='nameserver2' select='"8.8.8.8"'/>
+
+<!-- End parameters -->
+
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
   </xsl:template>
@@ -499,6 +517,29 @@ unset OLD_PKGDIR
       <xsl:when test="contains(string(.),'&lt;ll&gt;_&lt;CC&gt;')">
         <xsl:value-of select="$lang"/>
       </xsl:when>
+      <xsl:when test="contains(string(.),'Domain')">
+        <xsl:value-of select="$domain"/>
+      </xsl:when>
+      <xsl:when test="contains(string(.),'primary')">
+        <xsl:value-of select="$nameserver1"/>
+      </xsl:when>
+      <xsl:when test="contains(string(.),'secondary')">
+        <xsl:value-of select="$nameserver2"/>
+      </xsl:when>
+      <xsl:when test="contains(string(.),'192.168.1.1')">
+        <xsl:value-of select="$ip"/>
+      </xsl:when>
+      <xsl:when test="contains(string(.),'HOSTNAME')">
+        <xsl:value-of select="$hostname"/>
+        <xsl:text>.</xsl:text>
+        <xsl:value-of select="$domain"/>
+      </xsl:when>
+      <xsl:when test="contains(string(.),'alias')">
+        <xsl:value-of select="$hostname"/>
+      </xsl:when>
+      <xsl:when test="contains(string(.),'&lt;lfs&gt;')">
+        <xsl:value-of select="$hostname"/>
+      </xsl:when>
       <xsl:otherwise>
         <xsl:text>**EDITME</xsl:text>
         <xsl:apply-templates/>
@@ -507,6 +548,92 @@ unset OLD_PKGDIR
     </xsl:choose>
   </xsl:template>
   
+  <xsl:template match="literal">
+    <xsl:choose>
+      <xsl:when test="contains(string(),'ONBOOT')">
+        <xsl:call-template name="outputnet">
+          <xsl:with-param name="netstring" select="string()"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="outputnet">
+    <xsl:param name="netstring" select="''"/>
+    <!-- We suppose that book example has the following values:
+         - interface: eth0
+         - ip: 192.168.1.1
+         - gateway: 192.168.1.2
+         - prefix: 24
+         - broadcast: 192.168.1.255
+         Change below if book changes -->
+    <xsl:choose>
+      <xsl:when test="contains($netstring,'eth0')">
+        <xsl:call-template name="outputnet">
+          <xsl:with-param name="netstring"
+                          select="substring-before($netstring,'eth0')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$interface"/>
+        <xsl:call-template name="outputnet">
+          <xsl:with-param name="netstring"
+                          select="substring-after($netstring,'eth0')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($netstring,'192.168.1.1')">
+        <xsl:call-template name="outputnet">
+          <xsl:with-param name="netstring"
+                          select="substring-before($netstring,'192.168.1.1')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$ip"/>
+        <xsl:call-template name="outputnet">
+          <xsl:with-param name="netstring"
+                          select="substring-after($netstring,'192.168.1.1')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <!-- must test this before the following, because 192.168.1.255 contains
+           192.168.1.2! -->
+      <xsl:when test="contains($netstring,'192.168.1.255')">
+        <xsl:call-template name="outputnet">
+          <xsl:with-param name="netstring"
+                          select="substring-before($netstring,'192.168.1.255')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$broadcast"/>
+        <xsl:call-template name="outputnet">
+          <xsl:with-param name="netstring"
+                          select="substring-after($netstring,'192.168.1.255')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($netstring,'192.168.1.2')">
+        <xsl:call-template name="outputnet">
+          <xsl:with-param name="netstring"
+                          select="substring-before($netstring,'192.168.1.2')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$gateway"/>
+        <xsl:call-template name="outputnet">
+          <xsl:with-param name="netstring"
+                          select="substring-after($netstring,'192.168.1.2')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($netstring,'24')">
+        <xsl:call-template name="outputnet">
+          <xsl:with-param name="netstring"
+                          select="substring-before($netstring,'24')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$prefix"/>
+        <xsl:call-template name="outputnet">
+          <xsl:with-param name="netstring"
+                          select="substring-after($netstring,'24')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$netstring"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
   <xsl:template name="outputpkgdest">
     <xsl:param name="outputstring" select="foo"/>
     <xsl:choose>
