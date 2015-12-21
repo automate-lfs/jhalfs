@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Id:$ -->
+<!-- $Id$ -->
 <!-- Extracts minimal versions from LFS book host requirements,
      and generates a script containing statements of the
      form MIN_prog_VERSION=xx.yy.zz.
