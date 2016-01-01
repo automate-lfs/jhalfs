@@ -63,6 +63,7 @@ cat << EOF
 	echo "" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "unset CFLAGS" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "unset CXXFLAGS" >> \$(LUSER_HOME)/.bashrc && \\
+	echo "unset PKG_CONFIG_PATH" >> \$(LUSER_HOME)/.bashrc && \\
 	echo "" >> \$(LUSER_HOME)/.bashrc && \\
 EOF
 ) >> $MKFILE.tmp
