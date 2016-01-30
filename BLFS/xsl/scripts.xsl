@@ -104,7 +104,7 @@ find . -maxdepth 1 -mindepth 1 -type d | xargs </xsl:text>
         </xsl:if>
         <xsl:text>rm -rf
 case $PACKAGE in
-  *.tar.gz|*.tar.bz2|*.tar.xz|*.tgz)
+  *.tar.gz|*.tar.bz2|*.tar.xz|*.tgz|*.tar.lzma)
      tar -xvf $PACKAGE &gt; unpacked
      UNPACKDIR=`grep '[^./]\+' unpacked | head -n1 | sed 's@^./@@;s@/.*@@'`
      ;;
