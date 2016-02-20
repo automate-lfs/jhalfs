@@ -7,10 +7,10 @@
 #
 
 PKG="ppp"
-PKG_VERSION="2.4.4"
+PKG_VERSION="2.4.7"
 PKG_FILE="ppp-${PKG_VERSION}.tar.gz"
 URL="http://samba.org/ftp/ppp/${PKG_FILE}"
-MD5="183800762e266132218b204dfb428d29"
+MD5="78818f40e6d33a1d1de68a1551f6595a"
 for i in PATCH{1..10}; do
    unset $i
 done

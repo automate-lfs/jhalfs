@@ -1,0 +1,31 @@
+#
+# $Id$
+#
+# dhcpcd is an implementation of the DHCP client specified in RFC2131.
+# This is useful for connecting your computer to a network which uses
+# DHCP to assign network addresses.
+#
+
+PKG="dhcpcd"
+PKG_VERSION="6.9.3"
+PKG_FILE="dhcpcd-${PKG_VERSION}.tar.xz"
+URL="http://roy.marples.name/downloads/dhcpcd/${PKG_FILE}"
+MD5="8357d023c4687d27bc6ea7964236b2a6"
+for i in PATCH{1..10}; do
+   unset $i
+done
+
+( cat << "xEOFx"
+
+./configure --libexecdir=/lib/dhcpcd \
+            --dbdir=/var/lib/dhcpcd  &&
+make
+
+make install
+
+# Add the following to boot scripts.
+#make install-service-dhcpcd
+
+# more configuration? 
+xEOFx
+) > tmp

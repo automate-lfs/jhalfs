@@ -1,0 +1,31 @@
+#
+# $Id$
+#
+PKG="pcre"
+PKG_VERSION="8.37"
+PKG_FILE="pcre-8.37.tar.bz2"
+URL="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/${PKG_FILE}"
+MD5="ed91be292cb01d21bc7e526816c26981"
+for i in PATCH{1..10}; do
+   unset $i
+done
+PATCH1="http://www.linuxfromscratch.org/patches/blfs/7.8/pcre-8.37-upstream_fixes-1.patch 718c4314fba52ed559c75ff7660cc391"
+
+( cat << "xEOFx"
+patch -Np1 -i ../pcre-8.37-upstream_fixes-1.patch &&
+
+./configure --prefix=/usr                     \
+            --docdir=/usr/share/doc/pcre-8.37 \
+            --enable-unicode-properties       \
+            --enable-pcre16                   \
+            --enable-pcre32                   \
+            --enable-pcregrep-libz            \
+            --enable-pcregrep-libbz2          \
+            --enable-pcretest-libreadline     \
+            --disable-static                 &&
+make
+make install                     &&
+mv -v /usr/lib/libpcre.so.* /lib &&
+ln -sfv ../../lib/$(readlink /usr/lib/libpcre.so) /usr/lib/libpcre.so
+xEOFx
+) > tmp

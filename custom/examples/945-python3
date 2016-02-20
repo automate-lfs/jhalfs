@@ -1,0 +1,25 @@
+#
+# $Id$
+#
+PKG="python3"
+PKG_VERSION="3.4.3"
+PKG_FILE="Python-3.4.3.tar.xz"
+URL="https://www.python.org/ftp/python/3.4.3/${PKG_FILE}"
+MD5="7d092d1bba6e17f0d9bd21b49e441dd5"
+for i in PATCH{1..10}; do
+   unset $i
+done
+
+( cat << "xEOFx"
+CXX="/usr/bin/g++"              \
+./configure --prefix=/usr       \
+            --enable-shared     \
+            --with-system-expat \
+            --with-system-ffi   \
+            --without-ensurepip &&
+make
+make install &&
+chmod -v 755 /usr/lib/libpython3.4m.so &&
+chmod -v 755 /usr/lib/libpython3.so
+xEOFx
+) > tmp

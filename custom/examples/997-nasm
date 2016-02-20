@@ -5,29 +5,20 @@
 # disassembler as well.
 
 PKG="nasm"
-PKG_VERSION="0.98.39"
-PKG_FILE="nasm-${PKG_VERSION}.tar.bz2"
-URL="http://downloads.sourceforge.net/nasm/${PKG_FILE}"
-MD5="2032ad44c7359f7a9a166a40a633e772"
+PKG_VERSION="2.11.08"
+PKG_FILE="nasm-${PKG_VERSION}.tar.xz"
+URL="http://www.nasm.us/pub/nasm/releasebuilds/2.11.08/${PKG_FILE}"
+MD5="0d461a085b088a14dd6628c53be1ce28"
 for i in PATCH{1..10}; do
    unset $i
 done
-PATCH1="http://www.linuxfromscratch.org/patches/blfs/svn/nasm-0.98.39-security_fix-1.patch"
 
 ( cat << "xEOFx"
 
-patch -Np1 -i ../nasm-0.98.39-security_fix-1.patch &&
 ./configure --prefix=/usr &&
 make
-make -C rdoff/doc
-make -C rdoff/doc html
 
-make install &&
-make install_rdf &&
-install -v -m644 rdoff/doc/rdoff.info /usr/share/info &&
-install -v -m755 -d /usr/share/doc/nasm/html &&
-install -v -m644 rdoff/doc/v1-v2.txt /usr/share/doc/nasm &&
-cp -v -R rdoff/doc/rdoff /usr/share/doc/nasm/html
+make install
 
 xEOFx
 ) > tmp
