@@ -286,7 +286,7 @@ for f in $(grep '[^0-9 ]' $file | sed 's/.* //'); do
   if [ -f ${f}.dep ]; then
     rootlink2="$(head -n1 ${f}.dep) "
 # See comment above about srootlink
-    if [[ "${rootlink2#"${rootlink[*]} " != ${rootlink2} ]] ; then
+    if [[ ${rootlink2#"${rootlink[*]} "} != ${rootlink2} ]] ; then
       tree_erase ${f}.dep
     fi
   fi
