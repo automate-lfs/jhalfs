@@ -200,7 +200,7 @@ xEOFx
 
 PKG="gpm"
 PKG_VERSION="1.20.1"
-PKG_FILE="gmp-1.20.1.tar.bz2"
+PKG_FILE="gpm-1.20.1.tar.bz2"
 URL="ftp://arcana.linux.it/pub/gpm/gpm-1.20.1.tar.bz2"
 MD5="2c63e827d755527950d9d13fe3d87692"
 for i in PATCH{1..10}; do

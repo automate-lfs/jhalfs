@@ -2,27 +2,33 @@
 # $Id$
 #
 PKG="gpm"
-PKG_VERSION="1.20.1"
+PKG_VERSION="1.20.7"
 PKG_FILE="gpm-${PKG_VERSION}.tar.bz2"
-URL="ftp://arcana.linux.it/pub/gpm/${PKG_FILE}"
-MD5="2c63e827d755527950d9d13fe3d87692"
+URL="http://www.nico.schottelius.org/software/gpm/archives/${PKG_FILE}"
+MD5="bf84143905a6a903dbd4d4b911a2a2b8"
 for i in PATCH{1..10}; do
    unset $i
 done
-PATCH1=" http://www.linuxfromscratch.org/patches/blfs/svn/gpm-1.20.1-segfault-1.patch"
-PATCH2=" http://www.linuxfromscratch.org/patches/blfs/svn/gpm-1.20.1-silent-1.patch"
-
 
 ( cat << "xEOFx"
 
-patch -Np1 -i ../gpm-1.20.1-segfault-1.patch &&
-patch -Np1 -i ../gpm-1.20.1-silent-1.patch &&
+./autogen.sh                                &&
 ./configure --prefix=/usr --sysconfdir=/etc &&
-LDFLAGS="-lm" make
+make
 
-make install &&
-cp -v conf/gpm-root.conf /etc &&
-ldconfig
+make install                                          &&
+
+install-info --dir-file=/usr/share/info/dir           \
+             /usr/share/info/gpm.info                 &&
+
+ln -sfv libgpm.so.2.1.0 /usr/lib/libgpm.so            &&
+install -v -m644 conf/gpm-root.conf /etc              &&
+
+install -v -m755 -d /usr/share/doc/gpm-${PKG_FILE}/support &&
+install -v -m644    doc/support/*                     \
+                    /usr/share/doc/gpm-${PKG_FILE}/support &&
+install -v -m644    doc/{FAQ,HACK_GPM,README*}        \
+                    /usr/share/doc/gpm-${PKG_FILE}
 
 # The normal cmd to install the boot script for gpm
 # --- PUT THIS CMD INSIDE 999-blfs_bootscripts
@@ -31,7 +37,7 @@ ldconfig
 cat > /etc/sysconfig/mouse << "EOF"
 # Begin /etc/sysconfig/mouse
 
-MDEVICE="/dev/psaux"
+MDEVICE="/dev/input/mice"
 PROTOCOL="imps2"
 GPMOPTS=""
 

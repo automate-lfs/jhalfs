@@ -1,0 +1,25 @@
+#
+# $Id$
+#
+PKG="libffi"
+PKG_VERSION="3.2.1"
+PKG_FILE="libffi-3.2.1.tar.gz"
+URL="http://sourceware.org/pub/libffi/${PKG_FILE}"
+MD5="83b89587607e3eb65c70d361f13bab43"
+for i in PATCH{1..10}; do
+   unset $i
+done
+
+( cat << "xEOFx"
+sed -e '/^includesdir/ s/$(libdir).*$/$(includedir)/' \
+    -i include/Makefile.in &&
+
+sed -e '/^includedir/ s/=.*$/=@includedir@/' \
+    -e 's/^Cflags: -I${includedir}/Cflags:/' \
+    -i libffi.pc.in        &&
+
+./configure --prefix=/usr --disable-static &&
+make
+make install
+xEOFx
+) > tmp

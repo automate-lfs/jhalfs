@@ -5,28 +5,31 @@
 #
 
 PKG="lynx"
-PKG_VERSION="2.8.6"
+PKG_VERSION="2.8.8rel.2"
 PKG_FILE="lynx${PKG_VERSION}.tar.bz2"
-URL="ftp://lynx.isc.org/lynx2.8.6/${PKG_FILE}"
-MD5="dc80497b7dda6a28fd80404684d27548"
+URL="ftp://lynx.isc.org/${PKG_FILE}"
+MD5="b231c2aa34dfe7ca25681ef4e55ee7e8"
 for i in PATCH{1..10}; do
    unset $i
 done
 
 ( cat << "xEOFx"
 
-./configure --prefix=/usr \
+./configure --prefix=/usr          \
             --sysconfdir=/etc/lynx \
-            --datadir=/usr/share/doc/lynx-2.8.6 \
-            --with-zlib \
-            --with-bzlib \
+            --datadir=/usr/share/doc/lynx-2.8.8rel.2 \
+            --with-zlib            \
+            --with-bzlib           \
             --with-screen=ncursesw \
             --enable-locale-charset &&
-
 make
 
 make install-full &&
-chgrp -v -R root /usr/share/doc/lynx-2.8.6/lynx_doc
+chgrp -v -R root /usr/share/doc/lynx-2.8.8rel.2/lynx_doc
+
+sed -i 's/#\(LOCALE_CHARSET\):FALSE/\1:TRUE/' /etc/lynx/lynx.cfg
+sed -i 's/#\(DEFAULT_EDITOR\):/\1:vi/' /etc/lynx/lynx.cfg
+sed -i 's/#\(PERSISTENT_COOKIES\):FALSE/\1:TRUE/' /etc/lynx/lynx.cfg
 
 xEOFx
 ) > tmp

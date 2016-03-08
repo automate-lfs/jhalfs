@@ -8,28 +8,30 @@
 #
 
 PKG="openssl"
-PKG_VERSION="0.9.8d"
+PKG_VERSION="1.0.2d"
 PKG_FILE="openssl-${PKG_VERSION}.tar.gz"
 URL="ftp://ftp.openssl.org/source/${PKG_FILE}"
-MD5="8ed1853538e1d05a1f5ada61ebf8bffa"
+MD5="38dd619b2e77cbac69b99f52a053d25a"
 for i in PATCH{1..10}; do
    unset $i
 done
-PATCH1=" http://www.linuxfromscratch.org/patches/blfs/svn/openssl-0.9.8d-fix_manpages-1.patch"
 
 ( cat << "xEOFx"
 
-sed -i -e 's/mcpu/march/' config
-patch -Np1 -i ../openssl-0.9.8d-fix_manpages-1.patch &&
-./config --openssldir=/etc/ssl --prefix=/usr shared &&
-make MANDIR=/usr/share/man
+./config --prefix=/usr         \
+         --openssldir=/etc/ssl \
+         --libdir=lib          \
+         shared                \
+         zlib-dynamic &&
+make
 
-make MANDIR=/usr/share/man install &&
-cp -v -r certs /etc/ssl &&
-install -v -d -m755 /usr/share/doc/openssl-0.9.8d &&
-cp -v -r doc/{HOWTO,README,*.{txt,html,gif}} \
-    /usr/share/doc/openssl-0.9.8d
-    
+#sed -i 's# libcrypto.a##;s# libssl.a##' Makefile
+make MANDIR=/usr/share/man MANSUFFIX=ssl install &&
+install -dv -m755 /usr/share/doc/openssl-1.0.2d  &&
+cp -vfr doc/*     /usr/share/doc/openssl-1.0.2d
 
+#
+# Note: certificates not installed by this.
+#
 xEOFx
 ) > tmp

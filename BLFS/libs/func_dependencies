@@ -277,15 +277,16 @@ tree_erase() { #
 local file=$1
 local f
 local -a rootlink
-local -a rootlink2
+local rootlink2
 
 #echo file=$file
 rootlink=($(head -n1 $file))
 for f in $(grep '[^0-9 ]' $file | sed 's/.* //'); do
 #  echo "    f"=$f
   if [ -f ${f}.dep ]; then
-    rootlink2=($(head -n1 ${f}.dep))
-    if [[ "${rootlink2[*]}" =~ "${rootlink[*]}" ]] ; then
+    rootlink2="$(head -n1 ${f}.dep) "
+# See comment above about srootlink
+    if [[ ${rootlink2#"${rootlink[*]} "} != ${rootlink2} ]] ; then
       tree_erase ${f}.dep
     fi
   fi

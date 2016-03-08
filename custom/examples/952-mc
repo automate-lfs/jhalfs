@@ -2,17 +2,21 @@
 # $Id$
 #
 PKG="mc"
-PKG_VERSION="4.6.1"
-PKG_FILE="mc-4.6.1.tar.gz"
-URL="http://www.ibiblio.org/pub/Linux/utils/file/managers/mc/${PKG_FILE}"
-MD5="18b20db6e40480a53bac2870c56fc3c4"
+PKG_VERSION="4.8.14"
+PKG_FILE="mc-4.8.14.tar.xz"
+URL="http://ftp.midnight-commander.org/${PKG_FILE}"
+MD5="fbdaddb9edcf8925dcf3231331a8720b"
 for i in PATCH{1..10}; do
    unset $i
 done
 
 ( cat << "xEOFx"
-./configure --prefix=/usr &&
+./configure --prefix=/usr \
+            --sysconfdir=/etc \
+            --with-screen=ncurses \
+            --enable-charset &&
 make
 make install
+cp -v doc/keybind-migration.txt /usr/share/mc
 xEOFx
 ) > tmp
