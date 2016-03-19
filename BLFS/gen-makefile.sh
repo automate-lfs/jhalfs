@@ -9,7 +9,7 @@ declare ATOPDIR=`cd $TOPDIR; pwd`
 declare MKFILE=Makefile
 declare PREV_PACKAGE=""
 declare BUILD_SCRIPTS=${TOPDIR}/scripts
-declare TRACKING_FILE=tracking-dir/instpkg.xml
+declare TRACKING_FILE=/var/lib/jhalfs/BLFS/instpkg.xml
 declare XSLDIR=${TOPDIR}/xsl
 declare PACK_FILE=${TOPDIR}/packages.xml
 declare BUMP=${XSLDIR}/bump.xsl
@@ -156,11 +156,19 @@ EOF
 }
 
 if [[ ! -d ${BUILD_SCRIPTS} ]] ; then
-  echo -e "\n\tThe \'${BUILD_SCRIPTS}\' directory has not been found.\n"
+  echo -e "\n\tThe '${BUILD_SCRIPTS}' directory has not been found.\n"
   exit 1
 fi
 
-# Let us make a clean base:
+# Let us make a clean base, but first ensure that we are
+# not emptying a useful directory.
+MYDIR=$(pwd)
+MYDIR=$(basename $MYDIR)
+if [ "${MYDIR#work}" = "${MYDIR}" ] ; then
+  echo -e \\n\\tDirectory ${BOLD}$MYDIR${OFF} does not begin with \"work\"\\n
+  exit 1
+fi
+
 rm -rf *
 
 generate_Makefile
