@@ -31,7 +31,7 @@ inline_doc
   local -r ADVANCED_common="REPORT REBUILD_MAKEFILE"
 
   # BOOK Settings by book
-  local -r   LFS_book="$BOOK_common REV BLFS_TOOL"
+  local -r   LFS_book="$BOOK_common INITSYS BLFS_TOOL"
   #local -r HLFS_added="SET_SSP SET_ASLR SET_PAX SET_HARDENED_TMP SET_WARNINGS \
   #                     SET_MISC SET_BLOWFISH"
   local -r HLFS_added=""
