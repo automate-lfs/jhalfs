@@ -8,7 +8,7 @@ get_book() {                 #
   cd $JHALFSDIR
 
   if [ -z $WORKING_COPY ] ; then
-    # Check for Subversion instead of just letting the script hit 'svn' and fail.
+# Check for Subversion instead of just letting the script hit 'svn' and fail.
     test `type -p svn` || eval "echo \"This feature requires Subversion.\"
     exit 1"
     echo -n "Downloading the $PROGNAME document, $LFSVRS version... "
@@ -23,9 +23,11 @@ get_book() {                 #
     # Grab a fresh book if it's missing, otherwise, update it from the
     # repo. If we've already extracted the commands, move on to getting the
     # sources.
-    if [ $PROGNAME == "lfs" ] || [ $PROGNAME == "hlfs" ] && [ ! -d ${PROGNAME}-${LFSVRS}/.svn ]; then
+    if [ $PROGNAME == "lfs" ] || [ $PROGNAME == "hlfs" ] &&
+                                 [ ! -d ${PROGNAME}-${LFSVRS}/.svn ]; then
         svn co $SVN/${svn_root}/${TREE} ${PROGNAME}-$LFSVRS >>$LOGDIR/$LOG 2>&1
-    elif [ $PROGNAME == "clfs" ]  || [ $PROGNAME == "clfs2" ] || [ $PROGNAME == "clfs3" ] && [ ! -d ${PROGNAME}-${LFSVRS}/.git ]; then
+    elif [ $PROGNAME == "clfs" ]  || [ $PROGNAME == "clfs2" ] ||
+         [ $PROGNAME == "clfs3" ] && [ ! -d ${PROGNAME}-${LFSVRS}/.git ]; then
         echo $TREE
         git clone $GIT ${PROGNAME}-$LFSVRS >>$LOGDIR/$LOG 2>&1
         if [ ! $TREE == "development" ]; then
@@ -60,6 +62,13 @@ extract_commands() {         #
   case $PROGNAME in
     clfs*)
       VERSION=$(xmllint --noent $BOOK/BOOK/prologue/$ARCH/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
+    lfs)
+      if [ "$INITSYS" = "sysv" ] ; then
+        VERSION=$(grep 'ENTITY version ' $BOOK/general.ent| cut -d\" -f2)
+      else
+        VERSION=$(grep 'ENTITY versiond' $BOOK/general.ent| cut -d\" -f2)
+      fi
+      ;;
     *)
       VERSION=$(xmllint --noent $BOOK/prologue/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//')  ;;
   esac
@@ -72,57 +81,66 @@ extract_commands() {         #
   case ${PROGNAME} in
     clfs)
         echo -n " ${L_arrow}${BOLD}$ARCH${R_arrow} target architecture... "
-        xsltproc --nonet \
-                 --xinclude \
-                 --stringparam method $METHOD \
-                 --stringparam testsuite $TEST \
+        xsltproc --nonet                                 \
+                 --xinclude                              \
+                 --stringparam method $METHOD            \
+                 --stringparam testsuite $TEST           \
                  --stringparam bomb-testsuite $BOMB_TEST \
-                 --stringparam vim-lang $VIMLANG \
-                 --stringparam timezone $TIMEZONE \
-                 --stringparam page $PAGE \
-                 --stringparam lang $LANG \
-                 --stringparam sparc $SPARC64_PROC \
-                 --stringparam x86 $TARGET \
-                 --stringparam mips $TARGET \
-                 -o ./${PROGNAME}-commands/ $XSL $BOOK/BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
+                 --stringparam vim-lang $VIMLANG         \
+                 --stringparam timezone $TIMEZONE        \
+                 --stringparam page $PAGE                \
+                 --stringparam lang $LANG                \
+                 --stringparam sparc $SPARC64_PROC       \
+                 --stringparam x86 $TARGET               \
+                 --stringparam mips $TARGET              \
+                 -o ./${PROGNAME}-commands/              \
+                 $XSL                                    \
+                 $BOOK/BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
       ;;
 
     clfs2)
         echo -n " ${L_arrow}${BOLD}$ARCH${R_arrow} target architecture... "
-        xsltproc --nonet \
-                 --xinclude \
-                 --stringparam vim-lang $VIMLANG \
+        xsltproc --nonet                          \
+                 --xinclude                       \
+                 --stringparam vim-lang $VIMLANG  \
                  --stringparam timezone $TIMEZONE \
-                 --stringparam page $PAGE \
-                 --stringparam lang $LANG \
-                 -o ./${PROGNAME}-commands/ $XSL $BOOK/BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
+                 --stringparam page $PAGE         \
+                 --stringparam lang $LANG         \
+                 --output ./${PROGNAME}-commands/ \
+                 $XSL                             \
+                 $BOOK/BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
       ;;
 
     clfs3)
         echo -n " ${L_arrow}${BOLD}$ARCH${R_arrow} target architecture... "
-        xsltproc --nonet \
-                 --xinclude \
-                 --stringparam endian x$ENDIAN \
+        xsltproc --nonet                          \
+                 --xinclude                       \
+                 --stringparam endian x$ENDIAN    \
                  --stringparam timezone $TIMEZONE \
-                 --stringparam page $PAGE \
-                 --stringparam lang $LANG \
-                 -o ./${PROGNAME}-commands/ $XSL $BOOK/BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
+                 --stringparam page $PAGE         \
+                 --stringparam lang $LANG         \
+                 --output ./${PROGNAME}-commands/ \
+                 $XSL                             \
+                 $BOOK/BOOK/$ARCH-index.xml >>$LOGDIR/$LOG 2>&1
       ;;
 
     hlfs)
         echo -n " ${L_arrow}${BOLD}$MODEL + $KERNEL${R_arrow} HLFS flavour... "
-        xsltproc --nonet \
-                 --xinclude \
-                 --stringparam model $MODEL \
-                 --stringparam kernel $KERNEL \
-                 --stringparam testsuite $TEST \
-                 --stringparam bomb-testsuite $BOMB_TEST \
-                 --stringparam features x$SSP$ASLR$PAX$HARDENED_TMP$WARNINGS$MISC$BLOWFISH \
-                 --stringparam timezone $TIMEZONE \
-                 --stringparam page $PAGE \
-                 --stringparam lang $LANG \
-                 --stringparam grsecurity_host $GRSECURITY_HOST \
-                 -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
+        xsltproc --nonet                                                \
+                 --xinclude                                             \
+                 --stringparam model $MODEL                             \
+                 --stringparam kernel $KERNEL                           \
+                 --stringparam testsuite $TEST                          \
+                 --stringparam bomb-testsuite $BOMB_TEST                \
+                 --stringparam features                                 \
+                     x$SSP$ASLR$PAX$HARDENED_TMP$WARNINGS$MISC$BLOWFISH \
+                 --stringparam timezone $TIMEZONE                       \
+                 --stringparam page $PAGE                               \
+                 --stringparam lang $LANG                               \
+                 --stringparam grsecurity_host $GRSECURITY_HOST         \
+                 --output ./${PROGNAME}-commands/                       \
+                 $XSL                                                   \
+                 $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
       ;;
     lfs)
         echo -n " ${L_arrow}${BOLD}LFS${R_arrow} build... "
@@ -131,17 +149,28 @@ extract_commands() {         #
           bash process-scripts.sh >> $LOGDIR/$LOG 2>&1
         fi
         popd > /dev/null
-        xsltproc --nonet \
-                 --xinclude \
-                 --stringparam testsuite $TEST \
-                 --stringparam bomb-testsuite $BOMB_TEST \
-                 --stringparam vim-lang $VIMLANG \
-                 --stringparam full-locale $FULL_LOCALE \
-                 --stringparam timezone $TIMEZONE \
-                 --stringparam page $PAGE \
-                 --stringparam lang $LANG \
-                 --stringparam pkgmngt $PKGMNGT \
-                 -o ./${PROGNAME}-commands/ $XSL $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
+
+        xsltproc --nonet                                 \
+                 --xinclude                              \
+                 --output /tmp/lfs-full.xml              \
+                 --stringparam profile.revision $INITSYS \
+                 $BOOK/stylesheets/lfs-xsl/profile.xsl   \
+                 $BOOK/index.xml
+
+        xsltproc --nonet                                   \
+                 --stringparam testsuite      $TEST        \
+                 --stringparam bomb-testsuite $BOMB_TEST   \
+                 --stringparam vim-lang       $VIMLANG     \
+                 --stringparam full-locale    $FULL_LOCALE \
+                 --stringparam timezone       $TIMEZONE    \
+                 --stringparam page           $PAGE        \
+                 --stringparam lang           $LANG        \
+                 --stringparam pkgmngt        $PKGMNGT     \
+                 --output ./${PROGNAME}-commands/          \
+                 $XSL                                      \
+                 /tmp/lfs-full.xml >>$LOGDIR/$LOG 2>&1
+
+        rm /tmp/lfs-full.xml
       ;;
     *)  echo -n " ${L_arrow}${PROGNAME}${R_arrow} book invalid, terminate build... "
         exit 1 ;;
@@ -172,20 +201,25 @@ create_package_list() {      #
   echo -n "... "
   case ${PROGNAME} in
     clfs*)
-        xsltproc --nonet --xinclude -o pkg_tarball_list packages.xsl \
+        xsltproc --nonet --xinclude  \
+                 -o pkg_tarball_list \
+                 packages.xsl        \
                  $BOOK/BOOK/materials/${ARCH}-chapter.xml >>$LOGDIR/$LOG 2>&1
       ;;
     hlfs)
-        xsltproc --nonet --xinclude \
-                 --stringparam model $MODEL \
+        xsltproc --nonet --xinclude           \
+                 --stringparam model $MODEL   \
                  --stringparam kernel $KERNEL \
-                  -o pkg_tarball_list packages.xsl \
+                 --output pkg_tarball_list    \
+                 packages.xsl                 \
                  $BOOK/chapter04/chapter04.xml >>$LOGDIR/$LOG 2>&1
       ;;
     lfs)
-        xsltproc --nonet --xinclude \
-                 --stringparam pkgmngt $PKGMNGT \
-                  -o pkg_tarball_list packages.xsl \
+        xsltproc --nonet --xinclude              \
+                 --stringparam pkgmngt $PKGMNGT  \
+                 --stringparam revision $INITSYS \
+                 --output pkg_tarball_list       \
+                 packages.xsl                    \
                  $BOOK/chapter03/chapter03.xml >>$LOGDIR/$LOG 2>&1
       ;;
     *)

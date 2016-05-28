@@ -8,13 +8,16 @@
   <xsl:output method="text"/>
 
   <!-- The libc model used for HLFS -->
-  <xsl:param name="model" select="glibc"/>
+  <xsl:param name="model" select="'glibc'"/>
 
   <!-- The kernel series used for HLFS -->
-  <xsl:param name="kernel" select="2.6"/>
+  <xsl:param name="kernel" select="'2.6'"/>
 
-  <!-- Should we include a package manager -->
-  <xsl:param name="pkgmngt" select="n"/>
+  <!-- Should we include a package manager? -->
+  <xsl:param name="pkgmngt" select="'n'"/>
+
+  <!-- The system for LFS: sysv of systemd -->
+  <xsl:param name="revision" select="'sysv'"/>
 
   <xsl:template match="/">
     <xsl:apply-templates select="//para"/>
@@ -28,6 +31,8 @@
     <xsl:if test="contains(string(),'Download:') and
                   (ancestor::varlistentry[@condition=$model]
                   or not(ancestor::varlistentry[@condition])) and
+                  (ancestor::varlistentry[@revision=$revision]
+                  or not(ancestor::varlistentry[@revision])) and
                   (ancestor::varlistentry[@vendor=$kernel]
                   or not(ancestor::varlistentry[@vendor]))">
       <xsl:call-template name="package_name">

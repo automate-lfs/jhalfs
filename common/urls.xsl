@@ -14,16 +14,20 @@
   <xsl:param name="family">lfs</xsl:param>
 
   <!-- The libc model used for HLFS -->
-  <xsl:param name="model" select="glibc"/>
+  <xsl:param name="model" select="'glibc'"/>
 
   <!-- The kernel series used for HLFS -->
-  <xsl:param name="kernel" select="2.6"/>
+  <xsl:param name="kernel" select="'2.6'"/>
 
   <!-- Do we use a package manager? -->
-  <xsl:param name="pkgmngt" select="n"/>
+  <xsl:param name="pkgmngt" select="'n'"/>
+
+  <!-- The system for LFS: sysv of systemd -->
+  <xsl:param name="revision" select="'sysv'"/>
 
   <xsl:template match="/">
-    <xsl:apply-templates select="//ulink"/>
+    <xsl:apply-templates select="//varlistentry[@revision=$revision
+                                                or not(@revision)]//ulink"/>
     <xsl:if test="$pkgmngt='y'">
       <xsl:apply-templates
         select="document('packageManager.xml')//ulink"/>
