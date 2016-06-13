@@ -5,6 +5,16 @@
 
 # $Id$
 
+ifeq ($(REV),)
+  REV = sysv
+endif
+
+ifneq ($(REV),sysv)
+  ifneq ($(REV),systemd)
+    $(error The REV variable is $(REV), but can only be 'sysv' or 'systemd')
+  endif
+endif
+
 ifdef V
   Q =
 else
@@ -97,10 +107,16 @@ $(XSLDIR)/specialCases.xsl: $(TOPDIR)/gen-special.sh $(BLFS_FULL)
 	$(Q)$(TOPDIR)/gen-special.sh $(BLFS_FULL) $@
 
 $(BLFS_FULL): $(BLFS_XML) $(BLFS_XML)/general.ent $(ALLXML) $(ALLXSL)
-	@echo "Validating the book..."
 	$(Q)[ -d $(RENDERTMP) ] || mkdir -p $(RENDERTMP)
-	$(Q)xmllint --nonet --noent --xinclude --postvalid \
-	  -o $@ $(BLFS_XML)/index.xml
+	@echo "Adjusting for revision $(REV)..."
+	$(Q)xsltproc --nonet --xinclude                          \
+	             --stringparam profile.revision $(REV)       \
+	             --output $(RENDERTMP)/blfs-prof.xml         \
+	             $(BLFS_XML)/stylesheets/lfs-xsl/profile.xsl \
+	             $(BLFS_XML)/index.xml
+	@echo "Validating the book..."
+	$(Q)xmllint --nonet --noent --postvalid \
+	  -o $@ $(RENDERTMP)/blfs-prof.xml
 
 all: update $(BOOK_XML)
 
