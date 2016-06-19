@@ -34,7 +34,7 @@ BLFS_DIR=$3
 if test -z "${BLFS_DIR}"; then BLFS_DIR=$(cd $(dirname ${BLFS_XML})/.. ; pwd);fi
 
 # Packages whose version does not begin with a number
-EXCEPTIONS=$(grep 'ENTITY.*version[ ]*"[^0-9"&.].*[0-9]' $BLFS_XML |
+EXCEPTIONS=$(grep 'ENTITY.*version[ ]*"[^0-9"&.].*[0-9]' ${BLFS_DIR}/packages.ent |
              sed 's@^[^"]*"\([^"]*\)".*@\1@')
 
 # Non-versioned packages:

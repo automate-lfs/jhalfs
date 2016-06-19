@@ -8,7 +8,10 @@ menu "--- BOOK Settings"
 			#-- Select the BOOK/Build style you wish to configure.
 
 		config	BOOK_LFS
-			bool "Linux From Scratch"
+			bool "Linux From Scratch System V"
+
+		config	BOOK_LFS_SYSD
+			bool "Linux From Scratch systemd"
 
 		config	BOOK_CLFS
 			bool "Cross-Compiled Linux From Scratch"
@@ -23,9 +26,14 @@ menu "--- BOOK Settings"
 #			bool "Hardened Linux From Scratch"
 	endchoice
 
+	config	INITSYS
+		string
+		default	"sysv"		if BOOK_LFS
+		default	"systemd"	if BOOK_LFS_SYSD
+
 	config	PROGNAME
 		string
-		default	"lfs"		if BOOK_LFS
+		default	"lfs"		if BOOK_LFS || BOOK_LFS_SYSD
 		default	"clfs"		if BOOK_CLFS
 		default	"clfs2"		if BOOK_CLFS2
 		default	"clfs3"		if BOOK_CLFS3
@@ -39,11 +47,11 @@ menu "--- BOOK Settings"
 	#--- Book version
 	choice
 		prompt	"Release"
-		default	relSVN	if BOOK_LFS || BOOK_HLFS
+		default	relSVN	if BOOK_LFS || BOOK_HLFS || BOOK_LFS_SYSD
 		default	relGIT	if BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3
 		config	relSVN
 			bool	"SVN"
-			depends on BOOK_LFS || BOOK_HLFS
+			depends on BOOK_LFS || BOOK_HLFS || BOOK_LFS_SYSD
 			help
 				#-- Current development version as in trunk
 
@@ -624,7 +632,7 @@ menu "--- General Settings"
 
 	config	DEF_USER
 		string
-		default	"lfs"	if BOOK_LFS
+		default	"lfs"	if BOOK_LFS || BOOK_LFS_SYSD
 		default	"clfs"	if BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3
 		default "hlfs"	if BOOK_HLFS
 
@@ -826,7 +834,7 @@ menu "--- Build Settings"
 	#--- Package Management
 	config  PKGMNGT
 		bool    "Package management"
-		depends BOOK_LFS
+		depends BOOK_LFS || BOOK_LFS_SYSD
 		default n
 		help
 			#-- Use package management

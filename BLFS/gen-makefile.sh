@@ -156,11 +156,19 @@ EOF
 }
 
 if [[ ! -d ${BUILD_SCRIPTS} ]] ; then
-  echo -e "\n\tThe \'${BUILD_SCRIPTS}\' directory has not been found.\n"
+  echo -e "\n\tThe '${BUILD_SCRIPTS}' directory has not been found.\n"
   exit 1
 fi
 
-# Let us make a clean base:
+# Let us make a clean base, but first ensure that we are
+# not emptying a useful directory.
+MYDIR=$(pwd)
+MYDIR=$(basename $MYDIR)
+if [ "${MYDIR#work}" = "${MYDIR}" ] ; then
+  echo -e \\n\\tDirectory ${BOLD}$MYDIR${OFF} does not begin with \"work\"\\n
+  exit 1
+fi
+
 rm -rf *
 
 generate_Makefile

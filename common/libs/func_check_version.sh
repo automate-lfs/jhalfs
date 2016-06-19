@@ -88,12 +88,9 @@ inline_doc
 check_prerequisites() {      #
 #----------------------------#
 
-  case $PROGNAME in
-    clfs | clfs2 | clfs3) HOSTREQS="BOOK/prologue/common/hostreqs.xml" ;;
-    *) HOSTREQS="prologue/hostreqs.xml" ;;
-  esac
+  HOSTREQS=$(find $BOOK -name hostreqs.xml)
 
-  eval $(xsltproc $COMMON_DIR/hostreqs.xsl $BOOK/$HOSTREQS)
+  eval $(xsltproc $COMMON_DIR/hostreqs.xsl $HOSTREQS)
   # Avoid translation of version strings
   local LC_ALL=C
   export LC_ALL
