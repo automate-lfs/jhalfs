@@ -58,11 +58,6 @@ if [ "$DEP_LIBXSLT" = y ]; then
 else
   LINE_LIBXSLT='#CONFIG_libxslt is not set'
 fi
-if [ "$DEP_TIDY" = y ]; then
-  LINE_TIDY='CONFIG_html-tidy=y'
-else
-  LINE_TIDY='#CONFIG_html-tidy is not set'
-fi
 # DocBook is a rec dep of libxslt
 # if [ "$DEP_DBXML" = y ]; then
 #   LINE_DBXML='CONFIG_DocBook=y'
