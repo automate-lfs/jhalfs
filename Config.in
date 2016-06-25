@@ -512,10 +512,6 @@ menu "--- BOOK Settings"
 		bool	"libxslt (required)"
 		default	y
 
-		config	DEP_TIDY
-		bool	"tidy (required)"
-		default	y
-
 		config	DEP_DBXML
 		bool	"DocBook XML DTD (required)"
 		default	y

@@ -233,16 +233,13 @@ inline_doc
 check_blfs_tools() {         #
 #----------------------------#
 : << inline_doc
-In addition to the tools needed for the LFS part, tidy and docbook-xml
-are needed for installing the BLFS tools
+In addition to the tools needed for the LFS part, docbook-xml
+is needed for installing the BLFS tools
 inline_doc
 
   # Avoid translation of version strings
   local LC_ALL=C
   export LC_ALL
-
-  tidyVer=$(tidy -V | cut -d " " -f9)
-  check_version "2004" "${tidyVer}" "TIDY"
 
   # Minimal docbook-xml code for testing
   XML_FILE="<?xml version='1.0' encoding='ISO-8859-1'?>
