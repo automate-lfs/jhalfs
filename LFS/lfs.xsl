@@ -565,8 +565,8 @@ unset OLD_PKGDIR
     <xsl:param name="netstring" select="''"/>
     <!-- We suppose that book example has the following values:
          - interface: eth0
-         - ip: 192.168.1.1
-         - gateway: 192.168.1.2
+         - ip: 192.168.1.2
+         - gateway: 192.168.1.1
          - prefix: 24
          - broadcast: 192.168.1.255
          Change below if book changes -->
@@ -587,7 +587,7 @@ unset OLD_PKGDIR
           <xsl:with-param name="netstring"
                           select="substring-before($netstring,'192.168.1.1')"/>
         </xsl:call-template>
-        <xsl:value-of select="$ip"/>
+        <xsl:value-of select="$gateway"/>
         <xsl:call-template name="outputnet">
           <xsl:with-param name="netstring"
                           select="substring-after($netstring,'192.168.1.1')"/>
@@ -611,7 +611,7 @@ unset OLD_PKGDIR
           <xsl:with-param name="netstring"
                           select="substring-before($netstring,'192.168.1.2')"/>
         </xsl:call-template>
-        <xsl:value-of select="$gateway"/>
+        <xsl:value-of select="$ip"/>
         <xsl:call-template name="outputnet">
           <xsl:with-param name="netstring"
                           select="substring-after($netstring,'192.168.1.2')"/>
