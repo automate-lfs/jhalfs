@@ -157,26 +157,27 @@ extract_commands() {         #
                  $BOOK/stylesheets/lfs-xsl/profile.xsl   \
                  $BOOK/index.xml
 
-        xsltproc --nonet                                   \
-                 --stringparam testsuite      $TEST        \
-                 --stringparam bomb-testsuite $BOMB_TEST   \
-                 --stringparam vim-lang       $VIMLANG     \
-                 --stringparam full-locale    $FULL_LOCALE \
-                 --stringparam timezone       $TIMEZONE    \
-                 --stringparam page           $PAGE        \
-                 --stringparam lang           $LANG        \
-                 --stringparam pkgmngt        $PKGMNGT     \
-                 --stringparam hostname       $HOSTNAME    \
-                 --stringparam interface      $INTERFACE   \
-                 --stringparam ip             $IP_ADDR     \
-                 --stringparam gateway        $GATEWAY     \
-                 --stringparam prefix         $PREFIX      \
-                 --stringparam broadcast      $BROADCAST   \
-                 --stringparam domain         $DOMAIN      \
-                 --stringparam nameserver1    $DNS1        \
-                 --stringparam nameserver2    $DNS2        \
-                 --output ./${PROGNAME}-commands/          \
-                 $XSL                                      \
+        xsltproc --nonet                                    \
+                 --stringparam testsuite      $TEST         \
+                 --stringparam bomb-testsuite $BOMB_TEST    \
+                 --stringparam vim-lang       $VIMLANG      \
+                 --stringparam full-locale    $FULL_LOCALE  \
+                 --stringparam timezone       $TIMEZONE     \
+                 --stringparam page           $PAGE         \
+                 --stringparam lang           $LANG         \
+                 --stringparam pkgmngt        $PKGMNGT      \
+                 --stringparam wrap-install   $WRAP_INSTALL \
+                 --stringparam hostname       $HOSTNAME     \
+                 --stringparam interface      $INTERFACE    \
+                 --stringparam ip             $IP_ADDR      \
+                 --stringparam gateway        $GATEWAY      \
+                 --stringparam prefix         $PREFIX       \
+                 --stringparam broadcast      $BROADCAST    \
+                 --stringparam domain         $DOMAIN       \
+                 --stringparam nameserver1    $DNS1         \
+                 --stringparam nameserver2    $DNS2         \
+                 --output ./${PROGNAME}-commands/           \
+                 $XSL                                       \
                  /tmp/lfs-full.xml >>$LOGDIR/$LOG 2>&1
 
         rm /tmp/lfs-full.xml

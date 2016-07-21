@@ -827,27 +827,50 @@ menu "--- Build Settings"
 	#--- End Test Suites
     endmenu # test settings
 
-	#--- Package Management
-	config  PKGMNGT
-		bool    "Package management"
-		depends BOOK_LFS || BOOK_LFS_SYSD
-		default n
-		help
-			#-- Use package management
-			#
-			#  If set, the packages in the final phase are built
-			#  in a separate directory, PKG_DEST.
-			#  You should provide a bash function for packing
-			#  and installing the package.
-			#  Also, you have to provide the instructions
-			#  to build the package manager during the
-			#  temporary tools phase, in the form of a
-			#  sect1 of the book identical to a package
-			#  sect1. See README.PACKAGE_MANAGEMENT
-			#
-			#  For now, this only works with LFS
+    #--- Package Management
+    config  PKGMNGT
+    	bool    "Package management"
+    	depends BOOK_LFS || BOOK_LFS_SYSD
+    	default n
+    	help
+    		#-- Use package management
+    		#
+    		#  If set, you'll have to choose between
+		#  two package management styles:
+		#  - Build and install:
+		#    the packages in the final phase are built
+    		#    in a separate directory, PKG_DEST.
+    		#    You should provide a bash function for
+    		#    packaing and installing the package.
+		#  - Preload a library before install:
+		#    Run the install instructions inside a
+		#    wrapper command, which monitors the
+		#    installed files.
+		#
+    		#  Also, you have to provide the instructions
+    		#  to build the package manager during the
+    		#  temporary tools phase, in the form of a
+    		#  sect1 of the book identical to a package
+    		#  sect1. See README.PACKAGE_MANAGEMENT
+    		#
+    		#  For now, this only works with LFS
+    choice
+        depends PKGMNGT
+        prompt "Package management style"
+        default PKG_PACK
 
-	#--- End package management
+        config PKG_PACK
+            bool "Build and pack (pacman or dpkg style)"
+
+        config LIB_LOAD
+            bool "Preload a library before installing (porg style)"
+    endchoice
+
+    config WRAP_INSTALL
+        bool
+        default y if LIB_LOAD
+        default n if PKG_PACK
+    #--- End package management
 
 	#--- Installed files logs
 	config	INSTALL_LOG
