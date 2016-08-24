@@ -40,7 +40,7 @@
         <xsl:attribute name="id"><xsl:value-of select="@id"/></xsl:attribute>
         <xsl:text>&#xA;    </xsl:text>
         <xsl:element name="name">
-           <xsl:value-of select="title"/>
+           <xsl:value-of select="normalize-space(title)"/>
         </xsl:element>
         <xsl:text>&#xA;&#xA;</xsl:text>
         <xsl:apply-templates select="chapter"/>
@@ -61,7 +61,7 @@
         <xsl:attribute name="id"><xsl:value-of select="@id"/></xsl:attribute>
         <xsl:text>&#xA;      </xsl:text>
         <xsl:element name="name">
-          <xsl:value-of select="title"/>
+          <xsl:value-of select="normalize-space(title)"/>
         </xsl:element>
         <xsl:text>&#xA;</xsl:text>
         <xsl:apply-templates select=".//sect1">
@@ -89,7 +89,7 @@
         <xsl:text>      </xsl:text>
         <package><xsl:text>&#xA;        </xsl:text>
           <xsl:element name="name">
-            <xsl:value-of select="title"/>
+            <xsl:value-of select="normalize-space(title)"/>
             </xsl:element>
           <xsl:text>&#xA;</xsl:text>
 <!-- Do not use .//*, which would include self. -->
