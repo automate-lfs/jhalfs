@@ -13,6 +13,9 @@ local PCKGVRS=$(basename $PKGDIR)
 local TGTPKG=$(basename $PKG_DEST)
 local PACKAGE=$(echo ${TGTPKG} | sed 's/^[0-9]\{3\}-//' |
            sed 's/^[0-9]\{1\}-//')
+# Porg converts package names to lowercase anyway, so do the conversion
+# ourselves
+PACKAGE=${PACKAGE,,}
 # version is only accessible from PKGDIR name. Since the format of the
 # name is not normalized, several hacks are necessary...
 case $PCKGVRS in
@@ -39,6 +42,9 @@ local TGTPKG=$(basename $PKG_DEST)
 local PACKAGE=$(echo ${TGTPKG} | sed 's/^[0-9]\{3\}-//' |
            sed 's/^[0-9]\{1\}-//')
 local PCKGVRS=$(basename $PKGDIR)
+# Porg converts package names to lowercase anyway, so do the conversion
+# ourselves
+PACKAGE=${PACKAGE,,}
 case $PCKGVRS in
   expect*|tcl*) local VERSION=$(echo $PCKGVRS | sed 's/^[^0-9]*//') ;;
   vim*|unzip*) local VERSION=$(echo $PCKGVRS | sed 's/^[^0-9]*\([0-9]\)\([0-9]\)/\1.\2/') ;;
