@@ -537,7 +537,8 @@ popd</xsl:text>
         </xsl:call-template>
       </xsl:when>
       <xsl:when test="contains($out-string,string($APOS))
-                      and $wrap-install = 'y'">
+                      and $wrap-install = 'y'
+                      and ancestor::sect2[@role='installation']">
         <xsl:call-template name="output-root">
           <xsl:with-param name="out-string"
                           select="substring-before($out-string,string($APOS))"/>
