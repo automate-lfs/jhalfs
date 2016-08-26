@@ -387,7 +387,7 @@ fi
     <xsl:if test="child::* = userinput and not(@role = 'nodump')">
       <xsl:choose>
         <xsl:when test="@role = 'root'">
-          <xsl:if test="not(preceding-sibling::screen[@role='root'])">
+          <xsl:if test="not(preceding-sibling::screen[1][@role='root'])">
             <xsl:if test="$sudo = 'y'">
               <xsl:text>sudo -E sh &lt;&lt; ROOT_EOF&#xA;</xsl:text>
             </xsl:if>
@@ -403,7 +403,7 @@ wrapInstall '
             </xsl:if>
           </xsl:if>
           <xsl:apply-templates mode="root"/>
-          <xsl:if test="not(following-sibling::screen[@role='root'])">
+          <xsl:if test="not(following-sibling::screen[1][@role='root'])">
             <xsl:if test="$wrap-install = 'y' and
                           ancestor::sect2[@role='installation']">
               <xsl:text>'&#xA;packInstall</xsl:text>
