@@ -40,8 +40,10 @@ fi
 # package database.
 # sudo is needed if $BUILDDIR/var/lib is owned by root and /var/lib/jhalfs
 # has to be created
-sudo make -j1 -C $BUILDDIR$BLFS_ROOT TRACKING_DIR=$BUILDDIR$TRACKING_DIR \
-    $BUILDDIR$BLFS_ROOT/packages.xml
+sudo make -j1 -C $BUILDDIR$BLFS_ROOT          \
+          REV=$INITSYS                        \
+          TRACKING_DIR=$BUILDDIR$TRACKING_DIR \
+          $BUILDDIR$BLFS_ROOT/packages.xml
 
 # Because the BLFS Makefile is supposed to be used in chroot (or booted)
 # mode, the tracking file has wrong path for DTD. Change it:
