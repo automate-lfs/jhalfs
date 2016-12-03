@@ -247,7 +247,7 @@
   <xsl:template match="para" mode="dependency">
     <xsl:variable name="status" select="./@role"/>
 <!-- First internal dependencies -->
-    <xsl:for-each select="./xref">
+    <xsl:for-each select=".//xref">
       <xsl:choose>
 <!-- Avoid depending of myself -->
         <xsl:when test="ancestor::*[@id=current()/@linkend]"/>
@@ -278,7 +278,7 @@
       </xsl:choose>
     </xsl:for-each>
 <!-- then external dependencies -->
-    <xsl:for-each select="./ulink">
+    <xsl:for-each select=".//ulink">
       <xsl:text>
             </xsl:text>
       <xsl:element name="dependency">
