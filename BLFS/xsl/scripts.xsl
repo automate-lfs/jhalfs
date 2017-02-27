@@ -222,21 +222,23 @@ cd $UNPACKDIR&#xA;
     <xsl:text> $</xsl:text>
     <xsl:value-of select="$varname"/>
     <xsl:text>&#xA;  else&#xA;</xsl:text>
-    <!-- The FTP_SERVER mirror -->
+    <!-- Download from upstream http -->
+    <xsl:if test="string-length($httpurl) &gt; 10">
+      <xsl:text>    wget -T 30 -t 5 </xsl:text>
+      <xsl:value-of select="$httpurl"/>
+      <xsl:text> ||&#xA;</xsl:text>
+    </xsl:if>
+    <!-- Download from upstream ftp -->
+    <xsl:if test="string-length($ftpurl) &gt; 10">
+      <xsl:text>    wget -T 30 -t 5 </xsl:text>
+      <xsl:value-of select="$ftpurl"/>
+      <xsl:text> ||&#xA;</xsl:text>
+    </xsl:if>
+    <!-- The FTP_SERVER mirror as a last resort -->
     <xsl:text>    wget -T 30 -t 5 ${FTP_SERVER}svn/</xsl:text>
     <xsl:value-of select="$first_letter"/>
     <xsl:text>/$</xsl:text>
     <xsl:value-of select="$varname"/>
-    <xsl:if test="string-length($httpurl) &gt; 10">
-      <xsl:text> ||
-    wget -T 30 -t 5 </xsl:text>
-      <xsl:value-of select="$httpurl"/>
-    </xsl:if>
-    <xsl:if test="string-length($ftpurl) &gt; 10">
-      <xsl:text> ||
-    wget -T 30 -t 5 </xsl:text>
-      <xsl:value-of select="$ftpurl"/>
-    </xsl:if>
     <xsl:text>
     cp $</xsl:text>
     <xsl:value-of select="$varname"/>
