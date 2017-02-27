@@ -39,7 +39,7 @@ EXCEPTIONS=$(grep 'ENTITY.*version[ ]*"[^0-9"&.].*[0-9]' ${BLFS_DIR}/packages.en
 
 # Non-versioned packages:
 NV_LIST="cacerts xorg-env kde-pre-install-config kf5-intro lxqt-pre-install \
-ojdk-conf tex-path"
+lxqt-post-install ojdk-conf tex-path"
 
 # Set PATH to be sure to find udevadm
 SAVPATH=$PATH
@@ -146,7 +146,7 @@ EOF
 # that the preceding package is a dependency of the following,
 # except the first.
   list_cat="$(sed -n '/>cat/,/EOF</p' $file | grep -v 'cat\|EOF' |
-                 sed 's/^[^ ]*\ *\([^&]*\).*/\1/' | sed 's/-$//')"
+              awk '{ print $NF }' | sed 's/-&.*//')"
 
 # Rationale for the sed below: the following for breaks words at spaces (unless
 # we tweak IFS). So replace spaces with commas in lines so that only newlines

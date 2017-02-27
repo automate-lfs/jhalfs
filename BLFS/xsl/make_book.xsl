@@ -307,6 +307,13 @@
                         select=".//userinput[starts-with(string(),'cat ')]"/>
       </xsl:call-template>
     </xsl:variable>
+    <xsl:variable name="download-dir">
+      <xsl:call-template name="download-dir">
+        <xsl:with-param name="package" select="concat(' ',$package,'-')"/>
+        <xsl:with-param name="cat-md5"
+                        select=".//userinput[starts-with(string(),'cat ')]"/>
+      </xsl:call-template>
+    </xsl:variable>
     <xsl:variable name="install-instructions">
       <xsl:call-template name="inst-instr">
         <xsl:with-param name="inst-instr"
@@ -328,6 +335,7 @@
               <xsl:attribute name="url">
                 <xsl:value-of
                    select=".//para[contains(string(),'(HTTP)')]/ulink/@url"/>
+                <xsl:value-of select="$download-dir"/>
                 <xsl:value-of select="$tarball"/>
               </xsl:attribute>
              </xsl:element>
@@ -338,6 +346,7 @@
               <xsl:attribute name="url">
                 <xsl:value-of
                    select=".//para[contains(string(),'(FTP)')]/ulink/@url"/>
+                <xsl:value-of select="$download-dir"/>
                 <xsl:value-of select="$tarball"/>
               </xsl:attribute>
              </xsl:element>
@@ -407,9 +416,43 @@ END DEBUG -->
                           select="substring-after($cat-md5,'&#xA;')"/>
         </xsl:call-template>
       </xsl:when>
+      <xsl:when test="contains(substring-before($cat-md5,$package),' ')">
+        <xsl:call-template name="tarball">
+          <xsl:with-param name="package" select="$package"/>
+          <xsl:with-param name="cat-md5"
+                          select="substring-after($cat-md5,' ')"/>
+        </xsl:call-template>
+      </xsl:when>
       <xsl:otherwise>
         <xsl:copy-of select="substring-after(
-                                 substring-before($cat-md5,'&#xA;'),'  ')"/>
+                                substring-before($cat-md5,'&#xA;'),' ')"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+<!-- get the download dirname from the text that comes from the .md5 file -->
+  <xsl:template name="download-dir">
+    <xsl:param name="package"/>
+    <xsl:param name="cat-md5"/>
+    <xsl:choose>
+      <xsl:when test="not(@id='xorg7-legacy')">
+        <xsl:copy-of select="''"/>
+      </xsl:when>
+      <xsl:when test="contains(substring-before($cat-md5,$package),'&#xA;')">
+        <xsl:call-template name="download-dir">
+          <xsl:with-param name="package" select="$package"/>
+          <xsl:with-param name="cat-md5"
+                          select="substring-after($cat-md5,'&#xA;')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains(substring-before($cat-md5,$package),' ')">
+        <xsl:call-template name="download-dir">
+          <xsl:with-param name="package" select="$package"/>
+          <xsl:with-param name="cat-md5"
+                          select="substring-after($cat-md5,' ')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy-of select="substring-before($cat-md5,' ')"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
