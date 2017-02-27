@@ -130,12 +130,6 @@ yes "yes" | $BUILDDIR$BLFS_ROOT/gen_pkg_book.sh  $BUILDDIR$BLFS_ROOT
 sudo rm -rf $BUILDDIR$BLFS_ROOT/scripts
 mv scripts $BUILDDIR$BLFS_ROOT
 
-# The  book instructions for CA certificates contains downloading
-# instructions, which should not be used here, so:
-if test -f $BUILDDIR$BLFS_ROOT/scripts/*cacerts; then
-  sed -i '/URL=/,/^wget/d' $BUILDDIR$BLFS_ROOT/scripts/*cacerts
-fi
-
 # Generates a list containing download and copying instructions for tarballs
 echo -e '#!/bin/bash\nset -e\n' > $BUILDDIR$BLFS_ROOT/download_script
 sed -n -e '/PACKAGE=/,/^fi/p' \
@@ -150,7 +144,13 @@ chmod u+x $BUILDDIR$BLFS_ROOT/download_script
 pushd $BUILDDIR/sources
 # Remove `unpacked' files if some have been left
 sudo find . -name unpacked -exec rm \{\} \;
-FTP_SERVER=$SERVER/pub/blfs/ SRC_ARCHIVE=$SRC_ARCHIVE $BUILDDIR$BLFS_ROOT/download_script
+if [ "$GETPKG" = "y" ]; then
+    FTP_SERVER=$SERVER/pub/blfs/ \
+    SRC_ARCHIVE=$SRC_ARCHIVE     \
+    $BUILDDIR$BLFS_ROOT/download_script
+else # Save the download script in case the user wants to run it later
+    cp $BUILDDIR$BLFS_ROOT/download_script .
+fi
 popd
 rm -v $BUILDDIR$BLFS_ROOT/download_script
 
@@ -181,10 +181,15 @@ if [ "$DEP_SVN" = y ]; then
 fi
 if [ "$DEP_LYNX" = y ]; then
   if [ "$DEP_OPENSSL" = y -o "$DEP_WGET" = y ]; then
-    sed -i -e 's/configure/& --with-ssl/' \
-           -e '/make$/i echo "#define USE_OPENSSL_INCL 1" >> lynx_cfg.h &&' \
-      $BUILDDIR$BLFS_ROOT/scripts/*lynx
+    sed -e 's/configure/& --with-ssl/' \
+        -i $BUILDDIR$BLFS_ROOT/scripts/*lynx
   fi
+fi
+# The  book instructions for CA certificates suppose that the cerdata.txt
+# file is in the same directory as make-ca.sh-<version>. This is not the
+# case with our default instructions. Just remove the "cd $UNPACKDIR" here.
+if test -f $BUILDDIR$BLFS_ROOT/scripts/*cacerts; then
+  sed -i '/cd \$UNPACKDIR/d' $BUILDDIR$BLFS_ROOT/scripts/*cacerts
 fi
 # At last generates the build Makefile
 mkdir -p $BUILDDIR$BLFS_ROOT/work
