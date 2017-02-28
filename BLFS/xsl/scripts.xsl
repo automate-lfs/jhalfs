@@ -112,7 +112,11 @@ find . -maxdepth 1 -mindepth 1 -type d | xargs </xsl:text>
 case $PACKAGE in
   *.tar.gz|*.tar.bz2|*.tar.xz|*.tgz|*.tar.lzma)
      tar -xvf $PACKAGE &gt; unpacked
-     UNPACKDIR=`grep '[^./]\+' unpacked | head -n1 | sed 's@^./@@;s@/.*@@'`
+     UNPACKDIR=`grep '[^./]\+' unpacked | head -n1 | sed 's@^\./@@;s@/.*@@'`
+     ;;
+  *.tar.lz)
+     bsdtar -xvf $PACKAGE 2&gt; unpacked
+     UNPACKDIR=`head -n1 unpacked | cut  -d" " -f2 | sed 's@^\./@@;s@/.*@@'`
      ;;
   *.zip)
      zipinfo -1 $PACKAGE &gt; unpacked
