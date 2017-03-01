@@ -8,6 +8,18 @@
   <xsl:param name="list" select="''"/>
   <xsl:param name="MTA" select="'sendmail'"/>
 
+<!-- Check whether the book is sysv or systemd -->
+  <xsl:variable name="rev">
+    <xsl:choose>
+      <xsl:when test="//bookinfo/title/phrase[@revision='systemd']">
+        <xsl:text>systemd</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>sysv</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
   <xsl:output
     method="xml"
     encoding="ISO-8859-1"
@@ -19,7 +31,14 @@
       <preface>
         <?dbhtml filename="preface.html"?>
         <title>Preface</title>
-        <xsl:copy-of select="id('bootscripts')"/>
+        <xsl:choose>
+          <xsl:when test="$rev='sysv'">
+            <xsl:copy-of select="id('bootscripts')"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:copy-of select="id('systemd-units')"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </preface>
       <chapter>
         <?dbhtml filename="chapter.html"?>
@@ -112,7 +131,8 @@
           </xsl:when>
           <xsl:otherwise>
             <xsl:choose>
-              <xsl:when test="@linkend='bootscripts'"> 
+              <xsl:when test="@linkend='bootscripts' or
+                              @linkend='systemd-units'"> 
                 <xsl:copy-of select="."/>
               </xsl:when> 
               <xsl:otherwise>
