@@ -9,6 +9,18 @@
 
 <!-- XSLT stylesheet to create shell scripts from "linear build" BLFS books. -->
 
+<!-- Check whether the book is sysv or systemd -->
+  <xsl:variable name="rev">
+    <xsl:choose>
+      <xsl:when test="//bookinfo/title/phrase[@revision='systemd']">
+        systemd
+      </xsl:when>
+      <xsl:otherwise>
+        sysv
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
   <!-- Build as user (y) or as root (n)? -->
   <xsl:param name="sudo" select="'y'"/>
 
@@ -20,7 +32,7 @@
 
   <xsl:template match="sect1">
 
-    <xsl:if test="@id != 'bootscripts'">
+    <xsl:if test="@id != 'bootscripts' and @id != 'systemd-units'">
         <!-- The file names -->
       <xsl:variable name="filename" select="@id"/>
 
@@ -402,12 +414,20 @@ fi
     </xsl:if>
   </xsl:template>
 
-  <xsl:template match="screen" mode="config">
-    <xsl:if test="preceding-sibling::para[1]/xref[@linkend='bootscripts']">
-      <xsl:text>[[ ! -d $SRC_DIR/blfs-bootscripts ]] &amp;&amp; mkdir $SRC_DIR/blfs-bootscripts
-pushd $SRC_DIR/blfs-bootscripts
+  <xsl:template name="set-bootpkg-dir">
+    <xsl:param name="bootpkg" select="'bootscripts'"/>
+    <xsl:param name="url" select="''"/>
+    <xsl:text>[[ ! -d $SRC_DIR/blfs-</xsl:text>
+    <xsl:copy-of select="$bootpkg"/>
+    <xsl:text> ]] &amp;&amp; mkdir $SRC_DIR/blfs-</xsl:text>
+    <xsl:copy-of select="$bootpkg"/>
+    <xsl:text>
+pushd $SRC_DIR/blfs-</xsl:text>
+    <xsl:copy-of select="$bootpkg"/>
+    <xsl:text>
 URL=</xsl:text>
-      <xsl:value-of select="id('bootscripts')//itemizedlist//ulink/@url"/><xsl:text>
+      <xsl:value-of select="$url"/>
+    <xsl:text>
 BOOTPACKG=$(basename $URL)
 if [[ ! -f $BOOTPACKG ]] ; then
   if [[ -f $SRC_ARCHIVE/$PKG_DIR/$BOOTPACKG ]] ; then
@@ -434,9 +454,26 @@ else
 fi
 cd $BOOTUNPACKDIR
 </xsl:text>
+  </xsl:template>
+
+  <xsl:template match="screen" mode="config">
+    <xsl:if test="preceding-sibling::para[1]/xref[@linkend='bootscripts']">
+      <xsl:call-template name="set-bootpkg-dir">
+        <xsl:with-param name="bootpkg" select="'bootscripts'"/>
+        <xsl:with-param name="url"
+                        select="id('bootscripts')//itemizedlist//ulink/@url"/>
+      </xsl:call-template>
+    </xsl:if>
+    <xsl:if test="preceding-sibling::para[1]/xref[@linkend='systemd-units']">
+      <xsl:call-template name="set-bootpkg-dir">
+        <xsl:with-param name="bootpkg" select="'systemd-units'"/>
+        <xsl:with-param name="url"
+                        select="id('systemd-units')//itemizedlist//ulink/@url"/>
+      </xsl:call-template>
     </xsl:if>
     <xsl:apply-templates select='.'/>
-    <xsl:if test="preceding-sibling::para[1]/xref[@linkend='bootscripts']">
+    <xsl:if test="preceding-sibling::para[1]/xref[@linkend='bootscripts' or
+                                                  @linkend='systemd-units']">
       <xsl:text>
 popd</xsl:text>
     </xsl:if>
