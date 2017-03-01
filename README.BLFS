@@ -4,7 +4,7 @@ $Id$
 
      If you want to add blfs-tool support into an xLFS base system build,
   read the "BLFS_TOOL SUPPORT" section found in the README and be sure
-  to follow the after-booting installation intructions.
+  to follow the after-booting installation instructions.
 
      To automate package builds from the BLFS book instructions is a huge
   task. Some of the issues are: the BLFS book isn't linear; some package
@@ -48,14 +48,14 @@ $Id$
     initialized when <make> is first run in blfs_root. It resides in a
     directory, which is created when needed during the process of building
     custom tools or blfs dependencies, right after xLFS. You can specify
-    that directory location in the blfs-tools submenu of jhalfs. You may
+    that directory location in the blfs-tools sub-menu of jhalfs. You may
     need to update permissions and/or ownership of this directory before
     using the blfs tool (see README in jhalfs).
 
        The default location of the tracking directory is /var/lib/jhalfs/BLFS.
     NB : after the initial build, that directory is only used to contain
     instpkg.xml, unless custom tools have been built. In the latter case,
-    it also contains empty files whose name are $PKG-$VERSION for each
+    it also contains empty files whose name are "$PKG-$VERSION" for each
     versionned package built. The information about those packages is
     included into instpkg.xml the next time the tool is run.
 
@@ -82,8 +82,7 @@ $Id$
        /make_book.xsl       XSL stylesheet to generate the linear book.xml
        /scripts.xsl         XSL stylesheet to generate the scriptlets from
                             book.xml
-       /bump.xsl            XSL stylesheet to generate to update the tracking
-                            file
+       /bump.xsl            XSL stylesheet to update the tracking file
     README.BLFS             this file
     TODO                    developers notes (well, not updated often)
     gen_pkg_book.sh         resolves dependencies and generates linear BLFS
@@ -102,7 +101,7 @@ $Id$
     3.2.2 Install to an already running LFS/BLFS system
        If you forgot to install the tools when building xLFS, or want to try
     the tools, you can just run the install-blfs-tools.sh script. It will
-    create the above hierarchy in your home directory and intialize the
+    create the above hierarchy in your home directory and initialize the
     tracking file. You have first to make sure that the tracking dir exists
     and is writable by the user. You may also populate it with (empty) files
     whose names are of the form package-version, for installed packages, so
@@ -159,23 +158,16 @@ $Id$
     as in the previous version of this tool. But we suggest to not select
     too many at a time to be able to sort issues!
 
-       When you are done with the menu, a few checks occur, and the book is
-    generated. When circular dependencies are found, a 3 line message is
-    printed:
-           A is a dependency of B
-           C is a dependency of A
-           A is a dependency of C
-    and a question:
-           Do you want to build A first?
-    This means that the system has found the dependency chain: B->A->C->A.
-    You have therefore to choose whether A is built before C, or
-    C before A: the system cannot make that choice (well, maybe in a few
-    year, with an AI system able to understand the book). If you answer no,
-    C is built first. If you answer yes, C is put in place of A as a dependency
-    of B, then the tree dependency restarts from there, that is with the
-    layout B->C->... You may then hit the case B->C->A->C, for which you
-    should answer no, unless you want to enter an infinite (human driven)
-    loop;-)
+       When you are done with the menu, a few checks occur, and the dependency
+    chain is generated. Each dependency appears with its priority (required,
+    recommended, optional, or external), and it's level. There is a root level
+    0. The selected packages have level 1. The dependencies of selected packages
+    have level 2, the dependencies of the dependencies have level 3, and so on.
+    When circular dependencies are found, they appear with a priority of
+    "circular". This means that two (or more) dependency chains arrive at the
+    same package. The algorithm chooses the chain with the highest priority and
+    reorders dependencies to remove the other chain(s). This is not always the
+    solution an user would prefer, but we have found no way to do it better.
 
        You end up with a book.xml file which contains the linearized book,
     and a rendered HTML, in the directory book-html, which you can browse with
@@ -219,54 +211,56 @@ $Id$
    discussed. They are due to build procedures and/or BLFS layout
    particularities that we can't handle. In several cases, editing the
    build scripts is mandatory.
-   You may also need to insert some build scripts created by you to resolve
-   unhandled dependencies and/or to remove some script installing the affected
-   package by hand.
+      You may also need to insert some build scripts created by you to resolve
+   unhandled dependencies and/or to remove some script installing an unneeded
+   package (unneeded packages may be pulled in the dependency chain, if
+   they occur as an "or" with another package).
+      When there are circular dependencies (only one known in BLFS 8.0 for
+   recommended dependencies), you may need to move around scripts so that they
+   run in the order script-A script-B script-A. This involves copying script-A
+   to another name (using the xxx-a- fields), and possibly renaming the xxx-a-
+   fields of each involved script.
 
    4.1  BLFS BOOTSCRIPTS::
 
-      Normally, bootscript installation should work. On the other hand, the
-   book does not give instruction for running them, so you might have to
-   manually insert /etc/init.d/rc.d/<initscript> at some place during the build.
+        Normally, bootscript installation should work. On the other hand, the
+     book does not give instruction for running them, so you might have to
+     manually insert "/etc/init.d/rc.d/<initscript> start" at some place during
+     the build.
 
    4.2  PACKAGE CONFIGURATION::
 
-      For those packages that have a "Configuration" section, you should
-   edit the build script to fit the needs of your system. Sometimes, the
-   bash startup files are modified (see for example the instructions for
-   llvm). The shipped 'envars.conf' contains a line 'source /etc/profile',
-   which ensures that the proper environment variables are used.
+        For those packages that have a "Configuration" section, you should
+     edit the build script to fit the needs of your system. Sometimes, the
+     bash startup files are modified. The shipped 'envars.conf' contains a
+     line 'source /etc/profile', which ensures that the proper environment
+     variables are used.
 
-   4.3  GCC, JDK, Sane, and KDE-multimedia, freetype2, MesaLib and others
+   4.3  PAGES WITH TWO OR MORE PACKAGES::
+
+        For example: sane, poppler, audacious, freetts, which, etc.
 
         On the pages for those packages, the BLFS book actually has instructions
      to download and install two or more packages. You must edit the scripts to
-     fix this.
-
-        We will try to fix some of them, but this may not be possible.
+     fix this. A common pitfall is that the variable PACKAGE may be used for
+     several tarballs. Be sure to save the PACKAGE variable to some other
+     name (for example PKG1, PKG2, etc) after each download. The unpacking
+     instructions may need to be repeated for each tarball in turn.
 
    4.4  XORG7
 
-        The generated scripts for Xorg7 packages have $SRC_ARCHIVE
-     support for individual packages, but not for patches nor *.wget and *.md5
-     files.
+        The book has special page layouts for the Xorg7 packages. The tool
+     breaks those pages into individual pages for each packages in the linear
+     book. Also, the menu gives the choice to select each package individually.
 
-        If you have previously downloaded the patches, you must edit
-     the scripts to use your local packages.
-
-       The *.wget and *.md5 files should be downladed always from inside
-     the scripts to be sure that the most current individual packages are
-     used. Thus don't reuse previously existing ones.
-
-       In the script for xorg7-font, be sure to move the fonts directories
-     symlinks creation to after the "for ... done" loop.
-
+        To build the whole Xorg7 chapter, select twm. The (recommended)
+     dependency chain brings in the whole set of Xorg packages.
 
    4.5  PATCHES
 
         Please, make sure that all scripts have the commands to download/apply
      the required patches. Due to book layout issues, some patches may be
-     missing.
+     missing (as of BLFS 8.0, all the patches seem to be downloaded).
 
    4.6  ROOT COMMANDS
 
@@ -274,6 +268,7 @@ $Id$
      commands that require root privileges are run using sudo. Also make sure
      necessary root privilege commands are visible in your PATH. Or use
      the `Defaults secure_path=' in /etc/sudoers.
+
         For commands necessitating root privileges, the generated scripts wrap
      them with the construct:
        sudo -E sh << ROOT_EOF
@@ -287,6 +282,12 @@ $Id$
      coming from the environment in the instructions.
         Although this construct is rather strong, it can fail in some corner
      cases, so carefully review those instructions.
+
+        WARNING: One variable from the environment is not passed through the
+     -E switch, namely PATH. This is because "sudo" always reset the PATH to
+     the default "secure_path". If you need to have the same PATH as the user
+     "root" would have, you may want to add "source /etc/profile" at the
+     beginning of the commands to be executed as root.
 
         Due to book layout issues, some sudo commands may be missing.
 
