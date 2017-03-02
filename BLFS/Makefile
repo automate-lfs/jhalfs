@@ -5,16 +5,6 @@
 
 # $Id$
 
-ifeq ($(REV),)
-  REV = sysv
-endif
-
-ifneq ($(REV),sysv)
-  ifneq ($(REV),systemd)
-    $(error The REV variable is $(REV), but can only be 'sysv' or 'systemd')
-  endif
-endif
-
 ifdef V
   Q =
 else
@@ -25,21 +15,39 @@ endif
 LANG=C
 LC_ALL=C
 
-# The right-hand side is updated by jhalfs
-TRACKING_DIR = tracking-dir
-TOPDIR=$(shell pwd)
-BLFS_XML = $(TOPDIR)/blfs-xml
-XSLDIR = $(TOPDIR)/xsl
+# Makefile should reside in a directory where there are two subdirectories
+# initially:
+TOPDIR           = $(shell pwd)
+# the stylesheets
+XSLDIR           = $(TOPDIR)/xsl
+# the menu program sources
+MENU             = $(TOPDIR)/menu
 
-RENDERTMP = $(BLFS_XML)/tmp
-BLFS_FULL = $(RENDERTMP)/blfs-full.xml
-PACK_LIST = $(TOPDIR)/packages.xml
-MENU = $(TOPDIR)/menu
+# Those directories and files will be created and populated by make:
+# directory of the book sources:
+BLFS_XML         = $(TOPDIR)/blfs-xml
+# contains the REV used in the preceding call:
+REVFILE          = $(TOPDIR)/revision
+# the list of packages:
+PACK_LIST        = $(TOPDIR)/packages.xml
+# the generated menu input:
 CONFIG_CONFIG_IN = $(TOPDIR)/Config.in
-CONFIG_OUT = $(TOPDIR)/configuration
-BOOK_XML = $(TOPDIR)/book.xml
-TRACKFILE = $(TRACKING_DIR)/instpkg.xml
+# menu output:
+CONFIG_OUT       = $(TOPDIR)/configuration
+# the linear book:
+BOOK_XML         = $(TOPDIR)/book.xml
 
+RENDERTMP        = $(BLFS_XML)/tmp
+BLFS_FULL        = $(RENDERTMP)/blfs-full.xml
+
+# The right-hand side is updated by jhalfs:
+# Where the tracking file resides:
+TRACKING_DIR = tracking-dir
+
+# Will be created  by make, if not existent
+TRACKFILE        = $(TRACKING_DIR)/instpkg.xml
+
+# Initial content of the tracking file
 define INITIAL_TRACK
 <?xml version="1.0" encoding="ISO-8859-1"?>\n\
 \n\
@@ -52,9 +60,30 @@ endef
 SVN = svn://svn.linuxfromscratch.org/BLFS/trunk/BOOK
 
 ALLXML := $(filter-out $(RENDERTMP)/%, \
-	$(wildcard $(BLFS_XML)/*.xml $(BLFS_XML)/*/*.xml $(BLFS_XML)/*/*/*.xml $(BLFS_XML)/*/*/*/*.xml $(BLFS_XML)/*/*/*/*/*.xml))
+              $(shell if [ -d $(BLFS_XML) ]; then \
+                        find $(BLFS_XML) -name \*.xml; \
+                      fi))
 ALLXSL := $(filter-out $(RENDERTMP)/%, \
-        $(wildcard $(BLFS_XML)/*.xsl $(BLFS_XML)/*/*.xsl $(BLFS_XML)/*/*/*.xsl $(BLFS_XML)/*/*/*/*.xsl $(BLFS_XML)/*/*/*/*/*.xsl))
+              $(shell if [ -d $(BLFS_XML) ]; then \
+                        find $(BLFS_XML) -name \*.xsl; \
+                      fi))
+
+# Try to set the REV variable according to previous runs, except when
+# set on the command line:
+REV1 := $(shell if [ -f $(REVFILE) ] ; then cat $(REVFILE); fi)
+ifneq ($(origin REV),command line)
+  ifdef REV1
+    REV = $(REV1)
+  else
+    REV = not defined
+  endif
+endif
+
+ifneq ($(REV),sysv)
+  ifneq ($(REV),systemd)
+    $(error The REV variable is $(REV), but can only be 'sysv' or 'systemd')
+  endif
+endif
 
 $(BOOK_XML): $(CONFIG_OUT)
 	$(Q)$(TOPDIR)/gen_pkg_book.sh $(TOPDIR) $(BLFS_FULL)
@@ -106,6 +135,9 @@ $(TRACKING_DIR):
 $(XSLDIR)/specialCases.xsl: $(TOPDIR)/gen-special.sh $(BLFS_FULL)
 	$(Q)$(TOPDIR)/gen-special.sh $(BLFS_FULL) $@
 
+ifneq ($(REV),$(REV1))
+$(BLFS_FULL): FORCE
+endif
 $(BLFS_FULL): $(BLFS_XML) $(BLFS_XML)/general.ent $(ALLXML) $(ALLXSL)
 	$(Q)[ -d $(RENDERTMP) ] || mkdir -p $(RENDERTMP)
 	@echo "Adjusting for revision $(REV)..."
@@ -117,6 +149,7 @@ $(BLFS_FULL): $(BLFS_XML) $(BLFS_XML)/general.ent $(ALLXML) $(ALLXSL)
 	@echo "Validating the book..."
 	$(Q)xmllint --nonet --noent --postvalid \
 	  -o $@ $(RENDERTMP)/blfs-prof.xml
+	$(Q)echo $(REV) > $(REVFILE)
 
 all: update $(BOOK_XML)
 
@@ -135,4 +168,5 @@ clean:
 	rm -rf $(TOPDIR)/dependencies $(TOPDIR)/book-html $(TOPDIR)/scripts
 	- $(MAKE) -C $(MENU) clean
 
-.PHONY: clean all update $(CONFIG_OUT)
+FORCE:
+.PHONY: clean all update $(CONFIG_OUT) FORCE
