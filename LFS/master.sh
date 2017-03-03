@@ -450,6 +450,25 @@ build_Makefile() {           #
 
 all:	ck_UID mk_SETUP mk_LUSER mk_SUDO mk_CHROOT mk_BOOT create-sbu_du-report mk_BLFS_TOOL mk_CUSTOM_TOOLS
 	@sudo make do_housekeeping
+EOF
+) >> $MKFILE
+if [ "$INITSYS" = systemd ]; then
+(
+    cat << EOF
+	@/bin/echo -e -n \\
+	NAME=\\"Linux From Scratch\\"\\\\n\\
+	VERSION=\\"$VERSION\\"\\\\n\\
+	ID=lfs\\\\n\\
+	PRETTY_NAME=\\"Linux From Scratch $VERSION\\"\\\\n\\
+	VERSION_CODENAME=\\"$(whoami)-jhalfs\\"\\\\n\\
+	> os-release && \\
+	sudo mv os-release \$(MOUNT_PT)/etc && \\
+	sudo chown root:root \$(MOUNT_PT)/etc/os-release
+EOF
+) >> $MKFILE
+fi
+(
+    cat << EOF
 	@echo $VERSION > lfs-release && \\
 	sudo mv lfs-release \$(MOUNT_PT)/etc && \\
 	sudo chown root:root \$(MOUNT_PT)/etc/lfs-release
