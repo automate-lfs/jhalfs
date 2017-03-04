@@ -29,6 +29,10 @@ case $1 in
     local VERSION2=$(sed -n 's/.*icu-minor[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
     VERSION=$VERSION1.$VERSION2
     ;;
+  soundtouch*)
+    local PACKENT=$(dirname $PACK_INSTALL)/blfs-xml/packages.ent
+    VERSION=$(sed -n 's/.*soundtouch[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
+    ;;
   xf86-video-intel)
     local PACKENT=$(dirname $PACK_INSTALL)/blfs-xml/x/installing/x7driver-intel.xml
     VERSION=$(sed -n '/<!--/!s/.*-version[^;][^0-9]*\([^"]*\).*/\1/p' $PACKENT)
