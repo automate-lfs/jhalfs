@@ -378,10 +378,13 @@ boot_Makefiles() {                     #
       *grub | *aboot | *colo | *silo | *arcload | *lilo | *introduction ) continue ;;
       *how-to-view*) continue  ;;
       *whatnext*) continue     ;;
-      *fstab)   [[ ! -z ${FSTAB} ]] && cp ${FSTAB} $BUILDDIR/sources/fstab ;;
+      *fstab)   [[ ! -z ${FSTAB} ]] &&
+                [[ ${FSTAB} == $BUILDDIR/sources/fstab ]] ||
+                cp ${FSTAB} $BUILDDIR/sources/fstab ;;
       *kernel)  # if there is no kernel config file do not build the kernel
-                [[ -z $CONFIG ]] && continue
+                [[ -z $BOOT_CONFIG ]] && continue
                   # Copy the config file to /sources with a standardized name
+                [[ ${BOOT_CONFIG} == $BUILDDIR/sources/bootkernel-config ]] ||
                 cp $BOOT_CONFIG $BUILDDIR/sources/bootkernel-config
           ;;
     esac
@@ -734,7 +737,9 @@ bootscripts_Makefiles() {              #
       *udev)     continue ;; # This is not a script but a commentary, we want udev-rules
       *console*) continue ;; # Use the files that came with the bootscripts
 # fstab is now here (for 3.x.y)
-      *fstab)  [[ ! -z ${FSTAB} ]] && cp ${FSTAB} $BUILDDIR/sources/fstab ;;
+      *fstab)  [[ ! -z ${FSTAB} ]] &&
+               [[ ${FSTAB} == $BUILDDIR/sources/fstab ]] ||
+               cp ${FSTAB} $BUILDDIR/sources/fstab ;;
       *)  ;;
     esac
 
@@ -907,10 +912,13 @@ bootable_Makefiles() {                 #
     # A little housekeeping on the scripts
     case $this_script in
       *grub | *aboot | *colo | *silo | *arcload | *lilo | *reboot* )  continue ;;
-      *fstab)  [[ ! -z ${FSTAB} ]] && cp ${FSTAB} $BUILDDIR/sources/fstab ;;
+      *fstab)  [[ ! -z ${FSTAB} ]] &&
+               [[ ${FSTAB} == $BUILDDIR/sources/fstab ]] ||
+               cp ${FSTAB} $BUILDDIR/sources/fstab ;;
       *kernel) # if there is no kernel config file do not build the kernel
                [[ -z $CONFIG ]] && continue
                  # Copy the config file to /sources with a standardized name
+               [[ $CONFIG == $BUILDDIR/sources/kernel-config ]] ||
                cp $CONFIG $BUILDDIR/sources/kernel-config
         ;;
     esac

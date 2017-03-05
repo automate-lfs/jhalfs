@@ -312,8 +312,11 @@ chapter78_Makefiles() {
     # If no .config file is supplied, the kernel build is skipped
     case ${this_script} in
       *grub)    continue ;;
-      *fstab)   [[ ! -z ${FSTAB} ]] && cp ${FSTAB} $BUILDDIR/sources/fstab ;;
+      *fstab)   [[ ! -z ${FSTAB} ]] &&
+                [[ ${FSTAB} == $BUILDDIR/sources/fstab ]] ||
+                cp ${FSTAB} $BUILDDIR/sources/fstab ;;
       *kernel)  [[ -z ${CONFIG} ]] && continue
+                [[ ${CONFIG} == $BUILDDIR/sources/kernel-config ]] ||
                 cp ${CONFIG} $BUILDDIR/sources/kernel-config  ;;
     esac
 
