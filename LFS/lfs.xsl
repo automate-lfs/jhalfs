@@ -635,6 +635,11 @@ unset OLD_PKGDIR
           <xsl:with-param name="netstring" select="string()"/>
         </xsl:call-template>
       </xsl:when>
+      <xsl:when test="contains(string(),'[Match]')">
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring" select="string()"/>
+        </xsl:call-template>
+      </xsl:when>
       <xsl:otherwise>
         <xsl:apply-templates/>
       </xsl:otherwise>
@@ -706,6 +711,94 @@ unset OLD_PKGDIR
         <xsl:call-template name="outputnet">
           <xsl:with-param name="netstring"
                           select="substring-after($netstring,'24')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$netstring"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="outputsysdnet">
+    <xsl:param name="netstring" select="''"/>
+    <!-- We suppose that book example has the following values:
+         - interface: eth0
+         - ip: 192.168.0.2
+         - gateway: 192.168.0.1
+         - prefix: 24
+         - DNS: 192.168.0.1
+         - Domain: <Your Domain Name>
+         and gateway comes before DNS. Change below if book changes -->
+    <xsl:choose>
+      <xsl:when test="contains($netstring,'eth0')">
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-before($netstring,'eth0')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$interface"/>
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-after($netstring,'eth0')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($netstring,'192.168.0.1') and
+                      contains($netstring,'Gateway')">
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-before($netstring,'192.168.0.1')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$gateway"/>
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-after($netstring,'192.168.0.1')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($netstring,'192.168.0.1') and
+                      not(contains($netstring,'Gateway'))">
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-before($netstring,'192.168.0.1')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$nameserver1"/>
+        <xsl:text>
+DNS=</xsl:text>
+        <xsl:value-of select="$nameserver2"/>
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-after($netstring,'192.168.0.1')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($netstring,'192.168.0.2')">
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-before($netstring,'192.168.0.2')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$ip"/>
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-after($netstring,'192.168.0.2')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($netstring,'24')">
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-before($netstring,'24')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$prefix"/>
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-after($netstring,'24')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($netstring,'&lt;Your Domain Name&gt;')">
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-before($netstring,'&lt;Your Domain Name&gt;')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$domain"/>
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-after($netstring,'&lt;Your Domain Name&gt;')"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
