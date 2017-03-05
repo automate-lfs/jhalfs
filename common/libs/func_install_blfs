@@ -146,7 +146,7 @@ pushd $BUILDDIR/sources
 sudo find . -name unpacked -exec rm \{\} \;
 if [ "$GETPKG" = "y" ]; then
     FTP_SERVER=$SERVER/pub/blfs/ \
-    SRC_ARCHIVE=$SRC_ARCHIVE     \
+    SRC_ARCHIVE=${SRC_ARCHIVE:-/dev/null}     \
     $BUILDDIR$BLFS_ROOT/download_script
 else # Save the download script in case the user wants to run it later
     cp $BUILDDIR$BLFS_ROOT/download_script .
