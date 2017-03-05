@@ -889,7 +889,7 @@ menu "--- Build Settings"
 
 	config	STRIP
 		bool "Strip Installed Binaries/Libraries"
-		default y
+		default n
 		depends on !BOOK_CLFS3
 
 	config	VIMLANG
