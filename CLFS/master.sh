@@ -378,7 +378,7 @@ boot_Makefiles() {                     #
       *grub | *aboot | *colo | *silo | *arcload | *lilo | *introduction ) continue ;;
       *how-to-view*) continue  ;;
       *whatnext*) continue     ;;
-      *fstab)   [[ ! -z ${FSTAB} ]] &&
+      *fstab)   [[ -z "${FSTAB}" ]] ||
                 [[ ${FSTAB} == $BUILDDIR/sources/fstab ]] ||
                 cp ${FSTAB} $BUILDDIR/sources/fstab ;;
       *kernel)  # if there is no kernel config file do not build the kernel
@@ -499,7 +499,7 @@ boot_Makefiles() {                     #
         *changingowner)   wrt_RunAsRoot "${file}"    ;;
         *devices)         wrt_RunAsRoot "${file}"    ;;
         *fstab)
-           if [[ -n "$FSTAB" ]]; then
+           if [[ -n "${FSTAB}" ]]; then
                LUSER_wrt_CopyFstab
            else
                LUSER_wrt_RunAsUser  "${file}"
@@ -734,10 +734,10 @@ bootscripts_Makefiles() {              #
     this_script=`basename $file`
 
     case $this_script in
-      *udev)     continue ;; # This is not a script but a commentary, we want udev-rules
+      *udev)     continue ;; # This is not a script but a comment, we want udev-rules
       *console*) continue ;; # Use the files that came with the bootscripts
 # fstab is now here (for 3.x.y)
-      *fstab)  [[ ! -z ${FSTAB} ]] &&
+      *fstab)  [[ -z "${FSTAB}" ]] ||
                [[ ${FSTAB} == $BUILDDIR/sources/fstab ]] ||
                cp ${FSTAB} $BUILDDIR/sources/fstab ;;
       *)  ;;
@@ -912,7 +912,7 @@ bootable_Makefiles() {                 #
     # A little housekeeping on the scripts
     case $this_script in
       *grub | *aboot | *colo | *silo | *arcload | *lilo | *reboot* )  continue ;;
-      *fstab)  [[ ! -z ${FSTAB} ]] &&
+      *fstab)  [[ -z "${FSTAB}" ]] ||
                [[ ${FSTAB} == $BUILDDIR/sources/fstab ]] ||
                cp ${FSTAB} $BUILDDIR/sources/fstab ;;
       *kernel) # if there is no kernel config file do not build the kernel
