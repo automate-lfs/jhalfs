@@ -22,7 +22,7 @@ Do not change  anything, except the url and the md5 checksum. -->
         <para>MD5 sum: <literal>e9aa6dec29920eba8ef706ea5823bad7</literal></para>
         <para>Download: <ulink url="http://www.libarchive.org/downloads/libarchive-3.1.2.tar.gz"/></para>
         <para>MD5 sum: <literal>efad5a503f66329bb9d2f4308b5de98a</literal></para>
-        <para>Download: <ulink url="ftp://ftp.archlinux.org/other/pacman/pacman-4.1.2.tar.gz"/></para>
+        <para>Download: <ulink url="https://sources.archlinux.org/other/pacman/pacman-4.1.2.tar.gz"/></para>
         <para>MD5 sum: <literal>063c8b0ff6bdf903dc235445525627cd</literal></para>
 </sect1>
 
@@ -43,6 +43,7 @@ instruction  contains file="name.html" -->
   <sect2 role="installation">
 <screen><userinput remap="configure">./configure --prefix=/tools \
             --without-bz2lib \
+            --without-xml2   \
             --enable-bsdtar=static \
             --enable-bsdcpio=static</userinput></screen>
 <screen><userinput remap="make">make</userinput></screen>
@@ -75,6 +76,7 @@ put line breaks before and after your instructions. <userinput> without
 remap attribute are considered configuration instructions and executed last. You
 can also use remap="adjust" for the same purpose. -->
 <screen><userinput remap="configure">./configure --prefix=/tools \
+    --without-openssl \
     PKG_CONFIG_PATH=/tools/lib/pkgconfig \
     DUPATH=/tools/bin/du</userinput></screen>
 

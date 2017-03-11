@@ -5,14 +5,14 @@ BY    : Pierre Labastie (work in progress)
 
       There are several hints discussing package management for LFS, but
   nothing under jhalfs. There used to be a patch for PACO that I cannot
-  find now. This is a modification, which allows to use a package manager
-  inside jhalfs. I hope it is flexible enough to support several package
-  managers. My implementation uses dpkg, from Debian, in a very crude way.
-  Debian has a sophisticated package management system, which I have not
-  tried to use here. For example, it should be usable with Pacman from
-  Arch Linux (http://www.archlinux.org), as far as I remember from my old
-  days with DIYL. I am sorry to say I have (almost) no experience with
-  rpm, so I cannot tell whether it would fit.
+  find now. This is a modification ("DESTDIR install" automation), which
+  allows to use a package manager inside jhalfs. I hope it is flexible enough
+  to support several package managers, at least among those who use DESTDIR
+  install. My initial implementation used dpkg, from Debian, in a very
+  crude way (Debian has a sophisticated package management system, which
+  I have not tried to use here). There is also a port to Pacman from
+  Arch Linux (http://www.archlinux.org). I am sorry to say I have (almost)
+  no experience with rpm, so I cannot tell whether it would fit.
 
 2. OVERVIEW OF THE SYSTEM:
 
@@ -56,4 +56,6 @@ BY    : Pierre Labastie (work in progress)
   upgrade. The user has to write his own `packInstall' function. The shell
   function should be defined in a file named `packInstall.sh', residing in
   the `pkgmngt' directory. A template is provided, as well as two example
-  scripts for dpkg and pacman.
+  scripts for dpkg and pacman. Note that, due to the way pacman checks the
+  available space on disk, the root directory in chroot must be a mount point,
+  otherwise the installation of packages fails.
