@@ -9,10 +9,10 @@
 <!ENTITY before "Must be installed before">
 <!ENTITY external "Optional dependencies">
 <!ENTITY debian-pool "http://ftp2.fr.debian.org/debian/pool/main/">
-<!ENTITY dpkg-version "1.18.3">
-<!ENTITY dpkg-size "4,258 KB">
+<!ENTITY dpkg-version "1.18.23">
+<!ENTITY dpkg-size "4,411 KB">
 <!ENTITY dpkg-url "&debian-pool;d/dpkg/dpkg_&dpkg-version;.tar.xz">
-<!ENTITY dpkg-md5 "a5ca138121cc37c8fb0083462a3b4d47">
+<!ENTITY dpkg-md5 "2195338c1792b0678575309a099d2da8">
 <!ENTITY dpkg-home "http://wiki.debian.org/Teams/Dpkg">
 <!ENTITY dpkg-ch5-du "56 MB">
 <!ENTITY dpkg-ch5-sbu "0.2 SBU">
@@ -111,7 +111,7 @@
     --disable-nls --disable-dselect \
     --disable-start-stop-daemon \
     --disable-update-alternatives \
-    --without-zlib --with-liblzma=static --without-selinux</userinput></screen>
+    --without-zlib --with-liblzma=static --without-libselinux</userinput></screen>
 
     <variablelist>
       <title>The meaning of the configure options:</title>
@@ -157,10 +157,10 @@
       </varlistentry>
 
       <varlistentry>
-        <term><parameter>--without-selinux</parameter></term>
+        <term><parameter>--without-libselinux</parameter></term>
         <listitem>
           <para>Disable building for <application>selinux</application>, which
-          is not used woth LFS/BLFS.</para>
+          is not used with LFS/BLFS.</para>
         </listitem>
       </varlistentry>
 
@@ -275,7 +275,7 @@ touch /var/log/dpkg.log</userinput></screen>
         --disable-dselect \
         --disable-start-stop-daemon \
         --disable-update-alternatives \
-        --without-selinux</userinput></screen>
+        --without-libselinux</userinput></screen>
 
     <variablelist>
       <title>The meaning of the configure options:</title>
@@ -304,7 +304,7 @@ touch /var/log/dpkg.log</userinput></screen>
       </varlistentry>
 
       <varlistentry>
-        <term><parameter>--without-selinux</parameter></term>
+        <term><parameter>--without-libselinux</parameter></term>
         <listitem>
           <para>Selinux is not used in LFS.</para>
         </listitem>

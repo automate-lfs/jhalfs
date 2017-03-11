@@ -312,7 +312,7 @@ chapter78_Makefiles() {
     # If no .config file is supplied, the kernel build is skipped
     case ${this_script} in
       *grub)    continue ;;
-      *fstab)   [[ ! -z ${FSTAB} ]] &&
+      *fstab)   [[ -z "${FSTAB}" ]] ||
                 [[ ${FSTAB} == $BUILDDIR/sources/fstab ]] ||
                 cp ${FSTAB} $BUILDDIR/sources/fstab ;;
       *kernel)  [[ -z ${CONFIG} ]] && continue
@@ -366,7 +366,7 @@ chapter78_Makefiles() {
 
       # Check if we have a real /etc/fstab file
     case "${this_script}" in
-      *fstab) if [[ -n $FSTAB ]]; then
+      *fstab) if [[ -n "$FSTAB" ]]; then
                 CHROOT_wrt_CopyFstab
               else
                 CHROOT_wrt_RunAsRoot "$file"
