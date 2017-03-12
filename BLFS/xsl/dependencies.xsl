@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<!-- $Id: dependencies.xsl 24 2012-02-16 15:26:15Z labastie $ -->
+<!-- $Id$ -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     version="1.0">

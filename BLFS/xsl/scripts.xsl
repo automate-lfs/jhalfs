@@ -5,7 +5,7 @@
     extension-element-prefixes="exsl"
     version="1.0">
 
-<!-- $Id: scripts.xsl 34 2012-02-21 16:05:09Z labastie $ -->
+<!-- $Id$ -->
 
 <!-- XSLT stylesheet to create shell scripts from "linear build" BLFS books. -->
 

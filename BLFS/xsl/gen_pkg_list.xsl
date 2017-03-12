@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Id: gen_pkg_list.xsl 21 2012-02-16 15:06:19Z labastie $ -->
+<!-- $Id$ -->
 <!-- Takes the blfs-full.xml file and extract a list
      of packages obeying packdesc.dtd + looks for already
      installed packages in the tracking file (stringparam

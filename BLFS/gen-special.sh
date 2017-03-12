@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# $Id: gen-special.sh 21 2012-02-16 15:06:19Z labastie $
+# $Id$
 
 #-------------------------------------------------------------------------
 # generates an xsl stylesheet containing a template for special
