@@ -473,7 +473,8 @@ static void build_conf(struct menu *menu)
 	struct symbol *sym;
 	struct property *prop;
 	struct menu *child;
-	int type, tmp, doint = 2;
+/*	int type, tmp, doint = 2; */
+	int type, doint = 2;
 	tristate val;
 	char ch;
 
@@ -595,13 +596,16 @@ static void build_conf(struct menu *menu)
 				break;
 			default:
 				cprint_tag("s%p", menu);
-				tmp = cprint_name("(%s)", sym_get_string_value(sym));
+/*				tmp = cprint_name("(%s)", sym_get_string_value(sym));
 				tmp = indent - tmp + 4;
 				if (tmp < 0)
-					tmp = 0;
-				cprint_name("%*c%s%s", tmp, ' ', menu_get_prompt(menu),
-					(sym_has_value(sym) || !sym_is_changable(sym)) ?
-					"" : " (NEW)");
+					tmp = 0; */
+				cprint_name("   %*c%s (%s)%s",
+                                   indent+1, ' ',
+                                   menu_get_prompt(menu),
+                                   sym_get_string_value(sym),
+                                   (sym_has_value(sym) || !sym_is_changable(sym)) ?
+                                     "" : " (NEW)");
 				goto conf_childs;
 			}
 		}
