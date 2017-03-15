@@ -11,12 +11,12 @@ BLFS_ROOT     : where the installed tools will be installed, relative to $HOME.
                 Must start with a '/' (default /blfs_root)
 BLFS_BRANCH_ID: development, branch-xxx, xxx (where xxx is a valid tag)
                 (default development)
-INIT_SYSTEM   : which book do you want? 'sysv' or 'systemd' (default sysv)
+INITSYS   : which book do you want? 'sysv' or 'systemd' (default sysv)
 Examples:
 1 - If you plan to use the tools to build BLFS on top of LFS, but you did not
 use jhalfs, or forgot to include the jhalfs-blfs tools:
 (as root) mkdir -p /var/lib/jhalfs/BLFS && chown -R <user> /var/lib/jhalfs
-(as user) INIT_SYSTEM=<your system> ./install-blfs-tools.sh
+(as user) INITSYS=<your system> ./install-blfs-tools.sh
 2 - To install with only user privileges (default to sysv):
 TRACKING_DIR=$HOME/blfs_root/trackdir ./install-blfs-tools.sh
 
@@ -80,12 +80,12 @@ BLFS_TOOL='y'
 BUILDDIR=$(cd ~;pwd)
 BLFS_ROOT="${BLFS_ROOT:=/blfs_root}"
 TRACKING_DIR="${TRACKING_DIR:=/var/lib/jhalfs/BLFS}"
-INIT_SYSTEM="${INIT_SYSTEM:=sysv}"
+INITSYS="${INITSYS:=sysv}"
 BLFS_BRANCH_ID=${BLFS_BRANCH_ID:=development}
 BLFS_XML=${BLFS_XML:=blfs-xml}
 
 # Validate the configuration:
-PARAMS="BLFS_ROOT TRACKING_DIR INIT_SYSTEM BLFS_XML"
+PARAMS="BLFS_ROOT TRACKING_DIR INITSYS BLFS_XML"
 if [ "$WORKING_COPY" = y ]; then
   PARAMS="$PARAMS WORKING_COPY BOOK"
 else
@@ -167,7 +167,7 @@ cp -a $BLFS_BOOK $BUILDDIR$BLFS_ROOT/$BLFS_XML
 
 make -j1 -C $BUILDDIR$BLFS_ROOT \
      TRACKING_DIR=$TRACKING_DIR \
-     REV=$INIT_SYSTEM            \
+     REV=$INITSYS            \
      BLFS_XML=$BUILDDIR$BLFS_ROOT/$BLFS_XML      \
      SVN=svn://svn.linuxfromscratch.org/BLFS/$BLFS_TREE \
      $BUILDDIR$BLFS_ROOT/packages.xml

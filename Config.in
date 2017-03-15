@@ -39,10 +39,26 @@ menu "BOOK Settings"
                 to build BLFS packages.
     endchoice
 
+    choice
+    depends BOOK_BLFS
+    prompt "Init system"
+
+        config BLFS_SYSV
+        bool "BLFS Sys V"
+        help
+            Extract the Sys V flavour of the BLFS book
+
+        config BLFS_SYSD
+        bool "BLFS systemd"
+        help
+            Extract the systemd flavour of the BLFS book
+
+    endchoice
+
     config    INITSYS
         string
-        default "sysv"         if BOOK_LFS
-        default "systemd"      if BOOK_LFS_SYSD
+        default "sysv"         if BOOK_LFS || BLFS_SYSV
+        default "systemd"      if BOOK_LFS_SYSD || BLFS_SYSD
 
     config    PROGNAME
         string
@@ -874,6 +890,7 @@ depends !BOOK_BLFS
 endmenu
 
 menu "System configuration
+    depends !BOOK_BLFS
 
     #--- FSTAB
     config    HAVE_FSTAB

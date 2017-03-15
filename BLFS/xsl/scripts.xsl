@@ -78,11 +78,18 @@
                  "export" it -->
             <xsl:text>export PKG_DIR=</xsl:text>
             <xsl:value-of select="$filename"/>
-            <xsl:text>&#xA;</xsl:text>
+            <xsl:text>
+SRC_DIR=${SRC_ARCHIVE}${SRC_SUBDIRS:+/${PKG_DIR}}
+BUILD_DIR=${BUILD_ROOT}${BUILD_SUBDIRS:+/${PKG_DIR}}
+mkdir -p $SRC_DIR
+mkdir -p $BUILD_DIR
+
+</xsl:text>
             <!-- Download code and build commands -->
             <xsl:apply-templates select="sect2"/>
             <!-- Clean-up -->
-            <xsl:text>cd $SRC_DIR/$PKG_DIR&#xA;</xsl:text>
+            <xsl:text>cd $BUILD_DIR
+[[ -n "$KEEP_FILES" ]] || </xsl:text>
             <!-- In some case, some files in the build tree are owned
                  by root -->
             <xsl:if test="$sudo='y'">
@@ -105,8 +112,8 @@
   <xsl:template match="sect2">
     <xsl:choose>
       <xsl:when test="@role = 'package'">
-        <xsl:text>mkdir -p $SRC_DIR/$PKG_DIR&#xA;</xsl:text>
-        <xsl:text>cd $SRC_DIR/$PKG_DIR&#xA;</xsl:text>
+        <xsl:text>cd $SRC_DIR
+</xsl:text>
         <!-- Download information is in bridgehead tags -->
         <xsl:apply-templates select="bridgehead[@renderas='sect3']"/>
         <xsl:text>&#xA;</xsl:text>
@@ -116,6 +123,7 @@
       </xsl:when>
       <xsl:when test="@role = 'installation'">
         <xsl:text>
+cd $BUILD_DIR
 find . -maxdepth 1 -mindepth 1 -type d | xargs </xsl:text>
         <xsl:if test="$sudo='y'">
           <xsl:text>sudo </xsl:text>
@@ -123,21 +131,21 @@ find . -maxdepth 1 -mindepth 1 -type d | xargs </xsl:text>
         <xsl:text>rm -rf
 case $PACKAGE in
   *.tar.gz|*.tar.bz2|*.tar.xz|*.tgz|*.tar.lzma)
-     tar -xvf $PACKAGE &gt; unpacked
+     tar -xvf $SRC_DIR/$PACKAGE &gt; unpacked
      UNPACKDIR=`grep '[^./]\+' unpacked | head -n1 | sed 's@^\./@@;s@/.*@@'`
      ;;
   *.tar.lz)
-     bsdtar -xvf $PACKAGE 2&gt; unpacked
+     bsdtar -xvf $SRC_DIR/$PACKAGE 2&gt; unpacked
      UNPACKDIR=`head -n1 unpacked | cut  -d" " -f2 | sed 's@^\./@@;s@/.*@@'`
      ;;
   *.zip)
-     zipinfo -1 $PACKAGE &gt; unpacked
+     zipinfo -1 $SRC_DIR/$PACKAGE &gt; unpacked
      UNPACKDIR="$(sed 's@/.*@@' unpacked | uniq )"
      if test $(wc -w &lt;&lt;&lt; $UNPACKDIR) -eq 1; then
-       unzip $PACKAGE
+       unzip $SRC_DIR/$PACKAGE
      else
        UNPACKDIR=${PACKAGE%.zip}
-       unzip -d $UNPACKDIR $PACKAGE
+       unzip -d $UNPACKDIR $SRC_DIR/$PACKAGE
      fi
      ;;
   *)
@@ -221,7 +229,9 @@ cd $UNPACKDIR&#xA;
     <xsl:text>&#xA;if [[ ! -f $</xsl:text>
     <xsl:value-of select="$varname"/>
     <xsl:text> ]] ; then&#xA;</xsl:text>
-    <!-- SRC_ARCHIVE may have subdirectories or not -->
+    <!-- This whole code becomes obsolete because now, it is there or we
+         download; keeping for now, and we may want to grab it from
+         SRC_ARCHIVE when SRC_SUBDIRS is set...
     <xsl:text>  if [[ -f $SRC_ARCHIVE/$PKG_DIR/$</xsl:text>
     <xsl:value-of select="$varname"/>
     <xsl:text> ]] ; then&#xA;</xsl:text>
@@ -237,29 +247,29 @@ cd $UNPACKDIR&#xA;
     <xsl:value-of select="$varname"/>
     <xsl:text> $</xsl:text>
     <xsl:value-of select="$varname"/>
-    <xsl:text>&#xA;  else&#xA;</xsl:text>
+    <xsl:text>&#xA;  else&#xA;</xsl:text> -->
     <!-- Download from upstream http -->
     <xsl:if test="string-length($httpurl) &gt; 10">
-      <xsl:text>    wget -T 30 -t 5 </xsl:text>
+      <xsl:text>  wget -T 30 -t 5 </xsl:text>
       <xsl:value-of select="$httpurl"/>
       <xsl:text> ||&#xA;</xsl:text>
     </xsl:if>
     <!-- Download from upstream ftp -->
     <xsl:if test="string-length($ftpurl) &gt; 10">
-      <xsl:text>    wget -T 30 -t 5 </xsl:text>
+      <xsl:text>  wget -T 30 -t 5 </xsl:text>
       <xsl:value-of select="$ftpurl"/>
       <xsl:text> ||&#xA;</xsl:text>
     </xsl:if>
     <!-- The FTP_SERVER mirror as a last resort -->
-    <xsl:text>    wget -T 30 -t 5 ${FTP_SERVER}svn/</xsl:text>
+    <xsl:text>  wget -T 30 -t 5 ${FTP_SERVER}svn/</xsl:text>
     <xsl:value-of select="$first_letter"/>
     <xsl:text>/$</xsl:text>
     <xsl:value-of select="$varname"/>
     <xsl:text>
-    cp $</xsl:text>
+<!--    cp $</xsl:text>
     <xsl:value-of select="$varname"/>
     <xsl:text> $SRC_ARCHIVE
-  fi
+  fi-->
 fi
 </xsl:text>
     <xsl:if test="string-length($md5) &gt; 10">
@@ -268,6 +278,15 @@ fi
       <xsl:text>&#x20;&#x20;$</xsl:text>
       <xsl:value-of select="$varname"/>
       <xsl:text>" | md5sum -c -
+</xsl:text>
+    </xsl:if>
+<!-- link additional packages into $BUILD_DIR, because they are supposed to
+     be there-->
+    <xsl:if test="string($varname) != 'PACKAGE'">
+      <xsl:text>
+[[ "$SRC_DIR" != "$BUILD_DIR" ]] &amp;&amp; ln -sf $SRC_DIR/$</xsl:text>
+      <xsl:value-of select="$varname"/>
+      <xsl:text> $BUILD_DIR
 </xsl:text>
     </xsl:if>
   </xsl:template>
