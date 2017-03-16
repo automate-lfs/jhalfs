@@ -228,48 +228,38 @@ cd $UNPACKDIR&#xA;
     <xsl:value-of select="$package"/>
     <xsl:text>&#xA;if [[ ! -f $</xsl:text>
     <xsl:value-of select="$varname"/>
-    <xsl:text> ]] ; then&#xA;</xsl:text>
-    <!-- This whole code becomes obsolete because now, it is there or we
-         download; keeping for now, and we may want to grab it from
-         SRC_ARCHIVE when SRC_SUBDIRS is set...
-    <xsl:text>  if [[ -f $SRC_ARCHIVE/$PKG_DIR/$</xsl:text>
-    <xsl:value-of select="$varname"/>
-    <xsl:text> ]] ; then&#xA;</xsl:text>
-    <xsl:text>    cp $SRC_ARCHIVE/$PKG_DIR/$</xsl:text>
-    <xsl:value-of select="$varname"/>
-    <xsl:text> $</xsl:text>
-    <xsl:value-of select="$varname"/>
-    <xsl:text>&#xA;</xsl:text>
-    <xsl:text>  elif [[ -f $SRC_ARCHIVE/$</xsl:text>
+    <xsl:text> ]] ; then
+  if [[ -f $SRC_ARCHIVE/$</xsl:text>
     <xsl:value-of select="$varname"/>
     <xsl:text> ]] ; then&#xA;</xsl:text>
     <xsl:text>    cp $SRC_ARCHIVE/$</xsl:text>
     <xsl:value-of select="$varname"/>
     <xsl:text> $</xsl:text>
     <xsl:value-of select="$varname"/>
-    <xsl:text>&#xA;  else&#xA;</xsl:text> -->
+    <xsl:text>
+  else&#xA;</xsl:text>
     <!-- Download from upstream http -->
     <xsl:if test="string-length($httpurl) &gt; 10">
-      <xsl:text>  wget -T 30 -t 5 </xsl:text>
+      <xsl:text>    wget -T 30 -t 5 </xsl:text>
       <xsl:value-of select="$httpurl"/>
       <xsl:text> ||&#xA;</xsl:text>
     </xsl:if>
     <!-- Download from upstream ftp -->
     <xsl:if test="string-length($ftpurl) &gt; 10">
-      <xsl:text>  wget -T 30 -t 5 </xsl:text>
+      <xsl:text>    wget -T 30 -t 5 </xsl:text>
       <xsl:value-of select="$ftpurl"/>
       <xsl:text> ||&#xA;</xsl:text>
     </xsl:if>
     <!-- The FTP_SERVER mirror as a last resort -->
-    <xsl:text>  wget -T 30 -t 5 ${FTP_SERVER}svn/</xsl:text>
+    <xsl:text>    wget -T 30 -t 5 ${FTP_SERVER}svn/</xsl:text>
     <xsl:value-of select="$first_letter"/>
     <xsl:text>/$</xsl:text>
     <xsl:value-of select="$varname"/>
-    <xsl:text>
-<!--    cp $</xsl:text>
+    <xsl:text><!--
+    cp $</xsl:text>
     <xsl:value-of select="$varname"/>
-    <xsl:text> $SRC_ARCHIVE
-  fi-->
+    <xsl:text> $SRC_ARCHIVE-->
+  fi
 fi
 </xsl:text>
     <xsl:if test="string-length($md5) &gt; 10">
@@ -283,8 +273,7 @@ fi
 <!-- link additional packages into $BUILD_DIR, because they are supposed to
      be there-->
     <xsl:if test="string($varname) != 'PACKAGE'">
-      <xsl:text>
-[[ "$SRC_DIR" != "$BUILD_DIR" ]] &amp;&amp; ln -sf $SRC_DIR/$</xsl:text>
+      <xsl:text>[[ "$SRC_DIR" != "$BUILD_DIR" ]] &amp;&amp; ln -sf $SRC_DIR/$</xsl:text>
       <xsl:value-of select="$varname"/>
       <xsl:text> $BUILD_DIR
 </xsl:text>
