@@ -132,11 +132,19 @@ mv scripts $BUILDDIR$BLFS_ROOT
 
 # Generates a list containing download and copying instructions for tarballs
 echo -e '#!/bin/bash\nset -e\n' > $BUILDDIR$BLFS_ROOT/download_script
-sed -n -e '/PACKAGE=/,/^fi/p' \
+sed -n -e '/PACKAGE=/,/^fi/{/^fi/a\
+cp $PACKAGE $SRC_ARCHIVE
+p}' \
        -e '/|[ ]*md5sum/p' \
-       -e '/PACKAGE1=/,/^fi/p' \
-       -e '/PATCH=/,/^fi/p' \
-       -e '/URL=/,/^fi/p' \
+       -e '/PACKAGE1=/,/^fi/{/^fi/a\
+cp $PACKAGE1 $SRC_ARCHIVE
+p}' \
+       -e '/PATCH=/,/^fi/{/^fi/a\
+cp $PACKAGE1 $SRC_ARCHIVE
+p}' \
+       -e '/URL=/,/^fi/{/^fi/a\
+cp $PACKAGE1 $SRC_ARCHIVE
+p}' \
     $BUILDDIR$BLFS_ROOT/scripts/* >> $BUILDDIR$BLFS_ROOT/download_script
 chmod u+x $BUILDDIR$BLFS_ROOT/download_script
 
