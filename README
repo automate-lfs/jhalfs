@@ -20,12 +20,10 @@ $Id$
 
   *.  It is recommended that you temporarily unpack your linux kernel,
   run <make menuconfig>, configure the kernel as per the book and save
-  the resulting .config file. This suggestion also applies to the
-  configuration of the uClibc package when building a HLFS system using
-  uClibc rather than glibc.
+  the resulting .config file.
 
-  *.  Read carefully this file and the other README.* files before start
-  using the tool.
+  *.  Read carefully this file and the other README.* files before beginning
+  to use this tool.
 
 2. PREREQUISITES::
 
@@ -34,7 +32,7 @@ $Id$
      - have experience building {c,h,b}LFS packages
      - know how to edit and write shell scripts
      - know how a Makefile works
-     - be able to trace build failures and to find what is causing it
+     - be able to trace build failures and to find what is causing them
        (user error, package bug, {c,h,b}LFS command bug, or jhalfs code bug)
 
      If you do not have the above skills, please don't use this tool.
@@ -42,12 +40,12 @@ $Id$
 
 3. INSTALLATION::
 
-     No installation is required. System-wide installation is not allowed.
+     No installation is required. You should just run <make> in this directory.
 
 4. CONFIGURATION::
 
-     We have installed the familiar menu based configuration tool driven by
-     GNU make. see the section RUNNING, for details
+     Configuration is done through a menu based interface. See the section
+     RUNNING, for details.
 
 5. RUNNING::
 
@@ -57,15 +55,34 @@ $Id$
      our use.
 
      Help on parameter function is available from the on-line help. Please
-     make use of that feature for additional information not in this file.
+     make use of that feature: it may contain additional information not
+     duplicated in this file.
 
-     Once you have set the parameters you wish and have saved your work the
-     jhalfs script is launch. The script verify first that the host can run
-     it and build the xLFS system, then validate the configuration and present
-     you with your selections which you may accept or reject.
+     You should first choose which book and flavour you want to build. Note
+     that when you choose the BLFS book, the tool will just install the BLFS
+     tool to your system. You'll have to run that installed tool to build
+     packages in BLFS. See README.BLFS to know how. If you choose any other
+     book, you'll have to configure the settings and the build parameters
+     from the menu. Note that you may choose to install the blfs tools onto
+     the newly built system (see below). It is not the same thing as choosing
+     the BLFS book in the menu, which will install the blfs tools on the
+     currently running system.
+    
 
-     If you accepted the displayed settings jhalfs will proceed to create the
-     Makefile, optionally download packages.
+     Once you have set the parameters and saved the configuration, the script
+     is launched. Its aim is to extract instructions from the selected book
+     to generate scripts, and to generate a Makefile, which allows running
+     the scripts in the right order. The script verifies first that the host
+     can run it and build the xLFS system, then validates the configuration
+     and lists the parameters. At this point, you may choose to quit or to
+     continue with the listed parameters. The script will then proceed to
+     generate the Makefile and the build scripts, optionally download
+     packages, and eventually verify the host prerequisite. If you have
+     selected "Run the makefile", the command make is launched in the
+     adequate directory, and the build begins. If not, you'll have to run
+     "make" manually, for example: "make -C /mnt/build_dir/jhalfs", if you
+     have used the default parameters (see the layout under $BUILDDIR in the
+     Q&A below).
 
      IMPORTANT::
          You must be logged as a normal user with sudo privileges to run
@@ -80,17 +97,17 @@ $Id$
 
 6. BLFS_TOOL SUPPORT::
 
-     For books that support it (As of March 8, 2012, works only with LFS),
+     For books that support it (only LFS for jhalfs version 2.4),
      there is an option to install an automated framework for building BLFS
-     packages. it is called blfs-tool. When you tick `BOOK Settings/Add
+     packages. It is called blfs-tool. When you tick `BOOK Settings/Add
      blfs-tool support' in jhalfs configuration menu, the tools are
      installed in $BLFS_ROOT (default /blfs_root) on the xLFS system,
      and a few dependencies (which you may select) are built at the
      end of the jhalfs run, before the custom tools. The instructions for
      building the dependencies are taken from the BLFS book.
 
-     (TODO: blfs-tools have not been tested with current (version 3.0) CLFS,
-     and certianly need some adaptation to run)
+     (TODO: blfs-tools have not been tested with current (version 3.0) of CLFS,
+     and certainly need some adaptation to run)
      WARNING:: If you add blfs-tool support on a CLFS Sysroot build
                you MUST edit the scripts to fix the installation paths.
 
@@ -257,7 +274,7 @@ $Id$
        The only changes to your account will be the creation of a NEW .bashrc
        after saving your original to .bashrc.XXX
 
-    Q. "When I try to build CLFS the Makefile fails at the mid-point"
+    Q. "When I try to build CLFS the Makefile fails at mid-point"
     A. There could be numerous reasons for the failure but the most likely
        reason is you are doing a cross-build using the 'chroot' method and the
        target is not compatible with the host. If you choose to build using
