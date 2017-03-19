@@ -145,7 +145,8 @@ case $PACKAGE in
   *)
      UNPACKDIR=$PKG_DIR-build
      mkdir $UNPACKDIR
-     cp $PACKAGE $UNPACKDIR
+     cp $SRC_DIR/$PACKAGE $UNPACKDIR
+     cp $(find . -mindepth 1 -maxdepth 1 -type l) $UNPACKDIR
      ;;
 esac
 cd $UNPACKDIR&#xA;

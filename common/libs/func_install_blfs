@@ -187,12 +187,6 @@ if [ "$DEP_LYNX" = y ]; then
         -i $BUILDDIR$BLFS_ROOT/scripts/*lynx
   fi
 fi
-# The  book instructions for CA certificates suppose that the cerdata.txt
-# file is in the same directory as make-ca.sh-<version>. This is not the
-# case with our default instructions. Just remove the "cd $UNPACKDIR" here.
-if test -f $BUILDDIR$BLFS_ROOT/scripts/*cacerts; then
-  sed -i '/cd \$UNPACKDIR/d' $BUILDDIR$BLFS_ROOT/scripts/*cacerts
-fi
 # At last generates the build Makefile
 mkdir -p $BUILDDIR$BLFS_ROOT/work
 pushd $BUILDDIR$BLFS_ROOT/work
