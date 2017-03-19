@@ -382,9 +382,10 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
   #
 
   # Copy packageManager.xml, if needed
-  [[ "$PKGMNGT" = "y" ]] && [[ "$PROGNAME" = "lfs" ]] &&
-    cp $PKGMNGTDIR/packageManager.xml  $JHALFSDIR/ &&
+  [[ "$PKGMNGT" = "y" ]] && [[ "$PROGNAME" = "lfs" ]] && {
+    cp $PKGMNGTDIR/packageManager.xml  $JHALFSDIR/
     cp $PKGMNGTDIR/packInstall.sh  $JHALFSDIR/
+    }
   #
   # Copy urls.xsl, if needed
   [[ "$GETPKG" = "y" ]] && cp $COMMON_DIR/urls.xsl  $JHALFSDIR/

@@ -80,6 +80,15 @@ inline_doc
     exit 1
   }
 
+# This function is only used when testing package management files.
+  write_pkg_and_die() {
+    echo -e "\n${DD_BORDER}"
+    echo    "Package management is requested but" >&2
+    echo -e $* >&2
+    echo -e "${DD_BORDER}\n"
+    exit 1
+  }
+
   validate_file() {
      # For parameters ending with a '+' failure causes a warning message only
      echo -n "`eval echo $PARAM_VALS`"
@@ -184,6 +193,28 @@ inline_doc
                echo
                ;;
 
+        # Case of PKGMNGT: two files, packageManager.xml and packInstall.sh
+        # must exist in $PKGMNGTDIR:
+      PKGMNGT) echo -e "`eval echo $PARAM_VALS`"
+               if [ ! -e "$PKGMNGTDIR/packageManager.xml" ]; then
+                 write_pkg_and_die $PKGMNGTDIR/packageManager.xml does not exist
+               fi
+               if [ ! -e "$PKGMNGTDIR/packInstall.sh" ]; then
+                 write_pkg_and_die $PKGMNGTDIR/packInstall.sh does not exist
+               fi
+               if [ ! -s "$PKGMNGTDIR/packageManager.xml" ]; then
+                 write_pkg_and_die $PKGMNGTDIR/packageManager.xml has zero size
+               fi
+               if [ ! -s "$PKGMNGTDIR/packInstall.sh" ]; then
+                 write_pkg_and_die $PKGMNGTDIR/packInstall.sh has zero size
+               fi
+               if [ ! -r "$PKGMNGTDIR/packageManager.xml" ]; then
+                 write_pkg_and_die $PKGMNGTDIR/packageManager.xml is not readable
+               fi
+               if [ ! -r "$PKGMNGTDIR/packInstall.sh" ]; then
+                 write_pkg_and_die $PKGMNGTDIR/packInstall.sh is not readable
+               fi
+               ;;
       # Display non-validated envars found in ${PROGNAME}_PARAM_LIST
       * ) echo -e "`eval echo $PARAM_VALS`" ;;
 
