@@ -52,7 +52,8 @@ case $1 in
 # the last sed above is because some package managers do not want a '_'
 # in version.
 esac
-echo $VERSION
+echo ${VERSION,,}   # convert to lowercase, in case there is a capital letter
+                    # in version
 }
 
 # Export the previous function, since it is used by the others
