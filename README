@@ -22,8 +22,8 @@ $Id$
   run <make menuconfig>, configure the kernel as per the book and save
   the resulting .config file.
 
-  *.  Read carefully this file and the other README.* files before beginning
-  to use this tool.
+  *.  Read carefully this file and the other README.* files before using
+  this tool.
 
 2. PREREQUISITES::
 
