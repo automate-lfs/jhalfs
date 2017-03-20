@@ -5,21 +5,20 @@
 
 
   Normally JHALFS creates a Makefile containing only those scripts found in
-the {B,C,H}LFS books. An automated construction tool cannot predict the
+the {,B,C,H}LFS books. An automated construction tool cannot predict the
 needs of every individual and requests are made "Can you add xxxx package".
 Rather than adding numerous package scripts and switches for each request it
 was easier to add a tool for the user(s) to code their own package needs.
 
-  There is two areas that can be customized: how the base system is build
-and what additional configurations and packages requires your hardware to can
-boot and work with. Each one of this areas is handled in a different way.
-
+  There are two areas that can be customized: how the base system is built
+and what additional configurations and packages your hardware requires to be
+able to boot and run. Each of those areas are handled in a different way.
 
 
 
         BASE SYSTEM CUSTOMIZATION
 
-  There is two ways to alter how the base system will be built:
+  There are two ways to alter how the base system will be built:
 
   - Using a working copy of the book sources and editing the XML files.
     This is the way used by book editors to test packages upgrades,
@@ -28,22 +27,22 @@ boot and work with. Each one of this areas is handled in a different way.
     This method requires you know very well the book sources and what
     files need be edited. It will not be discussed here.
 
-  - Editing the generated build scripts to make any change you would.
+  - Editing the generated build scripts to make any change you want.
     This is the method discussed below.
 
 
   EDITING THE BASE SCRIPTS
 
-  First step is to generate the build scripts with book defaults. To do that,
-configure jhalfs activating any option you want included, but do not select
-"Run the Makefile" option.
+  To begin with, the build scripts should be generated with book defaults. To
+do that, configure jhalfs activating any option you want included, but do not
+select "Run the Makefile" option.
 
   Under the ${BUILD_DIR}/${SCRIPT_ROOT}/${PROGNAME}-commands directory
 (using the defaults values to do an LFS build, that directory name is
 /mnt/build_dir/jhalfs/lfs-commands) you will find the default build scripts.
 
   If all you want is modify, add, or remove some command from a package
-installation, for example to change it ./configure line, just edit the related
+installation, for example to change its ./configure line, just edit the related
 script. If changing or adding a patch, be sure to copy the new patch to the
 ${BUILD_DIR}/sources directory. When done, run 'make' from inside the
 ${BUILD_DIR}/${SCRIPT_ROOT} directory.
@@ -53,39 +52,38 @@ ${BUILD_DIR}/${SCRIPT_ROOT} directory.
 
   To remove a package from the system, just remove its script(s).
 
-  To change the version of some package to build a newest or oldest one than the
-one found in the book, edit ${BUILD_DIR}/${SCRIPT_ROOT}/pkg_tarball_list to
-change it tarball name and place the new tarball in the ${BUILD_DIR}/sources
-directory,
+  To change the version of some package, or to build a newer or older version
+than that in the book, edit ${BUILD_DIR}/${SCRIPT_ROOT}/pkg_tarball_list to
+change its tarball name and place the new tarball in the ${BUILD_DIR}/sources
+directory.
 
   To replace a package by an equivalent one, rename the replaced package script
 to reflect the new package name (for example, 102-man-db -> 102-man), edit the
 script to made the required commands changes, place the new tarball in the
 ${BUILD_DIR}/sources directory, and edit ${BUILD_DIR}/${SCRIPT_ROOT}/pkg_tarball_list
-file to replace the removed package tarball name by the new package tarball name.
+file to replace the removed package tarball name by the new package tarball
+name.
 
   To change the build order, rename the scripts changing the first 3-digits
-string until have it ordered in the way you want.
+string until they are sorted in the way you want.
 
-  To insert a new package, for example to build Cracklib to can build Shadow
-with Cracklib support, first you should decide before what default package it
-need be installed, in this example before 107-shadow. Then create a new script
-containing the needed commands, using an existing one as template, and name it with
-the same 3-digits string used for that mentioned default package, but adding
-another 1-digit string. In our example, the new script to build Cracklib just
-before Shadow will be named 107-1-cracklib. This naming schema allow to insert
-up to 10 scripts before each one of the default scripts. Place the tarball for
-the new package and required patches, if any, if ${BUILD_DIR}/sources and edit
+  To insert a new package, for example to build Cracklib in order to build
+Shadow with Cracklib support, you should first decide before what package it
+needs to be installed, in this example 107-shadow. Then create a new script
+containing the needed commands, using an existing one as template, and name it
+with the same 3-digits string used for that mentioned default package, but
+adding another 1-digit string. In our example, the new script to build Cracklib
+before Shadow will be named 107-1-cracklib. This naming scheme allows inserting
+up to 10 scripts before each of the existing scripts. Place the tarball for
+the new package and required patches, if any, in ${BUILD_DIR}/sources and edit
 ${BUILD_DIR}/${SCRIPT_ROOT}/pkg_tarball_list to add the tarball name for that
 package.
 
-  When ready, launch again the jhalfs configuration interface. Be sure that
-are selected exactly the same options than when generating the default build
-scripts. Be sure that "Rebuild files" is unselected and select "Run the Makefile"
-if you want. Then select "Rebuild the Makefile". This will create a new Makefile
-based on the changes you made to the build scripts.
-
-
+  When ready, launch again the jhalfs configuration interface. Make sure that
+exactly the same options are selected as when generating the default build
+scripts. Be sure that "Rebuild files" is unselected and select "Run the
+Makefile" if you want. Then select "Rebuild the Makefile". This will create a
+new Makefile based on the changes you made to the build scripts.
 
 
        ADDING POST-SYSTEM BUILD CONFIGURATION FILES AND EXTRA PACKAGES
@@ -96,8 +94,8 @@ more info.
 
   The feature described below was added so users could install remaining
 configuration files, build the packages necessary to access the Internet
-or to support specific hardware, or to install basic utilities that need
-have available from the beginning, and was not intended to replace the BLFS
+or to support specific hardware, or to install basic utilities that are
+needed from the beginning, and was not intended to replace the BLFS
 install system.
 
   :::NOTICE:::
@@ -108,9 +106,9 @@ add should honour the DESTDIR=${CLFS} switch or equivalent.
 
 
   LAYOUT
-  A new directory has been added to JHALFS tree which will contain the
+  A new directory has been added to JHALFS tree which contains the
 configuration scripts and a few examples. A switch has been added to the
-configuration file which enables/disables the inclusion of personal scripts.
+configuration file which enables/disables the inclusion of custom scripts.
 
     custom
       /config          <-- where to put your scripts.
@@ -121,7 +119,7 @@ configuration file which enables/disables the inclusion of personal scripts.
 
 
   NOTE::: You are responsible for including all dependencies and ensuring they
-          are built in the proper order.
+          are built in the right order.
 
   1. To add a package to the final JHALFS Makefile you must first create a file
      in the custom/config directory.

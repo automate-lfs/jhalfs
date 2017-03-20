@@ -2,10 +2,5 @@ $Id$
 
 
 		::::NOTICE::::
-
- Hardened Linux From Scratch is a highly volatile project. Extreme design
- changes can occur and the build could be broken for extended periods of
- time.
-
- As of July 26.2007, the Glibc-based systems builds should work.
- uClibc-based system still fail due book issues.
+HLFS has not be updated for a very long time. Since then, jhalfs has evolved
+and is now incompatible with HLFS.

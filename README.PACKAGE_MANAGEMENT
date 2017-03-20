@@ -16,13 +16,21 @@ BY    : Pierre Labastie (work in progress)
 
 2. OVERVIEW OF THE SYSTEM:
 
-      For now, package management is only available for LFS. I plan to
+      Presently, package management is only available for LFS. I plan to
   upgrade BLFS tools, but nothing usable right now. I have not attempted
   to adapt this tool for the other flavours of LFS.
+
+      To use package management, you need to create the required files in
+  the pkgmngt directory (see below), and to select "package management" in
+  the build settings. Note that this is incompatible with creating an SBU
+  and usage report.
+
+3. DETAILS OF OPERATION:
+
       This system performs basically a "DESTDIR install" for all pages
   in chapter 6, 7 and 8 of the book. The name of the DESTDIR directory is the
   same as the one of the executed script. The path to this directory is
-  available to the scriplets through the PKG_DEST variable.
+  made available to the scriplets through the PKG_DEST variable.
       The XSL stylesheet used for generating the scriptlets, automatically
   adds DESTDIR install instructions when "package management" is selected.
   Also all the paths beginning with " /" or ">/" (absolute paths) are prepended

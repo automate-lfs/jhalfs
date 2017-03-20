@@ -100,12 +100,13 @@ $Id$
 
     3.2.2 Install to an already running LFS/BLFS system
        If you forgot to install the tools when building xLFS, or want to try
-    the tools, you can just run the install-blfs-tools.sh script. It will
-    create the above hierarchy in your home directory and initialize the
-    tracking file. You have first to make sure that the tracking dir exists
-    and is writable by the user. You may also populate it with (empty) files
-    whose names are of the form package-version, for installed packages, so
-    that they are included into the tracking file.
+    the tools, you can select the BLFS book from the jhalfs menu. It will
+    run a script, which creates the above hierarchy in your home directory and
+    initialize the tracking file. You have first to make sure that the tracking
+    dir exists and is writable by the user. You may also populate it with
+    (empty) files whose names are of the form package-version, for installed
+    packages, so that they are included into the tracking file.
+
     3.3.3 Working files
         Several files are generated during the process:
 
@@ -161,8 +162,8 @@ $Id$
        When you are done with the menu, a few checks occur, and the dependency
     chain is generated. Each dependency appears with its priority (required,
     recommended, optional, or external), and it's level. There is a root level
-    0. The selected packages have level 1. The dependencies of selected packages
-    have level 2, the dependencies of the dependencies have level 3, and so on.
+    1. The selected packages have level 2. The dependencies of selected packages
+    have level 3, the dependencies of the dependencies have level 4, and so on.
     When circular dependencies are found, they appear with a priority of
     "circular". This means that two (or more) dependency chains arrive at the
     same package. The algorithm chooses the chain with the highest priority and
