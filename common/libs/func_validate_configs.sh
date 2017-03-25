@@ -194,25 +194,27 @@ inline_doc
                ;;
 
         # Case of PKGMNGT: two files, packageManager.xml and packInstall.sh
-        # must exist in $PKGMNGTDIR:
+        # must exist in $PKGMNGTDIR if PKGMNGT='y':
       PKGMNGT) echo -e "`eval echo $PARAM_VALS`"
-               if [ ! -e "$PKGMNGTDIR/packageManager.xml" ]; then
-                 write_pkg_and_die $PKGMNGTDIR/packageManager.xml does not exist
-               fi
-               if [ ! -e "$PKGMNGTDIR/packInstall.sh" ]; then
-                 write_pkg_and_die $PKGMNGTDIR/packInstall.sh does not exist
-               fi
-               if [ ! -s "$PKGMNGTDIR/packageManager.xml" ]; then
-                 write_pkg_and_die $PKGMNGTDIR/packageManager.xml has zero size
-               fi
-               if [ ! -s "$PKGMNGTDIR/packInstall.sh" ]; then
-                 write_pkg_and_die $PKGMNGTDIR/packInstall.sh has zero size
-               fi
-               if [ ! -r "$PKGMNGTDIR/packageManager.xml" ]; then
-                 write_pkg_and_die $PKGMNGTDIR/packageManager.xml is not readable
-               fi
-               if [ ! -r "$PKGMNGTDIR/packInstall.sh" ]; then
-                 write_pkg_and_die $PKGMNGTDIR/packInstall.sh is not readable
+               if [ "$PKGMNGT" = y ]; then
+                 if [ ! -e "$PKGMNGTDIR/packageManager.xml" ]; then
+                   write_pkg_and_die $PKGMNGTDIR/packageManager.xml does not exist
+                 fi
+                 if [ ! -e "$PKGMNGTDIR/packInstall.sh" ]; then
+                   write_pkg_and_die $PKGMNGTDIR/packInstall.sh does not exist
+                 fi
+                 if [ ! -s "$PKGMNGTDIR/packageManager.xml" ]; then
+                   write_pkg_and_die $PKGMNGTDIR/packageManager.xml has zero size
+                 fi
+                 if [ ! -s "$PKGMNGTDIR/packInstall.sh" ]; then
+                   write_pkg_and_die $PKGMNGTDIR/packInstall.sh has zero size
+                 fi
+                 if [ ! -r "$PKGMNGTDIR/packageManager.xml" ]; then
+                   write_pkg_and_die $PKGMNGTDIR/packageManager.xml is not readable
+                 fi
+                 if [ ! -r "$PKGMNGTDIR/packInstall.sh" ]; then
+                   write_pkg_and_die $PKGMNGTDIR/packInstall.sh is not readable
+                 fi
                fi
                ;;
       # Display non-validated envars found in ${PROGNAME}_PARAM_LIST
