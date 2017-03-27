@@ -8,6 +8,10 @@
       extension-element-prefixes="exsl"
       version="1.0">
 
+  <!-- which revision attribute to include: can only be sysv or systemd,
+       but we leave checking to the caller-->
+  <xsl:param name="revision" select="'sysv'"/>
+
   <!-- use package management ?
        n = no, original behavior
        y = yes, add PKG_DEST to scripts in install commands of chapter06-08
@@ -44,7 +48,8 @@
   <xsl:param name='full-locale' select='n'/>
   
   <xsl:template match="/">
-    <xsl:apply-templates select="//sect1"/>
+    <xsl:apply-templates select="//sect1[not(@revision) or
+                                         @revision=$revision]"/>
   </xsl:template>
   
   <xsl:template match="sect1">
@@ -123,9 +128,12 @@
       <xsl:if test="sect2[@role='installation']">
         <xsl:text>cd $PKGDIR&#xA;</xsl:text>
       </xsl:if>
-      <xsl:apply-templates select="sect2|
-                                   screen[not(@role) or
-                                          @role!='nodump']/userinput"/>
+      <xsl:apply-templates select="sect2[not(@revision) or
+                                         @revision=$revision] |
+                                   screen[(not(@role) or
+                                           @role!='nodump') and
+                                          (not(@revision) or
+                                           @revision=$revision)]/userinput"/>
       <xsl:if test="@id='ch-system-creatingdirs' and $pkgmngt='y'">
         <xsl:apply-templates
            select="document('packageManager.xml')//sect1[
@@ -148,8 +156,10 @@
 
   <xsl:template match="sect2">
     <xsl:apply-templates
-      select=".//screen[not(@role) or
-                        @role != 'nodump']/userinput[
+      select=".//screen[(not(@role) or
+                         @role != 'nodump') and
+                        (not(@revision) or
+                         @revision=$revision)]/userinput[
                              @remap = 'pre' or
                              @remap = 'configure' or
                              @remap = 'make' or
@@ -179,8 +189,10 @@ esac
 </xsl:text>
     </xsl:if>
     <xsl:apply-templates
-         select=".//screen[not(@role) or
-                           @role != 'nodump']/userinput[@remap = 'install']"/>
+         select=".//screen[(not(@role) or
+                            @role != 'nodump') and
+                           (not(@revision) or
+                            @revision=$revision)]/userinput[@remap = 'install']"/>
     <xsl:if test="ancestor::chapter[@id != 'chapter-temporary-tools'] and
                   $pkgmngt = 'y' and
                   descendant::screen[not(@role) or
@@ -255,8 +267,10 @@ fi
     </xsl:if>
     <xsl:apply-templates
        select=".//screen[
-                 not(@role) or
-                 @role != 'nodump'
+                (not(@role) or
+                 @role != 'nodump') and
+                (not(@revision) or
+                 @revision=$revision)
                         ]/userinput[
                        not(@remap) or
                        @remap='adjust' or

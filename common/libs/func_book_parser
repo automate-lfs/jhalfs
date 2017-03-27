@@ -150,14 +150,9 @@ extract_commands() {         #
         fi
         popd > /dev/null
 
-        xsltproc --nonet                                 \
-                 --xinclude                              \
-                 --output /tmp/lfs-full.xml              \
-                 --stringparam profile.revision $INITSYS \
-                 $BOOK/stylesheets/lfs-xsl/profile.xsl   \
-                 $BOOK/index.xml
-
         xsltproc --nonet                                   \
+                 --xinclude                                \
+                 --stringparam revision       $INITSYS     \
                  --stringparam testsuite      $TEST        \
                  --stringparam bomb-testsuite $BOMB_TEST   \
                  --stringparam vim-lang       $VIMLANG     \
@@ -168,9 +163,7 @@ extract_commands() {         #
                  --stringparam pkgmngt        $PKGMNGT     \
                  --output ./${PROGNAME}-commands/          \
                  $XSL                                      \
-                 /tmp/lfs-full.xml >>$LOGDIR/$LOG 2>&1
-
-        rm /tmp/lfs-full.xml
+                 $BOOK/index.xml
       ;;
     *)  echo -n " ${L_arrow}${PROGNAME}${R_arrow} book invalid, terminate build... "
         exit 1 ;;
