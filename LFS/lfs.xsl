@@ -10,6 +10,10 @@
 
 <!-- Parameters -->
 
+  <!-- which revision attribute to include: can only be sysv or systemd,
+       but we leave checking to the caller-->
+  <xsl:param name="revision" select="'sysv'"/>
+
   <!-- use package management ?
        n = no, original behavior
        y = yes, add PKG_DEST to scripts in install commands of chapter06-08
@@ -69,19 +73,24 @@
 <!-- End parameters -->
 
   <xsl:template match="/">
-    <xsl:apply-templates select="//sect1"/>
+    <xsl:apply-templates select="//sect1[not(@revision) or
+                                         @revision=$revision]"/>
   </xsl:template>
   
   <xsl:template match="sect1">
+<!-- Since this xsl:if tag encloses the whole template, it would
+     be much better to transpose this condition to the select part
+     of the "calling" apply-template. But that would change the numbering,
+     so that it would be difficult to compare to previous versions. So for
+     version 2.4, let us keep this -->
         <xsl:if test="(../@id='chapter-temporary-tools' or
                   ../@id='chapter-building-system' or
                   ../@id='chapter-bootscripts' or
                   ../@id='chapter-bootable') and
-                  count(descendant::screen/userinput) &gt; 0 and
-                  count(descendant::screen/userinput) &gt;
-                      count(descendant::screen[@role='nodump']) and
-                  count(descendant::screen/userinput) &gt;
-                      count(descendant::screen/userinput[starts-with(string(),'chroot')])">
+                  (sect2[not(@revision) or @revision=$revision]//..|.)/
+                      screen[(not(@role) or @role != 'nodump') and
+                             (not(@revision) or @revision=$revision)]/
+                          userinput[not(starts-with(string(),'chroot'))]">
 <!-- The last condition is a hack to allow previous versions of the
      book where the chroot commands did not have role="nodump".
      It only works if the chroot command is the only one on the page -->
@@ -148,9 +157,12 @@
       <xsl:if test="sect2[@role='installation']">
         <xsl:text>cd $PKGDIR&#xA;</xsl:text>
       </xsl:if>
-      <xsl:apply-templates select="sect2|
-                                   screen[not(@role) or
-                                          @role!='nodump']/userinput"/>
+      <xsl:apply-templates select="sect2[not(@revision) or
+                                         @revision=$revision] |
+                                   screen[(not(@role) or
+                                           @role!='nodump') and
+                                          (not(@revision) or
+                                           @revision=$revision)]/userinput"/>
       <xsl:if test="@id='ch-system-creatingdirs' and $pkgmngt='y'">
         <xsl:apply-templates
            select="document('packageManager.xml')//sect1[
@@ -173,8 +185,10 @@
 
   <xsl:template match="sect2">
     <xsl:apply-templates
-      select=".//screen[not(@role) or
-                        @role != 'nodump']/userinput[
+      select=".//screen[(not(@role) or
+                         @role != 'nodump') and
+                        (not(@revision) or
+                         @revision=$revision)]/userinput[
                              @remap = 'pre' or
                              @remap = 'configure' or
                              @remap = 'make' or
@@ -213,8 +227,10 @@ esac
 </xsl:text>
     </xsl:if>
     <xsl:apply-templates
-         select=".//screen[not(@role) or
-                           @role != 'nodump']/userinput[@remap = 'install']"/>
+         select=".//screen[(not(@role) or
+                            @role != 'nodump') and
+                           (not(@revision) or
+                            @revision=$revision)]/userinput[@remap = 'install']"/>
     <xsl:if test="ancestor::chapter[@id != 'chapter-temporary-tools'] and
                   $pkgmngt = 'y' and
                   descendant::screen[not(@role) or
@@ -318,8 +334,10 @@ fi
     </xsl:if>
     <xsl:apply-templates
        select=".//screen[
-                 not(@role) or
-                 @role != 'nodump'
+                (not(@role) or
+                 @role != 'nodump') and
+                (not(@revision) or
+                 @revision=$revision)
                         ]/userinput[
                        not(@remap) or
                        @remap='adjust' or
