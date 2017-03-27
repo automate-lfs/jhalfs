@@ -173,7 +173,7 @@ extract_commands() {         #
                  --stringparam nameserver2    $DNS2         \
                  --output ./${PROGNAME}-commands/           \
                  $XSL                                       \
-                 $BOOK/index.xml
+                 $BOOK/index.xml >> $LOGDIR/$LOG 2>&1
       ;;
     *)  echo -n " ${L_arrow}${PROGNAME}${R_arrow} book invalid, terminate build... "
         exit 1 ;;
