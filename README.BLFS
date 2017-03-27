@@ -2,10 +2,6 @@ $Id$
 
 1. INTRODUCTION::
 
-     If you want to add blfs-tool support into an xLFS base system build,
-  read the "BLFS_TOOL SUPPORT" section found in the README and be sure
-  to follow the after-booting installation instructions.
-
      To automate package builds from the BLFS book instructions is a huge
   task. Some of the issues are: the BLFS book isn't linear; some package
   pages use a custom layout; there are circular dependencies; several
@@ -20,55 +16,88 @@ $Id$
 
 2. PREREQUISITES::
 
-     To use this tool you MUST:
+     In addition to a full LFS system, the following packages and their
+  dependencies are needed by this tool:
+    - required: libxml2, libxslt, DocBook XML DTD
+    - recommended: wget (to download the package tarballs) and sudo (to build
+      as a user)
+    - optional: lynx (allows to read the generated linearized book), GPM (to
+      cut and paste commands from the book), subversion (to update the book
+      sources), openssl (used by wget for all https:// sites)
+  Note that the optional dependencies are recommended for ease of use of the
+  tool.
 
-     - have experience building BLFS packages
-     - know how to edit and write shell scripts
-     - know how a Makefile works
-     - be able to trace build failures and to find what is causing it
-       (user error, package bug, BLFS command bug, or jhalfs code bug)
+     You should also have the following personal skills:
+    - Ability to write and debug shell scripts: as said in the introduction,
+      not all the generated scripts can be used directly. They need to be
+      edited to produce an error free build.
+    - Ability to debug build failures, like missing dependencies or
+      installation directories not known to the system (when you install in
+      /opt for example).
+    - Ability to choose the tools you need to configure and administrate
+      your system: in the BLFS book, nothing is mandatory, nothing is
+      useless. You are on your own in choosing what to build, but wrong
+      decisions may lead to a non functional system...
 
-     If you do not have the above skills, please don't use this tool.
+3. INSTALL::
 
+     There are two ways to install the BLFS tools on an LFS system, described
+  in paragraphs 3.1 and 3.2, respectively:
 
-3. USAGE::
+  3.1 INSTALLATION ON A RUNNING SYSTEM
 
-     Due to the complexity of the BLFS book, the scripts and Makefile
-     generation is done in several steps:
+     Select "Use Book --> Beyond Linux From Scratch" in the jhalfs menu:
+  The tools are installed in $HOME$BLFS_ROOT (the default for $BLFS_ROOT
+  is /blfs_root). The BLFS book is downloaded or copied to its directory.
+  The tracking directory (see below) is initialized but not created: before
+  the installation, you should ensure the tracking directory (default location
+  /var/lib/jhalfs/BLFS) exists and is writable by the user. After the
+  intallation, you should perform the following additional steps:
 
-  3.1  INSTALLED PACKAGES TRACKING SYSTEM::
+    - Configure sudo, adding the needed privileges for the user. For
+      newer sudo version, do not forget to add a line `Defaults secure_path='
+      containing /sbin and /usr/sbin (in /etc/sudoers), otherwise some
+      executables are not found.
 
-       This tool includes a very simple tracking system to log which packages
-    have been installed using the tool. It is used to skip installed packages
-    from target selection menu and to test if an installed package has been
-    updated in the BLFS book. Do not rely on this feature as a package
-    management tool.
+    - Although it is not strictly necessary, it is recommended to install
+      the bash shell startup files (as per `3.After LFS Configuration
+      Issues' of the BLFS book), as some instructions in BLFS rely on
+      their being present.
 
-       The tracking system itself is an XML file: instpkg.xml. It is
-    initialized when <make> is first run in blfs_root. It resides in a
-    directory, which is created when needed during the process of building
-    custom tools or blfs dependencies, right after xLFS. You can specify
-    that directory location in the blfs-tools sub-menu of jhalfs. You may
-    need to update permissions and/or ownership of this directory before
-    using the blfs tool (see README in jhalfs).
+  3.2 INSTALLATION ON A JUST BUILT xLFS SYSTEM
 
-       The default location of the tracking directory is /var/lib/jhalfs/BLFS.
-    NB : after the initial build, that directory is only used to contain
-    instpkg.xml, unless custom tools have been built. In the latter case,
-    it also contains empty files whose name are "$PKG-$VERSION" for each
-    versionned package built. The information about those packages is
-    included into instpkg.xml the next time the tool is run.
+    For books that support it (only LFS for jhalfs version 2.4),
+  there is an option to install the BLFS tools right after building
+  the xLFS system: just tick `BOOK Settings/Add blfs-tool support' in
+  jhalfs configuration menu. The tools are installed in $BLFS_ROOT
+  (default /blfs_root) on the xLFS system, and the dependencies are built
+  at the end of the jhalfs run, before the custom tools.
 
-  3.2  BLFS_TOOL INSTALLATION::
+  (TODO: blfs-tools have not been tested with current (version 3.0) of CLFS,
+  and certainly need some adaptation to run)
 
-    3.2.1 Normal install
-       The tools are installed just after the building of xLFS, if the
-    appropriate options have been selected in the building menu, as per
-    jhalfs README. If you forgot to select the options and xLFS has been
-    built, it is possible to go back to selecting the appropriate
-    BLFS tools options in the jhalfs menu, then tick `Run makefile'
-    and not `Rebuild files'. You obtain a /blfs_root directory in the
-    root directory of the new xLFS system, which contains the followings:
+  After booting the new xLFS system some steps are needed to finish
+  the installation of the automated tools:
+
+    - A user account must be created. You must be logged on that user
+      account to use blfs-tool. This is not strictly necessary,
+      since the packages can be built as root, too, but it is
+      never a good idea to build packages as root.
+
+    - Move /blfs-root to that user's home and change ownership of the
+      directory and files to the user.
+
+    - Give the user read and write privileges over the $TRACKING_DIR
+      directory and the files that it contains.
+
+    - Configure sudo and add the bash shell startup files, as described
+      above
+
+     We assume that the BLFS tools will be used on a booted xLFS system.
+  Using them to build BLFS packages in a chroot jail is also possible,
+  but not supported.
+
+  3.3 DIRECTORY LAYOUT IN THE $BLFS_ROOT DIRECTORY
 
     blfs-xml/*              SVN tree of the selected BLFS book version
     lib/constants.inc       functions libraries 
@@ -98,17 +127,7 @@ $Id$
                             database and the tracking file.
     envars.conf             envars needed when running the target build scripts
 
-    3.2.2 Install to an already running LFS/BLFS system
-       If you forgot to install the tools when building xLFS, or want to try
-    the tools, you can select the BLFS book from the jhalfs menu. It will
-    run a script, which creates the above hierarchy in your home directory and
-    initialize the tracking file. You have first to make sure that the tracking
-    dir exists and is writable by the user. You may also populate it with
-    (empty) files whose names are of the form package-version, for installed
-    packages, so that they are included into the tracking file.
-
-    3.3.3 Working files
-        Several files are generated during the process:
+    Working files: several files are generated when first running the tool
 
     packages.xml            auto-generated packages database
     Config.in               input file for the menu driven choices
@@ -118,13 +137,38 @@ $Id$
     book-html/*             the linearized book rendered in html
     scripts/*               the scriptlets
 
+  3.4 INSTALLED PACKAGES TRACKING SYSTEM:
+
+       This tool includes a very simple tracking system to log which packages
+    have been installed using the tool. It is used to skip installed packages
+    from target selection menu and to test if an installed package has been
+    updated in the BLFS book. Do not rely on this feature as a package
+    management tool.
+
+       The tracking system itself is an XML file: instpkg.xml. It is
+    initialized when <make> is first run in blfs_root. It resides in a
+    directory, which is created when needed during the process of building
+    custom tools or blfs dependencies, right after xLFS. You can specify
+    that directory location in the blfs-tools sub-menu of jhalfs. You may
+    need to update permissions and/or ownership of this directory before
+    using the blfs tool (see README in jhalfs).
+
+       The default location of the tracking directory is /var/lib/jhalfs/BLFS.
+    NB : after the initial build, that directory is only used to contain
+    instpkg.xml, unless custom tools have been built. In the latter case,
+    it also contains empty files whose name are "$PKG-$VERSION" for each
+    versionned package built. The information about those packages is
+    included into instpkg.xml the next time the tool is run.
+
+4. USAGE::
+
        From now on, all the work must be done from inside the installation
     root directory.
 
-       You may move that directory to the $HOME of a non root user, or build
-    as root from that directory.
+     Due to the complexity of the BLFS book, the scripts and Makefile
+     generation is done in several steps:
 
-  3.3  UPDATING BOOK SOURCES::
+  4.1  UPDATING BOOK SOURCES::
 
        If you are using the development book version and you want to update
     installed packages to the latest version found in that book, you need to
@@ -142,7 +186,7 @@ $Id$
     with a new version in the book will be available for target selection
     and used to solve dependencies.
 
-  3.4  CONFIGURING AND PARSING THE BOOK::
+  4.2  CONFIGURING AND PARSING THE BOOK::
 
        The next step is to create a book and build scripts in dependency
     build order for one or several packages.
@@ -180,7 +224,7 @@ $Id$
        There is also another directory, "dependencies" that contains files
     generated while resolving dependencies.
 
-  3.5  EDITING BUILD SCRIPTS::
+  4.3  EDITING BUILD SCRIPTS::
 
        Now it is time to review the generated book and scripts, making any
     changes to the scripts necessary to fix generation bugs or to suit your
@@ -197,7 +241,7 @@ $Id$
       Also, review and edit envars.conf. This file is used to set global envars
     needed by the build scripts.
 
-  3.6  CREATING THE MAKEFILE::
+  4.4  CREATING THE MAKEFILE::
 
        When the build scripts are ready to be run, the Makefile can be
     created. Create an empty directory (for example "mkdir work") and cd
@@ -206,7 +250,7 @@ $Id$
     Review the Makefile, and, if all looks sane, start the build by running
     "make".
 
-4. GENERATED BUILD SCRIPTS ISSUES::
+5. GENERATED BUILD SCRIPTS ISSUES::
 
       In this section, known issues with the generated build scripts are
    discussed. They are due to build procedures and/or BLFS layout
@@ -222,14 +266,14 @@ $Id$
    to another name (using the xxx-a- fields), and possibly renaming the xxx-a-
    fields of each involved script.
 
-   4.1  BLFS BOOTSCRIPTS::
+   5.1  BLFS BOOTSCRIPTS::
 
         Normally, bootscript installation should work. On the other hand, the
      book does not give instruction for running them, so you might have to
      manually insert "/etc/init.d/rc.d/<initscript> start" at some place during
      the build.
 
-   4.2  PACKAGE CONFIGURATION::
+   5.2  PACKAGE CONFIGURATION::
 
         For those packages that have a "Configuration" section, you should
      edit the build script to fit the needs of your system. Sometimes, the
@@ -237,7 +281,7 @@ $Id$
      line 'source /etc/profile', which ensures that the proper environment
      variables are used.
 
-   4.3  PAGES WITH TWO OR MORE PACKAGES::
+   5.3  PAGES WITH TWO OR MORE PACKAGES::
 
         For example: sane, poppler, audacious, freetts, which, etc.
 
@@ -248,7 +292,7 @@ $Id$
      name (for example PKG1, PKG2, etc) after each download. The unpacking
      instructions may need to be repeated for each tarball in turn.
 
-   4.4  XORG7
+   5.4  XORG7
 
         The book has special page layouts for the Xorg7 packages. The tool
      breaks those pages into individual pages for each packages in the linear
@@ -257,13 +301,13 @@ $Id$
         To build the whole Xorg7 chapter, select twm. The (recommended)
      dependency chain brings in the whole set of Xorg packages.
 
-   4.5  PATCHES
+   5.5  PATCHES
 
         Please, make sure that all scripts have the commands to download/apply
      the required patches. Due to book layout issues, some patches may be
      missing (as of BLFS 8.0, all the patches seem to be downloaded).
 
-   4.6  ROOT COMMANDS
+   5.6  ROOT COMMANDS
 
         If building as a normal user (the default setting), be sure that all
      commands that require root privileges are run using sudo. Also make sure
@@ -292,7 +336,7 @@ $Id$
 
         Due to book layout issues, some sudo commands may be missing.
 
-   4.7  OTHERS
+   5.7  OTHERS
 
         There may be other issues that we are not aware of. If you find
      any, please report it to <alfs-discuss@linuxfromscratch.org>.

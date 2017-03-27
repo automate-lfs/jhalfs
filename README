@@ -2,146 +2,175 @@ $Id$
 
 1. INTRODUCTION::
 
-     This collection of scripts, known as jhalfs, strives to create
-  accurate makefiles from the Linux From Scratch book series XML files.
-  This software is an evolution of the original "jhalfs-0.2" code developed
-  by Jeremy Huntwork.
+     The scripts in this directory implement an automation of the building
+  of a GNU/LInux system, as described in the Linux From Scratch book series.
+  The name of the project is jhalfs: in that name, "alfs" stands for
+  "automated linux from scratch", and the initials "jh" have been kept since
+  the original "jhalfs-0.2" code developed by Jeremy Huntwork.
 
-     The usage of this script assumes you have read and are familiar with
-  the book(s) and, therefore, the configuration variables found in menuconfig
-  interface will have meaning to you.
+     The list of supported books can be found at
+  http://wiki.linuxfromscratch.org/alfs/wiki/SupportedBooks.
 
-  The list of supported books can be found at
-  http://wiki.linuxfromscratch.org/alfs/wiki/SupportedBooks
+     The documentation is split among various README.* files. Here is a list
+  of what is in which:
+    - README (this file): instructions to use the LFS book. This should be
+      enough if you just want to build a base system as per the LFS book. It is
+      also a required reading for all the other projects.
+    - README.CLFS: supplementary instructions to use the CLFS book series.
+    - README.BLFS: instructions to install an automated build infrastructure
+      for the BLFS book. There are two ways to do so: (i) install the
+      tools at the end of an LFS build (CLFS is not supported in that case), or
+      (ii) install the tools on an already running system. Both methods are
+      described in that file.
+    - README.CUSTOM: instructions to run custom commands either during the xLFS
+      build, at the end of a xLFS build. Note that you will not find
+      instructions on how to write those commands, but some examples are
+      available.
+    - README.PACKAGE_MANAGEMENT: instructions to use package management during
+      the build (only for LFS, patches welcome for CLFS...)
+    - README.HLFS: very short file explaining why you cannot use HLFS with the
+      present tool version.
 
-  NOTES::
-  *.  The resulting Makefile takes considerable time to run to completion.
-  Lay in a supply of caffeine beverages.
-
-  *.  It is recommended that you temporarily unpack your linux kernel,
-  run <make menuconfig>, configure the kernel as per the book and save
-  the resulting .config file.
-
-  *.  Read carefully this file and the other README.* files before using
-  this tool.
+     Other sources of information are the context help in the menu interface,
+  and the xLFS books themselves.
 
 2. PREREQUISITES::
 
-     To use this tool you MUST:
+     As said elsewhere, it is strongly advised that you first build manually
+  a complete system before attempting to automate the build.
 
-     - have experience building {c,h,b}LFS packages
-     - know how to edit and write shell scripts
-     - know how a Makefile works
-     - be able to trace build failures and to find what is causing them
-       (user error, package bug, {c,h,b}LFS command bug, or jhalfs code bug)
-
-     If you do not have the above skills, please don't use this tool.
-
+     Of course the "Host System Requirements" should be fulfilled. The needed
+  supplementary packages are detailed at the bottom of the page:
+  http://www.linuxfromscratch.org/alfs/download.html
 
 3. INSTALLATION::
 
-     No installation is required. You should just run <make> in this directory.
+     No installation is required. You may want to move the files in this
+  directory to a convenient location, and then follow the instructions below.
 
 4. CONFIGURATION::
 
-     Configuration is done through a menu based interface. See the section
-     RUNNING, for details.
+  4.1. CONFIGURATION OF THE TOOLS:
+       There is no configuration of the tools themselves. The various
+    parameters for the build are set through a menu driven interface. See
+    the section RUNNING below for details.
+
+  4.2. PRELIMINARY TASKS:
+       This tool has no support at all for creating a partition and a mount
+    point for the built system. You should follow the book up to the section
+    "Mounting the new partition". Note that the default name for the
+    partition mount point is "/mnt/build_dir", instead of /mnt/{c,}lfs.
+    You can change that default to anything you'd like in the menu, so you
+    may name it /mnt/lfs, or whatever you like. One important point is that
+    the user you are logged in as (and not the (c)lfs user) should have write
+    permission to the mounted directory. We'll use the name /mnt/build_dir
+    in the sequel.
+
+       The tool can download the needed packages for you, or you may download
+    them yourself. The tool may optionally use a package archive directory
+    where the downloaded packages are stored. That directory name may be made
+    available to the tool in two ways: (i) export the SRC_ARCHIVE variable,
+    for example SRC_ARCHIVE=/usr/src, (ii) enter the name at the "Package
+    Archive Directory" menu prompt. Note that the user should have write
+    permission to that directory. If a needed package is found in that
+    directory, it is copied to /mnt/build_dir/sources, if not, it is
+    downloaded to that directory and copied to /mnt/build_dir/sources,
+    except if found in /mnt/build_dir/sources, in which case, it is just
+    copied to $SRC_ARCHIVE. If you want the tool to download packages and you
+    do not want to archive them, just unset SRC_ARCHIVE, and keep the
+    default entry for "Package Archive Directory". If you choose to download
+    the packages by yourself, you should download (or copy) them to
+    /mnt/build_dir/sources directly.
+    
+       If you want to build the kernel as part of the automated build, select
+    "Build the kernel" in the menu. Then, a configuration file must be
+    provided. In order to do so, it is recommended to download the kernel
+    tarball, unpack it, run <make menuconfig>, configure the kernel as per
+    the book, and save the resulting .config file to a location where it can
+    be retrieved later on (a convenient location and name is
+    $SRC_ARCHIVE/config-<arch>-<kernel version>-<config details>).
+
+       Another file you may provide is the fstab file. To use it, select
+    "Use a custom fstab file" in the menu interface, and enter the name of
+    the file where asked. As for the kernel configuration, this file has to
+    be prepared before running the menu. A convenient location and name is
+    $SRC_ARCHIVE/fstablfs.
+
+       At a more advanced level, you may want to supply custom commands
+    to be run at the end of (C)LFS build. Scripts containing those commands
+    are located in the ./custom/config directory. Examples are given in
+    ./custom/examples. A template is provided as ./custom/template. See
+    README.CUSTOM for more details.
 
 5. RUNNING::
 
-     The command <make> will launch a menu based configuration program. You will
-     recognize the layout from building the kernel or uClibc/BusyBox. The
-     underlying menu code was borrowed from BusyBox and slightly modified for
-     our use.
+     The command <make> will launch a menu based configuration program. The
+  underlying menu code was borrowed from BusyBox and slightly modified for
+  our use.
 
      Help on parameter function is available from the on-line help. Please
-     make use of that feature: it may contain additional information not
-     duplicated in this file.
+  make use of that feature: it may contain additional information not
+  duplicated in this file.
 
      You should first choose which book and flavour you want to build. Note
-     that when you choose the BLFS book, the tool will just install the BLFS
-     tool to your system. You'll have to run that installed tool to build
-     packages in BLFS. See README.BLFS to know how. If you choose any other
-     book, you'll have to configure the settings and the build parameters
-     from the menu. Note that you may choose to install the blfs tools onto
-     the newly built system (see below). It is not the same thing as choosing
-     the BLFS book in the menu, which will install the blfs tools on the
-     currently running system.
-    
+  that when you choose the BLFS book, the tool will just install the BLFS
+  tool to your system. You'll have to run that installed tool to build
+  packages in BLFS. See README.BLFS to know how. If you choose any other
+  book, you'll have to configure the settings and the build parameters
+  from the menu. Note that you may choose to install the blfs tools onto
+  the newly built system. It is not the same thing as choosing
+  the BLFS book in the menu, which will install the blfs tools on the
+  currently running system.
+
+     The "General Settings" menu is where the "Build Directory" name is to be
+  entered. Other entries in that menu select what the tool should do. The
+  "Run the Makefile" entry selects whether the tool will start the build
+  automatically after generating the needed files. The "Rebuild files" selects
+  whether to clean the build directory before doing anything else. To protect
+  against removing important files, this can only be done in an empty directory,
+  or a directory previously populated by the tool.
+
+     The "Build Settings" menu is where various options for the build can be
+  selected. Two options, "Use a custom fstab file" and "Build the kernel",
+  have been described above. "Do not use/display progress_bar", if set, will
+  prevent a progress bar to be displayed during the build. That may be useful
+  on slow machine. The other options should be self explanatory, using either
+  the online help or book reading.
+
+     The "Advanced Features" menu is for various maintenance tasks, like
+  testing the build instructions or reporting build statistics. One useful
+  option is "Optimization and parallelisation". It is not recommended to use
+  it for setting compiler optimization flags, although it is possible, but
+  if you select it, you'll be able to select the number of parallel `make'
+  jobs, which allows much faster builds on modern multicore CPUs.
 
      Once you have set the parameters and saved the configuration, the script
-     is launched. Its aim is to extract instructions from the selected book
-     to generate scripts, and to generate a Makefile, which allows running
-     the scripts in the right order. The script verifies first that the host
-     can run it and build the xLFS system, then validates the configuration
-     and lists the parameters. At this point, you may choose to quit or to
-     continue with the listed parameters. The script will then proceed to
-     generate the Makefile and the build scripts, optionally download
-     packages, and eventually verify the host prerequisite. If you have
-     selected "Run the makefile", the command make is launched in the
-     adequate directory, and the build begins. If not, you'll have to run
-     "make" manually, for example: "make -C /mnt/build_dir/jhalfs", if you
-     have used the default parameters (see the layout under $BUILDDIR in the
-     Q&A below).
+  is launched. Its aim is to extract instructions from the selected book
+  to generate scripts, and to generate a Makefile, which allows running
+  the scripts in the right order. The script verifies first that the host
+  can run itself and build the xLFS system, then validates the configuration
+  and lists the parameters. At this point, you may choose to quit or to
+  continue with the listed parameters. The script will then proceed to
+  generate the Makefile and the build scripts, optionally download
+  packages, and eventually verify the host prerequisite. If you have
+  selected "Run the makefile", the command <make> is launched in the
+  adequate directory, and the build begins. If not, you'll have to run
+  "make" manually, for example: "make -C /mnt/build_dir/jhalfs", if you
+  have used the default parameters (see the layout under $BUILDDIR in the
+  Q&A below).
 
-     IMPORTANT::
-         You must be logged as a normal user with sudo privileges to run
-         the Makefile. Furthermore, you are supposed to have enough privilege
-         to become any user. If you are not bothered about security issues,
-         the entry for the user "jhalfs_user" in /etc/sudoers could be
-         jhalfs_user ALL=(ALL) NOPASSWD:ALL
+  IMPORTANT::
+      You must be logged as a normal user with sudo privileges to run
+      the Makefile. Furthermore, you are supposed to have enough privilege
+      to become any user. If you are not bothered about security issues,
+      the entry for the user "jhalfs_user" in /etc/sudoers could be
+      jhalfs_user ALL=(ALL) NOPASSWD:ALL
 
-     NOTE::
-         If you run the jhalfs script directly the only function you can select
-         is to display the version number running <./jhalfs -v>
+  NOTE::
+      If you run the jhalfs script directly the only function you can select
+      is to display the version number by running <./jhalfs -v>
 
-6. BLFS_TOOL SUPPORT::
-
-     For books that support it (only LFS for jhalfs version 2.4),
-     there is an option to install an automated framework for building BLFS
-     packages. It is called blfs-tool. When you tick `BOOK Settings/Add
-     blfs-tool support' in jhalfs configuration menu, the tools are
-     installed in $BLFS_ROOT (default /blfs_root) on the xLFS system,
-     and a few dependencies (which you may select) are built at the
-     end of the jhalfs run, before the custom tools. The instructions for
-     building the dependencies are taken from the BLFS book.
-
-     (TODO: blfs-tools have not been tested with current (version 3.0) of CLFS,
-     and certainly need some adaptation to run)
-     WARNING:: If you add blfs-tool support on a CLFS Sysroot build
-               you MUST edit the scripts to fix the installation paths.
-
-     After booting the new xLFS system some steps are needed to finish
-     the installation of the automated tools:
-
-       - A user account must be created. You must be logged on that user
-         account to use blfs-tool. This is not strictly necessary,
-         since the packages can be built as root, too, but it is
-         never a good idea to build packages as root.
-
-       - Move /blfs-root to that user's home and change ownership of the
-         directory and files to the user.
-
-       - Give the user read and write privileges over the $TRACKING_DIR
-         directory and the files that it contains.
-
-       - Configure sudo, adding the needed privileges for the user. For
-         newer sudo version, do not forget to add a line Defaults secure_path=
-         containing /sbin and /usr/sbin (in /etc/sudoers), otherwise some
-         executables are not found.
-
-       - Although it is not strictly necessary, it is recommended to install
-         the bash shell startup files (as per `3.After LFS Configuration
-         Issues' of the BLFS book), as some instructions in BLFS rely on
-         their being present.
-
-     We assume that blfs-tool will be used on a running fresh xLFS system.
-     To use it to build BLFS packages from the chroot jail is also possible,
-     but not supported.
-
-     To know how to use blfs-tool, see README.BLFS.
-
-7. LAYOUT::
+6. LAYOUT::
 
         /BLFS (see README.BLFS)
 
@@ -204,21 +233,16 @@ $Id$
         jhalfs
         blfs-tool
 
-8. FAQ::
-    Q. "This 'help' file is very sparse"
-    A. Yes, it is. This tool, jhalfs, is for those who understand the LFS books
-       and wish to automate the build. 99% of any problems that arise can be
-       solved by reading the book(s).
-
-    Q. "It doesn't work!"
-    A. Yes it does, try >> make
-       Remember you must have 'sudo' privileges.
-
-    Q. "It still doesn't work"
-    A. jhalfs was designed to work against the development versions of the LFS
-       series of books. Consequently changes in a book(s) sometimes breaks older
-       versions of jhalfs. Before you start pulling out your hair download the
-       latest version of jhalfs to see if that solves your problem.
+7. FAQ::
+    Q. "It doesn't work"
+    A. There are several reasons why it may be so. One possibility is the
+       following:jhalfs was designed to work against the development versions
+       of the LFS series of books. Consequently changes in a book(s) sometimes
+       breaks older versions of jhalfs. Before you start pulling out your hair
+       download the latest version of jhalfs to see if that solves your
+       problem. Note that it may be the other way around. If you want to build
+       an old version of the book, you may have to downgrade you jahlfs
+       version.
 
     Q. "How do I specify the build location?"
     A. The original LFS document worked against the well known location
