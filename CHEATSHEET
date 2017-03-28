@@ -1,0 +1,187 @@
+$Id$
+This file contains examples of menu settings for various tasks.
+------------------------------
+LFS book, System V, stable (8.0) version.
+Download the files to /usr/src (verify you have write access)
+Build in /mnt/lfs (verify you have write access too)
+Clean the build directory before beginning
+Build a kernel, whose configuration is in /home/user/config-4.9.9-lfs-1
+An fstab for the future system si located in /home/user/fstablfs
+Run only the critical testsuites
+Settings for a French user
+Run four make jobs in parallel
+-----------------------------
+BOOK Settings --->
+    Use BOOK (Linux From Scratch System V)  --->
+    Release (Branch or stable book)  --->
+    Branch (preceded by "branch-"), stable Version, or tag (8.0)
+[ ] Add blfs-tool support (NEW)
+[ ] Add custom tools support (NEW)
+
+General Settings --->
+   [ ] Change the default user/group and homedir for this build (NEW)
+       Build Directory (/mnt/lfs)
+   [*] Retrieve source files
+         Package Archive Directory (/usr/src)
+   [ ]   Retry on 'connection refused' failure (NEW)
+         Number of retry attempts on download failures (20) (NEW)
+         Download timeout (in seconds) (30) (NEW)
+         FTP mirror (http://ftp.osuosl.org) (NEW)
+   [*] Run the makefile
+   [*] Rebuild files
+
+Build Settings --->
+   [*] Run testsuites
+         Tests level (Only final critical testsuites)  --->
+       Flavour (Don't stop on testsuite failures)  --->
+   [ ] Package management
+   [ ] Create a log of installed files for each package
+   [*] Use a custom fstab file
+         Fstab file (optional) ($HOME/fstablfs)
+   [*] Build the kernel
+         Kernel config file ($HOME/config-4.9.9-lfs-1)
+   [ ] Strip Installed Binaries/Libraries
+   [ ] Install vim-lang package
+   [ ] DO NOT use/display progress_bar
+       TimeZone (Europe/Paris)
+       Language (fr_FR.UTF-8)
+   [ ] Install the full set of locales
+       Groff page size (A4)  --->
+
+Advanced Features --->
+   [*] Create SBU and disk usage report
+   [ ] Run comparison analysis on final stage
+   [*] Optimization and parallelization
+         Optimization settings  --->
+           Number of parallel `make' jobs (4)
+           Optimization level  (Both temp tools and final system)  --->
+       Internal Settings (WARNING: for jhalfs developers only)  --->
+
+[ ] Rebuild the Makefile (see help)
+
+------------------------------
+------------------------------
+LFS book, systemd, XML source of the LFS book in /usr/src/lfsbook
+Download the files to /usr/src (verify you have write access)
+Build in /mnt/lfs (verify you have write access too)
+Clean the build directory before beginning
+Build a kernel, whose configuration is in /home/user/config-4.10.3-lfs-systemd
+An fstab for the future system si located in /home/user/fstablfs
+Run all the testsuites
+Settings for an user in California
+Run four make jobs in parallel
+-----------------------------
+BOOK Settings --->
+    Use BOOK (Linux From Scratch systemd)  --->
+    Release (Working Copy)  --->
+    Loc of working copy (mandatory) (/usr/src/lfsbook)
+[ ] Add blfs-tool support (NEW)
+[ ] Add custom tools support (NEW)
+
+General Settings --->
+   [ ] Change the default user/group and homedir for this build (NEW)
+       Build Directory (/mnt/lfs)
+   [*] Retrieve source files
+         Package Archive Directory (/usr/src)
+   [ ]   Retry on 'connection refused' failure (NEW)
+         Number of retry attempts on download failures (20) (NEW)
+         Download timeout (in seconds) (30) (NEW)
+         FTP mirror (http://ftp.osuosl.org) (NEW)
+   [*] Run the makefile
+   [*] Rebuild files
+
+Build Settings --->
+   [*] Run testsuites
+         Tests level (Both temporary tools and final system testsuites) --->
+       Flavour (Don't stop on testsuite failures)  --->
+   [ ] Package management
+   [ ] Create a log of installed files for each package
+   [*] Use a custom fstab file
+         Fstab file (optional) ($HOME/fstablfs)
+   [*] Build the kernel
+         Kernel config file ($HOME/config-4.10.3-lfs-systemd
+   [ ] Strip Installed Binaries/Libraries
+   [ ] Install vim-lang package
+   [ ] DO NOT use/display progress_bar
+       TimeZone (America/Los_Angeles)
+       Language (en_US.UTF-8)
+   [ ] Install the full set of locales
+       Groff page size (letter)  --->
+
+Advanced Features --->
+   [*] Create SBU and disk usage report
+   [ ] Run comparison analysis on final stage
+   [*] Optimization and parallelization
+         Optimization settings  --->
+           Number of parallel `make' jobs (4)
+           Optimization level  (Both temp tools and final system)  --->
+       Internal Settings (WARNING: for jhalfs developers only)  --->
+
+[ ] Rebuild the Makefile (see help)
+
+------------------------------
+------------------------------
+CLFS book, systemd, stable version (as of April 2017)
+X86 multilib
+Download the files to /usr/src (verify you have write access)
+Build in /mnt/clfs (verify you have write access too)
+Clean the build directory before beginning
+Use "boot" method, with a temporary kernel in /home/user/config-boot
+Build a kernel, whose configuration is in /home/user/config-4.10.3-clfs-systemd
+An fstab for the future system si located in /home/user/fstablfs
+Run all the testsuites for final system
+Settings for an user in Sidney (Australia)
+Run four make jobs in parallel
+-----------------------------
+BOOK Settings --->
+    Use BOOK (Cross-Compiled Linux From Scratch)  --->
+    Release (Branch or stable book)  --->
+    Branch (preceded by "branch-"), stable Version, or tag (3.0.0-systemd)
+    Target architecture (x86)  --->
+    Library (multilib)  --->
+    Build method (boot)  --->
+    BOOT kernel config file (mandatory) ($HOME/config-boot)
+[ ] Add blfs-tool support (NEW)
+[ ] Add custom tools support (NEW)
+
+General Settings --->
+   [ ] Change the default user/group and homedir for this build (NEW)
+       Build Directory (/mnt/clfs)
+   [*] Retrieve source files
+         Package Archive Directory (/usr/src)
+   [ ]   Retry on 'connection refused' failure (NEW)
+         Number of retry attempts on download failures (20) (NEW)
+         Download timeout (in seconds) (30) (NEW)
+         FTP mirror (http://ftp.osuosl.org) (NEW)
+   [*] Run the makefile
+   [*] Rebuild files
+
+Build Settings --->
+   [*] Run testsuites
+         Tests level (All final system testsuites) --->
+       Flavour (Don't stop on testsuite failures)  --->
+   [ ] Create a log of installed files for each package
+   [*] Use a custom fstab file
+         Fstab file (optional) ($HOME/fstablfs)
+   [*] Build the kernel
+         Kernel config file ($HOME/config-4.10.3-clfs-systemd
+   [ ] Strip Installed Binaries/Libraries
+   [ ] Install vim-lang package
+   [ ] DO NOT use/display progress_bar
+       TimeZone (Australia/Sydney)
+       Language (en_AU.UTF-8)
+   [ ] Install the full set of locales
+       Groff page size (A4)  --->
+
+Advanced Features --->
+   [*] Create SBU and disk usage report
+   [ ] Run comparison analysis on final stage
+   [*] Optimization and parallelization
+         Optimization settings  --->
+           Number of parallel `make' jobs (4)
+           Optimization level  (Cross tools (only MAKEFLAGS), temp tools and final system)  --->
+       Internal Settings (WARNING: for jhalfs developers only)  --->
+
+[ ] Rebuild the Makefile (see help)
+--------------------------------
+
