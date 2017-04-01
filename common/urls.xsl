@@ -105,6 +105,9 @@
         <xsl:when test="contains($dirname, 'udev')">
           <xsl:text>udev/</xsl:text>
         </xsl:when>
+        <xsl:when test="contains($dirname, 'iputils')">
+          <xsl:text>iputils/</xsl:text>
+        </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="$dirname"/>
           <xsl:text>/</xsl:text>
