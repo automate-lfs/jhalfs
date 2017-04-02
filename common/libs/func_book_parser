@@ -8,9 +8,18 @@ get_book() {                 #
   cd $JHALFSDIR
 
   if [ -z $WORKING_COPY ] ; then
-# Check for Subversion instead of just letting the script hit 'svn' and fail.
-    test `type -p svn` || eval "echo \"This feature requires Subversion.\"
-    exit 1"
+# Check for Subversion or git instead of just letting the script fail.
+    case $PROGNAME in
+      lfs | hlfs)
+        test `type -p svn` || eval "echo \"This feature requires Subversion.\"
+        exit 1"
+      ;;
+      clfs*)
+        test `type -p git` || eval "echo \"This feature requires Git.\"
+        exit 1"
+      ;;
+    esac
+
     echo -n "Downloading the $PROGNAME document, $LFSVRS version... "
 
     case $PROGNAME in
@@ -31,17 +40,22 @@ get_book() {                 #
         echo $TREE
         git clone $GIT ${PROGNAME}-$LFSVRS >>$LOGDIR/$LOG 2>&1
         if [ ! $TREE == "development" ]; then
-           cd ${PROGNAME}-$LFSVRS
+           pushd ${PROGNAME}-$LFSVRS > /dev/null
            echo "Checking out $LFSVRS at $PWD in $TREE"
            git checkout ${TREE} >>$LOGDIR/$LOG 2>&1
+           popd > /dev/null
         fi
     else
       cd ${PROGNAME}-$LFSVRS
       case $PROGNAME in
-        clfs*)  git pull >>$LOGDIR/$LOG 2>&1
-                if [ ! $TREE == "development" ]; then
-                   git checkout ${TREE} >>$LOGDIR/$LOG 2>&1
-                fi
+        clfs*)
+          # If the repo is in "detached head" state, git pull fails, so get
+          # back first to master:
+          git checkout master >>$LOGDIR/$LOG 2>&1
+          git pull >>$LOGDIR/$LOG 2>&1
+              if [ ! $TREE == "development" ]; then
+                 git checkout ${TREE} >>$LOGDIR/$LOG 2>&1
+              fi
         ;;
         lfs | hlfs) svn up >>$LOGDIR/$LOG 2>&1 ;;
         *) ;;
@@ -49,7 +63,7 @@ get_book() {                 #
     fi
     echo -ne "done\n"
 
-  else
+  else # Working copy
     echo -ne "Using $BOOK as book's sources ...\n"
   fi
 }
