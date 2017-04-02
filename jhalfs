@@ -84,7 +84,7 @@ ${BOLD}  \"jhalfs\"${OFF} builder tool (development) \$Rev$
 "
 
 case $1 in
-  -v ) echo "$version" && exit 1 ;;
+  -v ) echo "$version" && exit ;;
   run ) : ;;
   * )
     echo "${nl_}${tab_}${BOLD}${RED}This script cannot be called directly: EXITING ${OFF}${nl_}"
