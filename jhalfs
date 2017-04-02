@@ -50,7 +50,7 @@ simple_error() {        # Basic error trap.... JUST DIE
 }
 
 see_ya() {
-    echo -e "\n${L_arrow}${BOLD}jhalfs-trunk${R_arrow} exit${OFF}\n"
+    echo -e "\n${L_arrow}${BOLD}jhalfs${R_arrow} exit${OFF}\n"
 }
 ##### Simple error TRAPS
 # ctrl-c   SIGINT
@@ -70,16 +70,17 @@ trap 'echo -e "\n\n${RED}INTERRUPT${OFF} trapped\n" &&  exit 2'  1 2 3 15 17 18 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 version="
-${BOLD}  \"jhalfs-trunk\"${OFF} builder tool (development) \$Rev$
+${BOLD}  \"jhalfs\"${OFF} builder tool (development) \$Rev$
   \$Date$
 
-  Written by George Boudreau and Manuel Canales Esparcia,
+  Written by George Boudreau, Manuel Canales Esparcia, Pierre Labastie,
   plus several contributions.
 
   Based on an idea from Jeremy Huntwork
 
   This set of files are published under the
   ${BOLD}Gnu General Public License, Version 2.${OFF}
+  See the ${BOLD}LICENCE${OFF} file in this directory.
 "
 
 case $1 in
