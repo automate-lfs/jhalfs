@@ -22,7 +22,7 @@ case $1 in
     VERSION=$(echo $1 | sed 's/.*shot-//')
     ;;
   icu*) # No version in PCKGVRS! Use version directly from xml book.
-        # PACK_INSTALL # contains the path to this script, which is in the
+        # PACK_INSTALL contains the path to this script, which is in the
         # parent dir of the book.
     local PACKENT=$(dirname $PACK_INSTALL)/blfs-xml/packages.ent
     local VERSION1=$(sed -n 's/.*icu-major[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
