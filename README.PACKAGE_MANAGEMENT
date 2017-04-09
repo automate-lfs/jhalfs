@@ -6,32 +6,49 @@ $Id$
 
       There are several hints discussing package management for LFS, but
   nothing under jhalfs. There used to be a patch for PACO that I cannot
-  find now. This is a modification ("DESTDIR install" automation), which
-  allows to use a package manager inside jhalfs. I hope it is flexible enough
-  to support several package managers, at least among those who use DESTDIR
-  install. My initial implementation used dpkg, from Debian, in a very
-  crude way (Debian has a sophisticated package management system, which
-  I have not tried to use here). There is also a port to Pacman from
-  Arch Linux (http://www.archlinux.org). I am sorry to say I have (almost)
-  no experience with rpm, so I cannot tell whether it would fit.
+  find now. So there was a need for such a tool, and an infrastructure,
+  which allows using a package manager inside jhalfs, has been developped.
+  I hope it is flexible enough to support several package managers, at least
+  among those who use DESTDIR install and/or LD_PRELOAD during install.
+  It has been tested with dpkg from Debian, pacman from Arch Linux,
+  and porg. Sample configuration files are given for those three packages.
+  I am sorry to say I have (almost) no experience with rpm, so I cannot
+  tell whether it would fit.
 
 2. OVERVIEW OF THE SYSTEM:
 
-      Presently, package management is only available for LFS. I plan to
-  upgrade BLFS tools, but nothing usable right now. I have not attempted
-  to adapt this tool for the other flavours of LFS.
+      For now, package management is only available for LFS. The `porg style'
+  (see below) package management has been ported to BLFS, but not the distro
+  style one (the book layout makes it rather difficult). I have not attempted
+  to adapt this tool for the other flavours of LFS (TODO).
 
-      To use package management, you need to create the required files in
-  the pkgmngt directory (see below), and to select "package management" in
-  the build settings. Note that this is incompatible with creating an SBU
-  and usage report.
+      This tool comes in two flavours:
+  - for distros package managers (e.g dpkg or pacman), it basically performs
+    a "DESTDIR install" for all pages in chapter 6, 7 and 8 of the book. The
+    name of the DESTDIR directory is the same as the one of the executed
+    script. The path to this directory is available to the scriplets through
+    the PKG_DEST variable. The details of the DESTDIR part are given below.
+    After the package is installed in $PKG_DEST, a function "packInstall" is
+    called, which is supposed to create a binary package (e.g. make a .deb
+    file), store it to a repository and install it to the system.
+  - for porg style package manager, the install instructions are wrapped
+    between pairs of single quotes ('). This allows passing those instructions
+    to a function ("wrapInstall"), which may itself call porg or another
+    (e.g. fakeroot, not tested) instruction wrapper. Note that if the
+    instructions contain single quote charaters, they are changed to '\'',
+    which pass them literally. At the end of the installation, a function
+    "packInstall" is called, with a slighly different aim compared to the
+    DESTDIR one: it is used to make a tarball of the installed files (e.g.
+    using "porgball") and store them into some repository. But there is no
+    need to install them to the system, since this has already been done.
 
-3. DETAILS OF OPERATION:
+      Note that with carefully crafted "packInstall" and "wrapInstall"
+  functions, a combination of the two methods could be used, for example for
+  DESTDIR installs using fakeroot. This is work in progress and not fully
+  implemented yet.
 
-      This system performs basically a "DESTDIR install" for all pages
-  in chapter 6, 7 and 8 of the book. The name of the DESTDIR directory is the
-  same as the one of the executed script. The path to this directory is
-  made available to the scriplets through the PKG_DEST variable.
+3. DETAILS:
+
       The XSL stylesheet used for generating the scriptlets, automatically
   adds DESTDIR install instructions when "package management" is selected.
   Also all the paths beginning with " /" or ">/" (absolute paths) are prepended
@@ -43,6 +60,7 @@ $Id$
   creates a reasonable subset of the FHS hierarchy into the destination
   directory. Empty directories are then removed before packing the
   binary package.
+
       In order to use the package manager, it has to be installed at the end of
   chapter 5 (temporary installation in /tools) and chapter 6 (final install).
   Furthermore, the administrative files and directories have to be created
@@ -51,20 +69,21 @@ $Id$
   the necessary instructions and enough information to download the tarball.
   This file should reside in the `pkgmngt' directory and be named
   `packageManager.xml'. A template named `packageManager.xml.template' is
-  provided in the `pkgmngt' subdirectory. There are also two XML files for
-  dpkg and pacman, respectively `packageManager.xml.dpkg' and
-  `packageManager.xml.pacman', that you can copy to `packageManager.xml'.
+  provided in the `pkgmngt' subdirectory. There are also three XML files for
+  dpkg, pacman, and porg, respectively `packageManager.xml.dpkg',
+  `packageManager.xml.pacman',  and `packageManager.xml.porg', that you can
+  copy to `packageManager.xml' and modify to suit your needs.
   They are not updated often, so the versions used can be rather old.
-      The last thing to do is to tell how to use the package manager. When
-  the binary package is ready, the scriptlets call a shell function named
-  `packInstall', which should pack the binary package and install it on the
-  system. Note that nothing has been done to manage configuration files, 
+
+      The last thing to do is to tell how to use the package manager. The user
+  has to provide two functions, "wrapInstall" and "packInstall", as described
+  above. Please note that nothing has been done to manage configuration files, 
   which are ususally treated specially by package managers: depending on
   the book layout, it is sometimes possible to create those files afterwards,
   and sometimes not, which means that you have to check them after each
-  upgrade. The user has to write his own `packInstall' function. The shell
-  function should be defined in a file named `packInstall.sh', residing in
-  the `pkgmngt' directory. A template is provided, as well as two example
-  scripts for dpkg and pacman. Note that, due to the way pacman checks the
-  available space on disk, the root directory in chroot must be a mount point,
-  otherwise the installation of packages fails.
+  upgrade. Both functions should be defined in a file named `packInstall.sh',
+  residing in the `pkgmngt' directory. A template is provided (actually a copy
+  of the file for dpkg), as well as three example scripts for dpkg, pacman,
+  and porg. Pacman Note: due to the way pacman checks the available space on
+  disk, the root directory in chroot must be a mount point, otherwise the
+  installation of packages fails.

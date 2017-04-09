@@ -21,6 +21,10 @@
     </xsl:choose>
   </xsl:variable>
 
+  <!-- Wrap "root" commands inside a wrapper function, allowing
+       "porg style" package management -->
+  <xsl:param name="wrap-install" select="'n'"/>
+
   <!-- Build as user (y) or as root (n)? -->
   <xsl:param name="sudo" select="'y'"/>
 
@@ -69,8 +73,10 @@
         <xsl:choose>
           <!-- Package page -->
           <xsl:when test="sect2[@role='package']">
-            <!-- We build in a subdirectory -->
-            <xsl:text>PKG_DIR=</xsl:text>
+            <!-- We build in a subdirectory, whose name may be needed
+                 if using package management (see envars.conf), so
+                 "export" it -->
+            <xsl:text>export PKG_DIR=</xsl:text>
             <xsl:value-of select="$filename"/>
             <xsl:text>
 SRC_DIR=${SRC_ARCHIVE}${SRC_SUBDIRS:+/${PKG_DIR}}
@@ -149,6 +155,7 @@ case $PACKAGE in
      cp $(find . -mindepth 1 -maxdepth 1 -type l) $UNPACKDIR
      ;;
 esac
+export UNPACKDIR
 cd $UNPACKDIR&#xA;
 </xsl:text>
         <xsl:apply-templates select=".//screen | .//para/command"/>
@@ -407,12 +414,30 @@ fi
     <xsl:if test="child::* = userinput and not(@role = 'nodump')">
       <xsl:choose>
         <xsl:when test="@role = 'root'">
-          <xsl:if test="$sudo = 'y'">
-            <xsl:text>sudo -E sh &lt;&lt; ROOT_EOF&#xA;</xsl:text>
+          <xsl:if test="not(preceding-sibling::screen[1][@role='root'])">
+            <xsl:if test="$sudo = 'y'">
+              <xsl:text>sudo -E sh &lt;&lt; ROOT_EOF&#xA;</xsl:text>
+            </xsl:if>
+            <xsl:if test="$wrap-install = 'y' and
+                          ancestor::sect2[@role='installation']">
+              <xsl:text>if [ -r "$PACK_INSTALL" ]; then
+  source $PACK_INSTALL
+  export -f wrapInstall
+  export -f packInstall
+fi
+wrapInstall '
+</xsl:text>
+            </xsl:if>
           </xsl:if>
           <xsl:apply-templates mode="root"/>
-          <xsl:if test="$sudo = 'y'">
-            <xsl:text>&#xA;ROOT_EOF</xsl:text>
+          <xsl:if test="not(following-sibling::screen[1][@role='root'])">
+            <xsl:if test="$wrap-install = 'y' and
+                          ancestor::sect2[@role='installation']">
+              <xsl:text>'&#xA;packInstall</xsl:text>
+            </xsl:if>
+            <xsl:if test="$sudo = 'y'">
+              <xsl:text>&#xA;ROOT_EOF</xsl:text>
+            </xsl:if>
           </xsl:if>
         </xsl:when>
         <xsl:otherwise>
@@ -514,6 +539,8 @@ popd</xsl:text>
     </xsl:call-template>
   </xsl:template>
 
+  <xsl:variable name="APOS">'</xsl:variable>
+
   <xsl:template name="output-root">
     <xsl:param name="out-string" select="''"/>
     <xsl:choose>
@@ -559,6 +586,19 @@ popd</xsl:text>
         <xsl:call-template name="output-root">
           <xsl:with-param name="out-string"
                           select="substring-after($out-string,'\')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($out-string,string($APOS))
+                      and $wrap-install = 'y'
+                      and ancestor::sect2[@role='installation']">
+        <xsl:call-template name="output-root">
+          <xsl:with-param name="out-string"
+                          select="substring-before($out-string,string($APOS))"/>
+        </xsl:call-template>
+        <xsl:text>'\''</xsl:text>
+        <xsl:call-template name="output-root">
+          <xsl:with-param name="out-string"
+                          select="substring-after($out-string,string($APOS))"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>

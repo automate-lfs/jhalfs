@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+  "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" >
+
+<article>
+
+<sect1 id="package">
+  <title>Package Information</title>
+        <para>Download: <ulink url="https://sourceforge.net/projects/porg/files/porg-0.10.tar.gz"/></para>
+        <para>MD5 sum: <literal>2eceb8a73bb188dbb06b12d90cabdbb4</literal></para>
+</sect1>
+
+<sect1 id="ch-tools-pkgmngt" role="wrap">
+  <?dbhtml filename="porg.html"?>
+  <title>Porg in tools</title>
+  <sect2 role="installation">
+    <title>Instructions</title>
+<screen><userinput remap="configure">./configure --prefix=/tools \
+           --disable-grop  \
+           --with-porg-logdir=/tools/var/porg</userinput></screen>
+
+    <para>
+      <parameter>--disable-grop</parameter> is needed to prevent the sytem from
+      trying to build the graphical interface, and
+      <parameter>--with-porg-logdir=...</parameter> is needed because
+      <command>make install</command> insists on creating a directory in
+      <filename class="directory">/var</filename>, where we do not want
+      to write.
+    </para>
+
+<screen><userinput remap="make">make</userinput></screen>
+
+<screen><userinput remap="install">make install</userinput></screen>
+
+<screen><userinput>cat &gt;&gt; /tools/etc/porgrc &lt;&lt; EOF
+# Porg logdir on LFS system
+LOGDIR=/var/lib/porg
+EOF
+sed -e '/EXCLUDE/{s/^#//;s@$@:/sources:/home@}' \
+    -i /tools/etc/porgrc</userinput></screen>
+
+  </sect2>
+
+</sect1>
+
+<sect1 id="ch-pkgmngt-creatingdirs">
+
+  <title>Directories</title>
+  <screen><userinput>mkdir -pv /var/lib/porg
+mkdir -pv /var/lib/packages</userinput></screen>
+
+</sect1>
+<sect1 id="ch-pkgmngt-createfiles">
+  <title>Files</title>
+  <para><command>porgball</command> needs <filename>porgrc</filename>
+    in <filename class="directory">/etc</filename>:</para>
+  <screen><userinput>cp /tools/etc/porgrc /etc</userinput></screen>
+</sect1>
+
+<sect1 id="ch-system-pkgmngt" role="wrap">
+  <?dbhtml filename="porg.html"?>
+  <title>Final Porg</title>
+  <sect2 role="installation">
+    <title>Instructions</title>
+
+<screen><userinput remap="configure">./configure --prefix=/usr     \
+            --disable-grop    \
+            --sysconfdir=/etc \
+            --with-porg-logdir=/var/lib/porg</userinput></screen>
+
+<screen><userinput remap="make">make</userinput></screen>
+
+<screen><userinput remap="install">porg -lD "make install"</userinput></screen>
+
+<screen><userinput>sed -e '/EXCLUDE/{s/^#//;s@$@:/sources:/home@}' \
+    -i /etc/porgrc</userinput></screen>
+  </sect2>
+
+</sect1>
+</article>

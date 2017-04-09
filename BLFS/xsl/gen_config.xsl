@@ -58,6 +58,16 @@ config  SUDO
         help
                 Select if sudo will be used (you build as a normal user)
                         otherwise sudo is not needed (you build as root)
+
+
+config  WRAP_INSTALL
+        bool "Use `porg style' package management"
+        default n
+        help
+                Select if you want the installation commands to be wrapped
+		between "wrapInstall '" and "' ; packInstall" functions,
+		where wrapInstall is used to set up a LD_PRELOAD library (for
+		example using porg), and packInstall makes the package tarball
 </xsl:text>
   </xsl:template>
 

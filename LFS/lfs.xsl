@@ -8,6 +8,8 @@
       extension-element-prefixes="exsl"
       version="1.0">
 
+<!-- Parameters -->
+
   <!-- which revision attribute to include: can only be sysv or systemd,
        but we leave checking to the caller-->
   <xsl:param name="revision" select="'sysv'"/>
@@ -16,11 +18,18 @@
        n = no, original behavior
        y = yes, add PKG_DEST to scripts in install commands of chapter06-08
   -->
-  <xsl:param name="pkgmngt" select="n"/>
+  <xsl:param name="pkgmngt" select="'n'"/>
+
+  <!-- Package management with "porg style" ?
+       n = no,  same as pkgmngt description above
+       y = yes, wrap install commands of chapter06-08 into a bash function.
+                note that pkgmngt must be 'y' in this case
+  -->
+  <xsl:param name="wrap-install" select='"n"'/>
  
   <!-- Run test suites?
        0 = none
-       1 = only chapter06 Glibc, GCC and Binutils testsuites
+       1 = only chapter06 critical testsuites
        2 = all chapter06 testsuites
        3 = all chapter05 and chapter06 testsuites
   -->
@@ -30,23 +39,39 @@
        n = no, I want to build the full system and review the logs
        y = yes, bomb at the first test suite failure to can review the build dir
   -->
-  <xsl:param name="bomb-testsuite" select="n"/>
+  <xsl:param name="bomb-testsuite" select="'n'"/>
 
   <!-- Install vim-lang package? OBSOLETE should always be 'n'-->
-  <xsl:param name="vim-lang" select="n"/>
+  <xsl:param name="vim-lang" select="'n'"/>
   
   <!-- Time zone -->
-  <xsl:param name="timezone" select="GMT"/>
+  <xsl:param name="timezone" select="'GMT'"/>
   
   <!-- Page size -->
-  <xsl:param name="page" select="letter"/>
+  <xsl:param name="page" select="'letter'"/>
   
   <!-- Locale settings -->
-  <xsl:param name="lang" select="C"/>
+  <xsl:param name="lang" select="'C'"/>
 
   <!-- Install the whole set of locales -->
-  <xsl:param name='full-locale' select='n'/>
+  <xsl:param name='full-locale' select='"n"'/>
   
+  <!-- Hostname -->
+  <xsl:param name='hostname' select='"HOSTNAME"'/>
+
+  <!-- Network parameters: interface, ip, gateway, prefix, broadcast, domain
+       and nameservers -->
+  <xsl:param name='interface'   select="'eth0'"/>
+  <xsl:param name='ip'          select='"10.0.2.9"'/>
+  <xsl:param name='gateway'     select='"10.0.2.2"'/>
+  <xsl:param name='prefix'      select='24'/>
+  <xsl:param name='broadcast'   select='"10.0.2.255"'/>
+  <xsl:param name='domain'      select='"lfs.org"'/>
+  <xsl:param name='nameserver1' select='"10.0.2.3"'/>
+  <xsl:param name='nameserver2' select='"8.8.8.8"'/>
+
+<!-- End parameters -->
+
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1[not(@revision) or
                                          @revision=$revision]"/>
@@ -176,7 +201,13 @@
                descendant::screen[not(@role) or
                                   @role != 'nodump']/userinput[
                                                     @remap='install']">
-      <xsl:text>mkdir -pv $PKG_DEST/{boot,etc,lib,bin,sbin}
+      <xsl:choose>
+        <xsl:when test="$wrap-install='y'">
+          <xsl:text>wrapInstall '
+</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:text>mkdir -pv $PKG_DEST/{boot,etc,lib,bin,sbin}
 mkdir -pv $PKG_DEST/usr/{lib,bin,sbin,include}
 mkdir -pv $PKG_DEST/usr/share/{doc,info,man}
 mkdir -pv $PKG_DEST/usr/share/man/man{1..8}
@@ -185,10 +216,13 @@ case $(uname -m) in
  x86_64) ln -sv lib $PKG_DEST/lib64 &amp;&amp; ln -sv lib $PKG_DEST/usr/lib64 ;;
 esac
 </xsl:text>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:if>
     <xsl:if test="../@id = 'ch-system-glibc' and
                   @role='installation' and
-                  $pkgmngt = 'y'">
+                  $pkgmngt = 'y' and
+                  $wrap-install = 'n'">
       <xsl:text>mkdir -pv $PKG_DEST/usr/include/{rpc,rpcsvc}
 </xsl:text>
     </xsl:if>
@@ -202,27 +236,54 @@ esac
                   descendant::screen[not(@role) or
                                      @role != 'nodump']/userinput[
                                                        @remap='install']">
-      <xsl:if test="../@id = 'ch-system-man-pages'">
+      <xsl:choose>
+        <xsl:when test="$wrap-install='y'">
+          <xsl:if test="../@id = 'ch-system-man-pages'">
 <!-- these files are provided by the shadow package -->
-  <xsl:text>rm -fv $PKG_DEST/usr/share/man/{man3/getspnam.3,man5/passwd.5}
+            <xsl:text>rm -fv /usr/share/man/{man3/getspnam.3,man5/passwd.5}
 </xsl:text>
-      </xsl:if>
+          </xsl:if>
 <!-- Attr man/man2 pages are already installed by man-pages. As of
      March 2013, they are the same pages.
      November 2015: now they are more accurate
      in man-pages, and the man5 section is also in man-pages... -->
-      <xsl:if test="../@id = 'ch-system-attr'">
-        <xsl:text>rm -fv $PKG_DEST/usr/share/man/man2/*
+          <xsl:if test="../@id = 'ch-system-attr'">
+            <xsl:text>rm -fv /usr/share/man/man2/*
+rm -fv /usr/share/man/man5/*
+</xsl:text>
+          </xsl:if>
+<!-- nologin is installed by util-linux. remove it from shadow -->
+          <xsl:if test="../@id = 'ch-system-shadow'">
+            <xsl:text>rm -fv /usr/share/man/man8/nologin.8
+rm -fv /sbin/nologin
+</xsl:text>
+          </xsl:if>
+          <xsl:text>'
+packInstall
+</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:if test="../@id = 'ch-system-man-pages'">
+<!-- these files are provided by the shadow package -->
+            <xsl:text>rm -fv $PKG_DEST/usr/share/man/{man3/getspnam.3,man5/passwd.5}
+</xsl:text>
+          </xsl:if>
+<!-- Attr man/man2 pages are already installed by man-pages. As of
+     March 2013, they are the same pages.
+     November 2015: now they are more accurate
+     in man-pages, and the man5 section is also in man-pages... -->
+          <xsl:if test="../@id = 'ch-system-attr'">
+            <xsl:text>rm -fv $PKG_DEST/usr/share/man/man2/*
 rm -fv $PKG_DEST/usr/share/man/man5/*
 </xsl:text>
-      </xsl:if>
+          </xsl:if>
 <!-- nologin is installed by util-linux. remove it from shadow -->
-      <xsl:if test="../@id = 'ch-system-shadow'">
-        <xsl:text>rm -fv $PKG_DEST/usr/share/man/man8/nologin.8
+          <xsl:if test="../@id = 'ch-system-shadow'">
+            <xsl:text>rm -fv $PKG_DEST/usr/share/man/man8/nologin.8
 rm -fv $PKG_DEST/sbin/nologin
 </xsl:text>
-      </xsl:if>
-      <xsl:text>rm -fv $PKG_DEST/{,usr/}lib64
+          </xsl:if>
+          <xsl:text>rm -fv $PKG_DEST/{,usr/}lib64
 rm -fv $PKG_DEST/usr/{man,doc,info}
 for dir in $PKG_DEST/usr/share/man/man{1..8}; do
   [[ -z $(ls $dir) ]] &amp;&amp; rmdir -v $dir
@@ -239,6 +300,8 @@ done
 packInstall
 rm -rf $PKG_DEST
 </xsl:text>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:if>
     <xsl:if test="$testsuite='3' and
             ../@id='ch-tools-glibc' and
@@ -309,7 +372,7 @@ cd $PKGDIR
            mode="pkgmngt"/>
         <xsl:if test="$dirname = 'chapter06'">
           <xsl:text>packInstall
-rm -rf $PKG_DEST
+rm -rf "$PKG_DEST"
 </xsl:text>
         </xsl:if>
         <xsl:apply-templates
@@ -452,7 +515,26 @@ exit
               </xsl:otherwise>
             </xsl:choose>
           </xsl:when>
-          <xsl:otherwise><!--pkgmngt = 'y'-->
+          <xsl:when test="$wrap-install='y'">
+            <xsl:choose>
+              <xsl:when test="./literal">
+                <xsl:call-template name="output-wrap">
+                  <xsl:with-param name="commands" select="text()[1]"/>
+                </xsl:call-template>
+                <xsl:apply-templates select="literal"/>
+                <xsl:call-template name="output-wrap">
+                  <xsl:with-param name="commands" select="text()[2]"/>
+                </xsl:call-template>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:call-template name="output-wrap">
+                  <xsl:with-param name="commands" select="string()"/>
+                </xsl:call-template>
+              </xsl:otherwise>
+            </xsl:choose>
+            <xsl:text>&#xA;</xsl:text>
+          </xsl:when>
+          <xsl:otherwise><!--pkgmngt = 'y' and wrap-install='n'-->
             <xsl:choose>
               <xsl:when test="./literal">
                 <xsl:call-template name="outputpkgdest">
@@ -476,7 +558,7 @@ exit
            tzdata. -->
       <xsl:when test="contains(string(),'tzdata') and $pkgmngt='y'">
         <xsl:text>
-OLD_PKG_DEST=$PKG_DEST
+OLD_PKG_DEST="$PKG_DEST"
 OLD_PKGDIR=$PKGDIR
 PKG_DEST=$(dirname $OLD_PKG_DEST)/001-tzdata
 PKGDIR=$(dirname $PKGDIR)/tzdata-</xsl:text>
@@ -485,12 +567,28 @@ PKGDIR=$(dirname $PKGDIR)/tzdata-</xsl:text>
                                '.tar')"/>
         <xsl:text>
 </xsl:text>
-        <xsl:copy-of select="substring-before(string(),'ZONEINFO=')"/>
-        <xsl:text>ZONEINFO=$PKG_DEST</xsl:text>
-        <xsl:copy-of select="substring-after(string(),'ZONEINFO=')"/>
-        <xsl:text>
+        <xsl:choose>
+          <xsl:when test="$wrap-install='n'">
+            <xsl:copy-of select="substring-before(string(),'ZONEINFO=')"/>
+            <xsl:text>ZONEINFO=$PKG_DEST</xsl:text>
+            <xsl:copy-of select="substring-after(string(),'ZONEINFO=')"/>
+            <xsl:text>
 packInstall
 rm -rf $PKG_DEST
+</xsl:text>
+          </xsl:when>
+          <xsl:otherwise><!-- wrap-install='y' -->
+            <xsl:copy-of select="substring-before(string(),'ZONEINFO=')"/>
+            <xsl:text>
+wrapInstall '
+ZONEINFO=</xsl:text>
+            <xsl:copy-of select="substring-after(string(),'ZONEINFO=')"/>
+            <xsl:text>'
+packInstall
+</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>
 PKG_DEST=$OLD_PKG_DEST
 unset OLD_PKG_DEST
 PKGDIR=$OLD_PKGDIR
@@ -517,6 +615,34 @@ unset OLD_PKGDIR
       <xsl:when test="contains(string(.),'&lt;ll&gt;_&lt;CC&gt;')">
         <xsl:value-of select="$lang"/>
       </xsl:when>
+      <xsl:when test="contains(string(.),'Domain')">
+        <xsl:value-of select="$domain"/>
+      </xsl:when>
+      <xsl:when test="contains(string(.),'primary')">
+        <xsl:value-of select="$nameserver1"/>
+      </xsl:when>
+      <xsl:when test="contains(string(.),'secondary')">
+        <xsl:value-of select="$nameserver2"/>
+      </xsl:when>
+      <xsl:when test="contains(string(.),'192.168.1.1')">
+        <xsl:value-of select="$ip"/>
+      </xsl:when>
+      <xsl:when test="contains(string(.),'192.168.0.2')">
+        <xsl:value-of select="$ip"/>
+      </xsl:when>
+<!-- Only adapted to LFS-20170310 and later -->
+      <xsl:when test="contains(string(.),'HOSTNAME')">
+        <xsl:value-of select="$hostname"/>
+      </xsl:when>
+      <xsl:when test="contains(string(.),'FQDN')">
+        <xsl:value-of select="$hostname"/>
+        <xsl:text>.</xsl:text>
+        <xsl:value-of select="$domain"/>
+      </xsl:when>
+      <xsl:when test="contains(string(.),'alias')"/>
+      <xsl:when test="contains(string(.),'&lt;lfs&gt;')">
+        <xsl:value-of select="$hostname"/>
+      </xsl:when>
       <xsl:otherwise>
         <xsl:text>**EDITME</xsl:text>
         <xsl:apply-templates/>
@@ -525,6 +651,185 @@ unset OLD_PKGDIR
     </xsl:choose>
   </xsl:template>
   
+  <xsl:template match="literal">
+    <xsl:choose>
+      <xsl:when test="contains(string(),'ONBOOT')">
+        <xsl:call-template name="outputnet">
+          <xsl:with-param name="netstring" select="string()"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains(string(),'[Match]')">
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring" select="string()"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="outputnet">
+    <xsl:param name="netstring" select="''"/>
+    <!-- We suppose that book example has the following values:
+         - interface: eth0
+         - ip: 192.168.1.2
+         - gateway: 192.168.1.1
+         - prefix: 24
+         - broadcast: 192.168.1.255
+         Change below if book changes -->
+    <xsl:choose>
+      <xsl:when test="contains($netstring,'eth0')">
+        <xsl:call-template name="outputnet">
+          <xsl:with-param name="netstring"
+                          select="substring-before($netstring,'eth0')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$interface"/>
+        <xsl:call-template name="outputnet">
+          <xsl:with-param name="netstring"
+                          select="substring-after($netstring,'eth0')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($netstring,'192.168.1.1')">
+        <xsl:call-template name="outputnet">
+          <xsl:with-param name="netstring"
+                          select="substring-before($netstring,'192.168.1.1')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$gateway"/>
+        <xsl:call-template name="outputnet">
+          <xsl:with-param name="netstring"
+                          select="substring-after($netstring,'192.168.1.1')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <!-- must test this before the following, because 192.168.1.255 contains
+           192.168.1.2! -->
+      <xsl:when test="contains($netstring,'192.168.1.255')">
+        <xsl:call-template name="outputnet">
+          <xsl:with-param name="netstring"
+                          select="substring-before($netstring,'192.168.1.255')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$broadcast"/>
+        <xsl:call-template name="outputnet">
+          <xsl:with-param name="netstring"
+                          select="substring-after($netstring,'192.168.1.255')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($netstring,'192.168.1.2')">
+        <xsl:call-template name="outputnet">
+          <xsl:with-param name="netstring"
+                          select="substring-before($netstring,'192.168.1.2')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$ip"/>
+        <xsl:call-template name="outputnet">
+          <xsl:with-param name="netstring"
+                          select="substring-after($netstring,'192.168.1.2')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($netstring,'24')">
+        <xsl:call-template name="outputnet">
+          <xsl:with-param name="netstring"
+                          select="substring-before($netstring,'24')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$prefix"/>
+        <xsl:call-template name="outputnet">
+          <xsl:with-param name="netstring"
+                          select="substring-after($netstring,'24')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$netstring"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="outputsysdnet">
+    <xsl:param name="netstring" select="''"/>
+    <!-- We suppose that book example has the following values:
+         - interface: eth0
+         - ip: 192.168.0.2
+         - gateway: 192.168.0.1
+         - prefix: 24
+         - DNS: 192.168.0.1
+         - Domain: <Your Domain Name>
+         and gateway comes before DNS. Change below if book changes -->
+    <xsl:choose>
+      <xsl:when test="contains($netstring,'eth0')">
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-before($netstring,'eth0')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$interface"/>
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-after($netstring,'eth0')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($netstring,'192.168.0.1') and
+                      contains($netstring,'Gateway')">
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-before($netstring,'192.168.0.1')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$gateway"/>
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-after($netstring,'192.168.0.1')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($netstring,'192.168.0.1') and
+                      not(contains($netstring,'Gateway'))">
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-before($netstring,'192.168.0.1')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$nameserver1"/>
+        <xsl:text>
+DNS=</xsl:text>
+        <xsl:value-of select="$nameserver2"/>
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-after($netstring,'192.168.0.1')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($netstring,'192.168.0.2')">
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-before($netstring,'192.168.0.2')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$ip"/>
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-after($netstring,'192.168.0.2')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($netstring,'24')">
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-before($netstring,'24')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$prefix"/>
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-after($netstring,'24')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($netstring,'&lt;Your Domain Name&gt;')">
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-before($netstring,'&lt;Your Domain Name&gt;')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$domain"/>
+        <xsl:call-template name="outputsysdnet">
+          <xsl:with-param name="netstring"
+                          select="substring-after($netstring,'&lt;Your Domain Name&gt;')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$netstring"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
   <xsl:template name="outputpkgdest">
     <xsl:param name="outputstring" select="foo"/>
     <xsl:choose>
@@ -623,4 +928,26 @@ unset OLD_PKGDIR
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+
+  <xsl:variable name="APOS">'</xsl:variable>
+  <xsl:template name="output-wrap">
+    <xsl:param name="commands" select="''"/>
+    <xsl:choose>
+      <xsl:when test="contains($commands,string($APOS))">
+        <xsl:call-template name="output-wrap">
+          <xsl:with-param name="commands"
+                          select="substring-before($commands,string($APOS))"/>
+        </xsl:call-template>
+        <xsl:text>'\''</xsl:text>
+        <xsl:call-template name="output-wrap">
+          <xsl:with-param name="commands"
+                          select="substring-after($commands,string($APOS))"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$commands"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
 </xsl:stylesheet>

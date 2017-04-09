@@ -757,13 +757,12 @@ depends !BOOK_BLFS
             #
             #  You will have to select between:
             #
-            #  - Only final system Glibc, GCC and Binutils testsuites
+            #  - Only critical final system testsuites
             #  - All final system testsuites
             #  - Both temporary tools and final system testsuites
             #
             #  HLFS and CLFS have no testsuites available in the
             #  temporary tools phase
-
             #  You will be prompted also about the "flavour" of the
             #  testsuites run:
             #
@@ -771,19 +770,38 @@ depends !BOOK_BLFS
             #  - Abort the build at the first test suite failure
             #
 
+    menu "Test settings"
+    depends    CONFIG_TESTS
     choice
         prompt    "Tests level"
-        depends     CONFIG_TESTS
         default    TST_1
 
         config  TST_1
-            bool    "Only final critical testsuites" if !BOOK_CLFS2 && !BOOK_CLFS3
+            bool    "Only final system critical testsuites"
+            help
+                #-- Critical tests:
+                # Only Glibc, Binutils, GMP, MPFR, MPC and GCC
+                # testsuites for final system
 
         config    TST_2
             bool    "All final system testsuites"
 
         config    TST_3
-            bool    "Both temporary tools and final system testsuites" if !BOOK_HLFS && !BOOK_CLFS
+            bool    "All testsuites" if !BOOK_HLFS && !BOOK_CLFS
+            help
+                #-- All tests:
+                # Runs all the testsuites for both temporary tools
+                # and final system
+    endchoice
+
+    choice
+        prompt    "Flavour"
+
+        config    NO_BOMB
+            bool    "Don't stop on test failures"
+
+        config    BOMB
+            bool    "Abort the build on the first test failure"
     endchoice
 
     config    TEST
@@ -793,23 +811,13 @@ depends !BOOK_BLFS
         default    "2"    if TST_2
         default    "3"    if TST_3
 
-    choice
-        prompt    "Flavour"
-        depends    CONFIG_TESTS
-
-        config    NO_BOMB
-            bool    "Don't stop on testsuite failures"
-
-        config    BOMB
-            bool    "Abort the build on the first testsuite failure"
-    endchoice
-
     config    BOMB_TEST
         bool
         default    n if NO_BOMB
         default    y if BOMB
 
     #--- End Test Suites
+    endmenu # test settings
 
     #--- Package Management
     config  PKGMNGT
@@ -819,10 +827,18 @@ depends !BOOK_BLFS
         help
             #-- Use package management
             #
-            #  If set, the packages in the final phase are built
-            #  in a separate directory, PKG_DEST.
-            #  You should provide a bash function for packing
-            #  and installing the package.
+            #  If set, you'll have to choose between
+            #  two package management styles:
+            #  - Build and install:
+            #    the packages in the final phase are built
+            #    in a separate directory, PKG_DEST.
+            #    You should provide a bash function for
+            #    packaing and installing the package.
+            #  - Preload a library before install:
+            #    Run the install instructions inside a
+            #    wrapper command, which monitors the
+            #    installed files.
+            #
             #  Also, you have to provide the instructions
             #  to build the package manager during the
             #  temporary tools phase, in the form of a
@@ -830,7 +846,22 @@ depends !BOOK_BLFS
             #  sect1. See README.PACKAGE_MANAGEMENT
             #
             #  For now, this only works with LFS
+    choice
+        depends PKGMNGT
+        prompt "Package management style"
+        default PKG_PACK
 
+        config PKG_PACK
+            bool "Build and pack (pacman or dpkg style)"
+
+        config LIB_LOAD
+            bool "Preload a library before installing (porg style)"
+    endchoice
+
+    config WRAP_INSTALL
+        bool
+        default y if LIB_LOAD
+        default n if PKG_PACK
     #--- End package management
 
     #--- Installed files logs
@@ -843,13 +874,31 @@ depends !BOOK_BLFS
 
     #--- End Installed files logs
 
+    config    STRIP
+        bool "Strip Installed Binaries/Libraries"
+        default n
+        depends on !BOOK_CLFS3
+
+    config    NO_PROGRESS_BAR
+        bool "DO NOT use/display progress_bar "
+        default n
+        help
+            #-- Do not use the progress bar routine. On slower machines
+            #   this function consumes precious CPU cycles.
+
+#--- End Build Settings
+endmenu
+
+menu "System configuration
+    depends !BOOK_BLFS
+
     #--- FSTAB
     config    HAVE_FSTAB
         bool    "Use a custom fstab file"
         default    n
         help
             #-- Select this if you have an fstab file with entries
-                        #   for the target system
+            #   for the target system
 
     config    FSTAB
         string    "Fstab file (optional)"
@@ -880,11 +929,6 @@ depends !BOOK_BLFS
             #   and renamed 'kernel-config'
     #--- End Kernel
 
-    config    STRIP
-        bool "Strip Installed Binaries/Libraries"
-        default n
-        depends on !BOOK_CLFS3
-
     config    VIMLANG
         bool "Install vim-lang package"
         default n
@@ -893,13 +937,6 @@ depends !BOOK_BLFS
             #-- Install the optional vim-lang package
             #   NOTE: This option is obsolete with the 7.3 release of Vim
             #   which is included in all recent releases of LFS.
-
-    config    NO_PROGRESS_BAR
-        bool "DO NOT use/display progress_bar "
-        default n
-        help
-            #-- Do not use the progress bar routine. On slower machines
-            #   this function consumes precious CPU cycles.
 
     config    TIMEZONE
         string "TimeZone"
@@ -946,8 +983,53 @@ depends !BOOK_BLFS
         default    "A4"        if PAGE_A4
     #--- End Groff page
 
-#--- End Build Settings
-endmenu
+    config    HOSTNAME
+        string "Hostname"
+        default "**EDITME**"
+
+       menu "Network configuration"
+        config INTERFACE
+            string "netword card name"
+            default "eth0"
+        config IP_ADDR
+            string "Static IP address"
+            default "10.0.2.9"
+        config GATEWAY
+            string "Gateway"
+            default "10.0.2.2"
+        config PREFIX
+            string "Subnet prefix"
+            default "24"
+        config BROADCAST
+            string "Broadcast address"
+            default "10.0.2.255"
+        config DOMAIN
+            string "Domain name"
+            default "lfs.org"
+        config DNS1
+            string "Primary Name server"
+            default "10.0.2.3"
+        config DNS2
+            string "Secondary Name server"
+            default "8.8.8.8"
+    endmenu # Network configuration
+
+    menu "Console configuration"
+        config FONT
+            string "Console font"
+            default "lat0-16"
+        config FONTMAP
+            string "Font map (-m option to setfont)"
+            default "8859-1"
+        config UNICODE
+            bool "Unicode mode"
+            default y
+        config KEYMAP
+            string "Keymap name"
+            default "us"
+    endmenu # Console configuration
+
+endmenu        #--- System configuration
 
 menu "Advanced Features"
 depends !BOOK_BLFS

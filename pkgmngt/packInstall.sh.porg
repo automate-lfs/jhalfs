@@ -1,0 +1,104 @@
+# $Id:$
+# functions for recording installation of a package and make a tarball,
+# or using fakeroot type commands for install, then packing and installing
+# the package.
+# We only have access to variables PKGDIR and PKG_DEST. Other variables could
+# be set in the environment
+
+extract_version() {
+local VERSION
+
+case $1 in
+  expect*|tcl*|tk*|mozjs*)
+    VERSION=$(echo $1 | sed 's/^[^0-9]*//')
+    ;;
+  vim*|unzip*|zip*)
+    VERSION=$(echo $1 | sed 's/^[^0-9]*\([0-9]\)\([0-9]\)/\1.\2/')
+    ;;
+  wireless_tools*|LVM2*)
+    VERSION=$(echo $1 | sed 's/^[^.]*\.//')
+    ;;
+  x264*)
+    VERSION=$(echo $1 | sed 's/.*shot-//')
+    ;;
+  icu*) # No version in PCKGVRS! Use version directly from xml book.
+        # PACK_INSTALL contains the path to this script, which is in the
+        # parent dir of the book.
+    local PACKENT=$(dirname $PACK_INSTALL)/blfs-xml/packages.ent
+    local VERSION1=$(sed -n 's/.*icu-major[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
+    local VERSION2=$(sed -n 's/.*icu-minor[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
+    VERSION=$VERSION1.$VERSION2
+    ;;
+  soundtouch*)
+    local PACKENT=$(dirname $PACK_INSTALL)/blfs-xml/packages.ent
+    VERSION=$(sed -n 's/.*soundtouch[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
+    ;;
+  xf86-video-intel)
+    local PACKENT=$(dirname $PACK_INSTALL)/blfs-xml/x/installing/x7driver-intel.xml
+    VERSION=$(sed -n '/<!--/!s/.*-version[^;][^0-9]*\([^"]*\).*/\1/p' $PACKENT)
+    ;;
+  jdk8*)
+    VERSION=1.8.0.$(echo $1 | sed 's/.*u\([0-9]\+\).*/\1/')
+    ;;
+  docbook-xml)
+    VERSION=4.5
+    ;;
+  cacerts*)
+    VERSION=0.1
+    ;;
+  *)
+    VERSION=$(echo $1 | sed 's/^.*[-_]\([0-9]\)/\1/' | sed 's/_/./g')
+    ;;
+# the last sed above is because some package managers do not want a '_'
+# in version.
+esac
+echo ${VERSION,,}   # convert to lowercase, in case there is a capital letter
+                    # in version
+}
+
+# Export the previous function, since it is used by the others
+export -f extract_version
+# The other "official" functions, wrapInstall and packInstall, are exported
+# by "envars" (in LFS), and the scripts (in BLFS).
+
+wrapInstall() {
+# a bash command is passed as an argument (that may be a compound command).
+# It is executed by this function, after various set-ups...
+
+# Note that PKGDIR is changed to UNPACKDIR
+# and PKG_DEST is changed to PKG_DIR in BLFS tools.
+# The sed for PACKAGE is therefore not needed in BLFS,
+# but it does not hurt, either.
+local PCKGVRS=$(basename $PKGDIR)
+local TGTPKG=$(basename $PKG_DEST)
+local PACKAGE=$(echo ${TGTPKG} | sed 's/^[0-9]\{3\}-//' |
+           sed 's/^[0-9]\{1\}-//')
+# Porg converts package names to lowercase anyway, so do the conversion
+# ourselves
+PACKAGE=${PACKAGE,,}
+# version is only accessible from PKGDIR name. Since the format of the
+# name is not normalized, several hacks are necessary (now in function
+# extract_version)...
+VERSION=$(extract_version $PCKGVRS)
+porg -lp ${PACKAGE}-${VERSION} sh << PORG_EOF
+$*
+PORG_EOF
+}
+
+#----------------
+packInstall() {
+
+# With porg, we need only the package name to make the tarball
+local TGTPKG=$(basename $PKG_DEST)
+local PACKAGE=$(echo ${TGTPKG} | sed 's/^[0-9]\{3\}-//' |
+           sed 's/^[0-9]\{1\}-//')
+local PCKGVRS=$(basename $PKGDIR)
+# Porg converts package names to lowercase anyway, so do the conversion
+# ourselves
+PACKAGE=${PACKAGE,,}
+# Building the binary package
+porgball ${PACKAGE}
+# The package is in the current directory
+VERSION=$(extract_version $PCKGVRS)
+mv -v ${PACKAGE}-${VERSION}.porg* /var/lib/packages
+}

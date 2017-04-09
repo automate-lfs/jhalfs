@@ -12,6 +12,11 @@ cp -r BLFS/* ${BUILDDIR}${BLFS_ROOT}
 cp -r menu ${BUILDDIR}${BLFS_ROOT}
 cp $COMMON_DIR/progress_bar.sh ${BUILDDIR}${BLFS_ROOT}
 cp README.BLFS ${BUILDDIR}${BLFS_ROOT}
+if [ "$WRAP_INSTALL" = y ]; then
+  sed -e 's/PKGDIR/UNPACKDIR/' \
+      -e 's/PKG_DEST/PKG_DIR/' \
+      $PKGMNGTDIR/packInstall.sh > ${BUILDDIR}${BLFS_ROOT}/packInstall.sh
+fi
 
 # Clean-up
 make -C ${BUILDDIR}${BLFS_ROOT}/menu clean
@@ -115,6 +120,7 @@ $LINE_SUDO
 MAIL_SERVER=sendmail
 optDependency=2
 SUDO=n
+WRAP_INSTALL=$WRAP_INSTALL
 EOF
 
 # Generates the scripts for the blfs tools dependencies (in ./scripts)
