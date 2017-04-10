@@ -140,10 +140,10 @@ p}' \
 cp $PACKAGE1 $SRC_ARCHIVE
 p}' \
        -e '/PATCH=/,/^fi/{/^fi/a\
-cp $PACKAGE1 $SRC_ARCHIVE
+cp $PATCH $SRC_ARCHIVE
 p}' \
        -e '/URL=/,/^fi/{/^fi/a\
-cp $PACKAGE1 $SRC_ARCHIVE
+cp $BOOTPACKG $SRC_ARCHIVE
 p}' \
     $BUILDDIR$BLFS_ROOT/scripts/* >> $BUILDDIR$BLFS_ROOT/download_script
 chmod u+x $BUILDDIR$BLFS_ROOT/download_script
