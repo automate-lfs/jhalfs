@@ -443,16 +443,16 @@ fi
 if [[ "$REBUILD_MAKEFILE" = "y" ]] ; then
   case $PROGNAME in
     clfs* )
-      VERSION=$(xmllint --noent $JHALFSDIR/$BOOK/prologue/$ARCH/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
+      VERSION=$(xmllint --noent $BOOK/prologue/$ARCH/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
     lfs)
       if [[ "$INITSYS" = "sysv" ]] ; then
-        VERSION=$(grep 'ENTITY version ' $JHALFSDIR/$BOOK/general.ent| cut -d\" -f2)
+        VERSION=$(grep 'ENTITY version ' $BOOK/general.ent| cut -d\" -f2)
       else
-        VERSION=$(grep 'ENTITY versiond' $JHALFSDIR/$BOOK/general.ent| cut -d\" -f2)
+        VERSION=$(grep 'ENTITY versiond' $BOOK/general.ent| cut -d\" -f2)
       fi
       ;;
     *)
-      VERSION=$(xmllint --noent $JHALFSDIR/$BOOK/prologue/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
+      VERSION=$(xmllint --noent $BOOK/prologue/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
   esac
 fi
 
