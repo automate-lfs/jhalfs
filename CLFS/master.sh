@@ -1127,23 +1127,24 @@ create-sbu_du-report:  mk_SYSTOOLS
 	@touch  \$@
 
 do-housekeeping:
-	@-umount \$(MOUNT_PT)/dev/pts
-	@-if [ -h \$(MOUNT_PT)/dev/shm ]; then \\
+	@-umount \$(MOUNT_PT)/sys
+	@-umount \$(MOUNT_PT)/proc
+	@-if mountpoint -q \$(MOUNT_PT)/run; then \\
+	  umount \$(MOUNT_PT)/run; \\
+	elif [ -h \$(MOUNT_PT)/dev/shm ]; then \\
 	  link=\$\$(readlink \$(MOUNT_PT)/dev/shm); \\
 	  umount \$(MOUNT_PT)/\$\$link; \\
 	  unset link; \\
 	else \\
 	  umount \$(MOUNT_PT)/dev/shm; \\
 	fi
+	@-umount \$(MOUNT_PT)/dev/pts
 	@-umount \$(MOUNT_PT)/dev
-	@-umount \$(MOUNT_PT)/sys
-	@-umount \$(MOUNT_PT)/proc
 	@-rm /tools /cross-tools
 	@-if [ ! -f luser-exist ]; then \\
 		userdel \$(LUSER); \\
 		rm -rf \$(LUSER_HOME); \\
 	fi;
-
 EOF
 ) >> $MKFILE
 
