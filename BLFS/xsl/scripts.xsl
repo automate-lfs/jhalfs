@@ -451,39 +451,37 @@ wrapInstall '
   <xsl:template name="set-bootpkg-dir">
     <xsl:param name="bootpkg" select="'bootscripts'"/>
     <xsl:param name="url" select="''"/>
-    <xsl:text>[[ ! -d $SRC_DIR/blfs-</xsl:text>
-    <xsl:copy-of select="$bootpkg"/>
-    <xsl:text> ]] &amp;&amp; mkdir $SRC_DIR/blfs-</xsl:text>
+    <xsl:text>BOOTPKG_DIR=blfs-</xsl:text>
     <xsl:copy-of select="$bootpkg"/>
     <xsl:text>
-pushd $SRC_DIR/blfs-</xsl:text>
-    <xsl:copy-of select="$bootpkg"/>
-    <xsl:text>
+BOOTSRC_DIR=${SRC_ARCHIVE}${SRC_SUBDIRS:+/${BOOTPKG_DIR}}
+BOOTBUILD_DIR=${BUILD_ROOT}${BUILD_SUBDIRS:+/${BOOTPKG_DIR}}
+mkdir -p $BOOTSRC_DIR
+mkdir -p $BOOTBUILD_DIR
+
+pushd $BOOTSRC_DIR
 URL=</xsl:text>
       <xsl:value-of select="$url"/>
     <xsl:text>
 BOOTPACKG=$(basename $URL)
 if [[ ! -f $BOOTPACKG ]] ; then
-  if [[ -f $SRC_ARCHIVE/$PKG_DIR/$BOOTPACKG ]] ; then
-    cp $SRC_ARCHIVE/$PKG_DIR/$BOOTPACKG $BOOTPACKG
-  elif [[ -f $SRC_ARCHIVE/$BOOTPACKG ]] ; then
+  if [[ -f $SRC_ARCHIVE/$BOOTPACKG ]] ; then
     cp $SRC_ARCHIVE/$BOOTPACKG $BOOTPACKG
   else
     wget -T 30 -t 5 $URL
-    cp $BOOTPACKG $SRC_ARCHIVE
   fi
-  rm -f unpacked
+  rm -f $BOOTBUILD_DIR/unpacked
 fi
 
+cd $BOOTBUILD_DIR
 if [[ -e unpacked ]] ; then
   BOOTUNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
   if ! [[ -d $BOOTUNPACKDIR ]]; then
-    rm unpacked
-    tar -xvf $BOOTPACKG > unpacked
+    tar -xvf $BOOTSRC_DIR/$BOOTPACKG > unpacked
     BOOTUNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
   fi
 else
-  tar -xvf $BOOTPACKG > unpacked
+  tar -xvf $BOOTSRC_DIR/$BOOTPACKG > unpacked
   BOOTUNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
 fi
 cd $BOOTUNPACKDIR
