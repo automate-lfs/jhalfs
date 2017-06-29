@@ -181,8 +181,8 @@ done
 echo -en "\n\tGenerating the build scripts ...\n"
 rm -rf scripts
 xsltproc --xinclude --nonet \
-         --stringparam sudo $SUDO \
-         --stringparam wrap-install $WRAP_INSTALL \
+         --stringparam sudo "$SUDO" \
+         --stringparam wrap-install "$WRAP_INSTALL" \
          -o ./scripts/ ${MakeScripts} \
          ${BookXml}
 # Make the scripts executable.

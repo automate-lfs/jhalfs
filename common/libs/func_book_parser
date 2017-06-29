@@ -142,16 +142,16 @@ extract_commands() {         #
         echo -n " ${L_arrow}${BOLD}$MODEL + $KERNEL${R_arrow} HLFS flavour... "
         xsltproc --nonet                                                \
                  --xinclude                                             \
-                 --stringparam model $MODEL                             \
-                 --stringparam kernel $KERNEL                           \
-                 --stringparam testsuite $TEST                          \
-                 --stringparam bomb-testsuite $BOMB_TEST                \
+                 --stringparam model "$MODEL"                           \
+                 --stringparam kernel "$KERNEL"                         \
+                 --stringparam testsuite "$TEST"                        \
+                 --stringparam bomb-testsuite "$BOMB_TEST"              \
                  --stringparam features                                 \
                      x$SSP$ASLR$PAX$HARDENED_TMP$WARNINGS$MISC$BLOWFISH \
-                 --stringparam timezone $TIMEZONE                       \
-                 --stringparam page $PAGE                               \
-                 --stringparam lang $LANG                               \
-                 --stringparam grsecurity_host $GRSECURITY_HOST         \
+                 --stringparam timezone "$TIMEZONE"                     \
+                 --stringparam page "$PAGE"                             \
+                 --stringparam lang "$LANG"                             \
+                 --stringparam grsecurity_host "$GRSECURITY_HOST"       \
                  --output ./${PROGNAME}-commands/                       \
                  $XSL                                                   \
                  $BOOK/index.xml >>$LOGDIR/$LOG 2>&1
