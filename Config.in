@@ -889,7 +889,7 @@ depends !BOOK_BLFS
 #--- End Build Settings
 endmenu
 
-menu "System configuration
+menu "System configuration"
     depends !BOOK_BLFS
 
     #--- FSTAB
@@ -984,28 +984,63 @@ menu "System configuration
     #--- End Groff page
 
     config    HOSTNAME
-        string "Hostname"
+        string "Hostname (see help)"
         default "**EDITME**"
+        help
+          If you are on a public network, use the hostname given to you by
+          your institution, or corporation, etc. If your network is private,
+          that is, behind a firewall such as a box to connect to your ISP,
+          you can choose anything you'd like. Combined with the domain name
+          "local", you have the possibility to access your computer by name
+          instead of address on the private network (see RFC 6762 and
+          https://www.howtogeek.com/167190/).
 
        menu "Network configuration"
         config INTERFACE
             string "netword card name"
             default "eth0"
+            help
+              eth0 is used in most cases. Virtual insterfaces may get other
+              names (for example enp0s3 for the default network stack in qemu).
+              Systemd may also rename network interfaces according to their
+              bus addresses.
         config IP_ADDR
             string "Static IP address"
             default "10.0.2.9"
+            help
+              The default here is for a virtual interface in qemu. Private
+              networks have addresses in the range 10.x.x.x or 192.169.x.x.
+              You have to know your network prefix. Then the last figure
+              may be anything you like.
+
         config GATEWAY
             string "Gateway"
             default "10.0.2.2"
+            help
+              Again, this default is for a qemu network stack. Usually, the
+              gateway is the address of your firewall.
         config PREFIX
             string "Subnet prefix"
             default "24"
+            help
+              Again, this default is for a qemu network stack, but is also
+              the most used in private networks.
         config BROADCAST
             string "Broadcast address"
             default "10.0.2.255"
         config DOMAIN
-            string "Domain name"
-            default "lfs.org"
+            string "Domain name (see help)"
+            default "local"
+            help
+               Domain Name:
+               Doamin names are registered, so if your computer is on a public
+               network, you cannot use any name you'd like. On a public
+               network, you should have been given a domain name by
+               your corporation, institution, etc.
+               If your network is really private, that is behind a firewall
+               such as a box for connecting to an ISP, you can choose any
+               domain you'd like. You can also opt for "local", see RFC 6762,
+               or "something.test", see RFC 6761.
         config DNS1
             string "Primary Name server"
             default "10.0.2.3"
