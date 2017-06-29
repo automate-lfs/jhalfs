@@ -616,7 +616,7 @@ BLFS_TOOL:    $blfs_tool
 create-sbu_du-report:  mk_BOOT
 	@\$(call echo_message, Building)
 	@if [ "\$(ADD_REPORT)" = "y" ]; then \\
-	  ./create-sbu_du-report.sh logs $VERSION; \\
+	  ./create-sbu_du-report.sh logs $VERSION $(date --iso-8601); \\
 	  \$(call echo_report,$VERSION-SBU_DU-$(date --iso-8601).report); \\
 	fi;
 	@touch  \$@

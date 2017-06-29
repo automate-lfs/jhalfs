@@ -5,12 +5,13 @@ set -e
 
 LOGSDIR=$1
 VERSION=$2
+DATE=$3
 
 LINE="================================================================================"
 
 # Make sure that we have a directory as first argument
 [[ ! -d "$LOGSDIR" ]] && \
-  echo -e "\nUSAGE: create-sbu_du-report.sh logs_directory [book_version]\n" && exit
+  echo -e "\nUSAGE: create-sbu_du-report.sh logs_directory [book_version] [date]\n" && exit
 
 # Make sure that the first argument is a jhalfs logs directory
 [[ ! -f "$LOGSDIR"/000-masterscript.log ]] && \
@@ -18,6 +19,7 @@ LINE="==========================================================================
 
 # If this script is run manually, the book version may be unknown
 [[ -z "$VERSION" ]] && VERSION=unknown
+[[ -z "$DATE" ]] && DATE=$(date --iso-8601)
 
 # If there is iteration logs directories, copy the logs inside iteration-1
 # to the top level dir
@@ -25,7 +27,7 @@ LINE="==========================================================================
   cp $LOGSDIR/build_1/* $LOGSDIR
 
 # Set the report file
-REPORT="$VERSION"-SBU_DU-$(date --iso-8601).report
+REPORT="$VERSION"-SBU_DU-"$DATE".report
 
 [ -f $REPORT ] && : >$REPORT
 
