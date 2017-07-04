@@ -121,7 +121,7 @@ done
 # For printing the last 'Installed files disk usage', we need to 'du' the
 # root dir, excluding the jhalfs directory (and lost+found). We assume
 # that the rootdir is $LOGSDIR/../..
-DU1=`du -skx --exclude=jhalfs --exclude=lost+found $LOGSDIR/../.. | cut -f1`
+DU1=`du -skx --exclude=jhalfs --exclude=lost+found --exclude /var/lib $LOGSDIR/../.. | cut -f1`
 DU1MB=`perl -e 'printf "%.3f" , ('$DU1' / '1024')';`
 INSTALL=`perl -e 'print ('$DU1' - '$DU1PREV')';`
 INSTALLMB=`perl -e 'printf "%.3f" , ('$DU1MB' - '$DU1MBPREV')';`
