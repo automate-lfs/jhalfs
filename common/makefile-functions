@@ -115,7 +115,9 @@ define get_pkg_root2
     echo "export PKG_DEST=$(SRC)/$@" >> envars; \
     echo "source packInstall.sh" >> envars; \
     echo "export -f packInstall" >> envars; \
-    echo "export -f wrapInstall" >> envars; \
+    if [ "$(WRAP_INSTALL)" = "y" ]; then \
+      echo "export -f wrapInstall" >> envars; \
+    fi; \
   fi;
 endef
 
