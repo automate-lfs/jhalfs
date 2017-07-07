@@ -29,6 +29,10 @@ case $1 in
     local VERSION2=$(sed -n 's/.*icu-minor[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
     VERSION=$VERSION1.$VERSION2
     ;;
+  flashplayer*)
+    local PACKENT=$(dirname $PACK_INSTALL)/blfs-xml/packages.ent
+    VERSION=$(sed -n 's/.*flashplayer[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
+    ;;
   soundtouch*)
     local PACKENT=$(dirname $PACK_INSTALL)/blfs-xml/packages.ent
     VERSION=$(sed -n 's/.*soundtouch[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
@@ -45,6 +49,9 @@ case $1 in
     ;;
   cacerts*)
     VERSION=0.1
+    ;;
+  btrfs*)
+    VERSION=$(echo $1 | sed 's/^.*v//')
     ;;
   *)
     VERSION=$(echo $1 | sed 's/^.*[-_]\([0-9]\)/\1/' | sed 's/_/./g')
