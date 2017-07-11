@@ -50,7 +50,7 @@ case $1 in
   cacerts*)
     VERSION=0.1
     ;;
-  btrfs*)
+  btrfs*|node*)
     VERSION=$(echo $1 | sed 's/^.*v//')
     ;;
   *)
