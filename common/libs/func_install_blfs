@@ -39,15 +39,17 @@ echo "copying the local BLFS working copy (may take some time)"
 # book has already been validated, tmp is posterior to the others, and
 # validation will not be done again.
   cp -ruT --preserve=timestamps $BLFS_WC_LOCATION \
-                                ${BUILDDIR}${BLFS_ROOT}/blfs-xml
+                                ${BUILDDIR}${BLFS_ROOT}/$BLFS_XML
 fi
 # Downloads the book if necessary, initialize the tracking file and the
 # package database.
 # sudo is needed if $BUILDDIR/var/lib is owned by root and /var/lib/jhalfs
 # has to be created
-sudo make -j1 -C $BUILDDIR$BLFS_ROOT          \
-          REV=$INITSYS                        \
-          TRACKING_DIR=$BUILDDIR$TRACKING_DIR \
+sudo make -j1 -C $BUILDDIR$BLFS_ROOT             \
+          REV=$INITSYS                           \
+          TRACKING_DIR=$BUILDDIR$TRACKING_DIR    \
+          BLFS_XML=$BUILDDIR$BLFS_ROOT/$BLFS_XML \
+          SVN=$SVN_2/BLFS/$BLFS_TREE             \
           $BUILDDIR$BLFS_ROOT/packages.xml
 
 # Because the BLFS Makefile is supposed to be used in chroot (or booted)
