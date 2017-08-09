@@ -41,6 +41,12 @@ echo "copying the local BLFS working copy (may take some time)"
   cp -ruT --preserve=timestamps $BLFS_WC_LOCATION \
                                 ${BUILDDIR}${BLFS_ROOT}/$BLFS_XML
 fi
+
+# Copy the LFS book. Note that now, the book is downloaded before running
+# the BLFS tools.
+cp -ruT --preserve=timestamps $BOOK \
+                              ${BUILDDIR}${BLFS_ROOT}/$LFS_XML
+
 # Downloads the book if necessary, initialize the tracking file and the
 # package database.
 # sudo is needed if $BUILDDIR/var/lib is owned by root and /var/lib/jhalfs
@@ -48,6 +54,8 @@ fi
 sudo make -j1 -C $BUILDDIR$BLFS_ROOT             \
           REV=$INITSYS                           \
           TRACKING_DIR=$BUILDDIR$TRACKING_DIR    \
+          LFS_XML=$BUILDDIR$BLFS_ROOT/$LFS_XML   \
+          LFS-SVN=$SVN_2/LFS/$TREE               \
           BLFS_XML=$BUILDDIR$BLFS_ROOT/$BLFS_XML \
           SVN=$SVN_2/BLFS/$BLFS_TREE             \
           $BUILDDIR$BLFS_ROOT/packages.xml
@@ -208,7 +216,12 @@ sed -i -e '/xsltproc/,+6d' \
 cat >> Makefile << EOF
 update:
 	@echo Updating the tracking file
-	@for file in *-*; do \\
+	@LFS_LIST=\$\$(cat $BLFS_ROOT/packages.xml | \\
+		sed -n '/lfs-6/,/LFS-Release/p' | \\
+		sed '/<sublist/,+1d' | \\
+		sed -n '/<name>/p' | \\
+		sed 's/<name>//;s/<\\/name>//'); \\
+	for file in \$\$LFS_LIST *-*; do \\
 	xsltproc --stringparam packages ../packages.xml \\
 	--stringparam package \$\${file##*z-} \\
 	-o track.tmp \\
