@@ -14,6 +14,10 @@ BLFS_FULL=$2
 if test -z "$BLFS_FULL"; then
   BLFS_FULL=${TOPDIR}/blfs-xml/tmp/blfs-full.xml
 fi
+LFS_FULL=$3
+if test -z "$LFS_FULL"; then
+  LFS_FULL=${TOPDIR}/lfs-xml/tmp/lfs-full.xml
+fi
 declare -r ConfigFile="${TOPDIR}/configuration"
 declare DepDir="${TOPDIR}/dependencies"
 declare LibDir="${TOPDIR}/libs"
@@ -157,7 +161,9 @@ set -e
 popd > /dev/null
 rm -f ${BookXml}
 echo Making XML book
-xsltproc --stringparam list "$LIST" \
+xsltproc --stringparam list    "$LIST"        \
+         --stringparam MTA     "$SERVER_MAIL" \
+         --stringparam lfsbook "$LFS_FULL"    \
          -o ${BookXml} \
          ${MakeBook} \
          $BLFS_FULL
