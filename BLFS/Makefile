@@ -1,5 +1,5 @@
 # From the Build Scripts Written By: Jim Gifford <lfs@jg555.com>
-# Modified By: Joe Ciccone <jciccone@linuxfromscratch.org
+# Modified By: Joe Ciccone <jciccone@linuxfromscratch.org>
 # Additional changes: George Boudreau <georgeb@linuxfromscratch.org>
 #                     Pierre Labastie <pierre.labastie at neuf.fr>
 
@@ -111,11 +111,10 @@ $(PACK_LIST): $(XSLDIR)/gen_pkg_list.xsl $(XSLDIR)/specialCases.xsl $(TRACKFILE)
 $(TRACKFILE): $(TRACKING_DIR)
 	$(Q)if ! [ -f $@ ]; then \
 	echo Initializing $(TRACKFILE) && \
-	/bin/echo -e '$(INITIAL_TRACK)' > $@ && \
-	$(MAKE) $(PACK_LIST); \
+	/bin/echo -e '$(INITIAL_TRACK)' > $@; \
 	fi
 	$(Q)for track in $(TRACKING_DIR)/*-*; do \
-        if [ -f $$track ]; then \
+	if [ -f $$track ]; then \
 	pack=$$(echo $$track | sed 's@.*/\(.*\)-[0-9c].*@\1@') && \
 	version=$$(echo $$track | sed 's@.*-\([0-9c].*\)@\1@') && \
 	xsltproc --stringparam packages $(PACK_LIST) \
@@ -124,7 +123,8 @@ $(TRACKFILE): $(TRACKING_DIR)
 	-o track.tmp $(XSLDIR)/bump.xsl $@ && \
 	sed -i 's@PACKDESC@$(TOPDIR)/packdesc.dtd@' track.tmp && \
 	xmllint --format --postvalid track.tmp > $@; \
-        fi; \
+	fi; \
+	rm -f $$track; \
 	done; \
 	rm -f track.tmp
 
