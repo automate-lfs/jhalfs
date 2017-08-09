@@ -6,12 +6,14 @@ set -e
 Installs a set-up to build BLFS packages.
 You can set these variables:
 TRACKING_DIR  : where the installed package file is kept.
-                 (default /var/lib/jhalfs/BLFS)
+                (default /var/lib/jhalfs/BLFS)
+INITSYS       : which books do you want? 'sysv' or 'systemd' (default sysv)
 BLFS_ROOT     : where the installed tools will be installed, relative to $HOME.
                 Must start with a '/' (default /blfs_root)
 BLFS_BRANCH_ID: development, branch-xxx, xxx (where xxx is a valid tag)
                 (default development)
-INITSYS   : which book do you want? 'sysv' or 'systemd' (default sysv)
+LFS_BRANCH_ID : development, branch-xxx, xxx (where xxx is a valid tag)
+                (default development)
 Examples:
 1 - If you plan to use the tools to build BLFS on top of LFS, but you did not
 use jhalfs, or forgot to include the jhalfs-blfs tools:
@@ -69,9 +71,16 @@ if [ "$BOOK_BLFS" = y ]; then
   [[ "$BRANCH" = y ]] && BLFS_BRANCH_ID=$BRANCH_ID
   [[ "$WORKING_COPY" = y ]] && BLFS_BOOK=$BOOK
   [[ "$BRANCH_ID" = "**EDIT ME**" ]] &&
-    echo You have not set the book version or branch && exit 1
+    echo You have not set the BLFS book version or branch && exit 1
   [[ "$BOOK" = "**EDIT ME**" ]] &&
-    echo You have not set the working copy location && exit 1
+    echo You have not set the BLFS working copy location && exit 1
+  [[ "$LFS_relSVN" = y ]] && LFS_BRANCH_ID=development
+  [[ "$LFS_BRANCH" = y ]] && LFS_BRANCH_ID=$BLFS_LFS_BRANCH_ID
+  [[ "$LFS_WORKING_COPY" = y ]] && LFS_BOOK=$BLFS_LFS_BOOK
+  [[ "$LFS_BRANCH_ID" = "**EDIT ME**" ]] &&
+    echo You have not set the LFS book version or branch && exit 1
+  [[ "$LFS_BOOK" = "**EDIT ME**" ]] &&
+    echo You have not set the LFS working copy location && exit 1
 fi
 
 COMMON_DIR="common"
@@ -82,14 +91,21 @@ BLFS_ROOT="${BLFS_ROOT:=/blfs_root}"
 TRACKING_DIR="${TRACKING_DIR:=/var/lib/jhalfs/BLFS}"
 INITSYS="${INITSYS:=sysv}"
 BLFS_BRANCH_ID=${BLFS_BRANCH_ID:=development}
+LFS_BRANCH_ID=${LFS_BRANCH_ID:=development}
 BLFS_XML=${BLFS_XML:=blfs-xml}
+LFS_XML=${LFS_XML:=lfs-xml}
 
 # Validate the configuration:
-PARAMS="BLFS_ROOT TRACKING_DIR INITSYS BLFS_XML"
+PARAMS="BLFS_ROOT TRACKING_DIR INITSYS BLFS_XML LFS_XML"
 if [ "$WORKING_COPY" = y ]; then
-  PARAMS="$PARAMS WORKING_COPY BOOK"
+  PARAMS="$PARAMS WORKING_COPY BLFS_BOOK"
 else
   PARAMS="$PARAMS BLFS_BRANCH_ID"
+fi
+if [ "$LFS_WORKING_COPY" = y ]; then
+  PARAMS="$PARAMS LFS_WORKING_COPY LFS_BOOK"
+else
+  PARAMS="$PARAMS LFS_BRANCH_ID"
 fi
 # Format for displaying parameters:
 declare -r PARAM_VALS='${config_param}${dotSTR:${#config_param}} ${L_arrow}${BOLD}${!config_param}${OFF}${R_arrow}'
@@ -120,6 +136,11 @@ case $BLFS_BRANCH_ID in
      branch-* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-} ;;
             * )  BLFS_TREE=tags/${BLFS_BRANCH_ID} ;;
 esac
+case $LFS_BRANCH_ID in
+  development )  LFS_TREE=trunk/BOOK ;;
+     branch-* )  LFS_TREE=branches/${BLFS_BRANCH_ID#branch-} ;;
+            * )  LFS_TREE=tags/${BLFS_BRANCH_ID} ;;
+esac
 
 # Check for build prerequisites.
 echo
@@ -146,6 +167,7 @@ rm -rf ${BUILDDIR}${BLFS_ROOT}/menu/.svn
 rm -rf ${BUILDDIR}${BLFS_ROOT}/menu/lxdialog/.svn
 # We do not want to keep an old version of the book:
 rm -rf ${BUILDDIR}${BLFS_ROOT}/$BLFS_XML
+rm -rf ${BUILDDIR}${BLFS_ROOT}/$LFS_XML
 
 # Set some harcoded envars to their proper values
 sed -i s@tracking-dir@$TRACKING_DIR@ \
@@ -159,15 +181,24 @@ mkdir -p $TRACKING_DIR
 [[ $VERBOSITY > 0 ]] && echo "... OK"
 
 [[ $VERBOSITY > 0 ]] &&
-echo "Retrieving and validating the book (may take some time)"
 
 [[ -z "$BLFS_BOOK" ]] ||
-[[ $BLFS_BOOK = $BUILDDIR$BLFS_ROOT/$BLFS_XML ]] ||
+[[ $BLFS_BOOK = $BUILDDIR$BLFS_ROOT/$BLFS_XML ]] || {
+echo "Retrieving BLFS working copy (may take some time)" &&
 cp -a $BLFS_BOOK $BUILDDIR$BLFS_ROOT/$BLFS_XML
+}
+
+[[ -z "$LFS_BOOK" ]] ||
+[[ $LFS_BOOK = $BUILDDIR$BLFS_ROOT/$LFS_XML ]] || {
+echo "Retrieving the LFS working copy (may take some time)" &&
+cp -a $LFS_BOOK $BUILDDIR$BLFS_ROOT/$LFS_XML
+}
 
 make -j1 -C $BUILDDIR$BLFS_ROOT \
      TRACKING_DIR=$TRACKING_DIR \
      REV=$INITSYS            \
+     LFS_XML=$BUILDDIR$BLFS_ROOT/$LFS_XML      \
+     LFS-SVN=svn://svn.linuxfromscratch.org/LFS/$LFS_TREE \
      BLFS_XML=$BUILDDIR$BLFS_ROOT/$BLFS_XML      \
      SVN=svn://svn.linuxfromscratch.org/BLFS/$BLFS_TREE \
      $BUILDDIR$BLFS_ROOT/packages.xml

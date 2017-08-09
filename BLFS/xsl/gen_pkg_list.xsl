@@ -5,10 +5,12 @@
      of packages obeying packdesc.dtd + looks for already
      installed packages in the tracking file (stringparam
      'installed-packages') -->
+<!-- Extract also a list of LFS packages from stringparam lfs-full -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     version="1.0">
 
+  <xsl:param name="lfs-full" select="'./lfs-xml/lfs-full.xml'"/>
   <xsl:param name="installed-packages" select="'../lib/instpkg.xml'"/>
 
   <xsl:output method="xml"
@@ -22,11 +24,101 @@
 
   <xsl:template match="/">
     <princList>
-    <xsl:text>&#xA;&#xA;</xsl:text>
+      <xsl:text>&#xA;&#xA;  </xsl:text>
+      <list>
+        <xsl:attribute name="id">lfs</xsl:attribute>
+        <xsl:text>&#xA;    </xsl:text>
+        <name>LFS Packages</name>
+        <xsl:text>&#xA;    </xsl:text>
+        <sublist>
+          <xsl:attribute name="id">lfs-6</xsl:attribute>
+          <xsl:text>&#xA;      </xsl:text>
+          <name>LFS Chapter 6</name>
+          <xsl:apply-templates
+               select='document($lfs-full)//
+                            chapter[@id="chapter-building-system"]/
+                                 sect1/sect1info'/>
+          <xsl:text>&#xA;    </xsl:text>
+        </sublist>
+        <sublist>
+          <xsl:attribute name="id">lfs-8</xsl:attribute>
+          <xsl:text>&#xA;      </xsl:text>
+          <name>LFS Chapter 8</name>
+          <xsl:apply-templates select='document($lfs-full)//chapter[@id="chapter-bootable"]/sect1/sect1info[./productname="linux"]'/>
+          <xsl:text>&#xA;    </xsl:text>
+        </sublist>
+        <sublist>
+          <xsl:attribute name="id">lfs-9</xsl:attribute>
+          <xsl:text>&#xA;      </xsl:text>
+          <name>LFS Chapter 9</name>
+          <xsl:apply-templates select='document($lfs-full)//sect1[@id="ch-finish-theend"]//userinput[starts-with(string(),"echo")]'/>
+          <xsl:text>&#xA;    </xsl:text>
+        </sublist>
+        <xsl:text>&#xA;&#xA;  </xsl:text>
+      </list>
 <!-- How to have blfs-bootscripts versionned? Do not know, so
      avoid it (TODO ?) -->
       <xsl:apply-templates select="//part[not(@id='introduction')]"/>
     </princList>
+  </xsl:template>
+
+  <xsl:template match="userinput">
+<!-- Only used in lFS chapter 9, to retrieve book version -->
+    <package>
+      <name>LFS-Release</name>
+      <xsl:element name="version">
+        <xsl:copy-of select="substring-after(substring-before(string(),' &gt;'),'echo ')"/>
+      </xsl:element>
+      <xsl:if
+          test="document($installed-packages)//package[name='LFS-Release']">
+        <xsl:text>&#xA;        </xsl:text>
+        <xsl:element name="inst-version">
+          <xsl:value-of
+            select="document(
+                     $installed-packages
+                            )//package[name='LFS-Release']/version"/>
+        </xsl:element>
+      </xsl:if>
+    </package>
+  </xsl:template>
+
+  <xsl:template match="sect1info">
+    <xsl:text>      </xsl:text>
+    <xsl:choose>
+<!-- Never update linux headers -->
+      <xsl:when test="./productname='linux'
+                      and ancestor::chapter[@id='chapter-building-system']"/>
+<!-- Gcc version is taken from BLFS -->
+      <xsl:when test="./productname='gcc'"/>
+<!-- Shadow version is taken from BLFS -->
+      <xsl:when test="./productname='shadow'"/>
+<!-- Dbus version is taken from BLFS -->
+      <xsl:when test="./productname='dbus'"/>
+<!-- Systemd version is taken from BLFS -->
+      <xsl:when test="./productname='systemd'"/>
+      <xsl:otherwise>
+        <package><xsl:text>&#xA;        </xsl:text>
+          <xsl:element name="name">
+            <xsl:value-of select="./productname"/>
+          </xsl:element>
+          <xsl:text>&#xA;        </xsl:text>
+          <xsl:element name="version">
+            <xsl:value-of select="./productnumber"/>
+          </xsl:element>
+          <xsl:if
+              test="document($installed-packages)//package[name=current()/productname]">
+            <xsl:text>&#xA;        </xsl:text>
+            <xsl:element name="inst-version">
+              <xsl:value-of
+                select="document(
+                         $installed-packages
+                                )//package[name=current()/productname]/version"/>
+            </xsl:element>
+          </xsl:if>
+        </package>
+      </xsl:otherwise>
+    </xsl:choose>
+<!-- No deps for now: a former version  is always installed -->
   </xsl:template>
 
   <xsl:template match="part">

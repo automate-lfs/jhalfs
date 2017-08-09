@@ -523,7 +523,7 @@ menu "BOOK Settings"
         default    "**EDIT ME**"
         depends on BLFS_WORKING_COPY
         help
-            Full path to the BLFS book working copy"
+            Full path to the BLFS book working copy
 
         config    BLFS_BRANCH_ID
         string    "BLFS Book Version (mandatory)"
@@ -561,6 +561,42 @@ menu "BOOK Settings"
             The directory name under $BLFS_ROOT where the BLFS
             book sources will be copied or checked out. Do not change that
             unless you know what you are doing...
+
+        choice
+        prompt    "LFS Release"
+        default    LFS_SVN
+        depends    BOOK_BLFS
+
+            config    LFS_relSVN
+            bool     "LFS SVN"
+            help
+                Current development version as in trunk
+
+            config    LFS_WORKING_COPY
+            bool     "LFS working copy"
+            help
+                A local working copy of the LFS book.
+
+            config    LFS_BRANCH
+            bool     "LFS Branch or stable book"
+            help
+                A supported SVN branch or stable book release
+        endchoice
+
+        config    BLFS_LFS_BOOK
+        string    "Location of the local LFS working copy (mandatory)"
+        default    "**EDIT ME**"
+        depends on LFS_WORKING_COPY
+        help
+            Full path to the LFS book working copy"
+
+        config    BLFS_LFS_BRANCH_ID
+        string    "LFS Book Version (mandatory)"
+        default    "**EDIT ME**"
+        depends on LFS_BRANCH
+        help
+            A list of valid branches and stable book IDs is available at
+            http://wiki.linuxfromscratch.org/alfs/wiki/SupportedBooks.
     # End of BLFS parameters
 
     #--- Custom Tools support

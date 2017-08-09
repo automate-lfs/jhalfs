@@ -25,6 +25,7 @@ MENU             = $(TOPDIR)/menu
 
 # Those directories and files will be created and populated by make:
 # directory of the book sources:
+LFS_XML          = $(TOPDIR)/lfs-xml
 BLFS_XML         = $(TOPDIR)/blfs-xml
 # contains the REV used in the preceding call:
 REVFILE          = $(TOPDIR)/revision
@@ -37,7 +38,9 @@ CONFIG_OUT       = $(TOPDIR)/configuration
 # the linear book:
 BOOK_XML         = $(TOPDIR)/book.xml
 
+LFSTMP           = $(LFS_XML)/tmp
 RENDERTMP        = $(BLFS_XML)/tmp
+LFS_FULL         = $(LFSTMP)/lfs-full.xml
 BLFS_FULL        = $(RENDERTMP)/blfs-full.xml
 
 # The right-hand side is updated by jhalfs:
@@ -57,15 +60,24 @@ define INITIAL_TRACK
 </sublist>
 endef
 
+LFS-SVN = svn://svn.linuxfromscratch.org/LFS/trunk/BOOK
 SVN = svn://svn.linuxfromscratch.org/BLFS/trunk/BOOK
 
 ALLXML := $(filter-out $(RENDERTMP)/%, \
               $(shell if [ -d $(BLFS_XML) ]; then \
                         find $(BLFS_XML) -name \*.xml; \
                       fi))
+ALLXMLLFS:= $(filter-out $(LFSTMP)/%, \
+              $(shell if [ -d $(LFS_XML) ]; then \
+                        find $(LFS_XML) -name \*.xml; \
+                      fi))
 ALLXSL := $(filter-out $(RENDERTMP)/%, \
               $(shell if [ -d $(BLFS_XML) ]; then \
                         find $(BLFS_XML) -name \*.xsl; \
+                      fi))
+ALLXSLLFS := $(filter-out $(LFSTMP)/%, \
+              $(shell if [ -d $(LFS_XML) ]; then \
+                        find $(LFS_XML) -name \*.xsl; \
                       fi))
 
 # Try to set the REV variable according to previous runs, except when
@@ -97,8 +109,9 @@ $(MENU)/mconf:
 $(CONFIG_CONFIG_IN): $(PACK_LIST) $(XSLDIR)/gen_config.xsl
 	$(Q)xsltproc --nonet -o $@ $(XSLDIR)/gen_config.xsl $(PACK_LIST)
 
-$(PACK_LIST): $(XSLDIR)/gen_pkg_list.xsl $(XSLDIR)/specialCases.xsl $(TRACKFILE)
+$(PACK_LIST): $(XSLDIR)/gen_pkg_list.xsl $(XSLDIR)/specialCases.xsl $(TRACKFILE) $(LFS_FULL)
 	$(Q)xsltproc --stringparam installed-packages $(TRACKFILE) \
+	--stringparam lfs-full $(LFS_FULL) \
 	-o $@.tmp $(XSLDIR)/gen_pkg_list.xsl $(BLFS_FULL)
 	$(Q)xmllint --postvalid --format -o $@ $@.tmp
 	$(Q)rm $@.tmp
@@ -137,28 +150,51 @@ $(XSLDIR)/specialCases.xsl: $(TOPDIR)/gen-special.sh $(BLFS_FULL)
 
 ifneq ($(REV),$(REV1))
 $(BLFS_FULL): FORCE
+$(LFS_FULL): FORCE
 endif
+$(LFS_FULL): $(LFS_XML) $(LFS_XML)/general.ent $(ALLXMLLFS) $(ALLXSLLFS)
+	@echo "Processing LFS bootscripts..."
+	$(Q)cd $(LFS_XML) && bash process-scripts.sh
+	$(Q)[ -d $(LFSTMP) ] || mkdir -p $(LFSTMP)
+	@echo "Adjusting LFS for revision $(REV)..."
+	$(Q)xsltproc --nonet --xinclude                          \
+	             --stringparam profile.revision $(REV)       \
+	             --output $(LFSTMP)/lfs-prof.xml         \
+	             $(LFS_XML)/stylesheets/lfs-xsl/profile.xsl \
+	             $(LFS_XML)/index.xml
+	@echo "Validating the LFS book..."
+	$(Q)xmllint --nonet --noent --postvalid \
+	  -o $@ $(LFSTMP)/lfs-prof.xml
+	$(Q)rm -f $(LFS_XML)/appendices/*.script
+	$(Q)cd $(LFS_XML) && ./aux-file-data.sh $@
+	$(Q)echo $(REV) > $(REVFILE)
+
 $(BLFS_FULL): $(BLFS_XML) $(BLFS_XML)/general.ent $(ALLXML) $(ALLXSL)
 	$(Q)[ -d $(RENDERTMP) ] || mkdir -p $(RENDERTMP)
-	@echo "Adjusting for revision $(REV)..."
+	@echo "Adjusting BLFS for revision $(REV)..."
 	$(Q)xsltproc --nonet --xinclude                          \
 	             --stringparam profile.revision $(REV)       \
 	             --output $(RENDERTMP)/blfs-prof.xml         \
 	             $(BLFS_XML)/stylesheets/lfs-xsl/profile.xsl \
 	             $(BLFS_XML)/index.xml
-	@echo "Validating the book..."
+	@echo "Validating the BLFS book..."
 	$(Q)xmllint --nonet --noent --postvalid \
 	  -o $@ $(RENDERTMP)/blfs-prof.xml
 	$(Q)echo $(REV) > $(REVFILE)
 
 all: update $(BOOK_XML)
 
-update: $(BLFS_XML)
+update: $(BLFS_XML) $(LFS_XML)
 	@echo Updating the book sources
+	$(Q)cd $(LFS_XML) && svn up
 	$(Q)cd $(BLFS_XML) && svn up
 
+$(LFS_XML):
+	@echo Getting the LFS book sources...
+	$(Q)svn co $(LFS-SVN) $@
+
 $(BLFS_XML):
-	@echo Getting the book sources...
+	@echo Getting the BLFS book sources...
 	$(Q)svn co $(SVN) $@
 
 # Clean up
