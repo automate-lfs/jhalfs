@@ -7,6 +7,7 @@
 
   <xsl:param name="list" select="''"/>
   <xsl:param name="MTA" select="'sendmail'"/>
+  <xsl:param name="lfsbook" select="'lfs-full.xml'"/>
 
 <!-- Check whether the book is sysv or systemd -->
   <xsl:variable name="rev">
@@ -24,6 +25,8 @@
     method="xml"
     encoding="ISO-8859-1"
     doctype-system="http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd"/>
+
+  <xsl:include href="lfs_make_book.xsl"/>
 
   <xsl:template match="/">
     <book>
@@ -80,7 +83,23 @@
           </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>
+          <xsl:variable name="is-lfs">
+            <xsl:call-template name="detect-lfs">
+              <xsl:with-param name="package" select="$list"/>
+              <xsl:with-param name="lfsbook" select="$lfsbook"/>
+            </xsl:call-template>
+          </xsl:variable>
           <xsl:choose>
+            <xsl:when test="$is-lfs='true'">
+              <xsl:message>
+                <xsl:value-of select="$list"/>
+                <xsl:text> is an lfs package</xsl:text>
+              </xsl:message>
+              <xsl:call-template name="process-lfs">
+                <xsl:with-param name="package" select="$list"/>
+                <xsl:with-param name="lfsbook" select="$lfsbook"/>
+              </xsl:call-template>
+            </xsl:when>
             <xsl:when test="not(id($list)[self::sect1 or self::sect2 or self::para or self::bridgehead])">
               <xsl:apply-templates
                    select="//sect1[contains(@id,'xorg7')
