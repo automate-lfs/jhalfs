@@ -352,89 +352,89 @@ fi
 
 if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
 
-  # If requested, clean the build directory
+# If requested, clean the build directory
   clean_builddir
 
   if [[ ! -d $JHALFSDIR ]]; then
     mkdir -p $JHALFSDIR
   fi
 
-  # Create $BUILDDIR/sources even though it could be created by get_sources()
+# Create $BUILDDIR/sources even though it could be created by get_sources()
   if [[ ! -d $BUILDDIR/sources ]]; then
     mkdir -p $BUILDDIR/sources
   fi
-  #
-  # Create the log directory
+
+# Create the log directory
   if [[ ! -d $LOGDIR ]]; then
     mkdir $LOGDIR
   fi
   >$LOGDIR/$LOG
-  #
-  # Copy common helper files
+
+# Copy common helper files
   cp $COMMON_DIR/{makefile-functions,progress_bar.sh} $JHALFSDIR/
-  # Copy needed stylesheets
+
+# Copy needed stylesheets
   cp $COMMON_DIR/{packages.xsl,chroot.xsl} $JHALFSDIR/
-  #
-  # Fix the XSL book parser
+
+# Fix the XSL book parser
   case $PROGNAME in
     clfs* ) sed 's,FAKEDIR,'${BOOK}/BOOK',' ${PACKAGE_DIR}/${XSL} > $JHALFSDIR/${XSL} ;;
     lfs | hlfs ) sed 's,FAKEDIR,'$BOOK',' $PACKAGE_DIR/$XSL > $JHALFSDIR/${XSL} ;;
     * ) ;;
   esac
   export XSL=$JHALFSDIR/${XSL}
-  #
 
-  # Copy packageManager.xml, if needed
+# Copy packageManager.xml, if needed
   [[ "$PKGMNGT" = "y" ]] && [[ "$PROGNAME" = "lfs" ]] && {
     cp $PKGMNGTDIR/packageManager.xml  $JHALFSDIR/
     cp $PKGMNGTDIR/packInstall.sh  $JHALFSDIR/
     }
-  #
-  # Copy urls.xsl, if needed
+
+# Copy urls.xsl, if needed
   [[ "$GETPKG" = "y" ]] && cp $COMMON_DIR/urls.xsl  $JHALFSDIR/
-  #
-  # Create the test-log directory, if needed
+
+# Create the test-log directory, if needed
   [[ "$TEST" != "0" ]] && [[ ! -d $TESTLOGDIR ]] && install -d -m 1777 $TESTLOGDIR
-  #
-  # Create the installed-files directory, if needed
+
+# Create the installed-files directory, if needed
   [[ "$INSTALL_LOG" = "y" ]] && [[ ! -d $FILELOGDIR ]] && install -d -m 1777 $FILELOGDIR
-  #
-  # Prepare report creation, if needed
+
+# Prepare report creation, if needed
   if [[ "$REPORT" = "y" ]]; then
     cp $COMMON_DIR/create-sbu_du-report.sh  $JHALFSDIR/
     # After making sure that all looks sane, dump the settings to a file
     # This file will be used to create the REPORT header
     validate_config > $JHALFSDIR/jhalfs.config
   fi
-  #
-  # Copy optimize files, if needed
+
+# Copy optimize files, if needed
   [[ "$OPTIMIZE" != "0" ]] && cp optimize/opt_override $JHALFSDIR/
-  #
-  # Copy compare files, if needed
+
+# Copy compare files, if needed
   if [[ "$COMPARE" = "y" ]]; then
     mkdir -p $JHALFSDIR/extras
     cp extras/* $JHALFSDIR/extras
   fi
-  #
-  # Copy custom tools config files, if requested
-  if [[ "${CUSTOM_TOOLS}" = "y" ]]; then
-    echo "Copying custom tool scripts to $JHALFSDIR"
-    mkdir -p $JHALFSDIR/custom-commands
-    cp -f custom/config/* $JHALFSDIR/custom-commands
-  fi
-  #
-  # Install blfs-tool, if requested.
-  if [[ "${BLFS_TOOL}" = "y" ]] ; then
-    echo Installing BLFS book and tools
-    install_blfs_tools 2>&1 | tee -a $LOGDIR/$LOG
-    [[ ${PIPESTATUS[0]} != 0 ]] && exit 1
-  fi
-  #
 
 # Download or updates the book source
   get_book
   extract_commands
   echo "${SD_BORDER}${nl_}"
+  cd $CWD # the functions above change directory
+
+# Copy custom tools config files, if requested
+  if [[ "${CUSTOM_TOOLS}" = "y" ]]; then
+    echo "Copying custom tool scripts to $JHALFSDIR"
+    mkdir -p $JHALFSDIR/custom-commands
+    cp -f custom/config/* $JHALFSDIR/custom-commands
+  fi
+
+# Install blfs-tool, if requested.
+  if [[ "${BLFS_TOOL}" = "y" ]] ; then
+    echo Installing BLFS book and tools
+    install_blfs_tools 2>&1 | tee -a $LOGDIR/$LOG
+    [[ ${PIPESTATUS[0]} != 0 ]] && exit 1
+  fi
 
 fi
 
