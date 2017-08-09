@@ -132,13 +132,17 @@ source $COMMON_DIR/libs/func_check_version.sh
 [[ $VERBOSITY > 0 ]] && echo "${SD_BORDER}${nl_}"
 
 case $BLFS_BRANCH_ID in
-  development )  BLFS_TREE=trunk/BOOK ;;
-     branch-* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-} ;;
-            * )  BLFS_TREE=tags/${BLFS_BRANCH_ID} ;;
+     development )  BLFS_TREE=trunk/BOOK ;;
+      branch-6.* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-}/BOOK ;;
+        branch-* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-} ;;
+6.2* | 7.* | 8.* )  BLFS_TREE=tags/${BLFS_BRANCH_ID} ;;
+               * )  BLFS_TREE=tags/${BLFS_BRANCH_ID}/BOOK ;;
 esac
 case $LFS_BRANCH_ID in
   development )  LFS_TREE=trunk/BOOK ;;
+   branch-6.* )  LFS_TREE=branches/${BLFS_BRANCH_ID#branch-}/BOOK ;;
      branch-* )  LFS_TREE=branches/${BLFS_BRANCH_ID#branch-} ;;
+          6.* )  LFS_TREE=tags/${BLFS_BRANCH_ID}/BOOK ;;
             * )  LFS_TREE=tags/${BLFS_BRANCH_ID} ;;
 esac
 

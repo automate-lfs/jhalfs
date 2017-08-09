@@ -176,7 +176,7 @@ case $BRANCH_ID in
       lfs )
         LFSVRS=${BRANCH_ID}
         TREE=branches/${BRANCH_ID#branch-}
-        if [ ${BRANCH_ID#branch-} = 6 ]; then
+        if [ ${BRANCH_ID:7:1} = 6 ]; then
             TREE=${TREE}/BOOK
         fi
         ;;
@@ -295,9 +295,9 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
            *EDIT* )  echo " You forgot to set the BLFS branch or stable book version."
                      echo " Please rerun make and fix the configuration."
                      exit 2 ;;
-   branch-systemd )  BLFS_TREE=branches/systemd ;;
-         branch-* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-}/BOOK ;;
-       6.2* | 7.* )  BLFS_TREE=tags/${BLFS_BRANCH_ID} ;;
+       branch-6.* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-}/BOOK ;;
+         branch-* )  BLFS_TREE=branches/${BLFS_BRANCH_ID#branch-} ;;
+  6.2* | 7.* | 8.*)  BLFS_TREE=tags/${BLFS_BRANCH_ID} ;;
                 * )  BLFS_TREE=tags/${BLFS_BRANCH_ID}/BOOK ;;
     esac
   fi
