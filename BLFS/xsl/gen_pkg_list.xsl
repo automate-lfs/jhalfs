@@ -90,7 +90,7 @@
         <package><xsl:text>&#xA;        </xsl:text>
           <xsl:element name="name">
             <xsl:value-of select="normalize-space(title)"/>
-            </xsl:element>
+          </xsl:element>
           <xsl:text>&#xA;</xsl:text>
 <!-- Do not use .//*, which would include self. -->
           <xsl:apply-templates
