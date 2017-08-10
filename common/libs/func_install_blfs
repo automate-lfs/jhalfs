@@ -216,19 +216,30 @@ sed -i -e '/xsltproc/,+6d' \
 cat >> Makefile << EOF
 update:
 	@echo Updating the tracking file
-	@LFS_LIST=\$\$(cat $BLFS_ROOT/packages.xml | \\
-		sed -n '/lfs-6/,/LFS-Release/p' | \\
-		sed '/<sublist/,+1d' | \\
-		sed -n '/<name>/p' | \\
-		sed 's/<name>//;s/<\\/name>//'); \\
-	for file in \$\$LFS_LIST *-*; do \\
-	xsltproc --stringparam packages ../packages.xml \\
-	--stringparam package \$\${file##*z-} \\
-	-o track.tmp \\
-	../xsl/bump.xsl \$(TRACKING_FILE); \\
-	sed -i 's@PACKDESC@$BLFS_ROOT/packdesc.dtd@' track.tmp; \\
-	xmllint --format --postvalid track.tmp > \$(TRACKING_FILE); \\
-	rm track.tmp; \\
+	@for pack in \$\$(grep '<productname' ../$LFS_XML/tmp/lfs-full.xml | \\
+		sed 's/.*>\([^<]*\)<.*/\1/' | \\
+		sort | uniq); do \\
+	    VERSION=\$\$(grep -A1 "\$\$pack</product" \\
+			../$LFS_XML/tmp/lfs-full.xml | \\
+		head -n2|  \\
+		sed -n '2s/.*>\([^<]*\)<.*/\1/p');  \\
+	    xsltproc --stringparam packages ../packages.xml \\
+		--stringparam package \$\$pack \\
+		--stringparam version \$\$VERSION \\
+		-o track.tmp \\
+		../xsl/bump.xsl \$(TRACKING_FILE); \\
+	    sed -i 's@PACKDESC@$BLFS_ROOT/packdesc.dtd@' track.tmp; \\
+	    xmllint --format --postvalid track.tmp > \$(TRACKING_FILE); \\
+	    rm track.tmp; \\
+	done; \\
+	for file in *-*; do \\
+	    xsltproc --stringparam packages ../packages.xml \\
+		--stringparam package \$\${file##*z-} \\
+		-o track.tmp \\
+		../xsl/bump.xsl \$(TRACKING_FILE); \\
+	    sed -i 's@PACKDESC@$BLFS_ROOT/packdesc.dtd@' track.tmp; \\
+	    xmllint --format --postvalid track.tmp > \$(TRACKING_FILE); \\
+	    rm track.tmp; \\
 	done
 	@touch \$@
 	@echo -e "\n\n "\$(BOLD)Target \$(BLUE)\$@ \$(BOLD)OK
