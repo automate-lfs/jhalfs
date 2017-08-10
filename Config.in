@@ -562,6 +562,15 @@ menu "BOOK Settings"
             book sources will be copied or checked out. Do not change that
             unless you know what you are doing...
 
+        config    LFS_XML
+        string "LFS sources directory (internal parameter)"
+        default "lfs-xml"
+        depends BLFS_TOOL || BOOK_BLFS
+        help
+            The directory name under $BLFS_ROOT where the LFS
+            book sources will be copied or checked out. Do not change that
+            unless you know what you are doing...
+
         choice
         prompt    "LFS Release"
         default    LFS_SVN

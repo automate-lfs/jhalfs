@@ -416,18 +416,20 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
     cp extras/* $JHALFSDIR/extras
   fi
 
-# Download or updates the book source
-  get_book
-  extract_commands
-  echo "${SD_BORDER}${nl_}"
-  cd $CWD # the functions above change directory
-
 # Copy custom tools config files, if requested
   if [[ "${CUSTOM_TOOLS}" = "y" ]]; then
     echo "Copying custom tool scripts to $JHALFSDIR"
     mkdir -p $JHALFSDIR/custom-commands
     cp -f custom/config/* $JHALFSDIR/custom-commands
   fi
+
+# Download or updates the book source
+# Note that all customization to $JHALFSDIR have to be done before this.
+# But the LFS book is needed for BLFS tools.
+  get_book
+  extract_commands
+  echo "${SD_BORDER}${nl_}"
+  cd $CWD # the functions above change directory
 
 # Install blfs-tool, if requested.
   if [[ "${BLFS_TOOL}" = "y" ]] ; then
