@@ -236,12 +236,12 @@ $Id$
 7. FAQ::
     Q. "It doesn't work"
     A. There are several reasons why it may be so. One possibility is the
-       following:jhalfs was designed to work against the development versions
-       of the LFS series of books. Consequently changes in a book(s) sometimes
-       breaks older versions of jhalfs. Before you start pulling out your hair
+       following: jhalfs was designed to work against the development versions
+       of the LFS series of books. Consequently changes in a book sometimes
+       break older versions of jhalfs. Before you start pulling out your hair,
        download the latest version of jhalfs to see if that solves your
        problem. Note that it may be the other way around. If you want to build
-       an old version of the book, you may have to downgrade you jahlfs
+       an old version of the book, you may have to downgrade your jhalfs
        version.
 
     Q. "How do I specify the build location?"
@@ -263,10 +263,10 @@ $Id$
 
     Q. "What is the function of the SRC_ARCHIVE variable?"
     A. When jhalfs runs and packages download was selected, it creates a local
-       copy of the necessary packages in BUILDDIR/sources by downloading the
+       copy of the necessary packages in $BUILDDIR/sources by downloading the
        files. If the variable SRC_ARCHIVE is defined the software will first
        look in this location for the file and, if found, will copy it to
-       BUILDDIR/sources.
+       $BUILDDIR/sources.
        If the files are not found in SRC_ARCHIVE _and_ you have write priv to
        the directory any downloaded files will be mirrored there.
 
@@ -293,7 +293,7 @@ $Id$
 
        These variables are adjustable also when invoking make:
 
-         $BUILDDIR make LUSER=myaccount LGROUP=mygroup
+         cd $BUILDDIR; make LUSER=myaccount LGROUP=mygroup
 
        The only changes to your account will be the creation of a NEW .bashrc
        after saving your original to .bashrc.XXX

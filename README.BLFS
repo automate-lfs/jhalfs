@@ -13,6 +13,10 @@ $Id$
   build scripts and Makefile will work "as is", thus, as a general rule,
   you will need to review and edit the scripts while reading the book.
 
+     Since version 3.0 of jhalfs, the blfs tools allow also to update packages
+  from the LFS book. LFS packages which may be updated appear in the menu
+  interface. When selected, their scriptlet is generated in the same manner
+  as for BLFS packages.
 
 2. PREREQUISITES::
 
@@ -64,6 +68,20 @@ $Id$
       Issues' of the BLFS book), as some instructions in BLFS rely on
       their being present.
 
+    - In this case, the tool has no way to know which version of LFS packages
+      is installed, so that the menu interface will show all the LFS packages,
+      as if they were not installed. If you have a released version of LFS, or
+      the date of your SVN version of LFS is known, you should run the
+      update-lfs.sh script. If you have updated some
+      LFS packages since first installation, or have been using a custom
+      working copy of the LFS book, the only (tedious) way is to create
+      empty files with names <package>-<installed-version> in the tracking
+      directory, and run the tool.
+
+    - If you have also installed some BLFS packages, they are not in the
+      tracking file. The only way is to create empty files with names
+      <package>-<installed-version> in the tracking directory, and run the tool.
+
   3.2 INSTALLATION ON A JUST BUILT xLFS SYSTEM
 
     For books that support it (only LFS for jhalfs version 2.4),
@@ -93,6 +111,10 @@ $Id$
     - Configure sudo and add the bash shell startup files, as described
       above
 
+    - Note that the versions of LFS packages are automatically known to
+      the tool in this case, and there is no need to run the update-lfs.sh
+      script.
+
      We assume that the BLFS tools will be used on a booted xLFS system.
   Using them to build BLFS packages in a chroot jail is also possible,
   but not supported.
@@ -100,6 +122,7 @@ $Id$
   3.3 DIRECTORY LAYOUT IN THE $BLFS_ROOT DIRECTORY
 
     blfs-xml/*              SVN tree of the selected BLFS book version
+    lfs-xml/*               SVN tree of the selected LFS book version
     lib/constants.inc       functions libraries 
        /func_dependencies     for building the dependency tree
     menu/*                  lxdialog and menuconfig source code
@@ -109,6 +132,8 @@ $Id$
        /dependencies.xsl    XSL stylesheet to generate the dependency list
                             of a package
        /make_book.xsl       XSL stylesheet to generate the linear book.xml
+       /lfs_make_book.xsl   XSL stylesheet to incoporate LFS pages into the
+                            linear book.xml
        /scripts.xsl         XSL stylesheet to generate the scriptlets from
                             book.xml
        /bump.xsl            XSL stylesheet to update the tracking file
@@ -127,7 +152,7 @@ $Id$
                             database and the tracking file.
     envars.conf             envars needed when running the target build scripts
 
-    Working files: several files are generated when first running the tool
+Working files: several files are generated when first running the tool
 
     packages.xml            auto-generated packages database
     Config.in               input file for the menu driven choices
@@ -235,11 +260,13 @@ $Id$
     "bar" before "foo" package and the "foo" script is named "064-z-foo", you
     just need to create a "064-y-bar" build script.
 
-      Remember, the package tracking system isn't a package management tool
+       Remember, the package tracking system isn't a package management tool
     and knows nothing about packages not in the BLFS book.
 
-      Also, review and edit envars.conf. This file is used to set global envars
-    needed by the build scripts.
+       IMPORTANT: Review and edit envars.conf, at least after installing the
+    tool. This file is used to set global envars needed by the build scripts.
+    If you use package management, the variable PACK_INSTALL should point to
+    where the packInstall.sh script resides.
 
   4.4  CREATING THE MAKEFILE::
 
