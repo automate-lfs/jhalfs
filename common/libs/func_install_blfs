@@ -219,7 +219,7 @@ update:
 	@for pack in \$\$(grep '<productname' ../$LFS_XML/tmp/lfs-full.xml | \\
 		sed 's/.*>\([^<]*\)<.*/\1/' | \\
 		sort | uniq); do \\
-	    VERSION=\$\$(grep -A1 "\$\$pack</product" \\
+	    VERSION=\$\$(grep -A1 ">\$\$pack</product" \\
 			../$LFS_XML/tmp/lfs-full.xml | \\
 		head -n2|  \\
 		sed -n '2s/.*>\([^<]*\)<.*/\1/p');  \\
@@ -232,6 +232,16 @@ update:
 	    xmllint --format --postvalid track.tmp > \$(TRACKING_FILE); \\
 	    rm track.tmp; \\
 	done; \\
+	VERSION=\$\$(grep 'echo.*lfs-release' ../$LFS_XML/tmp/lfs-full.xml | \\
+	             sed 's/.*echo[ ]*\([^ ]*\).*/\1/'); \\
+	xsltproc --stringparam packages ../packages.xml \\
+	    --stringparam package LFS-Release \\
+	    --stringparam version \$\$VERSION \\
+	    -o track.tmp \\
+	    ../xsl/bump.xsl \$(TRACKING_FILE); \\
+	sed -i 's@PACKDESC@$BLFS_ROOT/packdesc.dtd@' track.tmp; \\
+	xmllint --format --postvalid track.tmp > \$(TRACKING_FILE); \\
+	rm track.tmp; \\
 	for file in *-*; do \\
 	    xsltproc --stringparam packages ../packages.xml \\
 		--stringparam package \$\${file##*z-} \\

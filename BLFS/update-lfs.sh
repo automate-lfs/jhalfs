@@ -95,25 +95,38 @@ echo You answered $ANSWER
 #End debug
 
 if [ x$ANSWER = "xyes" ] ; then
-  for pack in $(grep '<productname' $LFS_FULL |
-                sed 's/.*>\([^<]*\)<.*/\1/' |
-                sort | uniq); do
-    if [ "$pack" = "libstdc++" ]; then continue; fi
-    VERSION=$(grep -A1 ">$pack</product" $LFS_FULL |
-                head -n2 |
-                sed -n '2s/.*>\([^<]*\)<.*/\1/p')
+    for pack in $(grep '<productname' $LFS_FULL |
+                  sed 's/.*>\([^<]*\)<.*/\1/' |
+                  sort | uniq); do
+        if [ "$pack" = "libstdc++" ]; then continue; fi
+        VERSION=$(grep -A1 ">$pack</product" $LFS_FULL |
+                    head -n2 |
+                    sed -n '2s/.*>\([^<]*\)<.*/\1/p')
 #Debug
 echo $pack: $VERSION
 #End debug
+        xsltproc --stringparam packages $MYDIR/packages.xml \
+                 --stringparam package $pack \
+                 --stringparam version $VERSION \
+                 -o track.tmp \
+                 $MYDIR/xsl/bump.xsl ${TRACKFILE}
+        sed -i "s@PACKDESC@$MYDIR/packdesc.dtd@" track.tmp
+        xmllint --format --postvalid track.tmp > ${TRACKFILE}
+        rm track.tmp
+    done
+    VERSION=$(grep 'echo.*lfs-release' $LFS_FULL |
+              sed 's/.*echo[ ]*\([^ ]*\).*/\1/')
+#Debug
+echo LFS-Release: $VERSION
+#End debug
     xsltproc --stringparam packages $MYDIR/packages.xml \
-             --stringparam package $pack \
+             --stringparam package LFS-Release \
              --stringparam version $VERSION \
              -o track.tmp \
              $MYDIR/xsl/bump.xsl ${TRACKFILE}
     sed -i "s@PACKDESC@$MYDIR/packdesc.dtd@" track.tmp
     xmllint --format --postvalid track.tmp > ${TRACKFILE}
     rm track.tmp
-  done
 fi
 #Debug
 #echo After BEG_COMMAND\; before END_COMMAND
