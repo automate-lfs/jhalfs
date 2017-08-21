@@ -140,10 +140,10 @@ case $BLFS_BRANCH_ID in
 esac
 case $LFS_BRANCH_ID in
   development )  LFS_TREE=trunk/BOOK ;;
-   branch-6.* )  LFS_TREE=branches/${BLFS_BRANCH_ID#branch-}/BOOK ;;
-     branch-* )  LFS_TREE=branches/${BLFS_BRANCH_ID#branch-} ;;
-          6.* )  LFS_TREE=tags/${BLFS_BRANCH_ID}/BOOK ;;
-            * )  LFS_TREE=tags/${BLFS_BRANCH_ID} ;;
+   branch-6.* )  LFS_TREE=branches/${LFS_BRANCH_ID#branch-}/BOOK ;;
+     branch-* )  LFS_TREE=branches/${LFS_BRANCH_ID#branch-} ;;
+          6.* )  LFS_TREE=tags/${LFS_BRANCH_ID}/BOOK ;;
+            * )  LFS_TREE=tags/${LFS_BRANCH_ID} ;;
 esac
 
 # Check for build prerequisites.
