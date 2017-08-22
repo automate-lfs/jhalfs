@@ -250,6 +250,7 @@
 <!-- Perl modules : transform them to minimal sect1. Use a template
      for installation instructions -->
   <xsl:template match="bridgehead">
+  <xsl:if test="ancestor::sect1[@id='perl-modules']">
     <xsl:element name="sect1">
       <xsl:attribute name="id"><xsl:value-of select="./@id"/></xsl:attribute>
       <xsl:attribute name="xreflabel"><xsl:value-of select="./@xreflabel"/></xsl:attribute>
@@ -287,6 +288,7 @@
         </xsl:otherwise>
       </xsl:choose>
     </xsl:element>
+  </xsl:if>
   </xsl:template>
 
 <!-- The case of depdendencies of perl modules. Same treatment
