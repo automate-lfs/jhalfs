@@ -276,17 +276,23 @@ tree_erase() { #
 #--------------#
 local file=$1
 local f
-local -a rootlink
+local rootlink
 local rootlink2
 
 #echo file=$file
-rootlink=($(head -n1 $file))
+rootlink="$(head -n1 $file) "
 for f in $(grep '[^0-9 ]' $file | sed 's/.* //'); do
-#  echo "    f"=$f
   if [ -f ${f}.dep ]; then
     rootlink2="$(head -n1 ${f}.dep) "
+# We want two things:
+# i)  do not erase the file if it is in another branch
+# ii) do not erase the file if there is a circular dependency
+# for case i), we test that rootlink is contained in rootlink2
+# for case ii), we test that rootlink2 is not contained in
+# rootlink.
 # See comment above about srootlink
-    if [[ ${rootlink2#"${rootlink[*]} "} != ${rootlink2} ]] ; then
+    if [[ ${rootlink2#${rootlink}} != ${rootlink2} &&
+	  ${rootlink#${rootlink2}} == ${rootlink} ]] ; then
       tree_erase ${f}.dep
     fi
   fi
