@@ -29,6 +29,10 @@ case $1 in
     local VERSION2=$(sed -n 's/.*icu-minor[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
     VERSION=$VERSION1.$VERSION2
     ;;
+  exiv*)
+    local PACKENT=$(dirname $PACK_INSTALL)/blfs-xml/packages.ent
+    VERSION=$(sed -n 's/.*exiv2[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
+    ;;
   flashplayer*)
     local PACKENT=$(dirname $PACK_INSTALL)/blfs-xml/packages.ent
     VERSION=$(sed -n 's/.*flashplayer[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
