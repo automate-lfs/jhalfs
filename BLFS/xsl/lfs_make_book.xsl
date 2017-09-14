@@ -13,6 +13,7 @@
     <xsl:choose>
       <xsl:when test="$package='gcc' or
                       $package='dbus' or
+                      $package='vim' or
                       $package='systemd' or
                       $package='shadow'"/>
       <xsl:when test="$package='LFS-Release'">true</xsl:when>
@@ -30,6 +31,7 @@
     <xsl:choose>
       <xsl:when test="$package='gcc' or
                       $package='dbus' or
+                      $package='vim' or
                       $package='systemd' or
                       $package='shadow'"/>
       <xsl:when test="$package='linux'">

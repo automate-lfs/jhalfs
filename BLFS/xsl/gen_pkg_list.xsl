@@ -92,6 +92,8 @@
       <xsl:when test="./productname='gcc'"/>
 <!-- Shadow version is taken from BLFS -->
       <xsl:when test="./productname='shadow'"/>
+<!-- Vim version is taken from BLFS -->
+      <xsl:when test="./productname='vim'"/>
 <!-- Dbus version is taken from BLFS -->
       <xsl:when test="./productname='dbus'"/>
 <!-- Systemd version is taken from BLFS -->
