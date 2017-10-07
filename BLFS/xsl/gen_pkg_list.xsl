@@ -305,6 +305,7 @@
             </xsl:text>
             <xsl:element name="dependency">
               <xsl:attribute name="status">required</xsl:attribute>
+              <xsl:attribute name="build">before</xsl:attribute>
               <xsl:attribute name="name">
                 <xsl:value-of select="preceding-sibling::sect1[1]/@id"/>
               </xsl:attribute>
@@ -348,6 +349,8 @@
       <xsl:choose>
 <!-- Avoid depending of myself -->
         <xsl:when test="ancestor::*[@id=current()/@linkend]"/>
+<!-- do not depend on something which is not a dependency -->
+        <xsl:when test="@role='nodep'"/>
 <!-- Call list expansion when we have an xorg7 series of packages -->
         <xsl:when test="contains(@linkend,'xorg7-')">
           <xsl:call-template name="expand-deps">
@@ -357,6 +360,12 @@
             <xsl:with-param name="status">
               <xsl:value-of select="$status"/>
             </xsl:with-param>
+            <xsl:with-param name="build">
+              <xsl:choose>
+                <xsl:when test="@role='runtime'">after</xsl:when>
+                <xsl:otherwise>before</xsl:otherwise>
+              </xsl:choose>
+            </xsl:with-param>
           </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>
@@ -365,6 +374,12 @@
           <xsl:element name="dependency">
             <xsl:attribute name="status">
               <xsl:value-of select="$status"/>
+            </xsl:attribute>
+            <xsl:attribute name="build">
+              <xsl:choose>
+                <xsl:when test="@role='runtime'">after</xsl:when>
+                <xsl:otherwise>before</xsl:otherwise>
+              </xsl:choose>
             </xsl:attribute>
             <xsl:attribute name="name">
               <xsl:value-of select="@linkend"/>
@@ -376,17 +391,29 @@
     </xsl:for-each>
 <!-- then external dependencies -->
     <xsl:for-each select=".//ulink">
-      <xsl:text>
+      <xsl:choose>
+<!-- do not depend on something which is not a dependency -->
+        <xsl:when test="@role='nodep'"/>
+        <xsl:otherwise>
+          <xsl:text>
             </xsl:text>
-      <xsl:element name="dependency">
-        <xsl:attribute name="status">
-          <xsl:value-of select="$status"/>
-        </xsl:attribute>
-        <xsl:attribute name="name">
-          <xsl:value-of select="translate(normalize-space(text()),' /,()','-----')"/>
-        </xsl:attribute>
-        <xsl:attribute name="type">link</xsl:attribute>
-      </xsl:element>
+          <xsl:element name="dependency">
+            <xsl:attribute name="status">
+              <xsl:value-of select="$status"/>
+            </xsl:attribute>
+            <xsl:attribute name="build">
+              <xsl:choose>
+                <xsl:when test="@role='runtime'">after</xsl:when>
+                <xsl:otherwise>before</xsl:otherwise>
+              </xsl:choose>
+            </xsl:attribute>
+            <xsl:attribute name="name">
+              <xsl:value-of select="translate(normalize-space(text()),' /,()','-----')"/>
+            </xsl:attribute>
+            <xsl:attribute name="type">link</xsl:attribute>
+          </xsl:element>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:for-each>
   </xsl:template>
 
@@ -398,6 +425,7 @@
 <!-- the dep on the preceding package used to be required for python.
      It seems optional now -->
         <xsl:attribute name="status">optional</xsl:attribute>
+        <xsl:attribute name="build">before</xsl:attribute>
         <xsl:attribute name="name">
           <xsl:value-of select="preceding-sibling::listitem[1]//@linkend"/>
         </xsl:attribute>
@@ -409,7 +437,7 @@
   <xsl:template match="listitem" mode="perlmod-dep">
     <xsl:param name="glue" select="'&#xA;            '"/>
     <xsl:choose>
-     <xsl:when test="para/xref|para[@id]/ulink">
+     <xsl:when test="para/xref[not(@role) or @role != 'nodep']|para[@id]/ulink">
       <xsl:value-of select="$glue"/>
       <xsl:element name="dependency">
         <xsl:attribute name="status">
@@ -420,6 +448,13 @@
                                    ]
                          )&gt;0">optional</xsl:when>
             <xsl:otherwise>required</xsl:otherwise>
+          </xsl:choose>
+        </xsl:attribute>
+        <xsl:attribute name="build">
+          <xsl:choose>
+            <xsl:when test="para/xref/@role='runtime'">after</xsl:when>
+            <xsl:when test="para/ulink/@role='runtime'">after</xsl:when>
+            <xsl:otherwise>before</xsl:otherwise>
           </xsl:choose>
         </xsl:attribute>
         <xsl:attribute name="name">

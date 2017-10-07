@@ -19,5 +19,6 @@
 <!-- subdependencies of a dependency are defined for example in Perl
      modules -->
 <!ATTLIST dependency status (required|recommended|optional) "recommended"
+                     build (before|after) "before"
                      name CDATA #REQUIRED
                      type (ref|link) "ref">

@@ -125,6 +125,7 @@ cat >tmpfile << EOF
   <xsl:template name="expand-deps">
     <xsl:param name="section"/>
     <xsl:param name="status"/>
+    <xsl:param name="build"/>
     <xsl:choose>
 EOF
 for file in $(ls ${BLFS_DIR}/x/installing/x7* | grep -v x7driver); do
@@ -178,6 +179,7 @@ EOF
       cat >>$SPECIAL_FILE << EOF
           <xsl:element name="dependency">
             <xsl:attribute name="status">required</xsl:attribute>
+            <xsl:attribute name="build">before</xsl:attribute>
             <xsl:attribute name="name">$precpack</xsl:attribute>
             <xsl:attribute name="type">ref</xsl:attribute>
           </xsl:element>
@@ -198,6 +200,9 @@ EOF
         <xsl:element name="dependency">
           <xsl:attribute name="status">
             <xsl:value-of select="\$status"/>
+          </xsl:attribute>
+          <xsl:attribute name="build">
+            <xsl:value-of select="\$build"/>
           </xsl:attribute>
           <xsl:attribute name="name">$packname</xsl:attribute>
           <xsl:attribute name="type">ref</xsl:attribute>
