@@ -98,6 +98,9 @@
       <xsl:when test="./productname='dbus'"/>
 <!-- Systemd version is taken from BLFS -->
       <xsl:when test="./productname='systemd'"/>
+<!-- Same for python and ninja -->
+      <xsl:when test="./productname='ninja'"/>
+      <xsl:when test="./productname='Python'"/>
       <xsl:otherwise>
         <package><xsl:text>&#xA;        </xsl:text>
           <xsl:element name="name">

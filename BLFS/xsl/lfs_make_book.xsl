@@ -15,6 +15,8 @@
                       $package='dbus' or
                       $package='vim' or
                       $package='systemd' or
+                      $package='ninja' or
+                      $package='Python' or
                       $package='shadow'"/>
       <xsl:when test="$package='LFS-Release'">true</xsl:when>
       <xsl:otherwise>
@@ -33,6 +35,8 @@
                       $package='dbus' or
                       $package='vim' or
                       $package='systemd' or
+                      $package='ninja' or
+                      $package='Python' or
                       $package='shadow'"/>
       <xsl:when test="$package='linux'">
         <xsl:for-each select="document($lfsbook)">
@@ -55,7 +59,7 @@
   <xsl:template match="*" mode="lfs">
     <xsl:choose>
 <!--variablelist may contain id attributes equal to the name of the package,
-    which generates non-unique id. They are of not mcuh use (short descriptions)
+    which generates non-unique id. They are of not much use (short descriptions)
     here. So just remove them-->
       <xsl:when test="self::variablelist"/>
 <!--The id's in lfs are of the form ch-xxx-package. We do not want to
