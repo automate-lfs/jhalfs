@@ -62,7 +62,7 @@ if [ "${CLEAN}" = "y" ]; then
     else
       # Clean the build directory
       echo -n "Cleaning $BUILDDIR ..."
-      # First delete proc and sys directories, if exist.
+      # First delete proc and sys directories, if they exist.
       # Both should be empty. If not, we exit, and the rmdir command
       # has generated an error message
       if [ -d $BUILDDIR/proc ] ; then
