@@ -60,6 +60,14 @@ if [ "${CLEAN}" = "y" ]; then
       echo "Looks like kernel filesystems are still mounted on $BUILDDIR."
       exit 1
     else
+      if [ $JHALFSDIR/*gcc-pass1 != $JHALFSDIR/'*gcc-pass1' ]; then
+        echo -n "$BUILDDIR contains already built packages. Clean anyway? yes/no (yes): "
+        read ANSWER
+        if [ x${ANSWER:0:1} = "xn" -o x${ANSWER:0:1} = "xN" ] ; then
+          echo "${nl_}Rerun and change the option in the menu.${nl_}"
+          exit 1
+        fi
+      fi
       # Clean the build directory
       echo -n "Cleaning $BUILDDIR ..."
       # First delete proc and sys directories, if they exist.
