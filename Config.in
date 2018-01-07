@@ -799,21 +799,23 @@ depends !BOOK_BLFS
         default    y
         help
             #-- Run test suites
-            #
+            #  If you select 'y' here:
             #  You will have to select between:
-            #
             #  - Only critical final system testsuites
             #  - All final system testsuites
             #  - Both temporary tools and final system testsuites
-            #
-            #  HLFS and CLFS have no testsuites available in the
-            #  temporary tools phase
             #  You will be prompted also about the "flavour" of the
             #  testsuites run:
-            #
             #  - Don't stop on test suite failures
             #  - Abort the build at the first test suite failure
             #
+            #  Note that in any case, all the test instructions will
+            #  be generated. Those which are not wanted will be commented
+            #  out. If you select 'n' here, the commented test instructions
+            #  do not stop on test suite failures.
+            #
+            #  HLFS and CLFS have no testsuites available in the
+            #  temporary tools phase
 
     menu "Test settings"
     depends    CONFIG_TESTS
@@ -826,17 +828,22 @@ depends !BOOK_BLFS
             help
                 #-- Critical tests:
                 # Only Glibc, Binutils, GMP, MPFR, MPC and GCC
-                # testsuites for final system
+                # testsuites for final system. The others are commented
+                # out.
 
         config    TST_2
             bool    "All final system testsuites"
+            help
+                #-- All final system test suites:
+                # Test instructions for the temporary tools (if available)
+                # are commented out.
 
         config    TST_3
             bool    "All testsuites" if !BOOK_HLFS && !BOOK_CLFS
             help
                 #-- All tests:
-                # Runs all the testsuites for both temporary tools
-                # and final system
+                # Runs all the testsuites for both temporary tools (if
+                # available) and final system
     endchoice
 
     choice
