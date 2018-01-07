@@ -878,7 +878,7 @@ depends !BOOK_BLFS
             #    the packages in the final phase are built
             #    in a separate directory, PKG_DEST.
             #    You should provide a bash function for
-            #    packaing and installing the package.
+            #    packaging and installing the package.
             #  - Preload a library before install:
             #    Run the install instructions inside a
             #    wrapper command, which monitors the

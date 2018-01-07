@@ -6,7 +6,7 @@ Download the files to /usr/src (verify you have write access)
 Build in /mnt/lfs (verify you have write access too)
 Clean the build directory before beginning
 Build a kernel, whose configuration is in /home/user/config-4.9.9-lfs-1
-An fstab for the future system si located in /home/user/fstablfs
+An fstab for the future system is located in /home/user/fstablfs
 Run only the critical testsuites
 Settings for a French user
 Run four make jobs in parallel

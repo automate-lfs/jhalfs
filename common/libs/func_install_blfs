@@ -180,7 +180,7 @@ if [ "$DEP_LIBXSLT" = y ]; then
   # line (without '&&'). I  have not found a simple way to delete lines
   # between 2 addresses, excluding either the first or the last one. So use
   # a loop for accumulating lines and deleting at the end.
-  # Sorry for sed synthax.
+  # Sorry for sed syntax.
   sed -i '\@^[[:space:]]*/etc/xml/catalog$@{
 n
 :a
@@ -196,12 +196,6 @@ if [ "$DEP_SUDO" = y ]; then
 fi
 if [ "$DEP_SVN" = y ]; then
   sed -i -e /javahl/d -e /swig/d $BUILDDIR$BLFS_ROOT/scripts/*subversion
-fi
-if [ "$DEP_LYNX" = y ]; then
-  if [ "$DEP_OPENSSL" = y -o "$DEP_WGET" = y ]; then
-    sed -e 's/configure/& --with-ssl/' \
-        -i $BUILDDIR$BLFS_ROOT/scripts/*lynx
-  fi
 fi
 # At last generates the build Makefile
 mkdir -p $BUILDDIR$BLFS_ROOT/work
