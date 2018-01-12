@@ -113,6 +113,8 @@ get_package_tarball_name() {       #
          ;;
      glibc) echo $(grep "^glibc" $JHALFSDIR/pkg_tarball_list | head -n1 )
          ;;
+     libelf) echo $(grep "^elfutils" $JHALFSDIR/pkg_tarball_list | head -n1 )
+         ;;
      *)  echo $(grep "^$script_name[_-][[:digit:]]" $JHALFSDIR/pkg_tarball_list | head -n1 )
          ;;
    esac
