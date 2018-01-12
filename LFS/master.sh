@@ -125,8 +125,9 @@ chapter5_Makefiles() {
     if [ "$pkg_tarball" != "" ] ; then
       # Insert instructions for unpacking the package and to set the PKGDIR variable.
       LUSER_wrt_unpack "$pkg_tarball"
-      # If the testsuites must be run, initialize the log file
-      [[ "$TEST" = "3" ]] && LUSER_wrt_test_log "${this_script}" "$pkg_version"
+      # Always initialize the log file, since the test instructions may be
+      # "uncommented" by the user
+      LUSER_wrt_test_log "${this_script}" "$pkg_version"
       # If using optimizations, write the instructions
       [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
@@ -249,17 +250,9 @@ chapter6_Makefiles() {
         CHROOT_wrt_TouchTimestamp
       fi
       CHROOT_Unpack "$pkg_tarball"
-      # If the testsuites must be run, initialize the log file
-      case $name in
-        binutils | gcc | glibc | gmp | mpfr )
-          [[ "$TEST" != "0" ]] &&
-             CHROOT_wrt_test_log "${this_script}" "$pkg_version"
-          ;;
-        * )
-          [[ "$TEST" = "2" ]] || [[ "$TEST" = "3" ]] &&
-             CHROOT_wrt_test_log "${this_script}" "$pkg_version"
-          ;;
-      esac
+      # Always initialize the log file, so that the use may reinstate a
+      # commented out test
+      CHROOT_wrt_test_log "${this_script}" "$pkg_version"
       # If using optimizations, write the instructions
       [[ "$OPTIMIZE" != "0" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
     fi
