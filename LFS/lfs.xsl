@@ -44,6 +44,12 @@
   <!-- Install vim-lang package? OBSOLETE should always be 'n'-->
   <xsl:param name="vim-lang" select="'n'"/>
   
+  <!-- Should we strip excutables and libraries? -->
+  <xsl:param name='strip' select="'n'"/>
+
+  <!-- Should we remove .la files after chapter 5 and chapter 6? -->
+  <xsl:param name='del-la-files' select="'y'"/>
+
   <!-- Time zone -->
   <xsl:param name="timezone" select="'GMT'"/>
   
@@ -232,11 +238,11 @@ esac
                            (not(@revision) or
                             @revision=$revision)]/userinput[@remap = 'install']"/>
     <xsl:if test="ancestor::chapter[@id != 'chapter-temporary-tools'] and
-                  $pkgmngt = 'y' and
                   descendant::screen[not(@role) or
                                      @role != 'nodump']/userinput[
                                                        @remap='install']">
       <xsl:choose>
+        <xsl:when test="$pkgmngt='n'"/>
         <xsl:when test="$wrap-install='y'">
           <xsl:if test="../@id = 'ch-system-man-pages'">
 <!-- these files are provided by the shadow package -->
@@ -417,10 +423,15 @@ exit
         </xsl:call-template>
       </xsl:when>
 <!-- End of test instructions -->
-      <!-- Don't stop on strip run -->
-      <xsl:when test="contains(string(),'strip ')">
-        <xsl:apply-templates/>
-        <xsl:text> || true&#xA;</xsl:text>
+<!-- If the instructions contain "strip ", it may mean they contain also .la
+     file removal (and possibly other clean up). We therefore call a template
+     to comment them out appropriately and also to not stop if stripping
+     fails. -->
+      <xsl:when test="contains(string(),'strip ') or
+                      contains(string(),'\*.la')">
+        <xsl:call-template name="comment-strip">
+          <xsl:with-param name="instructions" select="string()"/>
+        </xsl:call-template>
       </xsl:when>
 <!-- Package management -->
 <!-- Add $PKG_DEST to installation commands -->
@@ -480,7 +491,7 @@ exit
             </xsl:choose>
           </xsl:otherwise>
         </xsl:choose>
-      </xsl:when>
+      </xsl:when> <!-- @remap='install' -->
       <!-- if package management, we should make an independant package for
            tzdata. -->
       <xsl:when test="contains(string(),'tzdata') and $pkgmngt='y'">
@@ -877,6 +888,40 @@ DNS=</xsl:text>
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="$commands"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="comment-strip">
+    <xsl:param name="instructions" select="''"/>
+    <xsl:choose>
+      <xsl:when test="contains($instructions,'&#xA;')">
+        <xsl:call-template name="comment-strip">
+          <xsl:with-param name="instructions"
+                          select="substring-before($instructions,'&#xA;')"/>
+        </xsl:call-template>
+        <xsl:call-template name="comment-strip">
+          <xsl:with-param name="instructions"
+                          select="substring-after($instructions,'&#xA;')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($instructions,'\*.la')">
+        <xsl:if test="$del-la-files='n'">
+          <xsl:text># </xsl:text>
+        </xsl:if>
+        <xsl:value-of select="$instructions"/>
+        <xsl:text>&#xA;</xsl:text>
+      </xsl:when>
+      <xsl:when test="contains($instructions,'strip ')">
+        <xsl:if test="$strip='n'">
+          <xsl:text># </xsl:text>
+        </xsl:if>
+        <xsl:value-of select="$instructions"/>
+        <xsl:text> || true&#xA;</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$instructions"/>
+        <xsl:text>&#xA;</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>

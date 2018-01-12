@@ -85,7 +85,9 @@ chapter5_Makefiles() {
 #      *expect)    [[ "${TEST}" = "0" ]] && continue ;;
 #      *dejagnu)   [[ "${TEST}" = "0" ]] && continue ;;
 #      *check)     [[ "${TEST}" = "0" ]] && continue ;;
-      *stripping) [[ "${STRIP}" = "n" ]] && continue ;;
+# We now do that in LFS.xsl, because stripping.xml contains other cleaning
+# instructions
+#      *stripping) [[ "${STRIP}" = "n" ]] && continue ;;
       *glibc)     [[ "${TEST}" = "3" ]] && \
                   sed -i 's@/usr/lib/locale@/tools/lib/locale@' $file ;;
     esac

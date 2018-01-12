@@ -170,6 +170,8 @@ extract_commands() {         #
                  --stringparam testsuite      "$TEST"         \
                  --stringparam bomb-testsuite "$BOMB_TEST"    \
                  --stringparam vim-lang       "$VIMLANG"      \
+                 --stringparam strip          "$STRIP"        \
+                 --stringparam del-la-files   "$DEL_LA_FILES" \
                  --stringparam full-locale    "$FULL_LOCALE"  \
                  --stringparam timezone       "$TIMEZONE"     \
                  --stringparam page           "$PAGE"         \

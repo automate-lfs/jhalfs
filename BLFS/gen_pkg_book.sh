@@ -50,6 +50,7 @@ parse_configuration() {    #
       optDependency=* | \
       MAIL_SERVER=*   | \
       WRAP_INSTALL=*  | \
+      DEL_LA_FILES=*  | \
       SUDO=*  )  eval ${REPLY} # Define/set a global variable..
                       continue ;;
     esac
@@ -69,13 +70,14 @@ parse_configuration() {    #
   DEP_LEVEL=$optDependency
   SUDO=${SUDO:-n}
   WRAP_INSTALL=${WRAP_INSTALL:-n}
+  DEL_LA_FILES=${DEL_LA_FILES:-n}
 }
 
 #--------------------------#
 validate_configuration() { #
 #--------------------------#
   local -r dotSTR=".................."
-  local -r PARAM_LIST="DEP_LEVEL SUDO MAIL_SERVER WRAP_INSTALL"
+  local -r PARAM_LIST="DEP_LEVEL SUDO MAIL_SERVER WRAP_INSTALL DEL_LA_FILES"
   local -r PARAM_VALS='${config_param}${dotSTR:${#config_param}} ${L_arrow}${BOLD}${!config_param}${OFF}${R_arrow}'
   local config_param
   local -i index
@@ -189,6 +191,7 @@ rm -rf scripts
 xsltproc --xinclude --nonet \
          --stringparam sudo "$SUDO" \
          --stringparam wrap-install "$WRAP_INSTALL" \
+         --stringparam del-la-files "$DEL_LA_FILES" \
          -o ./scripts/ ${MakeScripts} \
          ${BookXml}
 # Make the scripts executable.

@@ -931,6 +931,13 @@ depends !BOOK_BLFS
         default n
         depends on !BOOK_CLFS3
 
+    config    DEL_LA_FILES
+        bool "Remove libtool .la files
+        default y
+        help
+            #-- Remove files libxxx.la installed by libtool. For a rationale
+            #   see https://blog.flameeyes.eu/tags/lafiles/
+
     config    NO_PROGRESS_BAR
         bool "DO NOT use/display progress_bar "
         default n

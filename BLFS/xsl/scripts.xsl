@@ -25,9 +25,20 @@
        "porg style" package management -->
   <xsl:param name="wrap-install" select="'n'"/>
 
+  <!-- Remove libtool .la files -->
+  <xsl:param name="del-la-files" select="'y'"/>
+
   <!-- Build as user (y) or as root (n)? -->
   <xsl:param name="sudo" select="'y'"/>
 
+<!-- simple instructions for removing .la files. -->
+  <xsl:variable name="la-files-instr">
+
+for libdir in /lib /usr/lib $(find /opt -name lib); do
+  find $libdir -name \*.la ! -path \*ImageMagick\* -delete
+done
+
+</xsl:variable>
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
   </xsl:template>
@@ -431,6 +442,12 @@ wrapInstall '
           </xsl:if>
           <xsl:apply-templates mode="root"/>
           <xsl:if test="not(following-sibling::screen[1][@role='root'])">
+            <xsl:if test="$del-la-files = 'y' and
+                          ancestor::sect2[@role='installation']">
+              <xsl:call-template name="output-root">
+                <xsl:with-param name="out-string" select="$la-files-instr"/>
+              </xsl:call-template>
+            </xsl:if>
             <xsl:if test="$wrap-install = 'y' and
                           ancestor::sect2[@role='installation']">
               <xsl:text>'&#xA;packInstall</xsl:text>

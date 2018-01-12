@@ -131,6 +131,7 @@ MAIL_SERVER=sendmail
 optDependency=2
 SUDO=n
 WRAP_INSTALL=$WRAP_INSTALL
+DEL_LA_FILES=$DEL_LA_FILES
 EOF
 
 # Generates the scripts for the blfs tools dependencies (in ./scripts)

@@ -68,6 +68,13 @@ config  WRAP_INSTALL
 		between "wrapInstall '" and "' ; packInstall" functions,
 		where wrapInstall is used to set up a LD_PRELOAD library (for
 		example using porg), and packInstall makes the package tarball
+
+config	DEL_LA_FILES
+	bool "Remove libtool .la files after package installation"
+	default y
+	help
+		This option should be active on any system mixing libtool
+		and meson build systems. ImageMagick .la files are preserved.
 </xsl:text>
   </xsl:template>
 
