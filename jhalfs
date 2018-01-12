@@ -393,8 +393,9 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
 # Copy urls.xsl, if needed
   [[ "$GETPKG" = "y" ]] && cp $COMMON_DIR/urls.xsl  $JHALFSDIR/
 
-# Create the test-log directory, if needed
-  [[ "$TEST" != "0" ]] && [[ ! -d $TESTLOGDIR ]] && install -d -m 1777 $TESTLOGDIR
+# Always create the test-log directory to allow user to "uncomment" test
+# instructions
+  install -d -m 1777 $TESTLOGDIR
 
 # Create the installed-files directory, if needed
   [[ "$INSTALL_LOG" = "y" ]] && [[ ! -d $FILELOGDIR ]] && install -d -m 1777 $FILELOGDIR
