@@ -123,7 +123,7 @@ $Id$
 
     blfs-xml/*              SVN tree of the selected BLFS book version
     lfs-xml/*               SVN tree of the selected LFS book version
-    lib/constants.inc       functions libraries 
+    lib/constants.inc       functions libraries
        /func_dependencies     for building the dependency tree
     menu/*                  lxdialog and menuconfig source code
     xsl/gen_pkg_list.xsl    XSL stylesheet to generate the package database

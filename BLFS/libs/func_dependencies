@@ -128,7 +128,7 @@ esac
 # Has this entry already been seen?
   if [ -f ${id_of_dep}.dep ]; then # found ${id_of_dep}.dep already in tree
     otherlink=($(head -n 1 ${id_of_dep}.dep))
-    if [ -z "${otherlink[*]}" ] 
+    if [ -z "${otherlink[*]}" ]
       then echo otherlink empty for $id_of_dep.dep
       echo This should not happen, but happens to happen...
       exit 1

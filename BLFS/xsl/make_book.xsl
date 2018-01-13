@@ -151,9 +151,9 @@
           <xsl:otherwise>
             <xsl:choose>
               <xsl:when test="@linkend='bootscripts' or
-                              @linkend='systemd-units'"> 
+                              @linkend='systemd-units'">
                 <xsl:copy-of select="."/>
-              </xsl:when> 
+              </xsl:when>
               <xsl:otherwise>
                 <xsl:value-of select="@linkend"/> (in full book)
               </xsl:otherwise>
@@ -292,7 +292,7 @@
   </xsl:template>
 
 <!-- The case of depdendencies of perl modules. Same treatment
-     as for perl modules. Just easier because always perl standard --> 
+     as for perl modules. Just easier because always perl standard -->
   <xsl:template match="para">
     <xsl:element name="sect1">
       <xsl:attribute name="id"><xsl:value-of select="./@id"/></xsl:attribute>

@@ -7,11 +7,11 @@
 # using PXE firmware, or from CD-ROMs.  The FAT
 # filesystem version can be installed from DOS, NT, or
 # Linux.
-# 
+#
 # It includes a sophisticated API for add-on "COM32"
 # modules, including a significant subset of the
 # standard C library.
-# 
+#
 # It also includes MEMDISK, a tool to boot legacy
 # operating systems from nontraditional media like PXE
 # or CD-ROM.

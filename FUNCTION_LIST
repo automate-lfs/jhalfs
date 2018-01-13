@@ -39,7 +39,7 @@ create_urls():
 From common/libs/func_download_pkgs.
 Description: Runs xsltproc with stylesheet urls.xsl on chapter 3 of the
 book. Add BLFS dependencies and custom dependencies if `BLFS_TOOLS' is `y'
-and `CUSTOM_TOOLS' is `y' respectively. 
+and `CUSTOM_TOOLS' is `y' respectively.
 Called by: get_sources
 --------------------------------------------------------------------------
 wrt_CustomTools_target():
@@ -68,7 +68,7 @@ script-name to the beginning of a line in the list. Writes the name found
 to stdout.
 Implements the behavior described in README.CUSTOM, that is, if script_name
 begins with d-, strip that part.
-Called by: various functions in master.sh 
+Called by: various functions in master.sh
 --------------------------------------------------------------------------
 LUSER_wrt_target():
 From common/libs/func_wrt_Makefile.
@@ -128,67 +128,67 @@ Description:  Calculate time with perl, footer to log file
 --------------------------------------------------------------------------
 CHROOT_wrt_RunAsRoot():
 From common/libs/func_wrt_Makefile.
-Description: 
+Description:
 --------------------------------------------------------------------------
 LUSER_wrt_CopyFstab():
 From common/libs/func_wrt_Makefile.
-Description: 
+Description:
 --------------------------------------------------------------------------
 CHROOT_wrt_CopyFstab():
 From common/libs/func_wrt_Makefile.
-Description: 
+Description:
 --------------------------------------------------------------------------
 LUSER_wrt_TouchTimestamp():
 From common/libs/func_wrt_Makefile.
-Description: 
+Description:
 --------------------------------------------------------------------------
 CHROOT_wrt_TouchTimestamp():
 From common/libs/func_wrt_Makefile.
-Description: 
+Description:
 --------------------------------------------------------------------------
 LUSER_wrt_LogNewFiles():
 From common/libs/func_wrt_Makefile.
-Description: 
+Description:
 --------------------------------------------------------------------------
 CHROOT_wrt_LogNewFiles():
 From common/libs/func_wrt_Makefile.
-Description: 
+Description:
 --------------------------------------------------------------------------
 LUSER_RemoveBuildDirs():
 From common/libs/func_wrt_Makefile.
-Description: 
+Description:
 --------------------------------------------------------------------------
 CHROOT_wrt_RemoveBuildDirs():
 From common/libs/func_wrt_Makefile.
-Description: 
+Description:
 --------------------------------------------------------------------------
 wrt_touch():
 From common/libs/func_wrt_Makefile.
-Description: 
+Description:
 --------------------------------------------------------------------------
 wrt_compare_targets():
 From common/libs/func_compare.sh.
-Description: 
+Description:
 --------------------------------------------------------------------------
 wrt_system_build():
 From common/libs/func_compare.sh.
-Description: 
+Description:
 --------------------------------------------------------------------------
 wrt_compare_work():
 From common/libs/func_compare.sh.
-Description: 
+Description:
 --------------------------------------------------------------------------
 wrt_do_ica_work():
 From common/libs/func_compare.sh.
-Description: 
+Description:
 --------------------------------------------------------------------------
 wrt_do_farce_work():
 From common/libs/func_compare.sh.
-Description: 
+Description:
 --------------------------------------------------------------------------
 wrt_logs():
 From common/libs/func_compare.sh.
-Description: 
+Description:
 --------------------------------------------------------------------------
 validate_config():
 From common/libs/func_validate_configs.sh.
@@ -196,111 +196,111 @@ Description:  Are the config values sane (within reason)
 --------------------------------------------------------------------------
   write_error_and_die():
 From common/libs/func_validate_configs.sh.
-Description: 
+Description:
 --------------------------------------------------------------------------
   validate_file():
 From common/libs/func_validate_configs.sh.
-Description: 
+Description:
 --------------------------------------------------------------------------
   validate_dir():
 From common/libs/func_validate_configs.sh.
-Description: 
+Description:
 --------------------------------------------------------------------------
 get_book():
 From common/libs/func_book_parser.
-Description: 
+Description:
 --------------------------------------------------------------------------
 extract_commands():
 From common/libs/func_book_parser.
-Description: 
+Description:
 --------------------------------------------------------------------------
 create_package_list():
 From common/libs/func_book_parser.
-Description: 
+Description:
 --------------------------------------------------------------------------
 check_version():
 From common/libs/func_check_version.sh.
-Description: 
+Description:
 --------------------------------------------------------------------------
   write_error_and_die():
 From common/libs/func_check_version.sh.
-Description: 
+Description:
 --------------------------------------------------------------------------
 check_prerequisites():
 From common/libs/func_check_version.sh.
-Description: 
+Description:
 --------------------------------------------------------------------------
 write_or_exit():
 From common/progress_bar.sh.
-Description: 
+Description:
 --------------------------------------------------------------------------
 no_empty_builddir():
 From common/common-functions.
-Description: 
+Description:
 --------------------------------------------------------------------------
 run_make():
 From common/common-functions.
-Description: 
+Description:
 --------------------------------------------------------------------------
 clean_builddir():
 From common/common-functions.
-Description: 
+Description:
 --------------------------------------------------------------------------
 function dohelp():
 From extras/farce.
-Description: 
+Description:
 --------------------------------------------------------------------------
 function emessage():
 From extras/farce.
-Description: 
+Description:
 --------------------------------------------------------------------------
 function expected():
 From extras/farce.
-Description: 
+Description:
 --------------------------------------------------------------------------
 function failure():
 From extras/farce.
-Description: 
+Description:
 --------------------------------------------------------------------------
 function fatal():
 From extras/farce.
-Description: 
+Description:
 --------------------------------------------------------------------------
 function filetype():
 From extras/farce.
-Description: 
+Description:
 --------------------------------------------------------------------------
 function message():
 From extras/farce.
-Description: 
+Description:
 --------------------------------------------------------------------------
 function onlyone():
 From extras/farce.
-Description: 
+Description:
 --------------------------------------------------------------------------
 function testar():
 From extras/farce.
-Description: 
+Description:
 --------------------------------------------------------------------------
 function testgzip():
 From extras/farce.
-Description: 
+Description:
 --------------------------------------------------------------------------
 function testso():
 From extras/farce.
-Description: 
+Description:
 --------------------------------------------------------------------------
 function tokenize():
 From extras/farce.
-Description: 
+Description:
 --------------------------------------------------------------------------
 function tokenizeanddiff():
 From extras/farce.
-Description: 
+Description:
 --------------------------------------------------------------------------
 function validateargs():
 From extras/farce.
-Description: 
+Description:
 --------------------------------------------------------------------------
 process_toolchain():
 From HLFS/master.sh.
@@ -332,27 +332,27 @@ Description:  Basic error trap.... JUST DIE
 --------------------------------------------------------------------------
 see_ya():
 From jhalfs.
-Description: 
+Description:
 --------------------------------------------------------------------------
 chapter4_Makefiles():
 From LFS/master.sh.
-Description: 
+Description:
 --------------------------------------------------------------------------
 chapter5_Makefiles():
 From LFS/master.sh.
-Description: 
+Description:
 --------------------------------------------------------------------------
 chapter6_Makefiles():
 From LFS/master.sh.
-Description: 
+Description:
 --------------------------------------------------------------------------
 chapter78_Makefiles():
 From LFS/master.sh.
-Description: 
+Description:
 --------------------------------------------------------------------------
 build_Makefile():
 From LFS/master.sh.
-Description: 
+Description:
 --------------------------------------------------------------------------
 validate_opt_settings():
 From optimize/optimize_functions.

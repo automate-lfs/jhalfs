@@ -32,7 +32,7 @@ pushd $PKG_DEST
 rm -fv ./usr/share/info/dir  # recommended since this directory is already there
                              # on the system
 # The next lines are specific to dpkg, but usually all package managers
-# need some information on the version and the package. 
+# need some information on the version and the package.
 mkdir DEBIAN
 cat > DEBIAN/control <<EOF
 Package: $PACKAGE

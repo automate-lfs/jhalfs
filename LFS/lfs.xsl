@@ -26,7 +26,7 @@
                 note that pkgmngt must be 'y' in this case
   -->
   <xsl:param name="wrap-install" select='"n"'/>
- 
+
   <!-- Run test suites?
        0 = none
        1 = only chapter06 critical testsuites
@@ -43,7 +43,7 @@
 
   <!-- Install vim-lang package? OBSOLETE should always be 'n'-->
   <xsl:param name="vim-lang" select="'n'"/>
-  
+
   <!-- Should we strip excutables and libraries? -->
   <xsl:param name='strip' select="'n'"/>
 
@@ -52,16 +52,16 @@
 
   <!-- Time zone -->
   <xsl:param name="timezone" select="'GMT'"/>
-  
+
   <!-- Page size -->
   <xsl:param name="page" select="'letter'"/>
-  
+
   <!-- Locale settings -->
   <xsl:param name="lang" select="'C'"/>
 
   <!-- Install the whole set of locales -->
   <xsl:param name='full-locale' select='"n"'/>
-  
+
   <!-- Hostname -->
   <xsl:param name='hostname' select='"HOSTNAME"'/>
 
@@ -82,7 +82,7 @@
     <xsl:apply-templates select="//sect1[not(@revision) or
                                          @revision=$revision]"/>
   </xsl:template>
-  
+
   <xsl:template match="sect1">
 <!-- Since this xsl:if tag encloses the whole template, it would
      be much better to transpose this condition to the select part
@@ -147,7 +147,7 @@
     <exsl:document href="{$dirname}/{$order}-{$filename}" method="text">
       <xsl:choose>
         <xsl:when test="@id='ch-system-creatingdirs' or
-                        @id='ch-system-createfiles' or 
+                        @id='ch-system-createfiles' or
                         @id='ch-system-strippingagain'">
           <xsl:text>#!/tools/bin/bash&#xA;set +h&#xA;</xsl:text>
         </xsl:when>
@@ -406,7 +406,7 @@ exit
     <xsl:apply-templates/>
     <xsl:text>&#xA;</xsl:text>
   </xsl:template>
-  
+
   <xsl:template match="userinput">
     <xsl:choose>
       <!-- Copying the kernel config file -->
@@ -545,7 +545,7 @@ unset OLD_PKGDIR
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-  
+
   <xsl:template match="replaceable">
     <xsl:choose>
       <xsl:when test="ancestor::sect1[@id='ch-system-glibc']">
@@ -592,7 +592,7 @@ unset OLD_PKGDIR
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-  
+
   <xsl:template match="literal">
     <xsl:choose>
       <xsl:when test="contains(string(),'ONBOOT')">

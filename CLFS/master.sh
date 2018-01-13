@@ -828,7 +828,7 @@ network_Makefiles() {                  #
     this_script=`basename $file`
 
     case $this_script in
-      *choose)   continue ;; # This is not a script but a commentary. 
+      *choose)   continue ;; # This is not a script but a commentary.
       *dhcp)    continue ;; # Assume static networking.
       *dhcpcd)    continue ;; # Assume static networking.
       *)  ;;
@@ -1015,7 +1015,7 @@ build_Makefile() {                     # Construct a Makefile from the book scri
     # Add the iterations targets, if needed
   [[ "$COMPARE" = "y" ]] && wrt_compare_targets
   bootscripts_Makefiles          # mk_BOOTSCRIPT (CHROOT) $bootscripttools
-  if [ -d network ]; then 
+  if [ -d network ]; then
      network_Makefiles           # If present, process network setup.
   fi
   bootable_Makefiles             # mk_BOOTABLE   (CHROOT) $bootabletools

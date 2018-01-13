@@ -19,7 +19,7 @@
   <xsl:template match="emphasis">
 <!-- We assume that what is emphasized is in the form:
 aa...aa-dccsaaa (a anything except @, - "dash", d digit,
-                 c anything except space, s space) 
+                 c anything except space, s space)
 or
 aa...aasdccsaaa
 This means we have to replace digits with @, and look for '-@'

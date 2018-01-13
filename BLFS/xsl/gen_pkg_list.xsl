@@ -194,7 +194,7 @@
             select="descendant::node()[contains(translate(@xreflabel,
                                                          '123456789',
                                                          '000000000'),
-                                                '-0')    
+                                                '-0')
                                       ]"
             mode="normal">
             <xsl:sort select="@id"/>

@@ -82,7 +82,7 @@ if [ "${CLEAN}" = "y" ]; then
       sudo rm -rf $BUILDDIR/{bin,boot,dev,etc,home,lib{,64},media,mnt,run}
       sudo rm -rf $BUILDDIR/{opt,root,sbin,srv,tmp,tools,cross-tools,usr,var}
       echo "done"
-      if [[ "${BLFS_TOOL}" = "y" ]] ; then 
+      if [[ "${BLFS_TOOL}" = "y" ]] ; then
         echo -n "Cleaning $BUILDDIR/$BLFS_ROOT ..."
         sudo rm -rf $BUILDDIR/$BLFS_ROOT
         echo "done"

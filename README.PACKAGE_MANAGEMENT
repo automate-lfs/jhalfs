@@ -77,7 +77,7 @@ $Id$
 
       The last thing to do is to tell how to use the package manager. The user
   has to provide two functions, "wrapInstall" and "packInstall", as described
-  above. Please note that nothing has been done to manage configuration files, 
+  above. Please note that nothing has been done to manage configuration files,
   which are ususally treated specially by package managers: depending on
   the book layout, it is sometimes possible to create those files afterwards,
   and sometimes not, which means that you have to check them after each

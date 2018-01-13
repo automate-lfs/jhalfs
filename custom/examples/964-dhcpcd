@@ -26,6 +26,6 @@ make install
 # Add the following to boot scripts.
 #make install-service-dhcpcd
 
-# more configuration? 
+# more configuration?
 xEOFx
 ) > tmp

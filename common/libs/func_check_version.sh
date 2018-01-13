@@ -206,7 +206,7 @@ inline_doc
 
   XMLLINT_LOC="$(whereis -b xmllint | cut -d" " -f2)"
   XSLTPROC_LOC="$(whereis -b xsltproc | cut -d" " -f2)"
-  
+
   if [ ! -x $XMLLINT_LOC ]; then
     echo "${nl_}\"${RED}xmllint${OFF}\" ${BOLD}must be installed on your system for jhalfs to run"
     exit 1
@@ -222,7 +222,7 @@ inline_doc
     # Version numbers are packed strings not xx.yy.zz format.
     check_version "2.06.20"  "${libxmlVer:0:1}.${libxmlVer:1:2}.${libxmlVer:3:2}"     "LIBXML2"
     check_version "1.01.14"  "${libxsltVer:0:1}.${libxsltVer:1:2}.${libxsltVer:3:2}"  "LIBXSLT"
-  
+
   else
     echo "${nl_}\"${RED}xsltproc${OFF}\" ${BOLD}must be installed on your system for jhalfs to run"
     exit 1

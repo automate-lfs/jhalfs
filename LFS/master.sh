@@ -538,7 +538,7 @@ devices: ck_UID
 	  sudo mkdir -p \$(MOUNT_PT)/\$\$(readlink \$(MOUNT_PT)/dev/shm); \\
 	fi
 
-teardown: 
+teardown:
 	sudo umount -v \$(MOUNT_PT)/sys
 	sudo umount -v \$(MOUNT_PT)/proc
 	sudo umount -v \$(MOUNT_PT)/dev/pts

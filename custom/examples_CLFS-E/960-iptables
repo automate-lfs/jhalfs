@@ -4,7 +4,7 @@
 # Code taken from CLFS-Embedded
 # Chapter 12 Beyond CLFS Embedded
 #
-# iptables is the userspace command line program 
+# iptables is the userspace command line program
 # used to configure the Linux firewall.
 #
 

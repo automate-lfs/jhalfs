@@ -81,7 +81,7 @@ $Id$
     default entry for "Package Archive Directory". If you choose to download
     the packages by yourself, you should download (or copy) them to
     /mnt/build_dir/sources directly.
-    
+
        If you want to build the kernel as part of the automated build, select
     "Build the kernel" in the menu. Then, a configuration file must be
     provided. In order to do so, it is recommended to download the kernel
