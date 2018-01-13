@@ -932,7 +932,7 @@ depends !BOOK_BLFS
         depends on !BOOK_CLFS3
 
     config    DEL_LA_FILES
-        bool "Remove libtool .la files
+        bool "Remove libtool .la files"
         default y
         help
             #-- Remove files libxxx.la installed by libtool. For a rationale
