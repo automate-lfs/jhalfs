@@ -131,7 +131,11 @@ chapter5_Makefiles() {
       # "uncommented" by the user
       LUSER_wrt_test_log "${this_script}" "$pkg_version"
       # If using optimizations, write the instructions
-      [[ "$OPTIMIZE" = "2" ]] &&  wrt_optimize "$name" && wrt_makeflags "$name"
+      case "${OPTIMIZE}${this_script}${REALSBU}" in
+          *binutils-pass1y) ;;
+          2*) wrt_optimize "$name" && wrt_makeflags "$name" ;;
+          *) ;;
+      esac
     fi
 
     # Insert date and disk usage at the top of the log file, the script run

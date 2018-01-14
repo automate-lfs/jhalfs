@@ -51,7 +51,7 @@ inline_doc
   local -r LFS_system="HOSTNAME INTERFACE IP_ADDR GATEWAY PREFIX BROADCAST DOMAIN DNS1 DNS2 FONT CONSOLE_MAP UNICODE KEYMAP"
 
   # Full list of books settings
-  local -r   lfs_PARAM_LIST="$LFS_book   $GENERAL_common $LFS_build $LFS_system  $ADVANCED_chroot $ADVANCED_common"
+  local -r   lfs_PARAM_LIST="$LFS_book   $GENERAL_common $LFS_build $LFS_system  $ADVANCED_chroot REALSBU $ADVANCED_common"
   local -r  hlfs_PARAM_LIST="$HLFS_book  $GENERAL_common $HLFS_build  $ADVANCED_chroot $ADVANCED_common"
   local -r  clfs_PARAM_LIST="$CLFS_book  $GENERAL_common $CLFS_build  $ADVANCED_chroot $ADVANCED_common"
   local -r clfs2_PARAM_LIST="$CLFS2_book $GENERAL_common $CLFS2_build                  $ADVANCED_common"
@@ -156,6 +156,7 @@ inline_doc
       RETRYSRCDOWNLOAD) [[ "$GETPKG" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
       RETRYDOWNLOADCNT) [[ "$GETPKG" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
       DOWNLOADTIMEOUT)  [[ "$GETPKG" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
+      REALSBU)          [[ "$OPTIMIZE" = "2" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
 
       # Envars that requires some validation
       LUSER)      echo -e "`eval echo $PARAM_VALS`"
