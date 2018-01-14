@@ -966,7 +966,10 @@ DNS=</xsl:text>
               </xsl:when>
               <xsl:otherwise>
                 <xsl:value-of select="$instructions"/>
-                <xsl:if test="not(contains($instructions, '&gt;&gt;'))">
+                <xsl:if
+                  test="not(contains($instructions, '&gt;&gt;')) and
+                        substring($instructions,
+                                  string-length($instructions)) != '\'">
                   <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
                 </xsl:if>
                 <xsl:text>&#xA;</xsl:text>
@@ -982,7 +985,9 @@ DNS=</xsl:text>
               </xsl:when>
               <xsl:otherwise>
                 <xsl:value-of select="$instructions"/>
-                <xsl:if test="not(contains($instructions, '&gt;&gt;'))">
+                <xsl:if test="not(contains($instructions, '&gt;&gt;')) and
+                        substring($instructions,
+                                  string-length($instructions)) != '\'">
                   <xsl:text> &gt;&gt; $TEST_LOG 2&gt;&amp;1</xsl:text>
                 </xsl:if>
                 <xsl:text>&#xA;</xsl:text>
