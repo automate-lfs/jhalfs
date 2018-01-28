@@ -363,6 +363,7 @@
             <xsl:with-param name="build">
               <xsl:choose>
                 <xsl:when test="@role='runtime'">after</xsl:when>
+                <xsl:when test="@role='first'">first</xsl:when>
                 <xsl:otherwise>before</xsl:otherwise>
               </xsl:choose>
             </xsl:with-param>
@@ -378,6 +379,7 @@
             <xsl:attribute name="build">
               <xsl:choose>
                 <xsl:when test="@role='runtime'">after</xsl:when>
+                <xsl:when test="@role='first'">first</xsl:when>
                 <xsl:otherwise>before</xsl:otherwise>
               </xsl:choose>
             </xsl:attribute>
@@ -404,6 +406,7 @@
             <xsl:attribute name="build">
               <xsl:choose>
                 <xsl:when test="@role='runtime'">after</xsl:when>
+                <xsl:when test="@role='first'">first</xsl:when>
                 <xsl:otherwise>before</xsl:otherwise>
               </xsl:choose>
             </xsl:attribute>

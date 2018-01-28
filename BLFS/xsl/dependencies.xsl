@@ -8,7 +8,6 @@
   <xsl:output method="text"/>
 
   <xsl:param name="MTA" select="'sendmail'"/>
-  <xsl:param name="dependencies" select="2"/>
   <xsl:param name="idofdep" select="'dbus'"/>
 
   <xsl:key name="depnode"
@@ -20,39 +19,14 @@
   </xsl:template>
 
   <xsl:template match="package">
-    <xsl:apply-templates select="./dependency[@status='required']">
-      <xsl:with-param name="priority" select="1"/>
-    </xsl:apply-templates>
-    <xsl:if test="$dependencies &gt; '1'">
-      <xsl:apply-templates select="./dependency[@status='recommended']">
-        <xsl:with-param name="priority" select="2"/>
-      </xsl:apply-templates>
-      <xsl:if test="$dependencies = '3'">
-        <xsl:apply-templates select="./dependency[@status='optional']">
-          <xsl:with-param name="priority" select="3"/>
-        </xsl:apply-templates>
-      </xsl:if>
-    </xsl:if>
+    <xsl:apply-templates select="./dependency"/>
   </xsl:template>
 
   <xsl:template match="module">
-    <xsl:apply-templates select="./dependency[@status='required']">
-      <xsl:with-param name="priority" select="1"/>
-    </xsl:apply-templates>
-    <xsl:if test="$dependencies &gt; '1'">
-      <xsl:apply-templates select="./dependency[@status='recommended']">
-        <xsl:with-param name="priority" select="2"/>
-      </xsl:apply-templates>
-      <xsl:if test="$dependencies = '3'">
-        <xsl:apply-templates select="./dependency[@status='optional']">
-          <xsl:with-param name="priority" select="3"/>
-        </xsl:apply-templates>
-      </xsl:if>
-    </xsl:if>
+    <xsl:apply-templates select="./dependency"/>
   </xsl:template>
 
   <xsl:template match="dependency">
-    <xsl:param name="priority"/>
     <xsl:variable name="depname">
       <xsl:choose>
         <xsl:when test="@name='x-window-system'">xinit</xsl:when>
@@ -79,16 +53,32 @@
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    <xsl:apply-templates select="dependency">
-      <xsl:with-param name="priority" select="1"/>
-    </xsl:apply-templates>
+    <xsl:apply-templates select="dependency"/>
     <xsl:if test="number($install_it)">
       <xsl:choose>
         <xsl:when test="@type='link'">
           <xsl:text>4</xsl:text>
         </xsl:when>
+        <xsl:when test="@status='required'">
+          <xsl:text>1</xsl:text>
+        </xsl:when>
+        <xsl:when test="@status='recommended'">
+          <xsl:text>2</xsl:text>
+        </xsl:when>
         <xsl:otherwise>
-          <xsl:value-of select="$priority"/>
+          <xsl:text>3</xsl:text>
+        </xsl:otherwise>
+      </xsl:choose>
+      <xsl:text> </xsl:text>
+      <xsl:choose>
+        <xsl:when test="@build='first'">
+          <xsl:text>f</xsl:text>
+        </xsl:when>
+        <xsl:when test="@build='before'">
+          <xsl:text>b</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:text>a</xsl:text>
         </xsl:otherwise>
       </xsl:choose>
       <xsl:text> </xsl:text>

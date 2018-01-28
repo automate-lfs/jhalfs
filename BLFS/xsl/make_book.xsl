@@ -82,6 +82,7 @@
                             select="substring-after($list,' ')"/>
           </xsl:call-template>
         </xsl:when>
+        <xsl:when test="contains($list,'groupxx')"/>
         <xsl:otherwise>
           <xsl:variable name="is-lfs">
             <xsl:call-template name="detect-lfs">
@@ -99,6 +100,15 @@
                 <xsl:with-param name="package" select="$list"/>
                 <xsl:with-param name="lfsbook" select="$lfsbook"/>
               </xsl:call-template>
+            </xsl:when>
+            <xsl:when test="contains(concat($list,' '),'-pass1 ')">
+<!-- Let's do it only for sect1, hopefully -->
+              <xsl:variable
+                   name="real-id"
+                   select="substring-before(concat($list,' '),'-pass1 ')"/>
+              <xsl:if test="id($real-id)[self::sect1]">
+                <xsl:apply-templates select="id($real-id)" mode="pass1"/>
+              </xsl:if>
             </xsl:when>
             <xsl:when test="not(id($list)[self::sect1 or self::sect2 or self::para or self::bridgehead])">
               <xsl:apply-templates
@@ -122,6 +132,74 @@
      is a xref, so use a special "mode" template -->
   <xsl:template match="sect1">
     <xsl:apply-templates select="." mode="sect1"/>
+  </xsl:template>
+
+  <xsl:template match="*" mode="pass1">
+    <xsl:choose>
+      <xsl:when test="self::xref">
+        <xsl:choose>
+          <xsl:when test="contains(concat(' ',normalize-space($list),' '),
+                                   concat(' ',@linkend,' '))">
+            <xsl:choose>
+              <xsl:when test="@linkend='x-window-system' or @linkend='xorg7'">
+                <xref linkend="xorg7-server"/>
+              </xsl:when>
+              <xsl:when test="@linkend='server-mail'">
+                <xref linkend="{$MTA}"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:copy-of select="."/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:choose>
+              <xsl:when test="@linkend='bootscripts' or
+                              @linkend='systemd-units'">
+                <xsl:copy-of select="."/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="@linkend"/> (in full book)
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:when test="@id">
+        <xsl:element name="{name()}">
+          <xsl:for-each select="attribute::*">
+            <xsl:attribute name="{name()}">
+              <xsl:value-of select="."/>
+              <xsl:if test="name() = 'id'">-pass1</xsl:if>
+            </xsl:attribute>
+          </xsl:for-each>
+          <xsl:apply-templates mode="pass1"/>
+        </xsl:element>
+      </xsl:when>
+      <xsl:when test=".//xref | .//@id">
+        <xsl:element name="{name()}">
+          <xsl:for-each select="attribute::*">
+            <xsl:attribute name="{name()}">
+              <xsl:value-of select="."/>
+            </xsl:attribute>
+          </xsl:for-each>
+          <xsl:apply-templates mode="pass1"/>
+        </xsl:element>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy-of select="."/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="processing-instruction()" mode="pass1">
+    <xsl:variable name="pi-full" select="string()"/>
+    <xsl:variable name="pi-value"
+                  select="substring-after($pi-full,'filename=')"/>
+    <xsl:variable name="filename"
+                  select="substring-before(substring($pi-value,2),'.html')"/>
+    <xsl:processing-instruction name="dbhtml">filename="<xsl:copy-of
+                select="$filename"/>-pass1.html"</xsl:processing-instruction>
   </xsl:template>
 
   <xsl:template match="processing-instruction()" mode="sect1">

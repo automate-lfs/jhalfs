@@ -99,13 +99,10 @@ generate_deps() {        #
 
   local -i index
   local DepDir=$1
-  rm -f $DepDir/*.{o,}dep
+  rm -f $DepDir/*.{tree,dep}
   for (( index=0 ; index < ${#TARGET[*]} ; index ++ )); do
-    echo 1 ${TARGET[${index}]} >> $DepDir/root.odep
+    echo 1 b ${TARGET[${index}]} >> $DepDir/root.dep
   done
-  echo 1 > $DepDir/root.dep
-  echo 1 >> $DepDir/root.dep
-  cat $DepDir/root.odep >> $DepDir/root.dep
 }
 
 #
@@ -156,15 +153,29 @@ mkdir $DepDir
 generate_deps $DepDir
 pushd $DepDir > /dev/null
 set +e
-generate_dependency_tree root.dep 1
-echo
-LIST="$(tree_browse root.dep)"
+generate_subgraph root.dep 1 1 b
+echo -e "\n${SD_BORDER}"
+echo Graph contains $(ls |wc -l) nodes
+echo -e "${SD_BORDER}"
+echo Cleaning subgraph...
+clean_subgraph
+echo done
+echo Generating the tree
+echo 1 >  root.tree
+echo 1 >> root.tree
+cat root.dep >> root.tree
+generate_dependency_tree root.tree 1
+echo -e "\n${SD_BORDER}"
+#echo -e \\n provisional end...
+#exit
+echo Generating the ordered package list
+LIST="$(tree_browse root.tree)"
 set -e
 popd > /dev/null
 rm -f ${BookXml}
 echo Making XML book
 xsltproc --stringparam list    "$LIST"        \
-         --stringparam MTA     "$SERVER_MAIL" \
+         --stringparam MTA     "$MAIL_SERVER" \
          --stringparam lfsbook "$LFS_FULL"    \
          -o ${BookXml} \
          ${MakeBook} \

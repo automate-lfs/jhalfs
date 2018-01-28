@@ -39,10 +39,13 @@ choice
         bool    "Required dependencies only"
 
         config  DEPLVL_2
-        bool    "Required and recommended dependencies"
+        bool    "Required plus recommended dependencies"
 
         config  DEPLVL_3
-        bool    "Required, recommended and optional dependencies"
+        bool    "Req/rec  plus optional dependencies of requested package(s)"
+
+        config  DEPLVL_4
+        bool    "All non external dependencies"
 
 endchoice
 config  optDependency
@@ -50,6 +53,7 @@ config  optDependency
         default 1       if DEPLVL_1
         default 2       if DEPLVL_2
         default 3       if DEPLVL_3
+        default 4       if DEPLVL_4
 
 
 config  SUDO
