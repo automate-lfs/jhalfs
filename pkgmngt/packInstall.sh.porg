@@ -22,31 +22,31 @@ case $1 in
     VERSION=$(echo $1 | sed 's/.*shot-//')
     ;;
   icu*) # No version in PCKGVRS! Use version directly from xml book.
-        # PACK_INSTALL contains the path to this script, which is in the
+        # JH_PACK_INSTALL contains the path to this script, which is in the
         # parent dir of the book.
-    local PACKENT=$(dirname $PACK_INSTALL)/blfs-xml/packages.ent
+    local PACKENT=$(dirname $JH_PACK_INSTALL)/blfs-xml/packages.ent
     local VERSION1=$(sed -n 's/.*icu-major[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
     local VERSION2=$(sed -n 's/.*icu-minor[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
     VERSION=$VERSION1.$VERSION2
     ;;
   exiv*)
-    local PACKENT=$(dirname $PACK_INSTALL)/blfs-xml/packages.ent
+    local PACKENT=$(dirname $JH_PACK_INSTALL)/blfs-xml/packages.ent
     VERSION=$(sed -n 's/.*exiv2[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
     ;;
   flashplayer*)
-    local PACKENT=$(dirname $PACK_INSTALL)/blfs-xml/packages.ent
+    local PACKENT=$(dirname $JH_PACK_INSTALL)/blfs-xml/packages.ent
     VERSION=$(sed -n 's/.*flashplayer[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
     ;;
   soundtouch*)
-    local PACKENT=$(dirname $PACK_INSTALL)/blfs-xml/packages.ent
+    local PACKENT=$(dirname $JH_PACK_INSTALL)/blfs-xml/packages.ent
     VERSION=$(sed -n 's/.*soundtouch[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
     ;;
   xvid*)
-    local PACKENT=$(dirname $PACK_INSTALL)/blfs-xml/packages.ent
+    local PACKENT=$(dirname $JH_PACK_INSTALL)/blfs-xml/packages.ent
     VERSION=$(sed -n 's/.*xvid[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
     ;;
   xf86-video-intel)
-    local PACKENT=$(dirname $PACK_INSTALL)/blfs-xml/x/installing/x7driver-intel.xml
+    local PACKENT=$(dirname $JH_PACK_INSTALL)/blfs-xml/x/installing/x7driver-intel.xml
     VERSION=$(sed -n '/<!--/!s/.*-version[^;][^0-9]*\([^"]*\).*/\1/p' $PACKENT)
     ;;
   jdk8*)

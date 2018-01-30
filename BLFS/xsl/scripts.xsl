@@ -87,11 +87,11 @@ done
             <!-- We build in a subdirectory, whose name may be needed
                  if using package management (see envars.conf), so
                  "export" it -->
-            <xsl:text>export PKG_DIR=</xsl:text>
+            <xsl:text>export JH_PKG_DIR=</xsl:text>
             <xsl:value-of select="$filename"/>
             <xsl:text>
-SRC_DIR=${SRC_ARCHIVE}${SRC_SUBDIRS:+/${PKG_DIR}}
-BUILD_DIR=${BUILD_ROOT}${BUILD_SUBDIRS:+/${PKG_DIR}}
+SRC_DIR=${JH_SRC_ARCHIVE}${JH_SRC_SUBDIRS:+/${JH_PKG_DIR}}
+BUILD_DIR=${JH_BUILD_ROOT}${JH_BUILD_SUBDIRS:+/${JH_PKG_DIR}}
 mkdir -p $SRC_DIR
 mkdir -p $BUILD_DIR
 
@@ -100,13 +100,13 @@ mkdir -p $BUILD_DIR
             <xsl:apply-templates select="sect2"/>
             <!-- Clean-up -->
             <xsl:text>cd $BUILD_DIR
-[[ -n "$KEEP_FILES" ]] || </xsl:text>
+[[ -n "$JH_KEEP_FILES" ]] || </xsl:text>
             <!-- In some case, some files in the build tree are owned
                  by root -->
             <xsl:if test="$sudo='y'">
               <xsl:text>sudo </xsl:text>
             </xsl:if>
-            <xsl:text>rm -rf $UNPACKDIR unpacked&#xA;&#xA;</xsl:text>
+            <xsl:text>rm -rf $JH_UNPACKDIR unpacked&#xA;&#xA;</xsl:text>
           </xsl:when>
           <!-- Non-package page -->
           <xsl:otherwise>
@@ -143,31 +143,31 @@ find . -maxdepth 1 -mindepth 1 -type d | xargs </xsl:text>
 case $PACKAGE in
   *.tar.gz|*.tar.bz2|*.tar.xz|*.tgz|*.tar.lzma)
      tar -xvf $SRC_DIR/$PACKAGE &gt; unpacked
-     UNPACKDIR=`grep '[^./]\+' unpacked | head -n1 | sed 's@^\./@@;s@/.*@@'`
+     JH_UNPACKDIR=`grep '[^./]\+' unpacked | head -n1 | sed 's@^\./@@;s@/.*@@'`
      ;;
   *.tar.lz)
      bsdtar -xvf $SRC_DIR/$PACKAGE 2&gt; unpacked
-     UNPACKDIR=`head -n1 unpacked | cut  -d" " -f2 | sed 's@^\./@@;s@/.*@@'`
+     JH_UNPACKDIR=`head -n1 unpacked | cut  -d" " -f2 | sed 's@^\./@@;s@/.*@@'`
      ;;
   *.zip)
      zipinfo -1 $SRC_DIR/$PACKAGE &gt; unpacked
-     UNPACKDIR="$(sed 's@/.*@@' unpacked | uniq )"
-     if test $(wc -w &lt;&lt;&lt; $UNPACKDIR) -eq 1; then
+     JH_UNPACKDIR="$(sed 's@/.*@@' unpacked | uniq )"
+     if test $(wc -w &lt;&lt;&lt; $JH_UNPACKDIR) -eq 1; then
        unzip $SRC_DIR/$PACKAGE
      else
-       UNPACKDIR=${PACKAGE%.zip}
-       unzip -d $UNPACKDIR $SRC_DIR/$PACKAGE
+       JH_UNPACKDIR=${PACKAGE%.zip}
+       unzip -d $JH_UNPACKDIR $SRC_DIR/$PACKAGE
      fi
      ;;
   *)
-     UNPACKDIR=$PKG_DIR-build
-     mkdir $UNPACKDIR
-     cp $SRC_DIR/$PACKAGE $UNPACKDIR
-     cp $(find . -mindepth 1 -maxdepth 1 -type l) $UNPACKDIR
+     JH_UNPACKDIR=$JH_PKG_DIR-build
+     mkdir $JH_UNPACKDIR
+     cp $SRC_DIR/$PACKAGE $JH_UNPACKDIR
+     cp $(find . -mindepth 1 -maxdepth 1 -type l) $JH_UNPACKDIR
      ;;
 esac
-export UNPACKDIR
-cd $UNPACKDIR&#xA;
+export JH_UNPACKDIR
+cd $JH_UNPACKDIR&#xA;
 </xsl:text>
         <xsl:apply-templates select=".//screen | .//para/command"/>
         <xsl:if test="$sudo = 'y'">
@@ -241,10 +241,10 @@ cd $UNPACKDIR&#xA;
     <xsl:text>&#xA;if [[ ! -f $</xsl:text>
     <xsl:value-of select="$varname"/>
     <xsl:text> ]] ; then
-  if [[ -f $SRC_ARCHIVE/$</xsl:text>
+  if [[ -f $JH_SRC_ARCHIVE/$</xsl:text>
     <xsl:value-of select="$varname"/>
     <xsl:text> ]] ; then&#xA;</xsl:text>
-    <xsl:text>    cp $SRC_ARCHIVE/$</xsl:text>
+    <xsl:text>    cp $JH_SRC_ARCHIVE/$</xsl:text>
     <xsl:value-of select="$varname"/>
     <xsl:text> $</xsl:text>
     <xsl:value-of select="$varname"/>
@@ -263,14 +263,11 @@ cd $UNPACKDIR&#xA;
       <xsl:text> ||&#xA;</xsl:text>
     </xsl:if>
     <!-- The FTP_SERVER mirror as a last resort -->
-    <xsl:text>    wget -T 30 -t 5 ${FTP_SERVER}svn/</xsl:text>
+    <xsl:text>    wget -T 30 -t 5 ${JH_FTP_SERVER}svn/</xsl:text>
     <xsl:value-of select="$first_letter"/>
     <xsl:text>/$</xsl:text>
     <xsl:value-of select="$varname"/>
-    <xsl:text><!--
-    cp $</xsl:text>
-    <xsl:value-of select="$varname"/>
-    <xsl:text> $SRC_ARCHIVE-->
+    <xsl:text>
   fi
 fi
 </xsl:text>
@@ -431,8 +428,8 @@ fi
             </xsl:if>
             <xsl:if test="$wrap-install = 'y' and
                           ancestor::sect2[@role='installation']">
-              <xsl:text>if [ -r "$PACK_INSTALL" ]; then
-  source $PACK_INSTALL
+              <xsl:text>if [ -r "$JH_PACK_INSTALL" ]; then
+  source $JH_PACK_INSTALL
   export -f wrapInstall
   export -f packInstall
 fi
@@ -471,8 +468,8 @@ wrapInstall '
     <xsl:text>BOOTPKG_DIR=blfs-</xsl:text>
     <xsl:copy-of select="$bootpkg"/>
     <xsl:text>
-BOOTSRC_DIR=${SRC_ARCHIVE}${SRC_SUBDIRS:+/${BOOTPKG_DIR}}
-BOOTBUILD_DIR=${BUILD_ROOT}${BUILD_SUBDIRS:+/${BOOTPKG_DIR}}
+BOOTSRC_DIR=${JH_SRC_ARCHIVE}${JH_SRC_SUBDIRS:+/${BOOTPKG_DIR}}
+BOOTBUILD_DIR=${JH_BUILD_ROOT}${JH_BUILD_SUBDIRS:+/${BOOTPKG_DIR}}
 mkdir -p $BOOTSRC_DIR
 mkdir -p $BOOTBUILD_DIR
 
@@ -482,8 +479,8 @@ URL=</xsl:text>
     <xsl:text>
 BOOTPACKG=$(basename $URL)
 if [[ ! -f $BOOTPACKG ]] ; then
-  if [[ -f $SRC_ARCHIVE/$BOOTPACKG ]] ; then
-    cp $SRC_ARCHIVE/$BOOTPACKG $BOOTPACKG
+  if [[ -f $JH_SRC_ARCHIVE/$BOOTPACKG ]] ; then
+    cp $JH_SRC_ARCHIVE/$BOOTPACKG $BOOTPACKG
   else
     wget -T 30 -t 5 $URL
   fi

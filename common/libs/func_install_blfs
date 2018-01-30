@@ -13,8 +13,8 @@ cp -r menu ${BUILDDIR}${BLFS_ROOT}
 cp $COMMON_DIR/progress_bar.sh ${BUILDDIR}${BLFS_ROOT}
 cp README.BLFS ${BUILDDIR}${BLFS_ROOT}
 if [ "$WRAP_INSTALL" = y ]; then
-  sed -e 's/PKGDIR/UNPACKDIR/' \
-      -e 's/PKG_DEST/PKG_DIR/' \
+  sed -e 's/PKGDIR/JH_UNPACKDIR/' \
+      -e 's/PKG_DEST/JH_PKG_DIR/' \
       $PKGMNGTDIR/packInstall.sh > ${BUILDDIR}${BLFS_ROOT}/packInstall.sh
 fi
 
@@ -144,17 +144,17 @@ mv scripts $BUILDDIR$BLFS_ROOT
 # Generates a list containing download and copying instructions for tarballs
 echo -e '#!/bin/bash\nset -e\n' > $BUILDDIR$BLFS_ROOT/download_script
 sed -n -e '/PACKAGE=/,/^fi/{/^fi/a\
-cp $PACKAGE $SRC_ARCHIVE
+cp $PACKAGE $JH_SRC_ARCHIVE
 p}' \
        -e '/|[ ]*md5sum/p' \
        -e '/PACKAGE1=/,/^fi/{/^fi/a\
-cp $PACKAGE1 $SRC_ARCHIVE
+cp $PACKAGE1 $JH_SRC_ARCHIVE
 p}' \
        -e '/PATCH=/,/^fi/{/^fi/a\
-cp $PATCH $SRC_ARCHIVE
+cp $PATCH $JH_SRC_ARCHIVE
 p}' \
        -e '/URL=/,/^fi/{/^fi/a\
-cp $BOOTPACKG $SRC_ARCHIVE
+cp $BOOTPACKG $JH_SRC_ARCHIVE
 p}' \
     $BUILDDIR$BLFS_ROOT/scripts/* >> $BUILDDIR$BLFS_ROOT/download_script
 chmod u+x $BUILDDIR$BLFS_ROOT/download_script
@@ -164,8 +164,8 @@ pushd $BUILDDIR/sources
 # Remove `unpacked' files if some have been left
 sudo find . -name unpacked -exec rm \{\} \;
 if [ "$GETPKG" = "y" ]; then
-    FTP_SERVER=$SERVER/pub/blfs/ \
-    SRC_ARCHIVE=${SRC_ARCHIVE:-/dev/null}     \
+    JH_FTP_SERVER=$SERVER/pub/blfs/ \
+    JH_SRC_ARCHIVE=${SRC_ARCHIVE:-/dev/null}     \
     $BUILDDIR$BLFS_ROOT/download_script
 else # Save the download script in case the user wants to run it later
     cp $BUILDDIR$BLFS_ROOT/download_script .

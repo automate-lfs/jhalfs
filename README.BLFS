@@ -265,8 +265,8 @@ Working files: several files are generated when first running the tool
 
        IMPORTANT: Review and edit envars.conf, at least after installing the
     tool. This file is used to set global envars needed by the build scripts.
-    If you use package management, the variable PACK_INSTALL should point to
-    where the packInstall.sh script resides.
+    If you use package management, the variable JH_PACK_INSTALL should point to
+    the directory where the packInstall.sh script resides.
 
   4.4  CREATING THE MAKEFILE::
 
