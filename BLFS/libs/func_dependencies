@@ -201,12 +201,12 @@ local id_of_dep
 local r
 
 if test "${start%.dep}" = "$seek"; then return 0; fi
-seen="$seen$file "
-if test -s $file; then
+seen="$seen$start "
+if test -s $start; then
   {
   while read prio_of_dep build_of_dep id_of_dep; do
     if test "$prio" -lt "$prio_of_dep"; then continue; fi
-    if test "${seen% $id_of_dep *}" = "$seen"; then continue; fi
+    if ! test "${seen% $id_of_dep *}" = "$seen"; then continue; fi
     if path_to ${id_of_dep}.dep $seek $prio; then return 0; fi
   done
   } < $start
