@@ -265,6 +265,7 @@ done
 for node in $(grep -l ' a ' *.dep); do
   lines_to_remove=
   if ! [ -e ${node%.dep}groupxx.dep ]; then
+    b=0
     for parent in $(grep -l ${node%.dep}\$ *); do
       p=0
       for start in $(grep ' a ' $node | cut -d' ' -f3); do
@@ -272,10 +273,12 @@ for node in $(grep -l ' a ' *.dep); do
         if path_to ${start}.dep ${parent%.dep} 3; then p=1; break; fi
       done
       if test $p = 0; then
+        b=1
         sed -i "s/\ ${node%.dep}\$/&groupxx/" $parent
       fi
     done
     echo "1 b ${node%.dep}" > ${node%.dep}groupxx.dep
+    if test $b = 0; then echo "1 b ${node%.dep}groupxx" >> root.dep; fi
   fi
   {
   while read prio_of_dep build_of_dep id_of_dep; do
