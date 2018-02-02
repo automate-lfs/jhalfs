@@ -316,7 +316,7 @@ for node in $(grep -l ' f ' *); do
   done
   } <$node
   for id_of_dep in $lines_to_change; do
-    sed "/\ $id_of_dep\$/"'{s/ f / b /;s/$/-pass1/}' -i $node
+    sed "/\ $id_of_dep\$/"'{s/[[:digit:]] f /1 b /;s/$/-pass1/}' -i $node
   done
 done
 } # End clean_subgraph
