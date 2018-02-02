@@ -201,7 +201,7 @@ local id_of_dep
 local r
 
 if test "${start%.dep}" = "$seek"; then return 0; fi
-seen="$seen$start "
+seen="$seen${start%.dep} "
 if test -s $start; then
   {
   while read prio_of_dep build_of_dep id_of_dep; do
