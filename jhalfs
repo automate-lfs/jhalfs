@@ -358,12 +358,14 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
   clean_builddir
 
   if [[ ! -d $JHALFSDIR ]]; then
-    mkdir -p $JHALFSDIR
+    sudo mkdir -p $JHALFSDIR
+    sudo chown $USER:$USER $JHALFSDIR
   fi
 
 # Create $BUILDDIR/sources even though it could be created by get_sources()
   if [[ ! -d $BUILDDIR/sources ]]; then
-    mkdir -p $BUILDDIR/sources
+    sudo mkdir -p $BUILDDIR/sources
+    sudo chmod a+wt $BUILDDIR/sources
   fi
 
 # Create the log directory

@@ -7,7 +7,10 @@ install_blfs_tools() {       # the scriptlets to build
 #----------------------------# the dependency tools
 set -e
 # Install the files
-[[ ! -d ${BUILDDIR}${BLFS_ROOT} ]] && mkdir -pv ${BUILDDIR}${BLFS_ROOT}
+[[ ! -d ${BUILDDIR}${BLFS_ROOT} ]] && {
+    sudo mkdir -pv ${BUILDDIR}${BLFS_ROOT}
+    sudo chown $USER:$USER ${BUILDDIR}${BLFS_ROOT}
+}
 cp -r BLFS/* ${BUILDDIR}${BLFS_ROOT}
 cp -r menu ${BUILDDIR}${BLFS_ROOT}
 cp $COMMON_DIR/progress_bar.sh ${BUILDDIR}${BLFS_ROOT}

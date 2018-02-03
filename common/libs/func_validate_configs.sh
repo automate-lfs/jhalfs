@@ -177,7 +177,7 @@ inline_doc
         #  warning -z+   -w+
       SRC_ARCHIVE) [[ "$GETPKG" = "y" ]] && validate_dir -z+ -d -w+ ;;
         # The build directory/partition MUST exist and be writable by the user
-      BUILDDIR)   validate_dir -z -d -w
+      BUILDDIR)   validate_dir -z -d
                   [[ "xx x/x" =~ x${!config_param}x ]] && write_error_and_die ;;
       LHOME)      validate_dir -z -d ;;
 
