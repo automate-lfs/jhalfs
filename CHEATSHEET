@@ -1,11 +1,11 @@
 $Id$
 This file contains examples of menu settings for various tasks.
 ------------------------------
-LFS book, System V, stable (8.0) version.
+LFS book, System V, stable (8.2) version.
 Download the files to /usr/src (verify you have write access)
-Build in /mnt/lfs (verify you have write access too)
+Build in /mnt/lfs (should be owned by root, verify you can execute sudo)
 Clean the build directory before beginning
-Build a kernel, whose configuration is in /home/user/config-4.9.9-lfs-1
+Build a kernel, whose configuration is in /home/user/config-4.15-lfs-1
 An fstab for the future system is located in /home/user/fstablfs
 Run only the critical testsuites
 Settings for a French user
@@ -14,12 +14,11 @@ Run four make jobs in parallel
 BOOK Settings --->
     Use BOOK (Linux From Scratch System V)  --->
     Release (Branch or stable book)  --->
-    Branch (preceded by "branch-"), stable Version, or tag (8.0)
+    Branch (preceded by "branch-"), stable Version, or tag (8.2)
 [ ] Add blfs-tool support (NEW)
 [ ] Add custom tools support (NEW)
 
 General Settings --->
-   [ ] Change the default user/group and homedir for this build (NEW)
        Build Directory (/mnt/lfs)
    [*] Retrieve source files
          Package Archive Directory (/usr/src)
@@ -39,7 +38,7 @@ Build Settings --->
    [*] Use a custom fstab file
          Fstab file (optional) ($HOME/fstablfs)
    [*] Build the kernel
-         Kernel config file ($HOME/config-4.9.9-lfs-1)
+         Kernel config file ($HOME/config-4.15-lfs-1)
    [ ] Strip Installed Binaries/Libraries
    [ ] Install vim-lang package
    [ ] DO NOT use/display progress_bar
@@ -63,9 +62,9 @@ Advanced Features --->
 ------------------------------
 LFS book, systemd, XML source of the LFS book in /usr/src/lfsbook
 Download the files to /usr/src (verify you have write access)
-Build in /mnt/lfs (verify you have write access too)
+Build in /mnt/lfs (should be owned by root, verify you can execute sudo)
 Clean the build directory before beginning
-Build a kernel, whose configuration is in /home/user/config-4.10.3-lfs-systemd
+Build a kernel, whose configuration is in /home/user/config-4.15-lfs-systemd
 An fstab for the future system si located in /home/user/fstablfs
 Run all the testsuites
 Settings for an user in California
@@ -79,7 +78,6 @@ BOOK Settings --->
 [ ] Add custom tools support (NEW)
 
 General Settings --->
-   [ ] Change the default user/group and homedir for this build (NEW)
        Build Directory (/mnt/lfs)
    [*] Retrieve source files
          Package Archive Directory (/usr/src)
@@ -99,7 +97,7 @@ Build Settings --->
    [*] Use a custom fstab file
          Fstab file (optional) ($HOME/fstablfs)
    [*] Build the kernel
-         Kernel config file ($HOME/config-4.10.3-lfs-systemd
+         Kernel config file ($HOME/config-4.15-lfs-systemd
    [ ] Strip Installed Binaries/Libraries
    [ ] Install vim-lang package
    [ ] DO NOT use/display progress_bar
@@ -124,10 +122,10 @@ Advanced Features --->
 CLFS book, systemd, stable version (as of April 2017)
 X86 multilib
 Download the files to /usr/src (verify you have write access)
-Build in /mnt/clfs (verify you have write access too)
+Build in /mnt/clfs (should be owned by root, verify you can execute sudo)
 Clean the build directory before beginning
 Use "boot" method, with a temporary kernel in /home/user/config-boot
-Build a kernel, whose configuration is in /home/user/config-4.10.3-clfs-systemd
+Build a kernel, whose configuration is in /home/user/config-4.15-clfs-systemd
 An fstab for the future system si located in /home/user/fstablfs
 Run all the testsuites for final system
 Settings for an user in Sidney (Australia)
@@ -145,7 +143,6 @@ BOOK Settings --->
 [ ] Add custom tools support (NEW)
 
 General Settings --->
-   [ ] Change the default user/group and homedir for this build (NEW)
        Build Directory (/mnt/clfs)
    [*] Retrieve source files
          Package Archive Directory (/usr/src)
@@ -164,7 +161,7 @@ Build Settings --->
    [*] Use a custom fstab file
          Fstab file (optional) ($HOME/fstablfs)
    [*] Build the kernel
-         Kernel config file ($HOME/config-4.10.3-clfs-systemd
+         Kernel config file ($HOME/config-4.15-clfs-systemd
    [ ] Strip Installed Binaries/Libraries
    [ ] Install vim-lang package
    [ ] DO NOT use/display progress_bar

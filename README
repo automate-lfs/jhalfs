@@ -61,10 +61,8 @@ $Id$
     "Mounting the new partition". Note that the default name for the
     partition mount point is "/mnt/build_dir", instead of /mnt/{c,}lfs.
     You can change that default to anything you'd like in the menu, so you
-    may name it /mnt/lfs, or whatever you like. One important point is that
-    the user you are logged in as (and not the (c)lfs user) should have write
-    permission to the mounted directory. We'll use the name /mnt/build_dir
-    in the sequel.
+    may name it /mnt/lfs, or whatever you like. We'll use the name
+    /mnt/build_dir in the sequel.
 
        The tool can download the needed packages for you, or you may download
     them yourself. The tool may optionally use a package archive directory
@@ -103,6 +101,13 @@ $Id$
     README.CUSTOM for more details.
 
 5. RUNNING::
+
+  IMPORTANT::
+      You must be logged as a normal user with sudo privileges to run
+      the Makefile. Furthermore, you are supposed to have enough privilege
+      to become any user. If you are not bothered about security issues,
+      the entry for the user "jhalfs_user" in /etc/sudoers could be
+      jhalfs_user ALL=(ALL) NOPASSWD:ALL
 
      The command <make> will launch a menu based configuration program. The
   underlying menu code was borrowed from BusyBox and slightly modified for
@@ -158,13 +163,6 @@ $Id$
   "make" manually, for example: "make -C /mnt/build_dir/jhalfs", if you
   have used the default parameters (see the layout under $BUILDDIR in the
   Q&A below).
-
-  IMPORTANT::
-      You must be logged as a normal user with sudo privileges to run
-      the Makefile. Furthermore, you are supposed to have enough privilege
-      to become any user. If you are not bothered about security issues,
-      the entry for the user "jhalfs_user" in /etc/sudoers could be
-      jhalfs_user ALL=(ALL) NOPASSWD:ALL
 
   NOTE::
       If you run the jhalfs script directly the only function you can select

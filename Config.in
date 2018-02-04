@@ -647,68 +647,22 @@ endmenu
 menu "General Settings"
 depends !BOOK_BLFS
 
-    #--- Set User Account
-    config    CONFIG_USER
-        bool    "Change the default user/group and homedir for this build"
-        default    n
-        help    #-- Unprivileged user and group name
-            #   If you do not have the privilege to create/delete
-            #   users and groups you can specify your own
-            #   user ID for the build
-            #
-            # default values for each book
-            # LFS    lfs
-            # CLFS*  clfs
-            # HLFS   hlfs
-            #
-            # Also, if your host places users' home dirs into a
-            # directory other than /home you can specify it here.
+    #--- {C,H,}LFS User Account
 
-    config    DEF_USER
+    config    LUSER
         string
         default    "lfs"    if BOOK_LFS || BOOK_LFS_SYSD
         default    "clfs"    if BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3
         default "hlfs"    if BOOK_HLFS
 
-    config    SET_USER
-        string    "User account"
-        depends    CONFIG_USER
-        default    DEF_USER
-
-    config    CONFIG_GROUP
-        bool    "Set Group?"
-        default    n
-        depends    CONFIG_USER
-
-    config    SET_GROUP
-        string    "GROUP account"
-        depends    CONFIG_GROUP
-        default    DEF_USER
-
-    config    CONFIG_HOME
-        bool    "Set home dir?"
-        default    n
-        depends    CONFIG_USER
-
-    config    SET_HOME
-        string    "Path to the directory under which the user's home directory will be created"
-        depends    CONFIG_HOME
-        default    "/home"
-
-    config    LUSER
-        string
-        default    DEF_USER    if !CONFIG_USER
-        default    SET_USER    if  CONFIG_USER
-
     config    LGROUP
         string
-        default    LUSER        if !CONFIG_GROUP
-        default    SET_GROUP    if  CONFIG_GROUP
+        default    LUSER
 
     config    LHOME
         string
-        default    "/home"        if !CONFIG_HOME
-        default    SET_HOME    if  CONFIG_HOME
+        default    "/home"
+
     #--- End Set User Account
 
     config BUILDDIR
