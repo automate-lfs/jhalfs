@@ -427,7 +427,9 @@ fi
               <xsl:text>sudo -E sh &lt;&lt; ROOT_EOF&#xA;</xsl:text>
             </xsl:if>
             <xsl:if test="$wrap-install = 'y' and
-                          ancestor::sect2[@role='installation']">
+                          ancestor::sect2[@role='installation'] and
+                          not(contains(string(),'useradd')) and
+                          not(contains(string(),'groupadd'))">
               <xsl:text>if [ -r "$JH_PACK_INSTALL" ]; then
   source $JH_PACK_INSTALL
   export -f wrapInstall
@@ -440,13 +442,17 @@ wrapInstall '
           <xsl:apply-templates mode="root"/>
           <xsl:if test="not(following-sibling::screen[1][@role='root'])">
             <xsl:if test="$del-la-files = 'y' and
-                          ancestor::sect2[@role='installation']">
+                          ancestor::sect2[@role='installation'] and
+                          not(contains(string(),'useradd')) and
+                          not(contains(string(),'groupadd'))">
               <xsl:call-template name="output-root">
                 <xsl:with-param name="out-string" select="$la-files-instr"/>
               </xsl:call-template>
             </xsl:if>
             <xsl:if test="$wrap-install = 'y' and
-                          ancestor::sect2[@role='installation']">
+                          ancestor::sect2[@role='installation'] and
+                          not(contains(string(),'useradd')) and
+                          not(contains(string(),'groupadd'))">
               <xsl:text>'&#xA;packInstall</xsl:text>
             </xsl:if>
             <xsl:if test="$sudo = 'y'">
