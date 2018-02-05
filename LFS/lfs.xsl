@@ -845,7 +845,31 @@ DNS=</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
-      <xsl:otherwise> <!-- no make in this string -->
+      <xsl:when test="contains($outputstring,'ninja ')">
+        <xsl:choose>
+          <xsl:when test="not(starts-with($outputstring,'ninja'))">
+            <xsl:call-template name="outputpkgdest">
+              <xsl:with-param name="outputstring"
+                              select="substring-before($outputstring,'ninja')"/>
+            </xsl:call-template>
+            <xsl:call-template name="outputpkgdest">
+              <xsl:with-param
+                 name="outputstring"
+                 select="substring-after($outputstring,
+                                      substring-before($outputstring,'ninja'))"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:otherwise> <!-- ninja is the first word -->
+            <xsl:text>DESTDIR=$PKG_DEST ninja</xsl:text>
+            <xsl:call-template name="outputpkgdest">
+              <xsl:with-param
+                  name="outputstring"
+                  select="substring-after($outputstring,'ninja')"/>
+            </xsl:call-template>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:otherwise> <!-- no make nor ninja in this string -->
         <xsl:choose>
           <xsl:when test="contains($outputstring,'&gt;/') and
                                  not(contains(substring-before($outputstring,'&gt;/'),' /'))">
