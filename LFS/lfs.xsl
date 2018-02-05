@@ -845,21 +845,22 @@ DNS=</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
-      <xsl:when test="contains($outputstring,'ninja ')">
+      <xsl:when test="contains($outputstring,'ninja install')">
         <xsl:choose>
-          <xsl:when test="not(starts-with($outputstring,'ninja'))">
+          <xsl:when test="not(starts-with($outputstring,'ninja install'))">
             <xsl:call-template name="outputpkgdest">
               <xsl:with-param name="outputstring"
-                              select="substring-before($outputstring,'ninja')"/>
+                              select="substring-before($outputstring,'ninja install')"/>
             </xsl:call-template>
             <xsl:call-template name="outputpkgdest">
               <xsl:with-param
                  name="outputstring"
                  select="substring-after($outputstring,
-                                      substring-before($outputstring,'ninja'))"/>
+                                      substring-before($outputstring,'ninja install'))"/>
             </xsl:call-template>
           </xsl:when>
-          <xsl:otherwise> <!-- ninja is the first word -->
+          <xsl:otherwise> <!-- "ninja" is the first word and is followed by
+                                "install"-->
             <xsl:text>DESTDIR=$PKG_DEST ninja</xsl:text>
             <xsl:call-template name="outputpkgdest">
               <xsl:with-param
