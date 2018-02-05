@@ -232,6 +232,13 @@ esac
       <xsl:text>mkdir -pv $PKG_DEST/usr/include/{rpc,rpcsvc}
 </xsl:text>
     </xsl:if>
+    <xsl:if test="../@id = 'ch-system-libelf' and
+                  @role='installation' and
+                  $pkgmngt = 'y' and
+                  $wrap-install = 'n'">
+      <xsl:text>mkdir -pv $PKG_DEST/usr/lib/pkgconfig
+</xsl:text>
+    </xsl:if>
     <xsl:apply-templates
          select=".//screen[(not(@role) or
                             @role != 'nodump') and
