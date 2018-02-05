@@ -79,6 +79,14 @@ config	DEL_LA_FILES
 	help
 		This option should be active on any system mixing libtool
 		and meson build systems. ImageMagick .la files are preserved.
+
+config	STATS
+	bool "Generate statistics for the requested package(s)"
+	default n
+	help
+		If you want timing and memory footprint statistics to be
+                generated for the packages you build (not their dependencies),
+		set this option to y.
 </xsl:text>
   </xsl:template>
 

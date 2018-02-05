@@ -25,6 +25,9 @@
        "porg style" package management -->
   <xsl:param name="wrap-install" select="'n'"/>
 
+  <!-- list of packages needing stats -->
+  <xsl:param name="list-stat" select="''"/>
+
   <!-- Remove libtool .la files -->
   <xsl:param name="del-la-files" select="'y'"/>
 
@@ -39,6 +42,10 @@ for libdir in /lib /usr/lib $(find /opt -name lib); do
 done
 
 </xsl:variable>
+
+<xsl:variable name="list-stat-norm"
+              select="concat(' ', normalize-space($list-stat),' ')"/>
+
   <xsl:template match="/">
     <xsl:apply-templates select="//sect1"/>
   </xsl:template>
@@ -96,6 +103,20 @@ mkdir -p $SRC_DIR
 mkdir -p $BUILD_DIR
 
 </xsl:text>
+
+<!-- If stats are requested, include some definitions and intitializations -->
+            <xsl:if test="contains($list-stat-norm,concat(' ',@id,' '))">
+              <xsl:text>INFOLOG=$(pwd)/info-${PKG_DIR}
+TESTLOG=$(pwd)/test-${PKG_DIR}
+unset MAKEFLAGS
+#MAKEFLAGS=-j4
+echo MAKEFLAGS: $MAKEFLAGS > $INFOLOG
+> $TESTLOG
+PKG_DEST=${BUILD_DIR}/dest
+rm -rf $PKG_DEST
+
+</xsl:text>
+            </xsl:if>
             <!-- Download code and build commands -->
             <xsl:apply-templates select="sect2"/>
             <!-- Clean-up -->
@@ -140,7 +161,16 @@ find . -maxdepth 1 -mindepth 1 -type d | xargs </xsl:text>
           <xsl:text>sudo </xsl:text>
         </xsl:if>
         <xsl:text>rm -rf
-case $PACKAGE in
+
+</xsl:text>
+<!-- If stats are requested, insert the start size -->
+        <xsl:if test="contains($list-stat-norm,concat(' ',../@id,' '))">
+          <xsl:text>echo Start Size: $(sudo du -skx --exclude home /) >> $INFOLOG
+
+</xsl:text>
+        </xsl:if>
+
+        <xsl:text>case $PACKAGE in
   *.tar.gz|*.tar.bz2|*.tar.xz|*.tgz|*.tar.lzma)
      tar -xvf $SRC_DIR/$PACKAGE &gt; unpacked
      JH_UNPACKDIR=`grep '[^./]\+' unpacked | head -n1 | sed 's@^\./@@;s@/.*@@'`
@@ -169,6 +199,13 @@ esac
 export JH_UNPACKDIR
 cd $JH_UNPACKDIR&#xA;
 </xsl:text>
+<!-- If stats are requested, insert the start time -->
+        <xsl:if test="contains($list-stat-norm,concat(' ',../@id,' '))">
+          <xsl:text>echo Start Time: ${SECONDS} >> $INFOLOG
+
+</xsl:text>
+        </xsl:if>
+
         <xsl:apply-templates select=".//screen | .//para/command"/>
         <xsl:if test="$sudo = 'y'">
           <xsl:text>sudo /sbin/</xsl:text>
@@ -421,15 +458,22 @@ fi
   <xsl:template match="screen">
     <xsl:if test="child::* = userinput and not(@role = 'nodump')">
       <xsl:choose>
-        <xsl:when test="@role = 'root'">
-          <xsl:if test="not(preceding-sibling::screen[1][@role='root'])">
-            <xsl:if test="$sudo = 'y'">
-              <xsl:text>sudo -E sh &lt;&lt; ROOT_EOF&#xA;</xsl:text>
-            </xsl:if>
-            <xsl:if test="$wrap-install = 'y' and
+<!-- First the case of installation instructions -->
+        <xsl:when test="@role = 'root' and
                           ancestor::sect2[@role='installation'] and
                           not(contains(string(),'useradd')) and
                           not(contains(string(),'groupadd'))">
+          <xsl:if test="not(preceding-sibling::screen[1][@role='root'])">
+            <xsl:if test="contains($list-stat-norm,
+                                   concat(' ',
+                                          ancestor::sect1/@id,
+                                          ' '))">
+              <xsl:call-template name="output-destdir"/>
+            </xsl:if>
+            <xsl:if test="$sudo = 'y'">
+              <xsl:text>sudo -E sh &lt;&lt; ROOT_EOF&#xA;</xsl:text>
+            </xsl:if>
+            <xsl:if test="$wrap-install = 'y'">
               <xsl:text>if [ -r "$JH_PACK_INSTALL" ]; then
   source $JH_PACK_INSTALL
   export -f wrapInstall
@@ -441,18 +485,12 @@ wrapInstall '
           </xsl:if>
           <xsl:apply-templates mode="root"/>
           <xsl:if test="not(following-sibling::screen[1][@role='root'])">
-            <xsl:if test="$del-la-files = 'y' and
-                          ancestor::sect2[@role='installation'] and
-                          not(contains(string(),'useradd')) and
-                          not(contains(string(),'groupadd'))">
+            <xsl:if test="$del-la-files = 'y'">
               <xsl:call-template name="output-root">
                 <xsl:with-param name="out-string" select="$la-files-instr"/>
               </xsl:call-template>
             </xsl:if>
-            <xsl:if test="$wrap-install = 'y' and
-                          ancestor::sect2[@role='installation'] and
-                          not(contains(string(),'useradd')) and
-                          not(contains(string(),'groupadd'))">
+            <xsl:if test="$wrap-install = 'y'">
               <xsl:text>'&#xA;packInstall</xsl:text>
             </xsl:if>
             <xsl:if test="$sudo = 'y'">
@@ -460,6 +498,21 @@ wrapInstall '
             </xsl:if>
           </xsl:if>
         </xsl:when>
+<!-- then the case of other instructions run as root (configuration mainly) -->
+        <xsl:when test="@role = 'root'">
+          <xsl:if test="not(preceding-sibling::screen[1][@role='root'])">
+            <xsl:if test="$sudo = 'y'">
+              <xsl:text>sudo -E sh &lt;&lt; ROOT_EOF&#xA;</xsl:text>
+            </xsl:if>
+          </xsl:if>
+          <xsl:apply-templates mode="root"/>
+          <xsl:if test="not(following-sibling::screen[1][@role='root'])">
+            <xsl:if test="$sudo = 'y'">
+              <xsl:text>&#xA;ROOT_EOF</xsl:text>
+            </xsl:if>
+          </xsl:if>
+        </xsl:when>
+<!-- then all the instructions run as user -->
         <xsl:otherwise>
           <xsl:apply-templates select="userinput"/>
         </xsl:otherwise>
@@ -534,15 +587,38 @@ popd</xsl:text>
 
   <xsl:template match="para/command">
     <xsl:variable name="ns" select="normalize-space(string())"/>
-    <xsl:if test="(contains($ns,'test') or
-            contains($ns,'check'))">
-      <xsl:text>#</xsl:text>
-      <xsl:value-of select="substring-before($ns,'make ')"/>
-      <xsl:text>make </xsl:text>
-      <xsl:if test="not(contains($ns,'-k'))">
-        <xsl:text>-k </xsl:text>
+    <xsl:if test="contains($ns,'test') or
+                  contains($ns,'check')">
+      <xsl:choose>
+        <xsl:when test="contains($list-stat-norm,
+                                 concat(' ',ancestor::sect1/@id,' '))">
+          <xsl:text>
+echo Time after make: ${SECONDS} >> $INFOLOG
+echo Size after make: $(sudo du -skx --exclude home /) >> $INFOLOG
+echo Time before test: ${SECONDS} >> $INFOLOG
+</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:text>#</xsl:text>
+        </xsl:otherwise>
+      </xsl:choose>
+      <xsl:choose>
+        <xsl:when test="contains($ns,'make')">
+          <xsl:value-of select="substring-before($ns,'make ')"/>
+          <xsl:text>make </xsl:text>
+          <xsl:if test="not(contains($ns,'-k'))">
+            <xsl:text>-k </xsl:text>
+          </xsl:if>
+          <xsl:value-of select="substring-after($ns,'make ')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:copy-of select="$ns"/>
+        </xsl:otherwise>
+      </xsl:choose>
+      <xsl:if test="contains($list-stat-norm,
+                             concat(' ',ancestor::sect1/@id,' '))">
+        <xsl:text> &gt;&gt; $TESTLOG 2&gt;&amp;1</xsl:text>
       </xsl:if>
-      <xsl:value-of select="substring-after($ns,'make ')"/>
       <xsl:text> || true&#xA;</xsl:text>
     </xsl:if>
   </xsl:template>
@@ -635,6 +711,120 @@ popd</xsl:text>
         <xsl:text>**EDITME</xsl:text>
         <xsl:apply-templates/>
         <xsl:text>EDITME**</xsl:text>
+  </xsl:template>
+
+  <xsl:template name="output-destdir">
+<!-- Hopefully, the current node is the first screen with role equal to root.
+     We first output stats, since we are only called if stats are needed.
+     then we output DESTDIR instructions,etc -->
+    <xsl:text>
+echo Time after tests: ${SECONDS} >> $INFOLOG
+echo Size after tests: $(sudo du -skx --exclude home /) >> $INFOLOG
+echo Time before install: ${SECONDS} >> $INFOLOG
+</xsl:text>
+    <xsl:apply-templates
+       select="userinput|following-sibling::screen[@role='root']/userinput"
+       mode="destdir"/>
+    <xsl:text>
+echo Time after install: ${SECONDS} >> $INFOLOG
+echo Size after install: $(sudo du -skx --exclude home /) >> $INFOLOG
+</xsl:text>
+  </xsl:template>
+
+  <xsl:template match="userinput" mode="destdir">
+    <xsl:choose>
+      <xsl:when test="./literal">
+        <xsl:call-template name="outputpkgdest">
+          <xsl:with-param name="outputstring" select="text()[1]"/>
+        </xsl:call-template>
+        <xsl:apply-templates select="literal"/>
+        <xsl:call-template name="outputpkgdest">
+          <xsl:with-param name="outputstring" select="text()[2]"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="outputpkgdest">
+          <xsl:with-param name="outputstring" select="string()"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+    <xsl:text>&#xA;</xsl:text>
+  </xsl:template>
+
+  <xsl:template name="outputpkgdest">
+    <xsl:param name="outputstring" select="'foo'"/>
+    <xsl:choose>
+      <xsl:when test="contains($outputstring,'make ')">
+        <xsl:choose>
+          <xsl:when test="not(starts-with($outputstring,'make'))">
+            <xsl:call-template name="outputpkgdest">
+              <xsl:with-param name="outputstring"
+                              select="substring-before($outputstring,'make')"/>
+            </xsl:call-template>
+            <xsl:call-template name="outputpkgdest">
+              <xsl:with-param
+                 name="outputstring"
+                 select="substring-after($outputstring,
+                                      substring-before($outputstring,'make'))"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>make DESTDIR=$PKG_DEST</xsl:text>
+              <xsl:call-template name="outputpkgdest">
+                <xsl:with-param
+                    name="outputstring"
+                    select="substring-after($outputstring,'make')"/>
+              </xsl:call-template>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:when test="contains($outputstring,'ninja install')">
+        <xsl:choose>
+          <xsl:when test="not(starts-with($outputstring,'ninja install'))">
+            <xsl:call-template name="outputpkgdest">
+              <xsl:with-param name="outputstring"
+                              select="substring-before($outputstring,'ninja install')"/>
+            </xsl:call-template>
+            <xsl:call-template name="outputpkgdest">
+              <xsl:with-param
+                 name="outputstring"
+                 select="substring-after($outputstring,
+                                      substring-before($outputstring,'ninja install'))"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>DESTDIR=$PKG_DEST ninja</xsl:text>
+              <xsl:call-template name="outputpkgdest">
+                <xsl:with-param
+                    name="outputstring"
+                    select="substring-after($outputstring,'ninja')"/>
+              </xsl:call-template>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:otherwise> <!-- no make nor ninja in this string -->
+        <xsl:choose>
+          <xsl:when test="contains($outputstring,'&gt;/') and
+                                 not(contains(substring-before($outputstring,'&gt;/'),' /'))">
+            <xsl:value-of select="substring-before($outputstring,'&gt;/')"/>
+            <xsl:text>&gt;$PKG_DEST/</xsl:text>
+            <xsl:call-template name="outputpkgdest">
+              <xsl:with-param name="outputstring" select="substring-after($outputstring,'&gt;/')"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:when test="contains($outputstring,' /')">
+            <xsl:value-of select="substring-before($outputstring,' /')"/>
+            <xsl:text> $PKG_DEST/</xsl:text>
+            <xsl:call-template name="outputpkgdest">
+              <xsl:with-param name="outputstring" select="substring-after($outputstring,' /')"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$outputstring"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
 </xsl:stylesheet>

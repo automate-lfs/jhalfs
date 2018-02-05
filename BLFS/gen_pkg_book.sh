@@ -51,6 +51,7 @@ parse_configuration() {    #
       MAIL_SERVER=*   | \
       WRAP_INSTALL=*  | \
       DEL_LA_FILES=*  | \
+      STATS=*         | \
       SUDO=*  )  eval ${REPLY} # Define/set a global variable..
                       continue ;;
     esac
@@ -71,6 +72,7 @@ parse_configuration() {    #
   SUDO=${SUDO:-n}
   WRAP_INSTALL=${WRAP_INSTALL:-n}
   DEL_LA_FILES=${DEL_LA_FILES:-n}
+  STATS=${STATS:-n}
 }
 
 #--------------------------#
@@ -94,7 +96,7 @@ validate_configuration() { #
 # Generates the root of the dependency tree
 #
 #--------------------------#
-generate_deps() {        #
+generate_deps() {          #
 #--------------------------#
 
   local -i index
@@ -199,10 +201,16 @@ for ht in ${BookHtml}/*.html
 done
 echo -en "\n\tGenerating the build scripts ...\n"
 rm -rf scripts
+if test $STATS = y; then
+  LIST_STAT="${TARGET[*]}"
+else
+  LIST_STAT=""
+fi
 xsltproc --xinclude --nonet \
          --stringparam sudo "$SUDO" \
          --stringparam wrap-install "$WRAP_INSTALL" \
          --stringparam del-la-files "$DEL_LA_FILES" \
+         --stringparam list-stat "$LIST_STAT" \
          -o ./scripts/ ${MakeScripts} \
          ${BookXml}
 # Make the scripts executable.
