@@ -489,6 +489,7 @@ exit
                 </xsl:call-template>
               </xsl:otherwise>
             </xsl:choose>
+            <xsl:text>&#xA;</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when> <!-- @remap='install' -->
@@ -893,7 +894,6 @@ DNS=</xsl:text>
         </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
-    <xsl:text>&#xA;</xsl:text>
   </xsl:template>
 
   <xsl:variable name="APOS">'</xsl:variable>
