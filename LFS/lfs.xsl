@@ -889,11 +889,11 @@ DNS=</xsl:text>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of select="$outputstring"/>
-            <xsl:text>&#xA;</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
+    <xsl:text>&#xA;</xsl:text>
   </xsl:template>
 
   <xsl:variable name="APOS">'</xsl:variable>
