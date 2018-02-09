@@ -249,6 +249,7 @@ local seen
 
 for node in $(ls *.dep); do
   if test $node = root.dep; then continue; fi
+  echo Cleaning $node
   lines_to_remove=
   {
   while read prio_of_dep build_of_dep id_of_dep; do
@@ -264,6 +265,7 @@ for node in $(ls *.dep); do
 done
 for node in $(grep -l ' a ' *.dep); do
   lines_to_remove=
+  echo Process "runtime" deps in $node
   if ! [ -e ${node%.dep}groupxx.dep ]; then
     b=0
     for parent in $(grep -l ${node%.dep}\$ *); do
@@ -295,6 +297,7 @@ for node in $(grep -l ' a ' *.dep); do
   done
 done
 for node in $(grep -l ' f ' *); do
+  echo Process "first" deps in $node
   lines_to_change=
   {
   while read prio_of_dep build_of_dep id_of_dep; do
