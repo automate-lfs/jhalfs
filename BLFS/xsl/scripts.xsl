@@ -106,8 +106,8 @@ mkdir -p $BUILD_DIR
 
 <!-- If stats are requested, include some definitions and intitializations -->
             <xsl:if test="contains($list-stat-norm,concat(' ',@id,' '))">
-              <xsl:text>INFOLOG=$(pwd)/info-${PKG_DIR}
-TESTLOG=$(pwd)/test-${PKG_DIR}
+              <xsl:text>INFOLOG=$(pwd)/info-${JH_PKG_DIR}
+TESTLOG=$(pwd)/test-${JH_PKG_DIR}
 unset MAKEFLAGS
 #MAKEFLAGS=-j4
 echo MAKEFLAGS: $MAKEFLAGS > $INFOLOG
