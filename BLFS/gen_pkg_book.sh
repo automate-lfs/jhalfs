@@ -79,7 +79,7 @@ parse_configuration() {    #
 validate_configuration() { #
 #--------------------------#
   local -r dotSTR=".................."
-  local -r PARAM_LIST="DEP_LEVEL SUDO MAIL_SERVER WRAP_INSTALL DEL_LA_FILES"
+  local -r PARAM_LIST="DEP_LEVEL SUDO MAIL_SERVER WRAP_INSTALL DEL_LA_FILES STATS"
   local -r PARAM_VALS='${config_param}${dotSTR:${#config_param}} ${L_arrow}${BOLD}${!config_param}${OFF}${R_arrow}'
   local config_param
   local -i index
