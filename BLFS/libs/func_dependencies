@@ -135,21 +135,29 @@ if (( depth < 10 )); then spacing=1; else spacing=0; fi
 # Start of loop
 {
 while read prio_of_dep build_of_dep id_of_dep; do
-case $prio_of_dep in
+  case $prio_of_dep in
     1) priostring=required ;;
     2) priostring=recommended ;;
     3) priostring=optional ;;
     4) priostring=external ;;
-esac
-case $build_of_dep in
+  esac
+  case $build_of_dep in
     a) buildstring=runtime ;;
     b) buildstring=        ;;
-esac
-# Has this entry already been seen
+  esac
+# Has this entry already been seen?
+# We have a special case here: if the entry has been seen at depth > 2
+# and now depth=2 and DEP_LEVEL=3, optional deps have not been processed.
+# If this is the case, just consider it has not been seen.
   if [ -f ${id_of_dep}.dep ] ; then
+    case $depth$DEP_LEVEL in
+      23) ;;
+       *)
 # Just display it and proceed.
-    echo -en "\nEdge: $depth${spaceSTR:0:$((depth + spacing))}${MAGENTA}${id_of_dep}${OFF} $priostring $buildstring"
-    continue
+         echo -en "\nEdge: $depth${spaceSTR:0:$((depth + spacing))}${MAGENTA}${id_of_dep}${OFF} $priostring $buildstring"
+         continue
+         ;;
+    esac
   fi
 # Is the weight higher than requested?
   if [ "$prio_of_dep" -gt $dep_level ]; then
