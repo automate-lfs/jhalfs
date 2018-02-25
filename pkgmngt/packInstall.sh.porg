@@ -45,6 +45,10 @@ case $1 in
     local PACKENT=$(dirname $JH_PACK_INSTALL)/blfs-xml/packages.ent
     VERSION=$(sed -n 's/.*soundtouch[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
     ;;
+  unrar*)
+    local PACKENT=$(dirname $JH_PACK_INSTALL)/blfs-xml/packages.ent
+    VERSION=$(sed -n 's/.*unrar[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
+    ;;
   xvid*)
     local PACKENT=$(dirname $JH_PACK_INSTALL)/blfs-xml/packages.ent
     VERSION=$(sed -n 's/.*xvid[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
