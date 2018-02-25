@@ -37,6 +37,10 @@ case $1 in
     local PACKENT=$(dirname $JH_PACK_INSTALL)/blfs-xml/packages.ent
     VERSION=$(sed -n 's/.*flashplayer[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
     ;;
+  psutils*)
+    local PACKENT=$(dirname $JH_PACK_INSTALL)/blfs-xml/packages.ent
+    VERSION=$(sed -n 's/.*psutils[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
+    ;;
   soundtouch*)
     local PACKENT=$(dirname $JH_PACK_INSTALL)/blfs-xml/packages.ent
     VERSION=$(sed -n 's/.*soundtouch[^0-9]*\([^"]*\).*/\1/p' $PACKENT)
