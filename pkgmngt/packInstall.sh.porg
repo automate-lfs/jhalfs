@@ -72,6 +72,9 @@ case $1 in
   x265*) # can contain vd.d or just d.d: thanks to packagers
     VERSION=$(echo $1 | sed 's/^.*[v_]//')
     ;;
+  libuv*) # can contain -vd.d or just -d.d
+    VERSION=$(echo $1 | sed 's/^.*[v-]//')
+    ;;
   *)
     VERSION=$(echo $1 | sed 's/^.*[-_]\([0-9]\)/\1/' | sed 's/_/./g')
     ;;
