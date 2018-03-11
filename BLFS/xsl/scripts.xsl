@@ -40,7 +40,6 @@
 for libdir in /lib /usr/lib $(find /opt -name lib); do
   find $libdir -name \*.la           \
              ! -path \*ImageMagick\* \
-             ! -path \*openldap\*    \
                -delete
 done
 
