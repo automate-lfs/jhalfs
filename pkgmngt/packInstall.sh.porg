@@ -75,6 +75,9 @@ case $1 in
   libuv*) # can contain -vd.d or just -d.d
     VERSION=$(echo $1 | sed 's/^.*[v-]//')
     ;;
+  junit*) # can contain -rd.d or just -d.d
+    VERSION=$(echo $1 | sed 's/^.*[r-]//')
+    ;;
   *)
     VERSION=$(echo $1 | sed 's/^.*[-_]\([0-9]\)/\1/' | sed 's/_/./g')
     ;;
