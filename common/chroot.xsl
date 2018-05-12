@@ -14,7 +14,8 @@
 
   <xsl:template match="sect1">
     <xsl:if
-         test="descendant::screen/userinput[starts-with(string(),'chroot')]">
+       test="descendant::screen/userinput[contains(string(),'&#xA;chroot') or
+                                          starts-with(string(),'chroot')]">
    <!-- The file names -->
       <xsl:variable name="pi-file" select="processing-instruction('dbhtml')"/>
       <xsl:variable name="pi-file-value" select="substring-after($pi-file,'filename=')"/>
@@ -39,14 +40,51 @@
       <!-- Creating dirs and files -->
       <exsl:document href="{$order}-{$filename}" method="text">
         <xsl:text>#!/bin/bash&#xA;</xsl:text>
-      <xsl:apply-templates select=".//userinput[starts-with(string(),'chroot')]"/>
+      <xsl:apply-templates
+           select=".//userinput[contains(string(),'&#xA;chroot') or
+                                starts-with(string(),'chroot')]"/>
       <xsl:text>exit&#xA;</xsl:text>
     </exsl:document>
     </xsl:if>
   </xsl:template>
 
   <xsl:template match="userinput">
-    <xsl:apply-templates/>
-    <xsl:text>&#xA;</xsl:text>
+    <xsl:call-template name="extract-chroot">
+      <xsl:with-param name="instructions" select="string()"/>
+    </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template name="extract-chroot">
+    <xsl:param name="instructions" select="''"/>
+    <xsl:choose>
+      <xsl:when test="not(starts-with($instructions,'&#xA;chroot')) and
+                      contains($instructions, '&#xA;chroot')">
+        <xsl:call-template name="extract-chroot">
+          <xsl:with-param name="instructions"
+              select="substring(substring-after($instructions,
+                                      substring-before($instructions,
+                                                       '&#xA;chroot')),2)"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($instructions,'\&#xA;')">
+        <xsl:copy-of select="substring-before($instructions,'\&#xA;')"/>
+        <xsl:text>\
+</xsl:text>
+        <xsl:call-template name="extract-chroot">
+          <xsl:with-param name="instructions"
+                          select="substring-after($instructions,'\&#xA;')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($instructions,'&#xA;')">
+        <xsl:copy-of select="substring-before($instructions,'&#xA;')"/>
+        <xsl:text>
+</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy-of select="$instructions"/>
+        <xsl:text>
+</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 </xsl:stylesheet>
