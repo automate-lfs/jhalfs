@@ -9,7 +9,7 @@ extract_version() {
 local VERSION
 
 case $1 in
-  expect*|tcl*|tk*|mozjs*)
+  expect*|tcl*|tk*|mozjs*|lynx*)
     VERSION=$(echo $1 | sed 's/^[^0-9]*//')
     ;;
   vim*|unzip*|zip*)
