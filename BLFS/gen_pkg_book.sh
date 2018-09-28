@@ -30,7 +30,10 @@ declare BLFS_XML="${TOPDIR}/blfs-xml"
 declare -a TARGET
 declare DEP_LEVEL
 declare SUDO
+declare LANGUAGE
 declare WRAP_INSTALL
+declare DEL_LA_FILES
+declare STATS
 
 #--------------------------#
 parse_configuration() {    #
@@ -52,6 +55,7 @@ parse_configuration() {    #
       WRAP_INSTALL=*  | \
       DEL_LA_FILES=*  | \
       STATS=*         | \
+      LANGUAGE=*      | \
       SUDO=*  )  eval ${REPLY} # Define/set a global variable..
                       continue ;;
     esac
@@ -79,7 +83,7 @@ parse_configuration() {    #
 validate_configuration() { #
 #--------------------------#
   local -r dotSTR=".................."
-  local -r PARAM_LIST="DEP_LEVEL SUDO MAIL_SERVER WRAP_INSTALL DEL_LA_FILES STATS"
+  local -r PARAM_LIST="DEP_LEVEL SUDO LANGUAGE MAIL_SERVER WRAP_INSTALL DEL_LA_FILES STATS"
   local -r PARAM_VALS='${config_param}${dotSTR:${#config_param}} ${L_arrow}${BOLD}${!config_param}${OFF}${R_arrow}'
   local config_param
   local -i index
@@ -211,6 +215,7 @@ xsltproc --xinclude --nonet \
          --stringparam wrap-install "$WRAP_INSTALL" \
          --stringparam del-la-files "$DEL_LA_FILES" \
          --stringparam list-stat "$LIST_STAT" \
+         --stringparam language "$LANGUAGE" \
          -o ./scripts/ ${MakeScripts} \
          ${BookXml}
 # Make the scripts executable.

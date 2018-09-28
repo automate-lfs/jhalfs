@@ -34,6 +34,41 @@
   <!-- Build as user (y) or as root (n)? -->
   <xsl:param name="sudo" select="'y'"/>
 
+  <!-- Localization in the form ll_CC.charmap@modifier (to be used in
+       bash shell startup scripts). ll, CC, and charmap must be present:
+       no way to use "C" or "POSIX". -->
+  <xsl:param name="language" select="'en_US.UTF-8'"/>
+
+  <!-- Break it in pieces -->
+  <xsl:variable name="lang-ll">
+    <xsl:copy-of select="substring-before($language,'_')"/>
+  </xsl:variable>
+  <xsl:variable name="lang-CC">
+     <xsl:copy-of
+            select="substring-before(substring-after($language,'_'),'.')"/>
+  </xsl:variable>
+  <xsl:variable name="lang-charmap">
+    <xsl:choose>
+      <xsl:when test="contains($language,'@')">
+         <xsl:copy-of
+               select="substring-before(substring-after($language,'.'),'@')"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy-of select="substring-after($language,'.')"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  <xsl:variable name="lang-modifier">
+    <xsl:choose>
+      <xsl:when test="contains($language,'@')">
+         <xsl:copy-of select="concat('@',substring-after($language,'@'))"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy-of select="''"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
 <!-- simple instructions for removing .la files. -->
   <xsl:variable name="la-files-instr">
 
@@ -133,12 +168,12 @@ rm -rf $PKG_DEST
           </xsl:when>
           <!-- Non-package page -->
           <xsl:otherwise>
-            <xsl:apply-templates select=".//screen"/>
+            <xsl:apply-templates select=".//screen" mode="not-pack"/>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>exit</xsl:text>
       </exsl:document>
-    </xsl:if>
+    </xsl:if><!-- id!=bootscript or id!=systemd-units -->
   </xsl:template>
 
 <!--======================= Sub-sections code =======================-->
@@ -153,7 +188,7 @@ rm -rf $PKG_DEST
         <xsl:text>&#xA;</xsl:text>
       </xsl:when>
       <xsl:when test="@role = 'qt4-prefix' or @role = 'qt5-prefix'">
-        <xsl:apply-templates select=".//screen"/>
+        <xsl:apply-templates select=".//screen[./userinput]"/>
       </xsl:when>
       <xsl:when test="@role = 'installation'">
         <xsl:text>
@@ -208,14 +243,17 @@ cd $JH_UNPACKDIR&#xA;
 </xsl:text>
         </xsl:if>
 
-        <xsl:apply-templates select=".//screen | .//para/command"/>
+        <xsl:apply-templates
+             select=".//screen[not(@role = 'nodump') and ./userinput] |
+                     .//para/command"/>
         <xsl:if test="$sudo = 'y'">
           <xsl:text>sudo /sbin/</xsl:text>
         </xsl:if>
         <xsl:text>ldconfig&#xA;&#xA;</xsl:text>
       </xsl:when>
       <xsl:when test="@role = 'configuration'">
-        <xsl:apply-templates select=".//screen" mode="config"/>
+        <xsl:apply-templates mode="config"
+             select=".//screen[not(@role = 'nodump') and ./userinput]"/>
       </xsl:when>
     </xsl:choose>
   </xsl:template>
@@ -455,6 +493,25 @@ fi
       <xsl:with-param name="varname" select="$varname"/>
     </xsl:call-template>
   </xsl:template>
+
+<!--====================== Non package code =========================-->
+
+  <xsl:template match="screen" mode="not-pack">
+    <xsl:choose>
+      <xsl:when test="ancestor::sect1[@id='postlfs-config-vimrc']">
+        <xsl:text>
+cat > ~/.vimrc &lt;&lt;EOF
+</xsl:text>
+        <xsl:apply-templates/>
+        <xsl:text>
+EOF
+</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates select="." mode="config"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
 <!--======================== Commands code ==========================-->
 
   <xsl:template match="screen">
@@ -464,6 +521,10 @@ fi
         <xsl:when test="@role = 'root' and
                           ancestor::sect2[@role='installation'] and
                           not(contains(string(),'useradd')) and
+                          not(contains(string(),'usermod')) and
+                          not(contains(string(),'icon-cache')) and
+                          not(contains(string(),'desktop-database')) and
+                          not(contains(string(),'compile-schemas')) and
                           not(contains(string(),'groupadd'))">
           <xsl:if test="not(preceding-sibling::screen[1][@role='root'])">
             <xsl:if test="contains($list-stat-norm,
@@ -704,15 +765,63 @@ echo Time before test: ${SECONDS} >> $INFOLOG
   </xsl:template>
 
   <xsl:template match="replaceable">
+    <xsl:choose>
+<!-- When adding a user to a group, the book uses "username" in a replaceable
+     tag. Replace by the user name only if not running as root -->
+      <xsl:when test="contains(string(),'username') and $sudo='y'">
+        <xsl:text>$USER</xsl:text>
+      </xsl:when>
+<!-- The next three entries are for gpm. I guess those settings are OK
+     for a laptop or desktop. -->
+      <xsl:when test="contains(string(),'yourprotocol')">
+        <xsl:text>imps2</xsl:text>
+      </xsl:when>
+      <xsl:when test="contains(string(),'yourdevice')">
+        <xsl:text>/dev/input/mice</xsl:text>
+      </xsl:when>
+      <xsl:when test="contains(string(),'additional options')"/>
+<!-- the book has four fields for language. The language param is
+     broken into four pieces above. We use the results here. -->
+      <xsl:when test="contains(string(),'&lt;ll&gt;')">
+        <xsl:copy-of select="$lang-ll"/>
+      </xsl:when>
+      <xsl:when test="contains(string(),'&lt;CC&gt;')">
+        <xsl:copy-of select="$lang-CC"/>
+      </xsl:when>
+      <xsl:when test="contains(string(),'&lt;charmap&gt;')">
+        <xsl:copy-of select="$lang-charmap"/>
+      </xsl:when>
+      <xsl:when test="contains(string(),'@modifier')">
+        <xsl:copy-of select="$lang-modifier"/>
+      </xsl:when>
+<!-- At several places, the number of jobs is given as "N" in a replaceable
+     tag. We either detect "N" alone or &lt;N&gt; Replace N with 4. -->
+      <xsl:when test="contains(string(),'&lt;N&gt;') or string()='N'">
+        <xsl:text>4</xsl:text>
+      </xsl:when>
+<!-- Mercurial config file uses user_name. Replace only if non root.
+     Add a bogus mail field. That works for the proposed tests anyway. -->
+      <xsl:when test="contains(string(),'user_name') and $sudo='y'">
+        <xsl:text>$USER ${USER}@mail.bogus</xsl:text>
+      </xsl:when>
+<!-- Use the config for Gtk+3 as is -->
+      <xsl:when test="ancestor::sect1[@id='gtk3']">
+        <xsl:copy-of select="string()"/>
+      </xsl:when>
+<!-- Give 1Gb to fop. Hopefully, nobody has less RAM nowadays. -->
+      <xsl:when test="contains(string(),'RAM_Installed')">
+        <xsl:text>1024</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
         <xsl:text>**EDITME</xsl:text>
         <xsl:apply-templates/>
         <xsl:text>EDITME**</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="replaceable" mode="root">
-        <xsl:text>**EDITME</xsl:text>
-        <xsl:apply-templates/>
-        <xsl:text>EDITME**</xsl:text>
+    <xsl:apply-templates select="."/>
   </xsl:template>
 
   <xsl:template name="output-destdir">

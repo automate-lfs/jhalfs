@@ -133,8 +133,10 @@ $LINE_SUDO
 MAIL_SERVER=sendmail
 optDependency=2
 SUDO=n
+LANGUAGE=$LANG
 WRAP_INSTALL=$WRAP_INSTALL
 DEL_LA_FILES=$DEL_LA_FILES
+STATS=n
 EOF
 
 # Generates the scripts for the blfs tools dependencies (in ./scripts)

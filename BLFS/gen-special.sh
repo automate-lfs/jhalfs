@@ -38,8 +38,9 @@ EXCEPTIONS=$(grep 'ENTITY.*version[ ]*"[^0-9"&.].*[0-9]' ${BLFS_DIR}/packages.en
              sed 's@^[^"]*"\([^"]*\)".*@\1@')
 
 # Non-versioned packages:
-NV_LIST="cacerts xorg-env kde-pre-install-config kf5-intro lxqt-pre-install \
-lxqt-post-install ojdk-conf tex-path"
+NV_LIST="postlfs-config-profile postlfs-config-random postlfs-config-vimrc \
+xorg-env kde-pre-install-config kf5-intro \
+lxqt-pre-install lxqt-post-install ojdk-conf tex-path"
 
 # Set PATH to be sure to find udevadm
 SAVPATH=$PATH

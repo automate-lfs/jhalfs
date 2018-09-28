@@ -55,6 +55,12 @@ config  optDependency
         default 3       if DEPLVL_3
         default 4       if DEPLVL_4
 
+config  LANGUAGE
+        string "LANG variable in the form ll_CC.charmap[@modifiers]"
+        default "en_US.UTF-8"
+        help
+            Because of the book layout, the 3 fields, ll, CC and charmap are
+            mandatory. The @modfier is honoured if present.
 
 config  SUDO
         bool "Build as User"
