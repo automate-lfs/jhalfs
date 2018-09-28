@@ -177,7 +177,7 @@ depends MENU_</xsl:text>
       test="not(version) and ./module[not(inst-version) or
                       string(version) != string(inst-version)]">
       <xsl:text>&#9;&#9;config&#9;MENU_</xsl:text>
-      <xsl:value-of select="translate(name,' ','_')"/>
+      <xsl:value-of select="translate(name,' ()','___')"/>
       <xsl:text>
 &#9;&#9;bool&#9;"</xsl:text>
       <xsl:value-of select="name"/>
@@ -188,7 +188,7 @@ depends MENU_</xsl:text>
       <xsl:value-of select="name"/>
       <xsl:text>"
 &#9;&#9;depends MENU_</xsl:text>
-      <xsl:value-of select="translate(name,' ','_')"/>
+      <xsl:value-of select="translate(name,' ()','___')"/>
       <xsl:text>
 
 </xsl:text>
