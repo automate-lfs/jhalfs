@@ -224,28 +224,57 @@ for ver_ent in $EXCEPTIONS; do
   [[ -z $id ]] && continue
   cat >>$SPECIAL_FILE << EOF
     <xsl:when test="@id='$id'">
-      <xsl:text>      </xsl:text>
-      <package><xsl:text>&#xA;        </xsl:text>
-        <xsl:element name="name">$id</xsl:element>
-        <xsl:text>&#xA;        </xsl:text>
-        <xsl:element name="version">$ver_ent</xsl:element>
-        <xsl:if
-            test="document(\$installed-packages)//package[name=current()/@id]">
-          <xsl:text>&#xA;        </xsl:text>
-          <xsl:element name="inst-version">
-            <xsl:value-of
-              select="document(\$installed-packages
-                              )//package[name=current()/@id]/version"/>
-          </xsl:element>
-        </xsl:if>
+<!-- if there is a sect1 ancestor, we have a module -->
+      <xsl:choose>
+        <xsl:when test="ancestor::sect1">
+          <xsl:text>        </xsl:text>
+          <module><xsl:text>&#xA;          </xsl:text>
+            <xsl:element name="name">$id</xsl:element>
+            <xsl:text>&#xA;          </xsl:text>
+            <xsl:element name="version">$ver_ent</xsl:element>
+            <xsl:if
+                test="document(\$installed-packages)//package[name=current()/@id]">
+              <xsl:text>&#xA;          </xsl:text>
+              <xsl:element name="inst-version">
+                <xsl:value-of
+                  select="document(\$installed-packages
+                                  )//package[name=current()/@id]/version"/>
+              </xsl:element>
+            </xsl:if>
 <!-- Dependencies -->
-        <xsl:apply-templates select=".//para[@role='required' or
-                                             @role='recommended' or
-                                             @role='optional']"
-                             mode="dependency"/>
+            <xsl:apply-templates select=".//para[@role='required' or
+                                                 @role='recommended' or
+                                                 @role='optional']"
+                                 mode="dependency"/>
 <!-- End dependencies -->
-        <xsl:text>&#xA;      </xsl:text>
-      </package><xsl:text>&#xA;</xsl:text>
+            <xsl:text>&#xA;        </xsl:text>
+          </module><xsl:text>&#xA;</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:text>      </xsl:text>
+          <package><xsl:text>&#xA;        </xsl:text>
+            <xsl:element name="name">$id</xsl:element>
+            <xsl:text>&#xA;        </xsl:text>
+            <xsl:element name="version">$ver_ent</xsl:element>
+            <xsl:if
+                test="document(\$installed-packages)//package[name=current()/@id]">
+              <xsl:text>&#xA;        </xsl:text>
+              <xsl:element name="inst-version">
+                <xsl:value-of
+                  select="document(\$installed-packages
+                                  )//package[name=current()/@id]/version"/>
+              </xsl:element>
+            </xsl:if>
+<!-- Dependencies -->
+            <xsl:apply-templates select=".//para[@role='required' or
+                                                 @role='recommended' or
+                                                 @role='optional']"
+                                 mode="dependency"/>
+<!-- End dependencies -->
+            <xsl:text>&#xA;      </xsl:text>
+          </package><xsl:text>&#xA;</xsl:text>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:when>
 EOF
 done

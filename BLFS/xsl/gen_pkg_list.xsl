@@ -189,14 +189,12 @@
             <xsl:value-of select="normalize-space(title)"/>
           </xsl:element>
           <xsl:text>&#xA;</xsl:text>
-<!-- Do not use .//*, which would include self. -->
-          <xsl:apply-templates
-            select="descendant::node()[contains(translate(@xreflabel,
-                                                         '123456789',
-                                                         '000000000'),
-                                                '-0')
-                                      ]"
-            mode="normal">
+<!-- Do not use .//*, which would include self.
+     Even a module can be a special case, so
+     call the template of specialCases.xsl,
+     which calls the "normal" template when the
+     case is normal. -->
+          <xsl:apply-templates select="descendant::*" mode="special">
             <xsl:sort select="@id"/>
           </xsl:apply-templates>
           <xsl:text>      </xsl:text>
