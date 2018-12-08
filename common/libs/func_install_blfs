@@ -219,6 +219,10 @@ update:
 	@for pack in \$\$(grep '<productname' ../$LFS_XML/tmp/lfs-full.xml | \\
 		sed 's/.*>\([^<]*\)<.*/\1/' | \\
 		sort | uniq); do \\
+	    if [ "x\$\$pack" = xtcl -o \\
+	         "x\$\$pack" = xexpect -o \\
+	         "x\$\$pack" = xdejagnu ]; then continue; \\
+	    fi; \\
 	    VERSION=\$\$(grep -A1 ">\$\$pack</product" \\
 			../$LFS_XML/tmp/lfs-full.xml | \\
 		head -n2|  \\
