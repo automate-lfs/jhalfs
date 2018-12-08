@@ -98,7 +98,11 @@ if [ x$ANSWER = "xyes" ] ; then
     for pack in $(grep '<productname' $LFS_FULL |
                   sed 's/.*>\([^<]*\)<.*/\1/' |
                   sort | uniq); do
-        if [ "$pack" = "libstdc++" ]; then continue; fi
+        if [ "$pack" = "libstdc++" -o \
+             "$pack" = "tcl"       -o \
+             "$pack" = "tcl-core"  -o \
+             "$pack" = "expect"    -o \
+             "$pack" = "dejagnu"      ]; then continue; fi
         VERSION=$(grep -A1 ">$pack</product" $LFS_FULL |
                     head -n2 |
                     sed -n '2s/.*>\([^<]*\)<.*/\1/p')
