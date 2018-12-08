@@ -72,7 +72,7 @@ case $1 in
   x265*) # can contain vd.d or just d.d: thanks to packagers
     VERSION=$(echo $1 | sed 's/^.*[v_]//')
     ;;
-  libuv*) # can contain -vd.d or just -d.d
+  libuv*|Test-MockModule*) # can contain -vd.d or just -d.d
     VERSION=$(echo $1 | sed 's/^.*[v-]//')
     ;;
   junit*) # can contain -rd.d or just -d.d
