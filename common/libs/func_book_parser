@@ -190,6 +190,9 @@ extract_commands() {         #
                  --output ./${PROGNAME}-commands/             \
                  $XSL                                         \
                  $BOOK/index.xml >> $LOGDIR/$LOG 2>&1
+# Remove flags requesting user action in some cases. Much easier here than
+# in the stylesheet...
+        sed -i 's/-iv /-v /' ./${PROGNAME}-commands/chapter08/*kernel*
       ;;
     *)  echo -n " ${L_arrow}${PROGNAME}${R_arrow} book invalid, terminate build... "
         exit 1 ;;
