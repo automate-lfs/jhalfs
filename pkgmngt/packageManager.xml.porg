@@ -70,7 +70,8 @@ mkdir -pv /var/lib/packages</userinput></screen>
 
 <screen><userinput remap="make">make</userinput></screen>
 
-<screen><userinput remap="install">porg -lD "make install"</userinput></screen>
+<screen><userinput remap="install">porg -lD "make install
+mv /etc/bash_completion.d/porg* /usr/share/bash-completion/completions"</userinput></screen>
 
 <screen><userinput>sed -e '/EXCLUDE/{s/^#//;s@$@:/sources:/home@}' \
     -i /etc/porgrc</userinput></screen>
