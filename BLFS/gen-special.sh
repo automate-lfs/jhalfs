@@ -42,11 +42,6 @@ NV_LIST="postlfs-config-profile postlfs-config-random postlfs-config-vimrc \
 xorg-env kde-pre-install-config kf5-intro \
 lxqt-pre-install lxqt-post-install ojdk-conf tex-path"
 
-# Set PATH to be sure to find udevadm
-SAVPATH=$PATH
-PATH=/bin:/sbin:/usr/bin:/usr/sbin
-UDEVVERSION=$(udevadm --version)
-
 cat >$SPECIAL_FILE << EOF
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
@@ -55,30 +50,6 @@ cat >$SPECIAL_FILE << EOF
 
 <xsl:template match='*' mode="special">
   <xsl:choose>
-    <xsl:when test="contains(@id,'udev')">
-      <xsl:text>      </xsl:text>
-      <package><xsl:text>&#xA;        </xsl:text>
-        <xsl:element name="name"><xsl:value-of select="@id"/></xsl:element>
-        <xsl:text>&#xA;        </xsl:text>
-        <xsl:element name="version">$UDEVVERSION</xsl:element>
-        <xsl:if
-            test="document(\$installed-packages)//package[name=current()/@id]">
-          <xsl:text>&#xA;        </xsl:text>
-          <xsl:element name="inst-version">
-            <xsl:value-of
-              select="document(\$installed-packages
-                              )//package[name=current()/@id]/version"/>
-          </xsl:element>
-        </xsl:if>
-<!-- Dependencies -->
-        <xsl:apply-templates select=".//para[@role='required' or
-                                             @role='recommended' or
-                                             @role='optional']"
-                             mode="dependency"/>
-<!-- End dependencies -->
-        <xsl:text>&#xA;      </xsl:text>
-      </package><xsl:text>&#xA;</xsl:text>
-    </xsl:when>
 <!-- Although versioned, this page is not a package. But
      the sect2 with id "xorg-env" is referred to at several
      places in the book. We have added it to the list of non
