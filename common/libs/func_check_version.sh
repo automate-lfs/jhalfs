@@ -163,6 +163,9 @@ check_prerequisites() {      #
   if [ -n "$MIN_Xz_VER" ]; then
     check_version "$MIN_Xz_VER"        "$(xz --version | head -n1 | cut -d" " -f4)"         "XZ"
   fi
+  if [ -n "$MIN_Python_VER" ]; then
+    check_version "$MIN_Python_VER"    "3.$(python3 -c"import sys; print(sys.version_info.minor,'.',sys.version_info.micro,sep='')")" "Python"
+  fi
 }
 
 #----------------------------#
