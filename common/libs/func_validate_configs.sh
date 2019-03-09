@@ -48,7 +48,7 @@ inline_doc
   local -r CLFS3_build="                      $BUILD_common"
 
   # System Settings by book (only LFS for now)
-  local -r LFS_system="HOSTNAME INTERFACE IP_ADDR GATEWAY PREFIX BROADCAST DOMAIN DNS1 DNS2 FONT CONSOLE_MAP UNICODE KEYMAP"
+  local -r LFS_system="HOSTNAME INTERFACE IP_ADDR GATEWAY PREFIX BROADCAST DOMAIN DNS1 DNS2 FONT KEYMAP LOCAL LOG_LEVEL"
 
   # Full list of books settings
   local -r   lfs_PARAM_LIST="$LFS_book   $GENERAL_common $LFS_build $LFS_system  $ADVANCED_chroot REALSBU $ADVANCED_common"

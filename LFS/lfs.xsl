@@ -76,6 +76,14 @@
   <xsl:param name='nameserver1' select='"10.0.2.3"'/>
   <xsl:param name='nameserver2' select='"8.8.8.8"'/>
 
+  <!-- Console parameters: font, fontmap, unicode (y/n), keymap, local (y:
+       hardware clock set to local time/n:hardware clock set to UTC)
+       and log-level -->
+  <xsl:param name='font'      select="'lat0-16'"/>
+  <xsl:param name='keymap'    select="'us'"/>
+  <xsl:param name='local'     select="'n'"/>
+  <xsl:param name='log-level' select="'4'"/>
+
 <!-- End parameters -->
 
   <xsl:template match="/">
@@ -613,6 +621,27 @@ unset OLD_PKGDIR
           <xsl:with-param name="netstring" select="string()"/>
         </xsl:call-template>
       </xsl:when>
+      <xsl:when test="contains(string(),'0.0 0 0.0')">
+        <xsl:copy-of select="substring-before(string(),'LOCAL')"/>
+        <xsl:if test="$local='y'"><xsl:text>LOCAL</xsl:text></xsl:if>
+        <xsl:if test="$local='n'"><xsl:text>UTC</xsl:text></xsl:if>
+      </xsl:when>
+      <xsl:when test="contains(string(),'UTC=1')">
+        <xsl:copy-of select="substring-before(string(),'1')"/>
+        <xsl:if test="$local='y'"><xsl:text>0</xsl:text></xsl:if>
+        <xsl:if test="$local='n'"><xsl:text>1</xsl:text></xsl:if>
+        <xsl:copy-of select="substring-after(string(),'1')"/>
+      </xsl:when>
+      <xsl:when test="contains(string(),'bg_bds-')">
+        <xsl:call-template name="outputsysvconsole">
+          <xsl:with-param name="consolestring" select="string()"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains(string(),'de-latin1')">
+        <xsl:call-template name="outputsysdconsole">
+          <xsl:with-param name="consolestring" select="string()"/>
+        </xsl:call-template>
+      </xsl:when>
       <xsl:otherwise>
         <xsl:apply-templates/>
       </xsl:otherwise>
@@ -776,6 +805,87 @@ DNS=</xsl:text>
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="$netstring"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="outputsysvconsole">
+    <!-- We suppose that book example has the following values:
+         - KEYMAP: bg_bds-utf8
+         - FONT: LatArCyrHeb-16
+         Change below if book changes -->
+    <xsl:param name="consolestring" select="''"/>
+    <xsl:choose>
+      <xsl:when test="contains($consolestring,'bg_bds-utf8')">
+        <xsl:call-template name="outputsysvconsole">
+          <xsl:with-param
+                 name="consolestring"
+                 select="substring-before($consolestring,'bg_bds-utf8')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$keymap"/>
+        <xsl:call-template name="outputsysvconsole">
+          <xsl:with-param
+                 name="consolestring"
+                 select="substring-after($consolestring,'bg_bds-utf8')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($consolestring,'LatArCyrHeb-16')">
+        <xsl:call-template name="outputsysvconsole">
+          <xsl:with-param
+                 name="consolestring"
+                 select="substring-before($consolestring,'LatArCyrHeb-16')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$font"/>
+        <xsl:text>"
+LOG_LEVEL="</xsl:text>
+        <xsl:copy-of select="$log-level"/>
+        <xsl:call-template name="outputsysvconsole">
+          <xsl:with-param
+                 name="consolestring"
+                 select="substring-after($consolestring,'LatArCyrHeb-16')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy-of select="$consolestring"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="outputsysdconsole">
+    <!-- We suppose that book example has the following values:
+         - KEYMAP: de-latin1
+         - FONT: Lat2-Terminus16
+         Change below if book changes -->
+    <xsl:param name="consolestring" select="''"/>
+    <xsl:choose>
+      <xsl:when test="contains($consolestring,'de-latin1')">
+        <xsl:call-template name="outputsysdconsole">
+          <xsl:with-param
+                 name="consolestring"
+                 select="substring-before($consolestring,'de-latin1')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$keymap"/>
+        <xsl:call-template name="outputsysdconsole">
+          <xsl:with-param
+                 name="consolestring"
+                 select="substring-after($consolestring,'de-latin1')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($consolestring,'Lat2-Terminus16')">
+        <xsl:call-template name="outputsysdconsole">
+          <xsl:with-param
+                 name="consolestring"
+                 select="substring-before($consolestring,'Lat2-Terminus16')"/>
+        </xsl:call-template>
+        <xsl:value-of select="$font"/>
+        <xsl:call-template name="outputsysdconsole">
+          <xsl:with-param
+                 name="consolestring"
+                 select="substring-after($consolestring,'Lat2-Terminus16')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy-of select="$consolestring"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>

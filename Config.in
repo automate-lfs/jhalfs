@@ -1050,15 +1050,27 @@ menu "System configuration"
         config FONT
             string "Console font"
             default "lat0-16"
-        config FONTMAP
-            string "Font map (-m option to setfont)"
-            default "8859-1"
-        config UNICODE
-            bool "Unicode mode"
-            default y
+            help
+                Unicode mode is set by default. Setting FONT_MAP, FONT_UNIMAP,
+                etc, must be done manually.
         config KEYMAP
             string "Keymap name"
             default "us"
+        config LOCAL
+            boolean "Hardware clock is set to local time"
+            default n
+            help
+                If the harware clock is set to local time, answer yes,
+                If it is set to UTC, answer no
+        config LOG_LEVEL
+            string "Default log level (1-8)"
+            default "4"
+            depends BOOK_LFS
+            help
+                This can be changed using dmesg. 1 means "no message",
+                8 shows every message sent by the kernel, which is very
+                noisy. The default at boot time is 7, which is quite
+                noisy too.
     endmenu # Console configuration
 
 endmenu        #--- System configuration

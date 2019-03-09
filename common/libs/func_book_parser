@@ -187,6 +187,12 @@ extract_commands() {         #
                  --stringparam domain         "$DOMAIN"       \
                  --stringparam nameserver1    "$DNS1"         \
                  --stringparam nameserver2    "$DNS2"         \
+                 --stringparam font           "$FONT"         \
+                 --stringparam fontmap        "$FONTMAP"      \
+                 --stringparam unicode        "$UNICODE"      \
+                 --stringparam keymap         "$KEYMAP"       \
+                 --stringparam local          "$LOCAL"        \
+                 --stringparam log-level      "$LOG_LEVEL"    \
                  --output ./${PROGNAME}-commands/             \
                  $XSL                                         \
                  $BOOK/index.xml >> $LOGDIR/$LOG 2>&1
