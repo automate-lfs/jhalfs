@@ -695,7 +695,7 @@ unset OLD_PKGDIR
   <xsl:template name="outputsysdnet">
     <xsl:param name="netstring" select="''"/>
     <!-- We suppose that book example has the following values:
-         - interface: eth0
+         - interface: <network-device-name>
          - ip: 192.168.0.2
          - gateway: 192.168.0.1
          - prefix: 24
@@ -703,15 +703,15 @@ unset OLD_PKGDIR
          - Domain: <Your Domain Name>
          and gateway comes before DNS. Change below if book changes -->
     <xsl:choose>
-      <xsl:when test="contains($netstring,'eth0')">
+      <xsl:when test="contains($netstring,'&lt;network-device-name&gt;')">
         <xsl:call-template name="outputsysdnet">
           <xsl:with-param name="netstring"
-                          select="substring-before($netstring,'eth0')"/>
+                          select="substring-before($netstring,'&lt;network-device-name&gt;')"/>
         </xsl:call-template>
         <xsl:value-of select="$interface"/>
         <xsl:call-template name="outputsysdnet">
           <xsl:with-param name="netstring"
-                          select="substring-after($netstring,'eth0')"/>
+                          select="substring-after($netstring,'&lt;network-device-name&gt;')"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:when test="contains($netstring,'192.168.0.1') and
