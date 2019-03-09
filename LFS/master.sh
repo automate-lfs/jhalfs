@@ -547,7 +547,7 @@ if [ "$INITSYS" = systemd ]; then
 (
     cat << EOF
 	sudo mkdir -pv \$(MOUNT_PT)/run/systemd/resolve
-	sudo cp -v /etc/resolv.conf \$(MOUNT_PT)}/run/systemd/resolve
+	sudo cp -v /etc/resolv.conf \$(MOUNT_PT)/run/systemd/resolve
 EOF
 ) >> $MKFILE
 fi
