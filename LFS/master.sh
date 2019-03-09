@@ -541,21 +541,28 @@ devices: ck_UID
 	if [ -h \$(MOUNT_PT)/dev/shm ]; then \\
 	  sudo mkdir -p \$(MOUNT_PT)/\$\$(readlink \$(MOUNT_PT)/dev/shm); \\
 	fi
-
+EOF
+) >> $MKFILE
+if [ "$INITSYS" = systemd ]; then
+(
+    cat << EOF
+	sudo mkdir -pv \$(MOUNT_PT)/run/systemd/resolve
+	sudo cp -v /etc/resolv.conf \$(MOUNT_PT)}/run/systemd/resolve
+EOF
+) >> $MKFILE
+fi
+(
+    cat << EOF
 teardown:
-	sudo umount -v \$(MOUNT_PT)/sys
-	sudo umount -v \$(MOUNT_PT)/proc
 	sudo umount -v \$(MOUNT_PT)/dev/pts
-	if mountpoint -q \$(MOUNT_PT)/run; then \\
-	  sudo umount -v \$(MOUNT_PT)/run; \\
-	elif [ -h \$(MOUNT_PT)/dev/shm ]; then \\
-	  link=\$\$(readlink \$(MOUNT_PT)/dev/shm); \\
-	  sudo umount -v \$(MOUNT_PT)/\$\$link; \\
-	  unset link; \\
-	else \\
-	  sudo umount -v \$(MOUNT_PT)/dev/shm; \\
-	fi
 	sudo umount -v \$(MOUNT_PT)/dev
+	sudo umount -v \$(MOUNT_PT)/run
+	sudo umount -v \$(MOUNT_PT)/proc
+	sudo umount -v \$(MOUNT_PT)/sys
+
+chroot1: devices
+	sudo \$(CHROOT1)
+	\$(MAKE) teardown
 
 chroot: devices
 	sudo \$(CHROOT2)
