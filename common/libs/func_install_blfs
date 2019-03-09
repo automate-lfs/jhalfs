@@ -109,20 +109,8 @@ if [ "$DEP_SVN" = y ]; then
 else
   LINE_SVN='#CONFIG_subversion is not set'
 fi
-if [ "$DEP_OPENSSL" = y ]; then
-  LINE_OPENSSL='CONFIG_openssl=y'
-else
-  LINE_OPENSSL='#CONFIG_openssl is not set'
-fi
-if [ "$DEP_PYTHON" = y ]; then
-  LINE_PYTHON='CONFIG_python2=y'
-else
-  LINE_PYTHON='#CONFIG_python2 is not set'
-fi
 
 cat >$BUILDDIR$BLFS_ROOT/configuration <<EOF
-$LINE_OPENSSL
-$LINE_PYTHON
 $LINE_LIBXML
 $LINE_LIBXSLT
 $LINE_WGET
