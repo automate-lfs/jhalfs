@@ -588,6 +588,9 @@ unset OLD_PKGDIR
       <xsl:when test="contains(string(.),'192.168.0.2')">
         <xsl:value-of select="$ip"/>
       </xsl:when>
+      <xsl:when test="contains(string(.),'eth0')">
+        <xsl:value-of select="$interface"/>
+      </xsl:when>
 <!-- Only adapted to LFS-20170310 and later -->
       <xsl:when test="contains(string(.),'HOSTNAME')">
         <xsl:value-of select="$hostname"/>
