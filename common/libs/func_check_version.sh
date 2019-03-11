@@ -103,10 +103,10 @@ check_prerequisites() {      #
     check_version "$MIN_Bash_VER"      "$BASH_VERSION"       "BASH"
   fi
   if [ ! -z $MIN_GCC_VER ]; then
-    check_version "$MIN_GCC_VER"     "`gcc -dumpversion`"  "GCC"
-    check_version "$MIN_GCC_VER"     "`g++ -dumpversion`"  "G++"
+    check_version "$MIN_GCC_VER"     "`gcc -dumpfullversion -dumpversion`"  "GCC"
+    check_version "$MIN_GCC_VER"     "`g++ -dumpfullversion -dumpversion`"  "G++"
   elif [ ! -z $MIN_Gcc_VER ]; then
-    check_version "$MIN_Gcc_VER"     "`gcc -dumpversion`"  "GCC"
+    check_version "$MIN_Gcc_VER"     "`gcc -dumpfullversion -dumpversion`"  "GCC"
   fi
   if [ -n "$MIN_Glibc_VER" ]; then
     check_version "$MIN_Glibc_VER"     "$(ldd --version  | head -n1 | awk '{print $NF}')"   "GLIBC"
