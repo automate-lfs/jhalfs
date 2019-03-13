@@ -445,12 +445,32 @@ build_Makefile() {           #
     i=`expr $i + 1`
   done
 
+  # Store virtual kernel file systems commands:
+  devices=`cat ../kernfs-scripts/devices.sh | \
+            sed -e 's|^|	|'   \
+                -e 's|mount|sudo &|' \
+                -e 's|mkdir|sudo &|' \
+                -e 's|\\$|&&|g' \
+                -e 's|\$\$LFS|$(MOUNT_PT)|g'`
+  teardown=`cat ../kernfs-scripts/teardown.sh | \
+            sed -e 's|^|	|'   \
+                -e 's|umount|sudo &|' \
+                -e 's|\$LFS|$(MOUNT_PT)|'`
+  teardownat=`cat ../kernfs-scripts/teardown.sh | \
+              sed -e 's|^|	|'   \
+                  -e 's|umount|@-sudo &|' \
+                  -e 's|\$LFS|$(MOUNT_PT)|'`
+#echo [DEBUG]
+#echo devices=$devices
+#echo teardown=$teardown
+#echo teardownat=$teardownat
   # Drop in the main target 'all:' and the chapter targets with each sub-target
   # as a dependency.
 (
     cat << EOF
 
 all:	ck_UID mk_SETUP mk_LUSER mk_SUDO mk_CHROOT mk_BOOT create-sbu_du-report mk_BLFS_TOOL mk_CUSTOM_TOOLS
+$teardownat
 	@sudo make do_housekeeping
 EOF
 ) >> $MKFILE
@@ -533,14 +553,7 @@ mk_CUSTOM_TOOLS: mk_BLFS_TOOL
 	@touch \$@
 
 devices: ck_UID
-	sudo mount -v --bind /dev \$(MOUNT_PT)/dev
-	sudo mount -vt devpts devpts \$(MOUNT_PT)/dev/pts
-	sudo mount -vt proc proc \$(MOUNT_PT)/proc
-	sudo mount -vt sysfs sysfs \$(MOUNT_PT)/sys
-	sudo mount -vt tmpfs tmpfs \$(MOUNT_PT)/run
-	if [ -h \$(MOUNT_PT)/dev/shm ]; then \\
-	  sudo mkdir -p \$(MOUNT_PT)/\$\$(readlink \$(MOUNT_PT)/dev/shm); \\
-	fi
+$devices
 EOF
 ) >> $MKFILE
 if [ "$INITSYS" = systemd ]; then
@@ -553,12 +566,9 @@ EOF
 fi
 (
     cat << EOF
+
 teardown:
-	sudo umount -v \$(MOUNT_PT)/dev/pts
-	sudo umount -v \$(MOUNT_PT)/dev
-	sudo umount -v \$(MOUNT_PT)/run
-	sudo umount -v \$(MOUNT_PT)/proc
-	sudo umount -v \$(MOUNT_PT)/sys
+$teardown
 
 chroot1: devices
 	sudo \$(CHROOT1)
@@ -571,6 +581,19 @@ chroot: devices
 SETUP:        $chapter4
 LUSER:        $chapter5
 SUDO:         $runasroot
+EOF
+) >> $MKFILE
+if [ "$INITSYS" = systemd ]; then
+(
+    cat << EOF
+	sudo mkdir -pv \$(MOUNT_PT)/run/systemd/resolve
+	sudo cp -v /etc/resolv.conf \$(MOUNT_PT)/run/systemd/resolve
+
+EOF
+) >> $MKFILE
+fi
+(
+    cat << EOF
 CHROOT:       SHELL=/tools/bin/bash
 CHROOT:       $chapter6
 BOOT:         $chapter78
@@ -597,25 +620,11 @@ restore-luser-env:
 	@\$(call housekeeping)
 
 do_housekeeping:
-	@-umount \$(MOUNT_PT)/sys
-	@-umount \$(MOUNT_PT)/proc
-	@-if mountpoint -q \$(MOUNT_PT)/run; then \\
-	  umount \$(MOUNT_PT)/run; \\
-	elif [ -h \$(MOUNT_PT)/dev/shm ]; then \\
-	  link=\$\$(readlink \$(MOUNT_PT)/dev/shm); \\
-	  umount \$(MOUNT_PT)/\$\$link; \\
-	  unset link; \\
-	else \\
-	  umount \$(MOUNT_PT)/dev/shm; \\
-	fi
-	@-umount \$(MOUNT_PT)/dev/pts
-	@-umount \$(MOUNT_PT)/dev
 	@-rm /tools
 	@-if [ ! -f luser-exist ]; then \\
 		userdel \$(LUSER); \\
 		rm -rf \$(LUSER_HOME); \\
 	fi;
-
 
 EOF
 ) >> $MKFILE

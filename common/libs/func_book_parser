@@ -211,7 +211,10 @@ extract_commands() {         #
 
   # Create the packages file. We need it for proper Makefile creation
   create_package_list
-  create_chroot_scripts
+  if [ "${PROGNAME}" = lfs ]; then
+    create_chroot_scripts
+    create_kernfs_scripts
+  fi
 
   # Done. Moving on...
   get_sources
@@ -258,10 +261,10 @@ create_package_list() {      #
 }
 
 #----------------------------#
-create_chroot_scripts() {      #
+create_chroot_scripts() {    #
 #----------------------------#
 
-  rm -rf chroot_scripts
+  rm -rf chroot-scripts
   echo -n "Creating chroot commands scripts from $BOOK"
   if [ ! -z $ARCH ] ; then echo -n " $ARCH" ; fi
   echo -n "... "
@@ -280,6 +283,40 @@ create_chroot_scripts() {      #
       xsltproc --nonet --xinclude \
                -o chroot-scripts/ chroot.xsl \
                $BOOK/chapter06/chapter06.xml >> $LOGDIR/$LOG 2>&1
+      ;;
+    *)
+  esac
+  echo "done"
+
+}
+
+#----------------------------#
+create_kernfs_scripts() {    #
+#----------------------------#
+
+  rm -rf kernfs-scripts
+  mkdir kernfs-scripts
+  echo -n "Creating virtual kernel FS commands scripts from $BOOK"
+  if [ ! -z $ARCH ] ; then echo -n " $ARCH" ; fi
+  echo -n "... "
+  case ${PROGNAME} in
+    clfs*)
+      xsltproc --nonet --xinclude \
+               -o kernfs-scripts/ kernfs.xsl \
+               $BOOK/BOOK/${ARCH}-index.xml >> $LOGDIR/$LOG 2>&1
+      ;;
+    hlfs)
+      xsltproc --nonet --xinclude \
+               -o kernfs-scripts/ kernfs.xsl \
+               $BOOK/index.xml >> $LOGDIR/$LOG 2>&1
+      ;;
+    lfs)
+      xsltproc --nonet \
+               -o kernfs-scripts/devices.sh kernfs.xsl \
+               $BOOK/chapter06/kernfs.xml >> $LOGDIR/$LOG 2>&1
+      xsltproc --nonet \
+               -o kernfs-scripts/teardown.sh kernfs.xsl \
+               $BOOK/chapter09/reboot.xml >> $LOGDIR/$LOG 2>&1
       ;;
     *)
   esac
