@@ -451,6 +451,8 @@ build_Makefile() {           #
                 -e 's|mount|sudo &|' \
                 -e 's|mkdir|sudo &|' \
                 -e 's|\\$|&&|g' \
+                -e 's|\$|; \\\\|' \
+                -e 's|then|& :|' \
                 -e 's|\$\$LFS|$(MOUNT_PT)|g'`
   teardown=`cat ../kernfs-scripts/teardown.sh | \
             sed -e 's|^|	|'   \
