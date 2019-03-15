@@ -462,10 +462,6 @@ build_Makefile() {           #
               sed -e 's|^|	|'   \
                   -e 's|umount|@-sudo &|' \
                   -e 's|\$LFS|$(MOUNT_PT)|'`
-#echo [DEBUG]
-#echo devices=$devices
-#echo teardown=$teardown
-#echo teardownat=$teardownat
   # Drop in the main target 'all:' and the chapter targets with each sub-target
   # as a dependency.
 (
@@ -588,8 +584,8 @@ EOF
 if [ "$INITSYS" = systemd ]; then
 (
     cat << EOF
-	sudo mkdir -pv \$(MOUNT_PT)/run/systemd/resolve
-	sudo cp -v /etc/resolv.conf \$(MOUNT_PT)/run/systemd/resolve
+	mkdir -pv \$(MOUNT_PT)/run/systemd/resolve
+	cp -v /etc/resolv.conf \$(MOUNT_PT)/run/systemd/resolve
 
 EOF
 ) >> $MKFILE
