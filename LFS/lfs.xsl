@@ -840,7 +840,7 @@ DNS=</xsl:text>
         </xsl:call-template>
         <xsl:value-of select="$font"/>
         <xsl:text>"
-LOG_LEVEL="</xsl:text>
+LOGLEVEL="</xsl:text>
         <xsl:copy-of select="$log-level"/>
         <xsl:call-template name="outputsysvconsole">
           <xsl:with-param
