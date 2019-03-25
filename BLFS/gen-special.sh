@@ -39,7 +39,7 @@ EXCEPTIONS=$(grep 'ENTITY.*version[ ]*"[^0-9"&.].*[0-9]' ${BLFS_DIR}/packages.en
 
 # Non-versioned packages:
 NV_LIST="postlfs-config-profile postlfs-config-random postlfs-config-vimrc \
-xorg-env kde-pre-install-config kf5-intro \
+initramfs xorg-env kde-pre-install-config kf5-intro \
 lxqt-pre-install lxqt-post-install ojdk-conf tex-path"
 
 cat >$SPECIAL_FILE << EOF
