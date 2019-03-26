@@ -124,7 +124,11 @@ done
 
         <!-- Creating the scripts -->
       <exsl:document href="{$order}-z-{$filename}" method="text">
-        <xsl:text>#!/bin/bash&#xA;set -e&#xA;&#xA;</xsl:text>
+        <xsl:text>#!/bin/bash
+set -e
+unset MAKELEVEL
+
+</xsl:text>
         <xsl:choose>
           <!-- Package page -->
           <xsl:when test="sect2[@role='package']">
