@@ -221,31 +221,18 @@
 </xsl:text>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:text>mkdir -pv $PKG_DEST/{boot,etc,lib,bin,sbin}
-mkdir -pv $PKG_DEST/usr/{lib,bin,sbin,include}
+<!-- We cannot know which directory(ies) are needed by the package. Create a
+     reasonable bunch of them. Should be close to "Creating Directories".-->
+          <xsl:text>mkdir -pv $PKG_DEST/{bin,boot,etc,lib,sbin}
+mkdir -pv $PKG_DEST/usr/{bin,include,lib/pkgconfig,sbin}
 mkdir -pv $PKG_DEST/usr/share/{doc,info,man}
 mkdir -pv $PKG_DEST/usr/share/man/man{1..8}
-ln -sv share/{man,doc,info} $PKG_DEST/usr
 case $(uname -m) in
- x86_64) ln -sv lib $PKG_DEST/lib64 &amp;&amp; ln -sv lib $PKG_DEST/usr/lib64 ;;
+ x86_64) mkdir -v $PKG_DEST/lib64 ;;
 esac
 </xsl:text>
         </xsl:otherwise>
       </xsl:choose>
-    </xsl:if>
-    <xsl:if test="../@id = 'ch-system-glibc' and
-                  @role='installation' and
-                  $pkgmngt = 'y' and
-                  $wrap-install = 'n'">
-      <xsl:text>mkdir -pv $PKG_DEST/usr/include/{rpc,rpcsvc}
-</xsl:text>
-    </xsl:if>
-    <xsl:if test="../@id = 'ch-system-libelf' and
-                  @role='installation' and
-                  $pkgmngt = 'y' and
-                  $wrap-install = 'n'">
-      <xsl:text>mkdir -pv $PKG_DEST/usr/lib/pkgconfig
-</xsl:text>
     </xsl:if>
     <xsl:apply-templates
          select=".//screen[(not(@role) or
@@ -306,20 +293,16 @@ rm -fv $PKG_DEST/usr/share/man/man5/*
 rm -fv $PKG_DEST/sbin/nologin
 </xsl:text>
           </xsl:if>
-          <xsl:text>rm -fv $PKG_DEST/{,usr/}lib64
-rm -fv $PKG_DEST/usr/{man,doc,info}
-for dir in $PKG_DEST/usr/share/man/man{1..8}; do
-  [[ -z $(ls $dir) ]] &amp;&amp; rmdir -v $dir
+<!-- remove empty directories -->
+          <xsl:text>for dir in $PKG_DEST/usr/share/man/man{1..8} \
+           $PKG_DEST/usr/share/{doc,info,man} \
+           $PKG_DEST/usr/lib/pkgconfig \
+           $PKG_DEST/usr/{lib,bin,sbin,include} \
+           $PKG_DEST/{boot,etc,lib,bin,sbin}; do
+  [ -d "$dir" ] &amp;&amp; [ -z "$(ls $dir)" ] &amp;&amp; rmdir -v $dir
 done
-for dir in $PKG_DEST/usr/share/{doc,info,man}; do
-  [[ -z $(ls $dir) ]] &amp;&amp; rmdir -v $dir
-done
-for dir in $PKG_DEST/usr/{lib,bin,sbin,include}; do
-  [[ -z $(ls $dir) ]] &amp;&amp; rmdir -v $dir
-done
-for dir in $PKG_DEST/{boot,etc,lib,bin,sbin}; do
-  [[ -z $(ls $dir) ]] &amp;&amp; rmdir -v $dir
-done
+[ -d $PKG_DEST/lib64 ] &amp;&amp; [ -z "$(ls $PKG_DEST/lib64)" ] &amp;&amp;
+  rmdir -v $PKG_DEST/lib64
 PREV_SEC=${SECONDS}
 packInstall
 SECONDS=${PREV_SEC}
@@ -946,13 +929,6 @@ LOGLEVEL="</xsl:text>
                select="substring-before(substring-after(string(),'make'),
                                         'install')"/>
              <xsl:text>install&#xA;</xsl:text>
-            </xsl:when>
-            <xsl:when test="ancestor::sect1[@id='ch-system-attr']">
-              <xsl:text>DIST_ROOT=$PKG_DEST make</xsl:text>
-              <xsl:call-template name="outputpkgdest">
-                <xsl:with-param name="outputstring"
-                                select="substring-after($outputstring,'make')"/>
-              </xsl:call-template>
             </xsl:when>
             <xsl:otherwise>
               <xsl:text>make DESTDIR=$PKG_DEST</xsl:text>
