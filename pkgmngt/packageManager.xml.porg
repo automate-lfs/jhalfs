@@ -1,17 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-  "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" >
+  "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY porg-version "0.10">
+<!ENTITY porg-url "https://sourceforge.net/projects/porg/files/porg-&porg-version;.tar.gz">
+<!ENTITY porg-md5 "2eceb8a73bb188dbb06b12d90cabdbb4">
+]>
 
 <article>
 
 <sect1 id="package">
   <title>Package Information</title>
-        <para>Download: <ulink url="https://sourceforge.net/projects/porg/files/porg-0.10.tar.gz"/></para>
-        <para>MD5 sum: <literal>2eceb8a73bb188dbb06b12d90cabdbb4</literal></para>
+        <para>Download: <ulink url="&porg-url;"/></para>
+        <para>MD5 sum: <literal>&porg-md5;</literal></para>
 </sect1>
 
 <sect1 id="ch-tools-pkgmngt" role="wrap">
   <?dbhtml filename="porg.html"?>
+
+  <sect1info condition="script">
+    <productname>porg</productname>
+    <productnumber>&porg-version;</productnumber>
+    <address>&porg-url;</address>
+  </sect1info>
+
   <title>Porg in tools</title>
   <sect2 role="installation">
     <title>Instructions</title>
@@ -59,6 +70,13 @@ mkdir -pv /var/lib/packages</userinput></screen>
 
 <sect1 id="ch-system-pkgmngt" role="wrap">
   <?dbhtml filename="porg.html"?>
+
+  <sect1info condition="script">
+    <productname>porg</productname>
+    <productnumber>&porg-version;</productnumber>
+    <address>&porg-url;</address>
+  </sect1info>
+
   <title>Final Porg</title>
   <sect2 role="installation">
     <title>Instructions</title>

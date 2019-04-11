@@ -116,8 +116,8 @@ chapter5_Makefiles() {
     #--------------------------------------------------------------------#
     #
     # Find the name of the tarball and the version of the package
-    pkg_tarball=$(get_package_tarball_name $name)
-    pkg_version=$(get_package_version $pkg_tarball)
+    pkg_tarball=$(sed -n 's/tar -xf \(.*\)/\1/p' $file)
+    pkg_version=$(sed -n 's/VERSION=\(.*\)/\1/p' $file)
 
     # Drop in the name of the target on a new line, and the previous target
     # as a dependency. Also call the echo_message function.
@@ -125,8 +125,6 @@ chapter5_Makefiles() {
 
     # If $pkg_tarball isn't empty, we've got a package...
     if [ "$pkg_tarball" != "" ] ; then
-      # Insert instructions for unpacking the package and to set the PKGDIR variable.
-      LUSER_wrt_unpack "$pkg_tarball"
       # Always initialize the log file, since the test instructions may be
       # "uncommented" by the user
       LUSER_wrt_test_log "${this_script}" "$pkg_version"
@@ -145,15 +143,6 @@ chapter5_Makefiles() {
       *changingowner)  wrt_RunAsRoot "$file" "$pkg_version" ;;
       *)               LUSER_wrt_RunAsUser "$file" "$pkg_version" ;;
     esac
-
-    # Remove the build directory(ies) except if the package build fails
-    # (so we can review config.cache, config.log, etc.)
-    if [ "$pkg_tarball" != "" ] ; then
-	case "${name}" in
-	*xz-utils) LUSER_RemoveBuildDirs "xz" ;;
-	*) LUSER_RemoveBuildDirs "$name" ;;
-	esac
-    fi
 
     # Include a touch of the target name so make can check
     # if it's already been made.
@@ -216,8 +205,8 @@ chapter6_Makefiles() {
 
     # Find the tarball corresponding to our script.
     # If it doesn't, we skip it in iterations rebuilds (except stripping).
-    pkg_tarball=$(get_package_tarball_name $name)
-    pkg_version=$(get_package_version $pkg_tarball)
+    pkg_tarball=$(sed -n 's/tar -xf \(.*\)/\1/p' $file)
+    pkg_version=$(sed -n 's/VERSION=\(.*\)/\1/p' $file)
 
     if [[ "$pkg_tarball" = "" ]] && [[ -n "$N" ]] ; then
       case "${this_script}" in
@@ -255,7 +244,6 @@ chapter6_Makefiles() {
       if [ "${INSTALL_LOG}" = "y" ] && [ "x${N}" = "x" ] ; then
         CHROOT_wrt_TouchTimestamp
       fi
-      CHROOT_Unpack "$pkg_tarball"
       # Always initialize the log file, so that the use may reinstate a
       # commented out test
       CHROOT_wrt_test_log "${this_script}" "$pkg_version"
@@ -273,10 +261,6 @@ chapter6_Makefiles() {
     # Write installed files log and remove the build directory(ies)
     # except if the package build fails.
     if [ "$pkg_tarball" != "" ] ; then
-      case "${name}" in
-	*xz-utils) CHROOT_wrt_RemoveBuildDirs "xz" ;;
-	*) CHROOT_wrt_RemoveBuildDirs "$name" ;;
-      esac
       if [ "${INSTALL_LOG}" = "y" ] && [ "x${N}" = "x" ] ; then
         CHROOT_wrt_LogNewFiles "$name"
       fi
@@ -336,27 +320,21 @@ chapter78_Makefiles() {
     case "${this_script}" in
       *bootscripts)
             name="lfs-bootscripts"
-            pkg_tarball=$(get_package_tarball_name $name)
             if [ "${INSTALL_LOG}" = "y" ] ; then
               CHROOT_wrt_TouchTimestamp
             fi
-            CHROOT_Unpack "$pkg_tarball"
         ;;
       *network-scripts)
             name="lfs-network-scripts"
-            pkg_tarball=$(get_package_tarball_name $name)
             if [ "${INSTALL_LOG}" = "y" ] ; then
               CHROOT_wrt_TouchTimestamp
             fi
-            CHROOT_Unpack "$pkg_tarball"
         ;;
       *kernel)
             name="linux"
-            pkg_tarball=$(get_package_tarball_name $name)
             if [ "${INSTALL_LOG}" = "y" ] ; then
               CHROOT_wrt_TouchTimestamp
             fi
-            CHROOT_Unpack "$pkg_tarball"
             # If using optimizations, use MAKEFLAGS (unless blacklisted)
             # no setting of CFLAGS and friends.
             [[ "$OPTIMIZE" != "0" ]] &&  wrt_makeflags "$name"
@@ -376,20 +354,11 @@ chapter78_Makefiles() {
     esac
 
     case "${this_script}" in
-      *bootscripts)      CHROOT_wrt_RemoveBuildDirs "dummy"
-                         if [ "${INSTALL_LOG}" = "y" ] ; then
-                           CHROOT_wrt_LogNewFiles "$name"
-                         fi ;;
-      *network-scripts)  CHROOT_wrt_RemoveBuildDirs "dummy"
-                         if [ "${INSTALL_LOG}" = "y" ] ; then
-                           CHROOT_wrt_LogNewFiles "$name"
-                         fi ;;
-      *kernel)           CHROOT_wrt_RemoveBuildDirs "dummy"
+      *bootscripts|*network-scripts|*kernel)
                          if [ "${INSTALL_LOG}" = "y" ] ; then
                            CHROOT_wrt_LogNewFiles "$name"
                          fi ;;
     esac
-
     # Include a touch of the target name so make can check
     # if it's already been made.
     wrt_touch

@@ -180,7 +180,7 @@ $i:  $PREV
 	@\$(call echo_message, Building)
 ${NO_PROGRESS}	@export BASHBIN=\$(SHELL) && \$(SHELL) progress_bar.sh \$@ \$\$PPID &
 	@echo "\$(nl_)\`date\`\$(nl_)" >logs/\$@$version
-	@\$(PRT_DU) >>logs/\$@$version
+	@ : > envars
 EOF
 ) >> $MKFILE.tmp
 }
@@ -201,7 +201,7 @@ $i:  $PREV
 	@\$(call echo_message, Building)
 ${NO_PROGRESS}	@export BASHBIN=\$(SHELL) && \$(SHELL) progress_bar.sh \$@ \$\$PPID &
 	@echo "\$(nl_)\`date\`\$(nl_)" >logs/\$@$version
-	@\$(PRT_DU_CR) >>logs/\$@$version
+	@ : > envars
 EOF
 ) >> $MKFILE.tmp
 }
@@ -227,6 +227,7 @@ EOF
 
 (
 cat << EOF
+	@\$(PRT_DU) >>logs/\$@$version
 	@\$(call unpack,$FILE)
 	@\$(call get_pkg_root_LUSER)
 EOF
@@ -246,8 +247,10 @@ cat << EOF
 EOF
 ) >> $MKFILE.tmp
   fi
+
 (
-cat  << EOF
+cat << EOF
+	@\$(PRT_DU_CR) >>logs/\$@$version
 	@\$(call unpack2,$FILE)
 	@\$(call get_pkg_root2)
 EOF
@@ -336,8 +339,8 @@ LUSER_wrt_RunAsUser() {            # Calculate time with perl, footer to log fil
 (
 cat << EOF
 	@source ~/.bashrc && \\
-	\$(CMDSDIR)/`dirname $file`/\$@ >> logs/\$@$version 2>&1 && \\
-	\$(PRT_DU) >>logs/\$@$version
+	\$(CMDSDIR)/`dirname $file`/\$@ >> \$(LOGDIR)/\$@$version 2>&1 && \\
+	if [ "${PROGNAME}" != lfs ]; then \$(PRT_DU) >>logs/\$@$version; fi
 EOF
 ) >> $MKFILE.tmp
 }
@@ -353,8 +356,8 @@ CHROOT_wrt_RunAsRoot() {           #
 (
 cat << EOF
 	@source envars && \\
-	\$(crCMDSDIR)/`dirname $file`/\$@ >>logs/\$@$version 2>&1 && \\
-	\$(PRT_DU_CR) >>logs/\$@$version
+	\$(crCMDSDIR)/`dirname $file`/\$@ >>\$(crLOGDIR)/\$@$version 2>&1 && \\
+	if [ "${PROGNAME}" != lfs ]; then \$(PRT_DU_CR) >>logs/\$@$version; fi
 EOF
 ) >> $MKFILE.tmp
 

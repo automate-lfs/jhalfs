@@ -193,6 +193,7 @@ extract_commands() {         #
                  --stringparam keymap         "$KEYMAP"       \
                  --stringparam local          "$LOCAL"        \
                  --stringparam log-level      "$LOG_LEVEL"    \
+                 --stringparam script-root    "$SCRIPT_ROOT"  \
                  --output ./${PROGNAME}-commands/             \
                  $XSL                                         \
                  $BOOK/index.xml >> $LOGDIR/$LOG 2>&1

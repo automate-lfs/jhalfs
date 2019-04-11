@@ -8,7 +8,18 @@ be accessible from JHALFSDIR. Change the document type `article' to
 book if you prefer. That slightly changes the aspect if you render
 it in html -->
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-  "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" >
+  "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY libarchive-version "3.1.2">
+<!ENTITY curl-version       "7.39.0">
+<!ENTITY pacman-version     "4.1.2">
+<!ENTITY libarchive-url "http://www.libarchive.org/downloads/libarchive-&libarchive-version;.tar.gz">
+<!ENTITY curl-url       "http://curl.haxx.se/download/curl-&curl-version;.tar.lzma">
+<!ENTITY pacman-url     "https://sources.archlinux.org/other/pacman/pacman-&pacman-version;.tar.gz">
+<!ENTITY curl-md5       "e9aa6dec29920eba8ef706ea5823bad7">
+<!ENTITY libarchive-md5 "efad5a503f66329bb9d2f4308b5de98a">
+<!ENTITY pacman-md5     "063c8b0ff6bdf903dc235445525627cd">
+]>
+
 
 <!-- The first markup should be the one defined in the DOCTYPE DECLARATION -->
 <article>
@@ -18,12 +29,15 @@ Only the next four lines are mandatory, but you can add anything
 to make the text look more like the LFS book.
 Do not change  anything, except the url and the md5 checksum. -->
 <sect1 id="package">
-        <para>Download: <ulink url="http://curl.haxx.se/download/curl-7.39.0.tar.lzma"/></para>
-        <para>MD5 sum: <literal>e9aa6dec29920eba8ef706ea5823bad7</literal></para>
-        <para>Download: <ulink url="http://www.libarchive.org/downloads/libarchive-3.1.2.tar.gz"/></para>
-        <para>MD5 sum: <literal>efad5a503f66329bb9d2f4308b5de98a</literal></para>
-        <para>Download: <ulink url="https://sources.archlinux.org/other/pacman/pacman-4.1.2.tar.gz"/></para>
-        <para>MD5 sum: <literal>063c8b0ff6bdf903dc235445525627cd</literal></para>
+  <?dbhtml filename="package.html"?>
+
+  <title>All Packages</title>
+        <para>Download: <ulink url="&curl-url;"/></para>
+        <para>MD5 sum: <literal>&curl-md5;</literal></para>
+        <para>Download: <ulink url="&libarchive-url;"/></para>
+        <para>MD5 sum: <literal>&libarchive-md5;</literal></para>
+        <para>Download: <ulink url="&pacman-url;"/></para>
+        <para>MD5 sum: <literal>&pacman-md5;</literal></para>
 </sect1>
 
 <!-- If needed, uncomment and edit this:
@@ -35,12 +49,20 @@ Do not change  anything, except the url and the md5 checksum. -->
 
 <!-- Do not change the next line. The name of the scriptlet will be taken
 from the dbhtml instruction: it is the name of the file less .html, with
-xxx-x-added before (x, digits). Furthermore, the tarball name must be in the form
-name_x.y.z(.extension) or name-x.y.z(.extension) if the dbhtml
-instruction  contains file="name.html" -->
+xxx-x-added before (x, digits).-->
 <sect1 id="ch-tools-libarchive" role="wrap">
   <?dbhtml filename="libarchive.html"?>
+
+  <sect1info condition="script">
+    <productname>libarchive</productname>
+    <productnumber>&libarchive-version;</productnumber>
+    <address>&libarchive-url;</address>
+  </sect1info>
+
+  <title>Libarchive-&libarchive-version;</title>
+
   <sect2 role="installation">
+    <title/>
 <screen><userinput remap="configure">./configure --prefix=/tools \
             --without-bz2lib \
             --without-xml2   \
@@ -51,9 +73,20 @@ instruction  contains file="name.html" -->
   </sect2>
 
 </sect1>
+
 <sect1 id="ch-tools-curl" role="wrap">
   <?dbhtml filename="curl.html"?>
+
+  <sect1info condition="script">
+    <productname>curl</productname>
+    <productnumber>&curl-version;</productnumber>
+    <address>&curl-url;</address>
+  </sect1info>
+
+  <title>Curl-&curl-version;</title>
+
   <sect2 role="installation">
+    <title/>
 <screen><userinput remap="configure">./configure --prefix=/tools \
             --disable-static</userinput></screen>
 <screen><userinput remap="make">make</userinput></screen>
@@ -64,9 +97,17 @@ instruction  contains file="name.html" -->
 
 <sect1 id="ch-tools-pkgmngt" role="wrap">
   <?dbhtml filename="pacman.html"?>
-<!-- next line mandatory without change, but feel free to add any title,
-other sect2 (with different role), sectinfo and so on -->
+
+  <sect1info condition="script">
+    <productname>pacman</productname>
+    <productnumber>&pacman-version;</productnumber>
+    <address>&pacman-url;</address>
+  </sect1info>
+
+  <title>Pacman-&pacman-version;</title>
+
   <sect2 role="installation">
+    <title/>
 <!-- You can use any number of remap="pre", "configure", "make", "test", "install"
 <screen><userinput remap="something">Instructions</userinput></screen>.
 They are executed in that order. "pre" can be used for patching for example.
@@ -110,13 +151,15 @@ end of the creating dirs instructions of the book. Do not change the
 following line -->
 <sect1 id="ch-pkgmngt-creatingdirs">
 
-<!-- Put the create dir intructions there. feel free to add
-any explaining <title>Title</title> and <para>explanations</para> -->
+  <title>Creating Directories</title>
+
 <screen><userinput>mkdir -pv /var/{lib/{packages,pacman},cache/pkg}</userinput></screen>
 
 </sect1>
 <!-- Same for files. Do not change the following line -->
 <sect1 id="ch-pkgmngt-createfiles">
+
+  <title>Creating Essential Files</title>
 
 <para>No file?</para>
 
@@ -131,7 +174,17 @@ sets of instructions end up in the same file, which is usually not a problem.
 -->
 <sect1 id="ch-system-libarchive" role="wrap">
   <?dbhtml filename="libarchive.html"?>
+
+  <sect1info condition="script">
+    <productname>libarchive</productname>
+    <productnumber>&libarchive-version;</productnumber>
+    <address>&libarchive-url;</address>
+  </sect1info>
+
+  <title>Libarchive-&libarchive-version;</title>
+
   <sect2 role="installation">
+    <title/>
 <screen><userinput remap="configure">./configure --prefix=/usr \
             --disable-static</userinput></screen>
 <screen><userinput remap="make">make</userinput></screen>
@@ -141,22 +194,41 @@ sets of instructions end up in the same file, which is usually not a problem.
 </sect1>
 <sect1 id="ch-system-curl" role="wrap">
   <?dbhtml filename="curl.html"?>
+
+  <sect1info condition="script">
+    <productname>curl</productname>
+    <productnumber>&curl-version;</productnumber>
+    <address>&curl-url;</address>
+  </sect1info>
+
+  <title>Curl-&curl-version;</title>
+
   <sect2 role="installation">
+    <title/>
 <screen><userinput remap="configure">./configure --prefix=/usr \
             --disable-static \
             --enable-threaded-resolver</userinput></screen>
 <screen><userinput remap="make">make</userinput></screen>
 <screen><userinput remap="install">make DESTDIR=$PKG_DEST install
 find docs \( -name "Makefile*" -o -name "*.1" -o -name "*.3" \) -exec rm {} \;
-install -v -d -m755 $PKG_DEST/usr/share/doc/curl-7.39.0
-cp -v -R docs/*     $PKG_DEST/usr/share/doc/curl-7.39.0</userinput></screen>
+install -v -d -m755 $PKG_DEST/usr/share/doc/curl-&curl-version;
+cp -v -R docs/*     $PKG_DEST/usr/share/doc/curl-&curl-version;</userinput></screen>
   </sect2>
 
 </sect1>
 <sect1 id="ch-system-pkgmngt" role="wrap">
   <?dbhtml filename="pacman.html"?>
 
+  <sect1info condition="script">
+    <productname>pacman</productname>
+    <productnumber>&pacman-version;</productnumber>
+    <address>&pacman-url;</address>
+  </sect1info>
+
+  <title>Pacman-&pacman-version;</title>
+
   <sect2 role="installation">
+    <title/>
 
 <screen><userinput remap="configure">./configure --prefix=/usr \
             --sysconfdir=/etc \

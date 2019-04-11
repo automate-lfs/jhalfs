@@ -31,11 +31,16 @@ Do not change  anything, except the url and the md5 checksum. -->
 
 <!-- Do not change the next line. The name of the scriptlet will be taken
 from the dbhtml instruction: it is the name of the file less .html, with
-xxx-x-added before (x, digits). Furthermore, the tarball name must be in the form
-name_x.y.z(.extension) or name-x.y.z(.extension) if the dbhtml
-instruction  contains file="name.html" -->
+xxx-x-added before (x, digits). -->
 <sect1 id="ch-tools-pkgmngt" role="wrap">
   <?dbhtml filename="dpkg.html"?>
+<!-- the next lines are now mandatory for unpacking the tarball at the
+     beginning of the scriptlet -->
+  <sect1info condition="script">
+    <productname>dpkg</productname>
+    <productnumber>x.y.z</productnumber><!-- version -->
+    <address>http://where/is/your/package</address><!-- url -->
+  </sect1info>
 <!-- next line mandatory without change, but feel free to add any title,
 other sect2 (with different role), sectinfo and so on -->
   <sect2 role="installation">
@@ -100,13 +105,18 @@ touch /var/log/dpkg.log</userinput></screen>
 
 <!-- Last but not least : Final instructions for installing the
 package manager at the end of chapter 6. Again, the scriptlet file name is
-taken from the dbhtml instruction, with digits added before and .html cut
-and the tarball name is formed from this name + version. So the file
-here _must_ be the same as in chapter 5. If rendering in html, both
-sets of instructions end up in the same file, which is usually not a problem.
+taken from the dbhtml instruction, with digits added before and .html cut.
 -->
 <sect1 id="ch-system-pkgmngt" role="wrap">
   <?dbhtml filename="dpkg.html"?>
+
+<!-- the next lines are now mandatory for unpacking the tarball at the
+     beginning of the scriptlet -->
+  <sect1info condition="script">
+    <productname>dpkg</productname><!-- for example -->
+    <productnumber>x.y.z</productnumber><!-- version -->
+    <address>http://where/is/your/package</address><!-- url -->
+  </sect1info>
 
   <sect2 role="installation">
 

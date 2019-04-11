@@ -5,7 +5,6 @@ $Id$
 MASTER SCRIPT
 -------------
 
-  - Add a way to choose the network configuration (ip, gateway, etc).
   - [CLFS] Add a switch to choose between static or DHCP network configuration
     for CLFS.
 
@@ -13,7 +12,6 @@ MASTER SCRIPT
 xLFS MODULES
 ------------
 
-  - Add a way to choose the network configuration (ip, gateway, etc).
   - [CLFS] Add a switch to choose between static or DHCP network configuration
     for CLFS.
 
