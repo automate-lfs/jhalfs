@@ -1,4 +1,4 @@
-
+# shellcheck shell=bash
 # $Id$
 
 set -e
@@ -15,11 +15,9 @@ declare -r  ERASE_LINE=${CSI}$'2K'
 declare -r  FRAME_OPEN=${CSI}$'2G['
 declare -r  FRAME_CLOSE=${CSI}$'63G]'
 declare -r  TS_POSITION=${CSI}$'65G'
-declare -r  LINE_WRAP_OFF=${CSI}$'?7l'
-declare -r  LINE_WRAP_ON=${CSI}$'?7h'
-declare -a  RESET_LINE=${CURSOR_OFF}${ERASE_LINE}${FRAME_OPEN}${FRAME_CLOSE}
+declare -r  RESET_LINE=${CURSOR_OFF}${ERASE_LINE}${FRAME_OPEN}${FRAME_CLOSE}
 
-declare -a  GRAPHIC_STR="| / - \\ + "
+declare -r  GRAPHIC_STR="| / - \\ + "
 declare -i  SEC=0  # Seconds accumulator
 declare -i  PREV_SEC=0
 
@@ -49,22 +47,22 @@ write_or_exit "${RESET_LINE}${TS_POSITION}0 min. 0 sec"
   # loop forever..
 while true ; do
 
-      # Loop through the animation string
-    for GRAPHIC_CHAR in ${GRAPHIC_STR} ; do
-      write_or_exit "${CSI}$((SEC + 3))G${GRAPHIC_CHAR}"
-      $SLEEP .12 # This value MUST be less than .2 seconds.
-    done
+    # Loop through the animation string
+  for GRAPHIC_CHAR in ${GRAPHIC_STR} ; do
+    write_or_exit "${CSI}$((SEC + 3))G${GRAPHIC_CHAR}"
+    $SLEEP .12 # This value MUST be less than .2 seconds.
+  done
 
-      # A BASH internal variable, the number of seconds the script
-      # has been running. modulo convert to 0-59
-    SEC=$(($SECONDS % 60))
+    # A BASH internal variable, the number of seconds the script
+    # has been running. modulo convert to 0-59
+  SEC=$((SECONDS % 60))
 
-      # Detect rollover of the seconds.
-    (( PREV_SEC > SEC )) && write_or_exit "${RESET_LINE}"
-    PREV_SEC=$SEC
+    # Detect rollover of the seconds.
+  (( PREV_SEC > SEC )) && write_or_exit "${RESET_LINE}"
+  PREV_SEC=$SEC
 
-      # Display the accumulated time. div minutes.. modulo seconds.
-    write_or_exit "${TS_POSITION}$(($SECONDS / 60)) min. $SEC sec"
+    # Display the accumulated time. div minutes.. modulo seconds.
+  write_or_exit "${TS_POSITION}$((SECONDS / 60)) min. $SEC sec"
 done
 
 exit
