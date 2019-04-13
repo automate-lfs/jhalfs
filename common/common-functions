@@ -34,9 +34,9 @@ run_make() {                 #
       exit 1
     fi
     # Build the system
-    if [ -e $MKFILE ] ; then
+    if [ -e "$MKFILE" ] ; then
       echo -ne "Building the system...\n"
-      cd $JHALFSDIR && make
+      cd "$JHALFSDIR" && make
       echo -ne "done\n"
     fi
   fi
@@ -97,27 +97,3 @@ if [ "${CLEAN}" = "y" ]; then
   fi
 fi
 }
-
-VERBOSITY2=$VERBOSITY
-
-[[ $VERBOSITY2 > 0 ]] && echo ""
-
-[[ $VERBOSITY2 > 0 ]] && echo -n "Loading <func_book_parser>..."
-source $COMMON_DIR/libs/func_book_parser
-[[ $? > 0 ]] && echo "file libs/func_book_parser did not load.." && exit 1
-[[ $VERBOSITY2 > 0 ]] && echo "OK"
-
-
-[[ $VERBOSITY2 > 0 ]] && echo -n "Loading <func_download_pkgs>..."
-source $COMMON_DIR/libs/func_download_pkgs
-[[ $? > 0 ]] && echo "file libs/func_download_pkgs did not load.." && exit 1
-[[ $VERBOSITY2 > 0 ]] && echo "OK"
-
-
-[[ $VERBOSITY2 > 0 ]] && echo -n "Loading <func_wrt_Makefile>..."
-source $COMMON_DIR/libs/func_wrt_Makefile
-[[ $? > 0 ]] && echo "file libs/func_wrt_Makefile did not load.." && exit 1
-[[ $VERBOSITY2 > 0 ]] && echo "OK"
-
-
-[[ $VERBOSITY2 > 0 ]] && echo -n "    ..."

@@ -5,27 +5,22 @@ set -e
 set -E
 
 # VT100 colors
-declare -r  BLACK=$'\e[1;30m'
-declare -r  DK_GRAY=$'\e[0;30m'
-
 declare -r  RED=$'\e[31m'
 declare -r  GREEN=$'\e[32m'
 declare -r  YELLOW=$'\e[33m'
-declare -r  BLUE=$'\e[34m'
-declare -r  MAGENTA=$'\e[35m'
-declare -r  CYAN=$'\e[36m'
-declare -r  WHITE=$'\e[37m'
 
+# shellcheck disable=SC2034
+declare -r  BLUE=$'\e[34m'
 declare -r  OFF=$'\e[0m'
 declare -r  BOLD=$'\e[1m'
-declare -r  REVERSE=$'\e[7m'
-declare -r  HIDDEN=$'\e[8m'
-
 declare -r  tab_=$'\t'
 declare -r  nl_=$'\n'
 
+# shellcheck disable=SC2034
 declare -r   DD_BORDER="${BOLD}==============================================================================${OFF}"
+# shellcheck disable=SC2034
 declare -r   SD_BORDER="${BOLD}------------------------------------------------------------------------------${OFF}"
+# shellcheck disable=SC2034
 declare -r STAR_BORDER="${BOLD}******************************************************************************${OFF}"
 
 # bold yellow > <  pair
@@ -37,20 +32,14 @@ declare -r L_arrow=$'\e[1;33m<\e[0m'
 #-----------------------#
 simple_error() {        # Basic error trap.... JUST DIE
 #-----------------------#
-  # If +e then disable text output
-  if [[ "$-" =~ e ]]; then
-    LASTLINE="$1"
-    LASTERR="$2"
-    LASTFUNC="$3"
-    LASTSOURCE="$4"
-#    echo -e "\n${RED}ERROR:${GREEN} basic error trapped!${OFF}\n" >&2
-    echo -e "\n${RED}ERROR:${GREEN} Error $LASTERR at $LASTSOURCE line ${LASTLINE}!${OFF}\n" >&2
-  fi
-  exit $LASTERR
+  LASTLINE="$1"
+  LASTERR="$2"
+  LASTSOURCE="$4"
+  error_message "${GREEN} Error $LASTERR at $LASTSOURCE line ${LASTLINE}!"
 }
 
 see_ya() {
-    echo -e "\n${L_arrow}${BOLD}jhalfs${R_arrow} exit${OFF}\n"
+  printf '\n%b%bjhalfs%b exit%b\n' "$L_arrow" "$BOLD" "$R_arrow" "$OFF"
 }
 ##### Simple error TRAPS
 # ctrl-c   SIGINT
@@ -70,6 +59,45 @@ trap 'echo -e "\n\n${RED}INTERRUPT${OFF} trapped\n" &&  exit 2' \
       HUP INT QUIT TERM # STOP stops tterminal output and does not seem to
                         # execute the handler
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+simple_message() {
+  # Prevents having to check $VERBOSITY everywhere
+  if [ "$VERBOSITY" -ne 0 ] ; then
+    # shellcheck disable=SC2059
+    printf "$*"
+  fi
+}
+
+warning_message() {
+  simple_message "${YELLOW}\\nWARNING:${OFF} $*\\n\\n"
+}
+
+error_message() {
+  # Prints an error message and exits with LASTERR or 1
+  if [ -n "$LASTERR" ] ; then
+    LASTERR=$(printf '%d' "$LASTERR")
+  else
+    LASTERR=1
+  fi
+  # If +e then disable text output
+  if [[ "$-" =~ e ]]; then
+    printf '\n\n%bERROR:%b %s\n' "$RED" "$OFF" "$*" >&2
+  fi
+  exit "$LASTERR"
+}
+
+load_file() {
+  # source files in a consistent way with an optional message
+  file="$1"
+  shift
+  msg="Loading file ${file}..."
+  [ -z "$*" ] || msg="$*..."
+  simple_message "$msg"
+
+  # shellcheck disable=SC1090
+  source "$file" 2>/dev/null || error_message "$file did not load"
+  simple_message "OK\\n"
+}
 
 version="
 ${BOLD}  \"jhalfs\"${OFF} builder tool (development) \$Rev$
@@ -96,11 +124,12 @@ esac
 
 # If the user has not saved his configuration file, let's ask
 # if he or she really wants to run this stuff
-if [ $(ls -l --time-style='+%Y%m%d%H%M%S' configuration.old | cut -d' ' -f 6) \
- -ge $(ls -l --time-style='+%Y%m%d%H%M%S' configuration | cut -d' ' -f 6) ]
+time_old=$(stat -c '%Y' configuration.old 2>/dev/null)
+time_current=$(stat -c '%Y' configuration 2>/dev/null)
+if [ "$(printf '%d' "$time_old")" -ge "$(printf '%d' "$time_current")" ]
   then echo -n "Do you want to run jhalfs? yes/no (yes): "
-  read ANSWER
-  if [ x${ANSWER:0:1} = "xn" -o x${ANSWER:0:1} = "xN" ] ; then
+  read -r ANSWER
+  if [ "x${ANSWER:0:1}" = "xn" ] || [ "x${ANSWER:0:1}" = "xN" ] ; then
     echo "${nl_}Exiting gracefully.${nl_}"
     exit
   fi
@@ -109,10 +138,7 @@ fi
 # Change this to 0 to suppress almost all messages
 VERBOSITY=1
 
-[[ $VERBOSITY > 0 ]] && echo -n "Loading config params from <configuration>..."
-source configuration
-[[ $? > 0 ]] && echo "file: configuration did not load.." && exit 1
-[[ $VERBOSITY > 0 ]] && echo "OK"
+load_file configuration "Loading config params from <configuration>"
 
 # These are boolean vars generated from Config.in.
 # ISSUE: If a boolean parameter is not set to y(es) there
@@ -150,16 +176,17 @@ LOCAL=${LOCAL:=n}
 REALSBU=${REALSBU:=n}
 
 if [[ "${NO_PROGRESS_BAR}" = "y" ]] ; then
-	NO_PROGRESS="#"
+# shellcheck disable=SC2034
+  NO_PROGRESS="#"
 fi
 
 
 # Sanity check on the location of $BUILDDIR / $JHALFSDIR
-CWD=$(cd `dirname $0` && pwd)
-if [[ $JHALFSDIR == $CWD ]]; then
-    echo " The jhalfs source directory conflicts with the jhalfs build directory."
-    echo " Please move the source directory or change the build directory."
-    exit 2
+CWD="$(cd "$(dirname "$0")" && pwd)"
+if [[ $JHALFSDIR == "$CWD" ]]; then
+  echo " The jhalfs source directory conflicts with the jhalfs build directory."
+  echo " Please move the source directory or change the build directory."
+  exit 2
 fi
 
 # Book sources envars
@@ -218,65 +245,59 @@ BOOK=${BOOK:=$JHALFSDIR/$PROGNAME-$LFSVRS}
 
 
 #--- Envars not sourced from configuration
+# shellcheck disable=SC2034
 case $PROGNAME in
-      clfs ) declare -r GIT="git://git.clfs.org/cross-lfs" ;;
-      clfs2 ) declare -r GIT="git://git.clfs.org/clfs-sysroot" ;;
-      clfs3 ) declare -r GIT="git://git.clfs.org/clfs-embedded" ;;
-      *) declare -r SVN="svn://svn.linuxfromscratch.org" ;;
+  clfs ) declare -r GIT="git://git.clfs.org/cross-lfs" ;;
+  clfs2 ) declare -r GIT="git://git.clfs.org/clfs-sysroot" ;;
+  clfs3 ) declare -r GIT="git://git.clfs.org/clfs-embedded" ;;
+  *) declare -r SVN="svn://svn.linuxfromscratch.org" ;;
 esac
+
 declare -r LOG=000-masterscript.log
-  # Needed for fetching BLFS book sources when building CLFS
+# Needed for fetching BLFS book sources when building CLFS
+# shellcheck disable=SC2034
 declare -r SVN_2="svn://svn.linuxfromscratch.org"
 
 # Set true internal variables
 COMMON_DIR="common"
-PACKAGE_DIR=$(echo $PROGNAME | tr '[a-z]' '[A-Z]')
+PACKAGE_DIR=$(echo "$PROGNAME" | tr '[:lower:]' '[:upper:]')
 MODULE=$PACKAGE_DIR/master.sh
 PKGMNGTDIR="pkgmngt"
 # The name packageManager.xml is hardcoded in *.xsl, so no variable.
 
-[[ $VERBOSITY > 0 ]] && echo -n "Loading common-functions module..."
-source $COMMON_DIR/common-functions
-[[ $? > 0 ]] && echo " $COMMON_DIR/common-functions did not load.." && exit
-[[ $VERBOSITY > 0 ]] && echo "OK"
-[[ $VERBOSITY > 0 ]] && echo -n "Loading code module <$MODULE>..."
-source $MODULE
-[[ $? > 0 ]] && echo "$MODULE did not load.." && exit 2
-[[ $VERBOSITY > 0 ]] && echo "OK"
-#
-[[ $VERBOSITY > 0 ]] && echo "${SD_BORDER}${nl_}"
+for file in \
+    "$COMMON_DIR/common-functions" \
+    "$COMMON_DIR/libs/func_book_parser" \
+    "$COMMON_DIR/libs/func_download_pkgs" \
+    "$COMMON_DIR/libs/func_wrt_Makefile" \
+    "$MODULE" ; do
+  load_file "$file"
+done
+
+simple_message "${SD_BORDER}${nl_}"
 
 
 #*******************************************************************#
-[[ $VERBOSITY > 0 ]] && echo -n "Loading function <func_check_version.sh>..."
-source $COMMON_DIR/libs/func_check_version.sh
-[[ $? > 0 ]] && echo " function module did not load.." && exit 2
-[[ $VERBOSITY > 0 ]] && echo "OK"
+LASTERR=2
+for file in \
+    "$COMMON_DIR/libs/func_check_version.sh" \
+    "$COMMON_DIR/libs/func_validate_configs.sh" \
+    "$COMMON_DIR/libs/func_custom_pkgs" ; do
+  load_file "$file"
+done
+unset LASTERR
 
-[[ $VERBOSITY > 0 ]] && echo -n "Loading function <func_validate_configs.sh>..."
-source $COMMON_DIR/libs/func_validate_configs.sh
-[[ $? > 0 ]] && echo " function module did not load.." && exit 2
-[[ $VERBOSITY > 0 ]] && echo "OK"
-
-[[ $VERBOSITY > 0 ]] && echo -n "Loading function <func_custom_pkgs>..."
-source $COMMON_DIR/libs/func_custom_pkgs
-[[ $? > 0 ]] && echo " function module did not load.." && exit 2
-[[ $VERBOSITY > 0 ]] && echo "OK"
-
-
-[[ $VERBOSITY > 0 ]] && echo "${SD_BORDER}${nl_}"
-
-[[ $VERBOSITY > 0 ]] && echo Checking tools required for jhalfs
+simple_message "${SD_BORDER}${nl_}"
+simple_message 'Checking tools required for jhalfs'
 check_alfs_tools
-
-[[ $VERBOSITY > 0 ]] && echo "${SD_BORDER}${nl_}"
+simple_message "${SD_BORDER}${nl_}"
 
 # blfs-tool envars
 BLFS_TOOL=${BLFS_TOOL:-n}
 if [[ "${BLFS_TOOL}" = "y" ]] ; then
-  [[ $VERBOSITY > 0 ]] && echo Checking supplementary tools for installing BLFS
+  simple_message 'Checking supplementary tools for installing BLFS'
   check_blfs_tools
-  [[ $VERBOSITY > 0 ]] && echo "${SD_BORDER}${nl_}"
+  simple_message "${SD_BORDER}${nl_}"
   BLFS_SVN=${BLFS_SVN:-n}
   BLFS_WORKING_COPY=${BLFS_WORKING_COPY:-n}
   BLFS_BRANCH=${BLFS_BRANCH:-n}
@@ -284,17 +305,16 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
     BLFS_BRANCH_ID=development
     BLFS_TREE=trunk/BOOK
   elif [[ "${BLFS_WORKING_COPY}" = "y" ]]; then
-    [[ -d "$BLFS_WC_LOCATION" ]] &&
-    [[ -d "$BLFS_WC_LOCATION/postlfs" ]] || {
+    if [[ ! -d "$BLFS_WC_LOCATION/postlfs" ]] ; then
       echo " BLFS tools: This is not a working copy: $BLFS_WC_LOCATION."
       echo " Please rerun make and fix the configuration."
       exit 2
-      }
-    BLFS_TREE=$(cd $BLFS_WC_LOCATION; svn info | grep '^URL' | sed 's@.*BLFS/@@')
-    BLFS_BRANCH_ID=$(echo $BLFS_TREE | sed -e 's@trunk/BOOK@development@' \
-                                           -e 's@branches/@branch-@' \
-                                           -e 's@tags/@@' \
-                                           -e 's@/BOOK@@')
+    fi
+    BLFS_TREE=$(cd "$BLFS_WC_LOCATION"; svn info | grep '^URL' | sed 's@.*BLFS/@@')
+    BLFS_BRANCH_ID=$(echo "$BLFS_TREE" | sed -e 's@trunk/BOOK@development@' \
+                                             -e 's@branches/@branch-@' \
+                                             -e 's@tags/@@' \
+                                             -e 's@/BOOK@@')
   elif [[ "${BLFS_BRANCH}" = "y" ]] ; then
     case $BLFS_BRANCH_ID in
            *EDIT* )  echo " You forgot to set the BLFS branch or stable book version."
@@ -306,10 +326,7 @@ if [[ "${BLFS_TOOL}" = "y" ]] ; then
                 * )  BLFS_TREE=tags/${BLFS_BRANCH_ID}/BOOK ;;
     esac
   fi
-  [[ $VERBOSITY > 0 ]] && echo -n "Loading blfs tools installation function..."
-  source $COMMON_DIR/libs/func_install_blfs
-  [[ $? > 0 ]] && echo "function module did not load.." && exit 1
-  [[ $VERBOSITY > 0 ]] && echo "OK"
+  load_file "${COMMON_DIR}/libs/func_install_blfs"
 fi
 
 ###################################
@@ -320,8 +337,8 @@ fi
 validate_config
 echo "${SD_BORDER}${nl_}"
 echo -n "Are you happy with these settings? yes/no (no): "
-read ANSWER
-if [ x$ANSWER != "xyes" ] ; then
+read -r ANSWER
+if [ "x$ANSWER" != "xyes" ] ; then
   echo "${nl_}Rerun make to fix the configuration options.${nl_}"
   exit
 fi
@@ -330,25 +347,17 @@ echo "${nl_}${SD_BORDER}${nl_}"
 # Load additional modules or configuration files based on global settings
 # compare module
 if [[ "$COMPARE" = "y" ]]; then
-  [[ $VERBOSITY > 0 ]] && echo -n "Loading compare module..."
-  source $COMMON_DIR/libs/func_compare.sh
-  [[ $? > 0 ]] && echo "$COMMON_DIR/libs/func_compare.sh did not load.." && exit
-  [[ $VERBOSITY > 0 ]] && echo "OK"
+  load_file "${COMMON_DIR}/libs/func_compare.sh" 'Loading compare module'
 fi
 #
 # optimize module
 if [[ "$OPTIMIZE" != "0" ]]; then
-  [[ $VERBOSITY > 0 ]] && echo -n "Loading optimization module..."
-  source optimize/optimize_functions
-  [[ $? > 0 ]] && echo " optimize/optimize_functions did not load.." && exit
-  [[ $VERBOSITY > 0 ]] && echo "OK"
+  load_file optimize/optimize_functions 'Loading optimization module'
   #
   # optimize configurations
-  [[ $VERBOSITY > 0 ]] && echo -n "Loading optimization config..."
-  source optimize/opt_config
-  [[ $? > 0 ]] && echo " optimize/opt_config did not load.." && exit
-  [[ $VERBOSITY > 0 ]] && echo "OK"
+  load_file optimize/opt_config 'Loading optimization config'
   # The number of parallel jobs is taken from configuration now
+  # shellcheck disable=SC2034
   MAKEFLAGS="-j${N_PARALLEL}"
   # Validate optimize settings, if required
   validate_opt_settings
@@ -361,74 +370,74 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
   clean_builddir
 
   if [[ ! -d $JHALFSDIR ]]; then
-    sudo mkdir -p $JHALFSDIR
-    sudo chown $USER:$USER $JHALFSDIR
+    sudo mkdir -p "$JHALFSDIR"
+    sudo chown "$USER":"$USER" "$JHALFSDIR"
   fi
 
 # Create $BUILDDIR/sources even though it could be created by get_sources()
   if [[ ! -d $BUILDDIR/sources ]]; then
-    sudo mkdir -p $BUILDDIR/sources
-    sudo chmod a+wt $BUILDDIR/sources
+    sudo mkdir -p "$BUILDDIR/sources"
+    sudo chmod a+wt "$BUILDDIR/sources"
   fi
 
 # Create the log directory
   if [[ ! -d $LOGDIR ]]; then
-    mkdir $LOGDIR
+    mkdir "$LOGDIR"
   fi
-  >$LOGDIR/$LOG
+  true >"$LOGDIR/$LOG"
 
 # Copy common helper files
-  cp $COMMON_DIR/{makefile-functions,progress_bar.sh} $JHALFSDIR/
+  cp "$COMMON_DIR"/{makefile-functions,progress_bar.sh} "$JHALFSDIR/"
 
 # Copy needed stylesheets
-  cp $COMMON_DIR/{packages.xsl,chroot.xsl,kernfs.xsl} $JHALFSDIR/
+  cp "$COMMON_DIR"/{packages.xsl,chroot.xsl,kernfs.xsl} "$JHALFSDIR/"
 
 # Fix the XSL book parser
   case $PROGNAME in
-    clfs* ) sed 's,FAKEDIR,'${BOOK}/BOOK',' ${PACKAGE_DIR}/${XSL} > $JHALFSDIR/${XSL} ;;
-    lfs | hlfs ) sed 's,FAKEDIR,'$BOOK',' $PACKAGE_DIR/$XSL > $JHALFSDIR/${XSL} ;;
+    clfs* ) sed 's,FAKEDIR,'"${BOOK}/BOOK"',' "${PACKAGE_DIR}/${XSL}" > "${JHALFSDIR}/${XSL}" ;;
+    lfs | hlfs ) sed 's,FAKEDIR,'"$BOOK"',' "${PACKAGE_DIR}/${XSL}" > "${JHALFSDIR}/${XSL}" ;;
     * ) ;;
   esac
   export XSL=$JHALFSDIR/${XSL}
 
 # Copy packageManager.xml, if needed
   [[ "$PKGMNGT" = "y" ]] && [[ "$PROGNAME" = "lfs" ]] && {
-    cp $PKGMNGTDIR/packageManager.xml  $JHALFSDIR/
-    cp $PKGMNGTDIR/packInstall.sh  $JHALFSDIR/
+    cp "$PKGMNGTDIR/packageManager.xml" "$JHALFSDIR/"
+    cp "$PKGMNGTDIR/packInstall.sh" "$JHALFSDIR/"
     }
 
 # Copy urls.xsl, if needed
-  [[ "$GETPKG" = "y" ]] && cp $COMMON_DIR/urls.xsl  $JHALFSDIR/
+  [[ "$GETPKG" = "y" ]] && cp "$COMMON_DIR/urls.xsl" "$JHALFSDIR/"
 
 # Always create the test-log directory to allow user to "uncomment" test
 # instructions
-  install -d -m 1777 $TESTLOGDIR
+  install -d -m 1777 "$TESTLOGDIR"
 
 # Create the installed-files directory, if needed
-  [[ "$INSTALL_LOG" = "y" ]] && [[ ! -d $FILELOGDIR ]] && install -d -m 1777 $FILELOGDIR
+  [[ "$INSTALL_LOG" = "y" ]] && [[ ! -d $FILELOGDIR ]] && install -d -m 1777 "$FILELOGDIR"
 
 # Prepare report creation, if needed
   if [[ "$REPORT" = "y" ]]; then
-    cp $COMMON_DIR/create-sbu_du-report.sh  $JHALFSDIR/
+    cp $COMMON_DIR/create-sbu_du-report.sh  "$JHALFSDIR/"
     # After making sure that all looks sane, dump the settings to a file
     # This file will be used to create the REPORT header
-    validate_config > $JHALFSDIR/jhalfs.config
+    validate_config >"$JHALFSDIR/jhalfs.config"
   fi
 
 # Copy optimize files, if needed
-  [[ "$OPTIMIZE" != "0" ]] && cp optimize/opt_override $JHALFSDIR/
+  [[ "$OPTIMIZE" != "0" ]] && cp optimize/opt_override "$JHALFSDIR/"
 
 # Copy compare files, if needed
   if [[ "$COMPARE" = "y" ]]; then
-    mkdir -p $JHALFSDIR/extras
-    cp extras/* $JHALFSDIR/extras
+    mkdir -p "$JHALFSDIR/extras"
+    cp extras/* "$JHALFSDIR/extras"
   fi
 
 # Copy custom tools config files, if requested
   if [[ "${CUSTOM_TOOLS}" = "y" ]]; then
     echo "Copying custom tool scripts to $JHALFSDIR"
-    mkdir -p $JHALFSDIR/custom-commands
-    cp -f custom/config/* $JHALFSDIR/custom-commands
+    mkdir -p "$JHALFSDIR/custom-commands"
+    cp -f custom/config/* "$JHALFSDIR/custom-commands"
   fi
 
 # Download or updates the book source
@@ -437,12 +446,12 @@ if [[ "$REBUILD_MAKEFILE" = "n" ]] ; then
   get_book
   extract_commands
   echo "${SD_BORDER}${nl_}"
-  cd $CWD # the functions above change directory
+  cd "$CWD" # the functions above change directory
 
 # Install blfs-tool, if requested.
   if [[ "${BLFS_TOOL}" = "y" ]] ; then
     echo Installing BLFS book and tools
-    install_blfs_tools 2>&1 | tee -a $LOGDIR/$LOG
+    install_blfs_tools 2>&1 | tee -a "$LOGDIR/$LOG"
     [[ ${PIPESTATUS[0]} != 0 ]] && exit 1
   fi
 
@@ -450,19 +459,20 @@ fi
 
 # When regenerating the Makefile, we need to know also the
 # canonical book version
+# shellcheck disable=SC2034
 if [[ "$REBUILD_MAKEFILE" = "y" ]] ; then
   case $PROGNAME in
     clfs* )
-      VERSION=$(xmllint --noent $BOOK/prologue/$ARCH/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
+      VERSION=$(xmllint --noent "$BOOK/prologue/$ARCH/bookinfo.xml" 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
     lfs)
       if [[ "$INITSYS" = "sysv" ]] ; then
-        VERSION=$(grep 'ENTITY version ' $BOOK/general.ent| cut -d\" -f2)
+        VERSION=$(grep 'ENTITY version ' "$BOOK/general.ent" | cut -d\" -f2)
       else
-        VERSION=$(grep 'ENTITY versiond' $BOOK/general.ent| cut -d\" -f2)
+        VERSION=$(grep 'ENTITY versiond' "$BOOK/general.ent" | cut -d\" -f2)
       fi
       ;;
     *)
-      VERSION=$(xmllint --noent $BOOK/prologue/bookinfo.xml 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
+      VERSION=$(xmllint --noent "$BOOK/prologue/bookinfo.xml" 2>/dev/null | grep subtitle | sed -e 's/^.*ion //'  -e 's/<\/.*//') ;;
   esac
 fi
 
@@ -472,7 +482,7 @@ echo "${SD_BORDER}${nl_}"
 
 # Check for build prerequisites.
   echo
-  cd $CWD
+  cd "$CWD"
   check_prerequisites
   echo "${SD_BORDER}${nl_}"
 # All is well, run the build (if requested)
