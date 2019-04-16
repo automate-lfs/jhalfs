@@ -1,4 +1,4 @@
-# $Id:$
+# $Id$
 # functions for recording installation of a package and make a tarball,
 # or using fakeroot type commands for install, then packing and installing
 # the package.
