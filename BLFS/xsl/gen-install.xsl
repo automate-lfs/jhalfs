@@ -5,7 +5,6 @@
 
 <!-- $Id$ -->
 
-
   <xsl:template match="screen" mode="installation">
 <!-- "nature" variables:
       - 'non-root': executable as user
