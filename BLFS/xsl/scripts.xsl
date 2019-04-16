@@ -9,7 +9,8 @@
 
 <!-- XSLT stylesheet to create shell scripts from "linear build" BLFS books. -->
 
-<!-- Check whether the book is sysv or systemd -->
+<!-- parameters and global variables -->
+  <!-- Check whether the book is sysv or systemd -->
   <xsl:variable name="rev">
     <xsl:choose>
       <xsl:when test="//bookinfo/title/phrase[@revision='systemd']">
@@ -80,64 +81,74 @@ done
 
 </xsl:variable>
 
-<xsl:variable name="list-stat-norm"
-              select="concat(' ', normalize-space($list-stat),' ')"/>
+  <xsl:variable name="list-stat-norm"
+                select="concat(' ', normalize-space($list-stat),' ')"/>
+
+<!-- To be able to use the single quote in tests -->
+  <xsl:variable name="APOS">'</xsl:variable>
+
+<!-- end parameters and global variables -->
+
+<!-- include the templates for the screen children of role="install" sect2 -->
+  <xsl:include href="gen-install.xsl"/>
+
+<!--=================== Begin processing ========================-->
 
   <xsl:template match="/">
-    <xsl:apply-templates select="//sect1"/>
+    <xsl:apply-templates select="//sect1[@id != 'bootscripts' and
+                                         @id != 'systemd-units']"/>
   </xsl:template>
 
 <!--=================== Master chunks code ======================-->
 
   <xsl:template match="sect1">
 
-    <xsl:if test="@id != 'bootscripts' and @id != 'systemd-units'">
-        <!-- The file names -->
-      <xsl:variable name="filename" select="@id"/>
+      <!-- The file names -->
+    <xsl:variable name="filename" select="@id"/>
 
-        <!-- The build order -->
-      <xsl:variable name="position" select="position()"/>
-      <xsl:variable name="order">
-        <xsl:choose>
-          <xsl:when test="string-length($position) = 1">
-            <xsl:text>00</xsl:text>
-            <xsl:value-of select="$position"/>
-          </xsl:when>
-          <xsl:when test="string-length($position) = 2">
-            <xsl:text>0</xsl:text>
-            <xsl:value-of select="$position"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="$position"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable>
+      <!-- The build order -->
+    <xsl:variable name="position" select="position()"/>
+    <xsl:variable name="order">
+      <xsl:choose>
+        <xsl:when test="string-length($position) = 1">
+          <xsl:text>00</xsl:text>
+          <xsl:value-of select="$position"/>
+        </xsl:when>
+        <xsl:when test="string-length($position) = 2">
+          <xsl:text>0</xsl:text>
+          <xsl:value-of select="$position"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$position"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
 
       <!-- Depuration code -->
-      <xsl:message>
-        <xsl:text>SCRIPT is </xsl:text>
-        <xsl:value-of select="concat($order,'-z-',$filename)"/>
-        <xsl:text>&#xA;    FTPDIR is </xsl:text>
-        <xsl:value-of select="$filename"/>
-        <xsl:text>&#xA;&#xA;</xsl:text>
-      </xsl:message>
+    <xsl:message>
+      <xsl:text>SCRIPT is </xsl:text>
+      <xsl:value-of select="concat($order,'-z-',$filename)"/>
+      <xsl:text>&#xA;    FTPDIR is </xsl:text>
+      <xsl:value-of select="$filename"/>
+      <xsl:text>&#xA;&#xA;</xsl:text>
+    </xsl:message>
 
-        <!-- Creating the scripts -->
-      <exsl:document href="{$order}-z-{$filename}" method="text">
-        <xsl:text>#!/bin/bash
+      <!-- Creating the scripts -->
+    <exsl:document href="{$order}-z-{$filename}" method="text">
+      <xsl:text>#!/bin/bash
 set -e
 unset MAKELEVEL
-
+<!-- the above is needed for some packages -->
 </xsl:text>
-        <xsl:choose>
-          <!-- Package page -->
-          <xsl:when test="sect2[@role='package']">
-            <!-- We build in a subdirectory, whose name may be needed
-                 if using package management (see envars.conf), so
-                 "export" it -->
-            <xsl:text>export JH_PKG_DIR=</xsl:text>
-            <xsl:value-of select="$filename"/>
-            <xsl:text>
+      <xsl:choose>
+        <!-- Package page -->
+        <xsl:when test="sect2[@role='package']">
+          <!-- We build in a subdirectory, whose name may be needed
+               if using package management (see envars.conf), so
+               "export" it -->
+          <xsl:text>export JH_PKG_DIR=</xsl:text>
+          <xsl:value-of select="$filename"/>
+          <xsl:text>
 SRC_DIR=${JH_SRC_ARCHIVE}${JH_SRC_SUBDIRS:+/${JH_PKG_DIR}}
 BUILD_DIR=${JH_BUILD_ROOT}${JH_BUILD_SUBDIRS:+/${JH_PKG_DIR}}
 mkdir -p $SRC_DIR
@@ -146,54 +157,56 @@ mkdir -p $BUILD_DIR
 </xsl:text>
 
 <!-- If stats are requested, include some definitions and intitializations -->
-            <xsl:if test="contains($list-stat-norm,concat(' ',@id,' '))">
-              <xsl:text>INFOLOG=$(pwd)/info-${JH_PKG_DIR}
+          <xsl:if test="contains($list-stat-norm,concat(' ',@id,' '))">
+            <xsl:text>INFOLOG=$(pwd)/info-${JH_PKG_DIR}
 TESTLOG=$(pwd)/test-${JH_PKG_DIR}
 unset MAKEFLAGS
 #MAKEFLAGS=-j4
 echo MAKEFLAGS: $MAKEFLAGS > $INFOLOG
-> $TESTLOG
+: > $TESTLOG
 PKG_DEST=${BUILD_DIR}/dest
 rm -rf $PKG_DEST
 
 </xsl:text>
-            </xsl:if>
-            <!-- Download code and build commands -->
-            <xsl:apply-templates select="sect2"/>
-            <!-- Clean-up -->
-            <xsl:text>cd $BUILD_DIR
+          </xsl:if>
+        <!-- Download code and build commands -->
+          <xsl:apply-templates select="sect2"/>
+        <!-- Clean-up -->
+          <xsl:text>cd $BUILD_DIR
 [[ -n "$JH_KEEP_FILES" ]] || </xsl:text>
-            <!-- In some case, some files in the build tree are owned
-                 by root -->
-            <xsl:if test="$sudo='y'">
-              <xsl:text>sudo </xsl:text>
-            </xsl:if>
-            <xsl:text>rm -rf $JH_UNPACKDIR unpacked&#xA;&#xA;</xsl:text>
-          </xsl:when>
-          <!-- Non-package page -->
-          <xsl:otherwise>
-            <xsl:apply-templates select=".//screen" mode="not-pack"/>
-          </xsl:otherwise>
-        </xsl:choose>
-        <xsl:text>exit</xsl:text>
-      </exsl:document>
-    </xsl:if><!-- id!=bootscript or id!=systemd-units -->
+        <!-- In some case, some files in the build tree are owned
+             by root -->
+          <xsl:if test="$sudo='y'">
+            <xsl:text>sudo </xsl:text>
+          </xsl:if>
+          <xsl:text>rm -rf $JH_UNPACKDIR unpacked&#xA;&#xA;</xsl:text>
+        </xsl:when>
+      <!-- Non-package page -->
+        <xsl:otherwise>
+          <xsl:apply-templates select=".//screen" mode="not-pack"/>
+        </xsl:otherwise>
+      </xsl:choose>
+      <xsl:text>exit</xsl:text>
+    </exsl:document>
   </xsl:template>
 
 <!--======================= Sub-sections code =======================-->
 
   <xsl:template match="sect2">
     <xsl:choose>
+
       <xsl:when test="@role = 'package'">
         <xsl:text>cd $SRC_DIR
 </xsl:text>
         <!-- Download information is in bridgehead tags -->
         <xsl:apply-templates select="bridgehead[@renderas='sect3']"/>
         <xsl:text>&#xA;</xsl:text>
-      </xsl:when>
+      </xsl:when><!-- @role="package" -->
+
       <xsl:when test="@role = 'qt4-prefix' or @role = 'qt5-prefix'">
         <xsl:apply-templates select=".//screen[./userinput]"/>
       </xsl:when>
+
       <xsl:when test="@role = 'installation'">
         <xsl:text>
 cd $BUILD_DIR
@@ -248,17 +261,21 @@ cd $JH_UNPACKDIR&#xA;
         </xsl:if>
 
         <xsl:apply-templates
+             mode="installation"
              select=".//screen[not(@role = 'nodump') and ./userinput] |
-                     .//para/command"/>
+                     .//para/command[contains(text(),'check') or
+                                     contains(text(),'test')]"/>
         <xsl:if test="$sudo = 'y'">
           <xsl:text>sudo /sbin/</xsl:text>
         </xsl:if>
         <xsl:text>ldconfig&#xA;&#xA;</xsl:text>
-      </xsl:when>
+      </xsl:when><!-- @role="installation" -->
+
       <xsl:when test="@role = 'configuration'">
         <xsl:apply-templates mode="config"
              select=".//screen[not(@role = 'nodump') and ./userinput]"/>
-      </xsl:when>
+      </xsl:when><!-- @role="configuration" -->
+
     </xsl:choose>
   </xsl:template>
 
@@ -517,75 +534,30 @@ EOF
     </xsl:choose>
   </xsl:template>
 <!--======================== Commands code ==========================-->
+<!-- Code for installation instructions is in gen-install.xsl -->
 
   <xsl:template match="screen">
-    <xsl:if test="child::* = userinput and not(@role = 'nodump')">
-      <xsl:choose>
-<!-- First the case of installation instructions -->
-        <xsl:when test="@role = 'root' and
-                          ancestor::sect2[@role='installation'] and
-                          not(contains(string(),'useradd')) and
-                          not(contains(string(),'usermod')) and
-                          not(contains(string(),'icon-cache')) and
-                          not(contains(string(),'desktop-database')) and
-                          not(contains(string(),'compile-schemas')) and
-                          not(contains(string(),'groupadd'))">
-          <xsl:if test="not(preceding-sibling::screen[1][@role='root'])">
-            <xsl:if test="contains($list-stat-norm,
-                                   concat(' ',
-                                          ancestor::sect1/@id,
-                                          ' '))">
-              <xsl:call-template name="output-destdir"/>
-            </xsl:if>
-            <xsl:if test="$sudo = 'y'">
-              <xsl:text>sudo -E sh &lt;&lt; ROOT_EOF&#xA;</xsl:text>
-            </xsl:if>
-            <xsl:if test="$wrap-install = 'y'">
-              <xsl:text>if [ -r "$JH_PACK_INSTALL" ]; then
-  source $JH_PACK_INSTALL
-  export -f wrapInstall
-  export -f packInstall
-fi
-wrapInstall '
-</xsl:text>
-            </xsl:if>
+    <xsl:choose>
+<!-- instructions run as root (configuration mainly) -->
+      <xsl:when test="@role = 'root'">
+        <xsl:if test="not(preceding-sibling::screen[1][@role='root'])">
+          <xsl:if test="$sudo = 'y'">
+            <xsl:text>sudo -E sh &lt;&lt; ROOT_EOF&#xA;</xsl:text>
           </xsl:if>
-          <xsl:apply-templates mode="root"/>
-          <xsl:if test="not(following-sibling::screen[1][@role='root'])">
-            <xsl:if test="$del-la-files = 'y'">
-              <xsl:call-template name="output-root">
-                <xsl:with-param name="out-string" select="$la-files-instr"/>
-              </xsl:call-template>
-            </xsl:if>
-            <xsl:if test="$wrap-install = 'y'">
-              <xsl:text>'&#xA;packInstall</xsl:text>
-            </xsl:if>
-            <xsl:if test="$sudo = 'y'">
-              <xsl:text>&#xA;ROOT_EOF</xsl:text>
-            </xsl:if>
+        </xsl:if>
+        <xsl:apply-templates mode="root"/>
+        <xsl:if test="not(following-sibling::screen[1][@role='root'])">
+          <xsl:if test="$sudo = 'y'">
+            <xsl:text>&#xA;ROOT_EOF</xsl:text>
           </xsl:if>
-        </xsl:when>
-<!-- then the case of other instructions run as root (configuration mainly) -->
-        <xsl:when test="@role = 'root'">
-          <xsl:if test="not(preceding-sibling::screen[1][@role='root'])">
-            <xsl:if test="$sudo = 'y'">
-              <xsl:text>sudo -E sh &lt;&lt; ROOT_EOF&#xA;</xsl:text>
-            </xsl:if>
-          </xsl:if>
-          <xsl:apply-templates mode="root"/>
-          <xsl:if test="not(following-sibling::screen[1][@role='root'])">
-            <xsl:if test="$sudo = 'y'">
-              <xsl:text>&#xA;ROOT_EOF</xsl:text>
-            </xsl:if>
-          </xsl:if>
-        </xsl:when>
+        </xsl:if>
+      </xsl:when>
 <!-- then all the instructions run as user -->
-        <xsl:otherwise>
-          <xsl:apply-templates select="userinput"/>
-        </xsl:otherwise>
-      </xsl:choose>
-      <xsl:text>&#xA;</xsl:text>
-    </xsl:if>
+      <xsl:otherwise>
+        <xsl:apply-templates select="userinput"/>
+      </xsl:otherwise>
+    </xsl:choose>
+    <xsl:text>&#xA;</xsl:text>
   </xsl:template>
 
   <xsl:template name="set-bootpkg-dir">
@@ -652,42 +624,61 @@ popd</xsl:text>
     <xsl:text>&#xA;</xsl:text>
   </xsl:template>
 
-  <xsl:template match="para/command">
+  <xsl:template match="command" mode="installation">
     <xsl:variable name="ns" select="normalize-space(string())"/>
-    <xsl:if test="contains($ns,'test') or
-                  contains($ns,'check')">
-      <xsl:choose>
-        <xsl:when test="contains($list-stat-norm,
-                                 concat(' ',ancestor::sect1/@id,' '))">
+    <xsl:variable name="first"
+         select="not(
+                   boolean(
+                     preceding-sibling::command[contains(text(),'check') or
+                                                contains(text(),'test')]))"/>
+    <xsl:variable name="last"
+         select="not(
+                   boolean(
+                     following-sibling::command[contains(text(),'check') or
+                                                contains(text(),'test')]))"/>
+    <xsl:choose>
+      <xsl:when test="contains($list-stat-norm,
+                               concat(' ',ancestor::sect1/@id,' '))">
+        <xsl:if test="$first">
           <xsl:text>
 echo Time after make: ${SECONDS} >> $INFOLOG
 echo Size after make: $(sudo du -skx --exclude home /) >> $INFOLOG
 echo Time before test: ${SECONDS} >> $INFOLOG
+
 </xsl:text>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:text>#</xsl:text>
-        </xsl:otherwise>
-      </xsl:choose>
-      <xsl:choose>
-        <xsl:when test="contains($ns,'make')">
-          <xsl:value-of select="substring-before($ns,'make ')"/>
-          <xsl:text>make </xsl:text>
-          <xsl:if test="not(contains($ns,'-k'))">
-            <xsl:text>-k </xsl:text>
-          </xsl:if>
-          <xsl:value-of select="substring-after($ns,'make ')"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:copy-of select="$ns"/>
-        </xsl:otherwise>
-      </xsl:choose>
-      <xsl:if test="contains($list-stat-norm,
-                             concat(' ',ancestor::sect1/@id,' '))">
-        <xsl:text> &gt;&gt; $TESTLOG 2&gt;&amp;1</xsl:text>
-      </xsl:if>
-      <xsl:text> || true&#xA;</xsl:text>
+        </xsl:if>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>#</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
+    <xsl:choose>
+      <xsl:when test="contains($ns,'make')">
+        <xsl:value-of select="substring-before($ns,'make ')"/>
+        <xsl:text>make </xsl:text>
+        <xsl:if test="not(contains($ns,'-k'))">
+          <xsl:text>-k </xsl:text>
+        </xsl:if>
+        <xsl:value-of select="substring-after($ns,'make ')"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy-of select="$ns"/>
+      </xsl:otherwise>
+    </xsl:choose>
+    <xsl:if test="contains($list-stat-norm,
+                           concat(' ',ancestor::sect1/@id,' '))">
+      <xsl:text> &gt;&gt; $TESTLOG 2&gt;&amp;1</xsl:text>
     </xsl:if>
+    <xsl:text> || true&#xA;</xsl:text>
+      <xsl:if test="contains($list-stat-norm,
+                             concat(' ',ancestor::sect1/@id,' ')) and $last">
+        <xsl:text>
+echo Time after test: ${SECONDS} >> $INFOLOG
+echo Size after test: $(sudo du -skx --exclude home /) >> $INFOLOG
+echo Time before install: ${SECONDS} >> $INFOLOG
+
+</xsl:text>
+        </xsl:if>
   </xsl:template>
 
   <xsl:template match="userinput">
@@ -699,8 +690,6 @@ echo Time before test: ${SECONDS} >> $INFOLOG
       <xsl:with-param name="out-string" select="string()"/>
     </xsl:call-template>
   </xsl:template>
-
-  <xsl:variable name="APOS">'</xsl:variable>
 
   <xsl:template name="output-root">
     <xsl:param name="out-string" select="''"/>
@@ -747,19 +736,6 @@ echo Time before test: ${SECONDS} >> $INFOLOG
         <xsl:call-template name="output-root">
           <xsl:with-param name="out-string"
                           select="substring-after($out-string,'\')"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:when test="contains($out-string,string($APOS))
-                      and $wrap-install = 'y'
-                      and ancestor::sect2[@role='installation']">
-        <xsl:call-template name="output-root">
-          <xsl:with-param name="out-string"
-                          select="substring-before($out-string,string($APOS))"/>
-        </xsl:call-template>
-        <xsl:text>'\''</xsl:text>
-        <xsl:call-template name="output-root">
-          <xsl:with-param name="out-string"
-                          select="substring-after($out-string,string($APOS))"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
@@ -829,14 +805,6 @@ echo Time before test: ${SECONDS} >> $INFOLOG
   </xsl:template>
 
   <xsl:template name="output-destdir">
-<!-- Hopefully, the current node is the first screen with role equal to root.
-     We first output stats, since we are only called if stats are needed.
-     then we output DESTDIR instructions,etc -->
-    <xsl:text>
-echo Time after tests: ${SECONDS} >> $INFOLOG
-echo Size after tests: $(sudo du -skx --exclude home /) >> $INFOLOG
-echo Time before install: ${SECONDS} >> $INFOLOG
-</xsl:text>
     <xsl:apply-templates
        select="userinput|following-sibling::screen[@role='root']/userinput"
        mode="destdir"/>
