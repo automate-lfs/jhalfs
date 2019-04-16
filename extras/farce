@@ -1,8 +1,9 @@
 #!/bin/bash
 
+# $Id$
 # Acknowledgment:
-#  The following code is a no-modified version (except for this comment
-#  and the inline_doc fragment) of an original work written by
+#  The following code is a no-modified version (except for this comment,
+#  the `Id' comment, and the inline_doc fragment) of an original work written by
 #  Ken Moffat and is included here with his permission.
 #
 

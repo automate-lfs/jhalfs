@@ -1,6 +1,9 @@
+# $Id:
 # From the Build Scripts Written By: Jim Gifford <lfs@jg555.com>
 # Modified By: Joe Ciccone <jciccone@linuxfromscratch.org
 # Additional changes: George Boudreau <georgeb@linuxfromscratch.org>
+#                     Manuel Canales Esparcia
+#                     Pierre Labastie
 
 TOPDIR=$(shell pwd)
 CONFIG_CONFIG_IN = Config.in
