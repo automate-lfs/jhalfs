@@ -67,7 +67,7 @@ List of preceding siblings for "</xsl:text>
                    )[last()][self::command]">
           <xsl:text>none</xsl:text>
         </xsl:when>
-        <xsl:when 
+        <xsl:when
            test="preceding-sibling::screen
                     [not(@role='nodump') and ./userinput][1][not(@role)]">
           <xsl:text>non-root</xsl:text>
@@ -105,7 +105,7 @@ List of preceding siblings for "</xsl:text>
                    )[1][self::command]">
           <xsl:text>none</xsl:text>
         </xsl:when>
-        <xsl:when 
+        <xsl:when
            test="following-sibling::screen
                     [not(@role='nodump') and ./userinput][1][not(@role)]">
           <xsl:text>non-root</xsl:text>
