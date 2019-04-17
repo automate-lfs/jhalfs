@@ -11,7 +11,7 @@ CONFIG = menu
 
 all: menuconfig
 #	@clear
-	@`grep RUN_ME configuration | sed -e 's@RUN_ME=\"@@' -e 's@\"@@' `
+	@$$(grep RUN_ME configuration 2>/dev/null | sed -e 's@RUN_ME=\"@@' -e 's@\"@@')
 
 $(CONFIG)/conf:
 	$(MAKE) -C $(CONFIG) conf
@@ -20,7 +20,7 @@ $(CONFIG)/mconf:
 	$(MAKE) -C $(CONFIG) ncurses conf mconf
 
 menuconfig: $(CONFIG)/mconf
-	-@cp -a configuration configuration.old
+	@cp -a configuration configuration.old 2>/dev/null || true
 	@$(CONFIG)/mconf $(CONFIG_CONFIG_IN)
 
 config: $(CONFIG)/conf

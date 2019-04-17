@@ -124,15 +124,14 @@ esac
 
 # If the user has not saved his configuration file, let's ask
 # if he or she really wants to run this stuff
-time_old=$(stat -c '%Y' configuration.old 2>/dev/null)
-time_current=$(stat -c '%Y' configuration 2>/dev/null)
-if [ "$(printf '%d' "$time_old")" -ge "$(printf '%d' "$time_current")" ]
-  then echo -n "Do you want to run jhalfs? yes/no (yes): "
+time_current=$(stat -c '%Y' configuration 2>/dev/null || date +%s)
+time_old=$(stat -c '%Y' configuration.old 2>/dev/null || printf '%s' "$time_current")
+if [ "$(printf '%d' "$time_old")" -ge "$(printf '%d' "$time_current")" ] ; then
+  printf 'Do you want to run jhalfs? yes/no (yes): '
   read -r ANSWER
-  if [ "x${ANSWER:0:1}" = "xn" ] || [ "x${ANSWER:0:1}" = "xN" ] ; then
-    echo "${nl_}Exiting gracefully.${nl_}"
-    exit
-  fi
+  case ${ANSWER:0:1} in
+    n|N) printf "\nExiting gracefully.\n"; exit ;;
+  esac
 fi
 
 # Change this to 0 to suppress almost all messages
