@@ -110,7 +110,7 @@ ${BOLD}  \"jhalfs\"${OFF} builder tool (development) \$Rev$
 
   This set of files are published under the
   ${BOLD}Gnu General Public License, Version 2.${OFF}
-  See the ${BOLD}LICENCE${OFF} file in this directory.
+  See the ${BOLD}LICENSE${OFF} file in this directory.
 "
 
 case $1 in
