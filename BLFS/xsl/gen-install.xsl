@@ -247,7 +247,7 @@ wrapInstall '
       </xsl:when>
       <xsl:otherwise>
         <xsl:call-template name="output-root">
-          <xsl:with-param name="out-string" select="."/>
+          <xsl:with-param name="out-string" select="$out-string"/>
         </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>

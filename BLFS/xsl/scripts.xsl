@@ -540,24 +540,22 @@ EOF
     <xsl:choose>
 <!-- instructions run as root (configuration mainly) -->
       <xsl:when test="@role = 'root'">
+<!-- templates begin/end-root are in gen-install.xsl -->
         <xsl:if test="not(preceding-sibling::screen[1][@role='root'])">
-          <xsl:if test="$sudo = 'y'">
-            <xsl:text>sudo -E sh &lt;&lt; ROOT_EOF&#xA;</xsl:text>
-          </xsl:if>
+          <xsl:call-template name="begin-root"/>
         </xsl:if>
         <xsl:apply-templates mode="root"/>
+        <xsl:text>&#xA;</xsl:text>
         <xsl:if test="not(following-sibling::screen[1][@role='root'])">
-          <xsl:if test="$sudo = 'y'">
-            <xsl:text>&#xA;ROOT_EOF</xsl:text>
-          </xsl:if>
+          <xsl:call-template name="end-root"/>
         </xsl:if>
       </xsl:when>
 <!-- then all the instructions run as user -->
       <xsl:otherwise>
         <xsl:apply-templates select="userinput"/>
+        <xsl:text>&#xA;</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
-    <xsl:text>&#xA;</xsl:text>
   </xsl:template>
 
   <xsl:template name="set-bootpkg-dir">
@@ -602,26 +600,61 @@ cd $BOOTUNPACKDIR
 
   <xsl:template match="screen" mode="config">
     <xsl:if test="preceding-sibling::para[1]/xref[@linkend='bootscripts']">
+<!-- if the preceding "screen" tag is role="root", and we are role="root"
+     the end-root has not been called. So do it -->
+      <xsl:if test="preceding-sibling::screen[1][@role='root'] and
+                    @role='root'">
+        <xsl:call-template name="end-root"/>
+      </xsl:if>
       <xsl:call-template name="set-bootpkg-dir">
         <xsl:with-param name="bootpkg" select="'bootscripts'"/>
         <xsl:with-param name="url"
                         select="id('bootscripts')//itemizedlist//ulink/@url"/>
       </xsl:call-template>
+<!-- if the preceding "screen" tag is role="root", and we are role="root"
+     the begin-root will not be called. So do it -->
+      <xsl:if test="preceding-sibling::screen[1][@role='root'] and
+                    @role='root'">
+        <xsl:call-template name="begin-root"/>
+      </xsl:if>
     </xsl:if>
     <xsl:if test="preceding-sibling::para[1]/xref[@linkend='systemd-units']">
+<!-- if the preceding "screen" tag is role="root", and we are role="root"
+     the end-root has not been called. So do it -->
+      <xsl:if test="preceding-sibling::screen[1][@role='root'] and
+                    @role='root'">
+        <xsl:call-template name="end-root"/>
+      </xsl:if>
       <xsl:call-template name="set-bootpkg-dir">
         <xsl:with-param name="bootpkg" select="'systemd-units'"/>
         <xsl:with-param name="url"
                         select="id('systemd-units')//itemizedlist//ulink/@url"/>
       </xsl:call-template>
+<!-- if the preceding "screen" tag is role="root", and we are role="root"
+     the begin-root will not be called. So do it -->
+      <xsl:if test="preceding-sibling::screen[1][@role='root'] and
+                    @role='root'">
+        <xsl:call-template name="begin-root"/>
+      </xsl:if>
     </xsl:if>
     <xsl:apply-templates select='.'/>
     <xsl:if test="preceding-sibling::para[1]/xref[@linkend='bootscripts' or
                                                   @linkend='systemd-units']">
-      <xsl:text>
-popd</xsl:text>
+<!-- if the next "screen" tag is role="root", and we are role="root"
+     the end-root has not been called. So do it -->
+      <xsl:if test="following-sibling::screen[1][@role='root'] and
+                    @role='root'">
+        <xsl:call-template name="end-root"/>
+      </xsl:if>
+      <xsl:text>popd
+</xsl:text>
+<!-- if the next "screen" tag is role="root", and we are role="root"
+     the begin-root will not be called. So do it -->
+      <xsl:if test="following-sibling::screen[1][@role='root'] and
+                    @role='root'">
+        <xsl:call-template name="begin-root"/>
+      </xsl:if>
     </xsl:if>
-    <xsl:text>&#xA;</xsl:text>
   </xsl:template>
 
   <xsl:template match="command" mode="installation">
@@ -685,6 +718,12 @@ echo Time before install: ${SECONDS} >> $INFOLOG
     <xsl:apply-templates/>
   </xsl:template>
 
+  <xsl:template match="text()">
+    <xsl:call-template name="remove-ampersand">
+      <xsl:with-param name="out-string" select="string()"/>
+    </xsl:call-template>
+  </xsl:template>
+
   <xsl:template match="text()" mode="root">
     <xsl:call-template name="output-root">
       <xsl:with-param name="out-string" select="string()"/>
@@ -739,7 +778,10 @@ echo Time before install: ${SECONDS} >> $INFOLOG
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="$out-string"/>
+        <xsl:call-template name="remove-ampersand">
+          <xsl:with-param name="out-string" select="$out-string"/>
+        </xsl:call-template>
+<!--        <xsl:value-of select="$out-string"/> -->
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -889,23 +931,102 @@ echo Size after install: $(sudo du -skx --exclude home /) >> $INFOLOG
         <xsl:choose>
           <xsl:when test="contains($outputstring,'&gt;/') and
                                  not(contains(substring-before($outputstring,'&gt;/'),' /'))">
-            <xsl:value-of select="substring-before($outputstring,'&gt;/')"/>
+            <xsl:call-template name="remove-ampersand">
+              <xsl:with-param name="out-string"
+                   select="substring-before($outputstring,'&gt;/')"/>
+            </xsl:call-template>
+<!--            <xsl:value-of select="substring-before($outputstring,'&gt;/')"/>-->
             <xsl:text>&gt;$PKG_DEST/</xsl:text>
             <xsl:call-template name="outputpkgdest">
               <xsl:with-param name="outputstring" select="substring-after($outputstring,'&gt;/')"/>
             </xsl:call-template>
           </xsl:when>
           <xsl:when test="contains($outputstring,' /')">
-            <xsl:value-of select="substring-before($outputstring,' /')"/>
+            <xsl:call-template name="remove-ampersand">
+              <xsl:with-param name="out-string"
+                   select="substring-before($outputstring,' /')"/>
+            </xsl:call-template>
+<!--            <xsl:value-of select="substring-before($outputstring,' /')"/>-->
             <xsl:text> $PKG_DEST/</xsl:text>
             <xsl:call-template name="outputpkgdest">
               <xsl:with-param name="outputstring" select="substring-after($outputstring,' /')"/>
             </xsl:call-template>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:value-of select="$outputstring"/>
+            <xsl:call-template name="remove-ampersand">
+              <xsl:with-param name="out-string" select="$outputstring"/>
+            </xsl:call-template>
+<!--            <xsl:value-of select="$outputstring"/>-->
           </xsl:otherwise>
         </xsl:choose>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="remove-ampersand">
+    <xsl:param name="out-string" select="''"/>
+    <xsl:choose>
+      <xsl:when test="contains($out-string,'&amp;&amp;&#xA;')">
+        <xsl:variable name="instruction-before">
+          <xsl:call-template name="last-line">
+            <xsl:with-param
+                 name="instructions"
+                 select="substring-before($out-string,'&amp;&amp;&#xA;')"/>
+          </xsl:call-template>
+        </xsl:variable>
+        <xsl:call-template name="remove-end-space">
+              <xsl:with-param
+                 name="instructions"
+                 select="substring-before($out-string,'&amp;&amp;&#xA;')"/>
+        </xsl:call-template>
+        <xsl:if test="contains($instruction-before,' ]') or
+                      contains($instruction-before,'test ') or
+                      contains($instruction-before,'pgrep -l')">
+          <xsl:text> &amp;&amp;</xsl:text>
+        </xsl:if>
+        <xsl:text>&#xA;</xsl:text>
+        <xsl:call-template name="remove-ampersand">
+          <xsl:with-param name="out-string"
+                          select="substring-after($out-string,
+                                                  '&amp;&amp;&#xA;')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy-of select="$out-string"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="last-line">
+    <xsl:param name="instructions" select="''"/>
+    <xsl:choose>
+      <xsl:when test="contains($instructions,'&#xA;')">
+        <xsl:call-template name="last-line">
+          <xsl:with-param
+               name="instructions"
+               select="substring-after($instructions,'&#xA;')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy-of select="normalize-space($instructions)"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="remove-end-space">
+    <xsl:param name="instructions" select="''"/>
+    <xsl:choose>
+      <xsl:when test="contains($instructions,'&#xA;')">
+        <xsl:copy-of select="substring-before($instructions,'&#xA;')"/>
+        <xsl:text>&#xA;</xsl:text>
+        <xsl:call-template name="remove-end-space">
+          <xsl:with-param
+               name="instructions"
+               select="substring-after($instructions,'&#xA;')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy-of select="normalize-space($instructions)"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
