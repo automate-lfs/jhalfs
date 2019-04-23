@@ -295,7 +295,7 @@ done
 unset LASTERR
 
 simple_message "${SD_BORDER}${nl_}"
-simple_message 'Checking tools required for jhalfs'
+simple_message "Checking tools required for jhalfs${nl_}"
 check_alfs_tools
 simple_message "${SD_BORDER}${nl_}"
 
