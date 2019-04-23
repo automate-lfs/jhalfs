@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# $Id$
 
 #----------------------------# Prepare BLFS_ROOT and extract
 install_blfs_tools() {       # the scriptlets to build

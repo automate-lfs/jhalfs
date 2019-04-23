@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Id$ -->
 <!-- Takes the blfs-full.xml file and extract a list
      of packages obeying packdesc.dtd + looks for already
      installed packages in the tracking file (stringparam

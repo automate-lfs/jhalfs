@@ -1,5 +1,3 @@
-$Id$
-
 This is the list of functions used in jhalfs, excluding BLFS tool functions
 and functions defined in {C,H}LFS/master.sh.
 I felt the need for documenting it when trying to add package management.

@@ -1,5 +1,4 @@
 #
-# $Id$
 #
 PKG="pcre"
 PKG_VERSION="8.37"

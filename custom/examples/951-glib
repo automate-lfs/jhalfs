@@ -1,5 +1,4 @@
 #
-# $Id$
 #
 PKG="glib"
 PKG_VERSION="2.44.1"

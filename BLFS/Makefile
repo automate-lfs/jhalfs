@@ -3,7 +3,6 @@
 # Additional changes: George Boudreau <georgeb@linuxfromscratch.org>
 #                     Pierre Labastie <pierre.labastie at neuf.fr>
 
-# $Id$
 
 ifdef V
   Q =

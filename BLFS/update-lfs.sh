@@ -1,6 +1,5 @@
 #!/bin/bash
 
-#    $Id$
 
 # Fills the tracking file with versions of LFS packages taken from an
 # SVN repository, at either a given date or a given tag (argument $1).

@@ -2,7 +2,6 @@
 #
 # common constants
 #
-# $Id$
 #####
 
 

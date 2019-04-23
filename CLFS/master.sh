@@ -1,6 +1,4 @@
 #!/bin/bash
-# $Id$
-
 
 orphan_scripts="" # 2 scripts do not fit BOOT_Makefiles LUSER environment
 

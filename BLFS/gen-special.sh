@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# $Id$
 
 #-------------------------------------------------------------------------
 # generates an xsl stylesheet containing a template for special

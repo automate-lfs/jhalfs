@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e  # Enable error trapping
 
-# $Id$
 
 ###################################
 ###          FUNCTIONS          ###

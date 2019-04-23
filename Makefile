@@ -1,4 +1,3 @@
-# $Id:
 # From the Build Scripts Written By: Jim Gifford <lfs@jg555.com>
 # Modified By: Joe Ciccone <jciccone@linuxfromscratch.org
 # Additional changes: George Boudreau <georgeb@linuxfromscratch.org>

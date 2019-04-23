@@ -1,5 +1,4 @@
 #
-# $Id$
 #
 PKG="libffi"
 PKG_VERSION="3.2.1"

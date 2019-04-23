@@ -1,5 +1,4 @@
 # shellcheck shell=bash
-# $Id$
 
 set -e
 

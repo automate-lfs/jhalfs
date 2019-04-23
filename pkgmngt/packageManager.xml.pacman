@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--  Above is a mandatory header for xml files. It must be the first
 line in the file. Change encoding to the one you use on your computer -->
-<!-- $Id$ -->
 <!-- Mandatory DOCTYPE declaration. Fill free to add entities,
 but no external entities in local files, since they would not
 be accessible from JHALFSDIR. Change the document type `article' to

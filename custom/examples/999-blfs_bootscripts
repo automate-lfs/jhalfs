@@ -1,5 +1,4 @@
 #
-# $Id$
 #
 PKG="blfs-bootscripts"
 PKG_VERSION="20150924"

@@ -1,4 +1,3 @@
-# $Id$
 
 check_version() {
 : <<inline_doc

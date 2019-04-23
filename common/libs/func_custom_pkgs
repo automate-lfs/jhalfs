@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# $Id$
 
 #----------------------------------#
 wrt_CustomTools_target() {         # Add any users supplied scripts

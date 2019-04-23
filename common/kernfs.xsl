@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!-- $Id: kernfs.xsl 3776 2014-01-12 21:43:04Z pierre $ -->
 
 <xsl:stylesheet
       xmlns:xsl="http://www.w3.org/1999/XSL/Transform"

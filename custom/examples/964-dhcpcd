@@ -1,5 +1,4 @@
 #
-# $Id$
 #
 # dhcpcd is an implementation of the DHCP client specified in RFC2131.
 # This is useful for connecting your computer to a network which uses
