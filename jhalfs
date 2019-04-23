@@ -100,26 +100,34 @@ load_file() {
 }
 
 version="
-${BOLD}  \"jhalfs\"${OFF} builder tool (development) \$Rev$
-  \$Date$
+${BOLD}  \"jhalfs\"${OFF} builder tool (development)
+  $(git show -s --format="Revision: %h Date: %ci")
 
-  Written by George Boudreau, Manuel Canales Esparcia, Pierre Labastie,
-  plus several contributions.
+  Copyright (C) 2005-2019, the jhalfs team:
+    Jeremy Huntwork
+    George Boudreau
+    Manuel Canales Esparcia
+    Thomas Pegg
+    Matthew Burgess
+    Pierre Labastie
 
-  Based on an idea from Jeremy Huntwork
+  Unless specified, all the files in this directory and its sub-directories
+  are subjected to the ${BOLD}MIT license${OFF}.
+  See the ${BOLD}LICENSE${OFF} file.
 
-  This set of files are published under the
-  ${BOLD}Gnu General Public License, Version 2.${OFF}
-  See the ${BOLD}LICENSE${OFF} file in this directory.
+  Some files included from external projects, are subjected to the
+  ${BOLD}Gnu General Public License, Version 2${OFF}.
+  See the ${BOLD}LICENSE-GPL${OFF} file.
 "
+
+usage="${nl_}${tab_}${BOLD}${RED}This script cannot be called directly${OFF}
+${tab_}Type ${BOLD}make${OFF} to run the tool, or
+${tab_}Type ${BOLD}./jhalfs -v${OFF} to display version information."
 
 case $1 in
   -v ) echo "$version" && exit ;;
   run ) : ;;
-  * )
-    echo "${nl_}${tab_}${BOLD}${RED}This script cannot be called directly: EXITING ${OFF}${nl_}"
-    exit 1
-    ;;
+  * ) echo "$usage" && exit 1 ;;
 esac
 
 # If the user has not saved his configuration file, let's ask
