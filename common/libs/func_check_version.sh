@@ -51,9 +51,8 @@ inline_doc
     fi
   }
 
-  echo -ne "${TXT}${dotSTR:${#TXT}} ${L_arrow}${BOLD}${tst_version}${OFF}${R_arrow}"
+  echo -ne "${TXT}${spaceSTR:${#TXT}} ${L_arrow}${BOLD}${tst_version}${OFF}${R_arrow}"
 
-#  echo -ne "$TXT:\t${L_arrow}${BOLD}${tst_version}${OFF}${R_arrow}"
   IFS=".-(pab"   # Split up w.x.y.z as well as w.x.y-rc  (catch release candidates)
   set -- $ref_version # set positional parameters to minimum ver values
   ref_major=$1; ref_minor=$2; ref_revision=$3
@@ -82,7 +81,6 @@ inline_doc
   # oops.. write error msg and die
   write_error_and_die
 }
-#  local -r PARAM_VALS='${config_param}${dotSTR:${#config_param}} ${L_arrow}${BOLD}${!config_param}${OFF}${R_arrow}'
 
 #----------------------------#
 check_prerequisites() {      #
