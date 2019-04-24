@@ -40,7 +40,7 @@ menu "BOOK Settings"
     endchoice
 
     choice
-    depends BOOK_BLFS
+    depends on BOOK_BLFS
     prompt "Init system"
 
         config BLFS_SYSV
@@ -106,7 +106,7 @@ menu "BOOK Settings"
     config    BRANCH_ID
         string    "Branch (preceded by \"branch-\"), stable Version, or tag"
         default    "**EDIT ME**"
-        depends    BRANCH
+        depends on    BRANCH
         help
             A list of valid branches and stable book IDs is available at
             http://wiki.linuxfromscratch.org/alfs/wiki/SupportedBooks
@@ -117,7 +117,7 @@ menu "BOOK Settings"
     config    BOOK
         string    "Loc of working copy (mandatory)"
         default    "**EDIT ME**"
-        depends    WORKING_COPY
+        depends on    WORKING_COPY
         help
             The full path to a local copy of the book XML sources
 
@@ -127,7 +127,7 @@ menu "BOOK Settings"
     choice
         prompt    "Target architecture"
         default    ARCH_X86
-        depends    BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3
+        depends on    BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3
         help
             Choose the target system base architecture
 
@@ -155,7 +155,7 @@ menu "BOOK Settings"
 
     choice
         prompt    "Hardware Platform"
-        depends    BOOK_CLFS3 && ARCH_MIPS
+        depends on    BOOK_CLFS3 && ARCH_MIPS
         default    PLATFORM_GENERIC
         help
             Choose a destination platform
@@ -170,7 +170,7 @@ menu "BOOK Settings"
 
     choice
         prompt    "Library"
-        depends    (BOOK_CLFS && !ARCH_ALPHA) || (BOOK_CLFS3 && ARCH_MIPS)
+        depends on    (BOOK_CLFS && !ARCH_ALPHA) || (BOOK_CLFS3 && ARCH_MIPS)
         default    DATA_32
         help
             Choose the target system libraries type
@@ -187,7 +187,7 @@ menu "BOOK Settings"
 
     choice
         prompt    "Processor type"
-        depends    (BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3) && ((ARCH_X86 && !(DATA_64 || DATA_MULTI)) || ARCH_MIPS || ARCH_HPPA || ARCH_ALPHA || (ARCH_SPARC && (DATA_64 || DATA_MULTI)) || (ARCH_ARM && BOOK_CLFS3))
+        depends on    (BOOK_CLFS || BOOK_CLFS2 || BOOK_CLFS3) && ((ARCH_X86 && !(DATA_64 || DATA_MULTI)) || ARCH_MIPS || ARCH_HPPA || ARCH_ALPHA || (ARCH_SPARC && (DATA_64 || DATA_MULTI)) || (ARCH_ARM && BOOK_CLFS3))
         help
             Choose the target system processor
 
@@ -257,7 +257,7 @@ menu "BOOK Settings"
 
     choice
         prompt    "MIPS 64 ABI"
-        depends    BOOK_CLFS3 && ARCH_MIPS && DATA_64
+        depends on    BOOK_CLFS3 && ARCH_MIPS && DATA_64
         default    ABI_64
         help
             Choose the target system ABI to use
@@ -321,7 +321,7 @@ menu "BOOK Settings"
 
     config TARGET32
         string
-        depends    DATA_MULTI
+        depends on    DATA_MULTI
         default "i686-pc-linux-gnu"        if ARCH_X86
         default "mipsel-unknown-linux-gnu" if PROC_mipsel
         default "mips-unknown-linux-gnu"   if PROC_mips
@@ -367,13 +367,13 @@ menu "BOOK Settings"
 
     config  MIPS_LEVEL
         string
-        depends BOOK_CLFS3 && ARCH_MIPS
+        depends on BOOK_CLFS3 && ARCH_MIPS
         default "1"        if DATA_32
         default "3"        if DATA_64
 
     config    ABI
         string
-        depends BOOK_CLFS3
+        depends on BOOK_CLFS3
         default "-m32"      if ARCH_X86 || ARCH_ARM
 #        default "-m64"     if NO USED YET IN THE BOOK
         default "-mabi=32"  if ABI_32 || (ARCH_MIPS && DATA_32)
@@ -382,13 +382,13 @@ menu "BOOK Settings"
 
     config    ENDIAN
         string
-        depends BOOK_CLFS3 && (ARCH_MIPS || ARCH_ARM)
+        depends on BOOK_CLFS3 && (ARCH_MIPS || ARCH_ARM)
         default "little"    if PROC_mipsel || PROC_ARM || PROC_ARM5L
         default "big"       if PROC_mips || PROC_ARM5B
 
     choice
         prompt    "Build method"
-        depends    BOOK_CLFS
+        depends on    BOOK_CLFS
         help
             What build method should be used: a chroot jail or minimal boot
             system. Review the Cross-LFS book chap6 "TO BOOT OR CHROOT" for
@@ -540,7 +540,7 @@ menu "BOOK Settings"
         config    BLFS_XML
         string "BLFS sources directory (internal parameter)"
         default "blfs-xml"
-        depends BLFS_TOOL || BOOK_BLFS
+        depends on BLFS_TOOL || BOOK_BLFS
         help
             The directory name under $BLFS_ROOT where the BLFS
             book sources will be copied or checked out. Do not change that
@@ -549,7 +549,7 @@ menu "BOOK Settings"
         config    LFS_XML
         string "LFS sources directory (internal parameter)"
         default "lfs-xml"
-        depends BLFS_TOOL || BOOK_BLFS
+        depends on BLFS_TOOL || BOOK_BLFS
         help
             The directory name under $BLFS_ROOT where the LFS
             book sources will be copied or checked out. Do not change that
@@ -557,8 +557,8 @@ menu "BOOK Settings"
 
         choice
         prompt    "LFS Release"
-        default    LFS_SVN
-        depends    BOOK_BLFS
+        default    LFS_relSVN
+        depends on    BOOK_BLFS
 
             config    LFS_relSVN
             bool     "LFS SVN"
@@ -594,7 +594,7 @@ menu "BOOK Settings"
 
     #--- Custom Tools support
     config CUSTOM_TOOLS
-        depends !BOOK_BLFS
+        depends on !BOOK_BLFS
         bool    "Add custom tools support"
         default    n
         help
@@ -629,7 +629,7 @@ menu "BOOK Settings"
 endmenu
 
 menu "General Settings"
-depends !BOOK_BLFS
+depends on !BOOK_BLFS
 
     #--- {C,H,}LFS User Account
 
@@ -670,7 +670,7 @@ depends !BOOK_BLFS
     config SRC_ARCHIVE
         string "Package Archive Directory"
         default "$SRC_ARCHIVE"
-        depends GETPKG
+        depends on GETPKG
         help
             #-- A local archive for packages/files (not $BUILDDIR/sources)
             #   Any missing file will be downloaded and archived here,
@@ -679,7 +679,7 @@ depends !BOOK_BLFS
     config RETRYSRCDOWNLOAD
         bool "Retry on 'connection refused' failure"
         default n
-        depends GETPKG
+        depends on GETPKG
         help
             #-- Attempt to download a source package again if it fails
             #   with a 'connection refused' error. This can happen on
@@ -688,14 +688,14 @@ depends !BOOK_BLFS
     config RETRYDOWNLOADCNT
         int "Number of retry attempts on download failures"
         default 20
-        depends GETPKG
+        depends on GETPKG
         help
             #-- Number of times to retry a failed download.
 
     config DOWNLOADTIMEOUT
         int "Download timeout (in seconds)"
         default 30
-        depends GETPKG
+        depends on GETPKG
         help
             #-- Number of seconds to wait for a download to start before
             #   timing out.
@@ -703,7 +703,7 @@ depends !BOOK_BLFS
     config SERVER
         string "FTP mirror"
         default "http://ftp.osuosl.org"
-        depends GETPKG
+        depends on GETPKG
         help
             #-- FTP mirror to download packages and patches if not found
             #   in $SRC_ARCHIVE
@@ -728,12 +728,12 @@ depends !BOOK_BLFS
 endmenu
 
 menu "Build Settings"
-depends !BOOK_BLFS
+depends on !BOOK_BLFS
 
     #--- Test Suites
     config    CONFIG_TESTS
         bool    "Run testsuites"
-        depends    !BOOK_CLFS2 && !BOOK_CLFS3
+        depends on    !BOOK_CLFS2 && !BOOK_CLFS3
         default    y
         help
             #-- Run test suites
@@ -756,7 +756,7 @@ depends !BOOK_BLFS
             #  temporary tools phase
 
     menu "Test settings"
-    depends    CONFIG_TESTS
+    depends on    CONFIG_TESTS
     choice
         prompt    "Tests level"
         default    TST_1
@@ -812,7 +812,7 @@ depends !BOOK_BLFS
     #--- Package Management
     config  PKGMNGT
         bool    "Package management"
-        depends BOOK_LFS || BOOK_LFS_SYSD
+        depends on BOOK_LFS || BOOK_LFS_SYSD
         default n
         help
             #-- Use package management
@@ -837,7 +837,7 @@ depends !BOOK_BLFS
             #
             #  For now, this only works with LFS
     choice
-        depends PKGMNGT
+        depends on PKGMNGT
         prompt "Package management style"
         default PKG_PACK
 
@@ -877,7 +877,7 @@ depends !BOOK_BLFS
             #   see https://blog.flameeyes.eu/tags/lafiles/
 
     config    NO_PROGRESS_BAR
-        bool "DO NOT use/display progress_bar "
+        bool "DO NOT use/display progress_bar"
         default n
         help
             #-- Do not use the progress bar routine. On slower machines
@@ -887,7 +887,7 @@ depends !BOOK_BLFS
 endmenu
 
 menu "System configuration"
-    depends !BOOK_BLFS
+    depends on !BOOK_BLFS
 
     #--- FSTAB
     config    HAVE_FSTAB
@@ -1065,7 +1065,7 @@ menu "System configuration"
         config LOG_LEVEL
             string "Default log level (1-8)"
             default "4"
-            depends BOOK_LFS
+            depends on BOOK_LFS
             help
                 This can be changed using dmesg. 1 means "no message",
                 8 shows every message sent by the kernel, which is very
@@ -1076,7 +1076,7 @@ menu "System configuration"
 endmenu        #--- System configuration
 
 menu "Advanced Features"
-depends !BOOK_BLFS
+depends on !BOOK_BLFS
 
     config    REPORT
         bool "Create SBU and disk usage report"
@@ -1085,7 +1085,7 @@ depends !BOOK_BLFS
     #--- ICA/farce
     config    COMPARE
         bool "Run comparison analysis on final stage"
-        depends    !BOOK_CLFS2 && !BOOK_CLFS3
+        depends on    !BOOK_CLFS2 && !BOOK_CLFS3
         default n
         help
             #-- Should an iterative comparison analysis be performed?
@@ -1147,7 +1147,7 @@ if !BOOK_CLFS2 && !BOOK_CLFS3
             #   Do not set for meaningful SBU calculations.
 
     choice
-        prompt "Optimization level "
+        prompt "Optimization level"
         default OPT_1
         help
             #-- Optimization values are set in optimize/* files
@@ -1243,7 +1243,7 @@ endif
 endmenu
 
 config REBUILD_MAKEFILE
-    depends !BOOK_BLFS
+    depends on !BOOK_BLFS
     bool "Rebuild the Makefile (see help)"
     default n
     help
