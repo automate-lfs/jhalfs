@@ -1,5 +1,5 @@
 configuration*
 custom/config/*
-menu/__pychache__
+menu/__pycache__
 pkgmngt/packInstall.sh
 pkgmngt/packageManager.xml
