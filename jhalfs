@@ -130,7 +130,7 @@ esac
 # If the user has not saved his configuration file, let's ask
 # if he or she really wants to run this stuff
 time_current=$(stat -c '%Y' configuration 2>/dev/null || date +%s)
-time_old=$(stat -c '%Y' configuration.old 2>/dev/null || printf '%s' "$time_current")
+time_old=$(stat -c '%Y' .configuration.old 2>/dev/null || printf '%s' "$time_current")
 if [ "$(printf '%d' "$time_old")" -ge "$(printf '%d' "$time_current")" ] ; then
   printf 'Do you want to run jhalfs? yes/no (yes): '
   read -r ANSWER

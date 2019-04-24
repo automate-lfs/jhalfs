@@ -1,4 +1,5 @@
 configuration*
+.configuration*
 custom/config/*
 menu/__pycache__
 pkgmngt/packInstall.sh
