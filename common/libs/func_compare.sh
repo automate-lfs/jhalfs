@@ -100,7 +100,7 @@ wrt_logs() {                       #
 	@if [ -d test-logs ] ; then \\
 	  cd test-logs && \\
 	  mkdir $build && \\
-	  mv -f ${system_build} $build && \\
+	  mv -f `echo ${system_build} | sed 's/ /* /g'`* $build && \\
 	  if [ ! $build = build_1 ] ; then \\
 	    cd $build && \\
 	    for file in \`ls .\` ; do \\
