@@ -1082,7 +1082,7 @@ depends on !BOOK_BLFS
         bool "Create SBU and disk usage report"
         default y
 
-    #--- ICA/farce
+    #--- ICA
     config    COMPARE
         bool "Run comparison analysis on final stage"
         depends on    !BOOK_CLFS2 && !BOOK_CLFS3
@@ -1090,12 +1090,12 @@ depends on !BOOK_BLFS
         help
             #-- Should an iterative comparison analysis be performed?
             #
-            #   Unless you are familiar with ICA and/or FARCE do not
+            #   Unless you are familiar with ICA, do not
             #   select this option
             #
-            #  ICA and FARCE are analysis tools for comparing one
+            #  ICA is an analysis tool for comparing one
             #  build to the next. Builds mays differ from one iteration
-            #  to another due to the build order and these tools try
+            #  to another due to the build order and this tool try
             #  to ferret out those differences by examining the stored
             #  build logs and binary files.
             #
@@ -1109,19 +1109,9 @@ depends on !BOOK_BLFS
         default    3
 
     config    RUN_ICA
-        bool    "ICA testing"
-        depends on COMPARE
-        default y
-        help
-            #-- Run ICA testing
+        default y if compare
 
-    config    RUN_FARCE
-        bool    "farce testing"
-        depends on COMPARE
-        default n
-        help
-            #-- Run farce testing
-    #--- End ICA/farce
+    #--- End ICA
 
     #--- Optimizations
 if !BOOK_CLFS2 && !BOOK_CLFS3
@@ -1219,10 +1209,6 @@ endif
         config    ICALOGDIR
             string "ICA logs directory"
             default "$LOGDIR/ICA"
-
-        config    FARCELOGDIR
-            string "farce logs directory"
-            default "$LOGDIR/farce"
 
         config    MKFILE
             string "Makefile"

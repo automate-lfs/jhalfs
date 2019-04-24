@@ -155,7 +155,6 @@ load_file configuration "Loading config params from <configuration>"
 RUNMAKE=${RUNMAKE:-n}
 GETPKG=${GETPKG:-n}
 COMPARE=${COMPARE:-n}
-RUN_FARCE=${RUN_FARCE:-n}
 RUN_ICA=${RUN_ICA:-n}
 PKGMNGT=${PKGMNGT:-n}
 WRAP_INSTALL=${WRAP_INSTALL:-n}

@@ -57,7 +57,6 @@ wrt_compare_work() {               #
   local    ROOT_DIR=/
   local DEST_TOPDIR=/${SCRIPT_ROOT}
   local   ICALOGDIR=/${SCRIPT_ROOT}/logs/ICA
-  local FARCELOGDIR=/${SCRIPT_ROOT}/logs/farce
 
   if [[ "$RUN_ICA" = "y" ]] ; then
     local DEST_ICA=$DEST_TOPDIR/ICA && \
@@ -72,35 +71,12 @@ EOF
     fi
   fi
 
-  if [[ "$RUN_FARCE" = "y" ]] ; then
-    local DEST_FARCE=$DEST_TOPDIR/farce && \
-(
-    cat << EOF
-	@extras/do_copy_files "$PRUNEPATH" $ROOT_DIR $DEST_FARCE/$ITERATION >>logs/\$@ 2>&1 && \\
-	extras/filelist $DEST_FARCE/$ITERATION $DEST_FARCE/filelist-$ITERATION >>logs/\$@ 2>&1
-EOF
-) >> $MKFILE.tmp
-    if [[ "$ITERATION" != "iteration-1" ]] ; then
-      wrt_do_farce_work "$PREV_IT" "$ITERATION" "$DEST_FARCE"
-    fi
-  fi
 }
 
 #----------------------------------#
 wrt_do_ica_work() {                #
 #----------------------------------#
   echo -e "\t@extras/do_ica_work $1 $2 $ICALOGDIR $3 >>logs/\$@ 2>&1" >> $MKFILE.tmp
-}
-
-#----------------------------------#
-wrt_do_farce_work() {              #
-#----------------------------------#
-  local OUTPUT=$FARCELOGDIR/${1}_V_${2}
-  local PREDIR=$3/$1
-  local PREFILE=$3/filelist-$1
-  local ITEDIR=$3/$2
-  local ITEFILE=$3/filelist-$2
-  echo -e "\t@extras/farce --directory $OUTPUT $PREDIR $PREFILE $ITEDIR $ITEFILE >>logs/\$@ 2>&1" >> $MKFILE.tmp
 }
 
 #----------------------------------#

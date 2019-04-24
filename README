@@ -202,8 +202,6 @@
         /extras/do_copy_files
                /do_ica_prep
                /do_ica_work
-               /farce
-               /filelist
 
         /optimize/opt_config
                  /opt_override

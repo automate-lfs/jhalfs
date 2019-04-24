@@ -26,7 +26,7 @@ inline_doc
                             RUNMAKE"
   local -r    BUILD_chroot="TEST BOMB_TEST STRIP"
   local -r    BUILD_common="FSTAB CONFIG TIMEZONE PAGE LANG INSTALL_LOG"
-  local -r ADVANCED_chroot="COMPARE RUN_ICA RUN_FARCE ITERATIONS OPTIMIZE"
+  local -r ADVANCED_chroot="COMPARE RUN_ICA ITERATIONS OPTIMIZE"
   local -r ADVANCED_common="REPORT REBUILD_MAKEFILE"
 
   # BOOK Settings by book
@@ -146,7 +146,6 @@ inline_doc
       # Envvars that depend on other settings to be displayed
       COMPARE)          [[ ! "$COMPARE" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
       RUN_ICA)          [[ "$COMPARE" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
-      RUN_FARCE)        [[ "$COMPARE" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
       ITERATIONS)       [[ "$COMPARE" = "y" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
       BOMB_TEST)        [[ ! "$TEST" = "0" ]] && echo -e "`eval echo $PARAM_VALS`" ;;
       TARGET32)         [[ -n "${TARGET32}" ]] &&  echo -e "`eval echo $PARAM_VALS`" ;;

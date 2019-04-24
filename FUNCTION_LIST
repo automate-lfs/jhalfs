@@ -180,10 +180,6 @@ wrt_do_ica_work():
 From common/libs/func_compare.sh.
 Description:
 --------------------------------------------------------------------------
-wrt_do_farce_work():
-From common/libs/func_compare.sh.
-Description:
---------------------------------------------------------------------------
 wrt_logs():
 From common/libs/func_compare.sh.
 Description:
@@ -242,62 +238,6 @@ Description:
 --------------------------------------------------------------------------
 clean_builddir():
 From common/common-functions.
-Description:
---------------------------------------------------------------------------
-function dohelp():
-From extras/farce.
-Description:
---------------------------------------------------------------------------
-function emessage():
-From extras/farce.
-Description:
---------------------------------------------------------------------------
-function expected():
-From extras/farce.
-Description:
---------------------------------------------------------------------------
-function failure():
-From extras/farce.
-Description:
---------------------------------------------------------------------------
-function fatal():
-From extras/farce.
-Description:
---------------------------------------------------------------------------
-function filetype():
-From extras/farce.
-Description:
---------------------------------------------------------------------------
-function message():
-From extras/farce.
-Description:
---------------------------------------------------------------------------
-function onlyone():
-From extras/farce.
-Description:
---------------------------------------------------------------------------
-function testar():
-From extras/farce.
-Description:
---------------------------------------------------------------------------
-function testgzip():
-From extras/farce.
-Description:
---------------------------------------------------------------------------
-function testso():
-From extras/farce.
-Description:
---------------------------------------------------------------------------
-function tokenize():
-From extras/farce.
-Description:
---------------------------------------------------------------------------
-function tokenizeanddiff():
-From extras/farce.
-Description:
---------------------------------------------------------------------------
-function validateargs():
-From extras/farce.
 Description:
 --------------------------------------------------------------------------
 process_toolchain():
