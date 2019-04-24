@@ -4,35 +4,19 @@
 #                     Manuel Canales Esparcia
 #                     Pierre Labastie
 
-TOPDIR=$(shell pwd)
 CONFIG_CONFIG_IN = Config.in
 CONFIG = menu
 
 all: menuconfig
-#	@clear
 	@$$(grep RUN_ME configuration 2>/dev/null | sed -e 's@RUN_ME=\"@@' -e 's@\"@@')
 
-$(CONFIG)/conf:
-	$(MAKE) -C $(CONFIG) conf
-
-$(CONFIG)/mconf:
-	$(MAKE) -C $(CONFIG) ncurses conf mconf
-
-menuconfig: $(CONFIG)/mconf
+menuconfig:
 	@cp -a configuration configuration.old 2>/dev/null || true
-	@$(CONFIG)/mconf $(CONFIG_CONFIG_IN)
-
-config: $(CONFIG)/conf
-	@$(CONFIG)/conf $(CONFIG_CONFIG_IN)
+	@CONFIG_="" KCONFIG_CONFIG=configuration $(CONFIG)/menuconfig.py $(CONFIG_CONFIG_IN)
 
 # Clean up
 
 clean:
 	rm -f configuration configuration.old error
-	- $(MAKE) -C $(CONFIG) clean
 
-clean-target:
-	rm -f error
-	- $(MAKE) -C $(CONFIG) clean
-
-.PHONY: all menuconfig config clean clean-target
+.PHONY: all menuconfig clean

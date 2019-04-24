@@ -99,11 +99,9 @@ endif
 $(BOOK_XML): $(CONFIG_OUT)
 	$(Q)$(TOPDIR)/gen_pkg_book.sh $(TOPDIR) $(BLFS_FULL) $(LFS_FULL)
 
-$(CONFIG_OUT): $(CONFIG_CONFIG_IN) $(MENU)/mconf
-	$(Q)$(MENU)/mconf $(CONFIG_CONFIG_IN)
-
-$(MENU)/mconf:
-	$(Q)$(MAKE) -C $(MENU) ncurses conf mconf
+$(CONFIG_OUT): $(CONFIG_CONFIG_IN)
+	$(Q)CONFIG_="" KCONFIG_CONFIG=configuration \
+	    $(MENU)/menuconfig.py $(CONFIG_CONFIG_IN)
 
 $(CONFIG_CONFIG_IN): $(PACK_LIST) $(XSLDIR)/gen_config.xsl
 	$(Q)xsltproc --nonet -o $@ $(XSLDIR)/gen_config.xsl $(PACK_LIST)
@@ -201,7 +199,6 @@ $(BLFS_XML):
 clean:
 	rm -f $(CONFIG_OUT) $(CONFIG_OUT).old $(TOPDIR)/packages.xml $(XSLDIR)/specialCases.xsl $(CONFIG_CONFIG_IN) book.xml
 	rm -rf $(TOPDIR)/dependencies $(TOPDIR)/book-html $(TOPDIR)/scripts
-	- $(MAKE) -C $(MENU) clean
 
 FORCE:
 .PHONY: clean all update $(CONFIG_OUT) FORCE

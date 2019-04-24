@@ -21,7 +21,6 @@ if [ "$WRAP_INSTALL" = y ]; then
 fi
 
 # Clean-up
-make -C ${BUILDDIR}${BLFS_ROOT}/menu clean
 rm -rf ${BUILDDIR}${BLFS_ROOT}/libs/.svn
 rm -rf ${BUILDDIR}${BLFS_ROOT}/xsl/.svn
 rm -rf ${BUILDDIR}${BLFS_ROOT}/menu/.svn
