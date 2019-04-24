@@ -1109,7 +1109,8 @@ depends on !BOOK_BLFS
         default    3
 
     config    RUN_ICA
-        default y if compare
+        bool
+        default y if COMPARE
 
     #--- End ICA
 
