@@ -1,13 +1,5 @@
 configuration*
 custom/config/*
-menu/conf
-menu/mconf
-menu/lex.zconf.c
-menu/lkc_defs.h
-menu/zconf.tab.c
-menu/zconf.tab.h
-menu/*.o
-menu/lxdialog/*.o
+menu/__pychache__
 pkgmngt/packInstall.sh
 pkgmngt/packageManager.xml
-.svn
