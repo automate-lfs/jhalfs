@@ -100,7 +100,7 @@ load_file() {
 
 version="
 ${BOLD}  \"jhalfs\"${OFF} builder tool (development)
-  $(git show -s --format="Revision: %h Date: %ci")
+  $(cat git-version)
 
   Copyright (C) 2005-2019, the jhalfs team:
     Jeremy Huntwork
@@ -112,9 +112,6 @@ ${BOLD}  \"jhalfs\"${OFF} builder tool (development)
 
   Unless specified, all the files in this directory and its sub-directories
   are subjected to the ${BOLD}MIT license${OFF}. See the ${BOLD}LICENSE${OFF} file.
-
-  The files in the ${BOLD}menu${OFF} directory are subjected to the ${BOLD}ISC License${OFF}.
-  See ${BOLD}LICENSE.txt${OFF} and ${BOLD}README${OFF} in that directory.
 "
 
 usage="${nl_}${tab_}${BOLD}${RED}This script cannot be called directly${OFF}
