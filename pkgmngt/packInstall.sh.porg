@@ -65,7 +65,7 @@ case $1 in
   cacerts*)
     VERSION=0.1
     ;;
-  btrfs*|node*)
+  btrfs*|node*|pnmixer*)
     VERSION=$(echo $1 | sed 's/^.*v//')
     ;;
   x265*) # can contain vd.d or just d.d: thanks to packagers
