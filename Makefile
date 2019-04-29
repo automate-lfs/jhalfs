@@ -9,7 +9,7 @@ venv/jhalfs/bin/jhalfs: venv/jhalfs
 venv/jhalfs: venv/virtualenv
 	@virtualenv -p python3 venv/jhalfs
 
-venv/virtualenv:
+venv/virtualenv.stamp:
 	@install -d venv
 	@command -v virtualenv >/dev/null || pip3 install --user virtualenv
-	@touch venv/virtualenv
+	@touch venv/virtualenv.stamp
