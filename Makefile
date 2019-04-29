@@ -6,7 +6,7 @@ all: venv/jhalfs/bin/jhalfs
 venv/jhalfs/bin/jhalfs: venv/jhalfs
 	@. venv/jhalfs/bin/activate; pip install -e .
 
-venv/jhalfs: venv/virtualenv
+venv/jhalfs: venv/virtualenv.tamp
 	@virtualenv -p python3 venv/jhalfs
 
 venv/virtualenv.stamp:
