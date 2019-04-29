@@ -12,6 +12,7 @@ import kconfiglib
 import menuconfig
 
 PKGDIR = os.path.dirname(__file__)
+TOPDIR = os.path.dirname(PKGDIR)
 
 with open('{}/git-version'.format(PKGDIR), 'r') as f:
     detail = f.read()
@@ -108,8 +109,14 @@ class JHalfs(object):
             subprocess.run(['sed', 's@CONFIG_@@', self.configfile],
                            stdout=legacy_cnf)
         for item in ['jhalfs.sh', 'LFS', 'BLFS', 'CLFS', 'CLFS2', 'CLFS3',
-                     'common', 'extras', 'git-version', 'optimize', 'pkgmngt']:
+                     'common', 'extras', 'git-version']:
             src = '{}/{}'.format(PKGDIR, item)
+            dst = '{}/{}'.format(self.statedir, item)
+            if not os.path.exists(dst):
+                os.symlink(src, dst)
+
+        for item in ['optimize', 'pkgmngt', 'custom']:
+            src = '{}/{}'.format(TOPDIR, item)
             dst = '{}/{}'.format(self.statedir, item)
             if not os.path.exists(dst):
                 os.symlink(src, dst)
