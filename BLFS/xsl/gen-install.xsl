@@ -34,9 +34,14 @@
     </xsl:variable>
 
     <xsl:variable
+         name="prec-screen"
+         select="preceding::screen[not(@role='nodump') and ./userinput][1]
+                        [ancestor::sect2 = current()/ancestor::sect2]"/>
+
+    <xsl:variable
          name="prec-string"
-         select="string(preceding-sibling::screen[not(@role='nodump') and
-                                                      ./userinput][1])"/>
+         select="string($prec-screen)"/>
+
 <!--
     <xsl:message>
       <xsl:text>
@@ -59,16 +64,14 @@ List of preceding siblings for "</xsl:text>
       <xsl:choose>
         <xsl:when
              test="$prec-string='' or
-                   (preceding-sibling::screen[not(@role='nodump') and
-                                                      ./userinput] |
-                    preceding-sibling::para/command[contains(text(),'check') or
-                                                    contains(text(),'test')]
+                   (preceding::screen[not(@role='nodump') and
+                                                 ./userinput] |
+                    preceding::command[contains(text(),'check') or
+                                       contains(text(),'test')]
                    )[last()][self::command]">
           <xsl:text>none</xsl:text>
         </xsl:when>
-        <xsl:when
-           test="preceding-sibling::screen
-                    [not(@role='nodump') and ./userinput][1][not(@role)]">
+        <xsl:when test="$prec-screen[not(@role)]">
           <xsl:text>non-root</xsl:text>
         </xsl:when>
         <xsl:when test="contains($prec-string,'useradd') or
@@ -89,24 +92,26 @@ List of preceding siblings for "</xsl:text>
     </xsl:variable>
 
     <xsl:variable
+         name="follow-screen"
+         select="following::screen[not(@role='nodump') and ./userinput][1]
+                        [ancestor::sect2 = current()/ancestor::sect2]"/>
+
+    <xsl:variable
          name="follow-string"
-         select="string(following-sibling::screen[not(@role='nodump') and
-                                                      ./userinput][1])"/>
+         select="string($follow-screen)"/>
 
     <xsl:variable name="follow-nature">
       <xsl:choose>
         <xsl:when
              test="$follow-string='' or
-                   (following-sibling::screen[not(@role='nodump') and
-                                                      ./userinput] |
-                    following-sibling::para/command[contains(text(),'check') or
-                                                    contains(text(),'test')]
+                   (following::screen[not(@role='nodump') and
+                                                 ./userinput] |
+                    following::command[contains(text(),'check') or
+                                       contains(text(),'test')]
                    )[1][self::command]">
           <xsl:text>none</xsl:text>
         </xsl:when>
-        <xsl:when
-           test="following-sibling::screen
-                    [not(@role='nodump') and ./userinput][1][not(@role)]">
+        <xsl:when test="$follow-screen[not(@role)]">
           <xsl:text>non-root</xsl:text>
         </xsl:when>
         <xsl:when test="contains($follow-string,'useradd') or
