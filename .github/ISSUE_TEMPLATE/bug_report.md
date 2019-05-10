@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: ''
+title: '[Bug] Replace with a short title for your bug'
 labels: bug
 assignees: ''
 
@@ -17,11 +17,14 @@ Steps to reproduce the behavior:
 3. Scroll down to '....'
 4. See error
 
-**Expected behavior**
+**Expected Behavior**
 A clear and concise description of what you expected to happen.
 
-**Screenshots/Terminal output**
-If applicable, add screenshots to help explain your problem.
+**Observed Behavior**
+What actually happened.
+
+**Screenshots/Terminal Output**
+If applicable, add screenshots or terminal output to help explain your problem.
 
 **Environment Details (please complete the following information):**
  - Host OS: [e.g. output from uname -a]
