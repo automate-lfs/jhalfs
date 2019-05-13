@@ -1,7 +1,7 @@
 ---
 name: Ask a Question
 about: I'm not reporting a bug or contributing code, I just want to ask a question!
-title: "[Question]"
+title: "[Question] Replace with a short title for your question"
 labels: question
 assignees: ''
 
