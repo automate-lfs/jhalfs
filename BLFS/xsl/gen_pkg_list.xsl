@@ -43,7 +43,7 @@
           <xsl:attribute name="id">lfs-8</xsl:attribute>
           <xsl:text>&#xA;      </xsl:text>
           <name>LFS Chapter 8</name>
-          <xsl:apply-templates select='document($lfs-full)//chapter[@id="chapter-bootable"]/sect1/sect1info[./productname="linux"]'/>
+          <xsl:apply-templates select='document($lfs-full)//chapter[@id="chapter-bootable"]/sect1/sect1info[./productname="kernel"]'/>
           <xsl:text>&#xA;    </xsl:text>
         </sublist>
         <sublist>
@@ -85,8 +85,7 @@
     <xsl:text>      </xsl:text>
     <xsl:choose>
 <!-- Never update linux headers -->
-      <xsl:when test="./productname='linux'
-                      and ancestor::chapter[@id='chapter-building-system']"/>
+      <xsl:when test="./productname='linux-headers'"/>
 <!-- Gcc version is taken from BLFS -->
       <xsl:when test="./productname='gcc'"/>
 <!-- Shadow version is taken from BLFS -->
@@ -97,8 +96,7 @@
       <xsl:when test="./productname='dbus'"/>
 <!-- Systemd version is taken from BLFS -->
       <xsl:when test="./productname='systemd'"/>
-<!-- Same for python and ninja -->
-      <xsl:when test="./productname='ninja'"/>
+<!-- Same for python3 -->
       <xsl:when test="./productname='Python'"/>
       <xsl:otherwise>
         <package><xsl:text>&#xA;        </xsl:text>
