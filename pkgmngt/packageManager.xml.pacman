@@ -8,15 +8,18 @@ book if you prefer. That slightly changes the aspect if you render
 it in html -->
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
-<!ENTITY libarchive-version "3.1.2">
-<!ENTITY curl-version       "7.39.0">
-<!ENTITY pacman-version     "4.1.2">
+<!ENTITY libarchive-version "3.3.3">
+<!ENTITY curl-version       "7.64.0">
+<!ENTITY pacman-version     "5.1.3">
+<!ENTITY openssl-version    "1.1.1b">
+<!ENTITY pkg-config-version "0.29.2">
+<!ENTITY zlib-version       "1.2.11">
 <!ENTITY libarchive-url "http://www.libarchive.org/downloads/libarchive-&libarchive-version;.tar.gz">
 <!ENTITY curl-url       "http://curl.haxx.se/download/curl-&curl-version;.tar.lzma">
 <!ENTITY pacman-url     "https://sources.archlinux.org/other/pacman/pacman-&pacman-version;.tar.gz">
-<!ENTITY curl-md5       "e9aa6dec29920eba8ef706ea5823bad7">
+<!ENTITY curl-md5       "d14fe778e9f00399445d9525117e25a3">
 <!ENTITY libarchive-md5 "efad5a503f66329bb9d2f4308b5de98a">
-<!ENTITY pacman-md5     "063c8b0ff6bdf903dc235445525627cd">
+<!ENTITY pacman-md5     "cafd8e5b8b16863ee7a7579ec8402582">
 ]>
 
 
@@ -49,6 +52,25 @@ Do not change  anything, except the url and the md5 checksum. -->
 <!-- Do not change the next line. The name of the scriptlet will be taken
 from the dbhtml instruction: it is the name of the file less .html, with
 xxx-x-added before (x, digits).-->
+<sect1 id="ch-tools-zlib" role="wrap">
+  <?dbhtml filename="zlib.html"?>
+
+  <sect1info condition="script">
+    <productname>libarchive</productname>
+    <productnumber>&zlib-version;</productnumber>
+   </sect1info>
+
+  <title>Zlib-&zlib-version;</title>
+
+  <sect2 role="installation">
+    <title/>
+<screen><userinput remap="configure">./configure --prefix=/tools</userinput></screen>
+<screen><userinput remap="make">make</userinput></screen>
+<screen><userinput remap="install">make install</userinput></screen>
+  </sect2>
+
+</sect1>
+
 <sect1 id="ch-tools-libarchive" role="wrap">
   <?dbhtml filename="libarchive.html"?>
 
@@ -88,6 +110,51 @@ xxx-x-added before (x, digits).-->
     <title/>
 <screen><userinput remap="configure">./configure --prefix=/tools \
             --disable-static</userinput></screen>
+<screen><userinput remap="make">make</userinput></screen>
+<screen><userinput remap="install">make install</userinput></screen>
+  </sect2>
+
+</sect1>
+<sect1 id="ch-tools-pkg-config" role="wrap">
+  <?dbhtml filename="pkg-config.html"?>
+
+  <sect1info condition="script">
+    <productname>pkg-config</productname>
+    <productnumber>&pkg-config-version;</productnumber>
+   </sect1info>
+
+  <title>Pkg-Config-&pkg-config-version;</title>
+
+  <sect2 role="installation">
+    <title/>
+<screen><userinput remap="configure">./configure --prefix=/tools \
+            --with-internal-glib       \
+            --disable-compile-warnings \
+            --disable-host-tool        \
+            --disable-shared           \
+            --docdir=/tools/share/doc/pkg-config-0.29.2</userinput></screen>
+<screen><userinput remap="make">make</userinput></screen>
+<screen><userinput remap="install">make install</userinput></screen>
+  </sect2>
+
+</sect1>
+
+<sect1 id="ch-tools-openssl" role="wrap">
+  <?dbhtml filename="openssl.html"?>
+
+  <sect1info condition="script">
+    <productname>openssl</productname>
+    <productnumber>&openssl-version;</productnumber>
+   </sect1info>
+
+  <title>Openssl-&openssl-version;</title>
+
+  <sect2 role="installation">
+    <title/>
+<screen><userinput remap="configure">./configure --prefix=/tools \
+            --openssldir=/tools/etc/ssl \
+            shared \
+            zlib-dynamic</userinput></screen>
 <screen><userinput remap="make">make</userinput></screen>
 <screen><userinput remap="install">make install</userinput></screen>
   </sect2>
