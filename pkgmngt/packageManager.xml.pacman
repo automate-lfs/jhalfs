@@ -56,7 +56,7 @@ xxx-x-added before (x, digits).-->
   <?dbhtml filename="zlib.html"?>
 
   <sect1info condition="script">
-    <productname>libarchive</productname>
+    <productname>zlib</productname>
     <productnumber>&zlib-version;</productnumber>
    </sect1info>
 
