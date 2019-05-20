@@ -9,16 +9,22 @@ it in html -->
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY libarchive-version "3.3.3">
-<!ENTITY curl-version       "7.64.0">
+<!ENTITY curl-version       "7.64.1">
 <!ENTITY pacman-version     "5.1.3">
 <!ENTITY openssl-version    "1.1.1b">
 <!ENTITY pkg-config-version "0.29.2">
 <!ENTITY zlib-version       "1.2.11">
 <!ENTITY libarchive-url "http://www.libarchive.org/downloads/libarchive-&libarchive-version;.tar.gz">
-<!ENTITY curl-url       "http://curl.haxx.se/download/curl-&curl-version;.tar.lzma">
+<!ENTITY curl-url       "http://curl.haxx.se/download/curl-&curl-version;.tar.gz">
+<!ENTITY zlib-url       "https://zlib.net/&zlib-version;.tar.xz">
+<!ENTITY pkg-config-url "https://pkg-config.freedesktop.org/releases/&pkg-config-version;.tar.gz">
+<!ENTITY openssl-url    "https://openssl.org/source/&openssl-verison;.tar.gz">
 <!ENTITY pacman-url     "https://sources.archlinux.org/other/pacman/pacman-&pacman-version;.tar.gz">
 <!ENTITY curl-md5       "d14fe778e9f00399445d9525117e25a3">
 <!ENTITY libarchive-md5 "efad5a503f66329bb9d2f4308b5de98a">
+<!ENTITY zlib-md5       "85adef240c5f370b308da8c938951a68">
+<!ENTITY pkg-config-md5 "f6e931e319531b736fadc017f470e68a">
+<!ENTITY openssl-md5    "4532712e7bcc9414f5bce995e4e13930">
 <!ENTITY pacman-md5     "cafd8e5b8b16863ee7a7579ec8402582">
 ]>
 
@@ -38,6 +44,12 @@ Do not change  anything, except the url and the md5 checksum. -->
         <para>MD5 sum: <literal>&curl-md5;</literal></para>
         <para>Download: <ulink url="&libarchive-url;"/></para>
         <para>MD5 sum: <literal>&libarchive-md5;</literal></para>
+        <para>Download: <ulink url="&pkg-config-version-url;"/></para>
+        <para>MD5 sum: <literal>&pkg-config-md5;</literal></para>
+        <para>Download: <ulink url="&zlib-url;"/></para>
+        <para>MD5 sum: <literal>&zlib-md5;</literal></para>
+        <para>Download: <ulink url="&openssl-url;"/></para>
+        <para>MD5 sum: <literal>&openssl-md5;"/></para>
         <para>Download: <ulink url="&pacman-url;"/></para>
         <para>MD5 sum: <literal>&pacman-md5;</literal></para>
 </sect1>
@@ -58,6 +70,7 @@ xxx-x-added before (x, digits).-->
   <sect1info condition="script">
     <productname>zlib</productname>
     <productnumber>&zlib-version;</productnumber>
+    <address>&zlib-url;</address>
    </sect1info>
 
   <title>Zlib-&zlib-version;</title>
@@ -121,6 +134,7 @@ xxx-x-added before (x, digits).-->
   <sect1info condition="script">
     <productname>pkg-config</productname>
     <productnumber>&pkg-config-version;</productnumber>
+    <address>&pkg-config-url;</address>
    </sect1info>
 
   <title>Pkg-Config-&pkg-config-version;</title>
@@ -145,13 +159,14 @@ xxx-x-added before (x, digits).-->
   <sect1info condition="script">
     <productname>openssl</productname>
     <productnumber>&openssl-version;</productnumber>
+    <address>&openssl-url;</address>
    </sect1info>
 
   <title>Openssl-&openssl-version;</title>
 
   <sect2 role="installation">
     <title/>
-<screen><userinput remap="configure">./configure --prefix=/tools \
+<screen><userinput remap="configure">./config --prefix=/tools \
             --openssldir=/tools/etc/ssl \
             shared \
             zlib-dynamic</userinput></screen>
