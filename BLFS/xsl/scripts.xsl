@@ -735,17 +735,6 @@ echo Time before install: ${SECONDS} >> $INFOLOG
   <xsl:template name="output-root">
     <xsl:param name="out-string" select="''"/>
     <xsl:choose>
-      <xsl:when test="contains($out-string,'make ')">
-        <xsl:call-template name="output-root">
-          <xsl:with-param name="out-string"
-                          select="substring-before($out-string,'make ')"/>
-        </xsl:call-template>
-        <xsl:text>make -j1 </xsl:text>
-        <xsl:call-template name="output-root">
-          <xsl:with-param name="out-string"
-                          select="substring-after($out-string,'make ')"/>
-        </xsl:call-template>
-      </xsl:when>
       <xsl:when test="contains($out-string,'$') and $sudo = 'y'">
         <xsl:call-template name="output-root">
           <xsl:with-param name="out-string"

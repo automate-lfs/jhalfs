@@ -236,6 +236,21 @@ wrapInstall '
   <xsl:template name="output-install">
     <xsl:param name="out-string" select="''"/>
     <xsl:choose>
+      <xsl:when test="starts-with($out-string, 'make ') or
+                      contains($out-string,' make ') or
+                      contains($out-string,'&#xA;make')">
+        <xsl:call-template name="output-install">
+          <xsl:with-param
+               name="out-string"
+               select="substring-before($out-string,'make ')"/>
+        </xsl:call-template>
+        <xsl:text>make -j1 </xsl:text>
+        <xsl:call-template name="output-install">
+          <xsl:with-param
+               name="out-string"
+               select="substring-after($out-string,'make ')"/>
+        </xsl:call-template>
+      </xsl:when>
       <xsl:when test="contains($out-string,string($APOS))
                       and $wrap-install = 'y'">
         <xsl:call-template name="output-root">
