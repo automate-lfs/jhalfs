@@ -102,6 +102,11 @@ done
 
   <xsl:template match="sect1">
 
+    <!-- Are stat requested for this page? -->
+    <xsl:variable name="want-stats"
+                  select="contains($list-stat-norm,
+                                   concat(' ',@id,' '))"/>
+
       <!-- The file names -->
     <xsl:variable name="filename" select="@id"/>
 
@@ -156,7 +161,7 @@ mkdir -p $BUILD_DIR
 </xsl:text>
 
 <!-- If stats are requested, include some definitions and intitializations -->
-          <xsl:if test="contains($list-stat-norm,concat(' ',@id,' '))">
+          <xsl:if test="$want-stats">
             <xsl:text>INFOLOG=$(pwd)/info-${JH_PKG_DIR}
 TESTLOG=$(pwd)/test-${JH_PKG_DIR}
 unset MAKEFLAGS
@@ -169,7 +174,9 @@ rm -rf $PKG_DEST
 </xsl:text>
           </xsl:if>
         <!-- Download code and build commands -->
-          <xsl:apply-templates select="sect2"/>
+          <xsl:apply-templates select="sect2">
+            <xsl:with-param name="want-stats" select="$want-stats"/>
+          </xsl:apply-templates>
         <!-- Clean-up -->
           <xsl:text>cd $BUILD_DIR
 [[ -n "$JH_KEEP_FILES" ]] || </xsl:text>
@@ -192,6 +199,7 @@ rm -rf $PKG_DEST
 <!--======================= Sub-sections code =======================-->
 
   <xsl:template match="sect2">
+    <xsl:param name="want-stats" select="false"/>
     <xsl:choose>
 
       <xsl:when test="@role = 'package'">
@@ -216,8 +224,8 @@ find . -maxdepth 1 -mindepth 1 -type d | xargs </xsl:text>
         <xsl:text>rm -rf
 
 </xsl:text>
-<!-- If stats are requested, insert the start size -->
-        <xsl:if test="contains($list-stat-norm,concat(' ',../@id,' '))">
+        <!-- If stats are requested, insert the start size -->
+        <xsl:if test="$want-stats">
           <xsl:text>echo Start Size: $(sudo du -skx --exclude home /) >> $INFOLOG
 
 </xsl:text>
@@ -255,8 +263,8 @@ esac
 export JH_UNPACKDIR
 cd $JH_UNPACKDIR&#xA;
 </xsl:text>
-<!-- If stats are requested, insert the start time -->
-        <xsl:if test="contains($list-stat-norm,concat(' ',../@id,' '))">
+        <!-- If stats are requested, insert the start time -->
+        <xsl:if test="$want-stats">
           <xsl:text>echo Start Time: ${SECONDS} >> $INFOLOG
 
 </xsl:text>
@@ -266,7 +274,9 @@ cd $JH_UNPACKDIR&#xA;
              mode="installation"
              select=".//screen[not(@role = 'nodump') and ./userinput] |
                      .//para/command[contains(text(),'check') or
-                                     contains(text(),'test')]"/>
+                                     contains(text(),'test')]">
+          <xsl:with-param name="want-stats" select="$want-stats"/>
+        </xsl:apply-templates>
         <xsl:if test="$sudo = 'y'">
           <xsl:text>sudo /sbin/</xsl:text>
         </xsl:if>
@@ -660,6 +670,7 @@ cd $BOOTUNPACKDIR
   </xsl:template>
 
   <xsl:template match="command" mode="installation">
+    <xsl:param name="want-stats" select="false"/>
     <xsl:variable name="ns" select="normalize-space(string())"/>
     <xsl:variable name="first"
          select="not(
@@ -672,8 +683,7 @@ cd $BOOTUNPACKDIR
                      following-sibling::command[contains(text(),'check') or
                                                 contains(text(),'test')]))"/>
     <xsl:choose>
-      <xsl:when test="contains($list-stat-norm,
-                               concat(' ',ancestor::sect1/@id,' '))">
+      <xsl:when test="$want-stats">
         <xsl:if test="$first">
           <xsl:text>
 echo Time after make: ${SECONDS} >> $INFOLOG
@@ -700,13 +710,11 @@ echo Time before test: ${SECONDS} >> $INFOLOG
         <xsl:copy-of select="$ns"/>
       </xsl:otherwise>
     </xsl:choose>
-    <xsl:if test="contains($list-stat-norm,
-                           concat(' ',ancestor::sect1/@id,' '))">
+    <xsl:if test="$want-stats">
       <xsl:text> &gt;&gt; $TESTLOG 2&gt;&amp;1</xsl:text>
     </xsl:if>
     <xsl:text> || true&#xA;</xsl:text>
-      <xsl:if test="contains($list-stat-norm,
-                             concat(' ',ancestor::sect1/@id,' ')) and $last">
+    <xsl:if test="$want-stats">
         <xsl:text>
 echo Time after test: ${SECONDS} >> $INFOLOG
 echo Size after test: $(sudo du -skx --exclude home /) >> $INFOLOG

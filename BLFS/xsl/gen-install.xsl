@@ -5,6 +5,7 @@
 
 
   <xsl:template match="screen" mode="installation">
+    <xsl:param name="want-stats" select="false"/>
 <!-- "nature" variables:
       - 'non-root': executable as user
       - 'config': execute as root, with no special formatting
@@ -162,16 +163,14 @@ List of preceding siblings for "</xsl:text>
 
       <xsl:when test="$my-nature='install'">
         <xsl:if test="$prec-nature='none' or $prec-nature='non-root'">
-          <xsl:if test="contains($list-stat-norm,
-                                 concat(' ',ancestor::sect1/@id,' '))">
+          <xsl:if test="$want-stats">
             <xsl:call-template name="output-destdir"/>
           </xsl:if>
           <xsl:call-template name="begin-root"/>
           <xsl:call-template name="begin-install"/>
         </xsl:if>
         <xsl:if test="$prec-nature='config'">
-          <xsl:if test="contains($list-stat-norm,
-                                 concat(' ',ancestor::sect1/@id,' '))">
+          <xsl:if test="$want-stats">
             <xsl:call-template name="end-root"/>
             <xsl:call-template name="output-destdir"/>
             <xsl:call-template name="begin-root"/>
