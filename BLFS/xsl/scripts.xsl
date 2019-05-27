@@ -614,8 +614,8 @@ cd $BOOTUNPACKDIR
     <xsl:if test="preceding-sibling::para[1]/xref[@linkend='bootscripts']">
 <!-- if the preceding "screen" tag is role="root", and we are role="root"
      the end-root has not been called. So do it -->
-      <xsl:if test="preceding-sibling::screen[1][@role='root'] and
-                    @role='root'">
+      <xsl:if
+           test="preceding-sibling::screen[1][@role='root'] and @role='root'">
         <xsl:call-template name="end-root"/>
       </xsl:if>
       <xsl:call-template name="set-bootpkg-dir">
@@ -625,16 +625,16 @@ cd $BOOTUNPACKDIR
       </xsl:call-template>
 <!-- if the preceding "screen" tag is role="root", and we are role="root"
      the begin-root will not be called. So do it -->
-      <xsl:if test="preceding-sibling::screen[1][@role='root'] and
-                    @role='root'">
+      <xsl:if
+           test="preceding-sibling::screen[1][@role='root'] and @role='root'">
         <xsl:call-template name="begin-root"/>
       </xsl:if>
     </xsl:if>
     <xsl:if test="preceding-sibling::para[1]/xref[@linkend='systemd-units']">
 <!-- if the preceding "screen" tag is role="root", and we are role="root"
      the end-root has not been called. So do it -->
-      <xsl:if test="preceding-sibling::screen[1][@role='root'] and
-                    @role='root'">
+      <xsl:if
+           test="preceding-sibling::screen[1][@role='root'] and @role='root'">
         <xsl:call-template name="end-root"/>
       </xsl:if>
       <xsl:call-template name="set-bootpkg-dir">
@@ -644,8 +644,8 @@ cd $BOOTUNPACKDIR
       </xsl:call-template>
 <!-- if the preceding "screen" tag is role="root", and we are role="root"
      the begin-root will not be called. So do it -->
-      <xsl:if test="preceding-sibling::screen[1][@role='root'] and
-                    @role='root'">
+      <xsl:if
+           test="preceding-sibling::screen[1][@role='root'] and @role='root'">
         <xsl:call-template name="begin-root"/>
       </xsl:if>
     </xsl:if>
@@ -654,16 +654,16 @@ cd $BOOTUNPACKDIR
                                                   @linkend='systemd-units']">
 <!-- if the next "screen" tag is role="root", and we are role="root"
      the end-root has not been called. So do it -->
-      <xsl:if test="following-sibling::screen[1][@role='root'] and
-                    @role='root'">
+      <xsl:if
+           test="following-sibling::screen[1][@role='root'] and @role='root'">
         <xsl:call-template name="end-root"/>
       </xsl:if>
-      <xsl:text>popd
-</xsl:text>
+      <xsl:text>
+popd</xsl:text>
 <!-- if the next "screen" tag is role="root", and we are role="root"
      the begin-root will not be called. So do it -->
-      <xsl:if test="following-sibling::screen[1][@role='root'] and
-                    @role='root'">
+      <xsl:if
+           test="following-sibling::screen[1][@role='root'] and @role='root'">
         <xsl:call-template name="begin-root"/>
       </xsl:if>
     </xsl:if>
