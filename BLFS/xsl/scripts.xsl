@@ -1015,15 +1015,6 @@ echo Size after install: $(sudo du -skx --exclude home /) >> $INFOLOG
   <xsl:template name="remove-end-space">
     <xsl:param name="instructions" select="''"/>
     <xsl:choose>
-      <xsl:when test="contains($instructions,'&#xA;')">
-        <xsl:copy-of select="substring-before($instructions,'&#xA;')"/>
-        <xsl:text>&#xA;</xsl:text>
-        <xsl:call-template name="remove-end-space">
-          <xsl:with-param
-               name="instructions"
-               select="substring-after($instructions,'&#xA;')"/>
-        </xsl:call-template>
-      </xsl:when>
       <xsl:when
            test="substring($instructions,string-length($instructions))=' '">
         <xsl:call-template name="remove-end-space">
