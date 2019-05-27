@@ -70,15 +70,15 @@
   </xsl:variable>
 
 <!-- simple instructions for removing .la files. -->
+<!-- We'll use the rule that any text output begins with a linefeed if needed
+     so that we do not need to output one at the end-->
   <xsl:variable name="la-files-instr">
 
 for libdir in /lib /usr/lib $(find /opt -name lib); do
   find $libdir -name \*.la           \
              ! -path \*ImageMagick\* \
                -delete
-done
-
-</xsl:variable>
+done</xsl:variable>
 
   <xsl:variable name="list-stat-norm"
                 select="concat(' ', normalize-space($list-stat),' ')"/>
@@ -142,27 +142,28 @@ done
       <xsl:text>#!/bin/bash
 set -e
 unset MAKELEVEL
-<!-- the above is needed for some packages -->
 </xsl:text>
+<!-- the above is needed for some packages -->
       <xsl:choose>
         <!-- Package page -->
         <xsl:when test="sect2[@role='package']">
           <!-- We build in a subdirectory, whose name may be needed
                if using package management (see envars.conf), so
                "export" it -->
-          <xsl:text>export JH_PKG_DIR=</xsl:text>
+          <xsl:text>
+export JH_PKG_DIR=</xsl:text>
           <xsl:value-of select="$filename"/>
           <xsl:text>
 SRC_DIR=${JH_SRC_ARCHIVE}${JH_SRC_SUBDIRS:+/${JH_PKG_DIR}}
 BUILD_DIR=${JH_BUILD_ROOT}${JH_BUILD_SUBDIRS:+/${JH_PKG_DIR}}
 mkdir -p $SRC_DIR
 mkdir -p $BUILD_DIR
-
 </xsl:text>
 
 <!-- If stats are requested, include some definitions and intitializations -->
           <xsl:if test="$want-stats">
-            <xsl:text>INFOLOG=$(pwd)/info-${JH_PKG_DIR}
+            <xsl:text>
+INFOLOG=$(pwd)/info-${JH_PKG_DIR}
 TESTLOG=$(pwd)/test-${JH_PKG_DIR}
 unset MAKEFLAGS
 #MAKEFLAGS=-j4
@@ -170,7 +171,6 @@ echo MAKEFLAGS: $MAKEFLAGS > $INFOLOG
 : > $TESTLOG
 PKG_DEST=${BUILD_DIR}/dest
 rm -rf $PKG_DEST
-
 </xsl:text>
           </xsl:if>
         <!-- Download code and build commands -->
@@ -178,21 +178,26 @@ rm -rf $PKG_DEST
             <xsl:with-param name="want-stats" select="$want-stats"/>
           </xsl:apply-templates>
         <!-- Clean-up -->
-          <xsl:text>cd $BUILD_DIR
+          <xsl:text>
+
+cd $BUILD_DIR
 [[ -n "$JH_KEEP_FILES" ]] || </xsl:text>
         <!-- In some case, some files in the build tree are owned
              by root -->
           <xsl:if test="$sudo='y'">
             <xsl:text>sudo </xsl:text>
           </xsl:if>
-          <xsl:text>rm -rf $JH_UNPACKDIR unpacked&#xA;&#xA;</xsl:text>
+          <xsl:text>rm -rf $JH_UNPACKDIR unpacked
+</xsl:text>
         </xsl:when>
       <!-- Non-package page -->
         <xsl:otherwise>
           <xsl:apply-templates select=".//screen" mode="not-pack"/>
         </xsl:otherwise>
       </xsl:choose>
-      <xsl:text>exit</xsl:text>
+      <xsl:text>
+exit
+</xsl:text><!-- include a \n at the end of document-->
     </exsl:document>
   </xsl:template>
 
@@ -203,11 +208,10 @@ rm -rf $PKG_DEST
     <xsl:choose>
 
       <xsl:when test="@role = 'package'">
-        <xsl:text>cd $SRC_DIR
-</xsl:text>
+        <xsl:text>
+cd $SRC_DIR</xsl:text>
         <!-- Download information is in bridgehead tags -->
         <xsl:apply-templates select="bridgehead[@renderas='sect3']"/>
-        <xsl:text>&#xA;</xsl:text>
       </xsl:when><!-- @role="package" -->
 
       <xsl:when test="@role = 'qt4-prefix' or @role = 'qt5-prefix'">
@@ -222,16 +226,16 @@ find . -maxdepth 1 -mindepth 1 -type d | xargs </xsl:text>
           <xsl:text>sudo </xsl:text>
         </xsl:if>
         <xsl:text>rm -rf
-
 </xsl:text>
         <!-- If stats are requested, insert the start size -->
         <xsl:if test="$want-stats">
-          <xsl:text>echo Start Size: $(sudo du -skx --exclude home /) >> $INFOLOG
-
+          <xsl:text>
+echo Start Size: $(sudo du -skx --exclude home /) >> $INFOLOG
 </xsl:text>
         </xsl:if>
 
-        <xsl:text>case $PACKAGE in
+        <xsl:text>
+case $PACKAGE in
   *.tar.gz|*.tar.bz2|*.tar.xz|*.tgz|*.tar.lzma)
      tar -xvf $SRC_DIR/$PACKAGE &gt; unpacked
      JH_UNPACKDIR=`grep '[^./]\+' unpacked | head -n1 | sed 's@^\./@@;s@/.*@@'`
@@ -261,12 +265,12 @@ find . -maxdepth 1 -mindepth 1 -type d | xargs </xsl:text>
      ;;
 esac
 export JH_UNPACKDIR
-cd $JH_UNPACKDIR&#xA;
+cd $JH_UNPACKDIR
 </xsl:text>
         <!-- If stats are requested, insert the start time -->
         <xsl:if test="$want-stats">
-          <xsl:text>echo Start Time: ${SECONDS} >> $INFOLOG
-
+          <xsl:text>
+echo Start Time: ${SECONDS} >> $INFOLOG
 </xsl:text>
         </xsl:if>
 
@@ -277,13 +281,16 @@ cd $JH_UNPACKDIR&#xA;
                                      contains(text(),'test')]">
           <xsl:with-param name="want-stats" select="$want-stats"/>
         </xsl:apply-templates>
+        <xsl:text>
+</xsl:text>
         <xsl:if test="$sudo = 'y'">
           <xsl:text>sudo /sbin/</xsl:text>
         </xsl:if>
-        <xsl:text>ldconfig&#xA;&#xA;</xsl:text>
+        <xsl:text>ldconfig</xsl:text>
       </xsl:when><!-- @role="installation" -->
 
       <xsl:when test="@role = 'configuration'">
+        <xsl:text>&#xA;</xsl:text>
         <xsl:apply-templates mode="config"
              select=".//screen[not(@role = 'nodump') and ./userinput]"/>
       </xsl:when><!-- @role="configuration" -->
@@ -379,24 +386,24 @@ cd $JH_UNPACKDIR&#xA;
     <xsl:value-of select="$varname"/>
     <xsl:text>
   fi
-fi
-</xsl:text>
+fi</xsl:text>
     <xsl:if test="string-length($md5) &gt; 10">
-      <xsl:text>echo "</xsl:text>
+      <xsl:text>
+echo "</xsl:text>
       <xsl:value-of select="$md5"/>
       <xsl:text>&#x20;&#x20;$</xsl:text>
       <xsl:value-of select="$varname"/>
-      <xsl:text>" | md5sum -c -
-</xsl:text>
+      <xsl:text>" | md5sum -c -</xsl:text>
     </xsl:if>
 <!-- link additional packages into $BUILD_DIR, because they are supposed to
      be there-->
     <xsl:if test="string($varname) != 'PACKAGE'">
-      <xsl:text>[[ "$SRC_DIR" != "$BUILD_DIR" ]] &amp;&amp; ln -sf $SRC_DIR/$</xsl:text>
+      <xsl:text>
+[[ "$SRC_DIR" != "$BUILD_DIR" ]] &amp;&amp; ln -sf $SRC_DIR/$</xsl:text>
       <xsl:value-of select="$varname"/>
-      <xsl:text> $BUILD_DIR
-</xsl:text>
+      <xsl:text> $BUILD_DIR</xsl:text>
     </xsl:if>
+    <xsl:text>&#xA;</xsl:text>
   </xsl:template>
 
   <!-- Extract the MD5 sum information -->
@@ -557,7 +564,6 @@ EOF
           <xsl:call-template name="begin-root"/>
         </xsl:if>
         <xsl:apply-templates mode="root"/>
-        <xsl:text>&#xA;</xsl:text>
         <xsl:if test="not(following-sibling::screen[1][@role='root'])">
           <xsl:call-template name="end-root"/>
         </xsl:if>
@@ -565,7 +571,6 @@ EOF
 <!-- then all the instructions run as user -->
       <xsl:otherwise>
         <xsl:apply-templates select="userinput"/>
-        <xsl:text>&#xA;</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -573,9 +578,11 @@ EOF
   <xsl:template name="set-bootpkg-dir">
     <xsl:param name="bootpkg" select="'bootscripts'"/>
     <xsl:param name="url" select="''"/>
-    <xsl:text>BOOTPKG_DIR=blfs-</xsl:text>
+    <xsl:text>
+BOOTPKG_DIR=blfs-</xsl:text>
     <xsl:copy-of select="$bootpkg"/>
     <xsl:text>
+
 BOOTSRC_DIR=${JH_SRC_ARCHIVE}${JH_SRC_SUBDIRS:+/${BOOTPKG_DIR}}
 BOOTBUILD_DIR=${JH_BUILD_ROOT}${JH_BUILD_SUBDIRS:+/${BOOTPKG_DIR}}
 mkdir -p $BOOTSRC_DIR
@@ -606,8 +613,7 @@ else
   tar -xvf $BOOTSRC_DIR/$BOOTPACKG > unpacked
   BOOTUNPACKDIR=`head -n1 unpacked | sed 's@^./@@;s@/.*@@'`
 fi
-cd $BOOTUNPACKDIR
-</xsl:text>
+cd $BOOTUNPACKDIR</xsl:text>
   </xsl:template>
 
   <xsl:template match="screen" mode="config">
@@ -686,6 +692,7 @@ popd</xsl:text>
       <xsl:when test="$want-stats">
         <xsl:if test="$first">
           <xsl:text>
+
 echo Time after make: ${SECONDS} >> $INFOLOG
 echo Size after make: $(sudo du -skx --exclude home /) >> $INFOLOG
 echo Time before test: ${SECONDS} >> $INFOLOG
@@ -694,7 +701,8 @@ echo Time before test: ${SECONDS} >> $INFOLOG
         </xsl:if>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:text>#</xsl:text>
+        <xsl:text>
+#</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
     <xsl:choose>
@@ -713,19 +721,27 @@ echo Time before test: ${SECONDS} >> $INFOLOG
     <xsl:if test="$want-stats">
       <xsl:text> &gt;&gt; $TESTLOG 2&gt;&amp;1</xsl:text>
     </xsl:if>
-    <xsl:text> || true&#xA;</xsl:text>
+    <xsl:text> || true</xsl:text>
     <xsl:if test="$want-stats">
         <xsl:text>
+
 echo Time after test: ${SECONDS} >> $INFOLOG
 echo Size after test: $(sudo du -skx --exclude home /) >> $INFOLOG
 echo Time before install: ${SECONDS} >> $INFOLOG
-
 </xsl:text>
         </xsl:if>
   </xsl:template>
 
   <xsl:template match="userinput">
+    <xsl:text>
+</xsl:text>
     <xsl:apply-templates/>
+  </xsl:template>
+
+  <xsl:template match="userinput" mode="root">
+    <xsl:text>
+</xsl:text>
+    <xsl:apply-templates mode="root"/>
   </xsl:template>
 
   <xsl:template match="text()">
@@ -850,6 +866,7 @@ echo Time before install: ${SECONDS} >> $INFOLOG
        select="userinput|following-sibling::screen[@role='root']/userinput"
        mode="destdir"/>
     <xsl:text>
+
 echo Time after install: ${SECONDS} >> $INFOLOG
 echo Size after install: $(sudo du -skx --exclude home /) >> $INFOLOG
 </xsl:text>
@@ -872,7 +889,6 @@ echo Size after install: $(sudo du -skx --exclude home /) >> $INFOLOG
         </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
-    <xsl:text>&#xA;</xsl:text>
   </xsl:template>
 
   <xsl:template name="outputpkgdest">
@@ -893,7 +909,8 @@ echo Size after install: $(sudo du -skx --exclude home /) >> $INFOLOG
             </xsl:call-template>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:text>make DESTDIR=$PKG_DEST</xsl:text>
+            <xsl:text>
+make DESTDIR=$PKG_DEST</xsl:text>
               <xsl:call-template name="outputpkgdest">
                 <xsl:with-param
                     name="outputstring"
@@ -917,7 +934,8 @@ echo Size after install: $(sudo du -skx --exclude home /) >> $INFOLOG
             </xsl:call-template>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:text>DESTDIR=$PKG_DEST ninja</xsl:text>
+            <xsl:text>
+DESTDIR=$PKG_DEST ninja</xsl:text>
               <xsl:call-template name="outputpkgdest">
                 <xsl:with-param
                     name="outputstring"
@@ -983,7 +1001,8 @@ echo Size after install: $(sudo du -skx --exclude home /) >> $INFOLOG
                       contains($instruction-before,'pgrep -l')">
           <xsl:text> &amp;&amp;</xsl:text>
         </xsl:if>
-        <xsl:text>&#xA;</xsl:text>
+        <xsl:text>
+</xsl:text>
         <xsl:call-template name="remove-ampersand">
           <xsl:with-param name="out-string"
                           select="substring-after($out-string,

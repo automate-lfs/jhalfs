@@ -142,8 +142,6 @@ List of preceding siblings for "</xsl:text>
           <xsl:call-template name="end-root"/>
         </xsl:if>
         <xsl:apply-templates/>
-        <xsl:text>
-</xsl:text>
       </xsl:when>
 
       <xsl:when test="$my-nature='config'">
@@ -154,8 +152,6 @@ List of preceding siblings for "</xsl:text>
           <xsl:call-template name="end-install"/>
         </xsl:if>
         <xsl:apply-templates mode="root"/>
-        <xsl:text>
-</xsl:text>
         <xsl:if test="$follow-nature='none'">
           <xsl:call-template name="end-root"/>
         </xsl:if>
@@ -178,8 +174,6 @@ List of preceding siblings for "</xsl:text>
           <xsl:call-template name="begin-install"/>
         </xsl:if>
         <xsl:apply-templates mode="install"/>
-        <xsl:text>
-</xsl:text>
         <xsl:if test="$follow-nature='none'">
           <xsl:call-template name="end-install"/>
           <xsl:call-template name="end-root"/>
@@ -191,27 +185,27 @@ List of preceding siblings for "</xsl:text>
 
   <xsl:template name="begin-root">
     <xsl:if test="$sudo='y'">
-      <xsl:text>sudo -E sh &lt;&lt; ROOT_EOF
-</xsl:text>
+      <xsl:text>
+sudo -E sh &lt;&lt; ROOT_EOF</xsl:text>
     </xsl:if>
   </xsl:template>
 
   <xsl:template name="begin-install">
     <xsl:if test="$wrap-install = 'y'">
-      <xsl:text>if [ -r "$JH_PACK_INSTALL" ]; then
+      <xsl:text>
+if [ -r "$JH_PACK_INSTALL" ]; then
   source $JH_PACK_INSTALL
   export -f wrapInstall
   export -f packInstall
 fi
-wrapInstall '
-</xsl:text>
+wrapInstall '</xsl:text>
     </xsl:if>
   </xsl:template>
 
   <xsl:template name="end-root">
     <xsl:if test="$sudo='y'">
-      <xsl:text>ROOT_EOF
-</xsl:text>
+      <xsl:text>
+ROOT_EOF</xsl:text>
     </xsl:if>
   </xsl:template>
 
@@ -222,13 +216,15 @@ wrapInstall '
       </xsl:call-template>
     </xsl:if>
     <xsl:if test="$wrap-install = 'y'">
-      <xsl:text>'&#xA;packInstall&#xA;</xsl:text>
+      <xsl:text>'&#xA;packInstall</xsl:text>
     </xsl:if>
   </xsl:template>
 
-  <xsl:template match="text()" mode="install">
+  <xsl:template match="userinput" mode="install">
+    <xsl:text>
+</xsl:text>
     <xsl:call-template name="output-install">
-      <xsl:with-param name="out-string" select="."/>
+      <xsl:with-param name="out-string" select="string()"/>
     </xsl:call-template>
   </xsl:template>
 
