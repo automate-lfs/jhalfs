@@ -1,22 +1,15 @@
-# From the Build Scripts Written By: Jim Gifford <lfs@jg555.com>
-# Modified By: Joe Ciccone <jciccone@linuxfromscratch.org
-# Additional changes: George Boudreau <georgeb@linuxfromscratch.org>
-#                     Manuel Canales Esparcia
-#                     Pierre Labastie
+export PATH := $(HOME)/.local/bin:$(PATH)
 
-CONFIG_CONFIG_IN = Config.in
-CONFIG = menu
+all: venv/jhalfs/bin/jhalfs
+	@. venv/jhalfs/bin/activate; jhalfs -r
 
-all: menuconfig
-	@$$(grep RUN_ME configuration 2>/dev/null | sed -e 's@RUN_ME=\"@@' -e 's@\"@@')
+venv/jhalfs/bin/jhalfs: venv/jhalfs
+	@. venv/jhalfs/bin/activate; pip install -e .
 
-menuconfig:
-	@cp -a configuration .configuration.old 2>/dev/null || true
-	@CONFIG_="" KCONFIG_CONFIG=configuration $(CONFIG)/menuconfig.py $(CONFIG_CONFIG_IN)
+venv/jhalfs: venv/virtualenv.stamp
+	@virtualenv -p python3 venv/jhalfs
 
-# Clean up
-
-clean:
-	rm -f configuration configuration.old error
-
-.PHONY: all menuconfig clean
+venv/virtualenv.stamp:
+	@install -d venv
+	@command -v virtualenv >/dev/null || pip3 install --user virtualenv
+	@touch venv/virtualenv.stamp
