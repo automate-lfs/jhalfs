@@ -22,8 +22,8 @@ rev = rev.strip().decode().replace('"', '')
 rev_date = subprocess.check_output(['git', 'show', '-s', '--format="%ci"'])
 rev_date = rev_date.strip().decode().replace('"', '')
 with open('jhalfs/git-version', 'w') as f:
-    f.write('Revision: {} Date: {}\n'.format(
-        version, rev, rev_date))
+    f.write('Revision: {}\nDate: {}\n'.format(
+        rev, rev_date))
 
 setup(
     name='jhalfs',
@@ -33,7 +33,7 @@ setup(
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com/automate-lfs/JHALFS',
+    url='https://github.com/automate-lfs/jhalfs',
 
     # Author details
     author=['the jhalfs team',
@@ -77,5 +77,5 @@ setup(
         'pkgmngt/*'
     ]},
     entry_points={'console_scripts': ['jhalfs=jhalfs:main']},
-    install_requires=['kconfiglib==10.*']
+    install_requires=['lxml>=4.9']
 )
